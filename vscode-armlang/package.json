@@ -1,0 +1,24 @@
+{
+    "name": "vscode-armlang",
+    "displayName": "vscode-armlang",
+    "description": "",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.42.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "armlang",
+            "aliases": ["ArmLang", "armlang"],
+            "extensions": [".arm"]
+        }],
+        "grammars": [{
+            "language": "armlang",
+            "scopeName": "source.armlang",
+            "path": "./armlang.grammar.json"
+        }]
+    }
+}
