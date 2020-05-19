@@ -1,6 +1,14 @@
+This repo tracks the design and implementation of the as-of-yet unnamed Azure Template Configuration Language (codename Bicep - an ARM pun!). Bicep aims to provide customers with an intuitive and easy-to-use declarative programming model for configuring resources on Azure.
 
-# Contributing
+## High Level Design Goals
+1. Code should be easy to understand at a glance and straightforward to learn.
+2. The language should provide a 'transparent abstraction' for the underlying platform.
+3. The language should feel familiar to imperative programmers, whilst making some of the declarative differences clear through syntax.
+4. Users should be given a lot of freedom to modularize their code if they desire. There should be no need for 'copy/paste'.
+5. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end. Users should have a high level of confidence that their code is 'valid' before deploying - think TypeScript rather than JavaScript.
+6. It should be easy to write unit tests and integration tests if desired.
 
+## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
