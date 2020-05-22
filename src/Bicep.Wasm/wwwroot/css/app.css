@@ -1,0 +1,33 @@
+﻿html, body {
+    height: 100vh;
+    border: 0;
+    margin: 0;
+}
+
+.code {
+    font: 1em monospace;
+    border: none;
+    background-color: transparent;
+    resize: none;
+    outline: none;
+    background: #eee;
+    color: #222;
+    padding: 0.25em 0.5em;
+    white-space: pre;
+}
+
+.container {
+    height: 100vh;
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+}
+
+.left-half {
+    grid-column: 1;
+    border-right: 1px solid #333;
+}
+
+.right-half {
+    grid-column: 2;
+}

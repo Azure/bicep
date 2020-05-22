@@ -10,7 +10,7 @@
 * Breaking out into a different language: would syntax like "resource javascript ..." be annoying to work with, or should in-lining a different language be simpler?
 * Print statement for debugging?
 * Rename input -> params for familiarity?
-* Should this be bidirectional (armlang -> JSON, JSON -> armlang)? Would make onboarding much easier for customers but may be tricky.
+* Should this be bidirectional (bicep -> JSON, JSON -> bicep)? Would make onboarding much easier for customers but may be tricky.
 
 * Examples of:
   * Modular templates
