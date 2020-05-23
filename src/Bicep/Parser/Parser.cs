@@ -6,6 +6,15 @@ using Bicep.Syntax;
 
 namespace Bicep.Parser
 {
+    class ExpectedTokenException : Exception
+    {
+        public ExpectedTokenException(string message)
+            : base(message)
+        {
+            
+        }
+    }
+
     public class Parser
     {
         private readonly TokenReader reader;
@@ -15,6 +24,13 @@ namespace Bicep.Parser
         {
             this.reader = new TokenReader(tokens);
         }
+
+        private void addError(string message, Token startToken, Token endToken)
+        {
+            this.errors.Add(new Error(message, TextSpan.Between(startToken, endToken)));
+        }
+
+        public IEnumerable<Error> GetErrors() => errors;
 
         public SyntaxBase Parse()
             => Program();
@@ -52,7 +68,7 @@ namespace Bicep.Parser
         }
 
         private SyntaxBase InputStatement()
-            => WithRecovery(() => {
+            => WithRecovery(TokenType.Semicolon, () => {
                 var keyword = reader.Prev();
                 var type = Identifier();
                 var identifier = Identifier();
@@ -62,7 +78,7 @@ namespace Bicep.Parser
             });
 
         private SyntaxBase OutputStatement()
-            => WithRecovery(() => {
+            => WithRecovery(TokenType.Semicolon, () => {
                 var keyword = reader.Prev();
                 var identifier = Identifier();
                 var colon = Expect(TokenType.Colon, "");
@@ -73,7 +89,7 @@ namespace Bicep.Parser
             });
 
         private SyntaxBase VariableStatement()
-            => WithRecovery(() => {
+            => WithRecovery(TokenType.Semicolon, () => {
                 var keyword = reader.Prev();
                 var identifier = Identifier();
                 var colon = Expect(TokenType.Colon, "");
@@ -84,7 +100,7 @@ namespace Bicep.Parser
             });
 
         private SyntaxBase ResourceStatement()
-            => WithRecovery(() => {
+            => WithRecovery(TokenType.Semicolon, () => {
                 var keyword = reader.Prev();
                 var provider = Identifier();
                 var type = String();
@@ -461,20 +477,36 @@ namespace Bicep.Parser
             return new ArraySyntax(openSquare, syntaxList, closeSquare);
         }
 
-        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc)
+        private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
             where TSyntax : SyntaxBase
         {
-            return syntaxFunc();
-            /* TODO recovery
+            var startPosition = reader.Position - 1;
             try
             {
                 return syntaxFunc();
             }
-            catch (Exception exception)
+            catch (ExpectedTokenException exception)
             {
-                
+                Synchronize(terminatingType);
+
+                var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
+                addError($"Parsing failed: {exception.Message}", skippedTokens.First(), skippedTokens.Last());
+
+                return new SkippedTokensTriviaSyntax(skippedTokens);
             }
-            */
+        }
+
+        private void Synchronize(TokenType expectedType)
+        {
+            while (!IsAtEnd())
+            {
+                if (Match(expectedType))
+                {
+                    return;
+                }
+
+                reader.Read();
+            }
         }
 
         private bool IsAtEnd()
@@ -490,7 +522,7 @@ namespace Bicep.Parser
                 return token;
             }
 
-            throw new Exception(message);
+            throw new ExpectedTokenException(message);
         }
 
         private bool Match(TokenType type)

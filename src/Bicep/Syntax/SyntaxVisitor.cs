@@ -46,5 +46,7 @@ namespace Bicep.Syntax
         public virtual void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax) { }
 
         public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax) { }
+
+        public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax) { }
     }
 }

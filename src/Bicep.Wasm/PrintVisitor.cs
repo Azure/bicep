@@ -167,18 +167,12 @@ namespace Bicep.Wasm
             VisitToken(syntax.Semicolon);
         }
 
-        /*
-                public override void VisitErrorSyntax(ErrorSyntax syntax) {
-            prevIndent := visitor.indent
-            visitor.indent = 0
-            fmt.Print("[ERR] ");
-            for _, token := range syntax.Tokens {
-                      VisitToken(token);
+        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        {
+            foreach (var token in syntax.Tokens)
+            {
+                VisitToken(token);
             }
-            fmt.Print("[/ERR]");
-            visitor.newLine();
-            visitor.indent = prevIndent
         }
-        */
     }
 }
