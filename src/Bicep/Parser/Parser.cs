@@ -8,12 +8,12 @@ namespace Bicep.Parser
 {
     public class Parser
     {
-        private readonly IReader<Token> reader;
+        private readonly TokenReader reader;
         private readonly IList<Error> errors = new List<Error>();
 
-        public Parser(IReader<Token> reader)
+        public Parser(IEnumerable<Token> tokens)
         {
-            this.reader = reader;
+            this.reader = new TokenReader(tokens);
         }
 
         public SyntaxBase Parse()

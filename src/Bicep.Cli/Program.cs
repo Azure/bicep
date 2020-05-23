@@ -13,8 +13,8 @@ namespace Bicep.Cli
             var lexer = new Lexer(new SlidingTextWindow(contents));
             lexer.Lex();
 
-            var tokenReader = new TokenReader(lexer.GetTokens());
-            var parser = new Parser.Parser(tokenReader);
+            var tokens = lexer.GetTokens();
+            var parser = new Parser.Parser(tokens);
 
             var program = parser.Parse();
 

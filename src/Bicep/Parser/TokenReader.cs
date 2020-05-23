@@ -1,12 +1,10 @@
 using Bicep.Parser;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Linq;
 
-namespace Bicep.Cli
+namespace Bicep
 {
-    class TokenReader : IReader<Token>
+    class TokenReader
     {
         private Token[] Tokens { get; }
 

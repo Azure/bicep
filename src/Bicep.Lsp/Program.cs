@@ -23,7 +23,7 @@ namespace Bicep.Lsp
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
-                    .WithHandler<TextDocumentHandler>());
+                    .WithHandler<BicepTextDocumentSyncHandler>());
 
             server.Document.PublishDiagnostics(new PublishDiagnosticsParams());
 

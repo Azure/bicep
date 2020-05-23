@@ -37,8 +37,8 @@
             var lexer = new Lexer(new SlidingTextWindow(value));
             lexer.Lex();
 
-            var tokenReader = new TokenReader(lexer.GetTokens());
-            var parser = new Parser(tokenReader);
+            var tokens = lexer.GetTokens();
+            var parser = new Parser(tokens);
 
             var program = parser.Parse();
 

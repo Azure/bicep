@@ -105,6 +105,11 @@ namespace Bicep.Parser
             var tokenText = textWindow.GetText();
             var tokenSpan = textWindow.GetSpan();
 
+            if (tokenType == TokenType.Unrecognized)
+            {
+                addError("Unrecognized token");
+            }
+
             textWindow.Reset();
             scanTrailingTrivia();
             var trailingTrivia = textWindow.GetText();
@@ -216,6 +221,7 @@ namespace Bicep.Parser
                     case 'r':
                     case 't':
                     case '\\':
+                    case '\'':
                     case '$':
                         break;
                     default:
