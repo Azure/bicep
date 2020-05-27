@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rid: [ 'win-x64', 'linux-x64', 'osx-x64' ]
+        # other rids: win-x64, win-x86, win-arm, win-arm64, linux-x64, linux-arm, linux-arm64, osx-x64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+
+    - name: Publish
+      run: dotnet publish --configuration Release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ matrix.rid }}
+        path: ./src/Bicep.Cli/bin/Release/netcoreapp3.1/${{ matrix.rid }}/publish/*

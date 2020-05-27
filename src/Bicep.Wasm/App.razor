@@ -1,0 +1,56 @@
+<div class="container">
+    <textarea class="left-half code" type="text" spellcheck="false" @bind="CurrentValue" @bind:event="oninput" />
+    <div class="right-half code">@CompiledText</div>
+</div>
+
+@code {
+    private static readonly string StartingTemplate = GetStartingTemplate();
+    private static readonly string StartingTemplateCompiled = Compile(StartingTemplate);
+
+    private string currentValue = StartingTemplate;
+
+    private string CurrentValue
+    {
+        get => currentValue;
+        set
+        {
+            CompiledText = Compile(value);
+            currentValue = value;
+        }
+    }
+
+    private string CompiledText { get; set; } = StartingTemplateCompiled;
+
+    private static string GetStartingTemplate()
+    {
+        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Bicep.Wasm.basic.arm"))
+        using (var reader = new StreamReader(stream))
+        {
+            return reader.ReadToEnd();
+        }
+    }
+
+    private static string Compile(string value)
+    {
+        try
+        {
+            var lexer = new Lexer(new SlidingTextWindow(value));
+            lexer.Lex();
+
+            var tokens = lexer.GetTokens();
+            var parser = new Parser(tokens);
+
+            var program = parser.Parse();
+
+            var stringBuilder = new StringBuilder();
+            var printer = new PrintVisitor(s => stringBuilder.Append(s));
+            printer.Visit(program);
+
+            return stringBuilder.ToString();
+        }
+        catch (Exception exception)
+        {
+            return exception.ToString();
+        }
+    }
+}
