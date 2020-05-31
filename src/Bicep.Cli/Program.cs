@@ -1,4 +1,4 @@
-﻿using Bicep.Parser;
+﻿using Bicep.Core.Parser;
 using System;
 using System.IO;
 using System.Text;
@@ -53,7 +53,7 @@ namespace Bicep.Cli
             lexer.Lex();
 
             var tokens = lexer.GetTokens();
-            var parser = new Parser.Parser(tokens);
+            var parser = new Core.Parser.Parser(tokens);
 
             var program = parser.Parse();
 

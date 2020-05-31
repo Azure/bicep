@@ -1,7 +1,7 @@
 ﻿using System;
-using Bicep.Parser;
-using Bicep.Syntax;
-using Bicep.Visitors;
+using Bicep.Core.Parser;
+using Bicep.Core.Syntax;
+using Bicep.Core.Visitors;
 
 namespace Bicep.Wasm
 {
