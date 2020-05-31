@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Bicep.Cli": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    }
+  }
+}
