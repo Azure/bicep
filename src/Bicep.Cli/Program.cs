@@ -2,14 +2,53 @@
 using System;
 using System.IO;
 using System.Text;
+using Bicep.Cli.CommandLine;
 
 namespace Bicep.Cli
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            var contents = File.ReadAllText("../../basic.arm", Encoding.UTF8);
+            Arguments? arguments = ArgumentParser.Parse(args);
+            if (arguments == null)
+            {
+                ArgumentParser.PrintUsage();
+                return 0;
+            }
+
+            switch (arguments)
+            {
+                case BuildArguments buildArguments:
+                    Build(buildArguments);
+                    break;
+            }
+
+            // TODO: If we had logging and errors were logged, exit code should be 1
+            return 0;
+        }
+
+        private static void Build(BuildArguments arguments)
+        {
+            foreach (string file in arguments.Files)
+            {
+                BuildSingleFile(ResolvePath(file));
+            }
+        }
+
+        private static string ResolvePath(string path)
+        {
+            if (Path.IsPathFullyQualified(path))
+            {
+                return path;
+            }
+
+            return Path.Combine(Environment.CurrentDirectory, path);
+        }
+
+        private static void BuildSingleFile(string filePath)
+        {
+            var contents = File.ReadAllText(filePath, Encoding.UTF8);
             var lexer = new Lexer(new SlidingTextWindow(contents));
             lexer.Lex();
 

@@ -1,12 +1,12 @@
-using System;
 using System.Text;
 using FluentAssertions;
-using Xunit;
 using Bicep.Parser;
 using Bicep.Visitors;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Tests
 {
+    [TestClass]
     public class ParserTests
     {
         class PrintVisitor : TokenVisitor
@@ -92,7 +92,7 @@ resource mod 'publicIpAddress' pip2: {
 output nicResourceId: resourceId(myNic);
 ";
 
-        [Fact]
+        [TestMethod]
         public void RoundTripTest()
         {
             var lexer = new Lexer(new SlidingTextWindow(BasicTemplate));
