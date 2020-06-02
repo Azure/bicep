@@ -6,14 +6,9 @@ using OmniSharp.Extensions.LanguageServer.Server;
 
 namespace Bicep.LanguageServer
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
-        {
-            MainAsync(args).Wait();
-        }
-
-        static async Task MainAsync(string[] args)
+        public static async Task Main(string[] args)
         {
             var server = await OmniSharp.Extensions.LanguageServer.Server.LanguageServer.From(options =>
                 options
