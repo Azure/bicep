@@ -54,7 +54,7 @@ namespace Bicep.Core.Parser
             var nextType = reader.Read().Type;
             switch (nextType)
             {
-                case TokenType.InputKeyword:
+                case TokenType.ParameterKeyword:
                     return InputStatement();
                 case TokenType.OutputKeyword:
                     return OutputStatement();

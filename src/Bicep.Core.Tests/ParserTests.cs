@@ -25,8 +25,8 @@ namespace Bicep.Core.Tests
         }
 
         private string BasicTemplate = @"
-input string rgLocation;
-input string namePrefix;
+parameter string rgLocation;
+parameter string namePrefix;
 
 /*
 module publicIpAddress {
@@ -95,7 +95,7 @@ output nicResourceId: resourceId(myNic);
         [TestMethod]
         public void RoundTripTest()
         {
-            var lexer = new Lexer(new SlidingTextWindow(BasicTemplate));
+            var lexer = new Parser.Lexer(new SlidingTextWindow(BasicTemplate));
             lexer.Lex();
 
             var tokens = lexer.GetTokens();
