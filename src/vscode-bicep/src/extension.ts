@@ -19,8 +19,9 @@ import {
 import { Trace } from "vscode-jsonrpc";
 
 export function activate(context: ExtensionContext) {
-    // The server is implemented in node
-    let serverExe = "dotnet";
+    // The server is implemented in .net core
+    // TODO: Unify the path for VSIX package and local debugging
+    const serverExe = `${__dirname}/../../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.exe`;
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -29,16 +30,12 @@ export function activate(context: ExtensionContext) {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
             command: serverExe,
-            args: [
-                `${__dirname}/../../src/Bicep.Lsp/bin/Debug/netcoreapp3.1/Bicep.Lsp.dll`
-            ]
+            args: []
         },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
             command: serverExe,
-            args: [
-                `${__dirname}/../../src/Bicep.Lsp/bin/Debug/netcoreapp3.1/Bicep.Lsp.dll`
-            ]
+            args: []
         }
     };
 
