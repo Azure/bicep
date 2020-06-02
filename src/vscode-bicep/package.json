@@ -62,13 +62,15 @@
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "package": "node node_modules/vsce/out/vsce package --out ./"
     },
     "devDependencies": {
         "@types/mocha": "^7.0.2",
         "@types/node": "^13.11.1",
         "typescript": "^3.8.3",
-        "vscode": "^1.1.36"
+        "vscode": "^1.1.36",
+        "vsce": "^1.75.0"
     },
     "dependencies": {
         "vscode-languageclient": "^6.2.0-next.2"
