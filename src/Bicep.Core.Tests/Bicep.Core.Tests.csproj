@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="UnitSamples\Inputs\Parameters.arm" />
+    <None Remove="UnitSamples\Invalid\InvalidParameters.arm" />
+    <None Remove="UnitSamples\Valid\Parameters.arm" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="UnitSamples\Inputs\Parameters.arm" />
+    <EmbeddedResource Include="UnitSamples\Invalid\InvalidParameters.arm" />
+    <EmbeddedResource Include="UnitSamples\Valid\Parameters.arm" />
   </ItemGroup>
 
   <ItemGroup>
