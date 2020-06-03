@@ -44,7 +44,7 @@ namespace Bicep.Core.Visitors
         {
         }
 
-        public override void VisitInputDeclSyntax(InputDeclSyntax syntax)
+        public override void VisitInputDeclSyntax(ParameterDeclSyntax syntax)
         {
         }
 

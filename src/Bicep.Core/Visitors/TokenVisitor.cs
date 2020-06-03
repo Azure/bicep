@@ -54,12 +54,12 @@ namespace Bicep.Core.Visitors
             VisitToken(syntax.Identifier);
         }
 
-        public override void VisitInputDeclSyntax(InputDeclSyntax syntax)
+        public override void VisitInputDeclSyntax(ParameterDeclSyntax syntax)
         {
-            VisitToken(syntax.InputKeyword);
+            VisitToken(syntax.ParameterKeyword);
             Visit(syntax.Type);
-            Visit(syntax.Identifier);
-            VisitToken(syntax.Semicolon);
+            Visit(syntax.Name);
+            //VisitToken(syntax.Semicolon);
         }
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)

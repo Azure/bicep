@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax) { }
 
-        public virtual void VisitInputDeclSyntax(InputDeclSyntax syntax) { }
+        public virtual void VisitInputDeclSyntax(ParameterDeclSyntax syntax) { }
 
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax) { }
 

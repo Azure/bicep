@@ -9,9 +9,9 @@ namespace Bicep.Core.Visitors
         {
         }
 
-        public override void VisitInputDeclSyntax(InputDeclSyntax syntax)
+        public override void VisitInputDeclSyntax(ParameterDeclSyntax syntax)
         {
-            var identifierName = syntax.Identifier.GetName();
+            var identifierName = syntax.Name.GetName();
             if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
             {
                 AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");

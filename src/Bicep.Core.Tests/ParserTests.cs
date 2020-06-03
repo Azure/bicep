@@ -1,6 +1,7 @@
 using System.Text;
 using FluentAssertions;
 using Bicep.Core.Parser;
+using Bicep.Core.Tests.UnitSamples;
 using Bicep.Core.Visitors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -99,7 +100,7 @@ output nicResourceId: resourceId(myNic);
             lexer.Lex();
 
             var tokens = lexer.GetTokens();
-            var parser = new Core.Parser.Parser(tokens);
+            var parser = new Parser.Parser(tokens);
 
             var program = parser.Parse();
 
@@ -108,6 +109,19 @@ output nicResourceId: resourceId(myNic);
             printer.Visit(program);
 
             printer.GetOutput().Should().Be(BasicTemplate);
+        }
+
+        [DataTestMethod]
+        [UnitSamplesDataSource]
+        public void ParameterTest(string displayName, string contents)
+        {
+            var lexer = new Parser.Lexer(new SlidingTextWindow(contents));
+            lexer.Lex();
+
+            var tokens = lexer.GetTokens();
+            var parser = new Parser.Parser(tokens);
+            
+            var program = parser.Parse();
         }
     }
 }

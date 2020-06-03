@@ -5,6 +5,7 @@ namespace Bicep.Core.Parser
 {
     public class Lexer
     {
+        // TODO: Make immutable
         private static readonly IDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
         { 
             ["parameter"] = TokenType.ParameterKeyword,

@@ -6,7 +6,7 @@ using Bicep.Core.Tests.UnitSamples;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.Tests.Lexer
+namespace Bicep.Core.Tests
 {
     [TestClass]
     public class LexerTests
