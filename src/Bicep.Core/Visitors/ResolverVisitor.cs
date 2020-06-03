@@ -9,7 +9,7 @@ namespace Bicep.Core.Visitors
         {
         }
 
-        public override void VisitInputDeclSyntax(ParameterDeclSyntax syntax)
+        public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             var identifierName = syntax.Name.GetName();
             if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
@@ -29,28 +29,28 @@ namespace Bicep.Core.Visitors
             }
         }
 
-        public override void VisitResourceDeclSyntax(ResourceDeclSyntax syntax)
-        {
-            var identifierName = syntax.Identifier.GetName();
-            if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
-            {
-                AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
-                return;
-            }
+        //public override void VisitResourceDeclSyntax(ResourceDeclSyntax syntax)
+        //{
+        //    var identifierName = syntax.Identifier.GetName();
+        //    if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
+        //    {
+        //        AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
+        //        return;
+        //    }
 
-            CurrentScope.Declarations[identifierName] = syntax;
-        }
+        //    CurrentScope.Declarations[identifierName] = syntax;
+        //}
 
-        public override void VisitVarDeclSyntax(VarDeclSyntax syntax)
-        {
-            var identifierName = syntax.Identifier.GetName();
-            if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
-            {
-                AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
-                return;
-            }
+        //public override void VisitVarDeclSyntax(VarDeclSyntax syntax)
+        //{
+        //    var identifierName = syntax.Identifier.GetName();
+        //    if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
+        //    {
+        //        AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
+        //        return;
+        //    }
 
-            CurrentScope.Declarations[identifierName] = syntax;
-        }
+        //    CurrentScope.Declarations[identifierName] = syntax;
+        //}
     }
 }

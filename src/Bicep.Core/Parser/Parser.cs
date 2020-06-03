@@ -69,12 +69,12 @@ namespace Bicep.Core.Parser
 
             if (Check(TokenType.Colon) == false)
             {
-                return new ParameterDeclSyntax(keyword, name, type);
+                return new ParameterDeclarationSyntax(keyword, name, type);
             }
 
             var colon = reader.Read();
             var defaultValue = DefaultValueSyntax();
-            return new ParameterDeclSyntax(keyword, name, type, colon, defaultValue);
+            return new ParameterDeclarationSyntax(keyword, name, type, colon, defaultValue);
         }
 
         //private SyntaxBase OutputStatement()

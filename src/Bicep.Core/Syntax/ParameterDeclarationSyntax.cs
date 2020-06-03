@@ -2,16 +2,16 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterDeclSyntax : StatementSyntax
+    public class ParameterDeclarationSyntax : StatementSyntax
     {
-        public ParameterDeclSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type)//, Token semicolon)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type)//, Token semicolon)
         {
             this.ParameterKeyword = parameterKeyword;
             this.Name = name;
             this.Type = type;
         }
 
-        public ParameterDeclSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token colon, SyntaxBase defaultValue)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token colon, SyntaxBase defaultValue)
             : this(parameterKeyword, name, type)
         {
             this.Colon = colon;
@@ -29,9 +29,11 @@ namespace Bicep.Core.Syntax
         public SyntaxBase? DefaultValue { get; }
 
         public override void Accept(SyntaxVisitor visitor)
-            => visitor.VisitInputDeclSyntax(this);
+            => visitor.VisitParameterDeclarationSyntax(this);
 
         public override TextSpan Span
-            => TextSpan.Between(this.ParameterKeyword, this.Type); //Semicolon);
+            => this.DefaultValue == null
+                ? TextSpan.Between(this.ParameterKeyword, this.Type)
+                : TextSpan.Between(this.ParameterKeyword, this.DefaultValue);
     }
 }

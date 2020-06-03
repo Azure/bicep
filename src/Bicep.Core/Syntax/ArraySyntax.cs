@@ -4,25 +4,25 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArraySyntax : SyntaxBase
-    {
-        public ArraySyntax(Token openSquare, SeparatedSyntaxList items, Token closeSquare)
-        {
-            OpenSquare = openSquare;
-            Items = items;
-            CloseSquare = closeSquare;
-        }
+    //public class ArraySyntax : SyntaxBase
+    //{
+    //    public ArraySyntax(Token openSquare, SeparatedSyntaxList items, Token closeSquare)
+    //    {
+    //        OpenSquare = openSquare;
+    //        Items = items;
+    //        CloseSquare = closeSquare;
+    //    }
 
-        public Token OpenSquare { get; }
+    //    public Token OpenSquare { get; }
 
-        public SeparatedSyntaxList Items { get; }
+    //    public SeparatedSyntaxList Items { get; }
 
-        public Token CloseSquare { get; }
+    //    public Token CloseSquare { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
-            => visitor.VisitArraySyntax(this);
+    //    public override void Accept(SyntaxVisitor visitor)
+    //        => visitor.VisitArraySyntax(this);
 
-        public override TextSpan Span
-            => TextSpan.Between(OpenSquare, CloseSquare);
-    }
+    //    public override TextSpan Span
+    //        => TextSpan.Between(OpenSquare, CloseSquare);
+    //}
 }

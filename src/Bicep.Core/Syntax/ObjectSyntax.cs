@@ -4,25 +4,25 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectSyntax : SyntaxBase
-    {
-        public ObjectSyntax(Token openBrace, SeparatedSyntaxList properties, Token closeBrace)
-        {
-            OpenBrace = openBrace;
-            Properties = properties;
-            CloseBrace = closeBrace;
-        }
+    //public class ObjectSyntax : SyntaxBase
+    //{
+    //    public ObjectSyntax(Token openBrace, SeparatedSyntaxList properties, Token closeBrace)
+    //    {
+    //        OpenBrace = openBrace;
+    //        Properties = properties;
+    //        CloseBrace = closeBrace;
+    //    }
 
-        public Token OpenBrace { get; }
+    //    public Token OpenBrace { get; }
 
-        public SeparatedSyntaxList Properties { get; }
+    //    public SeparatedSyntaxList Properties { get; }
 
-        public Token CloseBrace { get; }
+    //    public Token CloseBrace { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
-            => visitor.VisitObjectSyntax(this);
+    //    public override void Accept(SyntaxVisitor visitor)
+    //        => visitor.VisitObjectSyntax(this);
 
-        public override TextSpan Span
-            => TextSpan.Between(OpenBrace, CloseBrace);
-    }
+    //    public override TextSpan Span
+    //        => TextSpan.Between(OpenBrace, CloseBrace);
+    //}
 }
