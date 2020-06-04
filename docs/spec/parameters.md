@@ -24,8 +24,8 @@ parameter mySuperSecretObject object {
   secure: true
 }
 ```
-## Enum Parameter
-String-based enumeration parameters can be declared via `allowedValues`.
+## Allowed Values
+You can constrain which values are allowed using the `allowedValues` modifier:
 ```
 parameter myEnum string {
   allowedValues: [
@@ -35,15 +35,11 @@ parameter myEnum string {
 }
 ```
 
+The constraint will be evaluated at deployment time of the compiled template.
+
 ## Default value
-Default values can be declared either using a simplified one-line syntax or the modifier syntax.
+Default values will be declared as follows:
 
-One-line syntax:
-```
-parameter myParam string = 'my default value`
-```
-
-Modifier syntax:
 ```
 parameter myParam string {
   defaultValue: 'my default value'
@@ -52,7 +48,9 @@ parameter myParam string {
 
 You may use expressions with the `defaultValue` modifier. (All other modifiers require a constant literal.) Here is an example of a location parameter whose value defaults to the location of the current resource group if the parameter is not specified during the deployment:
 ```
-parameter location string = resourceGroup().location
+parameter myParam string {
+  defaultValue: resourceGroup().location
+}
 ```
 
 ## String and array length constraint
