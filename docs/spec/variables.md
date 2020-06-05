@@ -5,16 +5,17 @@ Unlike many imperative languages, variables cannot be reassigned, and must be as
 
 Unlike [parameters](./parameters.md) or [outputs](./outputs.md) do not require declaring the type. The type is instead inferred from the value of the variable.
 
+## Examples
 The examples below cover variable declaration using hard-coded and calculated values.
 
-## String variable
+### String variable
 ```
 variable myString = 'my string value'
 
 variable location = resourceGroup().location
 ```
 
-## Boolean variables
+### Boolean variables
 ```
 variable iAmTrue = true
 variable iAmFalse = false
@@ -22,14 +23,14 @@ variable iAmFalse = false
 variable hasItems = length(myArray) >= 0
 ```
 
-## Numeric variables
+### Numeric variables
 ```
 variable meaningOfLifeTheUniVerseAndEverything = 42
 
 variable lengthOfMyArray = length(myArray)
 ```
 
-## Object variables
+### Object variables
 ```
 variable myObject = {
   first: 1
@@ -39,7 +40,7 @@ variable myObject = {
 variable keys = listKeys(myResource.id, myResource.apiVersion)
 ```
 
-## Array variables
+### Array variables
 ```
 variable myArray = [
   'item 1'
