@@ -1,9 +1,9 @@
 # Variables
 A `variable` declaration is used to assign a value to an identifier in the current scope. They can depend on resources, other variables or inputs. They can be assigned any valid value.
 
-Unlike many imperative languages, variables cannot be reassigned, and must be assigned when declared. A variable with the same cannot be declared more than once in the same scope.
+Unlike many imperative languages, variables cannot be reassigned, and must be assigned when declared. A variable cannot have the same name as a [parameter](./parameters.md), [resource](./resources.md), or another variable in the same scope.
 
-Unlike [parameters](./parameters.md) or [outputs](./outputs.md) do not require declaring the type. The type is instead inferred from the value of the variable.
+Unlike [parameters](./parameters.md) or [outputs](./outputs.md), variables do not require declaring the type. The type is inferred from the value of the variable.
 
 ## Examples
 The examples below cover variable declaration using hard-coded and calculated values.

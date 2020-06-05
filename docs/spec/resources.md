@@ -12,17 +12,10 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
 ## Declaration Components
 A `resource` declaration consists of the following components:
 - `resource` keyword
-- An optional identifier (`dnsZone` in the example) that can be used in [expressions](./expressions.md) to reference the resource. The identifier does not impact the name of the resource.
+- An identifier (`dnsZone` in the example) that can be used in [expressions](./expressions.md) to reference the resource. The identifier does not impact the name of the resource. A resource cannot have the same identifier as any [parameter](./parameters.md), [variable](./variables.md), or another resource in the same scope.
 - Resource type + API version (`Microsoft.Network/dnsZones` and `2018-05-01` in the example, respectively)
 - Resource body. DNS Zones do not require complicated configuration, so we are only setting the `name` and `location` properties in the example.
 
-If you do not need to reference the resource elsewhere, you can omit the identifier as follows:
-```
-resource 'Microsoft.Network/dnszones@2018-05-01': {
-  name: 'myZone'
-  location: 'global'
-}
-```
 
 ## Resource Type
 A resource type itself (`Microsoft.Network/dnszones@2018-05-01` in our example) consists of the following components:
@@ -41,7 +34,7 @@ Their fully qualified equivalents would be:
 
 A full `resource` declaration with a fully qualified resource type looks like the following:
 ```
-resource 'Microsoft.Network/dnszones@2018-05-01': {
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
   name: 'myZone'
   location: 'global'
 }
@@ -51,7 +44,7 @@ resource 'Microsoft.Network/dnszones@2018-05-01': {
 
 ### Storage Account
 ```
-resource `Microsoft.Storage/storageAccounts@2017-10-01`: {
+resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01`: {
   name: storageAccountName,
   location: resourceGroup().location,
   properties: {

@@ -11,6 +11,8 @@ parameter myObject object
 parameter myArray array
 ```
 
+A parameter cannot have the same name as a [variable](./variables.md), [resource](./resources.md), or another parameter in the same scope.
+
 ## Secure parameters
 If you are familiar with ARM template parameters, you will notice a conspicuous absense of `secureString` and `secureObject` types. In this language, these types are implemented as modifiers.
 
