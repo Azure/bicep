@@ -46,14 +46,17 @@ namespace Bicep.Core.Parser
             switch (nextType)
             {
                 case TokenType.ParameterKeyword:
-                    return ParameterStatement();
-                
+                    return this.ParameterStatement();
+
                 //case TokenType.OutputKeyword:
                 //    return OutputStatement();
                 //case TokenType.VariableKeyword:
                 //    return VariableStatement();
                 //case TokenType.ResourceKeyword:
                 //    return ResourceStatement();
+
+                case TokenType.NewLine:
+                    return this.NoOpStatement();
             }
 
             // TODO: Update when adding other statement types
@@ -67,14 +70,23 @@ namespace Bicep.Core.Parser
             var name = Identifier();
             var type = Identifier();
 
-            if (Check(TokenType.Assignment) == false)
+            Token? assignment = null;
+            SyntaxBase? defaultValue = null;
+            if (Check(TokenType.Assignment))
             {
-                return new ParameterDeclarationSyntax(keyword, name, type);
+                assignment = reader.Read();
+                defaultValue = DefaultValueSyntax();
             }
 
-            var assignment = reader.Read();
-            var defaultValue = DefaultValueSyntax();
-            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue);
+            var newLine = Expect(TokenType.NewLine, "Expected end of line at this location.");
+
+            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
+        }
+
+        private SyntaxBase NoOpStatement()
+        {
+            var newLine = Expect(TokenType.NewLine, "Expected end of line at this location.");
+            return new NoOpDeclarationSyntax(newLine);
         }
 
         //private SyntaxBase OutputStatement()

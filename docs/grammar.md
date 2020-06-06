@@ -2,11 +2,13 @@
 The following is the active pseudo-grammar of the bicep language.
 ```
 program -> statement* EOF 
-statement -> parameterStmt 
+statement -> parameterStmt | NL
 
-parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ("=" simpleValue )?
+parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ("=" value )? NL
 
-simpleValue -> NUMBER | STRING | "true" | "false"
+value -> NUMBER | STRING | "true" | "false"
+
+NL -> "\n" | "\r\n" | "\r"
 ```
 
 Ignore everything below

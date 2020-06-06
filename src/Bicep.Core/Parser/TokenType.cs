@@ -42,6 +42,7 @@ namespace Bicep.Core.Parser
         TrueKeyword,
         FalseKeyword,
         NullKeyword,
+        NewLine,
         EndOfFile,
     }
 }

@@ -65,10 +65,17 @@ namespace Bicep.Core.Visitors
                 VisitToken(syntax.Assignment);
             }
 
-            if (syntax.DefaultValue != null)
+            if (syntax.Value != null)
             {
-                Visit(syntax.DefaultValue);
+                Visit(syntax.Value);
             }
+
+            VisitToken(syntax.NewLine);
+        }
+
+        public override void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
+        {
+            VisitToken(syntax.NewLine);
         }
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)

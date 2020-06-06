@@ -9,10 +9,10 @@ namespace Bicep.Core.Parser
         private static readonly IDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
         { 
             ["parameter"] = TokenType.ParameterKeyword,
-            ["output"] = TokenType.OutputKeyword,
-            ["variable"] = TokenType.VariableKeyword,
-            ["resource"] = TokenType.ResourceKeyword,
-            ["module"] = TokenType.ModuleKeyword,
+            //["output"] = TokenType.OutputKeyword,
+            //["variable"] = TokenType.VariableKeyword,
+            //["resource"] = TokenType.ResourceKeyword,
+            //["module"] = TokenType.ModuleKeyword,
             ["true"] = TokenType.TrueKeyword,
             ["false"] = TokenType.FalseKeyword,
         };
@@ -51,12 +51,8 @@ namespace Bicep.Core.Parser
 
         private void ScanTrailingTrivia()
         {
-            ScanWhitespace(true);
-            if (textWindow.Peek() == '\n') {
-                textWindow.Advance();
-                return;
-            }
-
+            ScanWhitespace();
+            
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
                 ScanSingleLineComment();
@@ -76,7 +72,7 @@ namespace Bicep.Core.Parser
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    ScanWhitespace(false);
+                    ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
@@ -117,7 +113,7 @@ namespace Bicep.Core.Parser
             this.tokens.Add(token);
         }
 
-        private void ScanWhitespace(bool exitOnNewLine)
+        private void ScanWhitespace()
         {
             while (!textWindow.IsAtEnd())
             {
@@ -126,13 +122,6 @@ namespace Bicep.Core.Parser
                 {
                     case ' ':
                     case '\t':
-                    case '\r':
-                        textWindow.Advance();
-                        break;
-                    case '\n':
-                        if (exitOnNewLine) {
-                            return;
-                        }
                         textWindow.Advance();
                         break;
                     default:
@@ -397,6 +386,19 @@ namespace Bicep.Core.Parser
                 case '\'':
                     ScanString();
                     return TokenType.String;
+                case '\n':
+                    return TokenType.NewLine;
+                case '\r':
+                    if (!textWindow.IsAtEnd())
+                    {
+                        switch (textWindow.Peek())
+                        {
+                            case '\n':
+                                textWindow.Advance();
+                                return TokenType.NewLine;
+                        }
+                    }
+                    return TokenType.NewLine;
                 default:
                     if (IsDigit(nextChar))
                     {
@@ -423,6 +425,6 @@ namespace Bicep.Core.Parser
             => c >= '0' && c <= '9';
 
         private static bool IsWhiteSpace(char c)
-            => c == ' ' || c == '\t' || c == '\r' || c =='\n';
+            => c == ' ' || c == '\t';
     }
 }

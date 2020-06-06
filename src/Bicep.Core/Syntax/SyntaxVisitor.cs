@@ -11,6 +11,8 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) { }
 
+        public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax) { }
+
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax) { }
 
         //public virtual void VisitGroupingSyntax(GroupingSyntax syntax) { }
