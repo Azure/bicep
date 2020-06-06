@@ -165,7 +165,7 @@ namespace Bicep.LanguageServer
 
         private static Position GetPosition(IReadOnlyList<int> newlines, int position)
         {
-            var prevIndex = 0;
+            var prevIndex = -1;
             for (var i = 0; i < newlines.Count; i++)
             {
                 if (newlines[i] > position)
@@ -176,7 +176,9 @@ namespace Bicep.LanguageServer
                 prevIndex = i;
             }
 
-            return new Position(prevIndex + 1, position - newlines[prevIndex]);
+            return prevIndex >= 0
+                ? new Position(prevIndex + 1, position - newlines[prevIndex])
+                : new Position(0, position);
         }
     }
 }
