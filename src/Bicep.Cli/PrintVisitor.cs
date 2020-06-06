@@ -1,11 +1,10 @@
 using System;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
-using Bicep.Core.Visitors;
 
 namespace Bicep.Cli
 {
-    class PrintVisitor : TokenVisitor
+    class PrintVisitor : SyntaxVisitor
     {
         private readonly Action<string> printFunc;
         private readonly bool printDelimiters;
@@ -16,7 +15,7 @@ namespace Bicep.Cli
             this.printDelimiters = printDelimiters;
         }
 
-        protected override void VisitToken(Token token)
+        public override void VisitToken(Token token)
         {
             if (printDelimiters)
             {

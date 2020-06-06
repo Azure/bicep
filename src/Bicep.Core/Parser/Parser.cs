@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -9,19 +8,11 @@ namespace Bicep.Core.Parser
     public class Parser
     {
         private readonly TokenReader reader;
-        private readonly IList<Error> errors = new List<Error>();
-
+        
         public Parser(IEnumerable<Token> tokens)
         {
             this.reader = new TokenReader(tokens);
         }
-
-        private void AddError(string message, Token startToken, Token endToken)
-        {
-            this.errors.Add(new Error(message, TextSpan.Between(startToken, endToken)));
-        }
-
-        public IEnumerable<Error> GetErrors() => errors;
 
         public SyntaxBase Parse()
             => Program();
@@ -44,8 +35,8 @@ namespace Bicep.Core.Parser
         {
             return this.WithRecovery(TokenType.NewLine, () =>
             {
-                var nextType = reader.Peek().Type;
-                switch (nextType)
+                var current = reader.Peek();
+                switch (current.Type)
                 {
                     case TokenType.ParameterKeyword:
                         return this.ParameterStatement();
@@ -62,7 +53,7 @@ namespace Bicep.Core.Parser
                 }
 
                 // TODO: Update when adding other statement types
-                throw new ExpectedTokenException("Unsupported statement type. Only parameter statements are allowed here.");
+                throw new ExpectedTokenException("Unsupported statement type. Only parameter statements are allowed here.", current);
             });
         }
 
@@ -369,14 +360,15 @@ namespace Bicep.Core.Parser
                 return new NumericLiteralSyntax(literal, value);
             }
 
+            // TODO: Should probably be moved to type checking
             // integer is invalid (too long to fit in an int32)
-            throw new ExpectedTokenException("Expected a valid 32-bit signed integer.");
+            throw new ExpectedTokenException("Expected a valid 32-bit signed integer.", literal);
         }
 
         private SyntaxBase DefaultValueSyntax()
         {
-            var nextType = reader.Peek().Type;
-            switch (nextType)
+            var current = reader.Peek();
+            switch (current.Type)
             {
                 case TokenType.TrueKeyword:
                     return new BooleanLiteralSyntax(reader.Read(), true);
@@ -391,7 +383,7 @@ namespace Bicep.Core.Parser
                     return new StringSyntax(reader.Read());
 
                 default:
-                    throw new ExpectedTokenException("Default values only support boolean literals, integer literals and strings.");
+                    throw new ExpectedTokenException("Default values only support boolean literals, integer literals and strings.", current);
             }
         }
 
@@ -540,9 +532,7 @@ namespace Bicep.Core.Parser
                 Synchronize(terminatingType);
 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
-                AddError($"Parsing failed: {exception.Message}", skippedTokens.First(), skippedTokens.Last());
-
-                return new SkippedTokensTriviaSyntax(skippedTokens);
+                return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
             }
         }
 
@@ -572,7 +562,7 @@ namespace Bicep.Core.Parser
                 return token;
             }
 
-            throw new ExpectedTokenException(message);
+            throw new ExpectedTokenException(message, token);
         }
 
         private bool Match(TokenType type)

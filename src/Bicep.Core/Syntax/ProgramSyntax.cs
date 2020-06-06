@@ -8,7 +8,7 @@ namespace Bicep.Core.Syntax
     {
         public ProgramSyntax(IEnumerable<SyntaxBase> statements, Token endOfFile)
         {
-            Statements = statements.ToList();
+            Statements = statements.ToList().AsReadOnly();
             EndOfFile = endOfFile;
         }
 

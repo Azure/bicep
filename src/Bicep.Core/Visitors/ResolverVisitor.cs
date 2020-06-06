@@ -2,7 +2,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    class ResolverVisitor : ErrorVisitor
+    public class ResolverVisitor : ErrorVisitor
     {
         public ResolverVisitor(Scope globalScope)
             : base(globalScope)
@@ -19,14 +19,6 @@ namespace Bicep.Core.Visitors
             }
 
             CurrentScope.Declarations[identifierName] = syntax;
-        }
-
-        public override void VisitProgramSyntax(ProgramSyntax syntax)
-        {
-            foreach (var statement in syntax.Statements)
-            {
-                Visit(statement);
-            }
         }
 
         //public override void VisitResourceDeclSyntax(ResourceDeclSyntax syntax)

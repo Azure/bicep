@@ -2,7 +2,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    class CheckVisitor : ErrorVisitor
+    public class CheckVisitor : ErrorVisitor
     {
         public CheckVisitor(Scope globalScope)
             : base(globalScope)
@@ -44,10 +44,6 @@ namespace Bicep.Core.Visitors
         {
         }
 
-        public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
-        {
-        }
-
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
         }
@@ -70,14 +66,6 @@ namespace Bicep.Core.Visitors
         //{
         //    Visit(syntax.Expression);
         //}
-
-        public override void VisitProgramSyntax(ProgramSyntax syntax)
-        {
-            foreach (var statement in syntax.Statements)
-            {
-                Visit(statement);
-            }
-        }
 
         //public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         //{

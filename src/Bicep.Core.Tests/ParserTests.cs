@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
 using Bicep.Core.Parser;
@@ -33,6 +34,12 @@ namespace Bicep.Core.Tests
             var parser = new Parser.Parser(tokens);
 
             var program = parser.Parse();
+
+            var errors = new List<Error>();
+            var collector = new ParseErrorCollector(errors);
+
+            collector.Visit(program);
+
             return program;
         }
     }

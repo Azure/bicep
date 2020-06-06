@@ -1,3 +1,5 @@
+using Bicep.Core.Parser;
+
 namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxVisitor
@@ -7,48 +9,75 @@ namespace Bicep.Core.Syntax
             node.Accept(this);
         }
 
-        //public virtual void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax) { }
+        public virtual void VisitToken(Token token)
+        {
+        }
 
-        public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) { }
+        public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
+        {
+            VisitToken(syntax.ParameterKeyword);
+            Visit(syntax.Name);
+            Visit(syntax.Type);
 
-        public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax) { }
+            if (syntax.Assignment != null)
+            {
+                VisitToken(syntax.Assignment);
+            }
 
-        public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax) { }
+            if (syntax.Value != null)
+            {
+                Visit(syntax.Value);
+            }
 
-        //public virtual void VisitGroupingSyntax(GroupingSyntax syntax) { }
+            VisitToken(syntax.NewLine);
+        }
 
-        //public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax) { }
+        public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
+        {
+            VisitToken(syntax.NewLine);
+        }
 
-        public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax) { }
+        public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
+        {
+            VisitToken(syntax.Identifier);
+        }
 
-        //public virtual void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax) { }
+        public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
+        {
+            VisitToken(syntax.Literal);
+        }
 
-        //public virtual void VisitArraySyntax(ArraySyntax syntax) { }
+        public virtual void VisitStringSyntax(StringSyntax syntax)
+        {
+            VisitToken(syntax.StringToken);
+        }
 
-        //public virtual void VisitArrayAccessSyntax(ArrayAccessSyntax syntax) { }
+        public virtual void VisitProgramSyntax(ProgramSyntax syntax)
+        {
+            foreach (var statement in syntax.Statements)
+            {
+                Visit(statement);
+            }
 
-        //public virtual void VisitVarDeclSyntax(VarDeclSyntax syntax) { }
+            VisitToken(syntax.EndOfFile);
+        }
 
-        public virtual void VisitStringSyntax(StringSyntax syntax) { }
+        public virtual void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
+        {
+            VisitToken(syntax.Literal);
+        }
 
-        //public virtual void VisitResourceDeclSyntax(ResourceDeclSyntax syntax) { }
+        public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
+        {
+            VisitToken(syntax.Literal);
+        }
 
-        //public virtual void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax) { }
-
-        public virtual void VisitProgramSyntax(ProgramSyntax syntax) { }
-
-        //public virtual void VisitOutputDeclSyntax(OutputDeclSyntax syntax) { }
-
-        //public virtual void VisitObjectSyntax(ObjectSyntax syntax) { }
-
-        //public virtual void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) { }
-
-        public virtual void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax) { }
-
-        //public virtual void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax) { }
-
-        public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax) { }
-
-        public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax) { }
+        public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        {
+            foreach (var token in syntax.Tokens)
+            {
+                VisitToken(token);
+            }
+        }
     }
 }

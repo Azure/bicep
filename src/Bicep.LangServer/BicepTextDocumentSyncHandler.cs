@@ -97,19 +97,20 @@ namespace Bicep.LanguageServer
                 var parser = new Core.Parser.Parser(tokens);
                 var program = parser.Parse();
                 
-                foreach (var error in parser.GetErrors())
-                {
-                    diagnostics.Add(new Diagnostic
-                    {
-                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
-                        {
-                            Start = GetPosition(newLinePositions, error.Span.Position),
-                            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
-                        },
-                        Severity = DiagnosticSeverity.Error,
-                        Message = error.Message,
-                    });
-                }
+                
+                //foreach (var error in parser.GetErrors())
+                //{
+                //    diagnostics.Add(new Diagnostic
+                //    {
+                //        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
+                //        {
+                //            Start = GetPosition(newLinePositions, error.Span.Position),
+                //            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                //        },
+                //        Severity = DiagnosticSeverity.Error,
+                //        Message = error.Message,
+                //    });
+                //}
             }
             catch (Exception exception)
             {
