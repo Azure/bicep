@@ -42,30 +42,32 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Statement()
         {
-            var nextType = reader.Peek().Type;
-            switch (nextType)
+            return this.WithRecovery(TokenType.NewLine, () =>
             {
-                case TokenType.ParameterKeyword:
-                    return this.ParameterStatement();
+                var nextType = reader.Peek().Type;
+                switch (nextType)
+                {
+                    case TokenType.ParameterKeyword:
+                        return this.ParameterStatement();
 
-                //case TokenType.OutputKeyword:
-                //    return OutputStatement();
-                //case TokenType.VariableKeyword:
-                //    return VariableStatement();
-                //case TokenType.ResourceKeyword:
-                //    return ResourceStatement();
+                    //case TokenType.OutputKeyword:
+                    //    return OutputStatement();
+                    //case TokenType.VariableKeyword:
+                    //    return VariableStatement();
+                    //case TokenType.ResourceKeyword:
+                    //    return ResourceStatement();
 
-                case TokenType.NewLine:
-                    return this.NoOpStatement();
-            }
+                    case TokenType.NewLine:
+                        return this.NoOpStatement();
+                }
 
-            // TODO: Update when adding other statement types
-            throw new ExpectedTokenException("Unsupported statement type. Only parameter statements are allowed here.");
+                // TODO: Update when adding other statement types
+                throw new ExpectedTokenException("Unsupported statement type. Only parameter statements are allowed here.");
+            });
         }
 
         private SyntaxBase ParameterStatement()
         {
-            // TODO: Add recovery
             var keyword = Expect(TokenType.ParameterKeyword, "Expected parameter keyword at this location.");
             var name = Identifier();
             var type = Identifier();
@@ -528,7 +530,7 @@ namespace Bicep.Core.Parser
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
             where TSyntax : SyntaxBase
         {
-            var startPosition = reader.Position - 1;
+            var startPosition = reader.Position;
             try
             {
                 return syntaxFunc();
