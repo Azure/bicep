@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
+using Bicep.Core.Visitors;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -96,21 +95,24 @@ namespace Bicep.LanguageServer
 
                 var parser = new Core.Parser.Parser(tokens);
                 var program = parser.Parse();
-                
-                
-                //foreach (var error in parser.GetErrors())
-                //{
-                //    diagnostics.Add(new Diagnostic
-                //    {
-                //        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
-                //        {
-                //            Start = GetPosition(newLinePositions, error.Span.Position),
-                //            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
-                //        },
-                //        Severity = DiagnosticSeverity.Error,
-                //        Message = error.Message,
-                //    });
-                //}
+
+                var errors = new List<Error>();
+                var checker = new CheckVisitor(errors);
+                checker.Visit(program);
+
+                foreach (var error in errors)
+                {
+                    diagnostics.Add(new Diagnostic
+                    {
+                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
+                        {
+                            Start = GetPosition(newLinePositions, error.Span.Position),
+                            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                        },
+                        Severity = DiagnosticSeverity.Error,
+                        Message = error.Message,
+                    });
+                }
             }
             catch (Exception exception)
             {

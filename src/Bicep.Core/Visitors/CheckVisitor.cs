@@ -1,102 +1,21 @@
+using System.Collections.Generic;
+using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    public class CheckVisitor : ErrorVisitor
+    public class CheckVisitor : SyntaxVisitor
     {
-        public CheckVisitor(Scope globalScope)
-            : base(globalScope)
+        private readonly IList<Error> errors;
+
+        public CheckVisitor(IList<Error> errors)
         {
+            this.errors = errors;
         }
 
-        //public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
-        //{
-        //    Visit(syntax.Parent);
-        //    Visit(syntax.Property);
-        //}
-
-        //public override void VisitArraySyntax(ArraySyntax syntax)
-        //{
-        //    VisitSeparatedSyntaxList(syntax.Items);
-        //}
-
-        //public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
-        //{
-        //    Visit(syntax.LeftExpression);
-        //    Visit(syntax.RightExpression);
-        //}
-
-        public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
+        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
+            this.errors.Add(new Error(syntax.ErrorMessage, syntax.Span));
         }
-
-        //public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-        //{
-        //    Visit(syntax.Parent);
-        //}
-
-        //public override void VisitGroupingSyntax(GroupingSyntax syntax)
-        //{
-        //    Visit(syntax.Expression);
-        //}
-
-        public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
-        {
-        }
-
-        public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
-        {
-        }
-
-        public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
-        {
-        }
-
-        //public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-        //{
-        //    Visit(syntax.Expression);
-        //}
-
-        //public override void VisitObjectSyntax(ObjectSyntax syntax)
-        //{
-        //    VisitSeparatedSyntaxList(syntax.Properties);
-        //}
-
-        //public override void VisitOutputDeclSyntax(OutputDeclSyntax syntax)
-        //{
-        //    Visit(syntax.Expression);
-        //}
-
-        //public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-        //{
-        //    Visit(syntax.Parent);
-        //}
-
-        //public override void VisitResourceDeclSyntax(ResourceDeclSyntax syntax)
-        //{
-        //    Visit(syntax.Expression);
-        //}
-
-        public override void VisitStringSyntax(StringSyntax syntax)
-        {
-        }
-
-        //public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
-        //{
-        //    Visit(syntax.Expression);
-        //}
-
-        //public override void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax)
-        //{
-        //    foreach (var (element, token) in syntax.GetPairedElements())
-        //    {
-        //        Visit(element);
-        //    }
-        //}
-
-        // public override void VisitVarDeclSyntax(VarDeclSyntax syntax)
-        // {
-        //     Visit(syntax.Expression);
-        // }
     }
 }
