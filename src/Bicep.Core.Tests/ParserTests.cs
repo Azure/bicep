@@ -13,7 +13,25 @@ namespace Bicep.Core.Tests
     {
         [DataTestMethod]
         [UnitSamplesDataSource]
-        public void RoundTripTest(string displayName, string contents)
+        public void Files_ShouldRoundTripSuccessfully(string displayName, string contents)
+        {
+            RunRoundTripTest(contents);
+        }
+
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow("parameter")]
+        [DataRow("parameter ")]
+        [DataRow("parameter foo")]
+        [DataRow("parameter foo bar")]
+        [DataRow("parameter foo bar =")]
+        [DataRow("parameter foo bar = 1")]
+        public void Oneliners_ShouldRoundTripSuccessfully(string contents)
+        {
+            RunRoundTripTest(contents);
+        }
+
+        private static void RunRoundTripTest(string contents)
         {
             var program = Parse(contents);
 
@@ -24,6 +42,7 @@ namespace Bicep.Core.Tests
 
             buffer.ToString().Should().Be(contents);
         }
+
 
         private static SyntaxBase Parse(string contents)
         {
