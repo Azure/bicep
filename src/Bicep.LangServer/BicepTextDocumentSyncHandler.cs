@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer
         private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
             => new TextDocumentSaveRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForPattern("**/*.arm"),
+                DocumentSelector = DocumentSelector.ForLanguage("bicep"),
                 IncludeText = true,
             };
 
