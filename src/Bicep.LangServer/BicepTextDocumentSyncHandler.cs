@@ -148,13 +148,19 @@ namespace Bicep.LanguageServer
         {
             return Unit.Task;
         }
-
+        
         public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
         {
             if (configuration.TryGetScopedConfiguration(request.TextDocument.Uri, out var disposable))
             {
                 disposable.Dispose();
             }
+
+            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
+            {
+                Uri = request.TextDocument.Uri,
+                Diagnostics = new Container<Diagnostic>()
+            });
 
             return Unit.Task;
         }
