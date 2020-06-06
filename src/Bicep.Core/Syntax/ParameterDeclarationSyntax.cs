@@ -4,17 +4,17 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDeclarationSyntax : StatementSyntax
     {
-        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type)//, Token semicolon)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type)
         {
             this.ParameterKeyword = parameterKeyword;
             this.Name = name;
             this.Type = type;
         }
 
-        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token colon, SyntaxBase defaultValue)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token assignment, SyntaxBase defaultValue)
             : this(parameterKeyword, name, type)
         {
-            this.Colon = colon;
+            this.Assignment = assignment;
             this.DefaultValue = defaultValue;
         }
 
@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax Type { get; }
 
-        public Token? Colon { get; }
+        public Token? Assignment { get; }
 
         public SyntaxBase? DefaultValue { get; }
 

@@ -371,7 +371,7 @@ namespace Bicep.Core.Parser
                                 return TokenType.EqualsInsensitive;
                         }
                     }
-                    return TokenType.Unrecognized;
+                    return TokenType.Assignment;
                 case '&':
                     if (!textWindow.IsAtEnd())
                     {

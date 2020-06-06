@@ -14,6 +14,7 @@ namespace Bicep.Core.Parser
         Question,
         Colon,
         Semicolon,
+        Assignment,
         Plus,
         Minus,
         Asterisk,

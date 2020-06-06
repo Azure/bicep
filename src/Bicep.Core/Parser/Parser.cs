@@ -67,14 +67,14 @@ namespace Bicep.Core.Parser
             var name = Identifier();
             var type = Identifier();
 
-            if (Check(TokenType.Colon) == false)
+            if (Check(TokenType.Assignment) == false)
             {
                 return new ParameterDeclarationSyntax(keyword, name, type);
             }
 
-            var colon = reader.Read();
+            var assignment = reader.Read();
             var defaultValue = DefaultValueSyntax();
-            return new ParameterDeclarationSyntax(keyword, name, type, colon, defaultValue);
+            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue);
         }
 
         //private SyntaxBase OutputStatement()

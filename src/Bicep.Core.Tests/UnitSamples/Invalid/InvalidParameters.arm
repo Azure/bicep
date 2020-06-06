@@ -12,12 +12,14 @@ parameter myBool bool
 
 parameter missingType
 
-parameter myString2 string: 'string value'
+parameter myString2 string= 'string value'
 
-parameter wrongDefaultValue string: 42
+parameter wrongDefaultValue string= 42
 
-parameter myInt2 int: 42
-parameter noValueAfterColon int:   
+parameter myInt2 int= 42
+parameter noValueAfterColon int=   
 
-parameter myTruth bool: 'not a boolean'
-parameter myFalsehood bool: 'false'
+parameter myTruth bool= 'not a boolean'
+parameter myFalsehood bool= 'false'
+
+parameter wrongAssignmentToken string: 'hello'

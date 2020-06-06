@@ -60,9 +60,9 @@ namespace Bicep.Core.Visitors
             Visit(syntax.Name);
             Visit(syntax.Type);
 
-            if (syntax.Colon != null)
+            if (syntax.Assignment != null)
             {
-                VisitToken(syntax.Colon);
+                VisitToken(syntax.Assignment);
             }
 
             if (syntax.DefaultValue != null)
