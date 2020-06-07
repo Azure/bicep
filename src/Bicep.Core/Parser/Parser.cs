@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -46,45 +47,45 @@ namespace Bicep.Core.Parser
                 }
 
                 // TODO: Update when adding other statement types
-                throw new ExpectedTokenException("Unsupported statement type. Only parameter statements are allowed here.", current);
+                throw new ExpectedTokenException("This declaration type is not recognized. Specify a parameter declaration.", current);
             });
         }
 
         private SyntaxBase ParameterStatement()
         {
-            var keyword = Expect(TokenType.ParameterKeyword, "Expected parameter keyword at this location.");
-            var name = Identifier();
-            var type = Identifier();
+            var keyword = Expect(TokenType.ParameterKeyword, "Expected the parameter keyword at this location.");
+            var name = Identifier("Expected a parameter identifier at this location.");
+            var type = Identifier($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PropertyTypesString}");
 
             Token? assignment = null;
             SyntaxBase? defaultValue = null;
             if (Check(TokenType.Assignment))
             {
                 assignment = reader.Read();
-                defaultValue = DefaultValueSyntax();
+                defaultValue = Value();
             }
 
-            var newLine = Expect(TokenType.NewLine, "Expected end of line at this location.");
+            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
 
             return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
         }
 
         private SyntaxBase NoOpStatement()
         {
-            var newLine = Expect(TokenType.NewLine, "Expected end of line at this location.");
+            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
             return new NoOpDeclarationSyntax(newLine);
         }
 
-        private IdentifierSyntax Identifier()
+        private IdentifierSyntax Identifier(string message)
         {
-            var identifier = Expect(TokenType.Identifier, "Expected an identifier.");
+            var identifier = Expect(TokenType.Identifier, message);
 
             return new IdentifierSyntax(identifier);
         }
 
         private NumericLiteralSyntax NumericLiteral()
         {
-            var literal = Expect(TokenType.Number, "Expected a numeric literal.");
+            var literal = Expect(TokenType.Number, "Expected a numeric literal at this location.");
 
             if (int.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
             {
@@ -96,7 +97,7 @@ namespace Bicep.Core.Parser
             throw new ExpectedTokenException("Expected a valid 32-bit signed integer.", literal);
         }
 
-        private SyntaxBase DefaultValueSyntax()
+        private SyntaxBase Value()
         {
             var current = reader.Peek();
             switch (current.Type)
@@ -114,7 +115,7 @@ namespace Bicep.Core.Parser
                     return new StringSyntax(reader.Read());
 
                 default:
-                    throw new ExpectedTokenException("Default values only support boolean literals, integer literals and strings.", current);
+                    throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
             }
         }
         

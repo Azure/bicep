@@ -11,7 +11,7 @@ namespace Bicep.Core.Visitors
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            var identifierName = syntax.Name.GetName();
+            var identifierName = syntax.Name.IdentifierName;
             if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
             {
                 AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
@@ -20,29 +20,5 @@ namespace Bicep.Core.Visitors
 
             CurrentScope.Declarations[identifierName] = syntax;
         }
-
-        //public override void VisitResourceDeclSyntax(ResourceDeclSyntax syntax)
-        //{
-        //    var identifierName = syntax.Identifier.GetName();
-        //    if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
-        //    {
-        //        AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
-        //        return;
-        //    }
-
-        //    CurrentScope.Declarations[identifierName] = syntax;
-        //}
-
-        //public override void VisitVarDeclSyntax(VarDeclSyntax syntax)
-        //{
-        //    var identifierName = syntax.Identifier.GetName();
-        //    if (CurrentScope.Declarations.TryGetValue(identifierName, out var declaringSyntax))
-        //    {
-        //        AddError(syntax, $"Identifier '{identifierName}' has already been declared at {declaringSyntax.Span}");
-        //        return;
-        //    }
-
-        //    CurrentScope.Declarations[identifierName] = syntax;
-        //}
     }
 }

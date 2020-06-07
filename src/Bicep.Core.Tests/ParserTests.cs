@@ -4,6 +4,7 @@ using FluentAssertions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.Tests.UnitSamples;
+using Bicep.Core.Tests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Tests
@@ -33,7 +34,8 @@ namespace Bicep.Core.Tests
 
         private static void RunRoundTripTest(string contents)
         {
-            var program = Parse(contents);
+            var program = ParserHelper.Parse(contents);
+            program.Should().BeOfType<ProgramSyntax>();
 
             var buffer = new StringBuilder();
             var visitor = new PrintVisitor(buffer);
@@ -41,25 +43,6 @@ namespace Bicep.Core.Tests
             visitor.Visit(program);
 
             buffer.ToString().Should().Be(contents);
-        }
-
-
-        private static SyntaxBase Parse(string contents)
-        {
-            var lexer = new Parser.Lexer(new SlidingTextWindow(contents));
-            lexer.Lex();
-
-            var tokens = lexer.GetTokens();
-            var parser = new Parser.Parser(tokens);
-
-            var program = parser.Parse();
-
-            var errors = new List<Error>();
-            var collector = new ParseErrorCollector(errors);
-
-            collector.Visit(program);
-
-            return program;
         }
     }
 }

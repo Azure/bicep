@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 
         public Token Identifier { get; }
 
-        public string GetName() => Identifier.Text;
+        public string IdentifierName => Identifier.Text;
 
         public override void Accept(SyntaxVisitor visitor)
             => visitor.VisitIdentifierSyntax(this);

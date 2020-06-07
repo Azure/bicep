@@ -23,3 +23,6 @@ parameter myTruth bool= 'not a boolean'
 parameter myFalsehood bool= 'false'
 
 parameter wrongAssignmentToken string: 'hello'
+
+parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
+parameter wrongType fluffyBunny = 'what's up doc?'
