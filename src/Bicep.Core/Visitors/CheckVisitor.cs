@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
@@ -27,11 +28,13 @@ namespace Bicep.Core.Visitors
 
             Assert(syntax.ParameterKeyword.Type == TokenType.ParameterKeyword);
 
-            if (LanguageConstants.PropertyTypes.Contains(syntax.Type.IdentifierName) == false)
+            string parameterType = syntax.Type.IdentifierName;
+            bool parameterTypeValid = LanguageConstants.PropertyTypes.Contains(parameterType);
+            if (!parameterTypeValid)
             {
-                this.AddError($"The property type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type);
+                this.AddError($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type);
             }
-
+            
             if (syntax.Assignment == null)
             {
                 Assert(syntax.Value == null);
@@ -41,7 +44,11 @@ namespace Bicep.Core.Visitors
                 Assert(syntax.Value != null);
 
                 // check value type matches type
-                
+                // TODO: Type equality should be done by the semantic model
+                if (parameterTypeValid && string.Equals(parameterType, GetTypeInfo(syntax.Value!), StringComparison.Ordinal) == false)
+                {
+                    this.AddError("The parameter type does not match the type of the default value.", syntax.Value!);
+                }
             }
 
             Assert(syntax.NewLine.Type == TokenType.NewLine);
@@ -75,6 +82,25 @@ namespace Bicep.Core.Visitors
             {
                 // we have a code defect - use the exception stack to debug
                 throw new BicepInternalException("Internal parser error.");
+            }
+        }
+
+        private static string? GetTypeInfo(SyntaxBase syntax)
+        {
+            // TODO: This needs to be handled by the semantic model and return a better type
+            switch (syntax)
+            {
+                case BooleanLiteralSyntax _:
+                    return LanguageConstants.BooleanType;
+
+                case NumericLiteralSyntax _:
+                    return LanguageConstants.IntegerType;
+
+                case StringSyntax _:
+                    return LanguageConstants.StringType;
+
+                default:
+                    return null;
             }
         }
     }
