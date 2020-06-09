@@ -7,18 +7,20 @@ namespace Bicep.Core.Syntax
     {
         public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token? assignment, SyntaxBase? value, Token newLine)
         {
-            this.ParameterKeyword = parameterKeyword;
-            this.Name = name;
-            this.Type = type;
-            
-            if((assignment == null) != (value == null))
+            AssertTokenType(parameterKeyword, nameof(parameterKeyword), TokenType.ParameterKeyword);
+            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
+
+            if ((assignment == null) != (value == null))
             {
                 throw new ArgumentException($"Both {nameof(assignment)} and {nameof(value)} must be null or they both must be non-null.");
             }
 
+            this.ParameterKeyword = parameterKeyword;
+            this.Name = name;
+            this.Type = type;
             this.Assignment = assignment;
             this.Value = value;
-
             this.NewLine = newLine;
         }
 

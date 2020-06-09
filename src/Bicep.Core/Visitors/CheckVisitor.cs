@@ -26,8 +26,6 @@ namespace Bicep.Core.Visitors
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            Assert(syntax.ParameterKeyword.Type == TokenType.ParameterKeyword);
-
             string parameterType = syntax.Type.IdentifierName;
             bool parameterTypeValid = LanguageConstants.PropertyTypes.Contains(parameterType);
             if (!parameterTypeValid)
@@ -35,30 +33,19 @@ namespace Bicep.Core.Visitors
                 this.AddError($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type);
             }
             
-            if (syntax.Assignment == null)
+            if(syntax.Value != null)
             {
-                Assert(syntax.Value == null);
-            }
-            else
-            {
-                Assert(syntax.Value != null);
-
                 // check value type matches type
                 // TODO: Type equality should be done by the semantic model
-                if (parameterTypeValid && string.Equals(parameterType, GetTypeInfo(syntax.Value!), StringComparison.Ordinal) == false)
+                if (parameterTypeValid && string.Equals(parameterType, GetTypeInfo(syntax.Value), StringComparison.Ordinal) == false)
                 {
-                    this.AddError("The parameter type does not match the type of the default value.", syntax.Value!);
+                    this.AddError("The parameter type does not match the type of the default value.", syntax.Value);
                 }
             }
-
-            Assert(syntax.NewLine.Type == TokenType.NewLine);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
-            Assert(syntax.Identifier.Type == TokenType.Identifier);
-            Assert(string.IsNullOrEmpty(syntax.IdentifierName) == false);
-
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
                 this.AddError($"The identifier exceeds the limit of {LanguageConstants.MaxIdentifierLength}. Reduce the length of the identifier.", syntax.Identifier);
@@ -70,19 +57,6 @@ namespace Bicep.Core.Visitors
         protected void AddError(string message, IPositionable positionable)
         {
             this.errors.Add(new Error(message, positionable.Span));
-        }
-
-        /// <summary>
-        /// Throws an exception if predicate is false. This is indended to guard against parser bugs.
-        /// </summary>
-        /// <param name="predicate">The predicate</param>
-        protected void Assert(bool predicate)
-        {
-            if (predicate == false)
-            {
-                // we have a code defect - use the exception stack to debug
-                throw new BicepInternalException("Internal parser error.");
-            }
         }
 
         private static string? GetTypeInfo(SyntaxBase syntax)

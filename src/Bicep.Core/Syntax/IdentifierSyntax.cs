@@ -6,6 +6,9 @@ namespace Bicep.Core.Syntax
     {
         public IdentifierSyntax(Token identifier)
         {
+            AssertTokenType(identifier, nameof(identifier), TokenType.Identifier);
+            Assert(string.IsNullOrEmpty(identifier.Text) == false, "Identifier must not be null or empty.");
+
             Identifier = identifier;
         }
 
