@@ -1,13 +1,11 @@
-using System.Collections.Generic;
 using System.Text;
-using FluentAssertions;
-using Bicep.Core.Parser;
+using Bicep.Core.IntegrationTests.UnitSamples;
+using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Syntax;
-using Bicep.Core.Tests.UnitSamples;
-using Bicep.Core.Tests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.Tests
+namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
     public class ParserTests
