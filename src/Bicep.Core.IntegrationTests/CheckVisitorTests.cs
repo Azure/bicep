@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using Bicep.Core.IntegrationTests.UnitSamples;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
-using Bicep.Core.Tests.UnitSamples;
 using Bicep.Core.Tests.Utils;
 using Bicep.Core.Visitors;
 using FluentAssertions;

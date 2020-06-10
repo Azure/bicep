@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Text;
+using Bicep.Core.IntegrationTests.UnitSamples;
 using FluentAssertions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
-using Bicep.Core.Tests.UnitSamples;
 using Bicep.Core.Tests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

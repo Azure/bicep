@@ -5,7 +5,7 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.Tests.UnitSamples
+namespace Bicep.Core.IntegrationTests.UnitSamples
 {
     public class UnitSamplesDataSource: Attribute, ITestDataSource
     {
