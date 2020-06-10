@@ -40,8 +40,10 @@ namespace Bicep.LangServer.UnitTests.Utils
         {
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 0, new Position(0, 0) };
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 5, new Position(0, 5) };
+            yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 11, new Position(0, 11) };
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 12, new Position(1, 0) };
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 34, new Position(1, 22) };
+            yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 44, new Position(1, 32) };
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 45, new Position(2, 0) };
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 99, new Position(2, 54) };
         }
