@@ -2,7 +2,7 @@ using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Tests
+namespace Bicep.Core.IntegrationTests
 {
     public class PrintVisitor : SyntaxVisitor
     {

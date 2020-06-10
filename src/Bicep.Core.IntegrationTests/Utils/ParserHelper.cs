@@ -2,7 +2,7 @@
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Tests.Utils
+namespace Bicep.Core.IntegrationTests.Utils
 {
     public static class ParserHelper
     {
