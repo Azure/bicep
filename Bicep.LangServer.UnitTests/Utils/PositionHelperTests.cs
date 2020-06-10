@@ -36,7 +36,6 @@ namespace Bicep.LangServer.UnitTests.Utils
             position.Should().Be(expectedPosition);
         }
 
-
         public static IEnumerable<object[]> GetData()
         {
             yield return new object[] { new List<int> { 0, 12, 45 }.AsReadOnly(), 0, new Position(0, 0) };
