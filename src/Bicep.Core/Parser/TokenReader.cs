@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,17 +10,19 @@ namespace Bicep.Core.Parser
 
         public TokenReader(IEnumerable<Token> tokens)
         {
-            Tokens = tokens.ToArray();
-            Position = 0;
+            this.Tokens = tokens.ToArray();
+            this.Position = 0;
         }
 
         public int Position { get; private set; }
 
-        public bool IsAtEnd() => Position >= Tokens.Length;
+        public int Count => this.Tokens.Length;
+
+        public bool IsAtEnd() => this.Position >= this.Tokens.Length;
 
         public Token Prev()
         {
-            return Tokens[Position - 1];
+            return this.Tokens[Position - 1];
         }
 
         public Token Peek()
@@ -30,13 +33,23 @@ namespace Bicep.Core.Parser
         public Token Read()
         {
             var output = Peek();
-            Position++;
+            this.Position++;
             return output;
+        }
+
+        public void StepBack()
+        {
+            if (this.Position == 0)
+            {
+                throw new InvalidOperationException("Reader is already at the beginning.");
+            }
+
+            this.Position -= 1;
         }
 
         public IEnumerable<Token> Slice(int start, int length)
         {
-            return Tokens.Skip(start).Take(length);
+            return this.Tokens.Skip(start).Take(length);
         }
     }
 }

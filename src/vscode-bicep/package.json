@@ -12,7 +12,7 @@
         "Other"
     ],
     "activationEvents": [
-        "onLanguage:plaintext"
+        "onLanguage:bicep"
     ],
     "main": "./out/extension",
     "enableProposedApi": true,

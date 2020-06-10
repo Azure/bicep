@@ -1,19 +1,18 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Bicep.Core.Parser
 {
     public class Lexer
     {
+        // TODO: Make immutable
         private static readonly IDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
         { 
-            ["input"] = TokenType.InputKeyword,
-            ["output"] = TokenType.OutputKeyword,
-            ["variable"] = TokenType.VariableKeyword,
-            ["resource"] = TokenType.ResourceKeyword,
-            ["module"] = TokenType.ModuleKeyword,
+            ["parameter"] = TokenType.ParameterKeyword,
+            //["output"] = TokenType.OutputKeyword,
+            //["variable"] = TokenType.VariableKeyword,
+            //["resource"] = TokenType.ResourceKeyword,
+            //["module"] = TokenType.ModuleKeyword,
             ["true"] = TokenType.TrueKeyword,
             ["false"] = TokenType.FalseKeyword,
         };
@@ -27,7 +26,7 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void addError(string message)
+        private void AddError(string message)
         {
             this.errors.Add(new Error(message, textWindow.GetSpan()));
         }
@@ -36,13 +35,13 @@ namespace Bicep.Core.Parser
         {
             while (!textWindow.IsAtEnd())
             {
-                lexToken();
+                LexToken();
             }
 
             // make sure we always include an end-of-line
             if (!tokens.Any() || tokens.Last().Type != TokenType.EndOfFile)
             {
-                lexToken();
+                LexToken();
             }
         }
 
@@ -50,42 +49,38 @@ namespace Bicep.Core.Parser
 
         public IEnumerable<Error> GetErrors() => errors;
 
-        private void scanTrailingTrivia()
+        private void ScanTrailingTrivia()
         {
-            scanWhitespace(true);
-            if (textWindow.Peek() == '\n') {
-                textWindow.Advance();
-                return;
-            }
-
+            ScanWhitespace();
+            
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
-                scanSingleLineComment();
+                ScanSingleLineComment();
                 return;
             }
 
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
             {
-                scanMultiLineComment();
+                ScanMultiLineComment();
                 return;
             }
         }
 
-        private void scanLeadingTrivia()
+        private void ScanLeadingTrivia()
         {
             while (true)
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    scanWhitespace(false);
+                    ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
-                    scanSingleLineComment();
+                    ScanSingleLineComment();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
-                    scanMultiLineComment();
+                    ScanMultiLineComment();
                 }
                 else
                 {
@@ -94,31 +89,31 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void lexToken()
+        private void LexToken()
         {
             textWindow.Reset();
-            scanLeadingTrivia();
+            ScanLeadingTrivia();
             var leadingTrivia = textWindow.GetText();
 
             textWindow.Reset();
-            var tokenType = scanToken();
+            var tokenType = ScanToken();
             var tokenText = textWindow.GetText();
             var tokenSpan = textWindow.GetSpan();
 
             if (tokenType == TokenType.Unrecognized)
             {
-                addError("Unrecognized token");
+                AddError("Unrecognized token");
             }
 
             textWindow.Reset();
-            scanTrailingTrivia();
+            ScanTrailingTrivia();
             var trailingTrivia = textWindow.GetText();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);
         }
 
-        private void scanWhitespace(bool exitOnNewLine)
+        private void ScanWhitespace()
         {
             while (!textWindow.IsAtEnd())
             {
@@ -127,13 +122,6 @@ namespace Bicep.Core.Parser
                 {
                     case ' ':
                     case '\t':
-                    case '\r':
-                        textWindow.Advance();
-                        break;
-                    case '\n':
-                        if (exitOnNewLine) {
-                            return;
-                        }
                         textWindow.Advance();
                         break;
                     default:
@@ -142,7 +130,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void scanSingleLineComment()
+        private void ScanSingleLineComment()
         {
             while (!textWindow.IsAtEnd())
             {
@@ -156,7 +144,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void scanMultiLineComment()
+        private void ScanMultiLineComment()
         {
             while (!textWindow.IsAtEnd())
             {
@@ -183,13 +171,13 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void scanString()
+        private void ScanString()
         {
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.addError("Unterminated string");
+                    this.AddError("Unterminated string");
                     return;
                 }
 
@@ -208,7 +196,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.addError("Unterminated string");
+                    this.AddError("Unterminated string");
                     return;
                 }
 
@@ -225,13 +213,13 @@ namespace Bicep.Core.Parser
                     case '$':
                         break;
                     default:
-                        this.addError("Unrecognized escape sequence");
+                        this.AddError("Unrecognized escape sequence");
                         break;
                 }
             }
         }
 
-        private void scanNumber()
+        private void ScanNumber()
         {
             while (true)
             {
@@ -249,7 +237,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private TokenType getIdentifierTokenType(int length)
+        private TokenType GetIdentifierTokenType(int length)
         {
             var identifier = textWindow.GetText();
 
@@ -260,19 +248,19 @@ namespace Bicep.Core.Parser
             return TokenType.Identifier;
         }
 
-        private TokenType scanIdentifier()
+        private TokenType ScanIdentifier()
         {
             var length = 1;
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    return getIdentifierTokenType(length);
+                    return GetIdentifierTokenType(length);
                 }
 
                 if (!IsAlphaNumeric(textWindow.Peek()))
                 {
-                    return getIdentifierTokenType(length);
+                    return GetIdentifierTokenType(length);
                 }
 
                 textWindow.Advance();
@@ -280,7 +268,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private TokenType scanToken()
+        private TokenType ScanToken()
         {
             if (textWindow.IsAtEnd())
             {
@@ -372,7 +360,7 @@ namespace Bicep.Core.Parser
                                 return TokenType.EqualsInsensitive;
                         }
                     }
-                    return TokenType.Unrecognized;
+                    return TokenType.Assignment;
                 case '&':
                     if (!textWindow.IsAtEnd())
                     {
@@ -396,18 +384,31 @@ namespace Bicep.Core.Parser
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    scanString();
+                    ScanString();
                     return TokenType.String;
+                case '\n':
+                    return TokenType.NewLine;
+                case '\r':
+                    if (!textWindow.IsAtEnd())
+                    {
+                        switch (textWindow.Peek())
+                        {
+                            case '\n':
+                                textWindow.Advance();
+                                return TokenType.NewLine;
+                        }
+                    }
+                    return TokenType.NewLine;
                 default:
                     if (IsDigit(nextChar))
                     {
-                        this.scanNumber();
+                        this.ScanNumber();
                         return TokenType.Number;
                     }
 
                     if (IsAlpha(nextChar))
                     {
-                        return this.scanIdentifier();
+                        return this.ScanIdentifier();
                     }
 
                     return TokenType.Unrecognized;
@@ -424,6 +425,6 @@ namespace Bicep.Core.Parser
             => c >= '0' && c <= '9';
 
         private static bool IsWhiteSpace(char c)
-            => c == ' ' || c == '\t' || c == '\r' || c =='\n';
+            => c == ' ' || c == '\t';
     }
 }

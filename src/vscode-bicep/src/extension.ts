@@ -44,7 +44,13 @@ export function activate(context: ExtensionContext) {
         // Register the server for plain text documents
         documentSelector: [
             {
-                pattern: "**/*.arm"
+                pattern: "**/*.arm",
+                language: "bicep",
+                scheme: "file"
+            },
+            {
+                language: "bicep",
+                scheme: "untitled"
             }
         ],
         progressOnInitialization: true,

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
+using Bicep.Core.Visitors;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -26,7 +25,7 @@ namespace Bicep.LanguageServer
         private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
             => new TextDocumentSaveRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForPattern("**/*.arm"),
+                DocumentSelector = DocumentSelector.ForLanguage("bicep"),
                 IncludeText = true,
             };
 
@@ -43,26 +42,57 @@ namespace Bicep.LanguageServer
             return new TextDocumentAttributes(uri, "bicep");
         }
 
-        private static Position GetPosition(IReadOnlyList<int> newlines, int position)
-        {
-            var prevIndex = 0;
-            for (var i = 0; i < newlines.Count; i++)
-            {
-                if (newlines[i] > position)
-                {
-                    break;
-                }
-
-                prevIndex = i;
-            }
-
-            return new Position(prevIndex + 1, position - newlines[prevIndex]);
-        }
-
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
         {
+            // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
+            server.Document.PublishDiagnostics(new PublishDiagnosticsParams{
+                Uri = request.TextDocument.Uri,
+                Version = request.TextDocument.Version,
+                Diagnostics = new Container<Diagnostic>(this.GetDiagnostics(contents))
+            });
+
+            return Unit.Task;
+        }
+
+        public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
+        {
+            //await configuration.GetScopedConfiguration(request.TextDocument.Uri);
+
+            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
+            {
+                Uri = request.TextDocument.Uri,
+                Version = request.TextDocument.Version,
+                Diagnostics = GetDiagnostics(request.TextDocument.Text)
+            });
+
+            return Unit.Task;
+        }
+
+        public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
+        {
+            return Unit.Task;
+        }
+
+        public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
+        {
+            //if (configuration.TryGetScopedConfiguration(request.TextDocument.Uri, out var disposable))
+            //{
+            //    disposable.Dispose();
+            //}
+
+            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
+            {
+                Uri = request.TextDocument.Uri,
+                Diagnostics = new Container<Diagnostic>()
+            });
+
+            return Unit.Task;
+        }
+
+        private List<Diagnostic> GetDiagnostics(string contents)
+        {
             var newLinePositions = new List<int>();
             for (var i = 0; i < contents.Length; i++)
             {
@@ -96,8 +126,12 @@ namespace Bicep.LanguageServer
 
                 var parser = new Core.Parser.Parser(tokens);
                 var program = parser.Parse();
-                
-                foreach (var error in parser.GetErrors())
+
+                var errors = new List<Error>();
+                var checker = new CheckVisitor(errors);
+                checker.Visit(program);
+
+                foreach (var error in errors)
                 {
                     diagnostics.Add(new Diagnostic
                     {
@@ -115,7 +149,8 @@ namespace Bicep.LanguageServer
             {
                 diagnostics.Add(new Diagnostic
                 {
-                    Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range{
+                    Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
+                    {
                         Start = new Position(0, 0),
                         End = new Position(1, 0),
                     },
@@ -125,35 +160,25 @@ namespace Bicep.LanguageServer
                 });
             }
 
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams{
-                Uri = request.TextDocument.Uri,
-                Version = request.TextDocument.Version,
-                Diagnostics = new Container<Diagnostic>(diagnostics),
-            });
-
-            return Unit.Task;
+            return diagnostics;
         }
 
-        public override async Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
+        private static Position GetPosition(IReadOnlyList<int> newlines, int position)
         {
-            logger.LogInformation("Hello world!");
-            await configuration.GetScopedConfiguration(request.TextDocument.Uri);
-            return Unit.Value;
-        }
-
-        public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
-        {
-            return Unit.Task;
-        }
-
-        public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
-        {
-            if (configuration.TryGetScopedConfiguration(request.TextDocument.Uri, out var disposable))
+            var prevIndex = -1;
+            for (var i = 0; i < newlines.Count; i++)
             {
-                disposable.Dispose();
+                if (newlines[i] > position)
+                {
+                    break;
+                }
+
+                prevIndex = i;
             }
 
-            return Unit.Task;
+            return prevIndex >= 0
+                ? new Position(prevIndex + 1, position - newlines[prevIndex])
+                : new Position(0, position);
         }
     }
 }

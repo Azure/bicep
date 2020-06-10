@@ -1,49 +1,8 @@
+using System.Diagnostics;
+
 namespace Bicep.Core.Parser
 {
-    public enum TokenType
-    {
-        Unrecognized,
-        LeftBrace,
-        RightBrace,
-        LeftParen,
-        RightParen,
-        LeftSquare,
-        RightSquare,
-        Comma,
-        Dot,
-        Question,
-        Colon,
-        Semicolon,
-        Plus,
-        Minus,
-        Asterisk,
-        Slash,
-        Modulus,
-        Exclamation,
-        LessThan,
-        GreaterThan,
-        LessThanOrEqual,
-        GreaterThanOrEqual,
-        Equals,
-        NotEquals,
-        EqualsInsensitive,
-        NotEqualsInsensitive,
-        BinaryAnd,
-        BinaryOr,
-        Identifier,
-        String,
-        Number,
-        InputKeyword,
-        OutputKeyword,
-        VariableKeyword,
-        ResourceKeyword,
-        ModuleKeyword,
-        TrueKeyword,
-        FalseKeyword,
-        NullKeyword,
-        EndOfFile,
-    }
-
+    [DebuggerDisplay("{Type} = {Text}")]
     public class Token : IPositionable
     {
         public Token(TokenType type, TextSpan span, string text, string leadingTrivia, string trailingTrivia)

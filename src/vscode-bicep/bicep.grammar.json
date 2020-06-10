@@ -20,16 +20,20 @@
 	],
 	"repository": {
 		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.bicep",
-				"match": "\\b(resource|module|variable|export|input|output|for|in|if|else)\\b"
-			}, {
-				"name": "keyword.bundle.bicep",
-				"match": "\\b(azrm|mod)\\b"
-			}, {
-				"name": "keyword.type.bicep",
-				"match": "\\b(string|securestring|int|bool|object|array)\\b"
-			}]
+			"patterns": [
+				{
+					"name": "keyword.control.bicep",
+					"match": "\\b(resource|variable|parameter)\\b"
+				},
+				{
+					"name": "keyword.bundle.bicep",
+					"match": "\\b(azrm)\\b"
+				},
+				{
+					"name": "keyword.type.bicep",
+					"match": "\\b(string|int|bool|object|array)\\b"
+				}
+			]
 		},
 		"strings": {
 			"name": "string.quoted.single.bicep",
@@ -43,10 +47,10 @@
 				{
 					"include": "#stringinterp"
 				},
-                {
-                    "match": "\\\\.",
-                    "name": "invalid.illegal.unrecognized-string-escape.bicep"
-                }
+				{
+					"match": "\\\\.",
+					"name": "invalid.illegal.unrecognized-string-escape.bicep"
+				}
 			]
 		},
 		"stringinterp": {
@@ -110,49 +114,49 @@
 				{
 					"include": "#strings"
 				},
-                {
-                    "match": ",",
-                    "name": "punctuation.separator.function.bicep"
-                },
+				{
+					"match": ",",
+					"name": "punctuation.separator.function.bicep"
+				},
 				{
 					"name": "invalid.illegal.expected-expression.bicep",
 					"match": "[^\\s]"
 				}
 			]
 		},
-        "comments": {
-            "patterns": [
-                {
-                    "begin": "/\\*\\*(?!/)",
-                    "captures": {
-                        "0": {
-                            "name": "punctuation.definition.comment.bicep"
-                        }
-                    },
-                    "end": "\\*/",
-                    "name": "comment.block.documentation.bicep"
-                },
-                {
-                    "begin": "/\\*",
-                    "captures": {
-                        "0": {
-                            "name": "punctuation.definition.comment.bicep"
-                        }
-                    },
-                    "end": "\\*/",
-                    "name": "comment.block.bicep"
-                },
-                {
-                    "captures": {
-                        "1": {
-                            "name": "punctuation.definition.comment.bicep"
-                        }
-                    },
-                    "match": "(//).*$\\n?",
-                    "name": "comment.line.double-slash.js"
-                }
-            ]
-        }
+		"comments": {
+			"patterns": [
+				{
+					"begin": "/\\*\\*(?!/)",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.bicep"
+						}
+					},
+					"end": "\\*/",
+					"name": "comment.block.documentation.bicep"
+				},
+				{
+					"begin": "/\\*",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.bicep"
+						}
+					},
+					"end": "\\*/",
+					"name": "comment.block.bicep"
+				},
+				{
+					"captures": {
+						"1": {
+							"name": "punctuation.definition.comment.bicep"
+						}
+					},
+					"match": "(//).*$\\n?",
+					"name": "comment.line.double-slash.js"
+				}
+			]
+		}
 	},
 	"scopeName": "source.bicep"
 }

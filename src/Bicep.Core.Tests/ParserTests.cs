@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
 using Bicep.Core.Parser;
-using Bicep.Core.Visitors;
+using Bicep.Core.Syntax;
+using Bicep.Core.Tests.UnitSamples;
+using Bicep.Core.Tests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Tests
@@ -9,105 +12,37 @@ namespace Bicep.Core.Tests
     [TestClass]
     public class ParserTests
     {
-        class PrintVisitor : TokenVisitor
+        [DataTestMethod]
+        [UnitSamplesDataSource]
+        public void Files_ShouldRoundTripSuccessfully(string displayName, string contents)
         {
-            private readonly StringBuilder stringBuilder = new StringBuilder();
-
-            protected override void VisitToken(Token token)
-            {
-                stringBuilder.Append(token.LeadingTrivia);
-                stringBuilder.Append(token.Text);
-                stringBuilder.Append(token.TrailingTrivia);
-            }
-
-            public string GetOutput()
-                => stringBuilder.ToString();
+            RunRoundTripTest(contents);
         }
 
-        private string BasicTemplate = @"
-input string rgLocation;
-input string namePrefix;
-
-/*
-module publicIpAddress {
-  input string name
-  input string location
-
-  resource azrm 'Network/publicIpAddresses@2019-11-01' publicIp {
-    name: name
-    location: location
-    properties: {
-      publicIPAllocationMethod: 'Dynamic'
-    }
-  }
-}
-*/
-
-resource azrm 'Network/virtualNetworks/subnets@2019-11-01' mySubnet: {
-  name: concat('myVnet/', namePrefix, '-subnet'),
-  location: rgLocation,
-  properties: {
-    addressPrefix: '10.0.0.0/24'
-  }
-};
-
-resource azrm 'Network/networkInterfaces@2019-11-01' myNic: {
-  name: concat(namePrefix, '-nic'),
-  location: (rgLocation),
-  properties: {
-    ipConfigurations: [{
-      name: 'myConfig',
-      properties: {
-        subnet: subnetReference,
-        privateIPAllocationMethod: 'Dynamic',
-      }
-    }]
-  }
-};
-
-variable subnetReference: {
-  id: resourceId(mySubnet)
-};
-
-// this comment should be ignored
-
-/* this block comment should be ignored
-resource azrm 'Network/publicIpAddresses@2019-11-01' myPip {
-  name: concat(namePrefix, '-pip')
-  properties: {
-  }
-}
-*/
-
-resource mod 'publicIpAddress' pip1: {
-  name: concat(namePrefix, '-pip1'),
-  location: rgLocation
-};
-
-resource mod 'publicIpAddress' pip2: {
-  name: concat(namePrefix, '-pip2'),
-  location: rgLocation
-};
-
-output nicResourceId: resourceId(myNic);
-";
-
-        [TestMethod]
-        public void RoundTripTest()
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow("parameter")]
+        [DataRow("parameter ")]
+        [DataRow("parameter foo")]
+        [DataRow("parameter foo bar")]
+        [DataRow("parameter foo bar =")]
+        [DataRow("parameter foo bar = 1")]
+        public void Oneliners_ShouldRoundTripSuccessfully(string contents)
         {
-            var lexer = new Lexer(new SlidingTextWindow(BasicTemplate));
-            lexer.Lex();
+            RunRoundTripTest(contents);
+        }
 
-            var tokens = lexer.GetTokens();
-            var parser = new Core.Parser.Parser(tokens);
+        private static void RunRoundTripTest(string contents)
+        {
+            var program = ParserHelper.Parse(contents);
+            program.Should().BeOfType<ProgramSyntax>();
 
-            var program = parser.Parse();
+            var buffer = new StringBuilder();
+            var visitor = new PrintVisitor(buffer);
 
-            var output = new StringBuilder();
-            var printer = new PrintVisitor();
-            printer.Visit(program);
+            visitor.Visit(program);
 
-            printer.GetOutput().Should().Be(BasicTemplate);
+            buffer.ToString().Should().Be(contents);
         }
     }
 }

@@ -5,7 +5,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    abstract class ErrorVisitor : SyntaxVisitor
+    public abstract class ErrorVisitor : SyntaxVisitor
     {
         private IList<Error> Errors { get; } = new List<Error>();
 

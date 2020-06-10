@@ -1,36 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Globalization;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
-    class ExpectedTokenException : Exception
-    {
-        public ExpectedTokenException(string message)
-            : base(message)
-        {
-            
-        }
-    }
-
     public class Parser
     {
         private readonly TokenReader reader;
-        private readonly IList<Error> errors = new List<Error>();
-
+        
         public Parser(IEnumerable<Token> tokens)
         {
             this.reader = new TokenReader(tokens);
         }
-
-        private void addError(string message, Token startToken, Token endToken)
-        {
-            this.errors.Add(new Error(message, TextSpan.Between(startToken, endToken)));
-        }
-
-        public IEnumerable<Error> GetErrors() => errors;
 
         public SyntaxBase Parse()
             => Program();
@@ -51,436 +34,95 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Statement()
         {
-            var nextType = reader.Read().Type;
-            switch (nextType)
+            return this.WithRecovery(TokenType.NewLine, () =>
             {
-                case TokenType.InputKeyword:
-                    return InputStatement();
-                case TokenType.OutputKeyword:
-                    return OutputStatement();
-                case TokenType.VariableKeyword:
-                    return VariableStatement();
-                case TokenType.ResourceKeyword:
-                    return ResourceStatement();
+                var current = reader.Peek();
+                switch (current.Type)
+                {
+                    case TokenType.ParameterKeyword:
+                        return this.ParameterStatement();
+
+                    case TokenType.NewLine:
+                        return this.NoOpStatement();
+                }
+
+                // TODO: Update when adding other statement types
+                throw new ExpectedTokenException("This declaration type is not recognized. Specify a parameter declaration.", current);
+            });
+        }
+
+        private SyntaxBase ParameterStatement()
+        {
+            var keyword = Expect(TokenType.ParameterKeyword, "Expected the parameter keyword at this location.");
+            var name = Identifier("Expected a parameter identifier at this location.");
+            var type = Identifier($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PropertyTypesString}");
+
+            Token? assignment = null;
+            SyntaxBase? defaultValue = null;
+            if (Check(TokenType.Assignment))
+            {
+                assignment = reader.Read();
+                defaultValue = Value();
             }
 
-            throw new NotImplementedException();
+            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
+
+            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
         }
 
-        private SyntaxBase InputStatement()
-            => WithRecovery(TokenType.Semicolon, () => {
-                var keyword = reader.Prev();
-                var type = Identifier();
-                var identifier = Identifier();
-                var semicolon = Expect(TokenType.Semicolon, "");
-
-                return new InputDeclSyntax(keyword, type, identifier, semicolon);
-            });
-
-        private SyntaxBase OutputStatement()
-            => WithRecovery(TokenType.Semicolon, () => {
-                var keyword = reader.Prev();
-                var identifier = Identifier();
-                var colon = Expect(TokenType.Colon, "");
-                var expression = Expression();
-                var semicolon = Expect(TokenType.Semicolon, "");
-
-                return new OutputDeclSyntax(keyword, identifier, colon, expression, semicolon);
-            });
-
-        private SyntaxBase VariableStatement()
-            => WithRecovery(TokenType.Semicolon, () => {
-                var keyword = reader.Prev();
-                var identifier = Identifier();
-                var colon = Expect(TokenType.Colon, "");
-                var expression = Expression();
-                var semicolon = Expect(TokenType.Semicolon, "");
-
-                return new VarDeclSyntax(keyword, identifier, colon, expression, semicolon);
-            });
-
-        private SyntaxBase ResourceStatement()
-            => WithRecovery(TokenType.Semicolon, () => {
-                var keyword = reader.Prev();
-                var provider = Identifier();
-                var type = String();
-                var identifier = Identifier();
-                var colon = Expect(TokenType.Colon, "");
-                var expression = Expression();
-                var semicolon = Expect(TokenType.Semicolon, "");
-
-                return new ResourceDeclSyntax(keyword, provider, type, identifier, colon, expression, semicolon);
-            });
-
-        private StringSyntax String()
+        private SyntaxBase NoOpStatement()
         {
-            var stringToken = Expect(TokenType.String, "...");
-
-            return new StringSyntax(stringToken);
+            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
+            return new NoOpDeclarationSyntax(newLine);
         }
 
-        private IdentifierSyntax Identifier()
+        private IdentifierSyntax Identifier(string message)
         {
-            var identifier = Expect(TokenType.Identifier, "...");
+            var identifier = Expect(TokenType.Identifier, message);
 
             return new IdentifierSyntax(identifier);
         }
 
-        private SyntaxBase Expression()
-            => Or();
-
-        private SyntaxBase Or()
+        private NumericLiteralSyntax NumericLiteral()
         {
-            var expression = And();
+            var literal = Expect(TokenType.Number, "Expected a numeric literal at this location.");
 
-            if (Match(TokenType.BinaryOr))
+            if (int.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
             {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Or(), BinaryOperation.Or);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase And()
-        {
-            var expression = Equality();
-
-            if (Match(TokenType.BinaryAnd))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, And(), BinaryOperation.And);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase Equality()
-        {
-            var expression = Comparison();
-
-            if (Match(TokenType.Equals))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Equality(), BinaryOperation.Equals);
-            }
-
-            if (Match(TokenType.NotEquals))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Equality(), BinaryOperation.NotEquals);
-            }
-
-            if (Match(TokenType.EqualsInsensitive))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Equality(), BinaryOperation.EqualsInsensitive);
-            }
-
-            if (Match(TokenType.NotEqualsInsensitive))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Equality(), BinaryOperation.NotEqualsInsensitive);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase Comparison()
-        {
-            var expression = Addition();
-
-            if (Match(TokenType.GreaterThan))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Comparison(), BinaryOperation.GreaterThan);
-            }
-
-            if (Match(TokenType.GreaterThanOrEqual))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Comparison(), BinaryOperation.GreaterThanOrEqual);
-            }
-
-            if (Match(TokenType.LessThan))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Comparison(), BinaryOperation.LessThan);
-            }
-
-            if (Match(TokenType.LessThanOrEqual))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Comparison(), BinaryOperation.LessThanOrEqual);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase Addition()
-        {
-            var expression = Multiplication();
-
-            if (Match(TokenType.Plus))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Addition(), BinaryOperation.Add);
-            }
-
-            if (Match(TokenType.Minus))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Addition(), BinaryOperation.Subtract);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase Multiplication()
-        {
-            var expression = Unary();
-
-            if (Match(TokenType.Asterisk))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Multiplication(), BinaryOperation.Multiply);
-            }
-
-            if (Match(TokenType.Slash))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Multiplication(), BinaryOperation.Divide);
-            }
-
-            if (Match(TokenType.Modulus))
-            {
-                var operatorToken = reader.Prev();
-                return new BinaryOperationSyntax(expression, operatorToken, Multiplication(), BinaryOperation.Modulus);
-            }
-
-            return expression;
-        }
-
-        private SyntaxBase Unary()
-        {
-            if (Match(TokenType.Exclamation))
-            {
-                var operatorToken = reader.Prev();
-                return new UnaryOperationSyntax(operatorToken, Unary());
-            }
-
-            if (Match(TokenType.Minus))
-            {
-                var operatorToken = reader.Prev();
-                return new UnaryOperationSyntax(operatorToken, Unary());
-            }
-
-            return MemberAccess();
-        }
-
-        private SyntaxBase MemberAccess()
-        {
-            var output = FunctionCall();
-
-            while (true)
-            {
-                if (Match(TokenType.Dot))
-                {
-                    var dot = reader.Prev();
-                    var member = FunctionCall();
-
-                    output = new PropertyAccessSyntax(output, dot, member);
-                }
-                else if (Match(TokenType.LeftSquare))
-                {
-                    var leftSquare = reader.Prev();
-                    var member = Expression();
-                    var rightSquare = Expect(TokenType.RightSquare, "");
-
-                    output = new ArrayAccessSyntax(output, leftSquare, member, rightSquare);
-                }
-                else if (IsAtEnd())
-                {
-                    throw new Exception("");
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return output;
-        }
-
-        private SyntaxBase FunctionCall()
-        {
-            var primary = Primary();
-
-            if (Match(TokenType.LeftParen))
-            {
-                var leftParen = reader.Prev();
-                var arguments = new List<SyntaxBase>();
-                var separators = new List<Token>();
-                while (!Match(TokenType.RightParen))
-                {
-                    if (IsAtEnd())
-                    {
-                        throw new Exception("");
-                    }
-
-                    if (arguments.Any())
-                    {
-                        var comma = Expect(TokenType.Comma, "");
-                        separators.Add(comma);
-                    }
-    
-                    var argument = Expression();
-                    arguments.Add(argument);
-                }
-                var rightParen = reader.Prev();
-
-                var syntaxList = new SeparatedSyntaxList(arguments, separators, TextSpan.BetweenNonInclusive(leftParen, rightParen));
-                return new FunctionCallSyntax(primary, leftParen, syntaxList, rightParen);
-            }
-
-            return primary;
-        }
-
-        private SyntaxBase Primary()
-        {
-            if (Match(TokenType.Number))
-            {
-                // todo parse ints safely
-                var literal = reader.Prev();
-                var value = int.Parse(literal.Text);
                 return new NumericLiteralSyntax(literal, value);
             }
 
-            if (Match(TokenType.String))
-            {
-                // todo string interpolation
-                var stringToken = reader.Prev();
-                return new StringSyntax(stringToken);
-            }
-
-            if (Match(TokenType.Identifier))
-            {
-                var identifier = reader.Prev();
-                return new IdentifierSyntax(identifier);
-            }
-
-            if (Match(TokenType.FalseKeyword))
-            {
-                var literal = reader.Prev();
-                return new BooleanLiteralSyntax(literal, false);
-            }
-
-            if (Match(TokenType.TrueKeyword))
-            {
-                var literal = reader.Prev();
-                return new BooleanLiteralSyntax(literal, true);
-            }
-
-            if (Match(TokenType.NullKeyword))
-            {
-                var literal = reader.Prev();
-                return new NullLiteralSyntax(literal);
-            }
-
-            if (Match(TokenType.LeftParen))
-            {
-                var openParen = reader.Prev();
-                var expression = Expression();
-                var closeParen = Expect(TokenType.RightParen, "");
-
-                return new GroupingSyntax(openParen, expression, closeParen);
-            }
-
-            if (Match(TokenType.LeftBrace))
-            {
-                return Object();
-            }
-
-            if (Match(TokenType.LeftSquare))
-            {
-                return Array();
-            }
-
-            throw new Exception("");
+            // TODO: Should probably be moved to type checking
+            // integer is invalid (too long to fit in an int32)
+            throw new ExpectedTokenException("Expected a valid 32-bit signed integer.", literal);
         }
 
-        private ObjectSyntax Object()
+        private SyntaxBase Value()
         {
-            var openBrace = reader.Prev();
-            var properties = new List<ObjectPropertySyntax>();
-            var separators = new List<Token>();
-            while (!Match(TokenType.RightBrace))
+            var current = reader.Peek();
+            switch (current.Type)
             {
-                if (IsAtEnd())
-                {
-                    throw new Exception("");
-                }
+                case TokenType.TrueKeyword:
+                    return new BooleanLiteralSyntax(reader.Read(), true);
 
-                var identifier = Identifier();
-                var colon = Expect(TokenType.Colon, "");
-                var expression = Expression();
+                case TokenType.FalseKeyword:
+                    return new BooleanLiteralSyntax(reader.Read(), false);
 
-                var objectProperty = new ObjectPropertySyntax(identifier, colon, expression);
-                properties.Add(objectProperty);
+                case TokenType.Number:
+                    return this.NumericLiteral();
 
-                if (Match(TokenType.Comma))
-                {
-                    var comma = reader.Prev();
-                    separators.Add(comma);
-                }
-                else
-                {
-                    Expect(TokenType.RightBrace, "");
-                    break;
-                }
+                case TokenType.String:
+                    return new StringSyntax(reader.Read());
+
+                default:
+                    throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
             }
-            var closeBrace = reader.Prev();
-
-            var syntaxList = new SeparatedSyntaxList(properties, separators, TextSpan.BetweenNonInclusive(openBrace, closeBrace));
-            return new ObjectSyntax(openBrace, syntaxList, closeBrace);
         }
-
-        private ArraySyntax Array()
-        {
-            var openSquare = reader.Prev();
-            var items = new List<SyntaxBase>();
-            var separators = new List<Token>();
-            while (!Match(TokenType.RightSquare))
-            {
-                if (IsAtEnd())
-                {
-                    throw new Exception("");
-                }
-
-                var expression = Expression();
-                items.Add(expression);
-
-                if (Match(TokenType.Comma))
-                {
-                    var comma = reader.Prev();
-                    separators.Add(comma);
-                }
-                else
-                {
-                    Expect(TokenType.RightSquare, "");
-                    break;
-                }
-            }
-            var closeSquare = reader.Prev();
-
-            var syntaxList = new SeparatedSyntaxList(items, separators, TextSpan.BetweenNonInclusive(openSquare, closeSquare));
-            return new ArraySyntax(openSquare, syntaxList, closeSquare);
-        }
-
+        
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
             where TSyntax : SyntaxBase
         {
-            var startPosition = reader.Position - 1;
+            var startPosition = reader.Position;
             try
             {
                 return syntaxFunc();
@@ -489,10 +131,15 @@ namespace Bicep.Core.Parser
             {
                 Synchronize(terminatingType);
 
-                var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
-                addError($"Parsing failed: {exception.Message}", skippedTokens.First(), skippedTokens.Last());
+                // there are situations where EOF is read which advances the reader position past the end of the list
+                if (this.reader.Position == this.reader.Count)
+                {
+                    // to correct that we need to step back
+                    this.reader.StepBack();
+                }
 
-                return new SkippedTokensTriviaSyntax(skippedTokens);
+                var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
+                return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
             }
         }
 
@@ -522,7 +169,7 @@ namespace Bicep.Core.Parser
                 return token;
             }
 
-            throw new ExpectedTokenException(message);
+            throw new ExpectedTokenException(message, token);
         }
 
         private bool Match(TokenType type)
