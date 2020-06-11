@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
 using Bicep.Core.Visitors;
+using Bicep.LanguageServer.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -114,8 +115,8 @@ namespace Bicep.LanguageServer
                     {
                         Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
                         {
-                            Start = GetPosition(newLinePositions, error.Span.Position),
-                            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                            Start = PositionHelper.GetPosition(newLinePositions, error.Span.Position),
+                            End = PositionHelper.GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
                         },
                         Severity = DiagnosticSeverity.Error,
                         Message = error.Message,
@@ -137,8 +138,8 @@ namespace Bicep.LanguageServer
                     {
                         Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
                         {
-                            Start = GetPosition(newLinePositions, error.Span.Position),
-                            End = GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                            Start = PositionHelper.GetPosition(newLinePositions, error.Span.Position),
+                            End = PositionHelper.GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
                         },
                         Severity = DiagnosticSeverity.Error,
                         Message = error.Message,
@@ -161,24 +162,6 @@ namespace Bicep.LanguageServer
             }
 
             return diagnostics;
-        }
-
-        private static Position GetPosition(IReadOnlyList<int> newlines, int position)
-        {
-            var prevIndex = -1;
-            for (var i = 0; i < newlines.Count; i++)
-            {
-                if (newlines[i] > position)
-                {
-                    break;
-                }
-
-                prevIndex = i;
-            }
-
-            return prevIndex >= 0
-                ? new Position(prevIndex + 1, position - newlines[prevIndex])
-                : new Position(0, position);
         }
     }
 }
