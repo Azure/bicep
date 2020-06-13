@@ -95,6 +95,7 @@ namespace Bicep.LanguageServer
         private List<Diagnostic> GetDiagnostics(string contents)
         {
             var newLinePositions = new List<int>();
+            newLinePositions.Add(0);
             for (var i = 0; i < contents.Length; i++)
             {
                 if (contents[i] == '\n')
