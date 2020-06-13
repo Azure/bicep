@@ -92,8 +92,8 @@ If applicable to the parameter type, multiple modifiers can be combined together
 ```
 parameter storageAccountName string {
   minLength: 3
-  maxLength: 24,
-  defaultValue: concat(uniqueString(resourceGroup().id), 'sa'),
+  maxLength: 24
+  defaultValue: concat(uniqueString(resourceGroup().id), 'sa')
   metadata: {
     description: "Name of the storage account"
   }

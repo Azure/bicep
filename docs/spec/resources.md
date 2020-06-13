@@ -45,24 +45,24 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
 ### Storage Account
 ```
 resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01`: {
-  name: storageAccountName,
-  location: resourceGroup().location,
+  name: storageAccountName
+  location: resourceGroup().location
   properties: {
-    supportsHttpsTrafficOnly: true,
-    accessTier: 'Hot',
+    supportsHttpsTrafficOnly: true
+    accessTier: 'Hot'
     encryption: {
-      keySource: 'Microsoft.Storage',
+      keySource: 'Microsoft.Storage'
       services: {
         blob: {
           enabled: true
-        },
+        }
         file: {
           enabled: true
         }
       }
     }
-  },
-  kind: StorageV2,
+  }
+  kind: StorageV2
   sku: {
     name: 'Standard_LRS'
   }
