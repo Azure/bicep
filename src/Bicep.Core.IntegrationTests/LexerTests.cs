@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Bicep.Core.IntegrationTests.UnitSamples;
 using Bicep.Core.Parser;
+using Bicep.Core.Samples;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,32 +13,37 @@ namespace Bicep.Core.IntegrationTests
     public class LexerTests
     {
         [DataTestMethod]
-        [UnitSamplesDataSource]
-        public void LexerShouldRoundtrip(string displayName, string contents)
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldRoundtrip(DataSet dataSet)
         {
-            var lexer = new Parser.Lexer(new SlidingTextWindow(contents));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
             var serialized = new StringBuilder();
             WriteTokens(serialized, lexer.GetTokens());
 
-            serialized.ToString().Should().Be(contents, "because the lexer should not lose information");
+            serialized.ToString().Should().Be(dataSet.Bicep, "because the lexer should not lose information");
         }
 
         [DataTestMethod]
-        [UnitSamplesDataSource]
-        public void LexerShouldProduceValidTokenLocations(string displayName, string contents)
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldProduceValidTokenLocations(DataSet dataSet)
         {
-            var lexer = new Parser.Lexer(new SlidingTextWindow(contents));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
             foreach (Token token in lexer.GetTokens())
             {
                 // lookup the text of the token in original contents by token's span
-                string tokenText = contents[new Range(token.Span.Position, token.Span.Position + token.Span.Length)];
+                string tokenText = dataSet.Bicep[new Range(token.Span.Position, token.Span.Position + token.Span.Length)];
 
                 tokenText.Should().Be(token.Text, "because token text at location should match original contents at the same location");
             }
+        }
+
+        private static IEnumerable<object[]> GetData()
+        {
+            return DataSets.AllDataSets.Select(ds => new object[] { ds });
         }
 
         private void WriteTokens(StringBuilder buffer, IEnumerable<Token> tokens)

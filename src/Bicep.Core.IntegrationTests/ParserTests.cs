@@ -1,6 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Bicep.Core.IntegrationTests.UnitSamples;
 using Bicep.Core.IntegrationTests.Utils;
+using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,10 +13,10 @@ namespace Bicep.Core.IntegrationTests
     public class ParserTests
     {
         [DataTestMethod]
-        [UnitSamplesDataSource]
-        public void Files_ShouldRoundTripSuccessfully(string displayName, string contents)
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void FilesShouldRoundTripSuccessfully(DataSet dataSet)
         {
-            RunRoundTripTest(contents);
+            RunRoundTripTest(dataSet.Bicep);
         }
 
         [DataTestMethod]
@@ -28,6 +30,11 @@ namespace Bicep.Core.IntegrationTests
         public void Oneliners_ShouldRoundTripSuccessfully(string contents)
         {
             RunRoundTripTest(contents);
+        }
+
+        private static IEnumerable<object[]> GetData()
+        {
+            return DataSets.AllDataSets.Select(ds => new object[] {ds});
         }
 
         private static void RunRoundTripTest(string contents)

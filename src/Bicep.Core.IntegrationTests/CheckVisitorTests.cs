@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using Bicep.Core.IntegrationTests.UnitSamples;
+using System.Linq;
 using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Parser;
+using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Visitors;
 using FluentAssertions;
@@ -13,19 +14,23 @@ namespace Bicep.Core.IntegrationTests
     public class CheckVisitorTests
     {
         [DataTestMethod]
-        [UnitSamplesDataSource(includeInvalid: false)]
-        public void ValidProgram_ShouldProduceNoErrors(string displayName, string contents)
+        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void ValidProgram_ShouldProduceNoErrors(DataSet dataSet)
         {
-            GetErrors(contents).Should().BeEmpty();
+            GetErrors(dataSet.Bicep).Should().BeEmpty();
         }
 
         [DataTestMethod]
-        [UnitSamplesDataSource(includeValid: false)]
-        public void InvalidProgram_ShouldProduceErrors(string displayName, string contents)
+        [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void InvalidProgram_ShouldProduceErrors(DataSet dataSet)
         {
-            var errors = GetErrors(contents);
+            var errors = GetErrors(dataSet.Bicep);
             errors.Should().NotBeEmpty();
         }
+
+        private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds=>ds.IsValid).Select(ds => new object[] { ds });
+
+        private static IEnumerable<object[]> GetInvalidData() => DataSets.AllDataSets.Where(ds => ds.IsValid == false).Select(ds => new object[] {ds});
 
         private static List<Error> GetErrors(string contents)
         {
