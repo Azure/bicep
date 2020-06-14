@@ -27,10 +27,12 @@ namespace Bicep.Core.Samples
 
         private static string ReadFile(string streamName)
         {
-            using var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName) ?? Stream.Null);
-            string contents = reader.ReadToEnd();
-            contents.Should().NotBeEmpty($"because stream '{streamName}' should not be empty");
+            using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
+            stream.Should().NotBeNull($"because stream '{streamName}' should exist");
 
+            using var reader = new StreamReader(stream ?? Stream.Null);
+            string contents = reader.ReadToEnd();
+            
             return contents;
         }
     }

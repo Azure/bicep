@@ -22,8 +22,4 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UnitSamples\" />
-  </ItemGroup>
-
 </Project>

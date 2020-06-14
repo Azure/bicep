@@ -7,6 +7,8 @@ namespace Bicep.Core.Samples
 {
     public static class DataSets
     {
+        public static DataSet Empty => CreateDataSet();
+
         public static DataSet InvalidParameters => CreateDataSet();
 
         public static DataSet Parameters => CreateDataSet();
