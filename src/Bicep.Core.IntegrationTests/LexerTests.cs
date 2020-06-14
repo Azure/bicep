@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -12,6 +13,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class LexerTests
     {
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldRoundtrip(DataSet dataSet)
@@ -20,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
             lexer.Lex();
 
             var serialized = new StringBuilder();
-            WriteTokens(serialized, lexer.GetTokens());
+            new TokenWriter(serialized).WriteTokens(lexer.GetTokens());
 
             serialized.ToString().Should().Be(dataSet.Bicep, "because the lexer should not lose information");
         }
@@ -41,24 +44,26 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldProduceExpectedTokens(DataSet dataSet)
+        {
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            lexer.Lex();
+
+            var buffer = new StringBuilder();
+            new LexFileWriter(buffer).WriteTokens(lexer.GetTokens());
+
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Actual.lexdump", buffer.ToString());
+
+            buffer.ToString().Should().Be(dataSet.Tokens);
+        }
+
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.AllDataSets.Select(ds => new object[] { ds });
         }
 
-        private void WriteTokens(StringBuilder buffer, IEnumerable<Token> tokens)
-        {
-            foreach (Token token in tokens)
-            {
-                WriteToken(buffer, token);
-            }
-        }
         
-        private void WriteToken(StringBuilder buffer, Token token)
-        {
-            buffer.Append(token.LeadingTrivia);
-            buffer.Append(token.Text);
-            buffer.Append(token.TrailingTrivia);
-        }
     }
 }

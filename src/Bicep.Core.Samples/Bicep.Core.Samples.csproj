@@ -8,14 +8,20 @@
 
   <ItemGroup>
     <None Remove="Empty\Bicep.arm" />
+    <None Remove="Empty\Tokens.lexdump" />
     <None Remove="InvalidParameters\Bicep.arm" />
+    <None Remove="InvalidParameters\Tokens.lexdump" />
     <None Remove="Parameters\Bicep.arm" />
+    <None Remove="Parameters\Tokens.lexdump" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Empty\Bicep.arm" />
+    <EmbeddedResource Include="Empty\Tokens.lexdump" />
     <EmbeddedResource Include="InvalidParameters\Bicep.arm" />
+    <EmbeddedResource Include="InvalidParameters\Tokens.lexdump" />
     <EmbeddedResource Include="Parameters\Bicep.arm" />
+    <EmbeddedResource Include="Parameters\Tokens.lexdump" />
   </ItemGroup>
 
   <ItemGroup>

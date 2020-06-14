@@ -1,0 +1,50 @@
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myString
+Identifier -> string
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myInt
+Identifier -> int
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myBool
+Identifier -> bool
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myString2
+Identifier -> string
+Assignment -> =
+String -> 'string value'
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myInt2
+Identifier -> int
+Assignment -> =
+Number -> 42
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myTruth
+Identifier -> bool
+Assignment -> =
+TrueKeyword -> true
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myFalsehood
+Identifier -> bool
+Assignment -> =
+FalseKeyword -> false
+NewLine -> 
+
+EndOfFile -> 

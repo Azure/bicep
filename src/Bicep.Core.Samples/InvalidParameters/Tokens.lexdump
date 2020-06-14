@@ -1,0 +1,114 @@
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myString
+Identifier -> string
+NewLine -> 
+
+Identifier -> wrong
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myInt
+Identifier -> int
+NewLine -> 
+
+ParameterKeyword -> parameter
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myBool
+Identifier -> bool
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> missingType
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myString2
+Identifier -> string
+Assignment -> =
+String -> 'string value'
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> wrongDefaultValue
+Identifier -> string
+Assignment -> =
+Number -> 42
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myInt2
+Identifier -> int
+Assignment -> =
+Number -> 42
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> noValueAfterColon
+Identifier -> int
+Assignment -> =
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myTruth
+Identifier -> bool
+Assignment -> =
+String -> 'not a boolean'
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> myFalsehood
+Identifier -> bool
+Assignment -> =
+String -> 'false'
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> wrongAssignmentToken
+Identifier -> string
+Colon -> :
+String -> 'hello'
+NewLine -> 
+
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong
+Identifier -> string
+Assignment -> =
+String -> 'why not?'
+NewLine -> 
+
+ParameterKeyword -> parameter
+Identifier -> wrongType
+Identifier -> fluffyBunny
+Assignment -> =
+String -> 'what'
+Identifier -> s
+Identifier -> up
+Identifier -> doc
+Question -> ?
+String -> '
+
+EndOfFile -> 
