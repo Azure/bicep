@@ -20,6 +20,8 @@ namespace Bicep.Core.Samples
 
         public string Tokens => ReadDataSetFile("Tokens.lexdump");
 
+        public string Errors => ReadDataSetFile("Errors.err");
+
         // validity is set by naming convention
         public bool IsValid => this.Name.Contains("Invalid", StringComparison.Ordinal) == false;
 
