@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Empty\Bicep.arm" />
+    <None Remove="Empty\Errors.err" />
+    <None Remove="Empty\Errors.json" />
+    <None Remove="Empty\Tokens.json" />
+    <None Remove="InvalidParameters_LF\Bicep.arm" />
+    <None Remove="InvalidParameters_LF\Errors.json" />
+    <None Remove="InvalidParameters_LF\Tokens.json" />
+    <None Remove="InvalidParameters_CRLF\Bicep.arm" />
+    <None Remove="InvalidParameters_CRLF\Errors.err" />
+    <None Remove="InvalidParameters_CRLF\Errors.json" />
+    <None Remove="InvalidParameters_CRLF\Tokens.json" />
+    <None Remove="InvalidParameters_CRLF\Tokens.lexdump" />
+    <None Remove="Parameters_LF\Bicep.arm" />
+    <None Remove="Parameters_LF\Errors.json" />
+    <None Remove="Parameters_LF\Tokens.json" />
+    <None Remove="Parameters_CRLF\Bicep.arm" />
+    <None Remove="Parameters_CRLF\Errors.json" />
+    <None Remove="Parameters_CRLF\Tokens.json" />
+    <None Remove="Parameters_CRLF\Tokens.lexdump" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Empty\Bicep.arm" />
+    <EmbeddedResource Include="Empty\Errors.json" />
+    <EmbeddedResource Include="Empty\Tokens.json" />
+    <EmbeddedResource Include="InvalidParameters_LF\Bicep.arm" />
+    <EmbeddedResource Include="InvalidParameters_LF\Errors.json" />
+    <EmbeddedResource Include="InvalidParameters_LF\Tokens.json" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Errors.json" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Parameters_LF\Bicep.arm" />
+    <EmbeddedResource Include="Parameters_LF\Errors.json" />
+    <EmbeddedResource Include="Parameters_LF\Tokens.json" />
+    <EmbeddedResource Include="Parameters_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="Parameters_CRLF\Errors.json" />
+    <EmbeddedResource Include="Parameters_CRLF\Tokens.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>
