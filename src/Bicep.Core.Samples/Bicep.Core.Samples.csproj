@@ -9,25 +9,29 @@
   <ItemGroup>
     <None Remove="Empty\Bicep.arm" />
     <None Remove="Empty\Errors.err" />
-    <None Remove="Empty\Tokens.lexdump" />
+    <None Remove="Empty\Errors.json" />
+    <None Remove="Empty\Tokens.json" />
     <None Remove="InvalidParameters\Bicep.arm" />
     <None Remove="InvalidParameters\Errors.err" />
+    <None Remove="InvalidParameters\Errors.json" />
+    <None Remove="InvalidParameters\Tokens.json" />
     <None Remove="InvalidParameters\Tokens.lexdump" />
     <None Remove="Parameters\Bicep.arm" />
-    <None Remove="Parameters\Errors.err" />
+    <None Remove="Parameters\Errors.json" />
+    <None Remove="Parameters\Tokens.json" />
     <None Remove="Parameters\Tokens.lexdump" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Empty\Bicep.arm" />
-    <EmbeddedResource Include="Empty\Errors.err" />
-    <EmbeddedResource Include="Empty\Tokens.lexdump" />
+    <EmbeddedResource Include="Empty\Errors.json" />
+    <EmbeddedResource Include="Empty\Tokens.json" />
     <EmbeddedResource Include="InvalidParameters\Bicep.arm" />
-    <EmbeddedResource Include="InvalidParameters\Errors.err" />
-    <EmbeddedResource Include="InvalidParameters\Tokens.lexdump" />
+    <EmbeddedResource Include="InvalidParameters\Errors.json" />
+    <EmbeddedResource Include="InvalidParameters\Tokens.json" />
     <EmbeddedResource Include="Parameters\Bicep.arm" />
-    <EmbeddedResource Include="Parameters\Errors.err" />
-    <EmbeddedResource Include="Parameters\Tokens.lexdump" />
+    <EmbeddedResource Include="Parameters\Errors.json" />
+    <EmbeddedResource Include="Parameters\Tokens.json" />
   </ItemGroup>
 
   <ItemGroup>

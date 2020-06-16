@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Samples;
@@ -34,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.AllDataSets.Select(ds => new object[] {ds});
+            return DataSets.AllDataSets.ToDynamicTestData();
         }
 
         private static void RunRoundTripTest(string contents)

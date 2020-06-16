@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests.Json;
+using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -51,19 +55,18 @@ namespace Bicep.Core.IntegrationTests
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
-            var buffer = new StringBuilder();
-            new LexFileWriter(buffer).WriteTokens(lexer.GetTokens());
+            var actual = JToken.FromObject(lexer.GetTokens().Select(token => new TokenItem(token)), DataSetSerialization.CreateSerializer());
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ActualTokens.json", actual.ToString(Formatting.Indented));
 
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Actual.lexdump", buffer.ToString());
+            var expected = JToken.Parse(dataSet.Tokens);
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ExpectedTokens.json", expected.ToString(Formatting.Indented));
 
-            buffer.ToString().Should().Be(dataSet.Tokens);
+            JsonAssert.AreEqual(expected, actual);
         }
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.AllDataSets.Select(ds => new object[] { ds });
+            return DataSets.AllDataSets.ToDynamicTestData();
         }
-
-        
     }
 }

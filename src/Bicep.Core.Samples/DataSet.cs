@@ -1,10 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using FluentAssertions;
 
 namespace Bicep.Core.Samples
 {
+    // TODO: Use Lazy<T>
+    [DebuggerDisplay("{" + nameof(DisplayName) + "}")]
     public class DataSet
     {
         private static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
@@ -16,11 +20,13 @@ namespace Bicep.Core.Samples
 
         public string Name { get; }
 
-        public string Bicep => ReadDataSetFile("Bicep.arm");
+        public string DisplayName => this.Name;
 
-        public string Tokens => ReadDataSetFile("Tokens.lexdump");
+        public string Bicep => this.ReadDataSetFile("Bicep.arm");
 
-        public string Errors => ReadDataSetFile("Errors.err");
+        public string Tokens => this.ReadDataSetFile("Tokens.json");
+
+        public string Errors => this.ReadDataSetFile("Errors.json");
 
         // validity is set by naming convention
         public bool IsValid => this.Name.Contains("Invalid", StringComparison.Ordinal) == false;
@@ -29,15 +35,14 @@ namespace Bicep.Core.Samples
 
         private string ReadDataSetFile(string fileName) => ReadFile($"{Prefix}{Name}.{fileName}");
 
-        private static string ReadFile(string streamName)
+        private string ReadFile(string streamName)
         {
             using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
             stream.Should().NotBeNull($"because stream '{streamName}' should exist");
 
             using var reader = new StreamReader(stream ?? Stream.Null);
-            string contents = reader.ReadToEnd();
-            
-            return contents;
+
+            return reader.ReadToEnd();
         }
     }
 }
