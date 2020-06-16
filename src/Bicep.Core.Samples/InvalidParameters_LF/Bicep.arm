@@ -25,4 +25,8 @@ parameter myFalsehood bool= 'false'
 parameter wrongAssignmentToken string: 'hello'
 
 parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
+
+// badly escaped string
 parameter wrongType fluffyBunny = 'what's up doc?'
+
+parameter wrongType fluffyBunny = 'what\'s up doc?'
