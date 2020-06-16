@@ -6,11 +6,43 @@ namespace Bicep.LanguageServer.Utils
 {
     public static class PositionHelper
     {
+        public static IReadOnlyList<int> GetLineStarts(string contents)
+        {
+            var lineStarts = new List<int>() { 0 };
+
+            for (int i = 0; i < contents.Length; i++)
+            {
+                char character = contents[i];
+
+                if (character == '\r')
+                {
+                    if (i < contents.Length - 1 && contents[i + 1] == '\n')
+                    {
+                        continue;
+                    }
+
+                    lineStarts.Add(i + 1);
+                }
+
+                if (contents[i] == '\n')
+                {
+                    lineStarts.Add(i + 1);
+                }
+            }
+
+            return lineStarts;
+        }
+
         public static Position GetPosition(IReadOnlyList<int> lineStarts, int offset)
         {
             if (lineStarts.Count == 0)
             {
                 throw new ArgumentException($"{nameof(lineStarts)} must not be empty.");
+            }
+
+            if (lineStarts[0] != 0)
+            {
+                throw new ArgumentException($"The first element of {nameof(lineStarts)} must be 0, but got {lineStarts[0]}.");
             }
 
             if (offset < 0)
