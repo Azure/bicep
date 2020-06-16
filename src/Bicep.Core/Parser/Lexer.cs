@@ -158,6 +158,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
+                    // TODO: Unterminated multi-liner
                     return;
                 }
 
@@ -304,7 +305,7 @@ namespace Bicep.Core.Parser
                 case '+':
                     return TokenType.Plus;
                 case '-':
-                    return TokenType.Plus;
+                    return TokenType.Minus;
                 case '%':
                     return TokenType.Modulus;
                 case '*':
@@ -355,6 +356,8 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.Equals;
+
+                            // TODO: Check if ARM actually supports this
                             case '~':
                                 textWindow.Advance();
                                 return TokenType.EqualsInsensitive;
@@ -414,6 +417,8 @@ namespace Bicep.Core.Parser
                     return TokenType.Unrecognized;
             }
         }
+
+        // TODO: Need IsIdStart and IsIdContinue (to disallow starting identifiers with 0-9, for example)
 
         private static bool IsAlpha(char c)
             => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';

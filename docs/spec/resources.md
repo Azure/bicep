@@ -3,7 +3,7 @@ A `resource` declaration defines a resource that will be either created or updat
 
 Consider the following declaration that creates or updates a [DNS Zone](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records):
 ```
-resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone'
   location: 'global'
 }
@@ -34,7 +34,7 @@ Their fully qualified equivalents would be:
 
 A full `resource` declaration with a fully qualified resource type looks like the following:
 ```
-resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone'
   location: 'global'
 }
@@ -44,7 +44,7 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01': {
 
 ### Storage Account
 ```
-resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01`: {
+resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
   name: storageAccountName
   location: resourceGroup().location
   properties: {

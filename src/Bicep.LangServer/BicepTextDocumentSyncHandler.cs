@@ -94,17 +94,9 @@ namespace Bicep.LanguageServer
 
         private List<Diagnostic> GetDiagnostics(string contents)
         {
-            var newLinePositions = new List<int>();
-            newLinePositions.Add(0);
-            for (var i = 0; i < contents.Length; i++)
-            {
-                if (contents[i] == '\n')
-                {
-                    newLinePositions.Add(i + 1);
-                }
-            }
-
+            IReadOnlyList<int> lineStarts = PositionHelper.GetLineStarts(contents);
             var diagnostics = new List<Diagnostic>();
+
             try
             {
                 var lexer = new Lexer(new SlidingTextWindow(contents));
@@ -116,8 +108,8 @@ namespace Bicep.LanguageServer
                     {
                         Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
                         {
-                            Start = PositionHelper.GetPosition(newLinePositions, error.Span.Position),
-                            End = PositionHelper.GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                            Start = PositionHelper.GetPosition(lineStarts, error.Span.Position),
+                            End = PositionHelper.GetPosition(lineStarts, error.Span.Position + error.Span.Length),
                         },
                         Severity = DiagnosticSeverity.Error,
                         Message = error.Message,
@@ -139,8 +131,8 @@ namespace Bicep.LanguageServer
                     {
                         Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
                         {
-                            Start = PositionHelper.GetPosition(newLinePositions, error.Span.Position),
-                            End = PositionHelper.GetPosition(newLinePositions, error.Span.Position + error.Span.Length),
+                            Start = PositionHelper.GetPosition(lineStarts, error.Span.Position),
+                            End = PositionHelper.GetPosition(lineStarts, error.Span.Position + error.Span.Length),
                         },
                         Severity = DiagnosticSeverity.Error,
                         Message = error.Message,
