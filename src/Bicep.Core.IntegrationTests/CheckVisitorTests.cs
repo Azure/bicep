@@ -28,11 +28,11 @@ namespace Bicep.Core.IntegrationTests
             var errors = GetErrors(dataSet.Bicep).Select(error => new ErrorItem(error, dataSet.Bicep));
 
             var actual = JToken.FromObject(errors, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ActualErrors.json", actual.ToString(Formatting.Indented));
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Errors_Actual.json", actual.ToString(Formatting.Indented));
 
             var expected = JToken.Parse(dataSet.Errors);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ExpectedErrors.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual);
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Errors_Expected.json", expected.ToString(Formatting.Indented));
+            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Errors_Delta.json");
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();

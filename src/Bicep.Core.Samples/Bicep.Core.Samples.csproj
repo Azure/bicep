@@ -11,27 +11,39 @@
     <None Remove="Empty\Errors.err" />
     <None Remove="Empty\Errors.json" />
     <None Remove="Empty\Tokens.json" />
-    <None Remove="InvalidParameters\Bicep.arm" />
-    <None Remove="InvalidParameters\Errors.err" />
-    <None Remove="InvalidParameters\Errors.json" />
-    <None Remove="InvalidParameters\Tokens.json" />
-    <None Remove="InvalidParameters\Tokens.lexdump" />
-    <None Remove="Parameters\Bicep.arm" />
-    <None Remove="Parameters\Errors.json" />
-    <None Remove="Parameters\Tokens.json" />
-    <None Remove="Parameters\Tokens.lexdump" />
+    <None Remove="InvalidParameters_LF\Bicep.arm" />
+    <None Remove="InvalidParameters_LF\Errors.json" />
+    <None Remove="InvalidParameters_LF\Tokens.json" />
+    <None Remove="InvalidParameters_CRLF\Bicep.arm" />
+    <None Remove="InvalidParameters_CRLF\Errors.err" />
+    <None Remove="InvalidParameters_CRLF\Errors.json" />
+    <None Remove="InvalidParameters_CRLF\Tokens.json" />
+    <None Remove="InvalidParameters_CRLF\Tokens.lexdump" />
+    <None Remove="Parameters_LF\Bicep.arm" />
+    <None Remove="Parameters_LF\Errors.json" />
+    <None Remove="Parameters_LF\Tokens.json" />
+    <None Remove="Parameters_CRLF\Bicep.arm" />
+    <None Remove="Parameters_CRLF\Errors.json" />
+    <None Remove="Parameters_CRLF\Tokens.json" />
+    <None Remove="Parameters_CRLF\Tokens.lexdump" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Empty\Bicep.arm" />
     <EmbeddedResource Include="Empty\Errors.json" />
     <EmbeddedResource Include="Empty\Tokens.json" />
-    <EmbeddedResource Include="InvalidParameters\Bicep.arm" />
-    <EmbeddedResource Include="InvalidParameters\Errors.json" />
-    <EmbeddedResource Include="InvalidParameters\Tokens.json" />
-    <EmbeddedResource Include="Parameters\Bicep.arm" />
-    <EmbeddedResource Include="Parameters\Errors.json" />
-    <EmbeddedResource Include="Parameters\Tokens.json" />
+    <EmbeddedResource Include="InvalidParameters_LF\Bicep.arm" />
+    <EmbeddedResource Include="InvalidParameters_LF\Errors.json" />
+    <EmbeddedResource Include="InvalidParameters_LF\Tokens.json" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Errors.json" />
+    <EmbeddedResource Include="InvalidParameters_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Parameters_LF\Bicep.arm" />
+    <EmbeddedResource Include="Parameters_LF\Errors.json" />
+    <EmbeddedResource Include="Parameters_LF\Tokens.json" />
+    <EmbeddedResource Include="Parameters_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="Parameters_CRLF\Errors.json" />
+    <EmbeddedResource Include="Parameters_CRLF\Tokens.json" />
   </ItemGroup>
 
   <ItemGroup>

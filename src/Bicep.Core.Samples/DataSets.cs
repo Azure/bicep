@@ -3,15 +3,20 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable InconsistentNaming
 namespace Bicep.Core.Samples
 {
     public static class DataSets
     {
         public static DataSet Empty => CreateDataSet();
 
-        public static DataSet InvalidParameters => CreateDataSet();
+        public static DataSet InvalidParameters_CRLF => CreateDataSet();
 
-        public static DataSet Parameters => CreateDataSet();
+        public static DataSet InvalidParameters_LF => CreateDataSet();
+
+        public static DataSet Parameters_CRLF => CreateDataSet();
+
+        public static DataSet Parameters_LF => CreateDataSet();
 
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)

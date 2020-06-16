@@ -56,12 +56,12 @@ namespace Bicep.Core.IntegrationTests
             lexer.Lex();
 
             var actual = JToken.FromObject(lexer.GetTokens().Select(token => new TokenItem(token)), DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ActualTokens.json", actual.ToString(Formatting.Indented));
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Tokens_Actual.json", actual.ToString(Formatting.Indented));
 
             var expected = JToken.Parse(dataSet.Tokens);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_ExpectedTokens.json", expected.ToString(Formatting.Indented));
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Tokens_Expected.json", expected.ToString(Formatting.Indented));
 
-            JsonAssert.AreEqual(expected, actual);
+            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Tokens_Delta.json");
         }
 
         private static IEnumerable<object[]> GetData()

@@ -1,0 +1,32 @@
+﻿/* 
+  Valid and invalid code is mixed together to validate recovery logic.
+*/
+
+parameter myString string
+wrong
+
+parameter myInt int
+parameter
+
+parameter myBool bool
+
+parameter missingType
+
+parameter myString2 string= 'string value'
+
+parameter wrongDefaultValue string= 42
+
+parameter myInt2 int= 42
+parameter noValueAfterColon int=   
+
+parameter myTruth bool= 'not a boolean'
+parameter myFalsehood bool= 'false'
+
+parameter wrongAssignmentToken string: 'hello'
+
+parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
+
+// badly escaped string
+parameter wrongType fluffyBunny = 'what's up doc?'
+
+parameter wrongType fluffyBunny = 'what\'s up doc?'

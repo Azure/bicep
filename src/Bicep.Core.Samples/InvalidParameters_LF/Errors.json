@@ -1,0 +1,52 @@
+[
+  {
+    "message": "This declaration type is not recognized. Specify a parameter declaration.",
+    "span": "[105:111]",
+    "spanText": "wrong\n"
+  },
+  {
+    "message": "Expected a parameter identifier at this location.",
+    "span": "[141:143]",
+    "spanText": "\n\n"
+  },
+  {
+    "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[187:189]",
+    "spanText": "\n\n"
+  },
+  {
+    "message": "The parameter type does not match the type of the default value.",
+    "span": "[269:271]",
+    "spanText": "42"
+  },
+  {
+    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "span": "[333:334]",
+    "spanText": "\n"
+  },
+  {
+    "message": "The parameter type does not match the type of the default value.",
+    "span": "[359:374]",
+    "spanText": "'not a boolean'"
+  },
+  {
+    "message": "The parameter type does not match the type of the default value.",
+    "span": "[403:410]",
+    "spanText": "'false'"
+  },
+  {
+    "message": "Expected a new line character at this location.",
+    "span": "[449:459]",
+    "spanText": ": 'hello'\n"
+  },
+  {
+    "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
+    "span": "[470:731]",
+    "spanText": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong"
+  },
+  {
+    "message": "Expected a new line character at this location.",
+    "span": "[817:881]",
+    "spanText": "s up doc?'\n\nparameter wrongType fluffyBunny = 'what\\'s up doc?'\n"
+  }
+]
