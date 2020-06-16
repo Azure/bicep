@@ -19,9 +19,19 @@ namespace Bicep.LangServer.UnitTests.Utils
             lineStarts[0].Should().Be(0);
         }
 
+        [TestMethod]
+        public void GetLineStarts_SingleLine_ReturnsZero()
+        {
+            IReadOnlyList<int> lineStarts = PositionHelper.GetLineStarts("The quick brown fox jumps over the lazy dog");
+
+            lineStarts.Should().HaveCount(1);
+            lineStarts[0].Should().Be(0);
+        }
+
         [DataTestMethod]
         [DataRow("\r", new[] { 0, 1 })]
         [DataRow("\r\r\r\r", new[] { 0, 1, 2, 3, 4 })]
+        [DataRow("foobar\r", new[] { 0, 7 })]
         [DataRow("foo\rbar\r\rbaz", new[] { 0, 4, 8, 9 })]
         [DataRow("foo\rbar\rbaz\r", new[] { 0, 4, 8, 12 })]
         [DataRow("\rfoo\rbar\rbaz", new[] { 0, 1, 5, 9 })]
@@ -37,6 +47,7 @@ namespace Bicep.LangServer.UnitTests.Utils
         [DataTestMethod]
         [DataRow("\n", new[] { 0, 1 })]
         [DataRow("\n\n\n\n", new[] { 0, 1, 2, 3, 4 })]
+        [DataRow("foobar\n", new[] { 0, 7 })]
         [DataRow("foo\nbar\n\nbaz", new[] { 0, 4, 8, 9 })]
         [DataRow("foo\nbar\nbaz\n", new[] { 0, 4, 8, 12 })]
         [DataRow("\nfoo\nbar\nbaz", new[] { 0, 1, 5, 9 })]
@@ -52,6 +63,7 @@ namespace Bicep.LangServer.UnitTests.Utils
         [DataTestMethod]
         [DataRow("\r\n", new[] { 0, 2 })]
         [DataRow("\r\n\r\n\r\n\r\n", new[] { 0, 2, 4, 6, 8 })]
+        [DataRow("foobar\r\n", new[] { 0, 8 })]
         [DataRow("foo\r\nbar\r\n\r\nbaz", new[] { 0, 5, 10, 12 })]
         [DataRow("foo\r\nbar\r\nbaz\r\n", new[] { 0, 5, 10, 15 })]
         [DataRow("\r\nfoo\r\nbar\r\nbaz", new[] { 0, 2, 7, 12 })]
