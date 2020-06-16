@@ -103,6 +103,14 @@ namespace Bicep.LangServer.UnitTests.Utils
         }
 
         [TestMethod]
+        public void GetPosition_FirstElementOfLineStartsIsNotZero_ThrowsArgumentException()
+        {
+            Action sut = () => PositionHelper.GetPosition(new List<int> { 42 }, 10);
+
+            sut.Should().Throw<ArgumentException>().WithMessage("*must be 0, but got 42*");
+        }
+
+        [TestMethod]
         public void GetPosition_NegtiveOffset_ThrowsArgumentOutOfRangeException()
         {
             IReadOnlyList<int> lineStarts = new List<int> { 0, 24 }.AsReadOnly();

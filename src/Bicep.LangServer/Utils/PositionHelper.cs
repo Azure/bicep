@@ -40,6 +40,11 @@ namespace Bicep.LanguageServer.Utils
                 throw new ArgumentException($"{nameof(lineStarts)} must not be empty.");
             }
 
+            if (lineStarts[0] != 0)
+            {
+                throw new ArgumentException($"The first element of {nameof(lineStarts)} must be 0, but got {lineStarts[0]}.");
+            }
+
             if (offset < 0)
             {
                 throw new ArgumentOutOfRangeException($"{nameof(offset)} must not be a negative number.");
