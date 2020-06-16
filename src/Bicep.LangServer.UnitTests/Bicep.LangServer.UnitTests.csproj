@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Bicep.LangServer\Bicep.LangServer.csproj" />
+    <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
   </ItemGroup>
 
 </Project>
