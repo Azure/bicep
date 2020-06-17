@@ -26,7 +26,7 @@ namespace Bicep.Core.Visitors
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            string parameterType = syntax.Type.IdentifierName;
+            string parameterType = syntax.Type.TypeName;
             bool parameterTypeValid = LanguageConstants.PropertyTypes.Contains(parameterType);
             if (!parameterTypeValid)
             {

@@ -7,7 +7,7 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
-        public FileSymbol Root { get; }
+        //public FileSymbol Root { get; }
     }
 
     public abstract class Symbol
@@ -15,7 +15,7 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets the name of the symbol. Returns an empty string if the symbol is not named.
         /// </summary>
-        public string Name { get; }
+        //public string Name { get; }
     }
 
     public class TypeSymbol : Symbol
@@ -27,12 +27,19 @@ namespace Bicep.Core.SemanticModel
     {
         public IEnumerable<ParameterSymbol> GetParameterMembers()
         {
-
+            return new ParameterSymbol[0];
         }
     }
 
     public class ParameterSymbol : Symbol
     {
 
+    }
+
+    public enum SymbolKind
+    {
+        Error,
+        File,
+        Parameter
     }
 }

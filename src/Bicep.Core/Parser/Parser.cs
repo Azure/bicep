@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -55,7 +54,7 @@ namespace Bicep.Core.Parser
         {
             var keyword = Expect(TokenType.ParameterKeyword, "Expected the parameter keyword at this location.");
             var name = Identifier("Expected a parameter identifier at this location.");
-            var type = Identifier($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PropertyTypesString}");
+            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PropertyTypesString}");
 
             Token? assignment = null;
             SyntaxBase? defaultValue = null;
@@ -81,6 +80,13 @@ namespace Bicep.Core.Parser
             var identifier = Expect(TokenType.Identifier, message);
 
             return new IdentifierSyntax(identifier);
+        }
+
+        private TypeSyntax Type(string message)
+        {
+            var identifier = Expect(TokenType.Identifier, message);
+
+            return new TypeSyntax(identifier);
         }
 
         private NumericLiteralSyntax NumericLiteral()

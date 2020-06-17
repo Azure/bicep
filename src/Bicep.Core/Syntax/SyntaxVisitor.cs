@@ -42,6 +42,11 @@ namespace Bicep.Core.Syntax
             VisitToken(syntax.Identifier);
         }
 
+        public virtual void VisitTypeSyntax(TypeSyntax syntax)
+        {
+            this.VisitToken(syntax.Identifier);
+        }
+
         public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
             VisitToken(syntax.Literal);
