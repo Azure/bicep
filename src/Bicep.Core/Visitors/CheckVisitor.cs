@@ -1,18 +1,20 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Visitors
 {
     public class CheckVisitor : SyntaxVisitor
     {
         private readonly IList<Error> errors;
+        private readonly TypeCache typeCache;
 
-        public CheckVisitor(IList<Error> errors)
+        public CheckVisitor(IList<Error> errors, TypeCache typeCache)
         {
             this.errors = errors;
+            this.typeCache = typeCache;
         }
 
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
@@ -26,8 +28,7 @@ namespace Bicep.Core.Visitors
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            string parameterType = syntax.Type.TypeName;
-            bool parameterTypeValid = LanguageConstants.PropertyTypes.Contains(parameterType);
+            bool parameterTypeValid = LanguageConstants.ParameterTypes.TryGetValue(syntax.Type.TypeName, out TypeSymbol parameterType);
             if (!parameterTypeValid)
             {
                 this.AddError($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type);
@@ -36,8 +37,7 @@ namespace Bicep.Core.Visitors
             if(syntax.Value != null)
             {
                 // check value type matches type
-                // TODO: Type equality should be done by the semantic model
-                if (parameterTypeValid && string.Equals(parameterType, GetTypeInfo(syntax.Value), StringComparison.Ordinal) == false)
+                if (parameterTypeValid && TypeSymbol.Equals(parameterType, typeCache.GetTypeInfo(syntax.Value)) == false)
                 {
                     this.AddError("The parameter type does not match the type of the default value.", syntax.Value);
                 }
@@ -57,25 +57,6 @@ namespace Bicep.Core.Visitors
         protected void AddError(string message, IPositionable positionable)
         {
             this.errors.Add(new Error(message, positionable.Span));
-        }
-
-        private static string? GetTypeInfo(SyntaxBase syntax)
-        {
-            // TODO: This needs to be handled by the semantic model and return a better type
-            switch (syntax)
-            {
-                case BooleanLiteralSyntax _:
-                    return LanguageConstants.BooleanType;
-
-                case NumericLiteralSyntax _:
-                    return LanguageConstants.IntegerType;
-
-                case StringSyntax _:
-                    return LanguageConstants.StringType;
-
-                default:
-                    return null;
-            }
         }
     }
 }

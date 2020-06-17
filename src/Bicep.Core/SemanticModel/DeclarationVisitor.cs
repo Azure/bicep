@@ -7,6 +7,8 @@ namespace Bicep.Core.SemanticModel
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             base.VisitParameterDeclarationSyntax(syntax);
+
+
         }
     }
 }

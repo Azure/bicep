@@ -5,6 +5,7 @@ using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
@@ -43,7 +44,7 @@ namespace Bicep.Core.IntegrationTests
             program.Should().BeOfType<ProgramSyntax>();
 
             var errors = new List<Error>();
-            var typeChecker = new CheckVisitor(errors);
+            var typeChecker = new CheckVisitor(errors, new TypeCache());
 
             typeChecker.Visit(program);
 

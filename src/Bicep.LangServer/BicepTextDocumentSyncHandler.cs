@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Visitors;
 using Bicep.LanguageServer.Utils;
 using MediatR;
@@ -130,7 +131,7 @@ namespace Bicep.LanguageServer
                 var program = parser.Parse();
 
                 var errors = new List<Error>();
-                var checker = new CheckVisitor(errors);
+                var checker = new CheckVisitor(errors, new TypeCache());
                 checker.Visit(program);
 
                 foreach (var error in errors)
