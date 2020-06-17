@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
-using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core

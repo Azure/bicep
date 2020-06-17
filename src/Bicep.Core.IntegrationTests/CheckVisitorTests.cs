@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;

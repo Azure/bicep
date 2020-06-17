@@ -1,4 +1,7 @@
-﻿namespace Bicep.Core.SemanticModel
+﻿using System.Collections.Generic;
+using Bicep.Core.Parser;
+
+namespace Bicep.Core.SemanticModel
 {
     public abstract class Symbol
     {
@@ -12,6 +15,15 @@
         /// </summary>
         public string Name { get; }
 
+        
+
         public abstract SymbolKind Kind { get; }
+
+        public virtual IEnumerable<Error> GetErrors()
+        {
+            yield break;
+        }
+
+        protected Error CreateError(string message, IPositionable positionable) => new Error(message, positionable.Span);
     }
 }

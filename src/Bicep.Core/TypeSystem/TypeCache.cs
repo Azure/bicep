@@ -28,5 +28,11 @@ namespace Bicep.Core.TypeSystem
                     return null;
             }
         }
+
+        public TypeSymbol? GetTypeByName(string typeName)
+        {
+            LanguageConstants.ParameterTypes.TryGetValue(typeName, out TypeSymbol parameterType);
+            return parameterType;
+        }
     }
 }
