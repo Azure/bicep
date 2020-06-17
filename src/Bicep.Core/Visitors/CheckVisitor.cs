@@ -37,9 +37,11 @@ namespace Bicep.Core.Visitors
             if(syntax.Value != null)
             {
                 // check value type matches type
-                if (parameterTypeValid && TypeSymbol.Equals(parameterType, typeCache.GetTypeInfo(syntax.Value)) == false)
+                TypeSymbol? defaultValueType = typeCache.GetTypeInfo(syntax.Value);
+                
+                if (parameterTypeValid && TypeSymbol.Equals(parameterType, defaultValueType) == false)
                 {
-                    this.AddError("The parameter type does not match the type of the default value.", syntax.Value);
+                    this.AddError($"The parameter type expects a default value of type '{parameterType.Name}' but provided value is of type '{defaultValueType?.Name}'.", syntax.Value);
                 }
             }
         }

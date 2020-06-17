@@ -15,7 +15,7 @@
     "spanText": "\n\n"
   },
   {
-    "message": "The parameter type does not match the type of the default value.",
+    "message": "The parameter type expects a default value of type 'string' but provided value is of type 'int'.",
     "span": "[269:271]",
     "spanText": "42"
   },
@@ -25,12 +25,12 @@
     "spanText": "\n"
   },
   {
-    "message": "The parameter type does not match the type of the default value.",
+    "message": "The parameter type expects a default value of type 'bool' but provided value is of type 'string'.",
     "span": "[359:374]",
     "spanText": "'not a boolean'"
   },
   {
-    "message": "The parameter type does not match the type of the default value.",
+    "message": "The parameter type expects a default value of type 'bool' but provided value is of type 'string'.",
     "span": "[403:410]",
     "spanText": "'false'"
   },
