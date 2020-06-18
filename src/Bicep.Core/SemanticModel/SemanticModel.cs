@@ -3,7 +3,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class SemanticModel
+    public class SemanticModel : ISemanticContext
     {
         private readonly TypeCache typeCache = new TypeCache();
 

@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
             program.Should().BeOfType<ProgramSyntax>();
 
             var errors = new List<Error>();
-            var typeChecker = new CheckVisitor(errors, new TypeCache());
+            var typeChecker = new CheckVisitor(errors);
 
             typeChecker.Visit(program);
 

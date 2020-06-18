@@ -7,6 +7,7 @@ namespace Bicep.Core
 {
     public class LanguageConstants
     {
+        public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
 
         public static readonly TypeSymbol String = new PrimitiveType("string");

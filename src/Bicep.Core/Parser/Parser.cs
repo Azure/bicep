@@ -14,10 +14,10 @@ namespace Bicep.Core.Parser
             this.reader = new TokenReader(tokens);
         }
 
-        public SyntaxBase Parse()
+        public ProgramSyntax Parse()
             => Program();
 
-        private SyntaxBase Program()
+        private ProgramSyntax Program()
         {
             var statements = new List<SyntaxBase>();
             while (!IsAtEnd())

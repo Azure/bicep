@@ -2,19 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Visitors
 {
     public class CheckVisitor : SyntaxVisitor
     {
         private readonly IList<Error> errors;
-        private readonly TypeCache typeCache;
-
-        public CheckVisitor(IList<Error> errors, TypeCache typeCache)
+        
+        public CheckVisitor(IList<Error> errors)
         {
             this.errors = errors;
-            this.typeCache = typeCache;
         }
 
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
@@ -22,28 +19,6 @@ namespace Bicep.Core.Visitors
             // parse errors live on skipped token nodes
             TextSpan span = TextSpan.Between(syntax.ErrorCause, syntax.Tokens.Last());
             this.errors.Add(new Error(syntax.ErrorMessage, span));
-        }
-
-        public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
-        {
-            base.VisitParameterDeclarationSyntax(syntax);
-
-            bool parameterTypeValid = LanguageConstants.ParameterTypes.TryGetValue(syntax.Type.TypeName, out TypeSymbol parameterType);
-            if (!parameterTypeValid)
-            {
-                this.AddError($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type);
-            }
-            
-            if(syntax.Value != null)
-            {
-                // check value type matches type
-                TypeSymbol? defaultValueType = typeCache.GetTypeInfo(syntax.Value);
-                
-                if (parameterTypeValid && TypeSymbol.Equals(parameterType, defaultValueType) == false)
-                {
-                    this.AddError($"The parameter type expects a default value of type '{parameterType.Name}' but provided value is of type '{defaultValueType?.Name}'.", syntax.Value);
-                }
-            }
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)

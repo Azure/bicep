@@ -1,8 +1,9 @@
-﻿using Bicep.Core.Syntax;
+﻿using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class TypeCache
+    public class TypeCache : ISemanticContext
     {
         public TypeCache()
         {

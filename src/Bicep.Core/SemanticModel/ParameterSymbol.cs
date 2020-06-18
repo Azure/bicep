@@ -7,17 +7,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(FileSymbol containingFile, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? defaultValue)
-            : base(name, declaringSyntax)
+        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? defaultValue)
+            : base(context, name, declaringSyntax)
         {
-            this.ContainingFile = containingFile;
             this.Type = type;
             this.DefaultValue = defaultValue;
         }
-
-        public FileSymbol ContainingFile { get; }
-
-        public override SemanticModel ContainingModel => this.ContainingFile.ContainingModel;
 
         public TypeSymbol Type { get; }
 
@@ -30,7 +25,7 @@ namespace Bicep.Core.SemanticModel
             if(this.DefaultValue != null)
             {
                 // check value type matches type
-                TypeSymbol? defaultValueType = this.ContainingModel.GetTypeInfo(this.DefaultValue);
+                TypeSymbol? defaultValueType = this.Context.GetTypeInfo(this.DefaultValue);
                 
                 if (this.Type.TypeKind != TypeKind.Error && TypeSymbol.Equals(this.Type, defaultValueType) == false)
                 {

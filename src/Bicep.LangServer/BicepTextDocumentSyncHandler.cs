@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Visitors;
 using Bicep.LanguageServer.Utils;
@@ -130,9 +131,9 @@ namespace Bicep.LanguageServer
                 var parser = new Core.Parser.Parser(tokens);
                 var program = parser.Parse();
 
-                var errors = new List<Error>();
-                var checker = new CheckVisitor(errors, new TypeCache());
-                checker.Visit(program);
+                var compilation = new Compilation(program);
+
+                var errors = compilation.GetAllDiagnostics();
 
                 foreach (var error in errors)
                 {
