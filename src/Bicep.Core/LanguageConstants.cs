@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core
 {
-    class LanguageConstants
+    public class LanguageConstants
     {
+        public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
 
-       public const string StringType = "string";
-       public const string ObjectType = "object";
-       public const string IntegerType = "int";
-       public const string BooleanType = "bool";
-       public const string ArrayType = "array";
+        public static readonly TypeSymbol String = new PrimitiveType("string");
+        public static readonly TypeSymbol Object = new PrimitiveType("object");
+        public static readonly TypeSymbol Int = new PrimitiveType("int");
+        public static readonly TypeSymbol Bool = new PrimitiveType("bool");
+        public static readonly TypeSymbol Array = new PrimitiveType("array");
 
-        public static readonly ImmutableSortedSet<string> PropertyTypes = new[]
-        {
-            StringType,
-            ObjectType,
-            IntegerType,
-            BooleanType,
-            ArrayType
-        }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> ParameterTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string PropertyTypesString = LanguageConstants.PropertyTypes.ConcatString(", ");
+        public static readonly string PropertyTypesString = LanguageConstants.ParameterTypes.Keys.ConcatString(", ");
     }
 }

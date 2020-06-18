@@ -62,6 +62,9 @@ namespace Bicep.Core.IntegrationTests
             FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Tokens_Expected.json", expected.ToString(Formatting.Indented));
 
             JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Tokens_Delta.json");
+
+            lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
+            lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
         }
 
         private static IEnumerable<object[]> GetData()
