@@ -22,36 +22,6 @@ namespace Bicep.Core.SemanticModel
 
         public ProgramSyntax ProgramSyntax { get; }
 
-        /// <summary>
-        /// Gets all the parser and lexer diagnostics. Does not include diagnostics from the semantic model.
-        /// </summary>
-        public IEnumerable<Error> GetParseDiagnostics()
-        {
-            var errors = new List<Error>();
-            var visitor = new CheckVisitor(errors);
-            visitor.Visit(this.ProgramSyntax);
-
-            return errors;
-        }
-
-        /// <summary>
-        /// Gets all the semantic diagnostics.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<Error> GetSemanticDiagnostics()
-        {
-            // TODO: Implement a semantic visitor or move into SemanticModel?
-            var model = this.GetSemanticModel();
-            return model.Root
-                .GetErrors()
-                .Concat(model.Root.ParameterDeclarations.SelectMany(paramDecl => paramDecl.GetErrors()));
-        }
-
-        /// <summary>
-        /// Gets all the diagnostics. This includes lexer, parser, and semantic diagnostics.
-        /// </summary>
-        public IEnumerable<Error> GetAllDiagnostics() => GetParseDiagnostics().Concat(GetSemanticDiagnostics());
-
         public SemanticModel GetSemanticModel() => this.lazySemanticModel.Value;
 
         private SemanticModel GetSemanticModelInternal()

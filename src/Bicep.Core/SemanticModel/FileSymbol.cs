@@ -20,7 +20,11 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<Error> GetErrors()
         {
-            foreach (IGrouping<string, ParameterSymbol> group in this.ParameterDeclarations.GroupBy(paramDecl => paramDecl.Name))
+            var duplicateParameterGroups = this.ParameterDeclarations
+                .GroupBy(paramDecl => paramDecl.Name)
+                .Where(group => group.Count() > 1);
+            
+            foreach (IGrouping<string, ParameterSymbol> group in duplicateParameterGroups)
             {
                 foreach (ParameterSymbol duplicatedSymbol in group)
                 {

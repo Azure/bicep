@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Visitors;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -133,7 +131,7 @@ namespace Bicep.LanguageServer
 
                 var compilation = new Compilation(program);
 
-                var errors = compilation.GetAllDiagnostics();
+                var errors = compilation.GetSemanticModel().GetAllDiagnostics();
 
                 foreach (var error in errors)
                 {
