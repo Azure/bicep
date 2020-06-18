@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -14,7 +15,8 @@ namespace Bicep.LanguageServer
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
-                    .WithHandler<BicepTextDocumentSyncHandler>());
+                    .WithHandler<BicepTextDocumentSyncHandler>()
+                    .WithHandler<BicepDocumentSymbolHandler>());
 
             server.Document.PublishDiagnostics(new PublishDiagnosticsParams());
 
