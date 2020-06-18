@@ -2,9 +2,9 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class IdentifierSyntax : SyntaxBase
+    public class TypeSyntax : SyntaxBase
     {
-        public IdentifierSyntax(Token identifier)
+        public TypeSyntax(Token identifier)
         {
             AssertTokenType(identifier, nameof(identifier), TokenType.Identifier);
             Assert(string.IsNullOrEmpty(identifier.Text) == false, "Identifier must not be null or empty.");
@@ -14,9 +14,12 @@ namespace Bicep.Core.Syntax
 
         public Token Identifier { get; }
 
-        public string IdentifierName => this.Identifier.Text;
+        public string TypeName => this.Identifier.Text;
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitIdentifierSyntax(this);
+        public override void Accept(SyntaxVisitor visitor)
+        {
+            visitor.VisitTypeSyntax(this);
+        }
 
         public override TextSpan Span => TextSpan.Between(this.Identifier, this.Identifier);
     }
