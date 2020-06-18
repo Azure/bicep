@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.UnitTests.Json;
@@ -22,7 +21,10 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var errors = GetErrors(dataSet.Bicep).Select(error => new ErrorItem(error, dataSet.Bicep));
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var model = compilation.GetSemanticModel();
+            
+            var errors = model.GetAllDiagnostics().Select(error => new ErrorItem(error, dataSet.Bicep));
 
             var actual = JToken.FromObject(errors, DataSetSerialization.CreateSerializer());
             FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Errors_Actual.json", actual.ToString(Formatting.Indented));
@@ -33,12 +35,5 @@ namespace Bicep.Core.IntegrationTests
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
-
-        private static List<Error> GetErrors(string contents)
-        {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(contents));
-
-            return compilation.GetSemanticModel().GetAllDiagnostics().ToList();
-        }
     }
 }

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Visitors;
 
 namespace Bicep.Core.SemanticModel
 {
@@ -34,7 +32,7 @@ namespace Bicep.Core.SemanticModel
 
             // TODO: Reparent context to semantic model?
             var file = new FileSymbol(typeCache, "main", this.ProgramSyntax, declarations.OfType<ParameterSymbol>());
-            return new SemanticModel(file);
+            return new SemanticModel(file, typeCache);
         }
     }
 }

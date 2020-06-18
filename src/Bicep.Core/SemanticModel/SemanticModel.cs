@@ -9,11 +9,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticModel : ISemanticContext
     {
-        private readonly TypeCache typeCache = new TypeCache();
+        private readonly TypeCache typeCache;
 
-        public SemanticModel(FileSymbol root)
+        public SemanticModel(FileSymbol root, TypeCache typeCache)
         {
             this.Root = root;
+            this.typeCache = typeCache;
         }
 
         /// <summary>
