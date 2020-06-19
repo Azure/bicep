@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
-using Bicep.LanguageServer.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -19,6 +15,7 @@ namespace Bicep.LanguageServer
 {
     class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
     {
+        private readonly ICompilationManager compilationManager;
         private readonly ILogger<BicepTextDocumentSyncHandler> logger;
         private readonly ILanguageServerConfiguration configuration;
         private readonly ILanguageServer server;
@@ -26,13 +23,18 @@ namespace Bicep.LanguageServer
         private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
             => new TextDocumentSaveRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForLanguage("bicep"),
+                DocumentSelector = DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId),
                 IncludeText = true,
             };
 
-        public BicepTextDocumentSyncHandler(ILogger<BicepTextDocumentSyncHandler> logger, ILanguageServerConfiguration configuration, ILanguageServer server)
+        public BicepTextDocumentSyncHandler(
+            ICompilationManager compilationManager,
+            ILogger<BicepTextDocumentSyncHandler> logger,
+            ILanguageServerConfiguration configuration,
+            ILanguageServer server)
             : base(TextDocumentSyncKind.Full, GetSaveRegistrationOptions())
         {
+            this.compilationManager = compilationManager;
             this.logger = logger;
             this.configuration = configuration;
             this.server = server;
@@ -40,7 +42,7 @@ namespace Bicep.LanguageServer
 
         public override TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
         {
-            return new TextDocumentAttributes(uri, "bicep");
+            return new TextDocumentAttributes(uri, LanguageServerConstants.LanguageId);
         }
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
@@ -48,11 +50,7 @@ namespace Bicep.LanguageServer
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams{
-                Uri = request.TextDocument.Uri,
-                Version = request.TextDocument.Version,
-                Diagnostics = new Container<Diagnostic>(this.GetDiagnostics(contents))
-            });
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
 
             return Unit.Task;
         }
@@ -61,18 +59,14 @@ namespace Bicep.LanguageServer
         {
             //await configuration.GetScopedConfiguration(request.TextDocument.Uri);
 
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
-            {
-                Uri = request.TextDocument.Uri,
-                Version = request.TextDocument.Version,
-                Diagnostics = GetDiagnostics(request.TextDocument.Text)
-            });
-
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
+            
             return Unit.Task;
         }
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
         {
+            // nothing needs to be done when the document is saved
             return Unit.Task;
         }
 
@@ -83,78 +77,8 @@ namespace Bicep.LanguageServer
             //    disposable.Dispose();
             //}
 
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
-            {
-                Uri = request.TextDocument.Uri,
-                Diagnostics = new Container<Diagnostic>()
-            });
-
+            this.compilationManager.CloseCompilation(request.TextDocument.Uri);
             return Unit.Task;
-        }
-
-        private List<Diagnostic> GetDiagnostics(string contents)
-        {
-            IReadOnlyList<int> lineStarts = PositionHelper.GetLineStarts(contents);
-            var diagnostics = new List<Diagnostic>();
-
-            try
-            {
-                var lexer = new Lexer(new SlidingTextWindow(contents));
-                lexer.Lex();
-
-                foreach (var error in lexer.GetErrors())
-                {
-                    diagnostics.Add(new Diagnostic
-                    {
-                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
-                        {
-                            Start = PositionHelper.GetPosition(lineStarts, error.Span.Position),
-                            End = PositionHelper.GetPosition(lineStarts, error.Span.Position + error.Span.Length),
-                        },
-                        Severity = DiagnosticSeverity.Error,
-                        Message = error.Message,
-                    });
-                }
-
-                var tokens = lexer.GetTokens();
-
-                var parser = new Core.Parser.Parser(tokens);
-                var program = parser.Parse();
-
-                var compilation = new Compilation(program);
-
-                var errors = compilation.GetSemanticModel().GetAllDiagnostics();
-
-                foreach (var error in errors)
-                {
-                    diagnostics.Add(new Diagnostic
-                    {
-                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
-                        {
-                            Start = PositionHelper.GetPosition(lineStarts, error.Span.Position),
-                            End = PositionHelper.GetPosition(lineStarts, error.Span.Position + error.Span.Length),
-                        },
-                        Severity = DiagnosticSeverity.Error,
-                        Message = error.Message,
-                    });
-                }
-            }
-            catch (Exception exception)
-            {
-                diagnostics.Add(new Diagnostic
-                {
-                    Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range
-                    {
-                        Start = new Position(0, 0),
-                        End = new Position(1, 0),
-                    },
-                    Severity = DiagnosticSeverity.Error,
-                    Message = exception.Message,
-                    Code = new DiagnosticCode("LexException"),
-                });
-            }
-
-            return diagnostics;
         }
     }
 }

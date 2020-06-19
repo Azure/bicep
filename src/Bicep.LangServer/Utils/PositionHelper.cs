@@ -8,7 +8,7 @@ namespace Bicep.LanguageServer.Utils
     {
         public static IReadOnlyList<int> GetLineStarts(string contents)
         {
-            var lineStarts = new List<int>() { 0 };
+            var lineStarts = new List<int> { 0 };
 
             for (int i = 0; i < contents.Length; i++)
             {

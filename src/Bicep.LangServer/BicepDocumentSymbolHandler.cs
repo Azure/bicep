@@ -8,9 +8,12 @@ namespace Bicep.LanguageServer
 {
     public class BicepDocumentSymbolHandler: DocumentSymbolHandler
     {
-        public BicepDocumentSymbolHandler(ProgressManager progressManager)
+        private readonly ICompilationManager compilationManager;
+
+        public BicepDocumentSymbolHandler(ICompilationManager compilationManager, ProgressManager progressManager)
             : base(GetSymbolRegistrationOptions(), progressManager)
         {
+            this.compilationManager = compilationManager;
         }
 
         public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
@@ -22,7 +25,7 @@ namespace Bicep.LanguageServer
         {
             return new DocumentSymbolRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForLanguage("bicep")
+                DocumentSelector = DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId)
             };
         }
     }

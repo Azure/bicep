@@ -16,11 +16,19 @@ namespace Bicep.LanguageServer
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
                     .WithHandler<BicepTextDocumentSyncHandler>()
-                    .WithHandler<BicepDocumentSymbolHandler>());
+                    .WithHandler<BicepDocumentSymbolHandler>()
+                    .WithServices(RegisterServices));
 
             server.Document.PublishDiagnostics(new PublishDiagnosticsParams());
 
             await server.WaitForExit;
+        }
+
+        private static void RegisterServices(IServiceCollection services)
+        {
+            // using type based registration so dependencies can be injected automatically
+            // without manually building up the graph
+            services.AddSingleton<ICompilationManager, BicepCompilationManager>();
         }
     }
 }
