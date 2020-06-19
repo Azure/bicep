@@ -58,7 +58,7 @@ parameter containerReferences: Array = [
 @minValue(400)
 @maxValue(1000000)
 @metadata(description="The throughput for the container")
-parameter throughput: int | x >= 400 && x <= 1000000 = 400;
+parameter throughput: int = 400;
 
 @metadata(description="A switch to decide if to create a new account")
 parameter createNewAccount: bool = true;
@@ -190,4 +190,4 @@ resource[] dbContainers: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
             },
         },
     },
-}]
+}];
