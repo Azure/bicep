@@ -2,6 +2,7 @@
   "profiles": {
     "Bicep.Cli": {
       "commandName": "Project",
+      "commandLineArgs": "build C:\\GitHub\\Azure\\bicep\\src\\Bicep.Core.Samples\\InvalidParameters_LF\\Bicep.arm",
       "remoteDebugEnabled": false
     }
   }

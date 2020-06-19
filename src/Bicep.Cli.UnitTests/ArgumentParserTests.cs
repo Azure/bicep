@@ -3,7 +3,7 @@ using Bicep.Cli.CommandLine;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Cli.Tests.CommandLine
+namespace Bicep.Cli.UnitTests
 {
     [TestClass]
     public class ArgumentParserTests

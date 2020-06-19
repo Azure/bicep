@@ -14,9 +14,11 @@ namespace Bicep.Core.SemanticModel
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
         }
 
-        public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
-        
+        public override IEnumerable<Symbol> Descendants => this.ParameterDeclarations;
+
         public override SymbolKind Kind => SymbolKind.File;
+
+        public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
         public override IEnumerable<Error> GetErrors()
         {

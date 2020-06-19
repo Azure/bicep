@@ -1,8 +1,11 @@
-﻿using Bicep.Core.Parser;
-using System;
+﻿using System;
 using System.IO;
-using System.Text;
 using Bicep.Cli.CommandLine;
+using Bicep.Cli.Utils;
+using Bicep.Core.Emit;
+using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
+using Bicep.Core.Utils;
 
 namespace Bicep.Cli
 {
@@ -32,33 +35,27 @@ namespace Bicep.Cli
         {
             foreach (string file in arguments.Files)
             {
-                BuildSingleFile(ResolvePath(file));
+                string bicepPath = PathHelper.ResolvePath(file);
+                string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
+
+                BuildSingleFile(bicepPath, outputPath);
             }
         }
 
-        private static string ResolvePath(string path)
+        private static void BuildSingleFile(string bicepPath, string outputPath)
         {
-            if (Path.IsPathFullyQualified(path))
+            string text = File.ReadAllText(bicepPath);
+
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+
+            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+
+            var result = emitter.Emit(outputPath);
+
+            foreach (Error diagnostic in result.Diagnostics)
             {
-                return path;
+                Console.WriteLine($"{diagnostic.Message} {diagnostic.Span}");
             }
-
-            return Path.Combine(Environment.CurrentDirectory, path);
-        }
-
-        private static void BuildSingleFile(string filePath)
-        {
-            var contents = File.ReadAllText(filePath, Encoding.UTF8);
-            var lexer = new Lexer(new SlidingTextWindow(contents));
-            lexer.Lex();
-
-            var tokens = lexer.GetTokens();
-            var parser = new Core.Parser.Parser(tokens);
-
-            var program = parser.Parse();
-
-            var printer = new PrintVisitor(Console.Write, false);
-            printer.Visit(program);
         }
     }
 }
