@@ -1,7 +1,6 @@
 ﻿using System;
-using Bicep.Core.SemanticModel;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.CompilationManager
 {
     public interface ICompilationManager
     {

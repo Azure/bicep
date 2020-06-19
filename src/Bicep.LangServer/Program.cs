@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -27,8 +29,9 @@ namespace Bicep.LanguageServer
         private static void RegisterServices(IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
-            // without manually building up the graph
+            // without manually constructing up the graph
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
+            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
         }
     }
 }

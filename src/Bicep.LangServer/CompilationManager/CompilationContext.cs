@@ -2,7 +2,7 @@
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.CompilationManager
 {
     public class CompilationContext
     {

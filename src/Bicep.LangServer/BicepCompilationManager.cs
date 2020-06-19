@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Utils;
+using Bicep.LanguageServer.Providers;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -15,20 +15,22 @@ namespace Bicep.LanguageServer
     public class BicepCompilationManager : ICompilationManager
     {
         private readonly ILanguageServer server;
+        private readonly ICompilationProvider provider;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<Uri, CompilationContext> activeContexts = new ConcurrentDictionary<Uri, CompilationContext>();
 
-        public BicepCompilationManager(ILanguageServer server)
+        public BicepCompilationManager(ILanguageServer server, ICompilationProvider provider)
         {
             this.server = server;
+            this.provider = provider;
         }
 
         public CompilationContext? UpsertCompilation(Uri uri, long version, string text)
         {
             try
             {
-                var context = CreateContext(text);
+                var context = this.provider.Create(text);
 
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[uri] = context;
@@ -97,21 +99,6 @@ namespace Bicep.LanguageServer
                 Version = version,
                 Diagnostics = new Container<Diagnostic>(diagnostics)
             });
-        }
-
-        private CompilationContext CreateContext(string text)
-        {
-            var lineStarts = PositionHelper.GetLineStarts(text);
-
-            var lexer = new Lexer(new SlidingTextWindow(text));
-            lexer.Lex();
-
-            var parser = new Parser(lexer.GetTokens());
-            var program = parser.Parse();
-
-            var compilation = new Compilation(program);
-
-            return new CompilationContext(lexer, compilation, lineStarts);
         }
     }
 }
