@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
-using Bicep.Core.IntegrationTests.Utils;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests
 
         private static void RunRoundTripTest(string contents)
         {
-            var program = ParserHelper.Parse(contents);
+            var program = SyntaxFactory.CreateFromText(contents);
             program.Should().BeOfType<ProgramSyntax>();
 
             var buffer = new StringBuilder();

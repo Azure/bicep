@@ -5,7 +5,7 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDeclarationSyntax : StatementSyntax
     {
-        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, IdentifierSyntax type, Token? assignment, SyntaxBase? value, Token newLine)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, Token? assignment, SyntaxBase? value, Token newLine)
         {
             AssertTokenType(parameterKeyword, nameof(parameterKeyword), TokenType.ParameterKeyword);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
         
         public IdentifierSyntax Name { get; }
 
-        public IdentifierSyntax Type { get; }
+        public TypeSyntax Type { get; }
 
         public Token? Assignment { get; }
 

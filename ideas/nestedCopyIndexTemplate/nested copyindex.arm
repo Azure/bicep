@@ -1,0 +1,234 @@
+// Ideas demonstrated in this file:
+// Folding regions. use matching # pairs, such as #inputs, or #variables
+// Reference an input: input.accountName
+// Reference a variable: var.accountName
+// loop block
+// condition blocks
+
+#inputs
+input accountName string {
+    defaultValue: $'sql-{uniqueString(resourceGroup().id)}'
+    minLength: 3
+    maxLength: 44
+    description: 'Cosmos DB account name'
+}
+
+input location string {
+    defaultValue: resourceGroup().location
+    description: 'Location for the Cosmos DB account'
+}
+
+input primaryRegion string {
+    description: 'The primary replica region for the Cosmos DB account'
+}
+
+input secondaryRegion string {
+    description: 'The secondary replica region for the Cosmos DB account'
+}
+
+input defaultConsistencyLevel string {
+    defaultValue: 'Session',
+    allowedValues: [
+        'Eventual',
+        'ConsistentPrefix',
+        'Session',
+        'BoundedStaleness',
+        'Strong'
+    ],
+    description: 'The default consistency level of the Cosmos DB account'
+}
+
+input maxStalenessPrefix int {
+    minValue: 10,
+    maxValue: 2147483647,
+    defaultValue: 100000,
+    description: 'Max stale requests. Required for BoundedStaleness.'
+}
+
+input maxIntervalInSeconds int {
+    minValue: 5,
+    maxValue: 86400,
+    defaultValue: 300,
+    description: 'Max lag time (minutes). Required for BoundedStaleness.'
+}
+
+input automaticFailover bool {
+    defaultValue: true,
+    allowedValues: [
+        true,
+        false
+    ],
+    description: 'Enable automatic failover for regions'
+}
+
+input databaseName array {
+    defaultValue: [
+        {
+            'raw'
+        }
+    ],
+    description: The variable determines the name of each database that's created.  Duplicate names are not allowed'
+}
+
+input containerReference array {
+    defaultValue: [
+        {
+            databaseName: 'raw',
+            containerName: 'raw-1',
+            partitionKey: 'key1',
+            containerThroughput: 400
+        }
+    ],
+    description: 'The variable is used together with containerName, partitionKey and containerThroughput to create determine which container is created under what database.  Duplicates are allowed'
+}
+
+input throughput int {
+    defaultValue: 400,
+    minValue: 400,
+    maxValue: 1000000,
+    description: 'The throughput for the container'
+}
+
+input createNewAccount bool {
+    defaultValue: true,
+    description: 'A switch to decide if to create a new account'
+}
+#inputs
+
+#variables
+variable accountName = toLower(input.accountName)
+
+variable consistencyPolicy = {
+    Eventual: {
+        defaultConsistencyLevel: 'Eventual'
+    },
+    ConsistentPrefix: {
+        defaultConsistencyLevel: 'ConsistentPrefix'
+    },
+    Session: {
+        defaultConsistencyLevel: 'Session'
+    },
+    BoundedStaleness: {
+        defaultConsistencyLevel: 'BoundedStaleness',
+        maxStalenessPrefix: input.maxStalenessPrefix,
+        maxIntervalInSeconds: input.maxIntervalInSeconds
+    },
+    Strong: {
+        defaultConsistencyLevel: 'Strong'
+    }
+}
+
+variable locations = [
+    {
+        locationName: input.primaryRegion,
+        failoverPriority: 0,
+        isZoneRedundant: false
+    },
+    {
+        locationName: input.secondaryRegion,
+        failoverPriority: 1,
+        isZoneRedundant: false
+    }
+]
+
+variable apiVersion = '2020-03-01'
+
+#variables
+
+#resources
+condition input.createNewAccount {
+    whenTrue: {
+        resource dbAccount $'Microsoft.DocumentDB/databaseAccounts@{var.apiVersion}' {
+            name: var.accountName,
+            kind: 'GlobalDocumentDB',
+            location: input.location,
+            properties: {
+                consistencyPolicy: var.consistencyPolicy[input.defaultConsistencyLevel],
+                locations: var.locations,
+                databaseAccountOffertype; 'Standard',
+                enableAutomaticFailover: input.automaticFailover
+            }
+        }
+    }
+    // can have a whenFalse block if necessary.
+}
+
+loop sqlDatabaseLoop for dbindex in length(input.databaseName) {
+    resource $'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@{var.apiVersion}' {
+        name: $'{var.accountName/input.databaseName[dbIndex]}',
+        dependsOn: dbAccount,
+        properties: {
+            resource: {
+                id: input.databaseName[dbIndex],
+                options: {}
+            }
+        }
+    }
+}
+
+loop for containerIndex in length(input.containerReference) {
+    mode: 'serial',
+    batchSize:3,
+    resource container $'Microsoft.DocumentDB/databaseAccounts/sqlDatabase/containers@{var.apiVersion}}' {
+        name: $'{var.accountName}/{input.containerReference[containerIndex].databaseName}/{input.containerReference[containerIndex].containerName}',
+        dependsOn: sqlDatabaseLoop,
+        properties: {
+            resource: {
+                id: $'{input.containerReference[containerIndex].containerName}',
+                partitionKey: {
+                    paths: [
+                        '/myPartitionKey'
+                    ],
+                    containerReference
+                },
+                indexingPolicy: {
+                    indexingMode: 'consistent',
+                    includedPaths: [
+                        path: '/*'
+                    ],
+                    excludedPaths: [
+                        path: '/myPathToNotIndex/*'
+                    ],
+                    compositeIndexes: [
+                        [
+                            {
+                                path: '/name',
+                                order: 'ascending'
+                            },
+                            {
+                                path: '/age',
+                                order: 'descending'
+                            }
+                        ]
+                    ],
+                    spatialIndexes: [
+                        {
+                            path: '/path/to/geojson/property/?',
+                            types: [
+                                'Point',
+                                'Polygon',
+                                'MultiPolygon',
+                                'LineString'
+                            ]
+                        }
+                    ]
+                },
+                defaultTtl: 86400,
+                uniqueKeyPolicy: {
+                    uniqueKeys: [
+                        {
+                            paths: [
+                                '/phoneNumber'
+                            ]
+                        }
+                    ]
+                }
+            },
+            options: {
+                throughput: input.throughput
+            }
+        }
+    }
+}
+
+#resources

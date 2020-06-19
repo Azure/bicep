@@ -3,7 +3,7 @@ using Bicep.Core.Parser;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Parser
+namespace Bicep.Core.UnitTests
 {
     [TestClass]
     public class TextSpanTests
