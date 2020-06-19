@@ -1,0 +1,193 @@
+// Ideas demonstrated in this file:
+// Decorators for metadata.
+// Reference a parameter: @parameterName
+// Reference a variable: $variableName
+// Patten matching sytax for conditional resource
+// for...in loop sytax for resources and properties.
+
+// Use decorators to annotate metadata.
+@minLength(3)
+@maxLength(44)
+@metadata(description="Cosmos DB account name.", foobar=...)
+parameter accountName: string = "sql-${uniqueString(resourceGroup().id)}";
+
+// Alternative "Refinement Type" syntax. However as marcin pointed out at https://github.com/Azure/bicep/issues/36#issuecomment-646365426,
+// if our type system is not going to check the min and max lengths, this might not make sense.
+@metadata(description="Cosmos DB account name.", foobar=...)
+parameter accountName: { string | x.lenght >= 3 && x.length <= 44 } = "sql-${uniqueString(resourceGroup().id)}";
+
+@metadata(description="Location for the Cosmos DB account.")
+parameter location: string = resourceGroup().location;
+
+@metadata(description="The primary replica region for the Cosmos DB account.")
+parameter primaryRegion: string;
+
+@metadata(description="The secondary replica region for the Cosmos DB account.")
+parameter secondaryRegion: string;
+
+@allowedValues("Eventual", "ConsistentPrefix", "Session", "BoundedStaleness", "Strong")
+@metadata(description="The default consistency level of the Cosmos DB account.")
+parameter defaultConsitencyLevel = "Strong";
+
+@minValue(10)
+@maxValue(2147483647)
+@metadata(description="Max stale requests. Required for BoundedStaleness. Valid ranges, Single Region: 10 to 1000000. Multi Region: 100000 to 1000000.")
+parameter maxStalenessPrefix: int = 100000;
+
+@minValue(5)
+@maxValue(86400)
+@metadata(description="Max lag time (minutes). Required for BoundedStaleness. Valid ranges, Single Region: 5 to 84600. Multi Region: 300 to 86400.")
+parameter maxIntervalInSeconds: int = 300;
+
+@metadata(description="Enable automatic failover for regions")
+parameter automaticFailover: bool = true;
+
+@metadata(description="The variable determines the name of each database that's created.  Duplicate names are not allowed")
+parameter databaseName: Array = ["raw"];
+
+@metadata(description="The variable is used together with containerName, partitionKey and containerThroughput to create determine which container is created under what database.  Duplicates are allowed")
+parameter containerReferences: Array = [
+    {
+        databaseName: "raw",
+        containerName: "raw1",
+        partitionKey: "key1",
+        containerThroughput: 400,
+    },
+];
+
+@minValue(400)
+@maxValue(1000000)
+@metadata(description="The throughput for the container")
+parameter throughput: int | x >= 400 && x <= 1000000 = 400;
+
+@metadata(description="A switch to decide if to create a new account")
+parameter createNewAccount: bool = true;
+
+variable accountName: string = accountName.toLower();
+
+variable consistencyPolicies: object = {
+    Eventual: {
+        defaultConsistencyLevel: "Eventual",
+    },
+    ConsistentPrefix: {
+        defaultConsistencyLevel: "ConsistentPrefix",
+    },
+    Session: {
+        defaultConsistencyLevel: "Session",
+    },
+    BoundedStaleness: {
+        defaultConsistencyLevel: "BoundedStaleness",
+        maxStalenessPrefix: maxStalenessPrefix,
+        maxIntervalInSeconds: maxIntervalInSeconds,
+    },
+    Strong: {
+        defaultConsistencyLevel: "Strong",
+    },
+};
+
+variable locations: Array = [
+    {
+        locationName: primaryRegion,
+        failoverPriority: 0,
+        isZoneRedundant: false,
+    }, 
+    {
+        locationName: secondaryRegion,
+        failoverPriority: 1,
+        isZoneRedundant: false,
+    },
+];
+
+// Conditional resource.
+// Reference a parameter with @parameterName.
+// Reference a varialbe with $variableName.
+resource dbAccount: "Microsoft.DocumentDB/databaseAccounts@2020-03-01" = switch (@createNewAccount) {
+    case true: {
+        name: $accountName,
+        kind: "GlobalDocumentDB",
+        location: @location,
+        properties: {
+            consistencyPolicy: consistencyPolicies[@defaultConsistencyLevel],
+            location: @location,
+            databaseAccountOfferType: "Standard",
+            enableAutomaticFailover: @automaticFailover,
+    };
+    case Blah: ...
+    // Alternative fallback/else block. 
+    case _: ...
+};
+
+// Create a list of resources using for...in.
+// This is essentially what Anthony mentioned in https://github.com/Azure/bicep/issues/6.
+// The only difference is that the loop is wrapped with [] and a colon is added as visual separator between the loop expression and body.
+resource[] databases: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-03-01" = [for databaseName in databaseNames: {
+    name: "${$accountName}/{databaseName}",
+    kind: "GlobalDocumentDB",
+    dependsOn: dbAccount,
+    properties: {
+        id: databaseName,
+        // The same syntax can be reused for array properties.
+        someArrayProperty: [for item in collection: {
+            foo: item.foo,
+            bar: item.bar,
+        }]
+    },
+}];
+
+resource[] dbContainers: "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2020-03-01" = [for containerReference, i in containerReferences: {
+    name: "${$accountName}/{containerReference.databaseName}/{containerReference.containerName}"
+    dependsOn: databases[i]
+    properties: {
+        resource: {
+            id: containerReference.containerName,
+            partitionKey: {
+                paths: ["/myPartionKey"],
+                kind: "Hash",
+            },
+            indexingPolicy: {
+                indexingMode: "consistent",
+                includePaths: [
+                    {
+                        path: "/*",
+                    },
+                ],
+                excludePaths: [
+                    {
+                        path: "/myPathToNotIndex/*",
+                    },
+                ],
+                compositeIndexes: [
+                    [
+                        {
+                            path: "/name",
+                            path: "ascending",
+                        },
+                        {
+                            path: "/age",
+                            path: "descending",
+                        },
+                    ],
+                ],
+                spatialIndexes: [
+                    {
+                        path: "/path/to/geojson/property/?",
+                        types: [
+                            "Point",
+                            "Polygon",
+                            "MultiPolygon",
+                            "LineString",
+                        ],
+                    },
+                ],
+            },
+            defaultTtl: 86400,
+            uniqueKeyPolicy: {
+                uniqueKeys: [
+                    {
+                        paths: ["/phoneNumber"],
+                    },
+                ],
+            },
+        },
+    },
+}]
