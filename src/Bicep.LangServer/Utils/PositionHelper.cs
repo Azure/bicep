@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Utils
 {
     public static class PositionHelper
     {
-        public static IReadOnlyList<int> GetLineStarts(string contents)
+        public static ImmutableArray<int> GetLineStarts(string contents)
         {
             var lineStarts = new List<int> { 0 };
 
@@ -30,7 +31,7 @@ namespace Bicep.LanguageServer.Utils
                 }
             }
 
-            return lineStarts;
+            return lineStarts.ToImmutableArray();
         }
 
         public static Position GetPosition(IReadOnlyList<int> lineStarts, int offset)

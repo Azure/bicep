@@ -5,6 +5,7 @@ using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -23,22 +24,22 @@ namespace Bicep.LanguageServer
             this.server = server;
         }
 
-        public Compilation? UpsertCompilation(Uri uri, long version, string text)
+        public CompilationContext? UpsertCompilation(Uri uri, long version, string text)
         {
             try
             {
-                var context = CreateContext(version, text);
+                var context = CreateContext(text);
 
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[uri] = context;
 
                 // convert all the errors to LSP diagnostics
-                var diagnostics = GetErrorsFromContext(context).ToDiagnostics(text);
+                var diagnostics = GetErrorsFromContext(context).ToDiagnostics(context.LineStarts);
 
                 // publish all the errors
-                this.PublishDocumentDiagnostics(uri, diagnostics);
+                this.PublishDocumentDiagnostics(uri, version, diagnostics);
 
-                return context.Compilation;
+                return context;
             }
             catch (Exception exception)
             {
@@ -50,7 +51,7 @@ namespace Bicep.LanguageServer
 
                 // publish a single fatal error diagnostic to tell the user something horrible has occurred
                 // TODO: Tell user how to create an issue on GitHub.
-                this.PublishDocumentDiagnostics(uri, new[]
+                this.PublishDocumentDiagnostics(uri, version, new[]
                 {
                     new Diagnostic
                     {
@@ -61,7 +62,7 @@ namespace Bicep.LanguageServer
                         },
                         Severity = DiagnosticSeverity.Error,
                         Message = exception.Message,
-                        Code = new DiagnosticCode("LexException"),
+                        Code = new DiagnosticCode("Fatal")
                     }
                 });
 
@@ -76,29 +77,32 @@ namespace Bicep.LanguageServer
 
             // clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
-            PublishDocumentDiagnostics(uri, Enumerable.Empty<Diagnostic>());
+            PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<Diagnostic>());
         }
 
-        public Compilation? GetCompilation(Uri uri)
+        public CompilationContext? GetCompilation(Uri uri)
         {
             this.activeContexts.TryGetValue(uri, out var context);
-            return context?.Compilation;
+            return context;
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Lexer.GetErrors().Concat(context.Compilation.GetSemanticModel().GetAllDiagnostics());
 
-        private void PublishDocumentDiagnostics(Uri uri, IEnumerable<Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(Uri uri, long version, IEnumerable<Diagnostic> diagnostics)
         {
             server.Document.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
+                Version = version,
                 Diagnostics = new Container<Diagnostic>(diagnostics)
             });
         }
 
-        private CompilationContext CreateContext(long version, string text)
+        private CompilationContext CreateContext(string text)
         {
+            var lineStarts = PositionHelper.GetLineStarts(text);
+
             var lexer = new Lexer(new SlidingTextWindow(text));
             lexer.Lex();
 
@@ -107,7 +111,7 @@ namespace Bicep.LanguageServer
 
             var compilation = new Compilation(program);
 
-            return new CompilationContext(lexer, compilation);
+            return new CompilationContext(lexer, compilation, lineStarts);
         }
     }
 }
