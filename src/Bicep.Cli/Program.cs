@@ -5,7 +5,7 @@ using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.Utils;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Cli
 {

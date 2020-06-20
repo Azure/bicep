@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
-using Bicep.Core.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

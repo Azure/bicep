@@ -1,7 +1,6 @@
 ﻿using Bicep.Core.Parser;
-using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Utils
+namespace Bicep.Core.Syntax
 {
     public static class SyntaxFactory
     {

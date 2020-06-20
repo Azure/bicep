@@ -8,6 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Cli.UnitTests
 {
+    /// <summary>
+    /// Some of the tests in this class are specific to Windows or Unix file systems and require to be run on a machine with that type of OS.
+    /// </summary>
     [TestClass]
     public class PathHelperTests
     {

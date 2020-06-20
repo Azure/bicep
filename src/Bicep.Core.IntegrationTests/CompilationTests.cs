@@ -1,6 +1,6 @@
 ﻿using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.Utils;
+using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
