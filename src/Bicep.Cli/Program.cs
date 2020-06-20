@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using Bicep.Cli.CommandLine;
+using Bicep.Cli.Logging;
 using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli
 {
@@ -14,36 +16,54 @@ namespace Bicep.Cli
     {
         public static int Main(string[] args)
         {
-            Arguments? arguments = ArgumentParser.Parse(args);
-            if (arguments == null)
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (var loggerFactory = CreateLoggerFactory())
             {
-                ArgumentParser.PrintUsage();
-                return 0;
-            }
+                // the only value in using the dotnet logging framework is that we can easily implement filters
+                // and logging to multiple targets in the future (stdout AND a log file, for example)
+                // it does not help us with formatting of the messages however, so we will have to workaround that
+                IDiagnosticLogger logger = new BicepDiagnosticLogger(loggerFactory.CreateLogger("bicep"));
 
-            switch (arguments)
-            {
-                case BuildArguments buildArguments:
-                    Build(buildArguments);
-                    break;
-            }
+                Arguments? arguments = ArgumentParser.Parse(args);
+                if (arguments == null)
+                {
+                    ArgumentParser.PrintUsage();
+                    return 1;
+                }
 
-            // TODO: If we had logging and errors were logged, exit code should be 1
-            return 0;
+                switch (arguments)
+                {
+                    case BuildArguments buildArguments:
+                        Build(logger, buildArguments);
+                        break;
+                }
+
+                // return non-zero exit code on errors
+                return logger.HasLoggedErrors ? 1 : 0;
+            }
         }
 
-        private static void Build(BuildArguments arguments)
+        private static ILoggerFactory CreateLoggerFactory()
+        {
+            // apparently logging requires a factory factory 🤦‍♀️
+            return LoggerFactory.Create(builder =>
+            {
+                builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow)));
+            });
+        }
+
+        private static void Build(IDiagnosticLogger logger, BuildArguments arguments)
         {
             foreach (string file in arguments.Files)
             {
                 string bicepPath = PathHelper.ResolvePath(file);
                 string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
 
-                BuildSingleFile(bicepPath, outputPath);
+                BuildSingleFile(logger, bicepPath, outputPath);
             }
         }
 
-        private static void BuildSingleFile(string bicepPath, string outputPath)
+        private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
             string text = File.ReadAllText(bicepPath);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
@@ -56,8 +76,7 @@ namespace Bicep.Cli
 
             foreach (Error diagnostic in result.Diagnostics)
             {
-                (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-                Console.WriteLine($"{bicepPath}({line + 1},{character + 1}) : error BCP001: {diagnostic.Message}");
+                logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
             }
         }
     }

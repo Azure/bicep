@@ -1,35 +1,27 @@
-﻿using System;
+﻿using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Logging
 {
-    //public class BicepLoggerProvider : ILoggerProvider
-    //{
-    //    public void Dispose()
-    //    {
-    //    }
+    /// <summary>
+    /// Logger provider for writing log entries in an msbuild compatible format.
+    /// </summary>
+    public class BicepLoggerProvider : ILoggerProvider
+    {
+        private readonly BicepLoggerOptions options;
 
-    //    public ILogger CreateLogger(string categoryName)
-    //    {
-    //        return 
-    //    }
-    //}
+        public BicepLoggerProvider(BicepLoggerOptions options)
+        {
+            this.options = options;
+        }
 
-    //public class BicepConsoleLogger : ILogger
-    //{
-    //    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-    //    {
-            
-    //    }
+        public void Dispose()
+        {
+        }
 
-    //    public bool IsEnabled(LogLevel logLevel)
-    //    {
-            
-    //    }
-
-    //    public IDisposable BeginScope<TState>(TState state)
-    //    {
-            
-    //    }
-    //}
+        public ILogger CreateLogger(string categoryName)
+        {
+            return new BicepConsoleLogger(this.options);
+        }
+    }
 }
