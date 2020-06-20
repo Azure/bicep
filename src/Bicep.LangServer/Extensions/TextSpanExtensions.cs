@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Bicep.Core.Parser;
+using Bicep.Core.Position;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 

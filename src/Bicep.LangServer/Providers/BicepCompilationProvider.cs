@@ -1,7 +1,7 @@
 ﻿using Bicep.Core.Parser;
+using Bicep.Core.Position;
 using Bicep.Core.SemanticModel;
 using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Utils;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -13,7 +13,7 @@ namespace Bicep.LanguageServer.Providers
     {
         public CompilationContext Create(string text)
         {
-            var lineStarts = PositionHelper.GetLineStarts(text);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             var lexer = new Lexer(new SlidingTextWindow(text));
             lexer.Lex();
