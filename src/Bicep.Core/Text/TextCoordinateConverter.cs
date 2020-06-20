@@ -6,17 +6,17 @@ namespace Bicep.Core.Text
 {
     public static class TextCoordinateConverter
     {
-        public static ImmutableArray<int> GetLineStarts(string contents)
+        public static ImmutableArray<int> GetLineStarts(string text)
         {
             var lineStarts = new List<int> { 0 };
 
-            for (int i = 0; i < contents.Length; i++)
+            for (int i = 0; i < text.Length; i++)
             {
-                char character = contents[i];
+                char character = text[i];
 
                 if (character == '\r')
                 {
-                    if (i < contents.Length - 1 && contents[i + 1] == '\n')
+                    if (i < text.Length - 1 && text[i + 1] == '\n')
                     {
                         continue;
                     }
@@ -24,7 +24,7 @@ namespace Bicep.Core.Text
                     lineStarts.Add(i + 1);
                 }
 
-                if (contents[i] == '\n')
+                if (text[i] == '\n')
                 {
                     lineStarts.Add(i + 1);
                 }

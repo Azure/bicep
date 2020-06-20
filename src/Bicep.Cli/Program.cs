@@ -6,6 +6,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Cli
 {
@@ -45,6 +46,7 @@ namespace Bicep.Cli
         private static void BuildSingleFile(string bicepPath, string outputPath)
         {
             string text = File.ReadAllText(bicepPath);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
 
@@ -54,7 +56,8 @@ namespace Bicep.Cli
 
             foreach (Error diagnostic in result.Diagnostics)
             {
-                Console.WriteLine($"{diagnostic.Message} {diagnostic.Span}");
+                (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+                Console.WriteLine($"{bicepPath}({line + 1},{character + 1}) : error BCP001: {diagnostic.Message}");
             }
         }
     }
