@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Position;
+using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.LangServer.UnitTests.Utils
+namespace Bicep.Core.UnitTests.Position
 {
     [TestClass]
-    public class PositionHelperTests
+    public class TextCoordinateConverterTests
     {
         [TestMethod]
         public void GetLineStarts_EmptyContents_ReturnsZero()

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Position
+namespace Bicep.Core.Text
 {
     public static class TextCoordinateConverter
     {
