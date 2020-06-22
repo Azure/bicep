@@ -1,32 +1,49 @@
 // Ideas demonstrated in this file:
-// Folding regions. use matching # pairs, such as #inputs, or #variables
-// Reference an input: input.accountName
-// Reference a variable: var.accountName
-// loop block
-// condition blocks
 
-#inputs
-input accountName string {
+// Artifact types: parameter, variable, condition, list, resource.
+
+// Artifact definition: <artifact type> [artifact identifier] {<artifact specific syntax>}
+
+// Reference to an artifact definition: <artifact type (short version)>.<artifact identifier>
+// such as: param.location, var.accountName, resource.dbAccount, list.databaseContainerList, condition.createAccount
+
+// Folding regions. Use matching # <region identifier> pairs, such as #parameters, or #variables.
+// Regions can be nested, but can't be partially overlapping.
+
+// Artifact metadata block. An optional block appended to an artifact definition in form of: <artifact type> {<artifact specific sytax>} with {<artifact metadata block>}
+// Refer to list.databaseContainerList for a more detailed example.
+
+// Artifact scope. All artifacts by default exist in the global scope of the .arm file, unless otherwise specified in an artifact's metadata block using keyword: scope.
+// Refer to list.databaseContainerList for a more detailed example.
+
+// Conditional artifact. condition [artifact identifier] <boolean evaluation logic> { whenTrue: {<logic when condition evaluated true} [whenFalse: {<optional logic when condition evaluated false.>}]}
+// Either artifact definitions or their references can be included in a conditional aritifact.
+// Artifact references are recommended for complex artifacts to keep conditional definition short and easy to read.
+
+// List artifact. list [artifact identifier] for <index identifier> in <set of artifacts> {<list body>}
+
+#parameters
+parameter accountName string {
     defaultValue: $'sql-{uniqueString(resourceGroup().id)}'
     minLength: 3
     maxLength: 44
     description: 'Cosmos DB account name'
 }
 
-input location string {
+parameter location string {
     defaultValue: resourceGroup().location
     description: 'Location for the Cosmos DB account'
 }
 
-input primaryRegion string {
+parameter primaryRegion string {
     description: 'The primary replica region for the Cosmos DB account'
 }
 
-input secondaryRegion string {
+parameter secondaryRegion string {
     description: 'The secondary replica region for the Cosmos DB account'
 }
 
-input defaultConsistencyLevel string {
+parameter defaultConsistencyLevel string {
     defaultValue: 'Session',
     allowedValues: [
         'Eventual',
@@ -38,21 +55,21 @@ input defaultConsistencyLevel string {
     description: 'The default consistency level of the Cosmos DB account'
 }
 
-input maxStalenessPrefix int {
+parameter maxStalenessPrefix int {
     minValue: 10,
     maxValue: 2147483647,
     defaultValue: 100000,
     description: 'Max stale requests. Required for BoundedStaleness.'
 }
 
-input maxIntervalInSeconds int {
+parameter maxIntervalInSeconds int {
     minValue: 5,
     maxValue: 86400,
     defaultValue: 300,
     description: 'Max lag time (minutes). Required for BoundedStaleness.'
 }
 
-input automaticFailover bool {
+parameter automaticFailover bool {
     defaultValue: true,
     allowedValues: [
         true,
@@ -61,7 +78,7 @@ input automaticFailover bool {
     description: 'Enable automatic failover for regions'
 }
 
-input databaseName array {
+parameter databaseName array {
     defaultValue: [
         {
             'raw'
@@ -70,7 +87,7 @@ input databaseName array {
     description: The variable determines the name of each database that's created.  Duplicate names are not allowed'
 }
 
-input containerReference array {
+parameter containerReference array {
     defaultValue: [
         {
             databaseName: 'raw',
@@ -82,21 +99,21 @@ input containerReference array {
     description: 'The variable is used together with containerName, partitionKey and containerThroughput to create determine which container is created under what database.  Duplicates are allowed'
 }
 
-input throughput int {
+parameter throughput int {
     defaultValue: 400,
     minValue: 400,
     maxValue: 1000000,
     description: 'The throughput for the container'
 }
 
-input createNewAccount bool {
+parameter createNewAccount bool {
     defaultValue: true,
     description: 'A switch to decide if to create a new account'
 }
-#inputs
+#parameters
 
 #variables
-variable accountName = toLower(input.accountName)
+variable accountName = toLower(param.accountName)
 
 variable consistencyPolicy = {
     Eventual: {
@@ -110,8 +127,8 @@ variable consistencyPolicy = {
     },
     BoundedStaleness: {
         defaultConsistencyLevel: 'BoundedStaleness',
-        maxStalenessPrefix: input.maxStalenessPrefix,
-        maxIntervalInSeconds: input.maxIntervalInSeconds
+        maxStalenessPrefix: param.maxStalenessPrefix,
+        maxIntervalInSeconds: param.maxIntervalInSeconds
     },
     Strong: {
         defaultConsistencyLevel: 'Strong'
@@ -120,12 +137,12 @@ variable consistencyPolicy = {
 
 variable locations = [
     {
-        locationName: input.primaryRegion,
+        locationName: param.primaryRegion,
         failoverPriority: 0,
         isZoneRedundant: false
     },
     {
-        locationName: input.secondaryRegion,
+        locationName: param.secondaryRegion,
         failoverPriority: 1,
         isZoneRedundant: false
     }
@@ -136,45 +153,58 @@ variable apiVersion = '2020-03-01'
 #variables
 
 #resources
-condition input.createNewAccount {
+condition createAccount param.createNewAccount {
     whenTrue: {
-        resource dbAccount $'Microsoft.DocumentDB/databaseAccounts@{var.apiVersion}' {
-            name: var.accountName,
-            kind: 'GlobalDocumentDB',
-            location: input.location,
-            properties: {
-                consistencyPolicy: var.consistencyPolicy[input.defaultConsistencyLevel],
-                locations: var.locations,
-                databaseAccountOffertype; 'Standard',
-                enableAutomaticFailover: input.automaticFailover
+        // Three artifacts in whenTrue block.
+
+        // 1. Resource dbAccount that is defined after this conditional block but referenced here using the resource.dbAccount notation.
+        resource.dbAccount
+
+        // 2. A list of resources that exists in this conditional scope.
+        list sqlDatabaseList for dbindex in length(param.databaseName) {
+            resource $'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@{var.apiVersion}' {
+                name: $'{var.accountName/param.databaseName[dbIndex]}',
+                dependsOn: dbAccount,
+                properties: {
+                    resource: {
+                        id: param.databaseName[dbIndex],
+                        options: {}
+                    }
+                }
             }
         }
+
+        // 3. A list of resources that are defined after this conditional block but referenced here using the list.databaseContainerList notation.
+        list.databasesContainerList
     }
     // can have a whenFalse block if necessary.
 }
 
-loop sqlDatabaseLoop for dbindex in length(input.databaseName) {
-    resource $'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@{var.apiVersion}' {
-        name: $'{var.accountName/input.databaseName[dbIndex]}',
-        dependsOn: dbAccount,
-        properties: {
-            resource: {
-                id: input.databaseName[dbIndex],
-                options: {}
-            }
-        }
+// Definition of resource dbAccount.
+resource dbAccount $'Microsoft.DocumentDB/databaseAccounts@{var.apiVersion}' {
+    name: var.accountName,
+    kind: 'GlobalDocumentDB',
+    location: param.location,
+    properties: {
+        consistencyPolicy: var.consistencyPolicy[param.defaultConsistencyLevel],
+        locations: var.locations,
+        databaseAccountOffertype; 'Standard',
+        enableAutomaticFailover: param.automaticFailover
     }
+} with
+{
+    // Indicate this resource exists only in scope of conditon.createAccount.whenTrue block.
+    scope: condition.createAccount.whenTrue
 }
 
-loop for containerIndex in length(input.containerReference) {
-    mode: 'serial',
-    batchSize:3,
+list databaseContainerList for containerIndex in length(param.containerReference)
+{
     resource container $'Microsoft.DocumentDB/databaseAccounts/sqlDatabase/containers@{var.apiVersion}}' {
-        name: $'{var.accountName}/{input.containerReference[containerIndex].databaseName}/{input.containerReference[containerIndex].containerName}',
-        dependsOn: sqlDatabaseLoop,
+        name: $'{var.accountName}/{param.containerReference[containerIndex].databaseName}/{param.containerReference[containerIndex].containerName}',
+        dependsOn: sqlDatabaseList,
         properties: {
             resource: {
-                id: $'{input.containerReference[containerIndex].containerName}',
+                id: $'{param.containerReference[containerIndex].containerName}',
                 partitionKey: {
                     paths: [
                         '/myPartitionKey'
@@ -225,10 +255,18 @@ loop for containerIndex in length(input.containerReference) {
                 }
             },
             options: {
-                throughput: input.throughput
+                throughput: param.throughput
             }
         }
     }
+} with
+{
+    // Metadata describing how list of resources should be deployed.
+    mode:'serial
+    batchSize:3
+
+    // Indicate this resource exists only in scope of conditon.createAccount.whenTrue block.
+    scope: condition.createAccount.whenTrue
 }
 
 #resources
