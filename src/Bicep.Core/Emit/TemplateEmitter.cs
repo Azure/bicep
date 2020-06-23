@@ -111,7 +111,7 @@ namespace Bicep.Core.Emit
                     break;
 
                 case StringSyntax stringSyntax:
-                    writer.WriteValue(stringSyntax.StringToken.Text);
+                    writer.WriteValue(stringSyntax.Value);
                     break;
                     
                 default:

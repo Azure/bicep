@@ -130,6 +130,9 @@ namespace Bicep.Core.Parser
                     }
 
                     buffer.Append(escapeCharValue);
+
+                    // continue to next iteration
+                    continue;
                 }
 
                 // regular string char - append to buffer

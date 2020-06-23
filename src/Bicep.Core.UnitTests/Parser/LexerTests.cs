@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Parser
     public class LexerTests
     {
         [DataTestMethod]
-        [DataRow(@"'","")]
+        [DataRow(@"'", "")]
         [DataRow(@"''", "")]
         [DataRow(@"''", "")]
         [DataRow(@"'test", "test")]
@@ -17,12 +17,14 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
         [DataRow(@"'hi\", "hi")]
+        [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         public void GetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
             var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, string.Empty, string.Empty);
 
             var actual = Lexer.GetStringValue(token);
 
+            actual.Should().Be(expectedValue);
         }
 
         [TestMethod]
