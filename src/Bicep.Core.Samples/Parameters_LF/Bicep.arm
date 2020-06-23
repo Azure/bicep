@@ -12,3 +12,4 @@ parameter myString2 string= 'string value'
 parameter myInt2 int = 42
 parameter myTruth bool = true
 parameter myFalsehood bool = false
+parameter myEscapedString string = 'First line\nSecond\ttabbed\tline'

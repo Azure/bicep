@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="Empty\Bicep.arm" />
+    <None Remove="Empty\Compiled.json" />
     <None Remove="Empty\Errors.err" />
     <None Remove="Empty\Errors.json" />
     <None Remove="Empty\Tokens.json" />
@@ -19,7 +20,9 @@
     <None Remove="InvalidParameters_CRLF\Errors.json" />
     <None Remove="InvalidParameters_CRLF\Tokens.json" />
     <None Remove="InvalidParameters_CRLF\Tokens.lexdump" />
+    <None Remove="Parameters_CRLF\Compiled.json" />
     <None Remove="Parameters_LF\Bicep.arm" />
+    <None Remove="Parameters_LF\Compiled.json" />
     <None Remove="Parameters_LF\Errors.json" />
     <None Remove="Parameters_LF\Tokens.json" />
     <None Remove="Parameters_CRLF\Bicep.arm" />
@@ -31,6 +34,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Empty\Bicep.arm" />
     <EmbeddedResource Include="Empty\Errors.json" />
+    <EmbeddedResource Include="Empty\Compiled.json" />
     <EmbeddedResource Include="Empty\Tokens.json" />
     <EmbeddedResource Include="InvalidParameters_LF\Bicep.arm" />
     <EmbeddedResource Include="InvalidParameters_LF\Errors.json" />
@@ -38,7 +42,9 @@
     <EmbeddedResource Include="InvalidParameters_CRLF\Bicep.arm" />
     <EmbeddedResource Include="InvalidParameters_CRLF\Errors.json" />
     <EmbeddedResource Include="InvalidParameters_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Parameters_CRLF\Compiled.json" />
     <EmbeddedResource Include="Parameters_LF\Bicep.arm" />
+    <EmbeddedResource Include="Parameters_LF\Compiled.json" />
     <EmbeddedResource Include="Parameters_LF\Errors.json" />
     <EmbeddedResource Include="Parameters_LF\Tokens.json" />
     <EmbeddedResource Include="Parameters_CRLF\Bicep.arm" />

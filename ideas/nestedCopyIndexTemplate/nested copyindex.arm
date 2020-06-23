@@ -107,6 +107,7 @@ param createNewAccount bool {
 #>parameters
 
 <#variables
+
 var accountName = toLower(param.accountName)
 
 var consistencyPolicy = {
