@@ -24,7 +24,7 @@
 <#parameters
 
 param accountName string {
-    defaultValue: $'sql-{uniqueString(resourceGroup().id)}'
+    defaultValue: 'sql-{uniqueString(resourceGroup().id)}'
     minLength: 3
     maxLength: 44
     description: 'Cosmos DB account name'
@@ -107,7 +107,6 @@ param createNewAccount bool {
 #>parameters
 
 <#variables
-
 var accountName = toLower(param.accountName)
 
 var consistencyPolicy = {
@@ -151,7 +150,7 @@ condition createAccount param.createNewAccount {
         // Three artifacts in whenTrue block.
 
         // 1. Resource dbAccount that is defined after this conditional block but referenced here using the resource.dbAccount notation.
-        resource dbAccount $'Microsoft.DocumentDB/databaseAccounts@{var.apiVersion}' {
+        resource dbAccount 'Microsoft.DocumentDB/databaseAccounts@2020-03-01' {
             name: var.accountName,
             kind: 'GlobalDocumentDB',
             location: param.location,
