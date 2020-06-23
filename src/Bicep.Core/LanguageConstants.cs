@@ -5,10 +5,12 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core
 {
-    public class LanguageConstants
+    public static class LanguageConstants
     {
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
+
+        public const string ListSeparator = ", ";
 
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new PrimitiveType("object");
@@ -18,6 +20,6 @@ namespace Bicep.Core
 
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> ParameterTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string PropertyTypesString = LanguageConstants.ParameterTypes.Keys.ConcatString(", ");
+        public static readonly string PropertyTypesString = LanguageConstants.ParameterTypes.Keys.ConcatString(ListSeparator);
     }
 }

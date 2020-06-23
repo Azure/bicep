@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.SemanticModel;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Microsoft.Extensions.Logging;
@@ -48,8 +49,8 @@ namespace Bicep.LanguageServer
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
-            // TODO: Add descendants so this is automatic
-            return context.Compilation.GetSemanticModel().Root.ParameterDeclarations
+            // TODO: Classify symbols according to kind when we have more than 1 kind of symbol in a file
+            return context.Compilation.GetSemanticModel().Root.Descendants.OfType<ParameterSymbol>()
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(new DocumentSymbol
                 {
                     Name = symbol.Name,

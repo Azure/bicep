@@ -10,12 +10,18 @@ namespace Bicep.Core.SemanticModel
             this.Name = name;
         }
 
+        public virtual IEnumerable<Symbol> Descendants
+        {
+            get
+            {
+                yield break;
+            }
+        }
+
         /// <summary>
         /// Gets the name of the symbol. Returns an empty string if the symbol is not named.
         /// </summary>
         public string Name { get; }
-
-        
 
         public abstract SymbolKind Kind { get; }
 

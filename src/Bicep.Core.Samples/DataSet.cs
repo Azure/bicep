@@ -18,13 +18,16 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazyErrors;
 
+        private readonly Lazy<string>? lazyCompiled;
+
         public DataSet(string name)
         {
             this.Name = name;
 
-            this.lazyBicep = new Lazy<string>(() => this.ReadDataSetFile("Bicep.arm"), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyTokens = new Lazy<string>(()=> this.ReadDataSetFile("Tokens.json"), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyErrors = new Lazy<string>(() => this.ReadDataSetFile("Errors.json"), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyBicep = this.CreateRequired("Bicep.arm");
+            this.lazyTokens = this.CreateRequired("Tokens.json");
+            this.lazyErrors = this.CreateRequired("Errors.json");
+            this.lazyCompiled = this.CreateIffValid("Compiled.json");
         }
 
         public string Name { get; }
@@ -37,8 +40,18 @@ namespace Bicep.Core.Samples
 
         public string Errors => this.lazyErrors.Value;
 
+        public string? Compiled => this.lazyCompiled?.Value;
+
         // validity is set by naming convention
+
         public bool IsValid => this.Name.Contains("Invalid", StringComparison.Ordinal) == false;
+
+        private Lazy<string> CreateRequired(string fileName)
+        {
+            return new Lazy<string>(() => this.ReadDataSetFile(fileName), LazyThreadSafetyMode.PublicationOnly);
+        }
+
+        private Lazy<string>? CreateIffValid(string fileName) => this.IsValid ? this.CreateRequired(fileName) : null;
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet) data[0]).Name}";
 

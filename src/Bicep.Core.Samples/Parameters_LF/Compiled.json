@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "myString": {
+      "type": "string"
+    },
+    "myInt": {
+      "type": "int"
+    },
+    "myBool": {
+      "type": "bool"
+    },
+    "myString2": {
+      "type": "string",
+      "defaultValue": "string value"
+    },
+    "myInt2": {
+      "type": "int",
+      "defaultValue": 42
+    },
+    "myTruth": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "myFalsehood": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "myEscapedString": {
+      "type": "string",
+      "defaultValue": "First line\nSecond\ttabbed\tline"
+    }
+  },
+  "functions": [],
+  "variables": {},
+  "resources": [],
+  "outputs": {}
+}

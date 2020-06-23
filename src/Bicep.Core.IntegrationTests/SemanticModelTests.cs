@@ -2,10 +2,10 @@
 using System.Linq;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
