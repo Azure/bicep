@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Parser;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,6 +49,100 @@ namespace Bicep.Core.UnitTests.Parser
 
             Action invalidLiteral = () => Lexer.GetStringValue(token);
             invalidLiteral.Should().Throw<ArgumentException>().WithMessage(expectedExceptionMessage);
+        }
+
+        [TestMethod]
+        public void UnrecognizedTokens_ShouldNotBeRecognized()
+        {
+            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: ^");
+        }
+
+        [TestMethod]
+        public void UnterminatedMultiLineComment_ShouldBeRecognizedWithError()
+        {
+            const string expectedTokenText = "'test'";
+            RunSingleTokenTest(
+                "'test'/* unfinished comment *",
+                TokenType.String,
+                "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
+                expectedTokenText: expectedTokenText,
+                expectedStartPosition: expectedTokenText.Length);
+
+            RunSingleTokenTest(
+                "'test'/* unfinished comment",
+                TokenType.String,
+                "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
+                expectedTokenText: expectedTokenText,
+                expectedStartPosition: expectedTokenText.Length);
+        }
+
+        [TestMethod]
+        public void UnterminatedString_ShouldBeRecognizedWithError()
+        {
+            RunSingleTokenTest("'string does not end", TokenType.String, "The string at this location is not terminated. Terminate the string with a single quote character.");
+            RunSingleTokenTest("'beginning an escape\\", TokenType.String, "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
+        }
+
+        [TestMethod]
+        public void UnrecognizedEscapeSequence_ShouldBeRecognizedWithError()
+        {
+            RunSingleTokenTest(
+                "'bad \\escape'",
+                TokenType.String,
+                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t",
+                expectedStartPosition: 5,
+                expectedLength: 2);
+        }
+
+        [TestMethod]
+        public void UnterminatedStringUnexpectedNewline_ShouldBeRecognizedWithError()
+        {
+            var text = "'unfinished\n'even more unfinished\r\n'test'";
+            var lexer = new Lexer(new SlidingTextWindow(text));
+            lexer.Lex();
+
+            var tokens = lexer.GetTokens().ToImmutableArray();
+            tokens.Should().HaveCount(6);
+
+            tokens.Select(t => t.Type).Should().Equal(TokenType.String, TokenType.NewLine, TokenType.String, TokenType.NewLine, TokenType.String, TokenType.EndOfFile);
+
+            var expectedTexts = new[]
+            {
+                "'unfinished",
+                "\n",
+                "'even more unfinished",
+                "\r\n",
+                "'test'",
+                string.Empty
+            };
+
+            tokens.Select(t => t.Text).Should().Equal(expectedTexts);
+
+            tokens.Select(t => t.Span.Position).Should().Equal(expectedTexts.Select((s, i) => expectedTexts.Take(i).Select(s => s.Length).Sum()));
+            tokens.Select(t => t.Span.Length).Should().Equal(expectedTexts.Select(s => s.Length));
+        }
+
+        private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedErrorMessage, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
+        {
+            expectedTokenText ??= text;
+            expectedLength ??= text.Length - expectedStartPosition;
+
+            var lexer = new Lexer(new SlidingTextWindow(text));
+            lexer.Lex();
+
+            var tokens = lexer.GetTokens().ToImmutableArray();
+            tokens.Should().HaveCount(2);
+            tokens.Select(t => t.Type).Should().Equal(expectedTokenType, TokenType.EndOfFile);
+
+            tokens.First().Text.Should().Be(expectedTokenText);
+
+            var errors = lexer.GetErrors().ToImmutableArray();
+            errors.Should().HaveCount(1);
+
+            Error error = errors.Single();
+            error.Message.Should().Be(expectedErrorMessage);
+            error.Span.Position.Should().Be(expectedStartPosition);
+            error.Span.Length.Should().Be(expectedLength);
         }
     }
 }

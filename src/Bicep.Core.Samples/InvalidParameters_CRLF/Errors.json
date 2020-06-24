@@ -1,52 +1,67 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter declaration.",
-    "span": "[110:117]",
+    "span": "[143:150]",
     "spanText": "wrong\r\n"
   },
   {
     "message": "Expected a parameter identifier at this location.",
-    "span": "[149:153]",
+    "span": "[182:186]",
     "spanText": "\r\n\r\n"
   },
   {
     "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[199:203]",
+    "span": "[232:236]",
     "spanText": "\r\n\r\n"
   },
   {
     "message": "The parameter expects a default value of type 'string' but provided value is of type 'int'.",
-    "span": "[285:287]",
+    "span": "[318:320]",
     "spanText": "42"
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[352:354]",
+    "span": "[385:387]",
     "spanText": "\r\n"
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
-    "span": "[380:395]",
+    "span": "[413:428]",
     "spanText": "'not a boolean'"
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
-    "span": "[425:432]",
+    "span": "[458:465]",
     "spanText": "'false'"
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[473:484]",
+    "span": "[506:517]",
     "spanText": ": 'hello'\r\n"
   },
   {
     "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
-    "span": "[496:757]",
+    "span": "[529:790]",
     "spanText": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong"
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[846:913]",
-    "spanText": "s up doc?'\r\n\r\nparameter wrongType fluffyBunny = 'what\\'s up doc?'\r\n"
+    "span": "[879:891]",
+    "spanText": "s up doc?'\r\n"
+  },
+  {
+    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "span": "[912:962]",
+    "spanText": "parameter wrongType fluffyBunny = 'what\\s up doc?'"
+  },
+  {
+    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "span": "[991:1041]",
+    "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?"
+  },
+  {
+    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "span": "[1045:1096]",
+    "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?'"
   }
 ]
