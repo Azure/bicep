@@ -68,8 +68,8 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void LexerShouldProduceValidStringLiteralTokens(DataSet dataSet)
+        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldProduceValidStringLiteralTokensOnValidFiles(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
@@ -81,9 +81,8 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        private static IEnumerable<object[]> GetData()
-        {
-            return DataSets.AllDataSets.ToDynamicTestData();
-        }
+        private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();
     }
 }

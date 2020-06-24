@@ -1,5 +1,5 @@
 ﻿/* 
-  Valid and invalid code is mixed together to validate recovery logic.
+  Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 
 parameter myString string
@@ -29,4 +29,13 @@ parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLo
 // badly escaped string
 parameter wrongType fluffyBunny = 'what's up doc?'
 
+// invalid escape
+parameter wrongType fluffyBunny = 'what\s up doc?'
+
+// unterminated string 
+parameter wrongType fluffyBunny = 'what\'s up doc?
+
 parameter wrongType fluffyBunny = 'what\'s up doc?'
+
+// unterminated multi-line comment
+/*    
