@@ -5,11 +5,14 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    public class CheckVisitor : SyntaxVisitor
+    /// <summary>
+    /// Visitor responsible for collecting all the parse errors from the parse tree.
+    /// </summary>
+    public class ParseErrorVisitor : SyntaxVisitor
     {
         private readonly IList<Error> errors;
         
-        public CheckVisitor(IList<Error> errors)
+        public ParseErrorVisitor(IList<Error> errors)
         {
             this.errors = errors;
         }

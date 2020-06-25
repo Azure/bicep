@@ -22,11 +22,11 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public IEnumerable<Error> GetParseDiagnostics()
         {
-            var errors = new List<Error>();
-            var visitor = new CheckVisitor(errors);
+            var diagnostics = new List<Error>();
+            var visitor = new ParseErrorVisitor(diagnostics);
             visitor.Visit(this.Root.DeclaringSyntax);
 
-            return errors;
+            return diagnostics;
         }
 
         /// <summary>
@@ -35,10 +35,11 @@ namespace Bicep.Core.SemanticModel
         /// <returns></returns>
         public IEnumerable<Error> GetSemanticDiagnostics()
         {
-            // TODO: Implement a semantic visitor or move into SemanticModel?
-            return this.Root
-                .GetErrors()
-                .Concat(this.Root.ParameterDeclarations.SelectMany(paramDecl => paramDecl.GetErrors()));
+            var diagnostics = new List<Error>();
+            var visitor = new SemanticErrorVisitor(diagnostics);
+            visitor.Visit(this.Root);
+
+            return diagnostics;
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 
 namespace Bicep.Cli.CommandLine
 {
@@ -7,9 +7,9 @@ namespace Bicep.Cli.CommandLine
     {
         public BuildArguments(IEnumerable<string> files)
         {
-            this.Files = files.ToList().AsReadOnly();
+            this.Files = files.ToImmutableArray();
         }
 
-        public IList<string> Files { get; }
+        public ImmutableArray<string> Files { get; }
     }
 }

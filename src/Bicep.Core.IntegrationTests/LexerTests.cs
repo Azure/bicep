@@ -67,9 +67,22 @@ namespace Bicep.Core.IntegrationTests
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
         }
 
-        private static IEnumerable<object[]> GetData()
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldProduceValidStringLiteralTokensOnValidFiles(DataSet dataSet)
         {
-            return DataSets.AllDataSets.ToDynamicTestData();
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            lexer.Lex();
+
+            foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.String))
+            {
+                Action getStringValue = () => Lexer.GetStringValue(stringToken);
+                getStringValue.Should().NotThrow($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
+            }
         }
+
+        private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();
     }
 }

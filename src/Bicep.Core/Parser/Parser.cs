@@ -103,6 +103,11 @@ namespace Bicep.Core.Parser
             throw new ExpectedTokenException("Expected a valid 32-bit signed integer.", literal);
         }
 
+        private StringSyntax StringLiteral()
+        {
+            return new StringSyntax(reader.Read());
+        }
+
         private SyntaxBase Value()
         {
             var current = reader.Peek();
@@ -118,13 +123,13 @@ namespace Bicep.Core.Parser
                     return this.NumericLiteral();
 
                 case TokenType.String:
-                    return new StringSyntax(reader.Read());
+                    return StringLiteral();
 
                 default:
                     throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
             }
         }
-        
+
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
             where TSyntax : SyntaxBase
         {

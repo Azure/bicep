@@ -6,10 +6,12 @@ namespace Bicep.Core.Syntax
     {
         public StringSyntax(Token stringToken)
         {
-            StringToken = stringToken;
+            this.StringToken = stringToken;
         }
 
         public Token StringToken { get; }
+
+        public string Value => Lexer.GetStringValue(this.StringToken);
 
         public override void Accept(SyntaxVisitor visitor)
             => visitor.VisitStringSyntax(this);

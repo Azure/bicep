@@ -14,11 +14,18 @@ namespace Bicep.Core.SemanticModel
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
         }
 
-        public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
-        
+        public override IEnumerable<Symbol> Descendants => this.ParameterDeclarations;
+
         public override SymbolKind Kind => SymbolKind.File;
 
-        public override IEnumerable<Error> GetErrors()
+        public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
+
+        public override void Accept(SymbolVisitor visitor)
+        {
+            visitor.VisitFileSymbol(this);
+        }
+
+        public override IEnumerable<Error> GetDiagnostics()
         {
             var duplicateParameterGroups = this.ParameterDeclarations
                 .GroupBy(paramDecl => paramDecl.Name)

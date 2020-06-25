@@ -1,3 +1,4 @@
+using System;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Parser
@@ -15,8 +16,31 @@ namespace Bicep.Core.Parser
             this.offset = 0;
         }
 
+        /// <summary>
+        /// Gets the span of the current window.
+        /// </summary>
         public TextSpan GetSpan()
             => new TextSpan(position, offset);
+
+        /// <summary>
+        /// Gets the span from n characters behind up to current position.
+        /// </summary>
+        /// <param name="charCount">Number of characters to look behind. Must be zero or positive.</param>
+        public TextSpan GetLookbehindSpan(int charCount = 1)
+        {
+            if (charCount < 0)
+            {
+                throw new ArgumentException($"{nameof(charCount)} must be zero or positive.");
+            }
+
+            int effectivePosition = position + offset - charCount;
+            if (effectivePosition < 0)
+            {
+                throw new ArgumentException("Unable to look behind the beginning of the file.");
+            }
+
+            return new TextSpan(effectivePosition, charCount);
+        }
 
         public string GetText()
             => text.Substring(position, offset);
