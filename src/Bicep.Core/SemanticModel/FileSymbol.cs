@@ -20,7 +20,12 @@ namespace Bicep.Core.SemanticModel
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
-        public override IEnumerable<Error> GetErrors()
+        public override void Accept(SymbolVisitor visitor)
+        {
+            visitor.VisitFileSymbol(this);
+        }
+
+        public override IEnumerable<Error> GetDiagnostics()
         {
             var duplicateParameterGroups = this.ParameterDeclarations
                 .GroupBy(paramDecl => paramDecl.Name)

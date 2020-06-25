@@ -55,13 +55,28 @@
     "spanText": "parameter wrongType fluffyBunny = 'what\\s up doc?'"
   },
   {
+    "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[900:911]",
+    "spanText": "fluffyBunny"
+  },
+  {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
     "span": "[956:1006]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?"
   },
   {
+    "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[976:987]",
+    "spanText": "fluffyBunny"
+  },
+  {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
     "span": "[1008:1059]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?'"
+  },
+  {
+    "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[1028:1039]",
+    "spanText": "fluffyBunny"
   }
 ]

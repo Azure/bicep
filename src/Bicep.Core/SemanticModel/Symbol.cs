@@ -10,6 +10,8 @@ namespace Bicep.Core.SemanticModel
             this.Name = name;
         }
 
+        public abstract void Accept(SymbolVisitor visitor);
+
         public virtual IEnumerable<Symbol> Descendants
         {
             get
@@ -25,7 +27,7 @@ namespace Bicep.Core.SemanticModel
 
         public abstract SymbolKind Kind { get; }
 
-        public virtual IEnumerable<Error> GetErrors()
+        public virtual IEnumerable<Error> GetDiagnostics()
         {
             yield break;
         }
