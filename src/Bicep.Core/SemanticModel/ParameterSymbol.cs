@@ -20,7 +20,20 @@ namespace Bicep.Core.SemanticModel
 
         public override SymbolKind Kind => SymbolKind.Parameter;
 
-        public override IEnumerable<Error> GetErrors()
+        public override void Accept(SymbolVisitor visitor)
+        {
+            visitor.VisitParameterSymbol(this);
+        }
+
+        public override IEnumerable<Symbol> Descendants
+        {
+            get
+            {
+                yield return this.Type;
+            }
+        }
+
+        public override IEnumerable<Error> GetDiagnostics()
         {
             if(this.DefaultValue != null)
             {

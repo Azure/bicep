@@ -1,13 +1,14 @@
 ﻿using System;
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.TypeSystem
 {
     /// <summary>
     /// Represents a built-in primitive type.
     /// </summary>
-    internal class PrimitiveType : TypeSymbol
+    public class PrimitiveTypeSymbol : TypeSymbol
     {
-        public PrimitiveType(string name) : base(name)
+        public PrimitiveTypeSymbol(string name) : base(name)
         {
         }
 
@@ -17,6 +18,11 @@ namespace Bicep.Core.TypeSystem
         {
             // for primitive types, type is equality is based on name of the type
             return string.Equals(this.Name, other.Name, StringComparison.Ordinal);
+        }
+
+        public override void Accept(SymbolVisitor visitor)
+        {
+            visitor.VisitPrimitiveTypeSymbol(this);
         }
     }
 }
