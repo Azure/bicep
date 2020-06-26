@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -17,6 +18,10 @@ namespace Bicep.Core.Emit
             this.semanticModel = semanticModel;
         }
 
+        /// <summary>
+        /// Emits a template to the specified file if there are no errors. The specified file is not touched if there are compilation errors.
+        /// </summary>
+        /// <param name="fileName">The path to the file.</param>
         public EmitResult Emit(string fileName)
         {
             // collect all the errors
@@ -28,14 +33,35 @@ namespace Bicep.Core.Emit
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
-            this.EmitInternal(fileName);
+            using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            this.EmitInternal(stream);
 
             return new EmitResult(EmitStatus.Succeeded, new Error[0]);
         }
 
-        private void EmitInternal(string fileName)
+        /// <summary>
+        /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
+        /// </summary>
+        /// <param name="stream">The stream to write the template</param>
+        public EmitResult Emit(Stream stream)
         {
-            using var writer = new JsonTextWriter(new StreamWriter(new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None)))
+            // collect all the errors
+            var diagnostics = this.semanticModel.GetAllDiagnostics();
+
+            if (diagnostics.Any())
+            {
+                // TODO: This needs to account for warnings when we add severity.
+                return new EmitResult(EmitStatus.Failed, diagnostics);
+            }
+
+            this.EmitInternal(stream);
+
+            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+        }
+
+        private void EmitInternal(Stream stream)
+        {
+            using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true))
             {
                 Formatting = Formatting.Indented
             };
