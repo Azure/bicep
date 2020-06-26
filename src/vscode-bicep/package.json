@@ -74,5 +74,8 @@
     },
     "dependencies": {
         "vscode-languageclient": "^6.2.0-next.2"
-    }
+    },
+    "extensionDependencies": [
+        "ms-dotnettools.vscode-dotnet-runtime"
+    ]
 }

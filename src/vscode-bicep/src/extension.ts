@@ -7,6 +7,8 @@
 
 import * as path from "path";
 
+import { acquireSharedDotnetInstallation } from './acquisition/acquireSharedDotnetInstallation';
+import { downloadDotnetVersion } from './common/constants';
 import { workspace, Disposable, ExtensionContext } from "vscode";
 import {
     LanguageClient,
@@ -23,9 +25,17 @@ export function activate(context: ExtensionContext) {
     // TODO: Unify the path for VSIX package and local debugging
     const serverExe = `${__dirname}/../../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.exe`;
 
+    (async() => {
+        try {
+            const result = await getDotNetPath();
+            console.log('dotnet acquired: ', result);
+        } catch (err) {
+            console.log(err);
+        }
+    })();
+
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
-
     let serverOptions: ServerOptions = {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
@@ -75,4 +85,9 @@ export function activate(context: ExtensionContext) {
     // Push the disposable to the context's subscriptions so that the
     // client can be deactivated on extension deactivation
     context.subscriptions.push(disposable);
+}
+
+async function getDotNetPath(): Promise<string | undefined> {
+    let dotnetPath: string | undefined;
+    return await acquireSharedDotnetInstallation(downloadDotnetVersion);    
 }
