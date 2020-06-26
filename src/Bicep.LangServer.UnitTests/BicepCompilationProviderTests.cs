@@ -15,7 +15,6 @@ namespace Bicep.LangServer.UnitTests
 
             var context = provider.Create(DataSets.Parameters_LF.Bicep);
 
-            context.Lexer.GetErrors().Should().BeEmpty();
             context.Compilation.Should().NotBeNull();
             context.Compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();

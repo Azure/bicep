@@ -42,23 +42,27 @@ namespace Bicep.Core.UnitTests.Parser
         [DataTestMethod]
         [DataRow(10, 1, 20, 2, "[10:22]")]
         [DataRow(0, 0, 0, 0, "[0:0]")]
+        [DataRow(70, 0, 60, 9, "[60:70]")]
         public void Between_ShouldCalculateCorrectRange(int firstPosition, int firstLength, int secondPosition, int secondLength, string expectedBetweenRange)
         {
             var first = new TextSpan(firstPosition, firstLength);
             var second = new TextSpan(secondPosition, secondLength);
 
             TextSpan.Between(first, second).ToString().Should().Be(expectedBetweenRange);
+            TextSpan.Between(second, first).ToString().Should().Be(expectedBetweenRange);
         }
 
         [DataTestMethod]
         [DataRow(10, 1, 20, 2, "[11:20]")]
         [DataRow(0, 0, 0, 0, "[0:0]")]
+        [DataRow(70, 0, 60, 9, "[69:70]")]
         public void BetweenNonInclusive_ShouldCalculateCorrectRange(int firstPosition, int firstLength, int secondPosition, int secondLength, string expectedBetweenRange)
         {
             var first = new TextSpan(firstPosition, firstLength);
             var second = new TextSpan(secondPosition, secondLength);
 
             TextSpan.BetweenNonInclusive(first, second).ToString().Should().Be(expectedBetweenRange);
+            TextSpan.BetweenNonInclusive(second, first).ToString().Should().Be(expectedBetweenRange);
         }
 
         [DataTestMethod]

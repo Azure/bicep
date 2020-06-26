@@ -89,7 +89,7 @@ namespace Bicep.LanguageServer
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
-        private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Lexer.GetErrors().Concat(context.Compilation.GetSemanticModel().GetAllDiagnostics());
+        private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(Uri uri, long version, IEnumerable<Diagnostic> diagnostics)
         {

@@ -34,6 +34,13 @@ namespace Bicep.Core.IntegrationTests
             JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Errors_Delta.json");
         }
 
+        [TestMethod]
+        public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
+        {
+            var compilation = new Compilation(SyntaxFactory.CreateFromText("parameter "));
+            compilation.GetSemanticModel().GetParseDiagnostics();
+        }
+
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
     }
 }

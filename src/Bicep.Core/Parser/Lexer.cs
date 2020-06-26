@@ -64,9 +64,9 @@ namespace Bicep.Core.Parser
             }
         }
 
-        public IEnumerable<Token> GetTokens() => tokens;
+        public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public IEnumerable<Error> GetErrors() => errors;
+        public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May throw if the specified string token is malformed due to lexer error recovery.

@@ -6,11 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public static ProgramSyntax CreateFromText(string text)
         {
-            var lexer = new Lexer(new SlidingTextWindow(text));
-            lexer.Lex();
-
-            var parser = new Parser.Parser(lexer.GetTokens());
-
+            var parser = new Parser.Parser(text);
             return parser.Parse();
         }
     }
