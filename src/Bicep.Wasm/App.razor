@@ -1,3 +1,7 @@
+@using Bicep.Core.Syntax
+@using Bicep.Core.SemanticModel
+@using Bicep.Core.Emit
+@using Bicep.Core.Text
 <div class="container">
     <textarea class="left-half code" type="text" spellcheck="false" @bind="CurrentValue" @bind:event="oninput" />
     <div class="right-half code">@CompiledText</div>
@@ -23,30 +27,45 @@
 
     private static string GetStartingTemplate()
     {
-        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Bicep.Wasm.basic.arm"))
-        using (var reader = new StreamReader(stream))
-        {
-            return reader.ReadToEnd();
-        }
+        return ReadStreamToEnd(Assembly.GetExecutingAssembly().GetManifestResourceStream("Bicep.Wasm.basic.arm"));
+    }
+
+    private static string ReadStreamToEnd(Stream stream)
+    {
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 
     private static string Compile(string value)
     {
         try
         {
-            var lexer = new Lexer(new SlidingTextWindow(value));
-            lexer.Lex();
+            var lineStarts = TextCoordinateConverter.GetLineStarts(value);
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(value));
 
-            var tokens = lexer.GetTokens();
-            var parser = new Parser(tokens);
+            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
-            var program = parser.Parse();
+            // memory stream is not ideal for frequent large allocations
+            using var stream = new MemoryStream();
+            var emitResult = emitter.Emit(stream);
 
-            var stringBuilder = new StringBuilder();
-            var printer = new PrintVisitor(s => stringBuilder.Append(s));
-            printer.Visit(program);
+            if (emitResult.Status != EmitStatus.Failed)
+            {
+                // compilation was successful or had warnings - return the compiled template
+                stream.Position = 0;
+                return ReadStreamToEnd(stream);
+            }
 
-            return stringBuilder.ToString();
+            // compilation failed
+            var buffer = new StringBuilder();
+            foreach (Error diagnostic in emitResult.Diagnostics)
+            {
+                var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+
+                buffer.AppendLine($"({line + 1},{character + 1}): error BCP001: {diagnostic.Message}");
+            }
+
+            return buffer.ToString();
         }
         catch (Exception exception)
         {

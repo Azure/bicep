@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core.Parser;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,6 +11,12 @@ namespace Bicep.Core.Samples
     [TestClass]
     public class DataSetsTests
     {
+        private static readonly Regex Pattern_CRLF = new Regex(@"(\r\n)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private static readonly Regex Pattern_LF = new Regex(@"(\n)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private static readonly Regex Pattern_CR = new Regex(@"(\r)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void DataSetShouldBeValid(DataSet dataSet)
@@ -33,20 +40,25 @@ namespace Bicep.Core.Samples
             var lineEndingTokens = GetLineEndingTokens(dataSet.Bicep);
             lineEndingTokens.Select(token => token.Type).Should().AllBeEquivalentTo(TokenType.NewLine);
 
-            string? expectedLineEnding = null;
+            Regex? expectedPattern = null;
             if (dataSet.Name.EndsWith("_CRLF"))
             {
-                expectedLineEnding = "\r\n";
+                expectedPattern = Pattern_CRLF;
             }
 
             if (dataSet.Name.EndsWith("_LF"))
             {
-                expectedLineEnding = "\n";
+                expectedPattern = Pattern_LF;
             }
 
-            if (expectedLineEnding != null)
+            if (dataSet.Name.EndsWith("_CR"))
             {
-                lineEndingTokens.All(token => string.Equals(token.Text, expectedLineEnding, StringComparison.Ordinal)).Should().BeTrue();
+                expectedPattern = Pattern_CR;
+            }
+
+            if (expectedPattern != null)
+            {
+                lineEndingTokens.All(token => expectedPattern.IsMatch(token.Text)).Should().BeTrue();
             }
         }
 

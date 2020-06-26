@@ -15,15 +15,12 @@ namespace Bicep.LanguageServer.Providers
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            var lexer = new Lexer(new SlidingTextWindow(text));
-            lexer.Lex();
-
-            var parser = new Parser(lexer.GetTokens());
+            var parser = new Parser(text);
             var program = parser.Parse();
 
             var compilation = new Compilation(program);
 
-            return new CompilationContext(lexer, compilation, lineStarts);
+            return new CompilationContext(compilation, lineStarts);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using Bicep.Core.Syntax;
 
@@ -8,14 +9,21 @@ namespace Bicep.Core.Parser
     public class Parser
     {
         private readonly TokenReader reader;
+
+        private readonly ImmutableArray<Error> lexicalErrors;
         
-        public Parser(IEnumerable<Token> tokens)
+        public Parser(string text)
         {
-            this.reader = new TokenReader(tokens);
+            // treating the lexer as an implementation detail of the parser
+            var lexer = new Lexer(new SlidingTextWindow(text));
+            lexer.Lex();
+
+            this.lexicalErrors = lexer.GetErrors();
+
+            this.reader = new TokenReader(lexer.GetTokens());
         }
 
-        public ProgramSyntax Parse()
-            => Program();
+        public ProgramSyntax Parse() => Program();
 
         private ProgramSyntax Program()
         {
@@ -28,7 +36,7 @@ namespace Bicep.Core.Parser
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(statements, endOfFile);
+            return new ProgramSyntax(statements, endOfFile, this.lexicalErrors);
         }
 
         private SyntaxBase Statement()
@@ -42,6 +50,8 @@ namespace Bicep.Core.Parser
                         return this.ParameterStatement();
 
                     case TokenType.NewLine:
+                        // at this point, this only exists at the beginning of the file
+                        // newlines that break up multiple declarations get slurped up by the lexer into a single token
                         return this.NoOpStatement();
                 }
 

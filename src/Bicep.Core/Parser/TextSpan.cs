@@ -35,7 +35,16 @@ namespace Bicep.Core.Parser
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         /// <returns>the span from the beginning of the first span to the end of the second span</returns>
-        public static TextSpan Between(TextSpan a, TextSpan b) => new TextSpan(a.Position, b.Position + b.Length - a.Position);
+        public static TextSpan Between(TextSpan a, TextSpan b)
+        {
+            if (a.Position <= b.Position)
+            {
+                return new TextSpan(a.Position, b.Position + b.Length - a.Position);
+            }
+
+            // the spans are in reverse order - flip them
+            return TextSpan.Between(b, a);
+        }
 
         /// <summary>
         /// Calculates the span from the beginning of the first object to the end of the 2nd one.
@@ -51,7 +60,15 @@ namespace Bicep.Core.Parser
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         /// <returns>the span from the end of the first span to the beginning of the second span</returns>
-        public static TextSpan BetweenNonInclusive(TextSpan a, TextSpan b) => new TextSpan(a.Position + a.Length, b.Position - (a.Position + a.Length));
+        public static TextSpan BetweenNonInclusive(TextSpan a, TextSpan b)
+        {
+            if (a.Position <= b.Position)
+            {
+                return new TextSpan(a.Position + a.Length, b.Position - (a.Position + a.Length));
+            }
+
+            return TextSpan.BetweenNonInclusive(b, a);
+        }
 
         /// <summary>
         /// Calculates the span from the end of the first object to the beginning of the second one.

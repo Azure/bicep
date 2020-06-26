@@ -1,18 +1,18 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter declaration.",
-    "span": "[143:150]",
-    "spanText": "wrong\r\n"
+    "span": "[143:152]",
+    "spanText": "wrong\r\n\r\n"
   },
   {
     "message": "Expected a parameter identifier at this location.",
-    "span": "[182:186]",
-    "spanText": "\r\n\r\n"
+    "span": "[182:211]",
+    "spanText": "\r\n\r\nparameter myBool bool\r\n\r\n"
   },
   {
     "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[232:236]",
-    "spanText": "\r\n\r\n"
+    "span": "[232:282]",
+    "spanText": "\r\n\r\nparameter myString2 string= 'string value'\r\n\r\n"
   },
   {
     "message": "The parameter expects a default value of type 'string' but provided value is of type 'int'.",
@@ -21,8 +21,8 @@
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[385:387]",
-    "spanText": "\r\n"
+    "span": "[385:389]",
+    "spanText": "\r\n\r\n"
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
@@ -36,8 +36,8 @@
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[506:517]",
-    "spanText": ": 'hello'\r\n"
+    "span": "[506:519]",
+    "spanText": ": 'hello'\r\n\r\n"
   },
   {
     "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
@@ -46,8 +46,8 @@
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[879:891]",
-    "spanText": "s up doc?'\r\n"
+    "span": "[879:893]",
+    "spanText": "s up doc?'\r\n\r\n"
   },
   {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
