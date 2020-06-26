@@ -276,6 +276,25 @@ namespace Bicep.Core.Parser
             }
         }
 
+        private void ScanNewLine()
+        {
+            while (true)
+            {
+                if (textWindow.IsAtEnd())
+                {
+                    return;
+                }
+
+                var nextChar = textWindow.Peek();
+                if (IsNewLine(nextChar) == false)
+                {
+                    return;
+                }
+
+                textWindow.Advance();
+            }
+        }
+
         private void ScanString()
         {
             while (true)
@@ -494,17 +513,8 @@ namespace Bicep.Core.Parser
                     ScanString();
                     return TokenType.String;
                 case '\n':
-                    return TokenType.NewLine;
                 case '\r':
-                    if (!textWindow.IsAtEnd())
-                    {
-                        switch (textWindow.Peek())
-                        {
-                            case '\n':
-                                textWindow.Advance();
-                                return TokenType.NewLine;
-                        }
-                    }
+                    this.ScanNewLine();
                     return TokenType.NewLine;
                 default:
                     if (IsDigit(nextChar))
@@ -524,16 +534,14 @@ namespace Bicep.Core.Parser
 
         // TODO: Need IsIdStart and IsIdContinue (to disallow starting identifiers with 0-9, for example)
 
-        private static bool IsAlpha(char c)
-            => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+        private static bool IsAlpha(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 
-        private static bool IsAlphaNumeric(char c)
-            => IsAlpha(c) || IsDigit(c);
+        private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);
 
-        private static bool IsDigit(char c)
-            => c >= '0' && c <= '9';
+        private static bool IsDigit(char c) => c >= '0' && c <= '9';
 
-        private static bool IsWhiteSpace(char c)
-            => c == ' ' || c == '\t';
+        private static bool IsWhiteSpace(char c) => c == ' ' || c == '\t';
+
+        private static bool IsNewLine(char c) => c == '\n' || c == '\r';
     }
 }

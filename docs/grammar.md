@@ -8,7 +8,7 @@ parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ("=" value )? NL
 
 value -> NUMBER | STRING | "true" | "false"
 
-NL -> "\n" | "\r\n" | "\r"
+NL -> ("\n" | "\r")+
 ```
 
 Ignore everything below
