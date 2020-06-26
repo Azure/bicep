@@ -50,6 +50,8 @@ namespace Bicep.Core.Parser
                         return this.ParameterStatement();
 
                     case TokenType.NewLine:
+                        // at this point, this only exists at the beginning of the file
+                        // newlines that break up multiple declarations get slurped up by the lexer into a single token
                         return this.NoOpStatement();
                 }
 
