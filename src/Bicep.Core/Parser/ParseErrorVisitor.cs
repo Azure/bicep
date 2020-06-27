@@ -17,6 +17,16 @@ namespace Bicep.Core.Visitors
             this.errors = errors;
         }
 
+        public override void VisitProgramSyntax(ProgramSyntax syntax)
+        {
+            base.VisitProgramSyntax(syntax);
+
+            foreach (Error error in syntax.LexicalErrors)
+            {
+                this.errors.Add(error);
+            }
+        }
+
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
             // parse errors live on skipped token nodes

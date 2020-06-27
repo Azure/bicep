@@ -50,6 +50,11 @@
     "spanText": "s up doc?'\r\n\r\n"
   },
   {
+    "message": "The string at this location is not terminated due to an unexpected new line character.",
+    "span": "[888:889]",
+    "spanText": "'"
+  },
+  {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
     "span": "[912:962]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\s up doc?'"
@@ -58,6 +63,11 @@
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
     "span": "[932:943]",
     "spanText": "fluffyBunny"
+  },
+  {
+    "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t",
+    "span": "[951:953]",
+    "spanText": "\\s"
   },
   {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
@@ -70,6 +80,11 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The string at this location is not terminated due to an unexpected new line character.",
+    "span": "[1025:1041]",
+    "spanText": "'what\\'s up doc?"
+  },
+  {
     "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
     "span": "[1045:1096]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?'"
@@ -78,5 +93,10 @@
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
     "span": "[1065:1076]",
     "spanText": "fluffyBunny"
+  },
+  {
+    "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
+    "span": "[1136:1142]",
+    "spanText": "/*    "
   }
 ]
