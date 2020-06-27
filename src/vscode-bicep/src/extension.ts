@@ -25,16 +25,17 @@ export async function activate(context: ExtensionContext) {
     // TODO: Unify the path for VSIX package and local debugging
     const serverExe = `${__dirname}/../../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.exe`;
 
+    // Create output channel to show extension debug information
+    // NOTE(jcotillo) debug info should go to a file as telemetry info
+    let info = window.createOutputChannel(bicepDebugOutputLabel);
+
     try {
-        const result = await getDotNetPath();
-        // Create output channel to show extension debug information
-        // NOTE(jcotillo) debug info should go to a file as telemetry info
-        let info = window.createOutputChannel(bicepDebugOutputLabel);
+        const result = await getDotNetPath();        
 
         //Write to output.
         info.appendLine(`DotNet version installed: '${result}'`);
     } catch (err) {
-        console.log(err);
+        info.appendLine(`Error: ${err}`);
     }
 
     // If the extension is launched in debug mode then the debug server options are used
