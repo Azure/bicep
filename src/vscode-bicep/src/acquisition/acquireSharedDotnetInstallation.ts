@@ -15,12 +15,10 @@ export async function acquireSharedDotnetInstallation(version: string): Promise<
     let message: string | undefined;
     let result: IDotnetAcquireResult | undefined;
 
-    return new Promise(async (resolve, reject) => {
-        try {
-            result = await commands.executeCommand<IDotnetAcquireResult>('dotnet.acquire', { version });
-            return result.dotnetPath;
-        } catch (err) {
-            console.log(err);
-        }
-    });
+    try {
+        result = await commands.executeCommand<IDotnetAcquireResult>('dotnet.acquire', { version });
+        return result.dotnetPath;            
+    } catch (err) {
+        console.log(err);
+    }
 }

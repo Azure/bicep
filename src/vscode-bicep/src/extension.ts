@@ -8,8 +8,8 @@
 import * as path from "path";
 
 import { acquireSharedDotnetInstallation } from './acquisition/acquireSharedDotnetInstallation';
-import { downloadDotnetVersion } from './common/constants';
-import { workspace, Disposable, ExtensionContext } from "vscode";
+import { downloadDotnetVersion, bicepOutputLabel, bicepDebugOutputLabel } from './common/constants';
+import { workspace, Disposable, ExtensionContext, window } from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -20,19 +20,22 @@ import {
 } from "vscode-languageclient";
 import { Trace } from "vscode-jsonrpc";
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
     // The server is implemented in .net core
     // TODO: Unify the path for VSIX package and local debugging
     const serverExe = `${__dirname}/../../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.exe`;
 
-    (async() => {
-        try {
-            const result = await getDotNetPath();
-            console.log('dotnet acquired: ', result);
-        } catch (err) {
-            console.log(err);
-        }
-    })();
+    try {
+        const result = await getDotNetPath();
+        // Create output channel to show extension debug information
+        // NOTE(jcotillo) debug info should go to a file as telemetry info
+        let info = window.createOutputChannel(bicepDebugOutputLabel);
+
+        //Write to output.
+        info.appendLine(`DotNet version installed: '${result}'`);
+    } catch (err) {
+        console.log(err);
+    }
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -74,7 +77,7 @@ export function activate(context: ExtensionContext) {
     // Create the language client and start the client.
     const client = new LanguageClient(
         "bicep",
-        "Bicep Language Server",
+        bicepOutputLabel,
         serverOptions,
         clientOptions
     );
