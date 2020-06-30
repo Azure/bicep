@@ -78,6 +78,19 @@ resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
 }
 ```
 
+## Conditions
+Resources may be deployed if and only if a specified condition evaluated to `true`. Otherwise, resource deployment will be skipped. This is accomplished by adding a `when` keyword and a boolean expression to the resource declaration. The template compiled from the below example will deploy the DNS zone if the `deployZone` parameter evaluates to `true`:
+```
+parameter deployZone bool
+
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' when (deployZone) = {
+  name: 'myZone'
+  location: 'global'
+}
+```
+
+Conditions may be used with dependency declarations. If the identifier of conditional resource is specified in `dependsOn` of another resource (explicit dependency), the dependency will be ignored if the condition evaluates to `false` at template deployment time. If the condition evaluates to `true`, the dependency will be respected. Referencing a property of a conditional resource (implicit dependency) is allowed but may produce a runtime error in some cases.
+
 ## Other Examples
 
 ### Storage Account
