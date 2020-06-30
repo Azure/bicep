@@ -1,2 +1,3 @@
 # Outputs
-Outputs are not yet implemented.
+> **Note**: Not implemented yet
+

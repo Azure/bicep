@@ -1,2 +1,2 @@
 # Expressions
-Expressions are not currently implemented.
+> **Note**: Not implemented yet
