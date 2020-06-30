@@ -42,6 +42,42 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 }
 ```
 
+## Resource dependencies
+All declared resources will be deployed concurrently in the compiled template. Order of resource deployment can be influenced in the following ways:
+### Explicit dependency
+An explicit dependency is declared via the `dependsOn` property within the resource declaration. The property accept an array of resource identifiers. Here is an example of one DNS zone depending on another explicitly:
+```
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+}
+
+resource otherZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+  dependsOn: [
+    dnsZone
+  ]
+}
+```
+
+### Implicit dependency
+An implicit dependency will be created when one resource declaration references the identifier of another resource declaration in an expression. Here's an example:
+```
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+}
+
+resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
+  name: 'exampleResource'
+  properties: {
+    // get read-only DNS zone property
+    nameServers: dnsZone.properties.nameServers
+  }
+}
+```
+
 ## Other Examples
 
 ### Storage Account
