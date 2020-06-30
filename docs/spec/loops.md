@@ -15,7 +15,7 @@ In the below example, we are looping over `storageAccounts` array. For each loop
 // array of storage account names
 parameter storageAccounts array
 
-resource databases: 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts: resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
+resource databases 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts {
   name: storageName
   location: resourceGroup().location
   properties: {
@@ -57,7 +57,7 @@ variable storageConfiguration = [
   }
 ]
 
-resource databases: 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfiguration: resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
+resource databases 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfiguration {
   name: storageAccountNamePrefix + config.suffix + i
   location: resourceGroup().location
   properties: {
