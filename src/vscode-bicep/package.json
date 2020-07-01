@@ -59,8 +59,8 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -p ./",
+        "vscode:prepublish": "dotnet build ..\\Bicep.LangServer --configuration Release --output languageServer && tsc -p ./",
+        "compile": "dotnet build ..\\Bicep.LangServer --configuration Release --output languageServer && tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "package": "node node_modules/vsce/out/vsce package --out ./"
