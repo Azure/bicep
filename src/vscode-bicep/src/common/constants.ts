@@ -6,11 +6,11 @@
 // The dotnet version to download and run the language server against
 export const downloadDotnetVersion = '3.1';
 
-// The main output label
-export const bicepOutputLabel = "Bicep Language Server";
+// The language server output label
+export const bicepOutputLanguageServer = "Bicep Language Server";
 
 // The extension output label
-export const bicepDebugOutputLabel = "Bicep Extension";
+export const bicepOutputExtension = "Bicep Extension";
 
 // The language server folder name
 export const languageServerFolderName = 'languageServer';

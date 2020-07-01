@@ -11,8 +11,8 @@ import { existsSync } from "fs";
 import { acquireSharedDotnetInstallation } from './acquisition/acquireSharedDotnetInstallation';
 import { 
     downloadDotnetVersion,
-    bicepOutputLabel,
-    bicepDebugOutputLabel,
+    bicepOutputLanguageServer,
+    bicepOutputExtension,
     languageServerFolderName,
     languageServerName,
     languageServerDllName,
@@ -35,7 +35,7 @@ export async function activate(context: ExtensionContext) {
     
     // Create output channel to show extension debug information
     // NOTE(jcotillo) debug info should go to a file as telemetry info
-    let info = window.createOutputChannel(bicepDebugOutputLabel);
+    let info = window.createOutputChannel(bicepOutputExtension);
 
     try {
         const dotNetRuntimePath = await getDotNetRuntimePath();
@@ -114,7 +114,7 @@ function startLanguageServer(context: ExtensionContext, languageServerPath: stri
     // Create the language client and start the client.
     const client = new LanguageClient(
         "bicep",
-        bicepOutputLabel,
+        bicepOutputLanguageServer,
         serverOptions,
         clientOptions
     );
