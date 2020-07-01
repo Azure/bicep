@@ -58,7 +58,7 @@ function getLanguageServerPath(context: ExtensionContext) {
     const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
     const fullPath = path.join(serverFolderPath, languageServerDllName);
     if (!existsSync(serverFolderPath) || !existsSync(fullPath)) {
-        throw new Error(`Cannot find the ${languageServerName} at ${fullPath}. Only template string expression functionality will be available.`);
+        throw new Error(`Cannot find the ${languageServerName} at ${fullPath}.`);
     }
     return fullPath;
 }
