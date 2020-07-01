@@ -38,7 +38,7 @@ export async function activate(context: ExtensionContext) {
     let info = window.createOutputChannel(bicepDebugOutputLabel);
 
     try {
-        const dotNetRuntimePath = await getDotNetPath();
+        const dotNetRuntimePath = await getDotNetRuntimePath();
         //Write to output.
         info.appendLine(`DotNet version installed: '${dotNetRuntimePath}'`);
         const languageServerPath = getLanguageServerPath(context);
@@ -50,7 +50,7 @@ export async function activate(context: ExtensionContext) {
     }
 }
 
-async function getDotNetPath(): Promise<string | undefined> {
+async function getDotNetRuntimePath(): Promise<string | undefined> {
     return await acquireSharedDotnetInstallation(downloadDotnetVersion);    
 }
 
