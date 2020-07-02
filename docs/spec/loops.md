@@ -15,7 +15,7 @@ In the below example, we are looping over `storageAccounts` array. For each loop
 // array of storage account names
 parameter storageAccounts array
 
-resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts {
+resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts: {
   name: storageName
   location: resourceGroup().location
   properties: {
@@ -57,7 +57,7 @@ variable storageConfigurations = [
   }
 ]
 
-resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfigurations {
+resource storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (config, i) in storageConfigurations: {
   name: storageAccountNamePrefix + config.suffix + i
   location: resourceGroup().location
   properties: {
@@ -107,7 +107,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
         '10.144.0.0/20'
       ]
     },
-    subnets: [for subnet in subnets {
+    subnets: [for subnet in subnets: {
       name: subnet.name
       properties: {
         addressPrefix: subnet.subnetPrefix
@@ -118,13 +118,13 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-11-01' = {
 ```
 
 ### Nested loops and filtering.
-The example below demonstrates a nested loop combined with filters at each loop.
+The example below demonstrates a nested loop combined with filters at each loop. Filters must be expressions that evaluate to a boolean value.
 
 ```
-resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent in parents where (parent.enabled) {
+resource parentResources 'Microsoft.Example/examples@2020-06-06' = [for parent in parents where parent.enabled: {
   name: parent.name
   properties: {
-    children: [for child in parent.children where (parent.includeChildren && child.enabled) {
+    children: [for child in parent.children where parent.includeChildren && child.enabled: {
       name: child.name
       setting: child.settingValue
     }]
