@@ -54,9 +54,13 @@ async function getDotNetRuntimePath(): Promise<string | undefined> {
     return await acquireSharedDotnetInstallation(downloadDotnetVersion);    
 }
 
-function getLanguageServerPath(context: ExtensionContext) {
+function getLanguageServerPath(context: ExtensionContext) {    
     const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
-    const fullPath = path.join(serverFolderPath, languageServerDllName);
+    let fullPath = process.env["languageServerPath"];
+    if (fullPath == null || fullPath.length == 0) {
+        fullPath = path.join(serverFolderPath, languageServerDllName);
+    }
+
     if (!existsSync(serverFolderPath) || !existsSync(fullPath)) {
         throw new Error(`Cannot find the ${languageServerName} at ${fullPath}.`);
     }
