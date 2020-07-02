@@ -360,4 +360,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Language Server bit
-languageServer/
+bicepLanguageServer/

@@ -11,9 +11,6 @@
                 "--enable-proposed-api",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
-            "env": {
-                "languageServerPath": ""
-            },
             "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": ["${workspaceRoot}/out/src/**/*.js"],

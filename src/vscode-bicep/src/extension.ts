@@ -16,6 +16,7 @@ import {
     languageServerFolderName,
     languageServerName,
     languageServerDllName,
+    languageServerPath,
     defaultTraceLevel,
     workspaceSettings
 } from './common/constants';
@@ -56,7 +57,7 @@ async function getDotNetRuntimePath(): Promise<string | undefined> {
 
 function getLanguageServerPath(context: ExtensionContext) {    
     const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
-    let fullPath = process.env["languageServerPath"];
+    let fullPath = process.env[languageServerPath];
     if (fullPath == null || fullPath.length == 0) {
         fullPath = path.join(serverFolderPath, languageServerDllName);
     }

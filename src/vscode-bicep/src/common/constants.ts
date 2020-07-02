@@ -13,7 +13,7 @@ export const bicepOutputLanguageServer = "Bicep Language Server";
 export const bicepOutputExtension = "Bicep Extension";
 
 // The language server folder name
-export const languageServerFolderName = 'languageServer';
+export const languageServerFolderName = 'bicepLanguageServer';
 
 // The language server name
 export const languageServerName = 'Bicep Language Server';
@@ -24,8 +24,11 @@ export const languageServerDllName = 'Bicep.LangServer.dll';
 // The default tracing level
 export const defaultTraceLevel = 'Warning';
 
+// The language server path
+export const languageServerPath = "bicepLanguageServerPath";
+
 // The workspace (user settings)
 export namespace workspaceSettings {
     export const prefix = 'bicepLanguageServer';
-    export const traceLevel = 'languageServer.traceLevel';
+    export const traceLevel = 'bicepLanguageServer.traceLevel';
 }
