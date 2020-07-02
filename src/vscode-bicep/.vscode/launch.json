@@ -8,7 +8,6 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--disable-extensions",
                 "--enable-proposed-api",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
