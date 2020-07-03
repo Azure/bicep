@@ -4,8 +4,14 @@ namespace Bicep.Core.Parser
     {
         public Error(string message, TextSpan span)
         {
-            Message = message;
-            Span = span;
+            this.Message = message;
+            this.Span = span;
+        }
+
+        public Error(string message, IPositionable positionable)
+        {
+            this.Message = message;
+            this.Span = positionable.Span;
         }
 
         public string Message { get; }

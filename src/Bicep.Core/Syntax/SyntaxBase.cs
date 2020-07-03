@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using Bicep.Core.Parser;
-using Bicep.Core.Visitors;
 
 namespace Bicep.Core.Syntax
 {
@@ -26,7 +26,26 @@ namespace Bicep.Core.Syntax
                 return;
             }
 
-            throw new ArgumentException($"{parameterName} must be of type {expectedTypeIfNotNull} but provided token type was {token.Type}");
+            throw new ArgumentException($"{parameterName} must be of type {expectedTypeIfNotNull} but provided token type was {token.Type}.");
+        }
+
+        protected void AssertTokenTypeList(IEnumerable<Token> tokens, string parameterName, TokenType expectedType, int minimumCount)
+        {
+            int index = 0;
+            foreach (Token token in tokens)
+            {
+                if (token.Type != expectedType)
+                {
+                    throw new ArgumentException($"{parameterName} must contain tokens of type {expectedType}, but the token at index {index} is of type {token.Type}.");
+                }
+
+                ++index;
+            }
+
+            if (index < minimumCount)
+            {
+                throw new ArgumentException($"{parameterName} must contain at least {minimumCount}, but the list contains {index} token(s).");
+            }
         }
     }
 }

@@ -37,10 +37,10 @@ namespace Bicep.Core.SemanticModel
         {
             if(this.DefaultValue != null)
             {
-                // check value type matches type
+                // figure out type of the default value
                 TypeSymbol? defaultValueType = this.Context.GetTypeInfo(this.DefaultValue);
-                
-                if (this.Type.TypeKind != TypeKind.Error && TypeSymbol.Equals(this.Type, defaultValueType) == false)
+
+                if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                 {
                     yield return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", this.DefaultValue);
                 }

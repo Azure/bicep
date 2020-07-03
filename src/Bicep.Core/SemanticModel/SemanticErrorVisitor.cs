@@ -13,16 +13,9 @@ namespace Bicep.Core.SemanticModel
             this.diagnostics = diagnostics;
         }
 
-        public override void VisitErrorTypeSymbol(ErrorTypeSymbol symbol)
+        public override void VisitTypeSymbol(TypeSymbol symbol)
         {
-            // TODO: Need a better pattern for collecting diagnostics from all the symbols - otherwise, we'll forget and miss something
-            base.VisitErrorTypeSymbol(symbol);
-            this.CollectDiagnostics(symbol);
-        }
-
-        public override void VisitPrimitiveTypeSymbol(PrimitiveTypeSymbol symbol)
-        {
-            base.VisitPrimitiveTypeSymbol(symbol);
+            base.VisitTypeSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 
