@@ -24,4 +24,23 @@ parameter foo object = {
   }
   empty: {
   }
+  array: [
+    'string item'
+    12
+    true
+    [
+      'inner'
+      false
+    ]
+    {
+      a: 'b'
+    }
+  ]
 }
+
+// array default value
+parameter myArrayParam array = [
+  'a'
+  'b'
+  'c'
+]

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using Bicep.Core.SemanticModel;
+﻿using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem
 {

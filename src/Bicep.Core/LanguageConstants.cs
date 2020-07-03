@@ -19,7 +19,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int");
         public static readonly TypeSymbol Bool = new PrimitiveType("bool");
-        public static readonly TypeSymbol Array = new PrimitiveType("array");
+        public static readonly TypeSymbol Array = new ArrayType("array");
 
         // strict schema on the modifier - no extra properties allowed
         public static readonly TypeSymbol ParameterModifier = new NamedObjectType(nameof(ParameterModifier), CreateParameterModifierProperties(), additionalPropertiesType: null);
@@ -28,6 +28,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any);
 
         public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String);
+
+        public static readonly TypeSymbol StringArray = new NamedArrayType("StringArray", String);
 
         // ARM resource has a fixed schema for the top-level properties
         public static readonly TypeSymbol Resource = new NamedObjectType(nameof(Resource), CreateResourceProperties(), additionalPropertiesType: null);
@@ -41,7 +43,6 @@ namespace Bicep.Core
             yield return new TypeProperty("secure", Bool, required: false);
             yield return new TypeProperty("defaultValue", Any, required: false);
 
-            // TODO: Need to declare as array of any type
             yield return new TypeProperty("allowedValues", Array, required: false);
 
             yield return new TypeProperty("minValue", Int, required: false);
@@ -76,16 +77,14 @@ namespace Bicep.Core
             yield return new TypeProperty("kind", String, required: false);
             yield return new TypeProperty("managedBy", String, required: false);
 
-            // TODO: Make it an array of strings when supported
-            yield return new TypeProperty("managedByExtended", Array, required: false);
+            yield return new TypeProperty("managedByExtended", StringArray, required: false);
 
             yield return new TypeProperty("location", String, required: false);
 
             // TODO: Model type fully
             yield return new TypeProperty("extendedLocation", Object, required: false);
 
-            // TODO: Make it an array of strings when supported
-            yield return new TypeProperty("zones", Array, required: false);
+            yield return new TypeProperty("zones", StringArray, required: false);
 
             yield return new TypeProperty("plan", Object, required: false);
 

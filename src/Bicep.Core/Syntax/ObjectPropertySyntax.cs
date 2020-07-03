@@ -26,10 +26,8 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Token> NewLines { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
-            => visitor.VisitObjectPropertySyntax(this);
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
 
-        public override TextSpan Span
-            => TextSpan.Between(this.Identifier, this.NewLines.Last());
+        public override TextSpan Span => TextSpan.Between(this.Identifier, this.NewLines.Last());
     }
 }

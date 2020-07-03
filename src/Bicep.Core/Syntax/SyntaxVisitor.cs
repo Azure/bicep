@@ -95,6 +95,20 @@ namespace Bicep.Core.Syntax
             this.VisitTokens(syntax.NewLines);
         }
 
+        public virtual void VisitArraySyntax(ArraySyntax syntax)
+        {
+            this.VisitToken(syntax.OpenBracket);
+            this.VisitTokens(syntax.NewLines);
+            this.VisitNodes(syntax.Items);
+            this.VisitToken(syntax.CloseBracket);
+        }
+
+        public virtual void VisitArrayItemSyntax(ArrayItemSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+            this.VisitTokens(syntax.NewLines);
+        }
+
         protected void VisitTokens(IEnumerable<Token> tokens)
         {
             foreach (Token token in tokens)

@@ -39,6 +39,11 @@ namespace Bicep.Core.TypeSystem
                     // this function does not implement any schema validation, so this is far as we go
                     return true;
 
+                case ArrayType _ when sourceType is ArrayType:
+                    // both types are arrays
+                    // this function does not validate item types
+                    return true;
+
                 default:
                     // expression cannot be assigned to the type
                     return false;
@@ -60,7 +65,7 @@ namespace Bicep.Core.TypeSystem
                 yield break;
             }
 
-            // deeper assignability check
+            // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
                 foreach (Error diagnostic in GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType))
@@ -68,6 +73,32 @@ namespace Bicep.Core.TypeSystem
                     yield return diagnostic;
                 }
             }
+
+            // array assignability check
+            if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
+            {
+                foreach (Error diagnostic in GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType))
+                {
+                    yield return diagnostic;
+                }
+            }
+        }
+
+        private static IEnumerable<Error> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType)
+        {
+            // if we have parse errors, no need to check assignability
+            // we should not return the parse errors however because they will get double collected
+            if (expression.HasParseErrors())
+            {
+                return Enumerable.Empty<Error>();
+            }
+
+            return expression.Items
+                .SelectMany(arrayItemSyntax => GetExpressionAssignmentDiagnostics(
+                    context,
+                    arrayItemSyntax.Value,
+                    targetType.ItemType,
+                    (expectedType, actualType, errorExpression) => new Error($"The enclosing array expected an item of type '{expectedType.Name}', but the provided item was of type '{actualType.Name}'.", errorExpression)));
         }
 
         private static IEnumerable<Error> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType)
@@ -75,7 +106,7 @@ namespace Bicep.Core.TypeSystem
             // TODO: Rewrite using extension method syntax
             // TODO: Short-circuit on any object to avoid unnecessary processing?
 
-            // if we have parse errors, there's no point to check equality
+            // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {

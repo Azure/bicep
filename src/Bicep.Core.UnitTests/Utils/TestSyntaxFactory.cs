@@ -7,7 +7,11 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestSyntaxFactory
     {
-        public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties) => new ObjectSyntax(CreateToken(TokenType.LeftBrace), new[] {CreateToken(TokenType.NewLine)}, properties, CreateToken(TokenType.RightBrace));
+        public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties) => new ObjectSyntax(CreateToken(TokenType.LeftBrace), CreateNewLines(), properties, CreateToken(TokenType.RightBrace));
+
+        public static ArraySyntax CreateArray(IEnumerable<ArrayItemSyntax> items) => new ArraySyntax(CreateToken(TokenType.LeftSquare), CreateNewLines(), items, CreateToken(TokenType.RightSquare));
+        
+        public static ArrayItemSyntax CreateArrayItem(SyntaxBase value) => new ArrayItemSyntax(value, CreateNewLines());
 
         // TODO: Escape string correctly
         public static StringSyntax CreateString(string value) => new StringSyntax(CreateToken(TokenType.String, $"'{value}'"));
@@ -20,8 +24,10 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ObjectPropertySyntax CreateProperty(string name, SyntaxBase value) => CreateProperty(CreateIdentifier(name), value);
 
-        public static ObjectPropertySyntax CreateProperty(IdentifierSyntax name, SyntaxBase value) => new ObjectPropertySyntax(name, CreateToken(TokenType.Colon), value, new[] {CreateToken(TokenType.NewLine)});
+        public static ObjectPropertySyntax CreateProperty(IdentifierSyntax name, SyntaxBase value) => new ObjectPropertySyntax(name, CreateToken(TokenType.Colon), value, CreateNewLines());
 
-        public static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, String.Empty, String.Empty);
+        private static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, String.Empty, String.Empty);
+
+        private static Token[] CreateNewLines() => new[] {CreateToken(TokenType.NewLine)};
     }
 }
