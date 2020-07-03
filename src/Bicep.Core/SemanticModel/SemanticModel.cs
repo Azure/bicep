@@ -3,7 +3,6 @@ using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Visitors;
 
 namespace Bicep.Core.SemanticModel
 {
@@ -20,14 +19,7 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Error> GetParseDiagnostics()
-        {
-            var diagnostics = new List<Error>();
-            var visitor = new ParseErrorVisitor(diagnostics);
-            visitor.Visit(this.Root.DeclaringSyntax);
-
-            return diagnostics;
-        }
+        public IEnumerable<Error> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.

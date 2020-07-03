@@ -139,6 +139,19 @@ namespace Bicep.Core.Emit
                 case StringSyntax stringSyntax:
                     writer.WriteValue(stringSyntax.Value);
                     break;
+
+                case ObjectSyntax objectSyntax:
+                    writer.WriteStartObject();
+
+                    foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
+                    {
+                        writer.WritePropertyName(propertySyntax.Identifier.IdentifierName);
+                        this.EmitExpression(writer, propertySyntax.Value);
+                    }
+
+                    writer.WriteEndObject();
+
+                    break;
                     
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");

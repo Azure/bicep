@@ -55,7 +55,7 @@
     "spanText": "'"
   },
   {
-    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
     "span": "[912:962]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\s up doc?'"
   },
@@ -70,7 +70,7 @@
     "spanText": "\\s"
   },
   {
-    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
     "span": "[991:1041]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?"
   },
@@ -85,7 +85,7 @@
     "spanText": "'what\\'s up doc?"
   },
   {
-    "message": "Parameter 'wrongType' is declared several times, which is not allowed.",
+    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
     "span": "[1045:1096]",
     "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?'"
   },
