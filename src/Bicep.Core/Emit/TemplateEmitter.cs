@@ -152,6 +152,18 @@ namespace Bicep.Core.Emit
                     writer.WriteEndObject();
 
                     break;
+
+                case ArraySyntax arraySyntax:
+                    writer.WriteStartArray();
+
+                    foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
+                    {
+                        this.EmitExpression(writer, itemSyntax.Value);
+                    }
+
+                    writer.WriteEndArray();
+
+                    break;
                     
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");

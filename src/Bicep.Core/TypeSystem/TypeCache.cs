@@ -36,6 +36,9 @@ namespace Bicep.Core.TypeSystem
                 case ObjectSyntax _:
                     return LanguageConstants.Object;
 
+                case ArraySyntax _:
+                    return LanguageConstants.Array;
+
                 default:
                     // this expression has an unknown type
                     return new ErrorTypeSymbol(new Error("This value has an unexpected type", syntax.Span));

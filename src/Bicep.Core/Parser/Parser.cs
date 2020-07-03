@@ -156,14 +156,44 @@ namespace Bicep.Core.Parser
                 case TokenType.LeftBrace:
                     return Object();
 
+                case TokenType.LeftSquare:
+                    return Array();
+
                 default:
                     throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
             }
         }
 
+        private SyntaxBase Array()
+        {
+            var items = new List<ArrayItemSyntax>();
+            
+            var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
+            var newLines = this.NewLines();
+
+            while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
+            {
+                var item = this.ArrayItem();
+                items.Add(item);
+            }
+
+            var closeBracket = Expect(TokenType.RightSquare, "Expected a ] character at this location.");
+
+            return new ArraySyntax(openBracket, newLines, items, closeBracket);
+        }
+
+        private ArrayItemSyntax ArrayItem()
+        {
+            var value = this.Value();
+            var newLines = this.NewLines();
+
+            return new ArrayItemSyntax(value, newLines);
+        }
+
         private SyntaxBase Object()
         {
             var properties = new List<ObjectPropertySyntax>();
+
             var openBrace = Expect(TokenType.LeftBrace, "Expected a { character at this location.");
             var newLines = this.NewLines();
 

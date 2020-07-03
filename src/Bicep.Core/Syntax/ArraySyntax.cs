@@ -1,28 +1,33 @@
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class ArraySyntax : SyntaxBase
-    //{
-    //    public ArraySyntax(Token openSquare, SeparatedSyntaxList items, Token closeSquare)
-    //    {
-    //        OpenSquare = openSquare;
-    //        Items = items;
-    //        CloseSquare = closeSquare;
-    //    }
+    public class ArraySyntax : SyntaxBase
+    {
+        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<ArrayItemSyntax> items, Token closeBracket)
+        {
+            AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
+            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
+            AssertTokenType(closeBracket, nameof(closeBracket), TokenType.RightSquare);
 
-    //    public Token OpenSquare { get; }
+            this.OpenBracket = openBracket;
+            this.NewLines = newLines.ToImmutableArray();
+            this.Items = items.ToImmutableArray();
+            this.CloseBracket = closeBracket;
+        }
 
-    //    public SeparatedSyntaxList Items { get; }
+        public Token OpenBracket { get; }
 
-    //    public Token CloseSquare { get; }
+        public ImmutableArray<Token> NewLines { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitArraySyntax(this);
+        public ImmutableArray<ArrayItemSyntax> Items { get; }
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(OpenSquare, CloseSquare);
-    //}
+        public Token CloseBracket { get; }
+
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitArraySyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(this.OpenBracket, this.CloseBracket);
+    }
 }

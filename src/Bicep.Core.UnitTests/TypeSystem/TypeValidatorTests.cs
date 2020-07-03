@@ -118,6 +118,48 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void ResourceWithValidZonesShouldBeAccepted()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            {
+                TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
+                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("1")),
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("2"))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void InvalidArrayValuesShouldBeRejected()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            {
+                TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
+
+                // zones is an array of strings - set wrong item types
+                TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(new[]
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateInt(2))
+                })),
+
+                // this property is an array - specify a string instead
+                TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource)
+                .Select(d => d.Message)
+                .Should().BeEquivalentTo(
+                    "Property 'managedByExtended' expected a value of type 'StringArray' but the provided value is of type 'string'.",
+                    "The enclosing array expected an item of type 'string', but the provided item was of type 'bool'.",
+                    "The enclosing array expected an item of type 'string', but the provided item was of type 'int'.");
+        }
+
+        [TestMethod]
         public void RequiredPropertyShouldBeRequired()
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
@@ -127,6 +169,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
             errors.Should().HaveCount(1);
 
             errors.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
+        }
+
+        [TestMethod]
+        public void RequiredPropertyWithParseErrorsShouldProduceNoErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a")),
+                TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
+            });
+
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -148,6 +202,22 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .BeEquivalentTo(
                     "The property 'wrongTagType' expected a value of type 'string' but the provided value is of type 'bool'.",
                     "The property 'wrongTagType2' expected a value of type 'string' but the provided value is of type 'int'.");
+        }
+
+        [TestMethod]
+        public void WrongTypeOfAdditionalPropertiesWithParseErrorsShouldProduceNoErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            {
+                TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
+                TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateProperty("wrongTagType", TestSyntaxFactory.CreateInt(3))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
         }
 
         [TestMethod]
