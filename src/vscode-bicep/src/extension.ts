@@ -58,11 +58,11 @@ async function getDotNetRuntimePath(): Promise<string | undefined> {
 function getLanguageServerPath(context: ExtensionContext) {    
     const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
     let fullPath = process.env[languageServerPath];
-    if (fullPath == null || fullPath.length == 0) {
+    if (!fullPath) {
         fullPath = path.join(serverFolderPath, languageServerDllName);
     }
 
-    if (!existsSync(serverFolderPath) || !existsSync(fullPath)) {
+    if (!existsSync(fullPath)) {
         throw new Error(`Cannot find the ${languageServerName} at ${fullPath}.`);
     }
     return fullPath;
