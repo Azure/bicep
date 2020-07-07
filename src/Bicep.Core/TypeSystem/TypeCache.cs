@@ -1,4 +1,9 @@
-﻿using Bicep.Core.SemanticModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -14,6 +19,11 @@ namespace Bicep.Core.TypeSystem
             // TODO: When we have expressions, this class will cache the result, so we don't have walk the three all the time.
             switch (syntax)
             {
+                case null:
+                    // a null node has no type
+                    // which is different than "any" type
+                    return null;
+
                 case BooleanLiteralSyntax _:
                     return LanguageConstants.Bool;
 
@@ -23,10 +33,15 @@ namespace Bicep.Core.TypeSystem
                 case StringSyntax _:
                     return LanguageConstants.String;
 
+                case ObjectSyntax _:
+                    return LanguageConstants.Object;
+
+                case ArraySyntax _:
+                    return LanguageConstants.Array;
+
                 default:
-                    // the expression has no type
-                    // this is different than an expression having "any" type
-                    return null;
+                    // this expression has an unknown type
+                    return new ErrorTypeSymbol(new Error("This value has an unexpected type", syntax.Span));
             }
         }
 

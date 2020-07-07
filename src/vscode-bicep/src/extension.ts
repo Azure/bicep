@@ -6,8 +6,21 @@
 "use strict";
 
 import * as path from "path";
+import { existsSync } from "fs";
 
-import { workspace, Disposable, ExtensionContext } from "vscode";
+import { acquireSharedDotnetInstallation } from './acquisition/acquireSharedDotnetInstallation';
+import { 
+    downloadDotnetVersion,
+    bicepOutputLanguageServer,
+    bicepOutputExtension,
+    languageServerFolderName,
+    languageServerName,
+    languageServerDllName,
+    languageServerPath,
+    defaultTraceLevel,
+    workspaceSettings
+} from './common/constants';
+import { workspace, ExtensionContext, window } from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -18,24 +31,66 @@ import {
 } from "vscode-languageclient";
 import { Trace } from "vscode-jsonrpc";
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
     // The server is implemented in .net core
-    // TODO: Unify the path for VSIX package and local debugging
-    const serverExe = `${__dirname}/../../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.exe`;
+    
+    // Create output channel to show extension debug information
+    // NOTE(jcotillo) debug info should go to a file as telemetry info
+    let info = window.createOutputChannel(bicepOutputExtension);
 
+    try {
+        const dotNetRuntimePath = await getDotNetRuntimePath();
+        //Write to output.
+        info.appendLine(`DotNet version installed: '${dotNetRuntimePath}'`);
+        const languageServerPath = getLanguageServerPath(context);
+        //Write to output.
+        info.appendLine(`Bicep language server path: '${languageServerPath}'`);
+        startLanguageServer(context, languageServerPath, dotNetRuntimePath);        
+    } catch (err) {
+        info.appendLine(`Error: ${err}`);
+    }
+}
+
+async function getDotNetRuntimePath(): Promise<string | undefined> {
+    return await acquireSharedDotnetInstallation(downloadDotnetVersion);    
+}
+
+function getLanguageServerPath(context: ExtensionContext) {    
+    const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
+    let fullPath = process.env[languageServerPath];
+    if (!fullPath) {
+        fullPath = path.join(serverFolderPath, languageServerDllName);
+    }
+
+    if (!existsSync(fullPath)) {
+        throw new Error(`Cannot find the ${languageServerName} at ${fullPath}.`);
+    }
+    return fullPath;
+}
+
+function startLanguageServer(context: ExtensionContext, languageServerPath: string, dotNetRuntimePath: string) {    
+    let trace: string = workspace.getConfiguration(workspaceSettings.prefix).get<string>(workspaceSettings.traceLevel)
+            // tslint:disable-next-line: strict-boolean-expressions
+            || defaultTraceLevel;
+
+    let commonArgs = [
+        languageServerPath,
+        '--logLevel',
+        trace
+    ];
+    
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
-
     let serverOptions: ServerOptions = {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
-            command: serverExe,
-            args: []
+            command: dotNetRuntimePath,
+            args: commonArgs
         },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
-            command: serverExe,
-            args: []
+            command: dotNetRuntimePath,
+            args: commonArgs
         }
     };
 
@@ -64,7 +119,7 @@ export function activate(context: ExtensionContext) {
     // Create the language client and start the client.
     const client = new LanguageClient(
         "bicep",
-        "Bicep Language Server",
+        bicepOutputLanguageServer,
         serverOptions,
         clientOptions
     );

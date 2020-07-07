@@ -13,3 +13,34 @@ parameter myInt2 int = 42
 parameter myTruth bool = true
 parameter myFalsehood bool = false
 parameter myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
+
+// object default value
+parameter foo object = {
+  enabled: true
+  name: 'this is my object'
+  priority: 3
+  info: {
+    a: 'b'
+  }
+  empty: {
+  }
+  array: [
+    'string item'
+    12
+    true
+    [
+      'inner'
+      false
+    ]
+    {
+      a: 'b'
+    }
+  ]
+}
+
+// array default value
+parameter myArrayParam array = [
+  'a'
+  'b'
+  'c'
+]

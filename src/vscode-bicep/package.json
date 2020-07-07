@@ -59,7 +59,7 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
+        "vscode:prepublish": "dotnet build ..\\Bicep.LangServer --configuration Release --output bicepLanguageServer && tsc -p ./",
         "compile": "tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
@@ -74,5 +74,8 @@
     },
     "dependencies": {
         "vscode-languageclient": "^6.2.0-next.2"
-    }
+    },
+    "extensionDependencies": [
+        "ms-dotnettools.vscode-dotnet-runtime"
+    ]
 }

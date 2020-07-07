@@ -1,4 +1,6 @@
 # Parameters
+> **Note**: Parameter modifiers are not implemented.
+
 Parameter declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
 
 ## Minimal Declaration

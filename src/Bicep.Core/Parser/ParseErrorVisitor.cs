@@ -17,6 +17,16 @@ namespace Bicep.Core.Visitors
             this.errors = errors;
         }
 
+        public override void VisitProgramSyntax(ProgramSyntax syntax)
+        {
+            base.VisitProgramSyntax(syntax);
+
+            foreach (Error error in syntax.LexicalErrors)
+            {
+                this.errors.Add(error);
+            }
+        }
+
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
             // parse errors live on skipped token nodes
@@ -32,6 +42,23 @@ namespace Bicep.Core.Visitors
             }
 
             base.VisitIdentifierSyntax(syntax);
+        }
+
+        public override void VisitObjectSyntax(ObjectSyntax syntax)
+        {
+            base.VisitObjectSyntax(syntax);
+
+            var duplicatedProperties = syntax.Properties
+                .GroupBy(propertySyntax => propertySyntax.Identifier.IdentifierName)
+                .Where(group => group.Count() > 1);
+
+            foreach (IGrouping<string, ObjectPropertySyntax> group in duplicatedProperties)
+            {
+                foreach (ObjectPropertySyntax duplicatedProperty in group)
+                {
+                    this.AddError($"Property '{duplicatedProperty.Identifier.IdentifierName}' is declared multiple times in this object. Remove or rename the duplicate properties.", duplicatedProperty.Identifier);
+                }
+            }
         }
 
         protected void AddError(string message, IPositionable positionable)

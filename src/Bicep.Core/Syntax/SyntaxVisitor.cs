@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -15,31 +16,31 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            VisitToken(syntax.ParameterKeyword);
-            Visit(syntax.Name);
-            Visit(syntax.Type);
+            this.VisitToken(syntax.ParameterKeyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
 
             if (syntax.Assignment != null)
             {
-                VisitToken(syntax.Assignment);
+                this.VisitToken(syntax.Assignment);
             }
 
             if (syntax.Value != null)
             {
-                Visit(syntax.Value);
+                this.Visit(syntax.Value);
             }
 
-            VisitToken(syntax.NewLine);
+            this.VisitToken(syntax.NewLine);
         }
 
         public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
         {
-            VisitToken(syntax.NewLine);
+            this.VisitToken(syntax.NewLine);
         }
 
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
-            VisitToken(syntax.Identifier);
+            this.VisitToken(syntax.Identifier);
         }
 
         public virtual void VisitTypeSyntax(TypeSyntax syntax)
@@ -49,39 +50,78 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
-            VisitToken(syntax.Literal);
+            this.VisitToken(syntax.Literal);
         }
 
         public virtual void VisitStringSyntax(StringSyntax syntax)
         {
-            VisitToken(syntax.StringToken);
+            this.VisitToken(syntax.StringToken);
         }
 
         public virtual void VisitProgramSyntax(ProgramSyntax syntax)
         {
-            foreach (var statement in syntax.Statements)
-            {
-                Visit(statement);
-            }
-
-            VisitToken(syntax.EndOfFile);
+            this.VisitNodes(syntax.Statements);
+            this.VisitToken(syntax.EndOfFile);
         }
 
         public virtual void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
         {
-            VisitToken(syntax.Literal);
+            this.VisitToken(syntax.Literal);
         }
 
         public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            VisitToken(syntax.Literal);
+            this.VisitToken(syntax.Literal);
         }
 
         public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
-            foreach (var token in syntax.Tokens)
+            this.VisitTokens(syntax.Tokens);
+        }
+
+        public virtual void VisitObjectSyntax(ObjectSyntax syntax)
+        {
+            this.VisitToken(syntax.OpenBrace);
+            this.VisitTokens(syntax.NewLines);
+            this.VisitNodes(syntax.Properties);
+            this.VisitToken(syntax.CloseBrace);
+        }
+
+        public virtual void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+        {
+            this.Visit(syntax.Identifier);
+            this.VisitToken(syntax.Colon);
+            this.Visit(syntax.Value);
+            this.VisitTokens(syntax.NewLines);
+        }
+
+        public virtual void VisitArraySyntax(ArraySyntax syntax)
+        {
+            this.VisitToken(syntax.OpenBracket);
+            this.VisitTokens(syntax.NewLines);
+            this.VisitNodes(syntax.Items);
+            this.VisitToken(syntax.CloseBracket);
+        }
+
+        public virtual void VisitArrayItemSyntax(ArrayItemSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+            this.VisitTokens(syntax.NewLines);
+        }
+
+        protected void VisitTokens(IEnumerable<Token> tokens)
+        {
+            foreach (Token token in tokens)
             {
-                VisitToken(token);
+                this.VisitToken(token);
+            }
+        }
+
+        protected void VisitNodes(IEnumerable<SyntaxBase> nodes)
+        {
+            foreach (SyntaxBase node in nodes)
+            {
+                this.Visit(node);
             }
         }
     }

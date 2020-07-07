@@ -35,7 +35,7 @@ namespace Bicep.Core.SemanticModel
             {
                 foreach (ParameterSymbol duplicatedSymbol in group)
                 {
-                    yield return this.CreateError($"Parameter '{duplicatedSymbol.Name}' is declared several times, which is not allowed.", duplicatedSymbol.DeclaringSyntax);
+                    yield return this.CreateError($"Parameter '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicate parameters.", duplicatedSymbol.DeclaringSyntax);
                 }
             }
         }

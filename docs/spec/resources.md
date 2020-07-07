@@ -1,4 +1,6 @@
 # Resources
+> **Note**: Not implemented yet
+
 A `resource` declaration defines a resource that will be either created or updated at deployment time along with its intended state. The resource is also assigned to an identifier. You can reference the identifier in [expressions](./expressions.md) that are part of [variables](./variables.md), [outputs](./outputs), or other `resource` declarations.
 
 Consider the following declaration that creates or updates a [DNS Zone](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records):
@@ -39,6 +41,55 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
   location: 'global'
 }
 ```
+
+## Resource dependencies
+All declared resources will be deployed concurrently in the compiled template. Order of resource deployment can be influenced in the following ways:
+### Explicit dependency
+An explicit dependency is declared via the `dependsOn` property within the resource declaration. The property accept an array of resource identifiers. Here is an example of one DNS zone depending on another explicitly:
+```
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+}
+
+resource otherZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+  dependsOn: [
+    dnsZone
+  ]
+}
+```
+
+### Implicit dependency
+An implicit dependency will be created when one resource declaration references the identifier of another resource declaration in an expression. Here's an example:
+```
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+  name: 'myZone'
+  location: 'global'
+}
+
+resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
+  name: 'exampleResource'
+  properties: {
+    // get read-only DNS zone property
+    nameServers: dnsZone.properties.nameServers
+  }
+}
+```
+
+## Conditions
+Resources may be deployed if and only if a specified condition evaluated to `true`. Otherwise, resource deployment will be skipped. This is accomplished by adding a `when` keyword and a boolean expression to the resource declaration. The template compiled from the below example will deploy the DNS zone if the `deployZone` parameter evaluates to `true`:
+```
+parameter deployZone bool
+
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' when (deployZone) = {
+  name: 'myZone'
+  location: 'global'
+}
+```
+
+Conditions may be used with dependency declarations. If the identifier of conditional resource is specified in `dependsOn` of another resource (explicit dependency), the dependency will be ignored if the condition evaluates to `false` at template deployment time. If the condition evaluates to `true`, the dependency will be respected. Referencing a property of a conditional resource (implicit dependency) is allowed but may produce a runtime error in some cases.
 
 ## Other Examples
 

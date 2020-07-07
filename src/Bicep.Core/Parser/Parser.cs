@@ -28,7 +28,7 @@ namespace Bicep.Core.Parser
         private ProgramSyntax Program()
         {
             var statements = new List<SyntaxBase>();
-            while (!IsAtEnd())
+            while (!this.IsAtEnd())
             {
                 var statement = Statement();
                 statements.Add(statement);
@@ -50,8 +50,6 @@ namespace Bicep.Core.Parser
                         return this.ParameterStatement();
 
                     case TokenType.NewLine:
-                        // at this point, this only exists at the beginning of the file
-                        // newlines that break up multiple declarations get slurped up by the lexer into a single token
                         return this.NoOpStatement();
                 }
 
@@ -81,8 +79,28 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase NoOpStatement()
         {
-            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
+            var newLine = this.NewLine();
             return new NoOpDeclarationSyntax(newLine);
+        }
+
+        private Token NewLine()
+        {
+            return Expect(TokenType.NewLine, "Expected a new line character at this location.");
+        }
+
+        private ImmutableArray<Token> NewLines()
+        {
+            var newLines = new List<Token>
+            {
+                this.NewLine()
+            };
+
+            while (Check(TokenType.NewLine))
+            {
+                newLines.Add(reader.Read());
+            }
+
+            return newLines.ToImmutableArray();
         }
 
         private IdentifierSyntax Identifier(string message)
@@ -135,9 +153,69 @@ namespace Bicep.Core.Parser
                 case TokenType.String:
                     return StringLiteral();
 
+                case TokenType.LeftBrace:
+                    return Object();
+
+                case TokenType.LeftSquare:
+                    return Array();
+
                 default:
                     throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
             }
+        }
+
+        private SyntaxBase Array()
+        {
+            var items = new List<ArrayItemSyntax>();
+            
+            var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
+            var newLines = this.NewLines();
+
+            while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
+            {
+                var item = this.ArrayItem();
+                items.Add(item);
+            }
+
+            var closeBracket = Expect(TokenType.RightSquare, "Expected a ] character at this location.");
+
+            return new ArraySyntax(openBracket, newLines, items, closeBracket);
+        }
+
+        private ArrayItemSyntax ArrayItem()
+        {
+            var value = this.Value();
+            var newLines = this.NewLines();
+
+            return new ArrayItemSyntax(value, newLines);
+        }
+
+        private SyntaxBase Object()
+        {
+            var properties = new List<ObjectPropertySyntax>();
+
+            var openBrace = Expect(TokenType.LeftBrace, "Expected a { character at this location.");
+            var newLines = this.NewLines();
+
+            while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightBrace)
+            {
+                var property = this.ObjectProperty();
+                properties.Add(property);
+            }
+
+            var closeBrace = Expect(TokenType.RightBrace, "Expected a } character at this location.");
+
+            return new ObjectSyntax(openBrace, newLines, properties, closeBrace);
+        }
+
+        private ObjectPropertySyntax ObjectProperty()
+        {
+            var identifier = this.Identifier("Expected a property name at this location.");
+            var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
+            var value = Value();
+            var newLines = this.NewLines();
+
+            return new ObjectPropertySyntax(identifier, colon, value, newLines);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)

@@ -1,26 +1,33 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class ObjectPropertySyntax : SyntaxBase
-    //{
-    //    public ObjectPropertySyntax(IdentifierSyntax identifier, Token colon, SyntaxBase expression)
-    //    {
-    //        Identifier = identifier;
-    //        Colon = colon;
-    //        Expression = expression;
-    //    }
+    public class ObjectPropertySyntax : SyntaxBase
+    {
+        public ObjectPropertySyntax(IdentifierSyntax identifier, Token colon, SyntaxBase value, IEnumerable<Token> newLines)
+        {
+            AssertTokenType(colon, nameof(colon), TokenType.Colon);
+            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
 
-    //    public IdentifierSyntax Identifier { get; }
+            this.Identifier = identifier;
+            this.Colon = colon;
+            this.Value = value;
+            this.NewLines = newLines.ToImmutableArray();
+        }
 
-    //    public Token Colon { get; }
+        public IdentifierSyntax Identifier { get; }
 
-    //    public SyntaxBase Expression { get; }
+        public Token Colon { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitObjectPropertySyntax(this);
+        public SyntaxBase Value { get; }
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(Identifier, Expression);
-    //}
+        public ImmutableArray<Token> NewLines { get; }
+
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(this.Identifier, this.NewLines.Last());
+    }
 }

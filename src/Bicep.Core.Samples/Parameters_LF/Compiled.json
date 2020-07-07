@@ -30,6 +30,38 @@
     "myEscapedString": {
       "type": "string",
       "defaultValue": "First line\nSecond\ttabbed\tline"
+    },
+    "foo": {
+      "type": "object",
+      "defaultValue": {
+        "enabled": true,
+        "name": "this is my object",
+        "priority": 3,
+        "info": {
+          "a": "b"
+        },
+        "empty": {},
+        "array": [
+          "string item",
+          12,
+          true,
+          [
+            "inner",
+            false
+          ],
+          {
+            "a": "b"
+          }
+        ]
+      }
+    },
+    "myArrayParam": {
+      "type": "array",
+      "defaultValue": [
+        "a",
+        "b",
+        "c"
+      ]
     }
   },
   "functions": [],

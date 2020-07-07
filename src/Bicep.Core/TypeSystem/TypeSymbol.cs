@@ -4,32 +4,19 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public abstract class TypeSymbol : Symbol, IEquatable<TypeSymbol>
+    public abstract class TypeSymbol : Symbol
     {
         protected TypeSymbol(string name) : base(name)
         {
         }
-
+        
         public override SymbolKind Kind => SymbolKind.Type;
 
         public abstract TypeKind TypeKind { get; }
 
-        public abstract bool Equals(TypeSymbol other);
-
-        public static bool Equals(TypeSymbol? first, TypeSymbol? second)
+        public override void Accept(SymbolVisitor visitor)
         {
-            if (first != null && second != null)
-            {
-                return first.Equals(second);
-            }
-
-            if (first == null && second == null)
-            {
-                // null equals null
-                return true;
-            }
-
-            return false;
+            visitor.VisitTypeSymbol(this);
         }
     }
 }

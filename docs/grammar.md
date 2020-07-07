@@ -4,9 +4,15 @@ The following is the active pseudo-grammar of the bicep language.
 program -> statement* EOF 
 statement -> parameterStmt | NL
 
-parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ("=" value )? NL
+parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ( "=" value )? NL
 
-value -> NUMBER | STRING | "true" | "false"
+value -> NUMBER | STRING | "true" | "false" | object | array
+
+object -> "{" NL+ ( objectProperty NL+ )* "}" 
+objectProperty -> IDENTIFIER(name) ":" value 
+
+array -> "[" NL+ arrayItem* "]"
+arrayItem -> value NL+
 
 NL -> ("\n" | "\r")+
 ```
