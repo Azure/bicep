@@ -30,7 +30,7 @@ namespace Bicep.Core.Parser
             var statements = new List<SyntaxBase>();
             while (!this.IsAtEnd())
             {
-                var statement = Statement();
+                var statement = Declaration();
                 statements.Add(statement);
             }
 
@@ -39,7 +39,7 @@ namespace Bicep.Core.Parser
             return new ProgramSyntax(statements, endOfFile, this.lexicalErrors);
         }
 
-        private SyntaxBase Statement()
+        private SyntaxBase Declaration()
         {
             return this.WithRecovery(TokenType.NewLine, () =>
             {
@@ -47,22 +47,31 @@ namespace Bicep.Core.Parser
                 switch (current.Type)
                 {
                     case TokenType.ParameterKeyword:
-                        return this.ParameterStatement();
+                        return this.ParameterDeclaration();
+
+                    case TokenType.VariableKeyword:
+                        return this.VariableDeclaration();
+
+                    case TokenType.ResourceKeyword:
+                        return this.ResourceDeclaration();
+
+                    case TokenType.OutputKeyword:
+                        return this.OutputDeclaration();
 
                     case TokenType.NewLine:
                         return this.NoOpStatement();
                 }
 
                 // TODO: Update when adding other statement types
-                throw new ExpectedTokenException("This declaration type is not recognized. Specify a parameter declaration.", current);
+                throw new ExpectedTokenException("This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.", current);
             });
         }
 
-        private SyntaxBase ParameterStatement()
+        private SyntaxBase ParameterDeclaration()
         {
             var keyword = Expect(TokenType.ParameterKeyword, "Expected the parameter keyword at this location.");
             var name = Identifier("Expected a parameter identifier at this location.");
-            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PropertyTypesString}");
+            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
 
             Token? assignment = null;
             SyntaxBase? defaultValue = null;
@@ -72,9 +81,50 @@ namespace Bicep.Core.Parser
                 defaultValue = Value();
             }
 
-            var newLine = Expect(TokenType.NewLine, "Expected a new line character at this location.");
+            var newLine = this.NewLine();
 
             return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
+        }
+
+        private SyntaxBase VariableDeclaration()
+        {
+            var keyword = this.Expect(TokenType.VariableKeyword, "Expected the variable keyword at this location.");
+            var name = this.Identifier("Expected a variable identifier at this location.");
+            var assignment = this.Assignment();
+            var value = this.Value();
+
+            var newLine = this.NewLine();
+
+            return new VariableDeclarationSyntax(keyword, name, assignment, value, newLine);
+        }
+
+        private SyntaxBase OutputDeclaration()
+        {
+            var keyword = this.Expect(TokenType.OutputKeyword, "Expected the output keyword at this location.");
+            var name = this.Identifier("Expected an output identifier at this location.");
+            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
+            var assignment = this.Assignment();
+            var value = this.Value();
+
+            var newLine = this.NewLine();
+
+            return new OutputDeclarationSyntax(keyword, name, type, assignment, value, newLine);
+        }
+
+        private SyntaxBase ResourceDeclaration()
+        {
+            var keyword = this.Expect(TokenType.ResourceKeyword, "Expected the resource keyword at this location.");
+            var name = this.Identifier("Expected a resource identifier at this location.");
+
+            // TODO: Unify StringSyntax with TypeSyntax
+            var type = this.StringLiteral();
+
+            var assignment = this.Assignment();
+            var body = this.Object();
+
+            var newLine = this.NewLine();
+
+            return new ResourceDeclarationSyntax(keyword, name, type, assignment, body, newLine);
         }
 
         private SyntaxBase NoOpStatement()
@@ -101,6 +151,11 @@ namespace Bicep.Core.Parser
             }
 
             return newLines.ToImmutableArray();
+        }
+
+        private Token Assignment()
+        {
+            return this.Expect(TokenType.Assignment, "Expected an = character at this location.");
         }
 
         private IdentifierSyntax Identifier(string message)

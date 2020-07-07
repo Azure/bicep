@@ -47,7 +47,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol? GetTypeByName(string typeName)
         {
-            LanguageConstants.ParameterTypes.TryGetValue(typeName, out TypeSymbol parameterType);
+            LanguageConstants.PrimitiveTypes.TryGetValue(typeName, out TypeSymbol parameterType);
             return parameterType;
         }
     }

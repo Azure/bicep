@@ -34,9 +34,9 @@ namespace Bicep.Core
         // ARM resource has a fixed schema for the top-level properties
         public static readonly TypeSymbol Resource = new NamedObjectType(nameof(Resource), CreateResourceProperties(), additionalPropertiesType: null);
 
-        public static readonly ImmutableSortedDictionary<string, TypeSymbol> ParameterTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> PrimitiveTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string PropertyTypesString = LanguageConstants.ParameterTypes.Keys.ConcatString(ListSeparator);
+        public static readonly string PrimitiveTypesString = LanguageConstants.PrimitiveTypes.Keys.ConcatString(ListSeparator);
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties()
         {

@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToAny()
         {
-            foreach (TypeSymbol type in LanguageConstants.ParameterTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, LanguageConstants.Any).Should().BeTrue($"because type '{type.Name}' should be assignable to the '{LanguageConstants.Any.Name}' type.");
             }
@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToThemselves()
         {
-            foreach (TypeSymbol type in LanguageConstants.ParameterTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, type).Should().BeTrue($"because type '{type.Name}' should be assignable to itself.");
             }

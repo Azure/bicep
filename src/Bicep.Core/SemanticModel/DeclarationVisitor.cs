@@ -21,7 +21,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            TypeSymbol parameterType = this.context.GetTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(new Error($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PropertyTypesString}", syntax.Type.Span));
+            TypeSymbol parameterType = this.context.GetTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(new Error($"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}", syntax.Type.Span));
 
             var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax, parameterType, syntax.Value);
             this.declaredSymbols.Add(symbol);

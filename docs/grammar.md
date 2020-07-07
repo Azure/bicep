@@ -4,10 +4,11 @@ The following is the active pseudo-grammar of the bicep language.
 program -> statement* EOF 
 statement -> parameterDecl | 
              variableDecl |
+             resourceDecl |
              outputDecl |
              NL
 
-parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ( "=" value )? NL
+parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (( "=" value )? | object(modifier) ) NL
 
 variableDecl -> "variable" IDENTIFIER(name) "=" value NL
 

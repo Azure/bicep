@@ -23,7 +23,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control.bicep",
-					"match": "\\b(resource|variable|parameter)\\b"
+					"match": "\\b(resource|variable|parameter|output)\\b"
 				},
 				{
 					"name": "keyword.bundle.bicep",
