@@ -3,7 +3,7 @@
 
 Output declarations will be compiled into template outputs and are used to return information back out from the template deployment. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#outputs) for more information. The value of an output is any value literal or any [expression](./expressions.md).
 
-There are no constraints on placement of output declarations. They be mixed with any other valid declarations in any order.
+There are no constraints on placement of output declarations. They can be mixed with any other valid declarations in any order.
 
 ## String output
 ```

@@ -3,7 +3,7 @@
 
 Parameter declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
 
-There are no constraints on placement of parameter declarations. They be mixed with any other valid declarations in any order and they do not have to appear at the top of the file.
+There are no constraints on placement of parameter declarations. They can be mixed with any other valid declarations in any order and they do not have to appear at the top of the file.
 
 ## Minimal Declaration
 These are smallest possible parameter declarations:

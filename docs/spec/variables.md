@@ -7,7 +7,7 @@ Unlike many imperative languages, variables cannot be reassigned, and must be as
 
 Unlike [parameters](./parameters.md) or [outputs](./outputs.md), variables do not require declaring the type. The type is inferred from the value of the variable.
 
-There are no constraints on placement of variable declarations. They be mixed with any other valid declarations in any order.
+There are no constraints on placement of variable declarations. They can be mixed with any other valid declarations in any order.
 
 ## Examples
 The examples below cover variable declaration using hard-coded and calculated values.
