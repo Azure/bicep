@@ -31,6 +31,24 @@ namespace Bicep.Core.SemanticModel
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitVariableSymbol(VariableSymbol symbol)
+        {
+            base.VisitVariableSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitResourceSymbol(ResourceSymbol symbol)
+        {
+            base.VisitResourceSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitOutputSymbol(OutputSymbol symbol)
+        {
+            base.VisitOutputSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         protected void CollectDiagnostics(Symbol symbol)
         {
             foreach (Error diagnostic in symbol.GetDiagnostics())

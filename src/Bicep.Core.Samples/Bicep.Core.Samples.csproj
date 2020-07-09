@@ -20,6 +20,10 @@
     <None Remove="InvalidParameters_CRLF\Errors.json" />
     <None Remove="InvalidParameters_CRLF\Tokens.json" />
     <None Remove="InvalidParameters_CRLF\Tokens.lexdump" />
+    <None Remove="Outputs_CRLF\Bicep.arm" />
+    <None Remove="Outputs_CRLF\Compiled.json" />
+    <None Remove="Outputs_CRLF\Errors.json" />
+    <None Remove="Outputs_CRLF\Tokens.json" />
     <None Remove="Parameters_CRLF\Compiled.json" />
     <None Remove="Parameters_LF\Bicep.arm" />
     <None Remove="Parameters_LF\Compiled.json" />
@@ -29,6 +33,14 @@
     <None Remove="Parameters_CRLF\Errors.json" />
     <None Remove="Parameters_CRLF\Tokens.json" />
     <None Remove="Parameters_CRLF\Tokens.lexdump" />
+    <None Remove="Resources_CRLF\Bicep.arm" />
+    <None Remove="Resources_CRLF\Compiled.json" />
+    <None Remove="Resources_CRLF\Errors.json" />
+    <None Remove="Resources_CRLF\Tokens.json" />
+    <None Remove="Variables_LF\Bicep.arm" />
+    <None Remove="Variables_LF\Compiled.json" />
+    <None Remove="Variables_LF\Errors.json" />
+    <None Remove="Variables_LF\Tokens.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +54,10 @@
     <EmbeddedResource Include="InvalidParameters_CRLF\Bicep.arm" />
     <EmbeddedResource Include="InvalidParameters_CRLF\Errors.json" />
     <EmbeddedResource Include="InvalidParameters_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Outputs_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="Outputs_CRLF\Compiled.json" />
+    <EmbeddedResource Include="Outputs_CRLF\Errors.json" />
+    <EmbeddedResource Include="Outputs_CRLF\Tokens.json" />
     <EmbeddedResource Include="Parameters_CRLF\Compiled.json" />
     <EmbeddedResource Include="Parameters_LF\Bicep.arm" />
     <EmbeddedResource Include="Parameters_LF\Compiled.json" />
@@ -50,6 +66,14 @@
     <EmbeddedResource Include="Parameters_CRLF\Bicep.arm" />
     <EmbeddedResource Include="Parameters_CRLF\Errors.json" />
     <EmbeddedResource Include="Parameters_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Resources_CRLF\Bicep.arm" />
+    <EmbeddedResource Include="Resources_CRLF\Compiled.json" />
+    <EmbeddedResource Include="Resources_CRLF\Errors.json" />
+    <EmbeddedResource Include="Resources_CRLF\Tokens.json" />
+    <EmbeddedResource Include="Variables_LF\Bicep.arm" />
+    <EmbeddedResource Include="Variables_LF\Compiled.json" />
+    <EmbeddedResource Include="Variables_LF\Errors.json" />
+    <EmbeddedResource Include="Variables_LF\Tokens.json" />
   </ItemGroup>
 
   <ItemGroup>

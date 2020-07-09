@@ -13,6 +13,8 @@ namespace Bicep.Core.TypeSystem
             this.AdditionalPropertiesType = additionalPropertiesType;
         }
 
+        public override TypeKind TypeKind => TypeKind.NamedObject;
+
         public override ImmutableDictionary<string, TypeProperty> Properties { get; }
 
         public override TypeSymbol? AdditionalPropertiesType { get; }

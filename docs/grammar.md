@@ -2,9 +2,19 @@
 The following is the active pseudo-grammar of the bicep language.
 ```
 program -> statement* EOF 
-statement -> parameterStmt | NL
+statement -> parameterDecl | 
+             variableDecl |
+             resourceDecl |
+             outputDecl |
+             NL
 
-parameterStmt -> "parameter" IDENTIFIER(name) IDENTIFIER(type) ( "=" value )? NL
+parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (( "=" value )? | object(modifier) ) NL
+
+variableDecl -> "variable" IDENTIFIER(name) "=" value NL
+
+resourceDecl -> "resource" IDENTIFIER(name) STRING(type) "=" object NL
+
+outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" value NL
 
 value -> NUMBER | STRING | "true" | "false" | object | array
 

@@ -12,9 +12,9 @@ namespace Bicep.Core.Parser
         private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             ["parameter"] = TokenType.ParameterKeyword,
-            //["output"] = TokenType.OutputKeyword,
-            //["variable"] = TokenType.VariableKeyword,
-            //["resource"] = TokenType.ResourceKeyword,
+            ["output"] = TokenType.OutputKeyword,
+            ["variable"] = TokenType.VariableKeyword,
+            ["resource"] = TokenType.ResourceKeyword,
             //["module"] = TokenType.ModuleKeyword,
             ["true"] = TokenType.TrueKeyword,
             ["false"] = TokenType.FalseKeyword,
@@ -67,6 +67,22 @@ namespace Bicep.Core.Parser
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
         public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
+
+        /// <summary>
+        /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
+        /// </summary>
+        /// <param name="stringToken">the string token</param>
+        public static string? TryGetStringValue(Token stringToken)
+        {
+            try
+            {
+                return GetStringValue(stringToken);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
 
         /// <summary>
         /// Converts string literal text into its value. May throw if the specified string token is malformed due to lexer error recovery.

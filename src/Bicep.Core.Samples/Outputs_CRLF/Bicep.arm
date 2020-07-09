@@ -1,0 +1,37 @@
+
+output myStr string = 'hello'
+
+output myInt int = 7
+
+output myBool bool = false
+output myOtherBool bool = true
+
+output suchEmpty array = [
+]
+
+output suchEmpty2 object = {
+}
+
+output obj object = {
+  a: 'a'
+  b: 12
+  c: true
+  list: [
+    1
+    2
+    3
+    {
+    }
+  ]
+  obj: {
+    nested: [
+      'hello'
+    ]
+  }
+}
+
+output myArr array = [
+  'pirates'
+  'say'
+  'arr'
+]

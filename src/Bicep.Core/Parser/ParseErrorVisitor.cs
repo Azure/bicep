@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Visitors
+namespace Bicep.Core.Parser
 {
     /// <summary>
     /// Visitor responsible for collecting all the parse errors from the parse tree.

@@ -12,6 +12,6 @@ namespace Bicep.Core.TypeSystem
         {
         }
 
-        public override TypeKind TypeKind => TypeKind.SimpleType;
+        public override TypeKind TypeKind => TypeKind.Primitive;
     }
 }

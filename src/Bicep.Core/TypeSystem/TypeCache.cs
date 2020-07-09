@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+﻿using Bicep.Core.Parser;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 
@@ -45,10 +42,29 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public TypeSymbol? GetTypeByName(string typeName)
+        // TODO: This does not recognize non-resource named objects yet
+        public TypeSymbol? GetTypeByName(string? typeName)
         {
-            LanguageConstants.ParameterTypes.TryGetValue(typeName, out TypeSymbol parameterType);
-            return parameterType;
+            if (typeName == null)
+            {
+                return null;
+            }
+
+            if (LanguageConstants.PrimitiveTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
+            {
+                return primitiveType;
+            }
+
+            // TODO: This needs proper namespace, type, and version resolution logic in the future
+            ResourceTypeReference? typeReference = ResourceTypeReference.TryParse(typeName);
+            if (typeReference == null)
+            {
+                return null;
+            }
+
+            // TODO: Construct/lookup type information based on JSON schema or swagger
+            // for now assuming very basic resource schema
+            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null);
         }
     }
 }
