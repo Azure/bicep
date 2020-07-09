@@ -8,17 +8,38 @@ namespace Bicep.Core.SemanticModel
 {
     public class FileSymbol : DeclaredSymbol
     {
-        public FileSymbol(ISemanticContext context, string name, ProgramSyntax declaringSyntax, IEnumerable<ParameterSymbol> parameterDeclarations)
+        public FileSymbol(
+            ISemanticContext context,
+            string name,
+            ProgramSyntax declaringSyntax,
+            IEnumerable<ParameterSymbol> parameterDeclarations,
+            IEnumerable<VariableSymbol> variableDeclarations,
+            IEnumerable<ResourceSymbol> resourceDeclarations,
+            IEnumerable<OutputSymbol> outputDeclarations)
             : base(context, name, declaringSyntax)
         {
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
+            this.VariableDeclarations = variableDeclarations.ToImmutableArray();
+            this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
+            this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
-        public override IEnumerable<Symbol> Descendants => this.ParameterDeclarations;
+        public override IEnumerable<Symbol> Descendants => this.ParameterDeclarations
+            .Concat<Symbol>(this.VariableDeclarations)
+            .Concat(this.ResourceDeclarations)
+            .Concat(this.OutputDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
+
+        public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
+
+        public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
+
+        public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
+
+        public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
         {
@@ -27,13 +48,13 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<Error> GetDiagnostics()
         {
-            var duplicateParameterGroups = this.ParameterDeclarations
-                .GroupBy(paramDecl => paramDecl.Name)
+            var duplicateSymbols = this.AllDeclarations
+                .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
             
-            foreach (IGrouping<string, ParameterSymbol> group in duplicateParameterGroups)
+            foreach (IGrouping<string, DeclaredSymbol> group in duplicateSymbols)
             {
-                foreach (ParameterSymbol duplicatedSymbol in group)
+                foreach (DeclaredSymbol duplicatedSymbol in group)
                 {
                     yield return this.CreateError($"Parameter '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicate parameters.", duplicatedSymbol.DeclaringSyntax);
                 }

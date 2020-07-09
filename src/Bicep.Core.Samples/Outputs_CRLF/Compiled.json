@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [],
+  "outputs": {
+    "myStr": {
+      "type": "string",
+      "value": "hello"
+    },
+    "myInt": {
+      "type": "int",
+      "value": 7
+    },
+    "myBool": {
+      "type": "bool",
+      "value": false
+    },
+    "myOtherBool": {
+      "type": "bool",
+      "value": true
+    },
+    "suchEmpty": {
+      "type": "array",
+      "value": []
+    },
+    "suchEmpty2": {
+      "type": "object",
+      "value": {}
+    },
+    "obj": {
+      "type": "object",
+      "value": {
+        "a": "a",
+        "b": 12,
+        "c": true,
+        "list": [
+          1,
+          2,
+          3,
+          {}
+        ],
+        "obj": {
+          "nested": [
+            "hello"
+          ]
+        }
+      }
+    },
+    "myArr": {
+      "type": "array",
+      "value": [
+        "pirates",
+        "say",
+        "arr"
+      ]
+    }
+  }
+}

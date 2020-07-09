@@ -33,6 +33,35 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.NewLine);
         }
 
+        public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        {
+            this.VisitToken(syntax.VariableKeyword);
+            this.Visit(syntax.Name);
+            this.VisitToken(syntax.Assignment);
+            this.Visit(syntax.Value);
+            this.VisitToken(syntax.NewLine);
+        }
+
+        public virtual void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            this.VisitToken(syntax.ResourceKeyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+            this.VisitToken(syntax.Assignment);
+            this.Visit(syntax.Body);
+            this.VisitToken(syntax.NewLine);
+        }
+
+        public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
+        {
+            this.VisitToken(syntax.OutputKeyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+            this.VisitToken(syntax.Assignment);
+            this.Visit(syntax.Value);
+            this.VisitToken(syntax.NewLine);
+        }
+
         public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
         {
             this.VisitToken(syntax.NewLine);

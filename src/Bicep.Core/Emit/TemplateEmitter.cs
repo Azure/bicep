@@ -3,12 +3,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Parser;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
+    // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateEmitter
     {
         private readonly SemanticModel.SemanticModel semanticModel;
@@ -76,40 +78,39 @@ namespace Bicep.Core.Emit
             writer.WriteValue("1.0.0.0");
 
             writer.WritePropertyName("parameters");
-            writer.WriteStartObject();
             this.EmitParameters(writer);
-            writer.WriteEndObjectAsync();
-
+            
             writer.WritePropertyName("functions");
             writer.WriteStartArray();
             writer.WriteEndArray();
 
             writer.WritePropertyName("variables");
-            writer.WriteStartObject();
-            writer.WriteEndObjectAsync();
+            this.EmitVariables(writer);
 
             writer.WritePropertyName("resources");
-            writer.WriteStartArray();
-            writer.WriteEndArray();
+            this.EmitResources(writer);
 
             writer.WritePropertyName("outputs");
-            writer.WriteStartObject();
-            writer.WriteEndObjectAsync();
+            this.EmitOutputs(writer);
 
             writer.WriteEndObject();
         }
 
         private void EmitParameters(JsonTextWriter writer)
         {
-            foreach (var parameterSymbol in this.semanticModel.Root.Descendants.OfType<ParameterSymbol>())
+            writer.WriteStartObject();
+
+            foreach (var parameterSymbol in this.semanticModel.Root.ParameterDeclarations)
             {
+                writer.WritePropertyName(parameterSymbol.Name);
                 this.EmitParameter(writer, parameterSymbol);
             }
+
+            writer.WriteEndObject();
         }
 
         private void EmitParameter(JsonTextWriter writer, ParameterSymbol parameterSymbol)
         {
-            writer.WritePropertyName(parameterSymbol.Name);
             writer.WriteStartObject();
 
             writer.WritePropertyName("type");
@@ -121,6 +122,82 @@ namespace Bicep.Core.Emit
                 EmitExpression(writer, parameterSymbol.DefaultValue);
             }
             
+            writer.WriteEndObject();
+        }
+
+        private void EmitVariables(JsonTextWriter writer)
+        {
+            writer.WriteStartObject();
+
+            foreach (var variableSymbol in this.semanticModel.Root.VariableDeclarations)
+            {
+                writer.WritePropertyName(variableSymbol.Name);
+                this.EmitVariable(writer, variableSymbol);
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitVariable(JsonTextWriter writer, VariableSymbol variableSymbol)
+        {
+            // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
+            this.EmitExpression(writer, variableSymbol.Value);
+        }
+
+        private void EmitResources(JsonTextWriter writer)
+        {
+            writer.WriteStartArray();
+
+            foreach (var resourceSymbol in this.semanticModel.Root.ResourceDeclarations)
+            {
+                this.EmitResource(writer, resourceSymbol);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        private void EmitResource(JsonTextWriter writer, ResourceSymbol resourceSymbol)
+        {
+            writer.WriteStartObject();
+
+            // using the throwing variant here because the semantic model should be completely valid at this point
+            // (it's a code defect if it some errors were not emitted)
+            ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+
+            writer.WritePropertyName("type");
+            writer.WriteValue(typeReference.FullyQualifiedType);
+
+            writer.WritePropertyName("apiVersion");
+            writer.WriteValue(typeReference.ApiVersion);
+
+            this.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitOutputs(JsonTextWriter writer)
+        {
+            writer.WriteStartObject();
+
+            foreach (var outputSymbol in this.semanticModel.Root.OutputDeclarations)
+            {
+                writer.WritePropertyName(outputSymbol.Name);
+                this.EmitOutput(writer, outputSymbol);
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitOutput(JsonTextWriter writer, OutputSymbol outputSymbol)
+        {
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("type");
+            writer.WriteValue(outputSymbol.Type.Name);
+
+            writer.WritePropertyName("value");
+            this.EmitExpression(writer, outputSymbol.Value);
+
             writer.WriteEndObject();
         }
 
@@ -137,18 +214,14 @@ namespace Bicep.Core.Emit
                     break;
 
                 case StringSyntax stringSyntax:
-                    writer.WriteValue(stringSyntax.Value);
+                    // using the throwing method to get semantic value of the string because
+                    // error checking should have caught any errors by now
+                    writer.WriteValue(stringSyntax.GetValue());
                     break;
 
                 case ObjectSyntax objectSyntax:
                     writer.WriteStartObject();
-
-                    foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
-                    {
-                        writer.WritePropertyName(propertySyntax.Identifier.IdentifierName);
-                        this.EmitExpression(writer, propertySyntax.Value);
-                    }
-
+                    this.EmitObjectProperties(writer, objectSyntax);
                     writer.WriteEndObject();
 
                     break;
@@ -167,6 +240,15 @@ namespace Bicep.Core.Emit
                     
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
+            }
+        }
+
+        private void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
+        {
+            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
+            {
+                writer.WritePropertyName(propertySyntax.Identifier.IdentifierName);
+                this.EmitExpression(writer, propertySyntax.Value);
             }
         }
     }

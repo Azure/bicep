@@ -19,6 +19,21 @@ namespace Bicep.Core.SemanticModel
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitVariableSymbol(VariableSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitResourceSymbol(ResourceSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitOutputSymbol(OutputSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitTypeSymbol(TypeSymbol symbol)
         {
             VisitDescendants(symbol);

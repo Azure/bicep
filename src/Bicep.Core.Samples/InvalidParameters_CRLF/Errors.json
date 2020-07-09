@@ -1,6 +1,6 @@
 [
   {
-    "message": "This declaration type is not recognized. Specify a parameter declaration.",
+    "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
     "span": "[143:152]",
     "spanText": "wrong\r\n\r\n"
   },

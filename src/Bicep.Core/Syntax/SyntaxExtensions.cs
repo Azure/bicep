@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
-using Bicep.Core.Visitors;
 
 namespace Bicep.Core.Syntax
 {

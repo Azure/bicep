@@ -14,9 +14,15 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidParameters_LF => CreateDataSet();
 
+        public static DataSet Outputs_CRLF => CreateDataSet();
+
         public static DataSet Parameters_CRLF => CreateDataSet();
 
         public static DataSet Parameters_LF => CreateDataSet();
+
+        public static DataSet Resources_CRLF => CreateDataSet();
+
+        public static DataSet Variables_LF => CreateDataSet();
 
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)
