@@ -27,7 +27,7 @@ namespace Bicep.Cli.CommandLine
 
         public static void PrintUsage()
         {
-            string exeName = Path.GetFileName(Assembly.GetExecutingAssembly().Location);
+            string exeName = Path.GetFileNameWithoutExtension(Path.GetFileName(Assembly.GetExecutingAssembly().Location));
 
             Console.WriteLine($"Usage: {exeName} build <file 1> <file 2> ... <file n>");
         }
