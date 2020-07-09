@@ -4,13 +4,21 @@
 
 ## What is Bicep?
 
-Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. Bicep compiles down to "ARM" JSON in a 1:1 manner, such that you can "decompile" back to bicep. The ARM JSON is now being treated as an Intermediate Language (IL).
+Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. Bicep compiles down to "ARM" JSON in a 1:1 manner, such that you can "decompile" back to bicep, which means the ARM JSON is being treated as an Intermediate Language (IL).
 
-Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over. All `resourceType`, `apiVersions`, and resource `properties` that are valid in an ARM template are equally valid in Bicep.
+Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All `resourceType`, `apiVersions`, and resource `properties` that are valid in an ARM template are equally valid in Bicep.
+
+## High Level Design Goals
+1. Code should be easy to understand at a glance and straightforward to learn, regardless of your experience with other programming languages.
+2. The language should provide a 'transparent abstraction' for the underlying platform.
+3. The language should feel familiar to imperative programmers, whilst making some of the declarative differences clear through syntax.
+4. Users should be given a lot of freedom to modularize and reuse their code if they desire. Reusing code should not require any 'copy/paste'.
+5. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
+6. Users should have a high level of confidence that their code is 'valid' before deploying.
 
 ## How does Bicep work?
 
-Author your Bicep code using first class tooling in VS Code. Then compile the code into an ARM template. This can happen in a few different ways:
+First, author your Bicep code using the [Bicep language service](), then compile that code into an ARM template. This can happen in a few different ways:
 
 **compile yourself** 
   
@@ -34,9 +42,8 @@ This will run `bicep build` and then deploy the generated template via standard 
   - no quotes on property names (e.g. `"location"`)
   - simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
   - simpler resource declaration using positional properties to avoid typing common property names like `resourceType` and `apiVersion` explicitly.
-* **Modules!** which allows you to simplify declarations of a resource or set of resources in separate files. This warrents it's own [section](#why-are-modules-so-important)
-* Direct property access of a resource
-  - e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
+  - Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
+* [**Modules**](#why-are-modules-so-important), which allow you to simplify declarations of a single resource or set of resources in separate files.
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
   - previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 * Simpler declaration of conditional statements and loops. Design of this is very much [in progress](https://github.com/Azure/bicep/issues/6)
@@ -53,12 +60,16 @@ resource <identifier> <type@apiVersion> = {
 }
 ```
 
-Here's a simple storage account:
+Here's a simple virtual network:
 
 ```
 resource storage 'Microsoft.Storage/storageAccounts@2020-01-01` = {
-  name: 'mystorage001'
+  name: 'uniquestorage001'
   location: 'eastus'
+  sku: {
+      name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
 }
 ```
 
@@ -69,12 +80,17 @@ Just like ARM templates, the resource declaration still requires **exactly** wha
 I can use both parameters and variables to make my bicep template more dynamic:
 
 ```
-parameter storageName string = 'mystorage001' 
+parameter storageName string // can set default value by adding "= 'mydefault'" 
+
 variable location = 'eastus'
 
-resource storage 'Microsoft.Storage/storageAccounts@2020-01-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2020-01-01` = {
   name: storageName
   location: location
+  sku: {
+      name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
 }
 ```
 
@@ -161,16 +177,6 @@ module myCustomMod 'github.com/alex-frankel/web-app-container@1.0.0' = {
 
 We recommend you convert a simpler template 
 ...
-
-## High Level Design Goals
-1. Code should be easy to understand at a glance and straightforward to learn, regardless of your experience with other programming languages.
-2. The language should provide a 'transparent abstraction' for the underlying platform.
-3. The language should feel familiar to imperative programmers, whilst making some of the declarative differences clear through syntax.
-4. Users should be given a lot of freedom to modularize their code if they desire. There should be no need for 'copy/paste'.
-5. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
-6. Users should have a high level of confidence that their code is 'valid' before deploying.
-
-
 
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
