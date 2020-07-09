@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             // TODO: This needs proper namespace, type, and version resolution logic in the future
-            ResourceTypeReference? typeReference = ResourceTypeParser.TryParse(typeName);
+            ResourceTypeReference? typeReference = ResourceTypeReference.TryParse(typeName);
             if (typeReference == null)
             {
                 return null;
