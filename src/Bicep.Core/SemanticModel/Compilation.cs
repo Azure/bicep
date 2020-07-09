@@ -31,7 +31,15 @@ namespace Bicep.Core.SemanticModel
             declarationVisitor.Visit(this.ProgramSyntax);
 
             // TODO: Reparent context to semantic model?
-            var file = new FileSymbol(typeCache, "main", this.ProgramSyntax, declarations.OfType<ParameterSymbol>());
+            // TODO: Avoid looping 4 times?
+            var file = new FileSymbol(
+                typeCache,
+                "main",
+                this.ProgramSyntax,
+                declarations.OfType<ParameterSymbol>(),
+                declarations.OfType<VariableSymbol>(),
+                declarations.OfType<ResourceSymbol>(),
+                declarations.OfType<OutputSymbol>());
             return new SemanticModel(file, typeCache);
         }
     }

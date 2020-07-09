@@ -69,6 +69,22 @@ namespace Bicep.Core.Parser
         public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
 
         /// <summary>
+        /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
+        /// </summary>
+        /// <param name="stringToken">the string token</param>
+        public static string? TryGetStringValue(Token stringToken)
+        {
+            try
+            {
+                return GetStringValue(stringToken);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Converts string literal text into its value. May throw if the specified string token is malformed due to lexer error recovery.
         /// </summary>
         /// <param name="stringToken">the string token</param>

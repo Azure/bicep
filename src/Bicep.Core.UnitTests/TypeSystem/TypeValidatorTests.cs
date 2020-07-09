@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -151,7 +151,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "Property 'managedByExtended' expected a value of type 'StringArray' but the provided value is of type 'string'.",
@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).ToList();
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).ToList();
 
             errors.Should().HaveCount(1);
 
@@ -180,7 +180,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -196,7 +196,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.Resource).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -324,6 +324,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             row.Length.Should().Be(2);
             row[0].Should().BeOfType<string>();
             return $"{method.Name}_{row[0]}";
+        }
+
+        private TypeSymbol CreateDummyResourceType()
+        {
+            return new ResourceType("Mock", LanguageConstants.TopLevelResourceProperties, null);
         }
     }
 }

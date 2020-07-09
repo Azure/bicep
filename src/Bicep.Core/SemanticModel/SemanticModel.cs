@@ -48,6 +48,6 @@ namespace Bicep.Core.SemanticModel
 
         public TypeSymbol? GetTypeInfo(SyntaxBase? syntax) => this.typeCache.GetTypeInfo(syntax);
 
-        public TypeSymbol? GetTypeByName(string typeName) => this.typeCache.GetTypeByName(typeName);
+        public TypeSymbol? GetTypeByName(string? typeName) => this.typeCache.GetTypeByName(typeName);
     }
 }

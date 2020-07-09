@@ -13,18 +13,18 @@
         Any,
 
         /// <summary>
-        /// Simple value type like string, int, bool.
+        /// Primitive value type like string, int, bool, object, or array.
         /// </summary>
-        SimpleType,
+        Primitive,
 
         /// <summary>
-        /// Object type.
+        /// Named object type. (Examples: ResourceGroup, ParameterModifier, etc.)
         /// </summary>
-        Object,
+        NamedObject,
 
         /// <summary>
-        /// Array type
+        /// Resource type
         /// </summary>
-        Array
+        Resource
     }
 }

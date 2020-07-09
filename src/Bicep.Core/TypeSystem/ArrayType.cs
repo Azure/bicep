@@ -6,7 +6,7 @@
         {
         }
 
-        public override TypeKind TypeKind => TypeKind.Array;
+        public override TypeKind TypeKind => TypeKind.Primitive;
 
         public virtual TypeSymbol ItemType => LanguageConstants.Any;
     }

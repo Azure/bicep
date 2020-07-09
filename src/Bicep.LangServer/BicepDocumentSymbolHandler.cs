@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,17 +50,62 @@ namespace Bicep.LanguageServer
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
-            // TODO: Classify symbols according to kind when we have more than 1 kind of symbol in a file
-            return context.Compilation.GetSemanticModel().Root.Descendants.OfType<ParameterSymbol>()
-                .Select(symbol => new SymbolInformationOrDocumentSymbol(new DocumentSymbol
-                {
-                    Name = symbol.Name,
-                    Detail = $": {symbol.Type.Name}",
-                    Kind = SymbolKind.Field,
-                    Range = symbol.DeclaringSyntax.ToRange(context.LineStarts),
-                    // TODO: Use name syntax node here
-                    SelectionRange = symbol.DeclaringSyntax.ToRange(context.LineStarts)
-                }));
+            return context.Compilation.GetSemanticModel().Root.AllDeclarations
+                .OrderBy(symbol=>symbol.DeclaringSyntax.Span.Position)
+                .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
+        }
+
+        private DocumentSymbol CreateDocumentSymbol(DeclaredSymbol symbol, ImmutableArray<int> lineStarts) =>
+            new DocumentSymbol
+            {
+                Name = symbol.Name,
+                Kind = SelectSymbolKind(symbol),
+                Detail = FormatDetail(symbol),
+                Range = symbol.DeclaringSyntax.ToRange(lineStarts),
+                // TODO: Use name syntax node here
+                SelectionRange = symbol.DeclaringSyntax.ToRange(lineStarts)
+            };
+
+        private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)
+        {
+            switch (symbol)
+            {
+                case ParameterSymbol _:
+                    return SymbolKind.Field;
+
+                case VariableSymbol _:
+                    return SymbolKind.Variable;
+
+                case ResourceSymbol resource:
+                    return SymbolKind.Object;
+
+                case OutputSymbol output:
+                    return SymbolKind.Interface;
+                
+                default:
+                    return SymbolKind.Key;
+            }
+        }
+
+        private string FormatDetail(DeclaredSymbol symbol)
+        {
+            switch (symbol)
+            {
+                case ParameterSymbol parameter:
+                    return parameter.Type.Name;
+
+                case VariableSymbol variable:
+                    return variable.Type.Name;
+
+                case ResourceSymbol resource:
+                    return resource.Type.Name;
+
+                case OutputSymbol output:
+                    return output.Type.Name;
+
+                default:
+                    return string.Empty;
+            }
         }
     }
 }

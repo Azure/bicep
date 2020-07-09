@@ -3,8 +3,11 @@
     public enum SymbolKind
     {
         Error,
+        Type,
         File,
         Parameter,
-        Type
+        Variable,
+        Resource,
+        Output
     }
 }

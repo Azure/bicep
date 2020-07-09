@@ -7,6 +7,6 @@ namespace Bicep.Core.SemanticModel
     {
         public TypeSymbol? GetTypeInfo(SyntaxBase? syntax);
 
-        public TypeSymbol? GetTypeByName(string typeName);
+        public TypeSymbol? GetTypeByName(string? typeName);
     }
 }

@@ -31,8 +31,7 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol StringArray = new NamedArrayType("StringArray", String);
 
-        // ARM resource has a fixed schema for the top-level properties
-        public static readonly TypeSymbol Resource = new NamedObjectType(nameof(Resource), CreateResourceProperties(), additionalPropertiesType: null);
+        public static readonly ImmutableArray<TypeProperty> TopLevelResourceProperties = CreateResourceProperties().ToImmutableArray();
 
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> PrimitiveTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 

@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
                     break;
 
                 case StringSyntax stringSyntax:
-                    writer.WriteValue(stringSyntax.Value);
+                    writer.WriteValue(stringSyntax.GetValue());
                     break;
 
                 case ObjectSyntax objectSyntax:
