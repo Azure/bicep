@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {
+    "myInt": 42,
+    "myStr": "str",
+    "myTruth": true,
+    "myFalsehood": false,
+    "myObj": {
+      "a": "a",
+      "b": 12,
+      "c": true,
+      "list": [
+        1,
+        2,
+        3,
+        {}
+      ],
+      "obj": {
+        "nested": [
+          "hello"
+        ]
+      }
+    },
+    "myArr": [
+      "pirates",
+      "say",
+      "arr"
+    ],
+    "myArrWithObjects": [
+      {
+        "name": "one",
+        "enable": true
+      },
+      {
+        "name": "two",
+        "enable": false
+      }
+    ]
+  },
+  "resources": [],
+  "outputs": {}
+}
