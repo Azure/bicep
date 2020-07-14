@@ -17,5 +17,10 @@ namespace Bicep.Core.SemanticModel
         /// Gets the syntax node that declared this symbol.
         /// </summary>
         public SyntaxBase DeclaringSyntax { get; }
+
+        /// <summary>
+        /// Gets the syntax node of the identifier. May be null if the symbol is in an invalid state.
+        /// </summary>
+        public abstract SyntaxBase? NameSyntax { get; }
     }
 }
