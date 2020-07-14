@@ -29,5 +29,7 @@ namespace Bicep.Core.SemanticModel
                 yield return this.Type;
             }
         }
+
+        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as VariableDeclarationSyntax)?.Name;
     }
 }

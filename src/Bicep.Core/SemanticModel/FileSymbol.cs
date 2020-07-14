@@ -56,9 +56,14 @@ namespace Bicep.Core.SemanticModel
             {
                 foreach (DeclaredSymbol duplicatedSymbol in group)
                 {
-                    yield return this.CreateError($"Parameter '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicate parameters.", duplicatedSymbol.DeclaringSyntax);
+                    // use the identifier node as the error location with fallback to full declaration span
+                    SyntaxBase identifierNode = duplicatedSymbol.NameSyntax ?? duplicatedSymbol.DeclaringSyntax;
+
+                    yield return this.CreateError($"Identifier '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicates.", identifierNode);
                 }
             }
         }
+
+        public override SyntaxBase? NameSyntax => null;
     }
 }

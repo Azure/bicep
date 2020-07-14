@@ -42,5 +42,7 @@ namespace Bicep.Core.SemanticModel
                 yield return this.CreateError($"The output expects a value of type '{this.Type.Name} but the provided value is of type '{valueType?.Name}'.", this.Value);
             }
         }
+
+        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as OutputDeclarationSyntax)?.Name;
     }
 }
