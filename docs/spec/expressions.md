@@ -40,3 +40,30 @@ resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
   }
 }
 ```
+
+## Referencing an object property using a variable
+
+When referencing an object property using a parameter value, you will need to use the `[]` syntax. Let's say we have an `environment` parameter and an object declaration like the following:
+
+```
+parameter environment string = 'prod'
+
+variable environmentSettings = {
+  dev: {
+    name: 'dev'
+  }
+  prod: {
+    name: 'prod'
+  }
+}
+```
+
+To reference the `prod` or `dev` object properties, in this case in the context of a resource declaration, use the following syntax:
+
+```
+resource site 'microsoft.web/sites@2018-11-01' = {
+  name: environmentSettings[environment].name
+  location: location
+  ...
+}
+```
