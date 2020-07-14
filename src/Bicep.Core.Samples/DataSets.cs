@@ -10,9 +10,15 @@ namespace Bicep.Core.Samples
     {
         public static DataSet Empty => CreateDataSet();
 
+        public static DataSet InvalidOutputs_CRLF => CreateDataSet();
+
         public static DataSet InvalidParameters_CRLF => CreateDataSet();
 
         public static DataSet InvalidParameters_LF => CreateDataSet();
+
+        public static DataSet InvalidResources_CRLF => CreateDataSet();
+
+        public static DataSet InvalidVariables_LF => CreateDataSet();
 
         public static DataSet Outputs_CRLF => CreateDataSet();
 

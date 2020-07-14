@@ -1,0 +1,87 @@
+[
+  {
+    "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
+    "span": "[24:31]",
+    "spanText": "bad\r\n\r\n"
+  },
+  {
+    "message": "Expected a resource identifier at this location.",
+    "span": "[55:71]",
+    "spanText": "\r\nresource foo\r\n"
+  },
+  {
+    "message": "Expected an = character at this location.",
+    "span": "[83:86]",
+    "spanText": "o\r\n"
+  },
+  {
+    "message": "Expected an = character at this location.",
+    "span": "[104:129]",
+    "spanText": "\r\nresource foo 'ddd'=\r\n\r\n"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[162:165]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The resource type is not valid. Specify a valid resource type.",
+    "span": "[166:171]",
+    "spanText": "'ddd'"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[219:222]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The specified object is missing the following required properties: name.",
+    "span": "[261:265]",
+    "spanText": "{\r\n}"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[318:321]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[366:370]",
+    "spanText": "name"
+  },
+  {
+    "message": "Property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[381:385]",
+    "spanText": "name"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[437:440]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[519:522]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[533:536]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[587:590]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Property 'location' expected a value of type 'string' but the provided value is of type 'array'.",
+    "span": "[660:666]",
+    "spanText": "[\r\n  ]"
+  },
+  {
+    "message": "Property 'tags' expected a value of type 'Tags' but the provided value is of type 'string'.",
+    "span": "[676:699]",
+    "spanText": "'tag are not a string?'"
+  }
+]

@@ -1,0 +1,41 @@
+
+// wrong declaration
+bad
+
+// incomplete
+resource 
+resource foo
+resource fo/o
+resource foo 'ddd'
+resource foo 'ddd'=
+
+// wrong resource type
+resource foo 'ddd'={
+}
+
+// missing required property
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
+}
+
+// duplicate property at the top level
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'foo'
+  name: true
+}
+
+// duplicate property inside
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'foo'
+  properties: {
+    foo: 'a'
+    foo: 'a'
+  }
+}
+
+// wrong property types
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'foo'
+  location: [
+  ]
+  tags: 'tag are not a string?'
+}
