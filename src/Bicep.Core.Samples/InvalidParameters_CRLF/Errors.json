@@ -55,9 +55,9 @@
     "spanText": "'"
   },
   {
-    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
-    "span": "[912:962]",
-    "spanText": "parameter wrongType fluffyBunny = 'what\\s up doc?'"
+    "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[922:931]",
+    "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
@@ -70,9 +70,9 @@
     "spanText": "\\s"
   },
   {
-    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
-    "span": "[991:1041]",
-    "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?"
+    "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[1001:1010]",
+    "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
@@ -85,9 +85,9 @@
     "spanText": "'what\\'s up doc?"
   },
   {
-    "message": "Parameter 'wrongType' is declared multiple times. Remove or rename the duplicate parameters.",
-    "span": "[1045:1096]",
-    "spanText": "parameter wrongType fluffyBunny = 'what\\'s up doc?'"
+    "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[1055:1064]",
+    "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",

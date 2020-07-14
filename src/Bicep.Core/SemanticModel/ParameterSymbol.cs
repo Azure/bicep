@@ -46,5 +46,7 @@ namespace Bicep.Core.SemanticModel
                 }
             }
         }
+
+        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;
     }
 }

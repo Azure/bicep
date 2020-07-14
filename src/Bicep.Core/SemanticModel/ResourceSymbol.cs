@@ -34,5 +34,7 @@ namespace Bicep.Core.SemanticModel
         {
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, this.Body, this.Type);
         }
+
+        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ResourceDeclarationSyntax)?.Name;
     }
 }
