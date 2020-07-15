@@ -283,14 +283,15 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                Synchronize(terminatingType);
+                this.SynchronizeExclusive(terminatingType);
+                //Synchronize(terminatingType);
 
-                // there are situations where EOF is read which advances the reader position past the end of the list
-                if (this.reader.Position == this.reader.Count)
-                {
-                    // to correct that we need to step back
-                    this.reader.StepBack();
-                }
+                //// there are situations where EOF is read which advances the reader position past the end of the list
+                //if (this.reader.Position == this.reader.Count)
+                //{
+                //    // to correct that we need to step back
+                //    this.reader.StepBack();
+                //}
 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
@@ -310,6 +311,20 @@ namespace Bicep.Core.Parser
             }
         }
 
+        private void SynchronizeExclusive(TokenType expectedType)
+        {
+            while (true)
+            {
+                TokenType nextType = this.reader.Peek().Type;
+                if (nextType == TokenType.EndOfFile || nextType == expectedType)
+                {
+                    return;
+                }
+
+                reader.Read();
+            }
+        }
+
         private bool IsAtEnd()
         {
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
@@ -317,13 +332,14 @@ namespace Bicep.Core.Parser
 
         private Token Expect(TokenType type, string message)
         {
-            var token = reader.Read();
-            if (token.Type == type)
+            if (this.Check(type))
             {
-                return token;
+                // only read the token if it matches the expectations
+                // otherwise, we could accidentally consume EOF
+                return reader.Read();
             }
 
-            throw new ExpectedTokenException(message, token);
+            throw new ExpectedTokenException(message, this.reader.Peek());
         }
 
         private bool Match(TokenType type)

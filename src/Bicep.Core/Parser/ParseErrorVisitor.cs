@@ -29,7 +29,13 @@ namespace Bicep.Core.Parser
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
             // parse errors live on skipped token nodes
-            TextSpan span = TextSpan.Between(syntax.ErrorCause, syntax.Tokens.Last());
+
+            // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
+            // VS code will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
+            TextSpan span = syntax.ErrorCause.Type == TokenType.NewLine
+                ? new TextSpan(syntax.ErrorCause.Span.Position, 0)
+                : syntax.ErrorCause.Span;
+
             this.errors.Add(new Error(syntax.ErrorMessage, span));
         }
 

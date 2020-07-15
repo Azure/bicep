@@ -37,7 +37,7 @@ namespace Bicep.Core.Parser
         /// <returns>the span from the beginning of the first span to the end of the second span</returns>
         public static TextSpan Between(TextSpan a, TextSpan b)
         {
-            if (a.Position <= b.Position)
+            if (IsPairInOrder(a, b))
             {
                 return new TextSpan(a.Position, b.Position + b.Length - a.Position);
             }
@@ -60,14 +60,14 @@ namespace Bicep.Core.Parser
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         /// <returns>the span from the end of the first span to the beginning of the second span</returns>
-        public static TextSpan BetweenNonInclusive(TextSpan a, TextSpan b)
+        public static TextSpan BetweenExclusive(TextSpan a, TextSpan b)
         {
-            if (a.Position <= b.Position)
+            if (IsPairInOrder(a, b))
             {
                 return new TextSpan(a.Position + a.Length, b.Position - (a.Position + a.Length));
             }
 
-            return TextSpan.BetweenNonInclusive(b, a);
+            return TextSpan.BetweenExclusive(b, a);
         }
 
         /// <summary>
@@ -76,7 +76,61 @@ namespace Bicep.Core.Parser
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         /// <returns>the span from the end of the first object to the beginning of the second one</returns>
-        public static TextSpan BetweenNonInclusive(IPositionable a, IPositionable b) => TextSpan.BetweenNonInclusive(a.Span, b.Span);
+        public static TextSpan BetweenExclusive(IPositionable a, IPositionable b) => TextSpan.BetweenExclusive(a.Span, b.Span);
+
+        public static TextSpan BetweenInclusiveAndExclusive(IPositionable inclusive, IPositionable exclusive) => TextSpan.BetweenInclusiveAndExclusive(inclusive.Span, exclusive.Span);
+
+        public static TextSpan BetweenInclusiveAndExclusive(TextSpan inclusive, TextSpan exclusive)
+        {
+            if (IsPairInOrder(inclusive, exclusive))
+            {
+                return new TextSpan(inclusive.Position, exclusive.Position - inclusive.Position);
+            }
+
+            // this operation is not commutative, so we can't just call ourselves with flipped order
+            int startPosition = exclusive.Position + exclusive.Length;
+            return new TextSpan(startPosition, inclusive.Position + inclusive.Length - startPosition);
+        }
+
+
+        /// <summary>
+        /// Checks if the two spans are overlapping.
+        /// </summary>
+        /// <param name="a">The first span</param>
+        /// <param name="b">The second span</param>
+        public static bool AreOverlapping(IPositionable a, IPositionable b) => TextSpan.AreOverlapping(a.Span, b.Span);
+
+        /// <summary>
+        /// Checks if the two spans are overlapping.
+        /// </summary>
+        /// <param name="a">The first span</param>
+        /// <param name="b">The second span</param>
+        public static bool AreOverlapping(TextSpan a, TextSpan b)
+        {
+            if (a.Length == 0 || b.Length == 0)
+            {
+                // 0-length spans do not overlap with anything regardless of order
+                // in other words, you can have an infinite number of 0-length spans at any position
+                return false;
+            }
+
+            if (IsPairInOrder(a, b))
+            {
+                return b.Position >= a.Position && b.Position < a.Position + a.Length;
+            }
+
+            return AreOverlapping(b, a);
+        }
+
+        public static TextSpan Parse(string text)
+        {
+            if (TryParse(text, out TextSpan? span))
+            {
+                return span!;
+            }
+
+            throw new FormatException($"The specified text span string '{text}' is not valid.");
+        }
 
         public static bool TryParse(string? text, out TextSpan? span)
         {
@@ -112,5 +166,12 @@ namespace Bicep.Core.Parser
             span = new TextSpan(startInclusive, length);
             return true;
         }
+
+        /// <summary>
+        /// Checks if a comes before b.
+        /// </summary>
+        /// <param name="a">The first span</param>
+        /// <param name="b">The second span</param>
+        private static bool IsPairInOrder(TextSpan a, TextSpan b) => a.Position <= b.Position;
     }
 }
