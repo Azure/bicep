@@ -14,9 +14,24 @@ namespace Bicep.Cli.UnitTests
     [TestClass]
     public class PathHelperTests
     {
-#if WINDOWS_BUILD
+#if LINUX_BUILD
         [TestMethod]
-        public void WindowsFileSystem_ShouldBeCaseInsensitive()
+        public void LinuxFileSystem_ShouldBeCaseSensitive()
+        {
+            PathHelper.PathComparison.Should().Be(StringComparison.Ordinal);
+            PathHelper.PathComparer.Should().BeSameAs(StringComparer.Ordinal);
+        }
+
+        [DataTestMethod]
+        [DataRow("foo.json")]
+        public void GetOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
+        {
+            Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
+            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
+        }
+#else
+        [TestMethod]
+        public void WindowsAndMacFileSystem_ShouldBeCaseInsensitive()
         {
             PathHelper.PathComparison.Should().Be(StringComparison.OrdinalIgnoreCase);
             PathHelper.PathComparer.Should().BeSameAs(StringComparer.OrdinalIgnoreCase);
@@ -26,22 +41,7 @@ namespace Bicep.Cli.UnitTests
         [DataRow("foo.json")]
         [DataRow("foo.JSON")]
         [DataRow("foo.JsOn")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_Windows(string path)
-        {
-            Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
-            badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
-        }
-#else
-        [TestMethod]
-        public void NonWindowsFileSystem_ShouldBeCaseInsensitive()
-        {
-            PathHelper.PathComparison.Should().Be(StringComparison.Ordinal);
-            PathHelper.PathComparer.Should().BeSameAs(StringComparer.Ordinal);
-        }
-
-        [DataTestMethod]
-        [DataRow("foo.json")]
-        public void GetOutputPath_ShouldThrowOnJsonExtensions_NonWindows(string path)
+        public void GetOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
         {
             Action badExtension = () => PathHelper.GetDefaultOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already already has the '.json' extension.");
@@ -108,18 +108,17 @@ namespace Bicep.Cli.UnitTests
         {
             yield return CreateRow(@"foo.arm", @"foo.json");
 
-#if WINDOWS_BUILD
-            yield return CreateRow(@"C:\foo.arm", @"C:\foo.json");
-            yield return CreateRow(@"D:\a\b\c\foo.arm", @"D:\a\b\c\foo.json");
-            
-            yield return CreateRow(@"/foo.arm", @"/foo.json");
-
-#else
+#if LINUX_BUILD
             yield return CreateRow(@"/lib/bar/foo.arm", @"/lib/bar/foo.json");
 
             // these will throw on Windows
             yield return CreateRow(@"/lib/bar/foo.JSON", @"/lib/bar/foo.json");
             yield return CreateRow(@"/bar/foo.jSoN", @"/bar/foo.json");
+#else
+            yield return CreateRow(@"C:\foo.arm", @"C:\foo.json");
+            yield return CreateRow(@"D:\a\b\c\foo.arm", @"D:\a\b\c\foo.json");
+
+            yield return CreateRow(@"/foo.arm", @"/foo.json");
 #endif
         }
 
