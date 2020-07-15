@@ -1,18 +1,18 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "span": "[138:145]",
-    "spanText": "wrong\n\n"
+    "span": "[138:143]",
+    "spanText": "wrong"
   },
   {
     "message": "Expected a parameter identifier at this location.",
-    "span": "[174:199]",
-    "spanText": "\n\nparameter myBool bool\n\n"
+    "span": "[174:174]",
+    "spanText": ""
   },
   {
     "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[220:266]",
-    "spanText": "\n\nparameter myString2 string= 'string value'\n\n"
+    "span": "[220:220]",
+    "spanText": ""
   },
   {
     "message": "The parameter expects a default value of type 'string' but provided value is of type 'int'.",
@@ -21,8 +21,8 @@
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[366:368]",
-    "spanText": "\n\n"
+    "span": "[366:366]",
+    "spanText": ""
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
@@ -36,8 +36,8 @@
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[482:493]",
-    "spanText": ": 'hello'\n\n"
+    "span": "[482:483]",
+    "spanText": ":"
   },
   {
     "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
@@ -46,8 +46,8 @@
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[850:862]",
-    "spanText": "s up doc?'\n\n"
+    "span": "[850:851]",
+    "spanText": "s"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",

@@ -20,6 +20,7 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow("")]
         [DataRow("parameter")]
+        [DataRow("parameter\r\n")]
         [DataRow("parameter ")]
         [DataRow("parameter foo")]
         [DataRow("parameter foo bar")]

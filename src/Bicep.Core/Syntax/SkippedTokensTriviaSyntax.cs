@@ -13,10 +13,16 @@ namespace Bicep.Core.Syntax
             this.ErrorCause = errorCause;
         }
 
+        /// <summary>
+        /// The tokens that were skipped.
+        /// </summary>
         public IReadOnlyList<Token> Tokens { get; }
 
         public string ErrorMessage { get; }
 
+        /// <summary>
+        /// Gets the token that caused the error. This token may fall outside of the Tokens list. For example, an unexpected newline will terminate parsing of a parameter declaration but will not be included in skipped tokens.
+        /// </summary>
         public Token ErrorCause { get; }
 
         public override void Accept(SyntaxVisitor visitor)
