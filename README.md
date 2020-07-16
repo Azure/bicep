@@ -1,3 +1,5 @@
+![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg)
+
 This repo tracks the design and implementation of the as-of-yet unnamed Azure Template Language Revision (codename Bicep - an ARM pun!). Bicep aims to provide customers with an intuitive and easy-to-use declarative programming model for configuring resources on Azure.
 
 ## High Level Design Goals
