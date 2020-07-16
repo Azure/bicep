@@ -359,5 +359,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Language Server bit
+# Language Server bits
 bicepLanguageServer/
