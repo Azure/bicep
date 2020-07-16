@@ -57,3 +57,39 @@ jobs:
         with:
           name: Bicep_${{ matrix.configuration }}_${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.rid }}/publish/*
+
+  build-vscode:
+    runs-on: 'ubuntu-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: Download Language Server
+        uses: actions/download-artifact@v2
+        with:
+          name: LangServer_Release_linux-x64
+          path: ./src/vscode-bicep/bicepLanguageServer
+
+      - name: List language Server files
+        run: ls -R
+        working-directory: ./src/vscode-bicep
+
+      - name: Create VSIX
+        run: npm run package
+        working-directory: ./src/vscode-bicep
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v2
+        with:
+          name: vscode-bicep
+          path: ./src/vscode-bicep/*.vsix
