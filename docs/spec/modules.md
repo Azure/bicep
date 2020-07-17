@@ -3,45 +3,42 @@
 
 ## Definition
 
-A module is an opaque set of coherent resources to be deployed together. It only exposes parameters and outputs as contract to external components, hiding details on how internal resources are defined. Parameters and outputs are optional, but must be strongly typed if defined.
-
-A module can be composed of either a single or multiple files. Single-file module uses file name as module name. Multi-file module includes all files under a same directory (non-recursively) and uses directory name as module name. The module's parameters and outputs are union of those from all files under the directory.
+A module is an opaque set of coherent resources to be deployed together. It only exposes parameters and outputs as contract to other bicep files, hiding details on how internal resources are defined. Parameters and outputs are optional.
 
 ## File structure
 
-Example `sqlDatabases`:
+An example module file `sqlDatabases.arm`.
 
 ```
 parameter accountName string
 
 parameter databaseNames array {
-    defaultValue: [ "name1", "name2" ]
+    default: [ "name1", "name2" ]
 }
 
-resource[] sqlDatabases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-03-01' [
-    for databaseName in databaseNames {
-        name: '{accountName}/{databaseName}',
+resource[] sqlDatabases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-03-01': [
+    for databaseName in databaseNames: {
+        name: '{accountName}/{databaseName}'
         properties: {
-            <database properties>
+            "resource": {
+                "id": databaseName
+            }
+            "options": {
+            }
         }
     }
 ]
 
-outputs: {
-    sqlDatabases: {
-        type: array,
-        value: [for database in sqlDatabases: { database.id }]
-    }
-}
+output sqlDatabases array = [
+    for database in sqlDatabases: { database.id }
+]
 ```
-
-A module file can include nested modules.
 
 ## Usage
 
 ```
 module databases '../sqlDatabases@1.0' {
-    accountName: 'fooAccount',
+    accountName: 'fooAccount'
     // parameter with default value can be omitted.
 }
 
@@ -49,6 +46,8 @@ module databases '../sqlDatabases@1.0' {
 variable myArray array = databases.outputs.sqlDatabases
 ```
 
-`module` is a keyword in bicep. Module location is specified using relative path, `../` in above example. Both `\` and `/` are supported. Module name can be either a file name (single-file module) or directory name (multi-file module). If a directory name is provided, all files under the directory will be loaded. It is a compile error if a file and directory with the same name exist under the path.
+`module` is a keyword in bicep. Module location is specified using relative path, `../` in above example. Both `\` and `/` are supported.
+
+A Bicep file can include any other Bicep file or directory as a modules. This means a module name may refer to either a file or directory. For directory, all files under the directory will be loaded. It is a compiler error if a file and directory with the same name exist under the path.
 
 The version name can be omitted before bicep module registry becomes available.
