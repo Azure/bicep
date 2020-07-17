@@ -59,7 +59,7 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "dotnet build ..\\Bicep.LangServer --configuration Release --output bicepLanguageServer && tsc -p ./",
+        "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
@@ -69,8 +69,8 @@
         "@types/mocha": "^7.0.2",
         "@types/node": "^13.11.1",
         "typescript": "^3.8.3",
-        "vscode": "^1.1.36",
-        "vsce": "^1.75.0"
+        "vsce": "^1.77.0",
+        "vscode": "^1.1.36"
     },
     "dependencies": {
         "vscode-languageclient": "^6.2.0-next.2"

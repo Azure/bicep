@@ -20,9 +20,9 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
 
-            if (syntax.Assignment != null)
+            if (syntax.DefaultKeyword != null)
             {
-                this.VisitToken(syntax.Assignment);
+                this.VisitToken(syntax.DefaultKeyword);
             }
 
             if (syntax.Value != null)

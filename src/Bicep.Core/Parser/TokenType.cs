@@ -34,6 +34,7 @@ namespace Bicep.Core.Parser
         Identifier,
         String,
         Number,
+        DefaultKeyword,
         ParameterKeyword,
         OutputKeyword,
         VariableKeyword,

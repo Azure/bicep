@@ -1,23 +1,33 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "span": "[24:31]",
-    "spanText": "bad\r\n\r\n"
+    "span": "[24:27]",
+    "spanText": "bad"
   },
   {
     "message": "Expected an output identifier at this location.",
-    "span": "[53:88]",
-    "spanText": "\r\n\r\n// missing type\r\noutput foo\r\n\r\n"
+    "span": "[53:53]",
+    "spanText": ""
+  },
+  {
+    "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[84:84]",
+    "spanText": ""
   },
   {
     "message": "Expected an = character at this location.",
-    "span": "[136:179]",
-    "spanText": "\r\n\r\n// missing value\r\noutput foo string\r\n\r\n"
+    "span": "[136:136]",
+    "spanText": ""
+  },
+  {
+    "message": "Expected an = character at this location.",
+    "span": "[175:175]",
+    "spanText": ""
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[216:220]",
-    "spanText": "\r\n\r\n"
+    "span": "[216:216]",
+    "spanText": ""
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
@@ -101,13 +111,13 @@
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[489:492]",
-    "spanText": "}\r\n"
+    "span": "[489:490]",
+    "spanText": "}"
   },
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "span": "[492:495]",
-    "spanText": "}\r\n"
+    "span": "[492:493]",
+    "spanText": "}"
   },
   {
     "message": "Identifier 'i' is declared multiple times. Remove or rename the duplicates.",

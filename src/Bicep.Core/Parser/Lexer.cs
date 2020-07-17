@@ -11,6 +11,7 @@ namespace Bicep.Core.Parser
     {
         private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
+            ["default"] = TokenType.DefaultKeyword,
             ["parameter"] = TokenType.ParameterKeyword,
             ["output"] = TokenType.OutputKeyword,
             ["variable"] = TokenType.VariableKeyword,
