@@ -73,17 +73,17 @@ namespace Bicep.Core.Parser
             var name = Identifier("Expected a parameter identifier at this location.");
             var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
 
-            Token? assignment = null;
+            Token? defaultKeyword = null;
             SyntaxBase? defaultValue = null;
-            if (Check(TokenType.Assignment))
+            if (Check(TokenType.DefaultKeyword))
             {
-                assignment = reader.Read();
+                defaultKeyword = reader.Read();
                 defaultValue = Value();
             }
 
             var newLine = this.NewLine();
 
-            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
+            return new ParameterDeclarationSyntax(keyword, name, type, defaultKeyword, defaultValue, newLine);
         }
 
         private SyntaxBase VariableDeclaration()

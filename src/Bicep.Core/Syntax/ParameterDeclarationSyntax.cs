@@ -5,21 +5,21 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDeclarationSyntax : StatementSyntax
     {
-        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, Token? assignment, SyntaxBase? value, Token newLine)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, Token? defaultKeyword, SyntaxBase? value, Token newLine)
         {
             AssertTokenType(parameterKeyword, nameof(parameterKeyword), TokenType.ParameterKeyword);
-            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertTokenType(defaultKeyword, nameof(defaultKeyword), TokenType.DefaultKeyword);
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 
-            if ((assignment == null) != (value == null))
+            if ((defaultKeyword == null) != (value == null))
             {
-                throw new ArgumentException($"Both {nameof(assignment)} and {nameof(value)} must be null or they both must be non-null.");
+                throw new ArgumentException($"Both {nameof(defaultKeyword)} and {nameof(value)} must be null or they both must be non-null.");
             }
 
             this.ParameterKeyword = parameterKeyword;
             this.Name = name;
             this.Type = type;
-            this.Assignment = assignment;
+            this.DefaultKeyword = defaultKeyword;
             this.Value = value;
             this.NewLine = newLine;
         }
@@ -30,7 +30,7 @@ namespace Bicep.Core.Syntax
 
         public TypeSyntax Type { get; }
 
-        public Token? Assignment { get; }
+        public Token? DefaultKeyword { get; }
 
         public SyntaxBase? Value { get; }
 

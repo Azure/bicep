@@ -16,87 +16,87 @@
   },
   {
     "message": "The parameter expects a default value of type 'string' but provided value is of type 'int'.",
-    "span": "[318:320]",
+    "span": "[332:334]",
     "spanText": "42"
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[385:385]",
+    "span": "[413:413]",
     "spanText": ""
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
-    "span": "[413:428]",
+    "span": "[448:463]",
     "spanText": "'not a boolean'"
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
-    "span": "[458:465]",
+    "span": "[500:507]",
     "spanText": "'false'"
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[506:507]",
+    "span": "[548:549]",
     "spanText": ":"
   },
   {
     "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
-    "span": "[529:790]",
+    "span": "[571:832]",
     "spanText": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong"
   },
   {
     "message": "Expected a new line character at this location.",
-    "span": "[879:880]",
+    "span": "[933:934]",
     "spanText": "s"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
-    "span": "[888:889]",
+    "span": "[942:943]",
     "spanText": "'"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[922:931]",
+    "span": "[976:985]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[932:943]",
+    "span": "[986:997]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t",
-    "span": "[951:953]",
+    "span": "[1011:1013]",
     "spanText": "\\s"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[1001:1010]",
+    "span": "[1061:1070]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[1011:1022]",
+    "span": "[1071:1082]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
-    "span": "[1025:1041]",
+    "span": "[1091:1107]",
     "spanText": "'what\\'s up doc?"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[1055:1064]",
+    "span": "[1121:1130]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
-    "span": "[1065:1076]",
+    "span": "[1131:1142]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
-    "span": "[1136:1142]",
+    "span": "[1208:1214]",
     "spanText": "/*    "
   }
 ]
