@@ -36,19 +36,26 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<Error> GetDiagnostics()
         {
-            // TODO: Handle modifier syntax too
-            if(this.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
+            switch (this.Modifier)
             {
-                // figure out type of the default value
-                TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
+                case ParameterDefaultValueSyntax defaultValueSyntax:
+                    // figure out type of the default value
+                    TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
 
-                if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
-                {
-                    return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue).AsEnumerable();
-                }
+                    if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
+                    {
+                        return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue).AsEnumerable();
+                    }
+
+                    return Enumerable.Empty<Error>();
+
+                case ObjectSyntax modifierSyntax:
+                    // TODO: Allow only certain modifiers for certain parameter types
+                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.ParameterModifier);
+
+                default:
+                    return Enumerable.Empty<Error>();
             }
-
-            return Enumerable.Empty<Error>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;
