@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int)).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateString("foo"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
@@ -109,7 +109,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void MinimalResourceShouldBeValid()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void ResourceWithValidZonesShouldBeAccepted()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
                 TestSyntaxFactory.CreateProperty("zones", TestSyntaxFactory.CreateArray(new []
@@ -136,7 +136,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void InvalidArrayValuesShouldBeRejected()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
 
@@ -154,7 +154,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "Property 'managedByExtended' expected a value of type 'StringArray' but the provided value is of type 'string'.",
+                    "Property 'managedByExtended' expected a value of type 'string[]' but the provided value is of type 'string'.",
                     "The enclosing array expected an item of type 'string', but the provided item was of type 'bool'.",
                     "The enclosing array expected an item of type 'string', but the provided item was of type 'int'.");
         }
@@ -180,13 +180,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesShouldBeRejected()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
                 TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
@@ -207,7 +207,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void WrongTypeOfAdditionalPropertiesWithParseErrorsShouldProduceNoErrors()
         {
-            var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[]
+            var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test")),
                 TestSyntaxFactory.CreateProperty("tags", TestSyntaxFactory.CreateObject(new[]
@@ -221,18 +221,45 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
-        public void SchemaValidParameterModifierShouldProduceNoDiagnostics()
+        public void ValidObjectParameterModifierShouldProduceNoDiagnostics()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateBool(false)),
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateInt(333))
+                })),
+
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new[]
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()))
+                })),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateString("my description")),
+                    TestSyntaxFactory.CreateProperty("extra1", TestSyntaxFactory.CreateString("extra")),
+                    TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateProperty("extra3", TestSyntaxFactory.CreateInt(100))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object)).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ValidStringParameterModifierShouldProduceNoDiagnostics()
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateBool(false)),
                 TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateString("foo")),
 
-                // TODO: Add allowedValue when arrays are supported
-                // TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray()),
-
-                TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateInt(3)),
-                TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateInt(24)),
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("One"))
+                })),
 
                 TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateInt(33)),
                 TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateInt(25)),
@@ -246,16 +273,144 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String)).Should().BeEmpty();
         }
 
         [TestMethod]
-        public void CompletelyInvalidParameterModifier_ShouldLogExpectedErrors()
+        public void ValidIntParameterModifierShouldProduceNoDiagnostics()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateInt(324)),
+
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateInt(13))
+                })),
+
+                TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateInt(3)),
+                TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateInt(24)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateString("my description")),
+                    TestSyntaxFactory.CreateProperty("extra1", TestSyntaxFactory.CreateString("extra")),
+                    TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateProperty("extra3", TestSyntaxFactory.CreateInt(100))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int)).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ValidBoolParameterModifierShouldProduceNoDiagnostics()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateBool(false))
+                })),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateString("my description")),
+                    TestSyntaxFactory.CreateProperty("extra1", TestSyntaxFactory.CreateString("extra")),
+                    TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateProperty("extra3", TestSyntaxFactory.CreateInt(100))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool)).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ValidArrayParameterModifierShouldProduceNoDiagnostics()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateBool(true))
+                })),
+
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateArray(Enumerable.Empty<ArrayItemSyntax>()))
+                })),
+
+                TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateInt(33)),
+                TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateInt(25)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateString("my description")),
+                    TestSyntaxFactory.CreateProperty("extra1", TestSyntaxFactory.CreateString("extra")),
+                    TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateBool(true)),
+                    TestSyntaxFactory.CreateProperty("extra3", TestSyntaxFactory.CreateInt(100))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array)).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void CompletelyInvalidStringParameterModifier_ShouldLogExpectedErrors()
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 // not a bool
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
+
+                // default value of wrong type
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+
+                // not an array
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+
+                // not ints
+                //TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateBool(true)),
+                //TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateString("11")),
+                TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+                TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateBool(false)),
+
+                // extra property
+                TestSyntaxFactory.CreateProperty("extra", TestSyntaxFactory.CreateBool(false)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    // wrong type of description
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateInt(155))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
+                .Select(d => d.Message)
+                .Should().BeEquivalentTo(
+                    "Property 'defaultValue' expected a value of type 'string' but the provided value is of type 'bool'.",
+                    "Property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
+                    //"Property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+                    //"Property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
+                    "Property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
+                    "Property 'allowedValues' expected a value of type 'string[]' but the provided value is of type 'object'.",
+                    "Property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.",
+                    "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.");
+        }
+
+        [TestMethod]
+        public void CompletelyInvalidIntParameterModifier_ShouldLogExpectedErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                // not a bool
+                TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
+
+                // default value of wrong type
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
@@ -276,15 +431,154 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "Property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
+                    "Property 'allowedValues' expected a value of type 'int[]' but the provided value is of type 'object'.",
                     "Property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+                    "Property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
                     "Property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
+                    "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+        }
+
+        [TestMethod]
+        public void CompletelyInvalidBoolParameterModifier_ShouldLogExpectedErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                // not a bool and not allowed
+                TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
+
+                // default value of wrong type
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateInt(1231)),
+
+                // not an array
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateInt(22))
+                })),
+
+                // not allowed
+                TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateString("11")),
+                TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+                TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateBool(false)),
+
+                // extra property
+                TestSyntaxFactory.CreateProperty("extra", TestSyntaxFactory.CreateBool(false)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    // wrong type of description
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateInt(155))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool))
+                .Select(d => d.Message)
+                .Should().BeEquivalentTo(
+                    "Property 'defaultValue' expected a value of type 'bool' but the provided value is of type 'int'.",
+                    "The enclosing array expected an item of type 'bool', but the provided item was of type 'int'.",
+                    "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+        }
+
+        [TestMethod]
+        public void CompletelyInvalidObjectParameterModifier_ShouldLogExpectedErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                // not a bool
+                TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
+
+                // default value of wrong type
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+
+                // not an array
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+
+                // not ints
+                TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateString("11")),
+                TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+                TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateBool(false)),
+
+                // extra property
+                TestSyntaxFactory.CreateProperty("extra", TestSyntaxFactory.CreateBool(false)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    // wrong type of description
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateInt(155))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object))
+                .Select(d => d.Message)
+                .Should()
+                .BeEquivalentTo(
                     "Property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
-                    "Property 'allowedValues' expected a value of type 'array' but the provided value is of type 'object'.",
+                    "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
+                    "Property 'allowedValues' expected a value of type 'object[]' but the provided value is of type 'object'.",
+                    "Property 'defaultValue' expected a value of type 'object' but the provided value is of type 'bool'.",
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+        }
+
+        [TestMethod]
+        public void CompletelyInvalidArrayParameterModifier_ShouldLogExpectedErrors()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                // not a bool
+                TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
+
+                // default value of wrong type
+                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+
+                // not an array
+                TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+
+                // not ints
+                TestSyntaxFactory.CreateProperty("minValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("maxValue", TestSyntaxFactory.CreateString("11")),
+                TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
+                TestSyntaxFactory.CreateProperty("maxLength", TestSyntaxFactory.CreateBool(false)),
+
+                // extra property
+                TestSyntaxFactory.CreateProperty("extra", TestSyntaxFactory.CreateBool(false)),
+
+                TestSyntaxFactory.CreateProperty("metadata", TestSyntaxFactory.CreateObject(new[]
+                {
+                    // wrong type of description
+                    TestSyntaxFactory.CreateProperty("description", TestSyntaxFactory.CreateInt(155))
+                }))
+            });
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array))
+                .Select(d => d.Message)
+                .Should()
+                .BeEquivalentTo(
+                    "Property 'defaultValue' expected a value of type 'array' but the provided value is of type 'bool'.",
                     "Property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
+                    "Property 'allowedValues' expected a value of type 'array[]' but the provided value is of type 'object'.",
+                    "Property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
+                    "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
                     "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
         }
 
