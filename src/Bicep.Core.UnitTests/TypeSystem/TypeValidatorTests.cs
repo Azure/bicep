@@ -68,14 +68,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), @object, LanguageConstants.Object).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), @object, LanguageConstants.Object).Should().BeEmpty();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), @object, LanguageConstants.Int).ToList();
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), @object, LanguageConstants.Int).ToList();
 
             errors.Should().HaveCount(1);
             errors.Single().Message.Should().Be("Expected a value of type 'int' but the provided value is of type 'object'.");
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateString("foo"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.ParameterModifier)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier)
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -151,7 +151,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType())
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "Property 'managedByExtended' expected a value of type 'StringArray' but the provided value is of type 'string'.",
@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).ToList();
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).ToList();
 
             errors.Should().HaveCount(1);
 
@@ -180,7 +180,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -196,7 +196,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType())
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -246,7 +246,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -276,7 +276,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeCache(), obj, LanguageConstants.ParameterModifier)
+            TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.ParameterModifier)
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "Property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",

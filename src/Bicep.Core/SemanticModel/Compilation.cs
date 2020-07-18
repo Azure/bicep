@@ -24,7 +24,7 @@ namespace Bicep.Core.SemanticModel
 
         private SemanticModel GetSemanticModelInternal()
         {
-            var typeCache = new TypeCache();
+            var typeCache = new TypeManager();
 
             List<Symbol> declarations = new List<Symbol>();
             var declarationVisitor = new DeclarationVisitor(typeCache, declarations);

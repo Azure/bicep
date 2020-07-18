@@ -39,14 +39,18 @@ namespace Bicep.Core
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties()
         {
+            // obj, str
             yield return new TypeProperty("secure", Bool, required: false);
+
             yield return new TypeProperty("defaultValue", Any, required: false);
 
             yield return new TypeProperty("allowedValues", Array, required: false);
 
+            // int
             yield return new TypeProperty("minValue", Int, required: false);
             yield return new TypeProperty("maxValue", Int, required: false);
 
+            // array, str
             yield return new TypeProperty("minLength", Int, required: false);
             yield return new TypeProperty("maxLength", Int, required: false);
 

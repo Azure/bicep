@@ -8,12 +8,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticModel : ISemanticContext
     {
-        private readonly TypeCache typeCache;
+        private readonly TypeManager typeManager;
 
-        public SemanticModel(FileSymbol root, TypeCache typeCache)
+        public SemanticModel(FileSymbol root, TypeManager typeManager)
         {
             this.Root = root;
-            this.typeCache = typeCache;
+            this.typeManager = typeManager;
         }
 
         /// <summary>
@@ -46,8 +46,8 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public FileSymbol Root { get; }
 
-        public TypeSymbol? GetTypeInfo(SyntaxBase? syntax) => this.typeCache.GetTypeInfo(syntax);
+        public TypeSymbol? GetTypeInfo(SyntaxBase? syntax) => this.typeManager.GetTypeInfo(syntax);
 
-        public TypeSymbol? GetTypeByName(string? typeName) => this.typeCache.GetTypeByName(typeName);
+        public TypeSymbol? GetTypeByName(string? typeName) => this.typeManager.GetTypeByName(typeName);
     }
 }
