@@ -8,7 +8,8 @@ statement -> parameterDecl |
              outputDecl |
              NL
 
-parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (( "=" value )? | object(modifier) ) NL
+parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (parameterDefaultValue | object(modifier))? NL
+parameterDefaultValue -> "=" value
 
 variableDecl -> "variable" IDENTIFIER(name) "=" value NL
 

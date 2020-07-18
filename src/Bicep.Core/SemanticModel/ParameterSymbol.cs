@@ -7,16 +7,16 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? defaultValue)
+        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? modifier)
             : base(context, name, declaringSyntax)
         {
             this.Type = type;
-            this.DefaultValue = defaultValue;
+            this.Modifier = modifier;
         }
 
         public TypeSymbol Type { get; }
 
-        public SyntaxBase? DefaultValue { get; }
+        public SyntaxBase? Modifier { get; }
 
         public override SymbolKind Kind => SymbolKind.Parameter;
 
@@ -35,14 +35,15 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<Error> GetDiagnostics()
         {
-            if(this.DefaultValue != null)
+            // TODO: Handle modifier syntax too
+            if(this.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
                 // figure out type of the default value
-                TypeSymbol? defaultValueType = this.Context.GetTypeInfo(this.DefaultValue);
+                TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
 
                 if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                 {
-                    yield return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", this.DefaultValue);
+                    yield return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue);
                 }
             }
         }

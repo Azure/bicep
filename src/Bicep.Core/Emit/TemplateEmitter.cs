@@ -116,10 +116,11 @@ namespace Bicep.Core.Emit
             writer.WritePropertyName("type");
             writer.WriteValue(parameterSymbol.Type.Name);
 
-            if (parameterSymbol.DefaultValue != null)
+            // TODO: Handle modifier syntax
+            if (parameterSymbol.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
                 writer.WritePropertyName("defaultValue");
-                EmitExpression(writer, parameterSymbol.DefaultValue);
+                EmitExpression(writer, defaultValueSyntax.DefaultValue);
             }
             
             writer.WriteEndObject();

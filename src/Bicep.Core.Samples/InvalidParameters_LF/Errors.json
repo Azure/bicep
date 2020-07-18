@@ -35,7 +35,7 @@
     "spanText": "'false'"
   },
   {
-    "message": "Expected a new line character at this location.",
+    "message": "Expected the default keyword, a parameter modifier, or a newline at this location.",
     "span": "[524:525]",
     "spanText": ":"
   },
