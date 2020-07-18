@@ -50,9 +50,7 @@ namespace Bicep.Core.SemanticModel
                     return Enumerable.Empty<Error>();
 
                 case ObjectSyntax modifierSyntax:
-                    // TODO: Allow only certain modifiers for certain parameter types
-                    return Enumerable.Empty<Error>();
-                    //return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.ParameterModifier);
+                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
 
                 default:
                     return Enumerable.Empty<Error>();
