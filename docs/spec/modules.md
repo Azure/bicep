@@ -5,9 +5,9 @@
 
 A module is an opaque set of one or more resources to be deployed together. It only exposes parameters and outputs as contract to other bicep files, hiding details on how internal resources are defined. This allows you to abstract away complex details of the raw resource declaration from the end user who now only needs to be concerned about the module contract. Parameters and outputs are optional.
 
-## File structure
+## Declare a module
 
-An example module file `sqlDatabases.arm`.
+Any bicep file is itself a module, so there is no specific syntax for defining a module. A module can be a single file or a directory. If a module references a directory, all root files in that directory will be combined. Here is an example bicep file (`sqlDatabases.arm`) that we will consume as a module:
 
 ```
 parameter accountName string
@@ -36,6 +36,10 @@ output sqlDatabases array = [
 
 ## Usage
 
+`module` is a keyword in bicep. The module location is specified using relative path (`../sqlDatabases` in the below example). Both `\` and `/` are supported.
+
+Here is an example consumption of a module
+
 ```
 module databases '../sqlDatabases' {
     accountName: 'fooAccount'
@@ -46,6 +50,4 @@ module databases '../sqlDatabases' {
 variable myArray array = databases.outputs.sqlDatabases
 ```
 
-`module` is a keyword in bicep. Module location is specified using relative path, `../` in above example. Both `\` and `/` are supported.
-
-A Bicep file can include any other Bicep file or directory as a module. This means a module name may refer to either a file or directory. For directory, all files under the directory will be loaded. It is a compiler error if a file and directory with the same name exist under the path.
+A bicep module can reference another Bicep file or directory of bicep files as a module. This means the module name may refer to either a file or directory. For directory, all files under the directory will be loaded. It is a compiler error if a file and directory with the same name exist under the path.
