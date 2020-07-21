@@ -37,5 +37,45 @@ parameter wrongType fluffyBunny default 'what\'s up doc?
 
 parameter wrongType fluffyBunny default 'what\'s up doc?'
 
+// modifier on an invalid type
+parameter someArray arra {
+  minLength: 3
+  maxLength: 24
+}
+
+// duplicate modifier property
+parameter duplicatedModifierProperty string {
+  minLength: 3
+  minLength: 24
+}
+
+// non-existent modifiers
+parameter secureInt int {
+  secure: true
+  minLength: 3
+  maxLength: 123
+}
+
+// wrong modifier value types
+parameter wrongIntModifier int {
+  defaultValue: true
+  allowedValues: [
+    'test'
+    true
+  ]
+  minValue: {
+  }
+  maxValue: [
+  ]
+  metadata: 'wrong'
+}
+
+// wrong metadata schema
+parameter wrongMetadataSchema string {
+  metadata: {
+    description: true
+  }
+}
+
 // unterminated multi-line comment
 /*    
