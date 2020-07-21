@@ -95,8 +95,73 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[1184:1188]",
+    "spanText": "arra"
+  },
+  {
+    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[1304:1313]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[1319:1328]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
+    "span": "[1390:1396]",
+    "spanText": "secure"
+  },
+  {
+    "message": "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
+    "span": "[1405:1414]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
+    "span": "[1420:1429]",
+    "spanText": "maxLength"
+  },
+  {
+    "message": "Property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+    "span": "[1517:1521]",
+    "spanText": "true"
+  },
+  {
+    "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'string'.",
+    "span": "[1545:1551]",
+    "spanText": "'test'"
+  },
+  {
+    "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'bool'.",
+    "span": "[1556:1560]",
+    "spanText": "true"
+  },
+  {
+    "message": "Property 'minValue' expected a value of type 'int' but the provided value is of type 'object'.",
+    "span": "[1577:1582]",
+    "spanText": "{\n  }"
+  },
+  {
+    "message": "Property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'.",
+    "span": "[1595:1600]",
+    "spanText": "[\n  ]"
+  },
+  {
+    "message": "Property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'.",
+    "span": "[1613:1620]",
+    "spanText": "'wrong'"
+  },
+  {
+    "message": "Property 'description' expected a value of type 'string' but the provided value is of type 'bool'.",
+    "span": "[1719:1723]",
+    "spanText": "true"
+  },
+  {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
-    "span": "[1168:1174]",
+    "span": "[1766:1772]",
     "spanText": "/*    "
   }
 ]
