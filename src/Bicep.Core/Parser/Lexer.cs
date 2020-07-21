@@ -250,12 +250,14 @@ namespace Bicep.Core.Parser
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
-                textWindow.Advance();
 
-                if (nextChar == '\n')
+                // make sure we don't include the newline in the comment trivia
+                if (IsNewLine(nextChar))
                 {
                     return;
                 }
+
+                textWindow.Advance();
             }
         }
 
@@ -324,7 +326,7 @@ namespace Bicep.Core.Parser
 
                 var nextChar = textWindow.Peek();
 
-                if (nextChar == '\n' || nextChar == '\r')
+                if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
                     this.AddError("The string at this location is not terminated due to an unexpected new line character.");
