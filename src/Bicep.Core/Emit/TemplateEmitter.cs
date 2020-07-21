@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -13,6 +16,18 @@ namespace Bicep.Core.Emit
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateEmitter
     {
+        // these are top-level parameter modifier properties whose values can be emitted without any modifications
+        private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
+        {
+            "defaultValue",
+            "allowedValues",
+            "minValue",
+            "maxValue",
+            "minLength",
+            "maxLength",
+            "metadata"
+        }.ToImmutableArray();
+
         private readonly SemanticModel.SemanticModel semanticModel;
 
         public TemplateEmitter(SemanticModel.SemanticModel semanticModel)
@@ -70,12 +85,10 @@ namespace Bicep.Core.Emit
 
             writer.WriteStartObject();
 
-            writer.WritePropertyName("$schema");
             // TODO: Select by scope type
-            writer.WriteValue("https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
+            this.EmitPropertyValue(writer, "$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
 
-            writer.WritePropertyName("contentVersion");
-            writer.WriteValue("1.0.0.0");
+            this.EmitPropertyValue(writer, "contentVersion", "1.0.0.0");
 
             writer.WritePropertyName("parameters");
             this.EmitParameters(writer);
@@ -111,23 +124,39 @@ namespace Bicep.Core.Emit
 
         private void EmitParameter(JsonTextWriter writer, ParameterSymbol parameterSymbol)
         {
-            writer.WriteStartObject();
+            // local function
+            bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
 
-            writer.WritePropertyName("type");
-            writer.WriteValue(parameterSymbol.Type.Name);
+            writer.WriteStartObject();
 
             switch (parameterSymbol.Modifier)
             {
+                case null:
+                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+
+                    break;
+
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    writer.WritePropertyName("defaultValue");
-                    EmitExpression(writer, defaultValueSyntax.DefaultValue);
+                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    this.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue);
 
                     break;
 
                 case ObjectSyntax modifierSyntax:
-                // TODO: Handle modifier syntax
+                    // this would throw on invalid object node - we are relying on emitter checking for errors at the beginning
+                    var properties = modifierSyntax.ToPropertyDictionary();
+
+                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
+
+                    // relying on validation here as well (not all of the properties are valid in all contexts)
+                    foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
+                    {
+                        this.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName));
+                    }
+                    
+                    break;
             }
-            
+
             writer.WriteEndObject();
         }
 
@@ -170,12 +199,8 @@ namespace Bicep.Core.Emit
             // (it's a code defect if it some errors were not emitted)
             ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
 
-            writer.WritePropertyName("type");
-            writer.WriteValue(typeReference.FullyQualifiedType);
-
-            writer.WritePropertyName("apiVersion");
-            writer.WriteValue(typeReference.ApiVersion);
-
+            this.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
+            this.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
             this.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
 
             writer.WriteEndObject();
@@ -198,11 +223,8 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            writer.WritePropertyName("type");
-            writer.WriteValue(outputSymbol.Type.Name);
-
-            writer.WritePropertyName("value");
-            this.EmitExpression(writer, outputSymbol.Value);
+            this.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
+            this.EmitPropertyExpression(writer, "value", outputSymbol.Value);
 
             writer.WriteEndObject();
         }
@@ -253,9 +275,46 @@ namespace Bicep.Core.Emit
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                writer.WritePropertyName(propertySyntax.Identifier.IdentifierName);
-                this.EmitExpression(writer, propertySyntax.Value);
+                this.EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
             }
+        }
+
+        private void EmitPropertyValue(JsonTextWriter writer, string name, string value)
+        {
+            writer.WritePropertyName(name);
+            writer.WriteValue(value);
+        }
+
+        private void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression)
+        {
+            writer.WritePropertyName(name);
+            this.EmitExpression(writer, expression);
+        }
+
+        private void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression)
+        {
+            if (expression != null)
+            {
+                this.EmitPropertyExpression(writer, name, expression);
+            }
+        }
+
+        private string GetTemplateTypeName(TypeSymbol type, bool secure)
+        {
+            if (secure)
+            {
+                if (ReferenceEquals(type, LanguageConstants.String))
+                {
+                    return "secureString";
+                }
+
+                if (ReferenceEquals(type, LanguageConstants.Object))
+                {
+                    return "secureObject";
+                }
+            }
+
+            return type.Name;
         }
     }
 }
