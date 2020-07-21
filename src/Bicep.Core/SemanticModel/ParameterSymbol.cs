@@ -47,14 +47,13 @@ namespace Bicep.Core.SemanticModel
                         return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue).AsEnumerable();
                     }
 
-                    return Enumerable.Empty<Error>();
+                    break;
 
-                case ObjectSyntax modifierSyntax:
+                case ObjectSyntax modifierSyntax when this.Type.TypeKind != TypeKind.Error:
                     return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
-
-                default:
-                    return Enumerable.Empty<Error>();
             }
+
+            return Enumerable.Empty<Error>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;
