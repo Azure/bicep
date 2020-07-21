@@ -5,9 +5,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class TypeCache : ISemanticContext
+    public class TypeManager : ISemanticContext
     {
-        public TypeCache()
+        public TypeManager()
         {
         }
 

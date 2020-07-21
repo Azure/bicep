@@ -21,15 +21,10 @@ namespace Bicep.Core
         public static readonly TypeSymbol Bool = new PrimitiveType("bool");
         public static readonly TypeSymbol Array = new ArrayType("array");
 
-        // strict schema on the modifier - no extra properties allowed
-        public static readonly TypeSymbol ParameterModifier = new NamedObjectType(nameof(ParameterModifier), CreateParameterModifierProperties(), additionalPropertiesType: null);
-
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any);
 
         public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String);
-
-        public static readonly TypeSymbol StringArray = new NamedArrayType("StringArray", String);
 
         public static readonly ImmutableArray<TypeProperty> TopLevelResourceProperties = CreateResourceProperties().ToImmutableArray();
 
@@ -37,18 +32,41 @@ namespace Bicep.Core
 
         public static readonly string PrimitiveTypesString = LanguageConstants.PrimitiveTypes.Keys.ConcatString(ListSeparator);
 
-        private static IEnumerable<TypeProperty> CreateParameterModifierProperties()
+        public static TypeSymbol CreateParameterModifierType(TypeSymbol parameterType)
         {
-            yield return new TypeProperty("secure", Bool, required: false);
-            yield return new TypeProperty("defaultValue", Any, required: false);
+            if (parameterType.TypeKind != TypeKind.Primitive)
+            {
+                throw new ArgumentException($"Modifiers are not supported for type '{parameterType.Name}'.");
+            }
 
-            yield return new TypeProperty("allowedValues", Array, required: false);
+            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalPropertiesType: null);
+        }
 
-            yield return new TypeProperty("minValue", Int, required: false);
-            yield return new TypeProperty("maxValue", Int, required: false);
+        private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol parameterType)
+        {
+            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Object))
+            {
+                // only string and object types have secure equivalents
+                yield return new TypeProperty("secure", Bool, required: false);
+            }
 
-            yield return new TypeProperty("minLength", Int, required: false);
-            yield return new TypeProperty("maxLength", Int, required: false);
+            yield return new TypeProperty("defaultValue", parameterType, required: false);
+
+            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), required: false);
+
+            if (ReferenceEquals(parameterType, Int))
+            {
+                // value constraints are valid on integer parameters only
+                yield return new TypeProperty("minValue", Int, required: false);
+                yield return new TypeProperty("maxValue", Int, required: false);
+            }
+
+            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Array))
+            {
+                // strings and arrays can have length constraints
+                yield return new TypeProperty("minLength", Int, required: false);
+                yield return new TypeProperty("maxLength", Int, required: false);
+            }
 
             yield return new TypeProperty("metadata", ParameterModifierMetadata, false);
         }
@@ -76,14 +94,15 @@ namespace Bicep.Core
             yield return new TypeProperty("kind", String, required: false);
             yield return new TypeProperty("managedBy", String, required: false);
 
-            yield return new TypeProperty("managedByExtended", StringArray, required: false);
+            var stringArray = new TypedArrayType(String);
+            yield return new TypeProperty("managedByExtended", stringArray, required: false);
 
             yield return new TypeProperty("location", String, required: false);
 
             // TODO: Model type fully
             yield return new TypeProperty("extendedLocation", Object, required: false);
 
-            yield return new TypeProperty("zones", StringArray, required: false);
+            yield return new TypeProperty("zones", stringArray, required: false);
 
             yield return new TypeProperty("plan", Object, required: false);
 

@@ -35,7 +35,7 @@
     "spanText": "'false'"
   },
   {
-    "message": "Expected a new line character at this location.",
+    "message": "Expected the default keyword, a parameter modifier, or a newline at this location.",
     "span": "[548:549]",
     "spanText": ":"
   },
@@ -95,8 +95,73 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string",
+    "span": "[1224:1228]",
+    "spanText": "arra"
+  },
+  {
+    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[1351:1360]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "span": "[1367:1376]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
+    "span": "[1443:1449]",
+    "spanText": "secure"
+  },
+  {
+    "message": "The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'.",
+    "span": "[1459:1468]",
+    "spanText": "minLength"
+  },
+  {
+    "message": "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'.",
+    "span": "[1475:1484]",
+    "spanText": "maxLength"
+  },
+  {
+    "message": "Property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+    "span": "[1577:1581]",
+    "spanText": "true"
+  },
+  {
+    "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'string'.",
+    "span": "[1607:1613]",
+    "spanText": "'test'"
+  },
+  {
+    "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'bool'.",
+    "span": "[1619:1623]",
+    "spanText": "true"
+  },
+  {
+    "message": "Property 'minValue' expected a value of type 'int' but the provided value is of type 'object'.",
+    "span": "[1642:1648]",
+    "spanText": "{\r\n  }"
+  },
+  {
+    "message": "Property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'.",
+    "span": "[1662:1668]",
+    "spanText": "[\r\n  ]"
+  },
+  {
+    "message": "Property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'.",
+    "span": "[1682:1689]",
+    "spanText": "'wrong'"
+  },
+  {
+    "message": "Property 'description' expected a value of type 'string' but the provided value is of type 'bool'.",
+    "span": "[1794:1798]",
+    "spanText": "true"
+  },
+  {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
-    "span": "[1208:1214]",
+    "span": "[1846:1852]",
     "spanText": "/*    "
   }
 ]
