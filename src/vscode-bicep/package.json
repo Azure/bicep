@@ -47,7 +47,8 @@
                 ],
                 "extensions": [
                     ".arm"
-                ]
+                ],
+                "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
