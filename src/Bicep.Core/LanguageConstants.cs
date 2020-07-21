@@ -39,8 +39,7 @@ namespace Bicep.Core
                 throw new ArgumentException($"Modifiers are not supported for type '{parameterType.Name}'.");
             }
 
-            // TODO: Should have unique name per parameter type
-            return new NamedObjectType("ParameterModifier", CreateParameterModifierProperties(parameterType), additionalPropertiesType: null);
+            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalPropertiesType: null);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol parameterType)

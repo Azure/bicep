@@ -102,8 +102,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'extra2' is not allowed on objects of type 'ParameterModifier'.");
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_string'.",
+                    "The property 'extra2' is not allowed on objects of type 'ParameterModifier_string'.");
         }
 
         [TestMethod]
@@ -397,7 +397,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "Property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
                     "Property 'allowedValues' expected a value of type 'string[]' but the provided value is of type 'object'.",
                     "Property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_string'.",
                     "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.");
         }
 
@@ -439,10 +439,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "Property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
                     "Property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
                     "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_int'.");
         }
 
         [TestMethod]
@@ -484,12 +484,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "Property 'defaultValue' expected a value of type 'bool' but the provided value is of type 'int'.",
                     "The enclosing array expected an item of type 'bool', but the provided item was of type 'int'.",
                     "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_bool'.",
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_bool'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_bool'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_bool'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_bool'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_bool'.");
         }
 
         [TestMethod]
@@ -530,11 +530,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
                     "Property 'allowedValues' expected a value of type 'object[]' but the provided value is of type 'object'.",
                     "Property 'defaultValue' expected a value of type 'object' but the provided value is of type 'bool'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_object'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_object'.",
+                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_object'.",
+                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_object'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_object'.");
         }
 
         [TestMethod]
@@ -576,10 +576,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "Property 'allowedValues' expected a value of type 'array[]' but the provided value is of type 'object'.",
                     "Property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
                     "Property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier'.");
+                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_array'.",
+                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_array'.",
+                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_array'.",
+                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_array'.");
         }
 
         private static IEnumerable<object[]> GetData()

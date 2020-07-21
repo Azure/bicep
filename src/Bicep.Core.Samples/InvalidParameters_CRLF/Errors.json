@@ -110,17 +110,17 @@
     "spanText": "minLength"
   },
   {
-    "message": "The property 'secure' is not allowed on objects of type 'ParameterModifier'.",
+    "message": "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
     "span": "[1443:1449]",
     "spanText": "secure"
   },
   {
-    "message": "The property 'minLength' is not allowed on objects of type 'ParameterModifier'.",
+    "message": "The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'.",
     "span": "[1459:1468]",
     "spanText": "minLength"
   },
   {
-    "message": "The property 'maxLength' is not allowed on objects of type 'ParameterModifier'.",
+    "message": "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'.",
     "span": "[1475:1484]",
     "spanText": "maxLength"
   },
