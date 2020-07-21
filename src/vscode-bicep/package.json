@@ -35,7 +35,12 @@
                     ],
                     "default": "verbose",
                     "description": "Traces the communication between VSCode and the bicep service."
-                }
+                },
+                "autoClosingPairs": [
+                    { "open": "{", "close": "}" },
+                    { "open": "[", "close": "]" },
+                    { "open": "(", "close": ")" }
+                ]
             }
         },
         "languages": [
@@ -47,7 +52,8 @@
                 ],
                 "extensions": [
                     ".arm"
-                ]
+                ],
+                "configuration": "./language-configuration.json"
             }
         ],
         "grammars": [
