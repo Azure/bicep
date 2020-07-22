@@ -12,30 +12,70 @@ parameter myBool bool
 
 parameter missingType
 
-parameter myString2 string= 'string value'
+parameter myString2 string default 'string value'
 
-parameter wrongDefaultValue string= 42
+parameter wrongDefaultValue string default 42
 
-parameter myInt2 int= 42
-parameter noValueAfterColon int=   
+parameter myInt2 int default 42
+parameter noValueAfterColon int default   
 
-parameter myTruth bool= 'not a boolean'
-parameter myFalsehood bool= 'false'
+parameter myTruth bool default 'not a boolean'
+parameter myFalsehood bool default 'false'
 
 parameter wrongAssignmentToken string: 'hello'
 
-parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
+parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string default 'why not?'
 
 // badly escaped string
-parameter wrongType fluffyBunny = 'what's up doc?'
+parameter wrongType fluffyBunny default 'what's up doc?'
 
 // invalid escape
-parameter wrongType fluffyBunny = 'what\s up doc?'
+parameter wrongType fluffyBunny default 'what\s up doc?'
 
 // unterminated string 
-parameter wrongType fluffyBunny = 'what\'s up doc?
+parameter wrongType fluffyBunny default 'what\'s up doc?
 
-parameter wrongType fluffyBunny = 'what\'s up doc?'
+parameter wrongType fluffyBunny default 'what\'s up doc?'
+
+// modifier on an invalid type
+parameter someArray arra {
+  minLength: 3
+  maxLength: 24
+}
+
+// duplicate modifier property
+parameter duplicatedModifierProperty string {
+  minLength: 3
+  minLength: 24
+}
+
+// non-existent modifiers
+parameter secureInt int {
+  secure: true
+  minLength: 3
+  maxLength: 123
+}
+
+// wrong modifier value types
+parameter wrongIntModifier int {
+  defaultValue: true
+  allowedValues: [
+    'test'
+    true
+  ]
+  minValue: {
+  }
+  maxValue: [
+  ]
+  metadata: 'wrong'
+}
+
+// wrong metadata schema
+parameter wrongMetadataSchema string {
+  metadata: {
+    description: true
+  }
+}
 
 // unterminated multi-line comment
 /*    

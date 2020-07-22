@@ -73,17 +73,32 @@ namespace Bicep.Core.Parser
             var name = Identifier("Expected a parameter identifier at this location.");
             var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
 
-            Token? assignment = null;
-            SyntaxBase? defaultValue = null;
-            if (Check(TokenType.Assignment))
+            var current = reader.Peek();
+            SyntaxBase? modifier = current.Type switch
             {
-                assignment = reader.Read();
-                defaultValue = Value();
-            }
+                // the parameter does not have a modifier
+                TokenType.NewLine => null,
+
+                // default value is specified
+                TokenType.DefaultKeyword => this.ParameterDefaultValue(),
+
+                // modifier is specified
+                TokenType.LeftBrace => this.Object(),
+
+                _ => throw new ExpectedTokenException("Expected the default keyword, a parameter modifier, or a newline at this location.", current)
+            };
 
             var newLine = this.NewLine();
 
-            return new ParameterDeclarationSyntax(keyword, name, type, assignment, defaultValue, newLine);
+            return new ParameterDeclarationSyntax(keyword, name, type, modifier, newLine);
+        }
+
+        private SyntaxBase ParameterDefaultValue()
+        {
+            Token defaultKeyword = this.Expect(TokenType.DefaultKeyword, "Expected the default keyword at this location.");
+            SyntaxBase defaultValue = this.Value();
+
+            return new ParameterDefaultValueSyntax(defaultKeyword, defaultValue);
         }
 
         private SyntaxBase VariableDeclaration()
@@ -283,15 +298,8 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                Synchronize(terminatingType);
-
-                // there are situations where EOF is read which advances the reader position past the end of the list
-                if (this.reader.Position == this.reader.Count)
-                {
-                    // to correct that we need to step back
-                    this.reader.StepBack();
-                }
-
+                this.SynchronizeExclusive(terminatingType);
+                
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
             }
@@ -310,6 +318,20 @@ namespace Bicep.Core.Parser
             }
         }
 
+        private void SynchronizeExclusive(TokenType expectedType)
+        {
+            while (true)
+            {
+                TokenType nextType = this.reader.Peek().Type;
+                if (nextType == TokenType.EndOfFile || nextType == expectedType)
+                {
+                    return;
+                }
+
+                reader.Read();
+            }
+        }
+
         private bool IsAtEnd()
         {
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
@@ -317,13 +339,14 @@ namespace Bicep.Core.Parser
 
         private Token Expect(TokenType type, string message)
         {
-            var token = reader.Read();
-            if (token.Type == type)
+            if (this.Check(type))
             {
-                return token;
+                // only read the token if it matches the expectations
+                // otherwise, we could accidentally consume EOF
+                return reader.Read();
             }
 
-            throw new ExpectedTokenException(message, token);
+            throw new ExpectedTokenException(message, this.reader.Peek());
         }
 
         private bool Match(TokenType type)

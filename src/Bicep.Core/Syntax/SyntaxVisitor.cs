@@ -20,17 +20,18 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
 
-            if (syntax.Assignment != null)
+            if (syntax.Modifier != null)
             {
-                this.VisitToken(syntax.Assignment);
-            }
-
-            if (syntax.Value != null)
-            {
-                this.Visit(syntax.Value);
+                this.Visit(syntax.Modifier);
             }
 
             this.VisitToken(syntax.NewLine);
+        }
+
+        public virtual void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
+        {
+            this.VisitToken(syntax.DefaultKeyword);
+            this.Visit(syntax.DefaultValue);
         }
 
         public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)

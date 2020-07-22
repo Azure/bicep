@@ -61,27 +61,22 @@ namespace Bicep.Core.TypeSystem
             if (AreTypesAssignable(expressionType, targetType) == false)
             {
                 // fundamentally different types - cannot assign
-                yield return typeMismatchErrorFactory(targetType, expressionType!, expression);
-                yield break;
+                return typeMismatchErrorFactory(targetType, expressionType!, expression).AsEnumerable();
             }
 
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
-                foreach (Error diagnostic in GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType))
-                {
-                    yield return diagnostic;
-                }
+                return GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType);
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                foreach (Error diagnostic in GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType))
-                {
-                    yield return diagnostic;
-                }
+                return GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType);
             }
+
+            return Enumerable.Empty<Error>();
         }
 
         private static IEnumerable<Error> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType)
@@ -103,14 +98,14 @@ namespace Bicep.Core.TypeSystem
 
         private static IEnumerable<Error> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType)
         {
-            // TODO: Rewrite using extension method syntax
             // TODO: Short-circuit on any object to avoid unnecessary processing?
 
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
+            var result = Enumerable.Empty<Error>();
             if (expression.HasParseErrors())
             {
-                yield break;
+                return result;
             }
 
             var propertyMap = expression.Properties.ToDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
@@ -122,7 +117,7 @@ namespace Bicep.Core.TypeSystem
                 .ConcatString(LanguageConstants.ListSeparator);
             if (string.IsNullOrEmpty(missingRequiredProperties) == false)
             {
-                yield return new Error($"The specified object is missing the following required properties: {missingRequiredProperties}.", expression);
+                result = result.Append(new Error($"The specified object is missing the following required properties: {missingRequiredProperties}.", expression));
             }
 
             foreach (var declaredProperty in targetType.Properties.Values)
@@ -137,10 +132,7 @@ namespace Bicep.Core.TypeSystem
                         declaredProperty.Type,
                         (expectedType, actualType, errorExpression) => new Error($"Property '{declaredProperty.Name}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression));
 
-                    foreach (Error diagnostic in diagnostics)
-                    {
-                        yield return diagnostic;
-                    }
+                    result = result.Concat(diagnostics);
                 }
             }
 
@@ -153,10 +145,7 @@ namespace Bicep.Core.TypeSystem
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                foreach (ObjectPropertySyntax extraProperty in extraProperties)
-                {
-                    yield return new Error($"The property '{extraProperty.Identifier.IdentifierName}' is not allowed on objects of type '{targetType.Name}'.", extraProperty.Identifier);
-                }
+                result = result.Concat(extraProperties.Select(extraProperty => new Error($"The property '{extraProperty.Identifier.IdentifierName}' is not allowed on objects of type '{targetType.Name}'.", extraProperty.Identifier)));
             }
             else
             {
@@ -169,12 +158,11 @@ namespace Bicep.Core.TypeSystem
                         targetType.AdditionalPropertiesType,
                         (expectedType, actualType, errorExpression) => new Error($"The property '{extraProperty.Identifier.IdentifierName}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression));
 
-                    foreach (Error diagnostic in diagnostics)
-                    {
-                        yield return diagnostic;
-                    }
+                    result = result.Concat(diagnostics);
                 }
             }
+
+            return result;
         }
     }
 }

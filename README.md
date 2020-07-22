@@ -1,6 +1,6 @@
 # Project Bicep - an ARM DSL
 
-*FYI, we are not closed on a lot of things like naming or file extensions*
+*FYI, all of the details of this readme are subject to change*
 
 ## What is Bicep?
 
@@ -9,16 +9,20 @@ Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declarati
 Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All `resourceType`, `apiVersions`, and resource `properties` that are valid in an ARM template are equally valid in Bicep.
 
 ## High Level Design Goals
+1. Build the best possible language for describing, validating, and deploying infrastructure to Azure
+1. The language should provide a 'transparent abstraction' for the underlying platform. There must be no "onboarding step" to enable it to a new `resourceType` or `apiVersion` in Bicep.
 1. Code should be easy to understand at a glance and straightforward to learn, regardless of your experience with other programming languages.
-2. The language should provide a 'transparent abstraction' for the underlying platform.
-3. The language should feel familiar to imperative programmers, whilst making some of the declarative differences clear through syntax.
-4. Users should be given a lot of freedom to modularize and reuse their code if they desire. Reusing code should not require any 'copy/paste'.
-5. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
-6. Users should have a high level of confidence that their code is 'valid' before deploying.
+1. Users should be given a lot of freedom to modularize and reuse their code if they desire. Reusing code should not require any 'copy/paste'.
+1. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
+1. Users should have a high level of confidence that their code is 'valid' before deploying.
+
+## Non-goals
+1. Build a general purpose language to meet any need. This will not replace general purpose languages and you may still need to do pre or post bicep tasks for niche work. 
+1. Provide a first-class provider model for non-Azure related tasks. While we will likely introduce an extensability model at some point, any extension points are intended to be focused on Azure infra or application related tasks.
 
 ## How does Bicep work?
 
-First, author your Bicep code using the [Bicep language service](), then compile that code into an ARM template. This can happen in a few different ways:
+First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](https://github.com/Azure/bicep/actions), then compile that code into an ARM template. This can happen in a few different ways:
 
 **compile yourself** 
   
@@ -34,11 +38,11 @@ At this point, you can use the generated template as you would normally - test w
 
 This will run `bicep build` and then deploy the generated template via standard CLI tooling. Design of this is still [ongoing](https://github.com/Azure/bicep/issues/33).
 
-## How is life better with Bicep
+## How is life better with Bicep?
 
 * Much simpler syntax when compared to equivalent JSON
   - no special `[...]` expressions syntax required
-  - directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
+      * directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
   - no quotes on property names (e.g. `"location"`)
   - simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
   - simpler resource declaration using positional properties to avoid typing common property names like `resourceType` and `apiVersion` explicitly.
@@ -46,7 +50,7 @@ This will run `bicep build` and then deploy the generated template via standard 
 * [**Modules**](#why-are-modules-so-important), which allow you to simplify declarations of a single resource or set of resources in separate files.
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
   - previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
-* Simpler declaration of conditional statements and loops. Design of this is very much [in progress](https://github.com/Azure/bicep/issues/6)
+* Simpler declaration of [conditional statements](./docs/spec/resources.md#conditions) and [loops](./docs/spec/loops.md)
 * Semi-automatic dependency management. If a resource identifier is used in another resource declaration, the dependency will be added automatically.
 
 
@@ -100,9 +104,11 @@ Full bicep spec:
 * [Resources](https://github.com/Azure/bicep/blob/master/docs/spec/resources.md)
 * [Parameters](https://github.com/Azure/bicep/blob/master/docs/spec/parameters.md)
 * [Variables](https://github.com/Azure/bicep/blob/master/docs/spec/variables.md)
-* [Outputs**](https://github.com/Azure/bicep/blob/master/docs/spec/outputs.md)
+* [Outputs](https://github.com/Azure/bicep/blob/master/docs/spec/outputs.md)
 * [Expressions**](https://github.com/Azure/bicep/blob/master/docs/spec/expressions.md)
-* [Loops and conditionals**](https://github.com/Azure/bicep/issues/6)
+* [Loops](https://github.com/Azure/bicep/blob/master/docs/spec/loops.md)
+* [Conditions](https://github.com/Azure/bicep/blob/master/docs/spec/resources.md#conditions)
+* [Modules](https://github.com/Azure/bicep/blob/master/docs/spec/modules.md)
 
 **not closed on design
 
@@ -115,6 +121,9 @@ To help alleviate this pain, we are introducing the concept of `modules`, which 
 For example, I have an AKS cluster that I want to deploy, which at the lowest level, requires a declaration like this:
 
 ```
+parameter clusterName string
+...
+
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
     name: clusterName
     location: location
@@ -149,9 +158,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 
 This has lots of properties that I may want to override, but in many cases a `defaultValue` will do just fine. With a module, we can allow for a resource to be declared with only the absolute must-have properties like this:
 
-
 ```
-module aksMod './modules/aks@1.0.0' = { // modules are versioned
+module aksMod './modules/aks@1.0.0' = { // modules, optionally, can be versioned
   name: 'myAksCluster'
   location: resourceGroup().location
   clientId: 'mySpnId'
@@ -175,8 +183,8 @@ module myCustomMod 'github.com/alex-frankel/web-app-container@1.0.0' = {
 
 ## How do I go from ARM JSON to Bicep?
 
-We recommend you convert a simpler template 
-...
+We will provide a decompiler to translate ARM JSON as part of our [0.3 release](https://github.com/Azure/bicep/issues/9). In the meantime, this transition must be done manually.
+
 
 ## Contributing
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

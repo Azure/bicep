@@ -1,9 +1,9 @@
 ﻿namespace Bicep.Core.TypeSystem
 {
-    public class NamedArrayType : ArrayType
+    public class TypedArrayType : ArrayType
     {
-        public NamedArrayType(string name, TypeSymbol itemType)
-            : base(name)
+        public TypedArrayType(TypeSymbol itemType)
+            : base(itemType.Name + "[]")
         {
             this.ItemType = itemType;
         }

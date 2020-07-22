@@ -1,23 +1,28 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "span": "[24:29]",
-    "spanText": "bad\n\n"
+    "span": "[24:27]",
+    "spanText": "bad"
   },
   {
     "message": "Expected a variable identifier at this location.",
-    "span": "[72:111]",
-    "spanText": "\n\n// unassigned variable\nvariable foo\n\n"
+    "span": "[72:72]",
+    "spanText": ""
+  },
+  {
+    "message": "Expected an = character at this location.",
+    "span": "[109:109]",
+    "spanText": ""
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[146:148]",
-    "spanText": "\n\n"
+    "span": "[146:146]",
+    "spanText": ""
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[182:185]",
-    "spanText": "&\n\n"
+    "span": "[182:183]",
+    "spanText": "&"
   },
   {
     "message": "The following token is not recognized: &",
@@ -26,7 +31,7 @@
   },
   {
     "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
-    "span": "[213:215]",
-    "spanText": "*\n"
+    "span": "[213:214]",
+    "spanText": "*"
   }
 ]
