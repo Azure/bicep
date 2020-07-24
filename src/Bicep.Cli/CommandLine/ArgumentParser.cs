@@ -29,7 +29,9 @@ namespace Bicep.Cli.CommandLine
         {
             string exeName = Path.GetFileNameWithoutExtension(Path.GetFileName(Assembly.GetExecutingAssembly().Location));
 
-            Console.WriteLine($"Usage: {exeName} build <file 1> <file 2> ... <file n>");
+            Console.WriteLine($"Usage: {exeName} build [--stdout] <file 1> <file 2> ... <file n>");
+            Console.WriteLine("");
+            Console.WriteLine("--stdout Prints all output to stdout instead of corresponding files.");
         }
 
         private static Command ParseCommand(string arg)
@@ -44,11 +46,6 @@ namespace Bicep.Cli.CommandLine
 
         private static BuildArguments ParseBuild(string[] files)
         {
-            if (files.Any() == false)
-            {
-                throw new CommandLineException($"At least one file must be specified to the {Command.Build} command.");
-            }
-
             return new BuildArguments(files);
         }
     }

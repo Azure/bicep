@@ -36,6 +36,14 @@ namespace Bicep.Cli.UnitTests
         }
 
         [TestMethod]
+        public void BuildNoFilesButStdOut_ShouldThrow()
+        {
+            Action noFiles = () => ArgumentParser.Parse(new[] {"build", "--stdout"});
+
+            noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the Build command.");
+        }
+
+        [TestMethod]
         public void BuildOneFile_ShouldReturnOneFile()
         {
             var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "file1"});
@@ -43,6 +51,29 @@ namespace Bicep.Cli.UnitTests
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void BuildOneFileStdOut_ShouldReturnOneFileAndStdout()
+        {
+            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--stdout", "file1"});
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeTrue();
+        }
+
+                [TestMethod]
+        public void BuildOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
+        {
+            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--STDOUT", "file1"});
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeTrue();
         }
 
         [TestMethod]
@@ -52,6 +83,27 @@ namespace Bicep.Cli.UnitTests
 
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void BuildMultipleFilesStdOut_ShouldReturnAllFilesAndStdOut()
+        {
+            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "file3"});
+
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void BuildMultipleFilesStdOutTwice_ShouldReturnAllFilesAndStdOut()
+        {
+            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "--stdout", "file3"});
+
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeTrue();
         }
     }
 }
