@@ -1,23 +1,29 @@
+using System;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class UnaryOperationSyntax : SyntaxBase
-    //{
-    //    public UnaryOperationSyntax(Token operatorToken, SyntaxBase expression)
-    //    {
-    //        Operator = operatorToken;
-    //        Expression = expression;
-    //    }
+    public class UnaryOperationSyntax : SyntaxBase
+    {
+        public UnaryOperationSyntax(Token operatorToken, SyntaxBase expression)
+        {
+            if (Operators.TokenTypeToUnaryOperator.ContainsKey(operatorToken.Type) == false)
+            {
+                throw new ArgumentException($"{nameof(operatorToken)} is of type '{operatorToken.Type}' which does not represent a valid unary operator.");
+            }
 
-    //    public Token Operator { get; }
+            this.OperatorToken = operatorToken;
+            this.Expression = expression;
+        }
 
-    //    public SyntaxBase Expression { get; }
+        public Token OperatorToken { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitUnaryOperationSyntax(this);
+        public SyntaxBase Expression { get; }
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(Operator, Expression);
-    //}
+        public UnaryOperator Operator => Operators.TokenTypeToUnaryOperator[this.OperatorToken.Type];
+
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitUnaryOperationSyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(OperatorToken, Expression);
+    }
 }

@@ -15,12 +15,12 @@
     "spanText": ""
   },
   {
-    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[146:146]",
     "spanText": ""
   },
   {
-    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[182:183]",
     "spanText": "&"
   },
@@ -30,7 +30,7 @@
     "spanText": "&"
   },
   {
-    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[213:214]",
     "spanText": "*"
   }

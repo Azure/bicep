@@ -2,25 +2,25 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class PropertyAccessSyntax : SyntaxBase
-    //{
-    //    public PropertyAccessSyntax(SyntaxBase parent, Token dot, SyntaxBase property)
-    //    {
-    //        Parent = parent;
-    //        Dot = dot;
-    //        Property = property;
-    //    }
+    public class PropertyAccessSyntax : SyntaxBase
+    {
+        public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax propertyName)
+        {
+            this.AssertTokenType(dot, nameof(dot), TokenType.Dot);
 
-    //    public SyntaxBase Parent { get; }
+            this.BaseExpression = baseExpression;
+            this.Dot = dot;
+            this.PropertyName = propertyName;
+        }
 
-    //    public Token Dot { get; }
+        public SyntaxBase BaseExpression { get; }
 
-    //    public SyntaxBase Property { get; }
+        public Token Dot { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitPropertyAccessSyntax(this);
+        public SyntaxBase PropertyName { get; }
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(Parent, Property);
-    //}
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(BaseExpression, PropertyName);
+    }
 }

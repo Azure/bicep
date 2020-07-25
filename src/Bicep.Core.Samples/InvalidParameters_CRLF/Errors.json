@@ -20,7 +20,7 @@
     "spanText": "42"
   },
   {
-    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[413:413]",
     "spanText": ""
   },

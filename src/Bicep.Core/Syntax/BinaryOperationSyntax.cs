@@ -1,29 +1,32 @@
+using System;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class BinaryOperationSyntax : SyntaxBase
-    //{
-    //    public BinaryOperationSyntax(SyntaxBase leftExpression, Token operatorToken, SyntaxBase rightExpression, BinaryOperation operation)
-    //    {
-    //        LeftExpression = leftExpression;
-    //        OperatorToken = operatorToken;
-    //        RightExpression = rightExpression;
-    //        Operation = operation;
-    //    }
+    public class BinaryOperationSyntax : SyntaxBase
+    {
+        public BinaryOperationSyntax(SyntaxBase leftExpression, Token operatorToken, SyntaxBase rightExpression)
+        {
+            if (Operators.TokenTypeToBinaryOperator.ContainsKey(operatorToken.Type) == false)
+            {
+                throw new ArgumentException($"{nameof(operatorToken)} is of type '{operatorToken.Type}' which does not represent a valid binary operator.");
+            }
 
-    //    public SyntaxBase LeftExpression { get; }
+            this.LeftExpression = leftExpression;
+            this.OperatorToken = operatorToken;
+            this.RightExpression = rightExpression;
+        }
 
-    //    public Token OperatorToken { get; }
+        public SyntaxBase LeftExpression { get; }
 
-    //    public SyntaxBase RightExpression { get; }
+        public Token OperatorToken { get; }
 
-    //    public BinaryOperation Operation { get; }
+        public SyntaxBase RightExpression { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitBinaryOperationSyntax(this);
+        public BinaryOperator Operator => Operators.TokenTypeToBinaryOperator[this.OperatorToken.Type];
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(LeftExpression, RightExpression);
-    //}
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitBinaryOperationSyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(this.LeftExpression, this.RightExpression);
+    }
 }

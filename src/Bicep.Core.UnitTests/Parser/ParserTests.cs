@@ -1,0 +1,201 @@
+﻿using System;
+using System.Text;
+using Bicep.Core.Parser;
+using Bicep.Core.Syntax;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Bicep.Core.UnitTests.Parser
+{
+    [TestClass]
+    public class ParserTests
+    {
+        [DataTestMethod]
+        [DataRow("true", "true", typeof(BooleanLiteralSyntax))]
+        [DataRow("false", "false", typeof(BooleanLiteralSyntax))]
+        [DataRow("432", "432", typeof(NumericLiteralSyntax))]
+        [DataRow("null", "null", typeof(NullLiteralSyntax))]
+        [DataRow("'hello world!'", "'hello world!'", typeof(StringSyntax))]
+        public void LiteralExpressionsShouldParseCorrectly(string text, string expected, Type expectedRootType)
+        {
+            RunExpressionTest(text, expected, expectedRootType);
+        }
+
+        [DataTestMethod]
+        [DataRow("foo()", "foo()", 0)]
+        [DataRow("bar(true)", "bar(true)", 1)]
+        [DataRow("bar(true,1,'a',true,null)", "bar(true,1,'a',true,null)", 5)]
+        [DataRow("test(2 + 3*4, true || false && null)", "test((2+(3*4)),(true||(false&&null)))", 2)]
+        public void FunctionsShouldParseCorrectly(string text, string expected, int expectedArgumentCount)
+        {
+            var expression = (FunctionCallSyntax) RunExpressionTest(text, expected, typeof(FunctionCallSyntax));
+            expression.Arguments.Length.Should().Be(expectedArgumentCount);
+        }
+
+        [DataTestMethod]
+        [DataRow("foo","foo")]
+        [DataRow("bar", "bar")]
+        public void VariablesShouldParseCorrectly(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(VariableAccessSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("-10","(-10)")]
+        [DataRow("!x", "(!x)")]
+        public void UnaryOperationsShouldParseCorrectly(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(UnaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("!!true")]
+        [DataRow("--10")]
+        [DataRow("-!null")]
+        public void UnaryOperatorsCannotBeChained(string text)
+        {
+            Action fail = () => ParseExpression(text);
+            fail.Should().Throw<ExpectedTokenException>().WithMessage("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
+        }
+
+        [DataTestMethod]
+        [DataRow("2 + 3 * 4", "(2+(3*4))")]
+        [DataRow("3 * 4 + 7", "((3*4)+7)")]
+        [DataRow("2 + 3 * 4 - 10 % 2 - 1", "(((2+(3*4))-(10%2))-1)")]
+        [DataRow("true || false && null","(true||(false&&null))")]
+        public void BinaryOperationsShouldHaveCorrectPrecedence(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("2 + 3 + 4 -10", "(((2+3)+4)-10)")]
+        [DataRow("2 * 3 / 5 % 100", "(((2*3)/5)%100)")]
+        [DataRow("2 && 3 && 4 && 5","(((2&&3)&&4)&&5)")]
+        [DataRow("true || null || 'a' || 'b'","(((true||null)||'a')||'b')")]
+        [DataRow("true == false != null == 4 != 'a'","((((true==false)!=null)==4)!='a')")]
+        [DataRow("x < y >= z > a","(((x<y)>=z)>a)")]
+        public void BinaryOperationsWithEqualPrecedenceShouldBeLeftToRightAssociative(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("2 + !null * 4","(2+((!null)*4))")]
+        [DataRow("-2 +-3 + -4 -10", "((((-2)+(-3))+(-4))-10)")]
+        [DataRow("2 + 3 * !4 - 10 % 2 - -1", "(((2+(3*(!4)))-(10%2))-(-1))")]
+        [DataRow("-2 && 3 && !4 && 5", "((((-2)&&3)&&(!4))&&5)")]
+        public void UnaryOperatorsShouldHavePrecedenceOverBinaryOperators(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("null ? 4: false","(null?4:false)")]
+        public void TernaryOperatorShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("null && !false ? 2+3*-8 : !13 < 10","((null&&(!false))?(2+(3*(-8))):((!13)<10))")]
+        [DataRow("true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null", "(((((true==false)!=null)==4)!='a')?((((-2)&&3)&&(!4))&&5):(true||(false&&null)))")]
+        [DataRow("null ? 1 : 2 + 3", "(null?1:(2+3))")]
+        public void TernaryOperatorShouldHaveLowestPrecedence(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("(true)", "(true)")]
+        [DataRow("(false)", "(false)")]
+        [DataRow("(null)", "(null)")]
+        [DataRow("(42)", "(42)")]
+        [DataRow("('a')", "('a')")]
+        public void ParenthesizedExpressionShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(ParenthesizedExpressionSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("(2+3)*4","(((2+3))*4)")]
+        [DataRow("true && (false || null)", "(true&&((false||null)))")]
+        [DataRow("(null ? 1 : 2) + 3", "(((null?1:2))+3)")]
+        public void ParenthesizedExpressionsShouldHaveHighestPrecedence(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15", "(null?1:(2?(true?'a':'b'):(false?'d':15)))")]
+        public void TernaryOperatorShouldBeRightToLeftAssociative(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a.b","(a.b)")]
+        [DataRow("null.fail", "(null.fail)")]
+        [DataRow("foo().bar","(foo().bar)")]
+        public void PropertyAccessShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(PropertyAccessSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a.b.c + 0","(((a.b).c)+0)")]
+        [DataRow("(a.b[c]).c[d]+q()", "((((((a.b)[c])).c)[d])+q())")]
+        public void MemberAccessShouldBeLeftToRightAssociative(string text, string expected)
+        {
+            // this also asserts that (), [], and . have equal precedence
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a + b.c * z[12].a && q[foo()] == c.a", "((a+((b.c)*((z[12]).a)))&&((q[foo()])==(c.a)))")]
+        public void MemberAccessShouldHaveHighestPrecedence(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a[b]","(a[b])")]
+        [DataRow("1[b]", "(1[b])")]
+        [DataRow("a[12]", "(a[12])")]
+        [DataRow("null[foo()]", "(null[foo()])")]
+        [DataRow("foo()[bar()]", "(foo()[bar()])")]
+        public void ArrayAccessShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(ArrayAccessSyntax));
+        }
+
+        [TestMethod]
+        public void MathExpression_ShouldParse()
+        {
+            var parser = new Core.Parser.Parser("2 + 3 * 4");
+            
+            var syntax = parser.Expression();
+        }
+
+        private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
+        {
+            SyntaxBase expression = ParseExpression(text);
+            expression.Should().BeOfType(expectedRootType);
+            SerializeExpressionWithExtraParentheses(expression).Should().Be(expected);
+
+            return expression;
+        }
+
+        private static SyntaxBase ParseExpression(string text) => new Core.Parser.Parser(text).Expression();
+
+        private static string SerializeExpressionWithExtraParentheses(SyntaxBase expression)
+        {
+            var buffer = new StringBuilder();
+            var visitor = new ExpressionTestVisitor(buffer);
+
+            visitor.Visit(expression);
+
+            return buffer.ToString();
+        }
+    }
+}
