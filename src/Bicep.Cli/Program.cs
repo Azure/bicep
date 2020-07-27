@@ -57,8 +57,13 @@ namespace Bicep.Cli
             foreach (string file in arguments.Files)
             {
                 string bicepPath = PathHelper.ResolvePath(file);
-                string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
 
+                if (arguments.OutputToStdOut) {
+                    BuildSingleFile(logger, bicepPath);
+                    continue;
+                }
+
+                string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
                 BuildSingleFile(logger, bicepPath, outputPath);
             }
         }
@@ -73,6 +78,23 @@ namespace Bicep.Cli
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
             var result = emitter.Emit(outputPath);
+
+            foreach (Error diagnostic in result.Diagnostics)
+            {
+                logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
+            }
+        }
+
+        private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath)
+        {
+            string text = File.ReadAllText(bicepPath);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+
+            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+
+            var result = emitter.Emit(Console.Out);
 
             foreach (Error diagnostic in result.Diagnostics)
             {
