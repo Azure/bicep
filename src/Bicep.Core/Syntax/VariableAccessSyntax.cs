@@ -2,7 +2,7 @@
 
 namespace Bicep.Core.Syntax
 {
-    public class VariableAccessSyntax: SyntaxBase
+    public class VariableAccessSyntax: SyntaxBase, IExpressionSyntax
     {
         public VariableAccessSyntax(IdentifierSyntax name)
         {

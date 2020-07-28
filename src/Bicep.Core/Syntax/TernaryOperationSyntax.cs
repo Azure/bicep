@@ -2,7 +2,7 @@
 
 namespace Bicep.Core.Syntax
 {
-    public class TernaryOperationSyntax : SyntaxBase
+    public class TernaryOperationSyntax : SyntaxBase, IExpressionSyntax
     {
         public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, Token colon, SyntaxBase falseExpression)
         {

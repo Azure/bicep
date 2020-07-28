@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -11,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.TypeSystem
 {
     [TestClass]
-    public class TypeValidatorTests
+    public class TypeValidatorAssignabilityTests
     {
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToAny()
@@ -582,6 +581,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property 'extra' is not allowed on objects of type 'ParameterModifier_array'.");
         }
 
+        public static string GetDisplayName(MethodInfo method, object[] row)
+        {
+            row.Length.Should().Be(2);
+            row[0].Should().BeOfType<string>();
+            return $"{method.Name}_{row[0]}";
+        }
+
         private static IEnumerable<object[]> GetData()
         {
             static object[] CreateRow(string name, ObjectSyntax @object) => new object[] {name, @object};
@@ -611,13 +617,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateInt(444)),
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("str value")),
             }));
-        }
-
-        public static string GetDisplayName(MethodInfo method, object[] row)
-        {
-            row.Length.Should().Be(2);
-            row[0].Should().BeOfType<string>();
-            return $"{method.Name}_{row[0]}";
         }
 
         private TypeSymbol CreateDummyResourceType()

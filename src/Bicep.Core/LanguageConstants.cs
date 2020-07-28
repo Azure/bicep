@@ -22,7 +22,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type
-        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any);
+        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
         public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String);
 
@@ -47,33 +47,34 @@ namespace Bicep.Core
             if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Object))
             {
                 // only string and object types have secure equivalents
-                yield return new TypeProperty("secure", Bool, required: false);
+                yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
             }
 
-            yield return new TypeProperty("defaultValue", parameterType, required: false);
+            // default value is allowed to have expressions
+            yield return new TypeProperty("defaultValue", parameterType);
 
-            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), required: false);
+            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
 
             if (ReferenceEquals(parameterType, Int))
             {
                 // value constraints are valid on integer parameters only
-                yield return new TypeProperty("minValue", Int, required: false);
-                yield return new TypeProperty("maxValue", Int, required: false);
+                yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
+                yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
             }
 
             if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Array))
             {
                 // strings and arrays can have length constraints
-                yield return new TypeProperty("minLength", Int, required: false);
-                yield return new TypeProperty("maxLength", Int, required: false);
+                yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);
+                yield return new TypeProperty("maxLength", Int, TypePropertyFlags.Constant);
             }
 
-            yield return new TypeProperty("metadata", ParameterModifierMetadata, false);
+            yield return new TypeProperty("metadata", ParameterModifierMetadata, TypePropertyFlags.Constant);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
         {
-            yield return new TypeProperty("description", String, required: false);
+            yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
         private static IEnumerable<TypeProperty> CreateResourceProperties()
@@ -86,37 +87,37 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
-            yield return new TypeProperty("name", String, required: true);
+            yield return new TypeProperty("name", String, TypePropertyFlags.Required);
 
             // TODO: Model type fully
-            yield return new TypeProperty("sku", Object, required: false);
+            yield return new TypeProperty("sku", Object);
 
-            yield return new TypeProperty("kind", String, required: false);
-            yield return new TypeProperty("managedBy", String, required: false);
+            yield return new TypeProperty("kind", String);
+            yield return new TypeProperty("managedBy", String);
 
             var stringArray = new TypedArrayType(String);
-            yield return new TypeProperty("managedByExtended", stringArray, required: false);
+            yield return new TypeProperty("managedByExtended", stringArray);
 
-            yield return new TypeProperty("location", String, required: false);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("extendedLocation", Object, required: false);
-
-            yield return new TypeProperty("zones", stringArray, required: false);
-
-            yield return new TypeProperty("plan", Object, required: false);
-
-            yield return new TypeProperty("eTag", String, required: false);
-
-            yield return new TypeProperty("tags", Tags, required: false);
+            yield return new TypeProperty("location", String);
 
             // TODO: Model type fully
-            yield return new TypeProperty("scale", Object, required: false);
+            yield return new TypeProperty("extendedLocation", Object);
+
+            yield return new TypeProperty("zones", stringArray);
+
+            yield return new TypeProperty("plan", Object);
+
+            yield return new TypeProperty("eTag", String);
+
+            yield return new TypeProperty("tags", Tags);
 
             // TODO: Model type fully
-            yield return new TypeProperty("identity", Object, required: false);
+            yield return new TypeProperty("scale", Object);
 
-            yield return new TypeProperty("properties", Object, required: false);
+            // TODO: Model type fully
+            yield return new TypeProperty("identity", Object);
+
+            yield return new TypeProperty("properties", Object);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Bicep.Core.Syntax
 {
-    public class ParenthesizedExpressionSyntax : SyntaxBase
+    public class ParenthesizedExpressionSyntax : SyntaxBase, IExpressionSyntax
     {
         public ParenthesizedExpressionSyntax(Token openParen, SyntaxBase expression, Token closeParen)
         {

@@ -5,7 +5,7 @@ namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxVisitor
     {
-        public void Visit(SyntaxBase node)
+        public virtual void Visit(SyntaxBase node)
         {
             node.Accept(this);
         }

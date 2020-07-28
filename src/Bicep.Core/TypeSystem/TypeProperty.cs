@@ -2,17 +2,17 @@
 {
     public class TypeProperty
     {
-        public TypeProperty(string name, TypeSymbol type, bool required)
+        public TypeProperty(string name, TypeSymbol type, TypePropertyFlags flags = TypePropertyFlags.None)
         {
             this.Name = name;
             this.Type = type;
-            this.Required = required;
+            this.Flags = flags;
         }
 
         public string Name { get; }
 
         public TypeSymbol Type { get; }
 
-        public bool Required { get; }
+        public TypePropertyFlags Flags { get; }
     }
 }

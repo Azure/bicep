@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionArgumentSyntax : SyntaxBase
+    public class FunctionArgumentSyntax : SyntaxBase, IExpressionSyntax
     {
         public FunctionArgumentSyntax(SyntaxBase expression, Token? comma)
         {

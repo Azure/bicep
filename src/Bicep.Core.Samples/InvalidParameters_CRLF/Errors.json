@@ -160,8 +160,23 @@
     "spanText": "true"
   },
   {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1914:1919]",
+    "spanText": "a + 2"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1934:1939]",
+    "spanText": "foo()"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1965:1966]",
+    "spanText": "i"
+  },
+  {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
-    "span": "[1846:1852]",
+    "span": "[2014:2020]",
     "spanText": "/*    "
   }
 ]

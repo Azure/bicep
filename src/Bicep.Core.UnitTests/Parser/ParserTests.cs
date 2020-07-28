@@ -177,6 +177,8 @@ namespace Bicep.Core.UnitTests.Parser
             var syntax = parser.Expression();
         }
 
+        public static SyntaxBase ParseExpression(string text) => new Core.Parser.Parser(text).Expression();
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParseExpression(text);
@@ -185,8 +187,6 @@ namespace Bicep.Core.UnitTests.Parser
 
             return expression;
         }
-
-        private static SyntaxBase ParseExpression(string text) => new Core.Parser.Parser(text).Expression();
 
         private static string SerializeExpressionWithExtraParentheses(SyntaxBase expression)
         {

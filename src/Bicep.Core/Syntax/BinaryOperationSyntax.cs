@@ -3,7 +3,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class BinaryOperationSyntax : SyntaxBase
+    public class BinaryOperationSyntax : SyntaxBase, IExpressionSyntax
     {
         public BinaryOperationSyntax(SyntaxBase leftExpression, Token operatorToken, SyntaxBase rightExpression)
         {

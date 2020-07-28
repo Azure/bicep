@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class PropertyAccessSyntax : SyntaxBase
+    public class PropertyAccessSyntax : SyntaxBase, IExpressionSyntax
     {
         public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax propertyName)
         {

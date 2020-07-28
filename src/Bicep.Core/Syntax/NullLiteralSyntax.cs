@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class NullLiteralSyntax : SyntaxBase
+    public class NullLiteralSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
         public NullLiteralSyntax(Token nullKeyword)
         {

@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayAccessSyntax : SyntaxBase
+    public class ArrayAccessSyntax : SyntaxBase, IExpressionSyntax
     {
         public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, SyntaxBase indexExpression, Token closeSquare)
         {
