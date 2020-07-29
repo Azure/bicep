@@ -96,6 +96,26 @@ namespace Bicep.Core.Emit
             return new EmitResult(EmitStatus.Succeeded, new Error[0]);
         }
 
+        /// <summary>
+        /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
+        /// </summary>
+        /// <param name="writer">The json writer to write the template</param>
+        public EmitResult Emit(JsonTextWriter writer)
+        {
+            // collect all the errors
+            var diagnostics = this.semanticModel.GetAllDiagnostics();
+
+            if (diagnostics.Any())
+            {
+                // TODO: This needs to account for warnings when we add severity.
+                return new EmitResult(EmitStatus.Failed, diagnostics);
+            }
+
+            this.EmitInternal(writer);
+
+            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+        }
+
         private void EmitInternal(Stream stream)
         {
             using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true))
