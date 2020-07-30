@@ -42,7 +42,7 @@
 			"patterns": [
 				{
 					"name": "constant.character.escape.bicep",
-					"match": "(?x)\\\\(?:[\"\\\\/bfnrt$]|[0-9a-fA-F]{4})"
+					"match": "(?x)\\\\(?:[\\\\nrt'$]|[0-9a-fA-F]{4})"
 				},
 				{
 					"include": "#stringinterp"
