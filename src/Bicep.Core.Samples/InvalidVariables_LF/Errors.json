@@ -33,5 +33,40 @@
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[213:214]",
     "spanText": "*"
+  },
+  {
+    "message": "Identifier 'bar' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[240:243]",
+    "spanText": "bar"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[246:247]",
+    "spanText": "x"
+  },
+  {
+    "message": "Identifier 'bar' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[257:260]",
+    "spanText": "bar"
+  },
+  {
+    "message": "Function calls are not currently supported.",
+    "span": "[263:266]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "span": "[286:288]",
+    "spanText": "!3"
+  },
+  {
+    "message": "Cannot apply operator '+' to operands of type 'bool' and 'int'.",
+    "span": "[310:318]",
+    "spanText": "true + 1"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "span": "[321:323]",
+    "spanText": "!4"
   }
 ]

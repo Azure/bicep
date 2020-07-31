@@ -12,6 +12,9 @@
     <None Remove="Empty\Errors.err" />
     <None Remove="Empty\Errors.json" />
     <None Remove="Empty\Tokens.json" />
+    <None Remove="InvalidExpressions_LF\Bicep.arm" />
+    <None Remove="InvalidExpressions_LF\Errors.json" />
+    <None Remove="InvalidExpressions_LF\Tokens.json" />
     <None Remove="InvalidOutputs_CRLF\Bicep.arm" />
     <None Remove="InvalidOutputs_CRLF\Errors.json" />
     <None Remove="InvalidOutputs_CRLF\Tokens.json" />
@@ -52,6 +55,9 @@
     <EmbeddedResource Include="Empty\Errors.json" />
     <EmbeddedResource Include="Empty\Compiled.json" />
     <EmbeddedResource Include="Empty\Tokens.json" />
+    <EmbeddedResource Include="InvalidExpressions_LF\Bicep.arm" />
+    <EmbeddedResource Include="InvalidExpressions_LF\Errors.json" />
+    <EmbeddedResource Include="InvalidExpressions_LF\Tokens.json" />
     <EmbeddedResource Include="InvalidOutputs_CRLF\Bicep.arm" />
     <EmbeddedResource Include="InvalidOutputs_CRLF\Errors.json" />
     <EmbeddedResource Include="InvalidOutputs_CRLF\Tokens.json" />
