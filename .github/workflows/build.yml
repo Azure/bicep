@@ -42,11 +42,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.301
-
-          # NuGet feed that requires auth
-          source-url: https://pkgs.dev.azure.com/msazure/_packaging/Official/nuget/v3/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.MSAZURE_NUGET_AUTH }}
+      
+      - name: Update NuGet config
+        run: dotnet nuget update source Official --username bicep --password ${{ secrets.MSAZURE_NUGET_AUTH }} --valid-authentication-types=basic --configfile ./NuGet.config
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
