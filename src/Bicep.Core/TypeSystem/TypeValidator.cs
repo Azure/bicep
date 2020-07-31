@@ -39,6 +39,12 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
+            if (sourceType is AnyType)
+            {
+                // "any" type is assignable to all types
+                return true;
+            }
+
             switch (targetType)
             {
                 case AnyType _:
