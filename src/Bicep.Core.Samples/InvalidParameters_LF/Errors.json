@@ -160,14 +160,34 @@
     "spanText": "true"
   },
   {
+    "message": "Property 'defaultValue' expected a value of type 'string' but the provided value is of type 'int'.",
+    "span": "[1813:1818]",
+    "spanText": "2 + 3"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[1832:1833]",
+    "spanText": "a"
+  },
+  {
     "message": "The value must be a compile-time constant.",
     "span": "[1832:1837]",
     "spanText": "a + 2"
   },
   {
+    "message": "Function calls are not currently supported.",
+    "span": "[1851:1854]",
+    "spanText": "foo"
+  },
+  {
     "message": "The value must be a compile-time constant.",
     "span": "[1851:1856]",
     "spanText": "foo()"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[1880:1881]",
+    "spanText": "i"
   },
   {
     "message": "The value must be a compile-time constant.",

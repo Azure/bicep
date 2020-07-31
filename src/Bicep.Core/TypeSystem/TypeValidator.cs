@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Extensions;
+﻿using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Visitors;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -18,14 +18,6 @@ namespace Bicep.Core.TypeSystem
         /// <param name="expression">the expression to check for compile-time constant violations</param>
         public static IList<Error> GetCompileTimeConstantViolation(SyntaxBase expression)
         {
-            // TODO: Improve this so we can identify which values in the expression are not compile-time constants.
-            //return SyntaxAggregator.Aggregate<bool?, bool>(
-            //    source: expression,
-            //    seed: null,
-            //    continuationFunction: (value, node) => value != false && node is IExpressionSyntax,
-            //    function: (value, node) => (value ?? true) && node is ILiteralSyntax,
-            //    resultSelector: value => value ?? false);
-
             var errors = new List<Error>();
             var visitor = new CompileTimeConstantVisitor(errors);
 
@@ -68,6 +60,20 @@ namespace Bicep.Core.TypeSystem
                     // this function does not validate item types
                     return true;
 
+                case UnionType targetUnion when sourceType is UnionType sourceUnion:
+                    // union types are guaranteed to be flat
+                    
+                    // TODO: Replace with some sort of set intersection
+                    // are all source type members assignable to the target type?
+                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetUnion) == true);
+
+                case UnionType targetUnion:
+                    // the source type should be a singleton type
+                    Debug.Assert(!(sourceType is UnionType),"!(sourceType is UnionType)");
+
+                    // can source type be assigned to any union member types
+                    return targetUnion.Members.Any(targetMember => AreTypesAssignable(sourceType, targetMember) == true);
+
                 default:
                     // expression cannot be assigned to the type
                     return false;
@@ -79,33 +85,47 @@ namespace Bicep.Core.TypeSystem
             // generic error creator if a better one was not specified.
             typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => new Error($"Expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression);
 
-            return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false);
+            return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
 
-        private static IEnumerable<Error> GetExpressionAssignmentDiagnosticsInternal(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Error> typeMismatchErrorFactory, bool skipConstantCheck)
+        private static IEnumerable<Error> GetExpressionAssignmentDiagnosticsInternal(
+            ISemanticContext context,
+            SyntaxBase expression,
+            TypeSymbol targetType,
+            Func<TypeSymbol, TypeSymbol, SyntaxBase, Error> typeMismatchErrorFactory,
+            bool skipConstantCheck,
+            bool skipTypeErrors)
         {
+            // TODO: The type of this expression and all subexpressions should be cached
             TypeSymbol? expressionType = context.GetTypeInfo(expression);
+
+            // since we dynamically checked type, we need to collect the errors but only if the caller wants them
+            var errors = Enumerable.Empty<Error>();
+            if (skipTypeErrors == false && expressionType is ErrorTypeSymbol)
+            {
+                errors = errors.Concat(expressionType.GetDiagnostics());
+            }
 
             // basic assignability check
             if (AreTypesAssignable(expressionType, targetType) == false)
             {
                 // fundamentally different types - cannot assign
-                return typeMismatchErrorFactory(targetType, expressionType!, expression).AsEnumerable();
+                return errors.Append(typeMismatchErrorFactory(targetType, expressionType, expression));
             }
 
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
-                return GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType, skipConstantCheck);
+                return errors.Concat(GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType, skipConstantCheck));
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                return GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType, skipConstantCheck);
+                return errors.Concat(GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType, skipConstantCheck));
             }
 
-            return Enumerable.Empty<Error>();
+            return errors;
         }
 
         private static IEnumerable<Error> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
@@ -123,13 +143,14 @@ namespace Bicep.Core.TypeSystem
                     arrayItemSyntax.Value,
                     targetType.ItemType,
                     (expectedType, actualType, errorExpression) => new Error($"The enclosing array expected an item of type '{expectedType.Name}', but the provided item was of type '{actualType.Name}'.", errorExpression),
-                    skipConstantCheck)); 
+                    skipConstantCheck,
+                    skipTypeErrors: true)); 
         }
 
         private static IEnumerable<Error> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
         {
             // TODO: Short-circuit on any object to avoid unnecessary processing?
-
+            // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
             var result = Enumerable.Empty<Error>();
@@ -173,7 +194,8 @@ namespace Bicep.Core.TypeSystem
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
                         (expectedType, actualType, errorExpression) => new Error($"Property '{declaredProperty.Name}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression),
-                        skipConstantCheckForProperty);
+                        skipConstantCheckForProperty,
+                        skipTypeErrors: true);
 
                     result = result.Concat(diagnostics);
                 }
@@ -212,7 +234,8 @@ namespace Bicep.Core.TypeSystem
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
                         (expectedType, actualType, errorExpression) => new Error($"The property '{extraProperty.Identifier.IdentifierName}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression),
-                        skipConstantCheckForProperty);
+                        skipConstantCheckForProperty,
+                        skipTypeErrors: true);
 
                     result = result.Concat(diagnostics);
                 }

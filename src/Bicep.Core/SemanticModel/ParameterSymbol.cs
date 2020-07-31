@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -41,6 +43,12 @@ namespace Bicep.Core.SemanticModel
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     // figure out type of the default value
                     TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
+
+                    // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
+                    if (defaultValueType is ErrorTypeSymbol)
+                    {
+                        return defaultValueType.GetDiagnostics();
+                    }
 
                     if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                     {

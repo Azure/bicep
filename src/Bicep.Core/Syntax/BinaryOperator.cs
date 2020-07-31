@@ -68,6 +68,6 @@ namespace Bicep.Core.Syntax
         /// <summary>
         /// Modulo
         /// </summary>
-        Modulo,
+        Modulo
     }
 }

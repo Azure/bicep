@@ -19,6 +19,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int");
         public static readonly TypeSymbol Bool = new PrimitiveType("bool");
+        public static readonly TypeSymbol Null = new PrimitiveType("null");
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type
@@ -28,9 +29,10 @@ namespace Bicep.Core
 
         public static readonly ImmutableArray<TypeProperty> TopLevelResourceProperties = CreateResourceProperties().ToImmutableArray();
 
-        public static readonly ImmutableSortedDictionary<string, TypeSymbol> PrimitiveTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+        // types allowed to use in output and parameter declarations
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string PrimitiveTypesString = LanguageConstants.PrimitiveTypes.Keys.ConcatString(ListSeparator);
+        public static readonly string PrimitiveTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
 
         public static TypeSymbol CreateParameterModifierType(TypeSymbol parameterType)
         {

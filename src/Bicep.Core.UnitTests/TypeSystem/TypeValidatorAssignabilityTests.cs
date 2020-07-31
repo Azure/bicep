@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToAny()
         {
-            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, LanguageConstants.Any).Should().BeTrue($"because type '{type.Name}' should be assignable to the '{LanguageConstants.Any.Name}' type.");
             }
@@ -24,7 +24,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToThemselves()
         {
-            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, type).Should().BeTrue($"because type '{type.Name}' should be assignable to itself.");
             }
@@ -52,15 +52,62 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void ObjectAndNonObjectTypesAreNotAssignable()
         {
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.String);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Int);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Array);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Bool);
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.String).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Int).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Array).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Bool).Should().BeFalse();
 
-            TypeValidator.AreTypesAssignable(LanguageConstants.String, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Int, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Array, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, LanguageConstants.Object);
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Array, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, LanguageConstants.Object).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void NothingShouldBeAssignableToNeverType()
+        {
+            var never = UnionType.Create();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Array, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Null, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Tags, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.ParameterModifierMetadata, never).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void OnlyMemberOfUnionShouldBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
+            
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.String, LanguageConstants.Null), union).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void UnionSubsetShouldBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.Int), union).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void UnionSupersetShouldNotBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.String);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.String), union).Should().BeFalse();
         }
 
         [DataTestMethod]

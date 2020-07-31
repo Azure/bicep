@@ -171,52 +171,52 @@
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[676:679]",
+    "span": "[675:678]",
     "spanText": "arr"
   },
   {
     "message": "The output expects a value of type 'array but the provided value is of type 'int'.",
-    "span": "[688:690]",
+    "span": "[687:689]",
     "spanText": "32"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[699:702]",
+    "span": "[698:701]",
     "spanText": "arr"
   },
   {
     "message": "The output expects a value of type 'array but the provided value is of type 'bool'.",
-    "span": "[711:715]",
+    "span": "[710:714]",
     "spanText": "true"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[724:727]",
+    "span": "[723:726]",
     "spanText": "arr"
   },
   {
     "message": "The output expects a value of type 'array but the provided value is of type 'bool'.",
-    "span": "[736:741]",
+    "span": "[735:740]",
     "spanText": "false"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[750:753]",
+    "span": "[749:752]",
     "spanText": "arr"
   },
   {
     "message": "The output expects a value of type 'array but the provided value is of type 'object'.",
-    "span": "[762:766]",
+    "span": "[761:765]",
     "spanText": "{\r\n}"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
-    "span": "[775:778]",
+    "span": "[774:777]",
     "spanText": "arr"
   },
   {
     "message": "The output expects a value of type 'array but the provided value is of type 'string'.",
-    "span": "[787:792]",
+    "span": "[786:791]",
     "spanText": "'str'"
   },
   {
@@ -268,5 +268,30 @@
     "message": "The output expects a value of type 'object but the provided value is of type 'string'.",
     "span": "[939:944]",
     "spanText": "'str'"
+  },
+  {
+    "message": "The output expects a value of type 'string but the provided value is of type 'int'.",
+    "span": "[995:1000]",
+    "spanText": "2 + 3"
+  },
+  {
+    "message": "The output expects a value of type 'string but the provided value is of type 'int | string'.",
+    "span": "[1024:1038]",
+    "spanText": "true ? 's' : 1"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "span": "[1065:1067]",
+    "spanText": "!4"
+  },
+  {
+    "message": "Cannot apply operator '-' to operand of type 'bool'.",
+    "span": "[1097:1102]",
+    "spanText": "-true"
+  },
+  {
+    "message": "Cannot apply operator '&&' to operands of type 'int' and 'string'.",
+    "span": "[1106:1115]",
+    "spanText": "14 && 's'"
   }
 ]

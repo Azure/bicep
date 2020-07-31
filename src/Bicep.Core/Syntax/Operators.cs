@@ -24,10 +24,33 @@ namespace Bicep.Core.Syntax
 
         }.ToImmutableDictionary();
 
+        public static readonly ImmutableDictionary<BinaryOperator, string> BinaryOperatorToText = new Dictionary<BinaryOperator, string>
+        {
+            [BinaryOperator.LogicalOr] = "||",
+            [BinaryOperator.LogicalAnd] = "&&",
+            [BinaryOperator.Equals] = "==",
+            [BinaryOperator.NotEquals] = "!=",
+            [BinaryOperator.LessThan] = "<",
+            [BinaryOperator.LessThanOrEqual] = "<=",
+            [BinaryOperator.GreaterThan] = ">",
+            [BinaryOperator.GreaterThanOrEqual] = ">=",
+            [BinaryOperator.Add] = "+",
+            [BinaryOperator.Subtract] = "-",
+            [BinaryOperator.Multiply] = "*",
+            [BinaryOperator.Divide] = "/",
+            [BinaryOperator.Modulo] = "%"
+        }.ToImmutableDictionary();
+
         public static readonly ImmutableDictionary<TokenType, UnaryOperator> TokenTypeToUnaryOperator = new Dictionary<TokenType, UnaryOperator>
         {
             [TokenType.Exclamation] = UnaryOperator.Not,
             [TokenType.Minus] = UnaryOperator.Minus
+        }.ToImmutableDictionary();
+
+        public static readonly ImmutableDictionary<UnaryOperator, string> UnaryOperatorToText = new Dictionary<UnaryOperator, string>
+        {
+            [UnaryOperator.Minus] = "-",
+            [UnaryOperator.Not] = "!"
         }.ToImmutableDictionary();
     }
 }

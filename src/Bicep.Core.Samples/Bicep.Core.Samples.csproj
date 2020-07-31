@@ -18,11 +18,6 @@
     <None Remove="InvalidParameters_LF\Bicep.arm" />
     <None Remove="InvalidParameters_LF\Errors.json" />
     <None Remove="InvalidParameters_LF\Tokens.json" />
-    <None Remove="InvalidParameters_CRLF\Bicep.arm" />
-    <None Remove="InvalidParameters_CRLF\Errors.err" />
-    <None Remove="InvalidParameters_CRLF\Errors.json" />
-    <None Remove="InvalidParameters_CRLF\Tokens.json" />
-    <None Remove="InvalidParameters_CRLF\Tokens.lexdump" />
     <None Remove="InvalidResources_CRLF\Bicep.arm" />
     <None Remove="InvalidResources_CRLF\Errors.json" />
     <None Remove="InvalidResources_CRLF\Tokens.json" />
@@ -63,9 +58,6 @@
     <EmbeddedResource Include="InvalidParameters_LF\Bicep.arm" />
     <EmbeddedResource Include="InvalidParameters_LF\Errors.json" />
     <EmbeddedResource Include="InvalidParameters_LF\Tokens.json" />
-    <EmbeddedResource Include="InvalidParameters_CRLF\Bicep.arm" />
-    <EmbeddedResource Include="InvalidParameters_CRLF\Errors.json" />
-    <EmbeddedResource Include="InvalidParameters_CRLF\Tokens.json" />
     <EmbeddedResource Include="InvalidResources_CRLF\Bicep.arm" />
     <EmbeddedResource Include="InvalidResources_CRLF\Errors.json" />
     <EmbeddedResource Include="InvalidResources_CRLF\Tokens.json" />
