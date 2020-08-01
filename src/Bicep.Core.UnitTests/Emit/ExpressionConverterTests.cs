@@ -39,6 +39,8 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("10 <= -11", "[lessOrEquals(10, -11)]")]
         [DataRow("{\nfoo: 12\nbar: true\n}", "[json('{\"foo\":12,\"bar\":true}')]")]
         [DataRow("[\ntrue\nfalse\n12\nnull\n]", "[json('[true,false,12,null]')]")]
+        [DataRow("'aaa' =~ 'bbb'", "[equals(toLower('aaa'), toLower('bbb'))]")]
+        [DataRow("'aaa' !~ 'bbb'", "[not(equals(toLower('aaa'), toLower('bbb')))]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var parsed = ParserHelper.ParseExpression(text);

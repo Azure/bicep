@@ -22,6 +22,7 @@ variable myObj = {
     {
       test: 144 > 33 && true || 99 <= 199
     }
+    'a' =~ 'b'
   ]
   obj: {
     nested: [
@@ -45,6 +46,6 @@ variable myArrWithObjects = [
   }
   {
     name: 'two'
-    enable: false && false
+    enable: false && false || 'two' !~ 'three'
   }
 ]

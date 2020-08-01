@@ -15,6 +15,8 @@ namespace Bicep.Core.TypeSystem
             // equality
             new BinaryOperatorInfo(BinaryOperator.Equals, LanguageConstants.Any, LanguageConstants.Bool),
             new BinaryOperatorInfo(BinaryOperator.NotEquals, LanguageConstants.Any, LanguageConstants.Bool),
+            new BinaryOperatorInfo(BinaryOperator.EqualsInsensitive, LanguageConstants.String, LanguageConstants.Bool),
+            new BinaryOperatorInfo(BinaryOperator.NotEqualsInsensitive, LanguageConstants.String, LanguageConstants.Bool),
 
             // relational (int)
             new BinaryOperatorInfo(BinaryOperator.LessThan, LanguageConstants.Int, LanguageConstants.Bool),

@@ -64,6 +64,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("3 * 4 + 7", "((3*4)+7)")]
         [DataRow("2 + 3 * 4 - 10 % 2 - 1", "(((2+(3*4))-(10%2))-1)")]
         [DataRow("true || false && null","(true||(false&&null))")]
+        [DataRow("false && true =~ 'aaa' || null !~ 1","((false&&(true=~'aaa'))||(null!~1))")]
         public void BinaryOperationsShouldHaveCorrectPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
@@ -76,6 +77,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("true || null || 'a' || 'b'","(((true||null)||'a')||'b')")]
         [DataRow("true == false != null == 4 != 'a'","((((true==false)!=null)==4)!='a')")]
         [DataRow("x < y >= z > a","(((x<y)>=z)>a)")]
+        [DataRow("a == b !~ c =~ d != e", "((((a==b)!~c)=~d)!=e)")]
         public void BinaryOperationsWithEqualPrecedenceShouldBeLeftToRightAssociative(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));

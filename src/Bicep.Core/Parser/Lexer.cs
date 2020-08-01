@@ -463,6 +463,9 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.NotEquals;
+                            case '~':
+                                textWindow.Advance();
+                                return TokenType.NotEqualsInsensitive;
                         }
                     }
                     return TokenType.Exclamation;
@@ -496,6 +499,9 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.Equals;
+                            case '~':
+                                textWindow.Advance();
+                                return TokenType.EqualsInsensitive;
                         }
                     }
                     return TokenType.Assignment;
