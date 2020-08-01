@@ -27,12 +27,6 @@ namespace Bicep.Core.Emit
             "metadata"
         }.ToImmutableArray();
 
-        private static readonly ExpressionSerializer expressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
-        {
-            IncludeOuterSquareBrackets = true,
-            SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
-        });
-
         private readonly SemanticModel.SemanticModel semanticModel;
 
         public TemplateEmitter(SemanticModel.SemanticModel semanticModel)
