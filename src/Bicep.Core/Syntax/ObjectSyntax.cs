@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectSyntax : SyntaxBase
+    public class ObjectSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
         public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<ObjectPropertySyntax> properties, Token closeBrace)
         {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -11,12 +10,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.TypeSystem
 {
     [TestClass]
-    public class TypeValidatorTests
+    public class TypeValidatorAssignabilityTests
     {
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToAny()
         {
-            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, LanguageConstants.Any).Should().BeTrue($"because type '{type.Name}' should be assignable to the '{LanguageConstants.Any.Name}' type.");
             }
@@ -25,7 +24,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void BuiltInTypesShouldBeAssignableToThemselves()
         {
-            foreach (TypeSymbol type in LanguageConstants.PrimitiveTypes.Values)
+            foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
                 TypeValidator.AreTypesAssignable(type, type).Should().BeTrue($"because type '{type.Name}' should be assignable to itself.");
             }
@@ -35,6 +34,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void AnyTypeShouldBeAssignableToAnyType()
         {
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Any).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void AllTypesShouldBeAssignableToAnyType()
+        {
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Bool).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Int).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Array).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Object).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Null).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Tags).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.ParameterModifierMetadata).Should().BeTrue();
         }
 
         [TestMethod]
@@ -53,15 +65,62 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void ObjectAndNonObjectTypesAreNotAssignable()
         {
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.String);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Int);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Array);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Bool);
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.String).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Int).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Array).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, LanguageConstants.Bool).Should().BeFalse();
 
-            TypeValidator.AreTypesAssignable(LanguageConstants.String, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Int, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Array, LanguageConstants.Object);
-            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, LanguageConstants.Object);
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Array, LanguageConstants.Object).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, LanguageConstants.Object).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void NothingShouldBeAssignableToNeverType()
+        {
+            var never = UnionType.Create();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Array, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Object, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Null, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Tags, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(LanguageConstants.ParameterModifierMetadata, never).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void OnlyMemberOfUnionShouldBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
+            
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.String, LanguageConstants.Null), union).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void UnionSubsetShouldBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.Int), union).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void UnionSupersetShouldNotBeAssignableToUnion()
+        {
+            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.String);
+
+            TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.String), union).Should().BeFalse();
         }
 
         [DataTestMethod]
@@ -582,6 +641,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property 'extra' is not allowed on objects of type 'ParameterModifier_array'.");
         }
 
+        public static string GetDisplayName(MethodInfo method, object[] row)
+        {
+            row.Length.Should().Be(2);
+            row[0].Should().BeOfType<string>();
+            return $"{method.Name}_{row[0]}";
+        }
+
         private static IEnumerable<object[]> GetData()
         {
             static object[] CreateRow(string name, ObjectSyntax @object) => new object[] {name, @object};
@@ -611,13 +677,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateInt(444)),
                 TestSyntaxFactory.CreateProperty("foo", TestSyntaxFactory.CreateString("str value")),
             }));
-        }
-
-        public static string GetDisplayName(MethodInfo method, object[] row)
-        {
-            row.Length.Should().Be(2);
-            row[0].Should().BeOfType<string>();
-            return $"{method.Name}_{row[0]}";
         }
 
         private TypeSymbol CreateDummyResourceType()

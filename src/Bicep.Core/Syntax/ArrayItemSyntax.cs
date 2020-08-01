@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayItemSyntax : SyntaxBase
+    public class ArrayItemSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
         public ArrayItemSyntax(SyntaxBase value, IEnumerable<Token> newLines)
         {

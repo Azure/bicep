@@ -77,5 +77,15 @@ parameter wrongMetadataSchema string {
   }
 }
 
+// expression in modifier
+parameter expressionInModifier string {
+  defaultValue: 2 + 3
+  maxLength: a + 2
+  minLength: foo()
+  allowedValues: [
+    i
+  ]
+}
+
 // unterminated multi-line comment
 /*    

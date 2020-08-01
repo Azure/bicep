@@ -5,7 +5,7 @@ namespace Bicep.Core.SemanticModel
 {
     public interface ISemanticContext
     {
-        public TypeSymbol? GetTypeInfo(SyntaxBase? syntax);
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax);
 
         public TypeSymbol? GetTypeByName(string? typeName);
     }

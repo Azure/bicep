@@ -5,7 +5,7 @@ namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxVisitor
     {
-        public void Visit(SyntaxBase node)
+        public virtual void Visit(SyntaxBase node)
         {
             node.Accept(this);
         }
@@ -101,7 +101,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            this.VisitToken(syntax.Literal);
+            this.VisitToken(syntax.NullKeyword);
         }
 
         public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
@@ -137,6 +137,72 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Value);
             this.VisitTokens(syntax.NewLines);
+        }
+
+        public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
+        {
+            this.Visit(syntax.ConditionExpression);
+            this.VisitToken(syntax.Question);
+            this.Visit(syntax.TrueExpression);
+            this.VisitToken(syntax.Colon);
+            this.Visit(syntax.FalseExpression);
+        }
+
+        public virtual void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
+        {
+            this.Visit(syntax.LeftExpression);
+            this.VisitToken(syntax.OperatorToken);
+            this.Visit(syntax.RightExpression);
+        }
+
+        public virtual void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
+        {
+            this.VisitToken(syntax.OperatorToken);
+            this.Visit(syntax.Expression);
+        }
+
+        public virtual void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.VisitToken(syntax.OpenSquare);
+            this.Visit(syntax.IndexExpression);
+            this.VisitToken(syntax.CloseSquare);
+        }
+
+        public virtual void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.VisitToken(syntax.Dot);
+            this.Visit(syntax.PropertyName);
+        }
+
+        public virtual void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
+        {
+            this.VisitToken(syntax.OpenParen);
+            this.Visit(syntax.Expression);
+            this.VisitToken(syntax.CloseParen);
+        }
+
+        public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            this.Visit(syntax.FunctionName);
+            this.VisitToken(syntax.OpenParen);
+            this.VisitNodes(syntax.Arguments);
+            this.VisitToken(syntax.CloseParen);
+        }
+
+        public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+            if (syntax.Comma != null)
+            {
+                this.VisitToken(syntax.Comma);
+            }
+        }
+
+        public virtual void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            this.Visit(syntax.Name);
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)

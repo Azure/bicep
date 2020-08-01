@@ -31,7 +31,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitVariableDeclarationSyntax(syntax);
 
-            TypeSymbol variableType = this.context.GetTypeInfo(syntax.Value) ?? new ErrorTypeSymbol(new Error("The variable type cannot be determined. Specify a valid expression.", syntax.Value));
+            TypeSymbol variableType = this.context.GetTypeInfo(syntax.Value);
 
             var symbol = new VariableSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value, variableType);
             this.declaredSymbols.Add(symbol);

@@ -88,5 +88,35 @@
     "message": "Property 'tags' expected a value of type 'Tags' but the provided value is of type 'string'.",
     "span": "[676:699]",
     "spanText": "'tag are not a string?'"
+  },
+  {
+    "message": "Cannot apply operator '+' to operands of type 'string' and 'int'.",
+    "span": "[783:790]",
+    "spanText": "'a' + 1"
+  },
+  {
+    "message": "Function calls are not currently supported.",
+    "span": "[816:819]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "span": "[847:849]",
+    "spanText": "!4"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[868:869]",
+    "spanText": "a"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'null'.",
+    "span": "[877:882]",
+    "spanText": "!null"
+  },
+  {
+    "message": "Cannot apply operator '-' to operand of type 'bool'.",
+    "span": "[913:918]",
+    "spanText": "-true"
   }
 ]

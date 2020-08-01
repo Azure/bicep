@@ -25,6 +25,11 @@
         /// <summary>
         /// Resource type
         /// </summary>
-        Resource
+        Resource,
+
+        /// <summary>
+        /// Union of multiple types.
+        /// </summary>
+        Union
     }
 }

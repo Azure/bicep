@@ -46,7 +46,7 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public FileSymbol Root { get; }
 
-        public TypeSymbol? GetTypeInfo(SyntaxBase? syntax) => this.typeManager.GetTypeInfo(syntax);
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
 
         public TypeSymbol? GetTypeByName(string? typeName) => this.typeManager.GetTypeByName(typeName);
     }

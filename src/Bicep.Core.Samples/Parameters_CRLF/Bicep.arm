@@ -131,3 +131,9 @@ parameter someParameter string {
     description: 'Name of the storage account'
   }
 }
+
+parameter defaultValueExpression int {
+  defaultValue: true ? 4 + 2*3 : 0
+}
+
+parameter defaultExpression bool default 18 != (true || false)

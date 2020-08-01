@@ -14,9 +14,13 @@
       "type": "int",
       "value": 7
     },
+    "myOtherInt": {
+      "type": "int",
+      "value": "[add(div(20, 13), mod(80, -4))]"
+    },
     "myBool": {
       "type": "bool",
-      "value": false
+      "value": "[not(json('false'))]"
     },
     "myOtherBool": {
       "type": "bool",
@@ -36,10 +40,12 @@
         "a": "a",
         "b": 12,
         "c": true,
+        "d": null,
         "list": [
           1,
           2,
           3,
+          null,
           {}
         ],
         "obj": {
@@ -54,7 +60,7 @@
       "value": [
         "pirates",
         "say",
-        "arr"
+        "[if(json('false'), 'arr2', 'arr')]"
       ]
     }
   }

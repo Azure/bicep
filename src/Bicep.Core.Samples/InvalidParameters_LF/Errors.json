@@ -20,7 +20,7 @@
     "spanText": "42"
   },
   {
-    "message": "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.",
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "span": "[394:394]",
     "spanText": ""
   },
@@ -160,8 +160,43 @@
     "spanText": "true"
   },
   {
+    "message": "Property 'defaultValue' expected a value of type 'string' but the provided value is of type 'int'.",
+    "span": "[1813:1818]",
+    "spanText": "2 + 3"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[1832:1833]",
+    "spanText": "a"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1832:1837]",
+    "spanText": "a + 2"
+  },
+  {
+    "message": "Function calls are not currently supported.",
+    "span": "[1851:1854]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1851:1856]",
+    "spanText": "foo()"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "span": "[1880:1881]",
+    "spanText": "i"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "span": "[1880:1881]",
+    "spanText": "i"
+  },
+  {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
-    "span": "[1766:1772]",
+    "span": "[1924:1930]",
     "spanText": "/*    "
   }
 ]

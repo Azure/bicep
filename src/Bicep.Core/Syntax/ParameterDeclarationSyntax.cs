@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterDeclarationSyntax : StatementSyntax
+    public class ParameterDeclarationSyntax : SyntaxBase
     {
         public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, SyntaxBase? modifier, Token newLine)
         {

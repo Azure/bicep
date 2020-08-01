@@ -43,7 +43,7 @@ output b bool = {
 output b bool = 32
 output b bool = 'str'
 
-// wrong object output values
+// wrong array output values
 output arr array = 32
 output arr array = true
 output arr array = false
@@ -51,10 +51,16 @@ output arr array = {
 }
 output arr array = 'str'
 
-// wrong array output values
+// wrong object output values
 output o object = 32
 output o object = true
 output o object = false
 output o object = [
 ]
 output o object = 'str'
+
+// a few expression cases
+output exp string = 2 + 3
+output union string = true ? 's' : 1
+output bad int = true && !4
+output deeper bool = true ? -true : (14 && 's') + 10

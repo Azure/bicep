@@ -10,13 +10,16 @@
     "myFalsehood": false,
     "myObj": {
       "a": "a",
-      "b": 12,
+      "b": "[-12]",
       "c": true,
+      "d": "[not(json('true'))]",
       "list": [
         1,
         2,
-        3,
-        {}
+        "[add(2, 1)]",
+        {
+          "test": "[or(and(greater(144, 33), json('true')), lessOrEquals(99, 199))]"
+        }
       ],
       "obj": {
         "nested": [
@@ -36,7 +39,7 @@
       },
       {
         "name": "two",
-        "enable": false
+        "enable": "[and(json('false'), json('false'))]"
       }
     ]
   },

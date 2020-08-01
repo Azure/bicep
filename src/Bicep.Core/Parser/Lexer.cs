@@ -19,6 +19,7 @@ namespace Bicep.Core.Parser
             //["module"] = TokenType.ModuleKeyword,
             ["true"] = TokenType.TrueKeyword,
             ["false"] = TokenType.FalseKeyword,
+            ["null"] = TokenType.NullKeyword
         }.ToImmutableDictionary();
 
         // maps the escape character (that follows the backslash) to its value
@@ -449,7 +450,7 @@ namespace Bicep.Core.Parser
                 case '-':
                     return TokenType.Minus;
                 case '%':
-                    return TokenType.Modulus;
+                    return TokenType.Modulo;
                 case '*':
                     return TokenType.Asterisk;
                 case '/':
@@ -462,9 +463,6 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.NotEquals;
-                            case '~':
-                                textWindow.Advance();
-                                return TokenType.NotEqualsInsensitive;
                         }
                     }
                     return TokenType.Exclamation;
@@ -498,11 +496,6 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.Equals;
-
-                            // TODO: Check if ARM actually supports this
-                            case '~':
-                                textWindow.Advance();
-                                return TokenType.EqualsInsensitive;
                         }
                     }
                     return TokenType.Assignment;
@@ -513,7 +506,7 @@ namespace Bicep.Core.Parser
                         {
                             case '&':
                                 textWindow.Advance();
-                                return TokenType.BinaryAnd;
+                                return TokenType.LogicalAnd;
                         }
                     }
                     return TokenType.Unrecognized;
@@ -524,7 +517,7 @@ namespace Bicep.Core.Parser
                         {
                             case '|':
                                 textWindow.Advance();
-                                return TokenType.BinaryOr;
+                                return TokenType.LogicalOr;
                         }
                     }
                     return TokenType.Unrecognized;

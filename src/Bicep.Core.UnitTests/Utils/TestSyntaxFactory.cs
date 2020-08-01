@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -10,7 +11,9 @@ namespace Bicep.Core.UnitTests.Utils
         public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties) => new ObjectSyntax(CreateToken(TokenType.LeftBrace), CreateNewLines(), properties, CreateToken(TokenType.RightBrace));
 
         public static ArraySyntax CreateArray(IEnumerable<ArrayItemSyntax> items) => new ArraySyntax(CreateToken(TokenType.LeftSquare), CreateNewLines(), items, CreateToken(TokenType.RightSquare));
-        
+
+        public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> itemValues) => CreateArray(itemValues.Select(CreateArrayItem));
+
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value) => new ArrayItemSyntax(value, CreateNewLines());
 
         // TODO: Escape string correctly
@@ -19,6 +22,8 @@ namespace Bicep.Core.UnitTests.Utils
         public static NumericLiteralSyntax CreateInt(int value) => new NumericLiteralSyntax(CreateToken(TokenType.Number), value);
 
         public static BooleanLiteralSyntax CreateBool(bool value) => new BooleanLiteralSyntax(value ? CreateToken(TokenType.TrueKeyword) : CreateToken(TokenType.FalseKeyword), value);
+
+        public static NullLiteralSyntax CreateNull() => new NullLiteralSyntax(CreateToken(TokenType.NullKeyword));
 
         public static IdentifierSyntax CreateIdentifier(string identifier) => new IdentifierSyntax(CreateToken(TokenType.Identifier, identifier));
 

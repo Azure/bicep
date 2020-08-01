@@ -16,3 +16,10 @@ variable foo = &
 
 // bad value
 variable foo = *
+
+// expressions
+variable bar = x
+variable bar = foo()
+variable x = 2 + !3
+variable y = false ? true + 1 : !4
+

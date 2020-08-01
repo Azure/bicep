@@ -31,7 +31,7 @@
 				},
 				{
 					"name": "keyword.type.bicep",
-					"match": "\\b(string|int|bool|object|array)\\b"
+					"match": "\\b(string|int|bool|object|array|null|true|false)\\b"
 				}
 			]
 		},
