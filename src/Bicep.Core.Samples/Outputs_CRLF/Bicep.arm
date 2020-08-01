@@ -2,8 +2,9 @@
 output myStr string = 'hello'
 
 output myInt int = 7
+output myOtherInt int = 20 / 13 + 80 % -4
 
-output myBool bool = false
+output myBool bool = !false
 output myOtherBool bool = true
 
 output suchEmpty array = [
@@ -16,10 +17,12 @@ output obj object = {
   a: 'a'
   b: 12
   c: true
+  d: null
   list: [
     1
     2
     3
+    null
     {
     }
   ]
@@ -33,5 +36,5 @@ output obj object = {
 output myArr array = [
   'pirates'
   'say'
-  'arr'
+   false ? 'arr2' : 'arr'
 ]

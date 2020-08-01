@@ -1,4 +1,6 @@
-﻿using Bicep.Core.Syntax;
+﻿using System;
+using Azure.ResourceManager.Deployments.Expression.Expressions;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {

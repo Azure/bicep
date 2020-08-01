@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetNonLiteralExpressionData()
         {
             // local function
-            object[] CreateTextRow(string text) => CreateRow(text, ParserTests.ParseExpression(text));
+            object[] CreateTextRow(string text) => CreateRow(text, ParserHelper.ParseExpression(text));
 
             // variable access
             yield return CreateTextRow("x");

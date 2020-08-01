@@ -2,6 +2,7 @@
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("-!null")]
         public void UnaryOperatorsCannotBeChained(string text)
         {
-            Action fail = () => ParseExpression(text);
+            Action fail = () => ParserHelper.ParseExpression(text);
             fail.Should().Throw<ExpectedTokenException>().WithMessage("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
         }
 
@@ -169,19 +170,9 @@ namespace Bicep.Core.UnitTests.Parser
             RunExpressionTest(text, expected, typeof(ArrayAccessSyntax));
         }
 
-        [TestMethod]
-        public void MathExpression_ShouldParse()
-        {
-            var parser = new Core.Parser.Parser("2 + 3 * 4");
-            
-            var syntax = parser.Expression();
-        }
-
-        public static SyntaxBase ParseExpression(string text) => new Core.Parser.Parser(text).Expression();
-
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
-            SyntaxBase expression = ParseExpression(text);
+            SyntaxBase expression = ParserHelper.ParseExpression(text);
             expression.Should().BeOfType(expectedRootType);
             SerializeExpressionWithExtraParentheses(expression).Should().Be(expected);
 
