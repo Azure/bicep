@@ -26,6 +26,16 @@ namespace Bicep.Core.Syntax
         NotEquals,
 
         /// <summary>
+        /// Case-insensitive equals
+        /// </summary>
+        EqualsInsensitive,
+
+        /// <summary>
+        /// Case-insensitive not equals
+        /// </summary>
+        NotEqualsInsensitive,
+
+        /// <summary>
         /// Less than
         /// </summary>
         LessThan,

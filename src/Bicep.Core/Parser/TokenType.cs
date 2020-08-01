@@ -27,6 +27,8 @@ namespace Bicep.Core.Parser
         GreaterThanOrEqual,
         Equals,
         NotEquals,
+        EqualsInsensitive,
+        NotEqualsInsensitive,
         LogicalAnd,
         LogicalOr,
         Identifier,

@@ -564,6 +564,8 @@ namespace Bicep.Core.Parser
 
                 case TokenType.Equals:
                 case TokenType.NotEquals:
+                case TokenType.EqualsInsensitive:
+                case TokenType.NotEqualsInsensitive:
                     return 70;
 
                 // if we add bitwise operators in the future, they should go here

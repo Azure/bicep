@@ -94,7 +94,19 @@ namespace Bicep.Core.Emit
                     return CreateBinaryFunction("equals", operand1, operand2);
 
                 case BinaryOperator.NotEquals:
-                    return CreateUnaryFunction("not", CreateBinaryFunction("equals", operand1, operand2));
+                    return CreateUnaryFunction("not", 
+                        CreateBinaryFunction("equals", operand1, operand2));
+
+                case BinaryOperator.EqualsInsensitive:
+                    return CreateBinaryFunction("equals",
+                        CreateUnaryFunction("toLower", operand1),
+                        CreateUnaryFunction("toLower", operand2));
+
+                case BinaryOperator.NotEqualsInsensitive:
+                    return CreateUnaryFunction("not",
+                        CreateBinaryFunction("equals",
+                            CreateUnaryFunction("toLower", operand1),
+                            CreateUnaryFunction("toLower", operand2)));
 
                 case BinaryOperator.LessThan:
                     return CreateBinaryFunction("less", operand1, operand2);

@@ -68,6 +68,11 @@ variable div = {
 variable add = null + 's'
 variable sub = true - false
 
+// equality (== and != can't have a type error because they work on "any" type)
+variable eq = true =~ null
+variable ne = 15 !~ [
+]
+
 // relational
 variable lt = 4 < 's'
 variable lteq = null <= 10
