@@ -16,5 +16,11 @@
 
     <!-- workaround for dotnet publish failures when using package lock files -->
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+
+    <!-- 
+      list of runtime identifiers we use for projects targeting multiple runtimes
+      must match the matrix settings in build.yml
+    -->
+    <BicepRuntimeIdentifiers>win-x64;linux-x64;osx-x64</BicepRuntimeIdentifiers>
   </PropertyGroup>
 </Project>

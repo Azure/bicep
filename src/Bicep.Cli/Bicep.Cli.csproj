@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Bicep</AssemblyName>
     <StartupObject>Bicep.Cli.Program</StartupObject>
+    <RuntimeIdentifiers>$(BicepRuntimeIdentifiers)</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>

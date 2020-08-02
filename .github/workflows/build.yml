@@ -22,6 +22,7 @@ jobs:
       # let us get failures from other jobs even if one fails
       fail-fast: false
 
+      # list of rids (runtime identifiers) in the matrix must match the list in Directory.Build.props
       matrix:
         os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
         include:
