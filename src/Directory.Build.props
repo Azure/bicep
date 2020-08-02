@@ -4,5 +4,14 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Turn on nuget package lock files for repeatable builds -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
+    <!-- Restore in locked mode when running under GitHub actions (GitHub actions sets the CI environment variable to true) -->
+    <RestoreLockedMode Condition=" '$(CI)' == 'true' ">true</RestoreLockedMode>
+    
+    <!-- disable extra sources -->
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
 </Project>
