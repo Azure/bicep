@@ -13,5 +13,8 @@
     
     <!-- disable extra sources -->
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+
+    <!-- workaround for dotnet publish failures when using package lock files -->
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
   </PropertyGroup>
 </Project>
