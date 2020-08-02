@@ -408,7 +408,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Array()
         {
-            var items = new List<ArrayItemSyntax>();
+            var items = new List<SyntaxBase>();
             
             var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
             var newLines = this.NewLines();
@@ -424,12 +424,15 @@ namespace Bicep.Core.Parser
             return new ArraySyntax(openBracket, newLines, items, closeBracket);
         }
 
-        private ArrayItemSyntax ArrayItem()
+        private SyntaxBase ArrayItem()
         {
-            var value = this.Expression();
-            var newLines = this.NewLines();
+            return this.WithRecovery(TokenType.NewLine, () =>
+            {
+                var value = this.Expression();
+                var newLines = this.NewLines();
 
-            return new ArrayItemSyntax(value, newLines);
+                return new ArrayItemSyntax(value, newLines);
+            });
         }
 
         private SyntaxBase Object()

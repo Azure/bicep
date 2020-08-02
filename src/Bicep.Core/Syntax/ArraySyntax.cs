@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
 {
     public class ArraySyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<ArrayItemSyntax> items, Token closeBracket)
+        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> items, Token closeBracket)
         {
             AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
@@ -22,7 +22,7 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Token> NewLines { get; }
 
-        public ImmutableArray<ArrayItemSyntax> Items { get; }
+        public ImmutableArray<SyntaxBase> Items { get; }
 
         public Token CloseBracket { get; }
 
