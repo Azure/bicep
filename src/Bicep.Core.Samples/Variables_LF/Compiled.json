@@ -10,7 +10,7 @@
     "myFalsehood": false,
     "myObj": {
       "a": "a",
-      "b": "[-12]",
+      "b": -12,
       "c": true,
       "d": "[not(json('true'))]",
       "list": [
