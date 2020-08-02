@@ -4,6 +4,7 @@ using Azure.ResourceManager.Deployments.Expression.Expressions;
 using Azure.ResourceManager.Deployments.Expression.Serializers;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -78,6 +79,23 @@ namespace Bicep.Core.Emit
         public static void EmitLanguageExpression(JsonTextWriter writer, SyntaxBase syntax)
         {
             LanguageExpression converted = syntax.ToTemplateExpression();
+
+            if (converted is JTokenExpression valueExpression)
+            {
+                // the converted expression is a literal
+                JToken value = valueExpression.EvaluateExpression(null);
+
+                // for integer literals the expression will look like "[42]" or "[-12]"
+                // while it's still a valid template expression that works in ARM, it looks weird
+                // and is also not recognized by the template language service in VS code
+                // let's serialize it as a proper integer instead
+                // string literals are actually handled by the expression serializer already, but
+                // we can take care of them here as well
+                writer.WriteValue(value);
+
+                return;
+            }
+
             var serialized = expressionSerializer.SerializeExpression(converted);
 
             writer.WriteValue(serialized);
