@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
 {
     public class ObjectSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<ObjectPropertySyntax> properties, Token closeBrace)
+        public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> properties, Token closeBrace)
         {
             AssertTokenType(openBrace, nameof(openBrace), TokenType.LeftBrace);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
@@ -22,7 +22,7 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Token> NewLines { get; }
 
-        public ImmutableArray<ObjectPropertySyntax> Properties { get; }
+        public ImmutableArray<SyntaxBase> Properties { get; }
 
         public Token CloseBrace { get; }
 

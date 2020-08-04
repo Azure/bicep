@@ -54,6 +54,7 @@ namespace Bicep.Core.Parser
             base.VisitObjectSyntax(syntax);
 
             var duplicatedProperties = syntax.Properties
+                .OfType<ObjectPropertySyntax>()
                 .GroupBy(propertySyntax => propertySyntax.Identifier.IdentifierName)
                 .Where(group => group.Count() > 1);
 

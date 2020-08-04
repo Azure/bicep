@@ -166,7 +166,7 @@ namespace Bicep.Core.TypeSystem
                 return result;
             }
 
-            var propertyMap = expression.Properties.ToDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
+            var propertyMap = expression.Properties.OfType<ObjectPropertySyntax>().ToDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
 
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && propertyMap.ContainsKey(p.Name) == false)
@@ -210,6 +210,7 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
+                .OfType<ObjectPropertySyntax>()
                 .Select(p => p.Identifier.IdentifierName)
                 .Except(targetType.Properties.Values.Select(p => p.Name), StringComparer.Ordinal)
                 .Select(name => propertyMap[name]);

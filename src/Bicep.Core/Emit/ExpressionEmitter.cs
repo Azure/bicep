@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Azure.ResourceManager.Deployments.Expression.Configuration;
 using Azure.ResourceManager.Deployments.Expression.Expressions;
 using Azure.ResourceManager.Deployments.Expression.Serializers;
@@ -49,7 +50,8 @@ namespace Bicep.Core.Emit
                 case ArraySyntax arraySyntax:
                     writer.WriteStartArray();
 
-                    foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
+                    // parse errors should have prevented code generation, so cast should be safe
+                    foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items.Cast<ArrayItemSyntax>())
                     {
                         EmitExpression(writer, itemSyntax.Value);
                     }
@@ -103,7 +105,8 @@ namespace Bicep.Core.Emit
 
         public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
         {
-            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
+            // cast should be safe because parse errors should preserve code generation
+            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties.Cast<ObjectPropertySyntax>())
             {
                 EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
             }
