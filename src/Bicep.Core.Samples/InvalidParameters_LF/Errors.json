@@ -100,12 +100,12 @@
     "spanText": "arra"
   },
   {
-    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "message": "The property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "span": "[1304:1313]",
     "spanText": "minLength"
   },
   {
-    "message": "Property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "message": "The property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "span": "[1319:1328]",
     "spanText": "minLength"
   },
@@ -125,7 +125,7 @@
     "spanText": "maxLength"
   },
   {
-    "message": "Property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+    "message": "The property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
     "span": "[1517:1521]",
     "spanText": "true"
   },
@@ -140,27 +140,27 @@
     "spanText": "true"
   },
   {
-    "message": "Property 'minValue' expected a value of type 'int' but the provided value is of type 'object'.",
+    "message": "The property 'minValue' expected a value of type 'int' but the provided value is of type 'object'.",
     "span": "[1577:1582]",
     "spanText": "{\n  }"
   },
   {
-    "message": "Property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'.",
+    "message": "The property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'.",
     "span": "[1595:1600]",
     "spanText": "[\n  ]"
   },
   {
-    "message": "Property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'.",
+    "message": "The property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'.",
     "span": "[1613:1620]",
     "spanText": "'wrong'"
   },
   {
-    "message": "Property 'description' expected a value of type 'string' but the provided value is of type 'bool'.",
+    "message": "The property 'description' expected a value of type 'string' but the provided value is of type 'bool'.",
     "span": "[1719:1723]",
     "spanText": "true"
   },
   {
-    "message": "Property 'defaultValue' expected a value of type 'string' but the provided value is of type 'int'.",
+    "message": "The property 'defaultValue' expected a value of type 'string' but the provided value is of type 'int'.",
     "span": "[1813:1818]",
     "spanText": "2 + 3"
   },

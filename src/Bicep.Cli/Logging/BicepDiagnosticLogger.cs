@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,8 @@ namespace Bicep.Cli.Logging
         public void LogDiagnostic(string filePath, Error diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            string message = $"{filePath}({line + 1},{character + 1}) : error BCP001: {diagnostic.Message}";
+            // TODO: implement unique error codes in the Error class
+            string message = $"{filePath}({line + 1},{character + 1}) : error BCP001: {diagnostic.GetMessage()}";
 
             this.logger.Log(LogLevel.Error, message);
 

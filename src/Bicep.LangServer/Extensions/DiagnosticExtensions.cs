@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -12,7 +13,8 @@ namespace Bicep.LanguageServer.Extensions
             source.Select(error => new Diagnostic
             {
                 Severity = DiagnosticSeverity.Error,
-                Message = error.Message,
+                // TODO: implement unique error codes in the Error class and expose as DiagnosticCode
+                Message = error.GetMessage(),
                 Source = LanguageServerConstants.LanguageId,
                 Range = error.ToRange(lineStarts)
             });

@@ -1,4 +1,5 @@
 ﻿using System;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Newtonsoft.Json;
 
@@ -16,7 +17,7 @@ namespace Bicep.Core.UnitTests.Serialization
 
         public ErrorItem(Error error, string contents)
         {
-            this.Message = error.Message;
+            this.Message = error.GetMessage();
             this.Span = error.Span;
             this.SpanText = contents[new Range(error.Span.Position, error.Span.Position + error.Span.Length)];
         }

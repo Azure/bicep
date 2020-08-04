@@ -1,4 +1,5 @@
-﻿using Bicep.Core.Extensions;
+﻿using Bicep.Core.Errors;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -89,7 +90,7 @@ namespace Bicep.Core.TypeSystem
         public static IEnumerable<Error> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Error>? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
-            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => new Error($"Expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression);
+            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrExpectdValueTypeMismatch, expectedType.Name, actualType.Name);
 
             return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
@@ -148,7 +149,7 @@ namespace Bicep.Core.TypeSystem
                     context,
                     arrayItemSyntax.Value,
                     targetType.ItemType,
-                    (expectedType, actualType, errorExpression) => new Error($"The enclosing array expected an item of type '{expectedType.Name}', but the provided item was of type '{actualType.Name}'.", errorExpression),
+                    (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrArrayTypeMismatch, expectedType.Name, actualType.Name),
                     skipConstantCheck,
                     skipTypeErrors: true)); 
         }
@@ -174,7 +175,7 @@ namespace Bicep.Core.TypeSystem
                 .ConcatString(LanguageConstants.ListSeparator);
             if (string.IsNullOrEmpty(missingRequiredProperties) == false)
             {
-                result = result.Append(new Error($"The specified object is missing the following required properties: {missingRequiredProperties}.", expression));
+                result = result.Append(new Error(expression, ErrorCode.ErrMissingRequiredProperties, missingRequiredProperties));
             }
 
             foreach (var declaredProperty in targetType.Properties.Values)
@@ -199,7 +200,7 @@ namespace Bicep.Core.TypeSystem
                         context,
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
-                        (expectedType, actualType, errorExpression) => new Error($"Property '{declaredProperty.Name}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression),
+                        (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrPropertyTypeMismatch, declaredProperty.Name, expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 
@@ -216,7 +217,7 @@ namespace Bicep.Core.TypeSystem
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => new Error($"The property '{extraProperty.Identifier.IdentifierName}' is not allowed on objects of type '{targetType.Name}'.", extraProperty.Identifier)));
+                result = result.Concat(extraProperties.Select(extraProperty => new Error(extraProperty.Identifier, ErrorCode.ErrDisallowedProperty, extraProperty.Identifier.IdentifierName, targetType.Name)));
             }
             else
             {
@@ -239,7 +240,7 @@ namespace Bicep.Core.TypeSystem
                         context,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => new Error($"The property '{extraProperty.Identifier.IdentifierName}' expected a value of type '{expectedType.Name}' but the provided value is of type '{actualType.Name}'.", errorExpression),
+                        (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrPropertyTypeMismatch, extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 

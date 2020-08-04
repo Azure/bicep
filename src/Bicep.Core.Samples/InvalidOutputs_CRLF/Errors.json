@@ -15,12 +15,12 @@
     "spanText": ""
   },
   {
-    "message": "Expected an = character at this location.",
+    "message": "Expected the '=' character at this location.",
     "span": "[136:136]",
     "spanText": ""
   },
   {
-    "message": "Expected an = character at this location.",
+    "message": "Expected the '=' character at this location.",
     "span": "[175:175]",
     "spanText": ""
   },

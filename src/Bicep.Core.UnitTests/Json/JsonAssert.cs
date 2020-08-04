@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Json
             var delta = GetDelta(expected, actual);
             FileHelper.SaveResultFile(testContext, deltaFileName, delta.ToString(Formatting.Indented));
 
-            throw new AssertFailedException("The specified JSON objects are not equal. See test result files for more details.");
+            throw new AssertFailedException($"The specified JSON objects are not equal. See results file '{FileHelper.GetResultFilePath(testContext, deltaFileName)}' for more details.");
         }
 
         private static JToken GetDelta(JToken expected, JToken actual)

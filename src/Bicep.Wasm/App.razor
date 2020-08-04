@@ -58,11 +58,12 @@
 
             // compilation failed
             var buffer = new StringBuilder();
-            foreach (Error diagnostic in emitResult.Diagnostics)
+            foreach (var diagnostic in emitResult.Diagnostics)
             {
                 var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
 
-                buffer.AppendLine($"({line + 1},{character + 1}): error BCP001: {diagnostic.Message}");
+            // TODO: implement unique error codes in the Error class
+                buffer.AppendLine($"({line + 1},{character + 1}): error BCP001: {diagnostic.GetMessage()}");
             }
 
             return buffer.ToString();

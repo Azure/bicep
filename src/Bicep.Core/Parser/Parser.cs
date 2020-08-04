@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -62,15 +63,15 @@ namespace Bicep.Core.Parser
                 }
 
                 // TODO: Update when adding other statement types
-                throw new ExpectedTokenException("This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.", current);
+                throw new ExpectedTokenException(current, ErrorCode.ErrUnrecognizedDeclaration);
             });
         }
 
         private SyntaxBase ParameterDeclaration()
         {
-            var keyword = Expect(TokenType.ParameterKeyword, "Expected the parameter keyword at this location.");
-            var name = Identifier("Expected a parameter identifier at this location.");
-            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
+            var keyword = Expect(TokenType.ParameterKeyword, ErrorCode.ErrExpectedKeyword, "parameter");
+            var name = Identifier(ErrorCode.ErrExpectedParameterIdentifier);
+            var type = Type(ErrorCode.ErrExpectedParameterType);
 
             var current = reader.Peek();
             SyntaxBase? modifier = current.Type switch
@@ -84,7 +85,7 @@ namespace Bicep.Core.Parser
                 // modifier is specified
                 TokenType.LeftBrace => this.Object(),
 
-                _ => throw new ExpectedTokenException("Expected the default keyword, a parameter modifier, or a newline at this location.", current)
+                _ => throw new ExpectedTokenException(current, ErrorCode.ErrExpectedParameterContinuation)
             };
 
             var newLine = this.NewLine();
@@ -94,7 +95,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ParameterDefaultValue()
         {
-            Token defaultKeyword = this.Expect(TokenType.DefaultKeyword, "Expected the default keyword at this location.");
+            Token defaultKeyword = this.Expect(TokenType.DefaultKeyword, ErrorCode.ErrExpectedKeyword, "default");
             SyntaxBase defaultValue = this.Expression();
 
             return new ParameterDefaultValueSyntax(defaultKeyword, defaultValue);
@@ -102,8 +103,8 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase VariableDeclaration()
         {
-            var keyword = this.Expect(TokenType.VariableKeyword, "Expected the variable keyword at this location.");
-            var name = this.Identifier("Expected a variable identifier at this location.");
+            var keyword = this.Expect(TokenType.VariableKeyword, ErrorCode.ErrExpectedKeyword, "variable");
+            var name = this.Identifier(ErrorCode.ErrExpectedVariableIdentifier);
             var assignment = this.Assignment();
             var value = this.Expression();
 
@@ -114,9 +115,9 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase OutputDeclaration()
         {
-            var keyword = this.Expect(TokenType.OutputKeyword, "Expected the output keyword at this location.");
-            var name = this.Identifier("Expected an output identifier at this location.");
-            var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
+            var keyword = this.Expect(TokenType.OutputKeyword, ErrorCode.ErrExpectedKeyword, "output");
+            var name = this.Identifier(ErrorCode.ErrExpectedOutputIdentifier);
+            var type = Type(ErrorCode.ErrExpectedParameterType);
             var assignment = this.Assignment();
             var value = this.Expression();
 
@@ -127,8 +128,8 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ResourceDeclaration()
         {
-            var keyword = this.Expect(TokenType.ResourceKeyword, "Expected the resource keyword at this location.");
-            var name = this.Identifier("Expected a resource identifier at this location.");
+            var keyword = this.Expect(TokenType.ResourceKeyword, ErrorCode.ErrExpectedKeyword, "resource");
+            var name = this.Identifier(ErrorCode.ErrExpectedResourceIdentifier);
 
             // TODO: Unify StringSyntax with TypeSyntax
             var type = this.StringLiteral();
@@ -149,7 +150,7 @@ namespace Bicep.Core.Parser
 
         private Token NewLine()
         {
-            return Expect(TokenType.NewLine, "Expected a new line character at this location.");
+            return Expect(TokenType.NewLine, ErrorCode.ErrExpectedNewLine);
         }
 
         public SyntaxBase Expression()
@@ -160,7 +161,7 @@ namespace Bicep.Core.Parser
             {
                 var question = this.reader.Read();
                 var trueExpression = this.Expression();
-                var colon = this.Expect(TokenType.Colon, "Expected a : character at this location.");
+                var colon = this.Expect(TokenType.Colon, ErrorCode.ErrExpectedCharacter, ":");
                 var falseExpression = this.Expression();
 
                 return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
@@ -221,7 +222,7 @@ namespace Bicep.Core.Parser
                     // array indexer
                     Token openSquare = this.reader.Read();
                     SyntaxBase indexExpression = this.Expression();
-                    Token closeSquare = this.Expect(TokenType.RightSquare, "Expected the ] character at this location.");
+                    Token closeSquare = this.Expect(TokenType.RightSquare, ErrorCode.ErrExpectedCharacter, "]");
 
                     current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
 
@@ -232,7 +233,7 @@ namespace Bicep.Core.Parser
                 {
                     // dot operator
                     Token dot = this.reader.Read();
-                    IdentifierSyntax propertyName = this.Identifier("Expected a property identifier at this location.");
+                    IdentifierSyntax propertyName = this.Identifier(ErrorCode.ErrExpectedPropertyIdentifier);
 
                     current = new PropertyAccessSyntax(current, dot, propertyName);
 
@@ -271,22 +272,22 @@ namespace Bicep.Core.Parser
                     return this.FunctionCallOrVariableAccess();
 
                 default:
-                    throw new ExpectedTokenException("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.", nextToken);
+                    throw new ExpectedTokenException(nextToken, ErrorCode.ErrUnrecognizedExpression);
             }
         }
 
         private SyntaxBase ParenthesizedExpression()
         {
-            var openParen = this.Expect(TokenType.LeftParen, "Expected the ( character at this location.");
+            var openParen = this.Expect(TokenType.LeftParen, ErrorCode.ErrExpectedCharacter, "(");
             var expression = this.Expression();
-            var closeParen = this.Expect(TokenType.RightParen, "Expected the ) character at this location.");
+            var closeParen = this.Expect(TokenType.RightParen, ErrorCode.ErrExpectedCharacter, ")");
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
         }
 
         private SyntaxBase FunctionCallOrVariableAccess()
         {
-            var identifier = this.Identifier("Expected a function name at this location.");
+            var identifier = this.Identifier(ErrorCode.ErrExpectedFunctionName);
 
             if (this.Check(TokenType.LeftParen) == false)
             {
@@ -294,7 +295,7 @@ namespace Bicep.Core.Parser
                 return new VariableAccessSyntax(identifier);
             }
 
-            var openParen = this.Expect(TokenType.LeftParen, "Expected the ( character at this location.");
+            var openParen = this.Expect(TokenType.LeftParen, ErrorCode.ErrExpectedCharacter, "(");
 
             var arguments = new List<(SyntaxBase expression, Token? comma)>();
 
@@ -319,7 +320,7 @@ namespace Bicep.Core.Parser
                     return new FunctionCallSyntax(identifier, openParen, argumentNodes, closeParen);
                 }
 
-                var comma = this.Expect(TokenType.Comma, "Expected the , character at this location.");
+                var comma = this.Expect(TokenType.Comma, ErrorCode.ErrExpectedCharacter, ",");
                 
                 // update the tuple
                 var lastArgument = arguments.Last();
@@ -345,26 +346,26 @@ namespace Bicep.Core.Parser
 
         private Token Assignment()
         {
-            return this.Expect(TokenType.Assignment, "Expected an = character at this location.");
+            return this.Expect(TokenType.Assignment, ErrorCode.ErrExpectedCharacter, "=");
         }
 
-        private IdentifierSyntax Identifier(string message)
+        private IdentifierSyntax Identifier(ErrorCode errorCode, params object[] formatArguments)
         {
-            var identifier = Expect(TokenType.Identifier, message);
+            var identifier = Expect(TokenType.Identifier, errorCode, formatArguments);
 
             return new IdentifierSyntax(identifier);
         }
 
-        private TypeSyntax Type(string message)
+        private TypeSyntax Type(ErrorCode errorCode, params object[] formatArguments)
         {
-            var identifier = Expect(TokenType.Identifier, message);
+            var identifier = Expect(TokenType.Identifier, errorCode, formatArguments);
 
             return new TypeSyntax(identifier);
         }
 
         private NumericLiteralSyntax NumericLiteral()
         {
-            var literal = Expect(TokenType.Number, "Expected a numeric literal at this location.");
+            var literal = Expect(TokenType.Number, ErrorCode.ErrExpectedNumericLiteral);
 
             if (Int32.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
             {
@@ -373,7 +374,7 @@ namespace Bicep.Core.Parser
 
             // TODO: Should probably be moved to type checking
             // integer is invalid (too long to fit in an int32)
-            throw new ExpectedTokenException("Expected a valid 32-bit signed integer.", literal);
+            throw new ExpectedTokenException(literal, ErrorCode.ErrInvalidInteger);
         }
 
         private StringSyntax StringLiteral()
@@ -402,7 +403,7 @@ namespace Bicep.Core.Parser
                     return new NullLiteralSyntax(reader.Read());
 
                 default:
-                    throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
+                    throw new ExpectedTokenException(current, ErrorCode.ErrInvalidType);
             }
         }
 
@@ -410,7 +411,7 @@ namespace Bicep.Core.Parser
         {
             var items = new List<ArrayItemSyntax>();
             
-            var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
+            var openBracket = Expect(TokenType.LeftSquare, ErrorCode.ErrExpectedCharacter, "[");
             var newLines = this.NewLines();
 
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
@@ -419,7 +420,7 @@ namespace Bicep.Core.Parser
                 items.Add(item);
             }
 
-            var closeBracket = Expect(TokenType.RightSquare, "Expected a ] character at this location.");
+            var closeBracket = Expect(TokenType.RightSquare, ErrorCode.ErrExpectedCharacter, "]");
 
             return new ArraySyntax(openBracket, newLines, items, closeBracket);
         }
@@ -436,7 +437,7 @@ namespace Bicep.Core.Parser
         {
             var properties = new List<ObjectPropertySyntax>();
 
-            var openBrace = Expect(TokenType.LeftBrace, "Expected a { character at this location.");
+            var openBrace = Expect(TokenType.LeftBrace, ErrorCode.ErrExpectedCharacter, "{");
             var newLines = this.NewLines();
 
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightBrace)
@@ -445,15 +446,15 @@ namespace Bicep.Core.Parser
                 properties.Add(property);
             }
 
-            var closeBrace = Expect(TokenType.RightBrace, "Expected a } character at this location.");
+            var closeBrace = Expect(TokenType.RightBrace, ErrorCode.ErrExpectedCharacter, "}");
 
             return new ObjectSyntax(openBrace, newLines, properties, closeBrace);
         }
 
         private ObjectPropertySyntax ObjectProperty()
         {
-            var identifier = this.Identifier("Expected a property name at this location.");
-            var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
+            var identifier = this.Identifier(ErrorCode.ErrExpectedPropertyName);
+            var colon = Expect(TokenType.Colon, ErrorCode.ErrExpectedCharacter, ":");
             var value = Expression();
             var newLines = this.NewLines();
 
@@ -473,7 +474,7 @@ namespace Bicep.Core.Parser
                 this.SynchronizeExclusive(terminatingType);
                 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
-                return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
+                return new SkippedTokensTriviaSyntax(skippedTokens, exception.Error, exception.UnexpectedToken);
             }
         }
 
@@ -509,7 +510,7 @@ namespace Bicep.Core.Parser
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
         }
 
-        private Token Expect(TokenType type, string message)
+        private Token Expect(TokenType type, ErrorCode errorCode, params object[] formatArguments)
         {
             if (this.Check(type))
             {
@@ -518,7 +519,7 @@ namespace Bicep.Core.Parser
                 return reader.Read();
             }
 
-            throw new ExpectedTokenException(message, this.reader.Peek());
+            throw new ExpectedTokenException(this.reader.Peek(), errorCode, formatArguments);
         }
 
         private bool Match(TokenType type)

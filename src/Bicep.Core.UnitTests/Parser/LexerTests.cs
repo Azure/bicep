@@ -139,8 +139,8 @@ namespace Bicep.Core.UnitTests.Parser
             var errors = lexer.GetErrors().ToImmutableArray();
             errors.Should().HaveCount(1);
 
-            Error error = errors.Single();
-            error.Message.Should().Be(expectedErrorMessage);
+            var error = errors.Single();
+            error.GetMessage().Should().Be(expectedErrorMessage);
             error.Span.Position.Should().Be(expectedStartPosition);
             error.Span.Length.Should().Be(expectedLength);
         }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Errors;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;

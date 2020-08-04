@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -44,10 +45,10 @@ namespace Bicep.Core.TypeSystem
                     return GetBinaryOperationType(binary);
 
                 case FunctionArgumentSyntax functionArgument:
-                    return new ErrorTypeSymbol(new Error("Function arguments are not currently supported.", functionArgument.Expression));
+                    return new ErrorTypeSymbol(new Error(functionArgument.Expression, ErrorCode.ErrNotImplementedFunctionArgs));
 
                 case FunctionCallSyntax functionCall:
-                    return new ErrorTypeSymbol(new Error("Function calls are not currently supported.", functionCall.FunctionName));
+                    return new ErrorTypeSymbol(new Error(functionCall.FunctionName, ErrorCode.ErrNotImplementedFunctionCalls));
 
                 case NullLiteralSyntax _:
                     // null is its own type
@@ -58,10 +59,10 @@ namespace Bicep.Core.TypeSystem
                     return GetTypeInfo(parenthesized.Expression);
 
                 case PropertyAccessSyntax propertyAccess:
-                    return new ErrorTypeSymbol(new Error("Property access is not currently supported.", propertyAccess.Dot));
+                    return new ErrorTypeSymbol(new Error(propertyAccess.Dot, ErrorCode.ErrNotImplementedPropertyAccess));
 
                 case ArrayAccessSyntax arrayAccess:
-                    return new ErrorTypeSymbol(new Error("Array access is not currently supported.", arrayAccess.OpenSquare));
+                    return new ErrorTypeSymbol(new Error(arrayAccess.OpenSquare, ErrorCode.ErrNotImplementedArrayAccess));
 
                 case TernaryOperationSyntax ternary:
                     return GetTernaryOperationType(ternary);
@@ -71,10 +72,10 @@ namespace Bicep.Core.TypeSystem
 
                 case VariableAccessSyntax variableAccess:
                     // TODO: Variable access is not currently supported
-                    return new ErrorTypeSymbol(new Error("Variable access is not currently supported.", variableAccess.Name));
+                    return new ErrorTypeSymbol(new Error(variableAccess.Name, ErrorCode.ErrNotImplementedVariableAccess));
 
                 default:
-                    return new ErrorTypeSymbol(new Error("This is not a valid expression.", syntax.Span));
+                    return new ErrorTypeSymbol(new Error(syntax.Span, ErrorCode.ErrInvalidExpression));
             }
         }
 
@@ -164,7 +165,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
             {
-                return new ErrorTypeSymbol(new Error($"Cannot apply operator '{Operators.UnaryOperatorToText[syntax.Operator]}' to operand of type '{operandType.Name}'.", syntax));
+                return new ErrorTypeSymbol(new Error(syntax, ErrorCode.ErrUnaryOperatorInvalidType, Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
             }
 
             return expectedOperandType;
@@ -196,7 +197,7 @@ namespace Bicep.Core.TypeSystem
 
             // we do not have a match
             // operand types didn't match available operators
-            return new ErrorTypeSymbol(new Error($"Cannot apply operator '{Operators.BinaryOperatorToText[syntax.Operator]}' to operands of type '{operandType1.Name}' and '{operandType2.Name}'.", syntax));
+            return new ErrorTypeSymbol(new Error(syntax, ErrorCode.ErrBinaryOperatorInvalidType, Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
         }
 
         private TypeSymbol GetTernaryOperationType(TernaryOperationSyntax syntax)
@@ -221,7 +222,7 @@ namespace Bicep.Core.TypeSystem
             var expectedConditionType = LanguageConstants.Bool;
             if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
             {
-                return new ErrorTypeSymbol(new Error($"Expected a value of type '{expectedConditionType.Name}'.", syntax.ConditionExpression));
+                return new ErrorTypeSymbol(new Error(syntax.ConditionExpression, ErrorCode.ErrValueTypeMismatch, expectedConditionType.Name));
             }
             
             // the return type is the union of true and false expression types

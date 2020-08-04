@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Errors;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -20,7 +21,7 @@ namespace Bicep.Core.Parser
         {
             base.VisitProgramSyntax(syntax);
 
-            foreach (Error error in syntax.LexicalErrors)
+            foreach (var error in syntax.LexicalErrors)
             {
                 this.errors.Add(error);
             }
@@ -32,18 +33,20 @@ namespace Bicep.Core.Parser
 
             // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
             // VS code will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
-            TextSpan span = syntax.ErrorCause.Type == TokenType.NewLine
-                ? new TextSpan(syntax.ErrorCause.Span.Position, 0)
-                : syntax.ErrorCause.Span;
 
-            this.errors.Add(new Error(syntax.ErrorMessage, span));
+            // TODO: can we move this logic to the language server?
+            var errorInfo = syntax.ErrorCause.Type == TokenType.NewLine
+                ? syntax.ErrorInfo.WithSpan(new TextSpan(syntax.ErrorInfo.Span.Position, 0))
+                : syntax.ErrorInfo;
+
+            this.errors.Add(errorInfo);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.AddError($"The identifier exceeds the limit of {LanguageConstants.MaxIdentifierLength}. Reduce the length of the identifier.", syntax.Identifier);
+                this.AddError(syntax.Identifier, ErrorCode.ErrIdentifierNameExceedsLimit);
             }
 
             base.VisitIdentifierSyntax(syntax);
@@ -61,14 +64,14 @@ namespace Bicep.Core.Parser
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.AddError($"Property '{duplicatedProperty.Identifier.IdentifierName}' is declared multiple times in this object. Remove or rename the duplicate properties.", duplicatedProperty.Identifier);
+                    this.AddError(duplicatedProperty.Identifier, ErrorCode.ErrPropertyMultipleDeclarations, duplicatedProperty.Identifier.IdentifierName);
                 }
             }
         }
 
-        protected void AddError(string message, IPositionable positionable)
+        protected void AddError(IPositionable positionable, ErrorCode errorCode, params object[] formatArguments)
         {
-            this.errors.Add(new Error(message, positionable.Span));
+            this.errors.Add(new Error(positionable.Span, errorCode, formatArguments));
         }
     }
 }

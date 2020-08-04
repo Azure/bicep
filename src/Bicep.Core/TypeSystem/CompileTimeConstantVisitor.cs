@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -65,7 +66,7 @@ namespace Bicep.Core.TypeSystem
 
         private void AppendError(SyntaxBase syntax)
         {
-            this.errors.Add(new Error("The value must be a compile-time constant.", syntax));
+            this.errors.Add(new Error(syntax, ErrorCode.ErrCompileTimeConstantRequired));
         }
     }
 }
