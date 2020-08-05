@@ -53,8 +53,7 @@ namespace Bicep.Core.SemanticModel
 
                     if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                     {
-                        var valueTypeName = defaultValueType?.Name ?? "<unknown>";
-                        return this.CreateError(defaultValueSyntax.DefaultValue, ErrorCode.ErrParameterTypeMismatch, this.Type.Name, valueTypeName).AsEnumerable();
+                        return this.CreateError(defaultValueSyntax.DefaultValue, ErrorCode.ErrParameterTypeMismatch, this.Type.Name, defaultValueType.Name).AsEnumerable();
                     }
 
                     break;
