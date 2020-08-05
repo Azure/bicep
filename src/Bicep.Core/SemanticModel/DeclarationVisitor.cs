@@ -22,7 +22,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            TypeSymbol parameterType = this.GetPrimitiveTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(new Error(syntax.Type, ErrorCode.ErrInvalidParameterType));
+            TypeSymbol parameterType = this.GetPrimitiveTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax.Type).InvalidParameterType());
             
             var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax, parameterType, syntax.Modifier);
             this.declaredSymbols.Add(symbol);
@@ -49,7 +49,7 @@ namespace Bicep.Core.SemanticModel
             // TODO: This check is likely too simplistic
             if (resourceType?.TypeKind != TypeKind.Resource)
             {
-                resourceType = new ErrorTypeSymbol(new Error(syntax.Type, ErrorCode.ErrInvalidResourceType));
+                resourceType = new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax.Type).InvalidResourceType());
             }
 
             var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax, resourceType, syntax.Body);
@@ -60,7 +60,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitOutputDeclarationSyntax(syntax);
 
-            var outputType = this.GetPrimitiveTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(new Error(syntax.Type, ErrorCode.ErrInvalidOutputType));
+            var outputType = this.GetPrimitiveTypeByName(syntax.Type.TypeName) ?? new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax.Type).InvalidOutputType());
 
             var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax, outputType, syntax.Value);
             this.declaredSymbols.Add(symbol);

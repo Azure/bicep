@@ -22,8 +22,7 @@ namespace Bicep.Cli.Logging
         public void LogDiagnostic(string filePath, Error diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            // TODO: implement unique error codes in the Error class
-            string message = $"{filePath}({line + 1},{character + 1}) : error BCP001: {diagnostic.GetMessage()}";
+            string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.UserVisibleCode}: {diagnostic.Message}";
 
             this.logger.Log(LogLevel.Error, message);
 

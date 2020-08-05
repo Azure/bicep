@@ -46,7 +46,7 @@ namespace Bicep.Core.Parser
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.AddError(syntax.Identifier, ErrorCode.ErrIdentifierNameExceedsLimit);
+                this.errors.Add(ErrorBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
             }
 
             base.VisitIdentifierSyntax(syntax);
@@ -64,14 +64,9 @@ namespace Bicep.Core.Parser
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.AddError(duplicatedProperty.Identifier, ErrorCode.ErrPropertyMultipleDeclarations, duplicatedProperty.Identifier.IdentifierName);
+                    this.errors.Add(ErrorBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
                 }
             }
-        }
-
-        protected void AddError(IPositionable positionable, ErrorCode errorCode, params object[] formatArguments)
-        {
-            this.errors.Add(new Error(positionable.Span, errorCode, formatArguments));
         }
     }
 }

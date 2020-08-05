@@ -47,13 +47,14 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(TextSpan span, ErrorCode code, params object[] arguments)
+        private void AddError(TextSpan span, ErrorBuilder.BuildDelegate errorFunc)
         {
-            this.errors.Add(new Error(span, code, arguments));
+            var error = errorFunc(ErrorBuilder.ForPosition(span));
+            this.errors.Add(error);
         }
 
-        private void AddError(ErrorCode code, params object[] arguments)
-            => AddError(textWindow.GetSpan(), code, arguments);
+        private void AddError(ErrorBuilder.BuildDelegate errorFunc)
+            => AddError(textWindow.GetSpan(), errorFunc);
 
         public void Lex()
         {
@@ -221,7 +222,7 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                AddError(ErrorCode.ErrUnrecognizedToken, tokenText);
+                AddError(b => b.UnrecognizedToken(tokenText));
             }
 
             textWindow.Reset();
@@ -271,7 +272,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(ErrorCode.ErrUnterminatedMultilineComment);
+                    AddError(b => b.UnterminatedMultilineComment());
                     return;
                 }
 
@@ -285,7 +286,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(ErrorCode.ErrUnterminatedMultilineComment);
+                    AddError(b => b.UnterminatedMultilineComment());
                     return;
                 }
 
@@ -324,7 +325,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(ErrorCode.ErrUnterminatedString);
+                    AddError(b => b.UnterminatedString());
                     return;
                 }
 
@@ -333,7 +334,7 @@ namespace Bicep.Core.Parser
                 if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
-                    AddError(ErrorCode.ErrUnterminatedStringWithNewLine);
+                    AddError(b => b.UnterminatedStringWithNewLine());
                     return;
                 }
 
@@ -351,7 +352,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError(ErrorCode.ErrUnterminatedStringEscapeSequenceAtEof);
+                    AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return;
                 }
 
@@ -361,7 +362,7 @@ namespace Bicep.Core.Parser
                 if (CharacterEscapes.ContainsKey(nextChar) == false)
                 {
                     // the span of the error is the incorrect escape sequence
-                    this.AddError(textWindow.GetLookbehindSpan(2), ErrorCode.ErrUnterminatedStringEscapeSequenceUnrecognized, CharacterEscapeSequences);
+                    AddError(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
                 }
             }
         }

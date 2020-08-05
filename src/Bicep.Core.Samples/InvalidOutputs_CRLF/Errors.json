@@ -1,296 +1,355 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
+    "userVisibleCode": "BCP007",
     "span": "[24:27]",
     "spanText": "bad"
   },
   {
     "message": "Expected an output identifier at this location.",
+    "userVisibleCode": "BCP016",
     "span": "[53:53]",
     "spanText": ""
   },
   {
-    "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string",
+    "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string.",
+    "userVisibleCode": "BCP014",
     "span": "[84:84]",
     "spanText": ""
   },
   {
     "message": "Expected the '=' character at this location.",
+    "userVisibleCode": "BCP018",
     "span": "[136:136]",
     "spanText": ""
   },
   {
     "message": "Expected the '=' character at this location.",
+    "userVisibleCode": "BCP018",
     "span": "[175:175]",
     "spanText": ""
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
+    "userVisibleCode": "BCP009",
     "span": "[216:216]",
     "spanText": ""
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[258:261]",
     "spanText": "str"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[271:275]",
     "spanText": "true"
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[284:287]",
     "spanText": "str"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[297:302]",
     "spanText": "false"
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[311:314]",
     "spanText": "str"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'array'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'array'.",
+    "userVisibleCode": "BCP026",
     "span": "[324:328]",
     "spanText": "[\r\n]"
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[337:340]",
     "spanText": "str"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'object'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'object'.",
+    "userVisibleCode": "BCP026",
     "span": "[350:354]",
     "spanText": "{\r\n}"
   },
   {
     "message": "Identifier 'str' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[363:366]",
     "spanText": "str"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'int'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'int'.",
+    "userVisibleCode": "BCP026",
     "span": "[376:378]",
     "spanText": "52"
   },
   {
     "message": "Identifier 'i' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[417:418]",
     "spanText": "i"
   },
   {
-    "message": "The output expects a value of type 'int but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'int' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[425:429]",
     "spanText": "true"
   },
   {
     "message": "Identifier 'i' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[438:439]",
     "spanText": "i"
   },
   {
-    "message": "The output expects a value of type 'int but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'int' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[446:451]",
     "spanText": "false"
   },
   {
     "message": "Identifier 'i' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[460:461]",
     "spanText": "i"
   },
   {
-    "message": "The output expects a value of type 'int but the provided value is of type 'array'.",
+    "message": "The output expects a value of type 'int' but the provided value is of type 'array'.",
+    "userVisibleCode": "BCP026",
     "span": "[468:472]",
     "spanText": "[\r\n]"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
+    "userVisibleCode": "BCP009",
     "span": "[489:490]",
     "spanText": "}"
   },
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
+    "userVisibleCode": "BCP007",
     "span": "[492:493]",
     "spanText": "}"
   },
   {
     "message": "Identifier 'i' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[502:503]",
     "spanText": "i"
   },
   {
-    "message": "The output expects a value of type 'int but the provided value is of type 'string'.",
+    "message": "The output expects a value of type 'int' but the provided value is of type 'string'.",
+    "userVisibleCode": "BCP026",
     "span": "[510:516]",
     "spanText": "'test'"
   },
   {
     "message": "Identifier 'b' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[556:557]",
     "spanText": "b"
   },
   {
-    "message": "The output expects a value of type 'bool but the provided value is of type 'array'.",
+    "message": "The output expects a value of type 'bool' but the provided value is of type 'array'.",
+    "userVisibleCode": "BCP026",
     "span": "[565:569]",
     "spanText": "[\r\n]"
   },
   {
     "message": "Identifier 'b' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[578:579]",
     "spanText": "b"
   },
   {
-    "message": "The output expects a value of type 'bool but the provided value is of type 'object'.",
+    "message": "The output expects a value of type 'bool' but the provided value is of type 'object'.",
+    "userVisibleCode": "BCP026",
     "span": "[587:591]",
     "spanText": "{\r\n}"
   },
   {
     "message": "Identifier 'b' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[600:601]",
     "spanText": "b"
   },
   {
-    "message": "The output expects a value of type 'bool but the provided value is of type 'int'.",
+    "message": "The output expects a value of type 'bool' but the provided value is of type 'int'.",
+    "userVisibleCode": "BCP026",
     "span": "[609:611]",
     "spanText": "32"
   },
   {
     "message": "Identifier 'b' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[620:621]",
     "spanText": "b"
   },
   {
-    "message": "The output expects a value of type 'bool but the provided value is of type 'string'.",
+    "message": "The output expects a value of type 'bool' but the provided value is of type 'string'.",
+    "userVisibleCode": "BCP026",
     "span": "[629:634]",
     "spanText": "'str'"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[675:678]",
     "spanText": "arr"
   },
   {
-    "message": "The output expects a value of type 'array but the provided value is of type 'int'.",
+    "message": "The output expects a value of type 'array' but the provided value is of type 'int'.",
+    "userVisibleCode": "BCP026",
     "span": "[687:689]",
     "spanText": "32"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[698:701]",
     "spanText": "arr"
   },
   {
-    "message": "The output expects a value of type 'array but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'array' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[710:714]",
     "spanText": "true"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[723:726]",
     "spanText": "arr"
   },
   {
-    "message": "The output expects a value of type 'array but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'array' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[735:740]",
     "spanText": "false"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[749:752]",
     "spanText": "arr"
   },
   {
-    "message": "The output expects a value of type 'array but the provided value is of type 'object'.",
+    "message": "The output expects a value of type 'array' but the provided value is of type 'object'.",
+    "userVisibleCode": "BCP026",
     "span": "[761:765]",
     "spanText": "{\r\n}"
   },
   {
     "message": "Identifier 'arr' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[774:777]",
     "spanText": "arr"
   },
   {
-    "message": "The output expects a value of type 'array but the provided value is of type 'string'.",
+    "message": "The output expects a value of type 'array' but the provided value is of type 'string'.",
+    "userVisibleCode": "BCP026",
     "span": "[786:791]",
     "spanText": "'str'"
   },
   {
     "message": "Identifier 'o' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[833:834]",
     "spanText": "o"
   },
   {
-    "message": "The output expects a value of type 'object but the provided value is of type 'int'.",
+    "message": "The output expects a value of type 'object' but the provided value is of type 'int'.",
+    "userVisibleCode": "BCP026",
     "span": "[844:846]",
     "spanText": "32"
   },
   {
     "message": "Identifier 'o' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[855:856]",
     "spanText": "o"
   },
   {
-    "message": "The output expects a value of type 'object but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'object' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[866:870]",
     "spanText": "true"
   },
   {
     "message": "Identifier 'o' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[879:880]",
     "spanText": "o"
   },
   {
-    "message": "The output expects a value of type 'object but the provided value is of type 'bool'.",
+    "message": "The output expects a value of type 'object' but the provided value is of type 'bool'.",
+    "userVisibleCode": "BCP026",
     "span": "[890:895]",
     "spanText": "false"
   },
   {
     "message": "Identifier 'o' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[904:905]",
     "spanText": "o"
   },
   {
-    "message": "The output expects a value of type 'object but the provided value is of type 'array'.",
+    "message": "The output expects a value of type 'object' but the provided value is of type 'array'.",
+    "userVisibleCode": "BCP026",
     "span": "[915:919]",
     "spanText": "[\r\n]"
   },
   {
     "message": "Identifier 'o' is declared multiple times. Remove or rename the duplicates.",
+    "userVisibleCode": "BCP028",
     "span": "[928:929]",
     "spanText": "o"
   },
   {
-    "message": "The output expects a value of type 'object but the provided value is of type 'string'.",
+    "message": "The output expects a value of type 'object' but the provided value is of type 'string'.",
+    "userVisibleCode": "BCP026",
     "span": "[939:944]",
     "spanText": "'str'"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'int'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'int'.",
+    "userVisibleCode": "BCP026",
     "span": "[995:1000]",
     "spanText": "2 + 3"
   },
   {
-    "message": "The output expects a value of type 'string but the provided value is of type 'int | string'.",
+    "message": "The output expects a value of type 'string' but the provided value is of type 'int | string'.",
+    "userVisibleCode": "BCP026",
     "span": "[1024:1038]",
     "spanText": "true ? 's' : 1"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "userVisibleCode": "BCP044",
     "span": "[1065:1067]",
     "spanText": "!4"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'bool'.",
+    "userVisibleCode": "BCP044",
     "span": "[1097:1102]",
     "spanText": "-true"
   },
   {
     "message": "Cannot apply operator '&&' to operands of type 'int' and 'string'.",
+    "userVisibleCode": "BCP045",
     "span": "[1106:1115]",
     "spanText": "14 && 's'"
   }

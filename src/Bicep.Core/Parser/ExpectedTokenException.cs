@@ -5,11 +5,11 @@ namespace Bicep.Core.Parser
 {
     public class ExpectedTokenException : Exception
     {
-        public ExpectedTokenException(Token unexpectedToken, ErrorCode errorCode, params object[] formatArguments)
+        public ExpectedTokenException(Token unexpectedToken, ErrorBuilder.BuildDelegate errorFunc)
             : base($"Unexpected token '{unexpectedToken.Text}'")
         {
             UnexpectedToken = unexpectedToken;
-            Error = new Error(unexpectedToken, errorCode, formatArguments);
+            Error = errorFunc(ErrorBuilder.ForPosition(unexpectedToken));
         }
 
         public Error Error { get; }

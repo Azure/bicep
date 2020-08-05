@@ -90,7 +90,7 @@ namespace Bicep.Core.TypeSystem
         public static IEnumerable<Error> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Error>? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
-            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrExpectdValueTypeMismatch, expectedType.Name, actualType.Name);
+            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => ErrorBuilder.ForPosition(errorExpression).ExpectdValueTypeMismatch(expectedType.Name, actualType.Name);
 
             return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
@@ -149,7 +149,7 @@ namespace Bicep.Core.TypeSystem
                     context,
                     arrayItemSyntax.Value,
                     targetType.ItemType,
-                    (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrArrayTypeMismatch, expectedType.Name, actualType.Name),
+                    (expectedType, actualType, errorExpression) => ErrorBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
                     skipConstantCheck,
                     skipTypeErrors: true)); 
         }
@@ -175,7 +175,7 @@ namespace Bicep.Core.TypeSystem
                 .ConcatString(LanguageConstants.ListSeparator);
             if (string.IsNullOrEmpty(missingRequiredProperties) == false)
             {
-                result = result.Append(new Error(expression, ErrorCode.ErrMissingRequiredProperties, missingRequiredProperties));
+                result = result.Append(ErrorBuilder.ForPosition(expression).MissingRequiredProperties(missingRequiredProperties));
             }
 
             foreach (var declaredProperty in targetType.Properties.Values)
@@ -200,7 +200,7 @@ namespace Bicep.Core.TypeSystem
                         context,
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
-                        (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrPropertyTypeMismatch, declaredProperty.Name, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => ErrorBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 
@@ -217,7 +217,7 @@ namespace Bicep.Core.TypeSystem
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => new Error(extraProperty.Identifier, ErrorCode.ErrDisallowedProperty, extraProperty.Identifier.IdentifierName, targetType.Name)));
+                result = result.Concat(extraProperties.Select(extraProperty => ErrorBuilder.ForPosition(extraProperty.Identifier).DisallowedProperty(extraProperty.Identifier.IdentifierName, targetType.Name)));
             }
             else
             {
@@ -240,7 +240,7 @@ namespace Bicep.Core.TypeSystem
                         context,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => new Error(errorExpression, ErrorCode.ErrPropertyTypeMismatch, extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => ErrorBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 

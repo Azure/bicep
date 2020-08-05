@@ -60,7 +60,7 @@ namespace Bicep.Core.SemanticModel
                     // use the identifier node as the error location with fallback to full declaration span
                     SyntaxBase identifierNode = duplicatedSymbol.NameSyntax ?? duplicatedSymbol.DeclaringSyntax;
 
-                    yield return this.CreateError(identifierNode, ErrorCode.ErrIdentifierMultipleDeclarations, duplicatedSymbol.Name);
+                    yield return this.CreateError(identifierNode, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
             }
         }

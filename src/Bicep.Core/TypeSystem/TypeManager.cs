@@ -45,10 +45,10 @@ namespace Bicep.Core.TypeSystem
                     return GetBinaryOperationType(binary);
 
                 case FunctionArgumentSyntax functionArgument:
-                    return new ErrorTypeSymbol(new Error(functionArgument.Expression, ErrorCode.ErrNotImplementedFunctionArgs));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(functionArgument.Expression).NotImplementedFunctionArgs());
 
                 case FunctionCallSyntax functionCall:
-                    return new ErrorTypeSymbol(new Error(functionCall.FunctionName, ErrorCode.ErrNotImplementedFunctionCalls));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(functionCall.FunctionName).NotImplementedFunctionCalls());
 
                 case NullLiteralSyntax _:
                     // null is its own type
@@ -59,10 +59,10 @@ namespace Bicep.Core.TypeSystem
                     return GetTypeInfo(parenthesized.Expression);
 
                 case PropertyAccessSyntax propertyAccess:
-                    return new ErrorTypeSymbol(new Error(propertyAccess.Dot, ErrorCode.ErrNotImplementedPropertyAccess));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(propertyAccess.Dot).NotImplementedPropertyAccess());
 
                 case ArrayAccessSyntax arrayAccess:
-                    return new ErrorTypeSymbol(new Error(arrayAccess.OpenSquare, ErrorCode.ErrNotImplementedArrayAccess));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(arrayAccess.OpenSquare).NotImplementedArrayAccess());
 
                 case TernaryOperationSyntax ternary:
                     return GetTernaryOperationType(ternary);
@@ -72,10 +72,10 @@ namespace Bicep.Core.TypeSystem
 
                 case VariableAccessSyntax variableAccess:
                     // TODO: Variable access is not currently supported
-                    return new ErrorTypeSymbol(new Error(variableAccess.Name, ErrorCode.ErrNotImplementedVariableAccess));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(variableAccess.Name).NotImplementedVariableAccess());
 
                 default:
-                    return new ErrorTypeSymbol(new Error(syntax.Span, ErrorCode.ErrInvalidExpression));
+                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).InvalidExpression());
             }
         }
 
@@ -165,7 +165,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
             {
-                return new ErrorTypeSymbol(new Error(syntax, ErrorCode.ErrUnaryOperatorInvalidType, Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
+                return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
             }
 
             return expectedOperandType;
@@ -197,7 +197,7 @@ namespace Bicep.Core.TypeSystem
 
             // we do not have a match
             // operand types didn't match available operators
-            return new ErrorTypeSymbol(new Error(syntax, ErrorCode.ErrBinaryOperatorInvalidType, Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
+            return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
         }
 
         private TypeSymbol GetTernaryOperationType(TernaryOperationSyntax syntax)
@@ -222,7 +222,7 @@ namespace Bicep.Core.TypeSystem
             var expectedConditionType = LanguageConstants.Bool;
             if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
             {
-                return new ErrorTypeSymbol(new Error(syntax.ConditionExpression, ErrorCode.ErrValueTypeMismatch, expectedConditionType.Name));
+                return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType.Name));
             }
             
             // the return type is the union of true and false expression types

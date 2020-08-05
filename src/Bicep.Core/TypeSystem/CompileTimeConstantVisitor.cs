@@ -66,7 +66,7 @@ namespace Bicep.Core.TypeSystem
 
         private void AppendError(SyntaxBase syntax)
         {
-            this.errors.Add(new Error(syntax, ErrorCode.ErrCompileTimeConstantRequired));
+            this.errors.Add(ErrorBuilder.ForPosition(syntax).CompileTimeConstantRequired());
         }
     }
 }

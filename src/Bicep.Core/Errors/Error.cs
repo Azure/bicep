@@ -5,28 +5,23 @@ namespace Bicep.Core.Errors
     // roughly equivalent to the 'SyntaxDiagnosticInfo' class in Roslyn
     public class Error : IPositionable
     {
-        public TextSpan Span { get; }
-
-        public ErrorCode Code { get; }
-
-        private object[] formatArguments { get; }
-
-        public Error(TextSpan span, ErrorCode code, params object[] formatArguments)
+        public Error(TextSpan span, ErrorCode errorCode, string userVisibleCode, string message)
         {
             Span = span;
-            Code = code;
-            this.formatArguments = formatArguments;
+            ErrorCode = errorCode;
+            UserVisibleCode = userVisibleCode;
+            Message = message;
         }
 
-        public Error(IPositionable positionable, ErrorCode code, params object[] args)
-            : this(positionable.Span, code, args)
-        {
-        }
+        public TextSpan Span { get; }
 
-        public string GetMessage()
-            => ErrorFormatter.Format(Code, formatArguments);
+        public ErrorCode ErrorCode { get; }
+
+        public string UserVisibleCode { get; }
+
+        public string Message { get; }
 
         public Error WithSpan(TextSpan newSpan)
-            => new Error(newSpan, Code, formatArguments);
+            => new Error(newSpan, ErrorCode, UserVisibleCode, Message);
     }
 }

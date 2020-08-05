@@ -13,8 +13,8 @@ namespace Bicep.LanguageServer.Extensions
             source.Select(error => new Diagnostic
             {
                 Severity = DiagnosticSeverity.Error,
-                // TODO: implement unique error codes in the Error class and expose as DiagnosticCode
-                Message = error.GetMessage(),
+                Code = error.UserVisibleCode,
+                Message = error.Message,
                 Source = LanguageServerConstants.LanguageId,
                 Range = error.ToRange(lineStarts)
             });

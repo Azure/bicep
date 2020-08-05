@@ -137,7 +137,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var errors = TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), @object, LanguageConstants.Int).ToList();
 
             errors.Should().HaveCount(1);
-            errors.Single().GetMessage().Should().Be("Expected a value of type 'int' but the provided value is of type 'object'.");
+            errors.Single().Message.Should().Be("Expected a value of type 'int' but the provided value is of type 'object'.");
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
-                .Select(e => e.GetMessage())
+                .Select(e => e.Message)
                 .Should()
                 .Equal(
                     "The property 'extra' is not allowed on objects of type 'ParameterModifier_string'.",
@@ -211,7 +211,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType())
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property 'managedByExtended' expected a value of type 'string[]' but the provided value is of type 'string'.",
                     "The enclosing array expected an item of type 'string', but the provided item was of type 'bool'.",
@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             errors.Should().HaveCount(1);
 
-            errors.Single().GetMessage().Should().Be("The specified object is missing the following required properties: name.");
+            errors.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
         }
 
         [TestMethod]
@@ -256,7 +256,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, CreateDummyResourceType())
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
                     "The property 'wrongTagType' expected a value of type 'string' but the provided value is of type 'bool'.",
@@ -447,7 +447,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property 'defaultValue' expected a value of type 'string' but the provided value is of type 'bool'.",
                     "The property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
@@ -491,7 +491,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int))
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property 'allowedValues' expected a value of type 'int[]' but the provided value is of type 'object'.",
                     "The property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
@@ -538,7 +538,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool))
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property 'defaultValue' expected a value of type 'bool' but the provided value is of type 'int'.",
                     "The enclosing array expected an item of type 'bool', but the provided item was of type 'int'.",
@@ -582,7 +582,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object))
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
                     "The property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
@@ -627,7 +627,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             TypeValidator.GetExpressionAssignmentDiagnostics(new TypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array))
-                .Select(d => d.GetMessage())
+                .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
                     "The property 'defaultValue' expected a value of type 'array' but the provided value is of type 'bool'.",

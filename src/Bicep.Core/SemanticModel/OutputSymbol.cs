@@ -48,7 +48,7 @@ namespace Bicep.Core.SemanticModel
 
             if (TypeValidator.AreTypesAssignable(valueType, this.Type) == false)
             {
-                return this.CreateError(this.Value, ErrorCode.ErrOutputTypeMismatch, this.Type.Name, valueType.Name).AsEnumerable();
+                return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
             }
 
             return Enumerable.Empty<Error>();

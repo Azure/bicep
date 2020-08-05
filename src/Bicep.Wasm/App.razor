@@ -63,7 +63,7 @@
                 var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
 
             // TODO: implement unique error codes in the Error class
-                buffer.AppendLine($"({line + 1},{character + 1}): error BCP001: {diagnostic.GetMessage()}");
+                buffer.AppendLine($"({line + 1},{character + 1}): error {diagnostic.UserVisibleCode}: {diagnostic.Message}");
             }
 
             return buffer.ToString();
