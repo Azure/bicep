@@ -165,7 +165,7 @@ namespace Bicep.Core.TypeSystem
                 return result;
             }
 
-            var propertyMap = expression.Properties.ToDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
+            var propertyMap = expression.ToPropertyDictionary();
 
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && propertyMap.ContainsKey(p.Name) == false)

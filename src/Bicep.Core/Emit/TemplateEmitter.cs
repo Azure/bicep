@@ -197,8 +197,8 @@ namespace Bicep.Core.Emit
                     break;
 
                 case ObjectSyntax modifierSyntax:
-                    // this would throw on invalid object node - we are relying on emitter checking for errors at the beginning
-                    var properties = modifierSyntax.ToPropertyDictionary();
+                    // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
+                    var properties = modifierSyntax.ToPropertyValueDictionary();
 
                     ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
 
