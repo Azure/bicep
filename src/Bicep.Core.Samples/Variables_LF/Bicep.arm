@@ -12,14 +12,17 @@ variable myFalsehood = false
 // object
 variable myObj = {
   a: 'a'
-  b: 12
+  b: -12
   c: true
+  d: !true
   list: [
     1
     2
-    3
+    2+1
     {
+      test: 144 > 33 && true || 99 <= 199
     }
+    'a' =~ 'b'
   ]
   obj: {
     nested: [
@@ -43,6 +46,6 @@ variable myArrWithObjects = [
   }
   {
     name: 'two'
-    enable: false
+    enable: false && false || 'two' !~ 'three'
   }
 ]

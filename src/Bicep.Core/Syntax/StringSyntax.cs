@@ -2,7 +2,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class StringSyntax : SyntaxBase
+    public class StringSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
         public StringSyntax(Token stringToken)
         {

@@ -7,7 +7,7 @@ namespace Bicep.Core.Syntax
         public static ProgramSyntax CreateFromText(string text)
         {
             var parser = new Parser.Parser(text);
-            return parser.Parse();
+            return parser.Program();
         }
     }
 }

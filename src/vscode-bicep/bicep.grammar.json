@@ -31,7 +31,7 @@
 				},
 				{
 					"name": "keyword.type.bicep",
-					"match": "\\b(string|int|bool|object|array)\\b"
+					"match": "\\b(string|int|bool|object|array|null|true|false)\\b"
 				}
 			]
 		},
@@ -42,7 +42,7 @@
 			"patterns": [
 				{
 					"name": "constant.character.escape.bicep",
-					"match": "(?x)\\\\(?:[\"\\\\/bfnrt$]|[0-9a-fA-F]{4})"
+					"match": "(?x)\\\\(?:[\\\\nrt'$]|[0-9a-fA-F]{4})"
 				},
 				{
 					"include": "#stringinterp"
@@ -89,7 +89,7 @@
 			}
 		},
 		"properties": {
-			"match": "\\b([a-zA-Z][a-zA-Z0-9]*)\\w*\\b:",
+			"match": "\\b([a-zA-Z][a-zA-Z0-9]*)\\w*\\b\\s*:",
 			"captures": {
 				"1": {
 					"name": "support.type.property-name.bicep"

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Utils;
@@ -9,6 +11,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Bicep.Cli
 {
@@ -54,15 +57,15 @@ namespace Bicep.Cli
 
         private static void Build(IDiagnosticLogger logger, BuildArguments arguments)
         {
-            foreach (string file in arguments.Files)
+            var bicepPaths = arguments.Files.Select(file => PathHelper.ResolvePath(file)).ToArray();
+            if (arguments.OutputToStdOut)
             {
-                string bicepPath = PathHelper.ResolvePath(file);
+                BuildManyFilesToStdOut(logger, bicepPaths);
+                return;
+            }
 
-                if (arguments.OutputToStdOut) {
-                    BuildSingleFile(logger, bicepPath);
-                    continue;
-                }
-
+            foreach (string bicepPath in bicepPaths)
+            {
                 string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
                 BuildSingleFile(logger, bicepPath, outputPath);
             }
@@ -85,20 +88,34 @@ namespace Bicep.Cli
             }
         }
 
-        private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath)
+        private static void BuildManyFilesToStdOut(IDiagnosticLogger logger, string[] bicepPaths)
         {
-            string text = File.ReadAllText(bicepPath);
-            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
-
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
-
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
-
-            var result = emitter.Emit(Console.Out);
-
-            foreach (Error diagnostic in result.Diagnostics)
+            using var writer = new JsonTextWriter(Console.Out)
             {
-                logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
+                Formatting = Formatting.Indented
+            };
+
+            if (bicepPaths.Length > 1) {
+                writer.WriteStartArray();
+            }
+            foreach(var bicepPath in bicepPaths)
+            {
+                string text = File.ReadAllText(bicepPath);
+                var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+
+                var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+
+                var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+
+                var result = emitter.Emit(writer);
+
+                foreach (Error diagnostic in result.Diagnostics)
+                {
+                    logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
+                }
+            }
+            if (bicepPaths.Length > 1) {
+                writer.WriteEndArray();
             }
         }
     }

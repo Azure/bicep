@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Linq;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -23,9 +24,7 @@ namespace Bicep.Core.Parser
             this.reader = new TokenReader(lexer.GetTokens());
         }
 
-        public ProgramSyntax Parse() => Program();
-
-        private ProgramSyntax Program()
+        public ProgramSyntax Program()
         {
             var statements = new List<SyntaxBase>();
             while (!this.IsAtEnd())
@@ -96,7 +95,7 @@ namespace Bicep.Core.Parser
         private SyntaxBase ParameterDefaultValue()
         {
             Token defaultKeyword = this.Expect(TokenType.DefaultKeyword, "Expected the default keyword at this location.");
-            SyntaxBase defaultValue = this.Value();
+            SyntaxBase defaultValue = this.Expression();
 
             return new ParameterDefaultValueSyntax(defaultKeyword, defaultValue);
         }
@@ -106,7 +105,7 @@ namespace Bicep.Core.Parser
             var keyword = this.Expect(TokenType.VariableKeyword, "Expected the variable keyword at this location.");
             var name = this.Identifier("Expected a variable identifier at this location.");
             var assignment = this.Assignment();
-            var value = this.Value();
+            var value = this.Expression();
 
             var newLine = this.NewLine();
 
@@ -119,7 +118,7 @@ namespace Bicep.Core.Parser
             var name = this.Identifier("Expected an output identifier at this location.");
             var type = Type($"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}");
             var assignment = this.Assignment();
-            var value = this.Value();
+            var value = this.Expression();
 
             var newLine = this.NewLine();
 
@@ -151,6 +150,182 @@ namespace Bicep.Core.Parser
         private Token NewLine()
         {
             return Expect(TokenType.NewLine, "Expected a new line character at this location.");
+        }
+
+        public SyntaxBase Expression()
+        {
+            var candidate = this.BinaryExpression();
+
+            if (this.Check(TokenType.Question))
+            {
+                var question = this.reader.Read();
+                var trueExpression = this.Expression();
+                var colon = this.Expect(TokenType.Colon, "Expected a : character at this location.");
+                var falseExpression = this.Expression();
+
+                return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
+            }
+
+            return candidate;
+        }
+
+        private SyntaxBase BinaryExpression(int precedence = 0)
+        {
+            var current = this.UnaryExpression();
+
+            while (true)
+            {
+                // the current token does not necessarily have to be an operator token
+                // it could also be the end of file or some other token that is actually valid in this place
+                Token candidateOperatorToken = this.reader.Peek();
+
+                int operatorPrecedence = GetOperatorPrecedence(candidateOperatorToken.Type);
+
+                if (operatorPrecedence <= precedence)
+                {
+                    break;
+                }
+
+                this.reader.Read();
+
+                SyntaxBase rightExpression = this.BinaryExpression(operatorPrecedence);
+                current = new BinaryOperationSyntax(current, candidateOperatorToken, rightExpression);
+            }
+
+            return current;
+        }
+
+        private SyntaxBase UnaryExpression()
+        {
+            Token operatorToken = this.reader.Peek();
+
+            if (Operators.TokenTypeToUnaryOperator.TryGetValue(operatorToken.Type, out var @operator))
+            {
+                this.reader.Read();
+
+                var expression = this.MemberExpression();
+                return new UnaryOperationSyntax(operatorToken, expression);
+            }
+
+            return this.MemberExpression();
+        }
+
+        private SyntaxBase MemberExpression()
+        {
+            var current = this.PrimaryExpression();
+
+            while (true)
+            {
+                if (this.Check(TokenType.LeftSquare))
+                {
+                    // array indexer
+                    Token openSquare = this.reader.Read();
+                    SyntaxBase indexExpression = this.Expression();
+                    Token closeSquare = this.Expect(TokenType.RightSquare, "Expected the ] character at this location.");
+
+                    current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
+
+                    continue;
+                }
+
+                if (this.Check(TokenType.Dot))
+                {
+                    // dot operator
+                    Token dot = this.reader.Read();
+                    IdentifierSyntax propertyName = this.Identifier("Expected a property identifier at this location.");
+
+                    current = new PropertyAccessSyntax(current, dot, propertyName);
+
+                    continue;
+                }
+
+                break;
+            }
+
+            return current;
+        }
+
+        private SyntaxBase PrimaryExpression()
+        {
+            Token nextToken = this.reader.Peek();
+
+            switch (nextToken.Type)
+            {
+                case TokenType.String:
+                case TokenType.Number:
+                case TokenType.NullKeyword:
+                case TokenType.TrueKeyword:
+                case TokenType.FalseKeyword:
+                    return this.LiteralValue();
+
+                case TokenType.LeftBrace:
+                    return this.Object();
+
+                case TokenType.LeftSquare:
+                    return this.Array();
+
+                case TokenType.LeftParen:
+                    return this.ParenthesizedExpression();
+
+                case TokenType.Identifier:
+                    return this.FunctionCallOrVariableAccess();
+
+                default:
+                    throw new ExpectedTokenException("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.", nextToken);
+            }
+        }
+
+        private SyntaxBase ParenthesizedExpression()
+        {
+            var openParen = this.Expect(TokenType.LeftParen, "Expected the ( character at this location.");
+            var expression = this.Expression();
+            var closeParen = this.Expect(TokenType.RightParen, "Expected the ) character at this location.");
+
+            return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
+        }
+
+        private SyntaxBase FunctionCallOrVariableAccess()
+        {
+            var identifier = this.Identifier("Expected a function name at this location.");
+
+            if (this.Check(TokenType.LeftParen) == false)
+            {
+                // just a reference to a variable, parameter, or output
+                return new VariableAccessSyntax(identifier);
+            }
+
+            var openParen = this.Expect(TokenType.LeftParen, "Expected the ( character at this location.");
+
+            var arguments = new List<(SyntaxBase expression, Token? comma)>();
+
+            if (this.Check(TokenType.RightParen))
+            {
+                // end of a parameter-less function call
+                var closeParen = this.reader.Read();
+                return new FunctionCallSyntax(identifier, openParen, ImmutableArray<FunctionArgumentSyntax>.Empty, closeParen);
+            }
+
+            while (true)
+            {
+                var expression = this.Expression();
+                arguments.Add((expression, null));
+
+                if (this.Check(TokenType.RightParen))
+                {
+                    // end of function call
+                    // return the accumulated arguments
+                    var closeParen = this.reader.Read();
+                    var argumentNodes = arguments.Select(a => new FunctionArgumentSyntax(a.expression, a.comma));
+                    return new FunctionCallSyntax(identifier, openParen, argumentNodes, closeParen);
+                }
+
+                var comma = this.Expect(TokenType.Comma, "Expected the , character at this location.");
+                
+                // update the tuple
+                var lastArgument = arguments.Last();
+                lastArgument.comma = comma;
+                arguments[arguments.Count - 1] = lastArgument;
+            }
         }
 
         private ImmutableArray<Token> NewLines()
@@ -191,7 +366,7 @@ namespace Bicep.Core.Parser
         {
             var literal = Expect(TokenType.Number, "Expected a numeric literal at this location.");
 
-            if (int.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
+            if (Int32.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
             {
                 return new NumericLiteralSyntax(literal, value);
             }
@@ -206,7 +381,7 @@ namespace Bicep.Core.Parser
             return new StringSyntax(reader.Read());
         }
 
-        private SyntaxBase Value()
+        private SyntaxBase LiteralValue()
         {
             var current = reader.Peek();
             switch (current.Type)
@@ -223,11 +398,8 @@ namespace Bicep.Core.Parser
                 case TokenType.String:
                     return StringLiteral();
 
-                case TokenType.LeftBrace:
-                    return Object();
-
-                case TokenType.LeftSquare:
-                    return Array();
+                case TokenType.NullKeyword:
+                    return new NullLiteralSyntax(reader.Read());
 
                 default:
                     throw new ExpectedTokenException("The type of the specified value is incorrect. Specify a string, boolean, or integer literal.", current);
@@ -236,7 +408,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Array()
         {
-            var items = new List<ArrayItemSyntax>();
+            var items = new List<SyntaxBase>();
             
             var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
             var newLines = this.NewLines();
@@ -252,17 +424,20 @@ namespace Bicep.Core.Parser
             return new ArraySyntax(openBracket, newLines, items, closeBracket);
         }
 
-        private ArrayItemSyntax ArrayItem()
+        private SyntaxBase ArrayItem()
         {
-            var value = this.Value();
-            var newLines = this.NewLines();
+            return this.WithRecovery(TokenType.NewLine, () =>
+            {
+                var value = this.Expression();
+                var newLines = this.NewLines();
 
-            return new ArrayItemSyntax(value, newLines);
+                return new ArrayItemSyntax(value, newLines);
+            });
         }
 
         private SyntaxBase Object()
         {
-            var properties = new List<ObjectPropertySyntax>();
+            var properties = new List<SyntaxBase>();
 
             var openBrace = Expect(TokenType.LeftBrace, "Expected a { character at this location.");
             var newLines = this.NewLines();
@@ -278,14 +453,17 @@ namespace Bicep.Core.Parser
             return new ObjectSyntax(openBrace, newLines, properties, closeBrace);
         }
 
-        private ObjectPropertySyntax ObjectProperty()
+        private SyntaxBase ObjectProperty()
         {
-            var identifier = this.Identifier("Expected a property name at this location.");
-            var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
-            var value = Value();
-            var newLines = this.NewLines();
+            return this.WithRecovery(TokenType.NewLine, () =>
+            {
+                var identifier = this.Identifier("Expected a property name at this location.");
+                var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
+                var value = Expression();
+                var newLines = this.NewLines();
 
-            return new ObjectPropertySyntax(identifier, colon, value, newLines);
+                return new ObjectPropertySyntax(identifier, colon, value, newLines);
+            });
         }
 
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
@@ -298,7 +476,7 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                this.SynchronizeExclusive(terminatingType);
+                this.Synchronize(terminatingType);
                 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
@@ -309,21 +487,8 @@ namespace Bicep.Core.Parser
         {
             while (!IsAtEnd())
             {
-                if (Match(expectedType))
-                {
-                    return;
-                }
-
-                reader.Read();
-            }
-        }
-
-        private void SynchronizeExclusive(TokenType expectedType)
-        {
-            while (true)
-            {
                 TokenType nextType = this.reader.Peek().Type;
-                if (nextType == TokenType.EndOfFile || nextType == expectedType)
+                if (Match(expectedType))
                 {
                     return;
                 }
@@ -368,6 +533,45 @@ namespace Bicep.Core.Parser
             }
 
             return reader.Peek().Type == type;
+        }
+
+        private static int GetOperatorPrecedence(TokenType tokenType)
+        {
+            // the absolute values are not important here
+            switch (tokenType)
+            {
+                case TokenType.Modulo:
+                case TokenType.Asterisk:
+                case TokenType.Slash:
+                    return 100;
+
+                case TokenType.Plus:
+                case TokenType.Minus:
+                    return 90;
+
+                case TokenType.GreaterThan:
+                case TokenType.GreaterThanOrEqual:
+                case TokenType.LessThan:
+                case TokenType.LessThanOrEqual:
+                    return 80;
+
+                case TokenType.Equals:
+                case TokenType.NotEquals:
+                case TokenType.EqualsInsensitive:
+                case TokenType.NotEqualsInsensitive:
+                    return 70;
+
+                // if we add bitwise operators in the future, they should go here
+
+                case TokenType.LogicalAnd:
+                    return 50;
+
+                case TokenType.LogicalOr:
+                    return 40;
+
+                default:
+                    return -1;
+            }
         }
     }
 }

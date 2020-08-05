@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -96,6 +95,26 @@ namespace Bicep.Core.Emit
             return new EmitResult(EmitStatus.Succeeded, new Error[0]);
         }
 
+        /// <summary>
+        /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
+        /// </summary>
+        /// <param name="writer">The json writer to write the template</param>
+        public EmitResult Emit(JsonTextWriter writer)
+        {
+            // collect all the errors
+            var diagnostics = this.semanticModel.GetAllDiagnostics();
+
+            if (diagnostics.Any())
+            {
+                // TODO: This needs to account for warnings when we add severity.
+                return new EmitResult(EmitStatus.Failed, diagnostics);
+            }
+
+            this.EmitInternal(writer);
+
+            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+        }
+
         private void EmitInternal(Stream stream)
         {
             using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true))
@@ -121,9 +140,9 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             // TODO: Select by scope type
-            this.EmitPropertyValue(writer, "$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
+            ExpressionEmitter.EmitPropertyValue(writer, "$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
 
-            this.EmitPropertyValue(writer, "contentVersion", "1.0.0.0");
+            ExpressionEmitter.EmitPropertyValue(writer, "contentVersion", "1.0.0.0");
 
             writer.WritePropertyName("parameters");
             this.EmitParameters(writer);
@@ -167,26 +186,26 @@ namespace Bicep.Core.Emit
             switch (parameterSymbol.Modifier)
             {
                 case null:
-                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
 
                     break;
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
-                    this.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue);
+                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue);
 
                     break;
 
                 case ObjectSyntax modifierSyntax:
-                    // this would throw on invalid object node - we are relying on emitter checking for errors at the beginning
-                    var properties = modifierSyntax.ToPropertyDictionary();
+                    // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
+                    var properties = modifierSyntax.ToPropertyValueDictionary();
 
-                    this.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
+                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
 
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
                     {
-                        this.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName));
+                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName));
                     }
                     
                     break;
@@ -211,7 +230,7 @@ namespace Bicep.Core.Emit
         private void EmitVariable(JsonTextWriter writer, VariableSymbol variableSymbol)
         {
             // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
-            this.EmitExpression(writer, variableSymbol.Value);
+            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value);
         }
 
         private void EmitResources(JsonTextWriter writer)
@@ -234,9 +253,9 @@ namespace Bicep.Core.Emit
             // (it's a code defect if it some errors were not emitted)
             ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
 
-            this.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
-            this.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
-            this.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
+            ExpressionEmitter.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
+            ExpressionEmitter.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
+            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
 
             writer.WriteEndObject();
         }
@@ -258,80 +277,10 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            this.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
-            this.EmitPropertyExpression(writer, "value", outputSymbol.Value);
+            ExpressionEmitter.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
+            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value);
 
             writer.WriteEndObject();
-        }
-
-        private void EmitExpression(JsonTextWriter writer, SyntaxBase syntax)
-        {
-            switch (syntax)
-            {
-                case BooleanLiteralSyntax boolSyntax:
-                    writer.WriteValue(boolSyntax.Value);
-                    break;
-
-                case NumericLiteralSyntax numericSyntax:
-                    writer.WriteValue(numericSyntax.Value);
-                    break;
-
-                case StringSyntax stringSyntax:
-                    // using the throwing method to get semantic value of the string because
-                    // error checking should have caught any errors by now
-                    writer.WriteValue(stringSyntax.GetValue());
-                    break;
-
-                case ObjectSyntax objectSyntax:
-                    writer.WriteStartObject();
-                    this.EmitObjectProperties(writer, objectSyntax);
-                    writer.WriteEndObject();
-
-                    break;
-
-                case ArraySyntax arraySyntax:
-                    writer.WriteStartArray();
-
-                    foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
-                    {
-                        this.EmitExpression(writer, itemSyntax.Value);
-                    }
-
-                    writer.WriteEndArray();
-
-                    break;
-                    
-                default:
-                    throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
-            }
-        }
-
-        private void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
-        {
-            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
-            {
-                this.EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
-            }
-        }
-
-        private void EmitPropertyValue(JsonTextWriter writer, string name, string value)
-        {
-            writer.WritePropertyName(name);
-            writer.WriteValue(value);
-        }
-
-        private void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression)
-        {
-            writer.WritePropertyName(name);
-            this.EmitExpression(writer, expression);
-        }
-
-        private void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression)
-        {
-            if (expression != null)
-            {
-                this.EmitPropertyExpression(writer, name, expression);
-            }
         }
 
         private string GetTemplateTypeName(TypeSymbol type, bool secure)
