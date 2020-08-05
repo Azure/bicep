@@ -1,13 +1,13 @@
-﻿using System;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
     public interface ICompilationManager
     {
-        CompilationContext? UpsertCompilation(Uri uri, long version, string text);
+        CompilationContext? UpsertCompilation(DocumentUri uri, long version, string text);
 
-        void CloseCompilation(Uri uri);
+        void CloseCompilation(DocumentUri uri);
 
-        CompilationContext? GetCompilation(Uri uri);
+        CompilationContext? GetCompilation(DocumentUri uri);
     }
 }
