@@ -50,7 +50,6 @@ namespace Bicep.Core.Emit
                 case ArraySyntax arraySyntax:
                     writer.WriteStartArray();
 
-                    // parse errors should have prevented code generation, so cast should be safe
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
                         EmitExpression(writer, itemSyntax.Value);
