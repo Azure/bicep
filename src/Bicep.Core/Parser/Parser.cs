@@ -497,20 +497,6 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void SynchronizeExclusive(TokenType expectedType)
-        {
-            while (true)
-            {
-                TokenType nextType = this.reader.Peek().Type;
-                if (nextType == TokenType.EndOfFile || nextType == expectedType)
-                {
-                    return;
-                }
-
-                reader.Read();
-            }
-        }
-
         private bool IsAtEnd()
         {
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
