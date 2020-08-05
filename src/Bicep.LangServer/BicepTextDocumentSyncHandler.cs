@@ -6,11 +6,10 @@ using Bicep.LanguageServer.CompilationManager;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Server;
-using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 
 namespace Bicep.LanguageServer
 {
@@ -41,7 +40,7 @@ namespace Bicep.LanguageServer
             this.server = server;
         }
 
-        public override TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
+        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
             return new TextDocumentAttributes(uri, LanguageServerConstants.LanguageId);
         }
