@@ -34,7 +34,6 @@ namespace Bicep.Core.Parser
             // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
             // VS code will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
 
-            // TODO: can we move this logic to the language server?
             var errorInfo = syntax.ErrorCause.Type == TokenType.NewLine
                 ? syntax.ErrorInfo.WithSpan(new TextSpan(syntax.ErrorInfo.Span.Position, 0))
                 : syntax.ErrorInfo;

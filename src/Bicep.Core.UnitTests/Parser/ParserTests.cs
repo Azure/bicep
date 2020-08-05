@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Parser
         public void UnaryOperatorsCannotBeChained(string text)
         {
             Action fail = () => ParserHelper.ParseExpression(text);
-            fail.Should().Throw<ExpectedTokenException>().WithMessage("Unexpected token '*'");
+            fail.Should().Throw<ExpectedTokenException>().WithMessage("Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
         }
 
         [DataTestMethod]
