@@ -105,8 +105,7 @@ namespace Bicep.Core.Emit
 
         public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
         {
-            // cast should be safe because parse errors should preserve code generation
-            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties.Cast<ObjectPropertySyntax>())
+            foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
                 EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
             }

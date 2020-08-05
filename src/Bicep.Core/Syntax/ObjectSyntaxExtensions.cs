@@ -1,16 +1,18 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
 {
     public static class ObjectSyntaxExtensions
     {
         /// <summary>
-        /// Converts a valid object syntax node to a property dictionary. May throw if you provide a node with parse errors.
+        /// Converts a valid object syntax node to a property dictionary. May throw if you provide a node with duplicate properties.
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
-        public static ImmutableDictionary<string, SyntaxBase> ToPropertyDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties
-                .OfType<ObjectPropertySyntax>()
-                .ToImmutableDictionary(p => p.Identifier.IdentifierName, p => p.Value);
+        public static ImmutableDictionary<string, SyntaxBase> ToPropertyValueDictionary(this ObjectSyntax syntax) =>
+            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, p => p.Value, StringComparer.Ordinal);
+
+        public static ImmutableDictionary<string, ObjectPropertySyntax> ToPropertyDictionary(this ObjectSyntax syntax) =>
+            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
     }
 }

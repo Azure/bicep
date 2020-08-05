@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
 {
     public class ObjectSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> properties, Token closeBrace)
+        public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBrace)
         {
             AssertTokenType(openBrace, nameof(openBrace), TokenType.LeftBrace);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
@@ -14,7 +14,7 @@ namespace Bicep.Core.Syntax
 
             this.OpenBrace = openBrace;
             this.NewLines = newLines.ToImmutableArray();
-            this.Properties = properties.ToImmutableArray();
+            this.Children = children.ToImmutableArray();
             this.CloseBrace = closeBrace;
         }
 
@@ -22,7 +22,10 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Token> NewLines { get; }
 
-        public ImmutableArray<SyntaxBase> Properties { get; }
+        /// <summary>
+        /// Gets the child syntax nodes. May return nodes that aren't valid object properties.
+        /// </summary>
+        public ImmutableArray<SyntaxBase> Children { get; }
 
         public Token CloseBrace { get; }
 
@@ -31,5 +34,10 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span
             => TextSpan.Between(this.OpenBrace, this.CloseBrace);
+
+        /// <summary>
+        /// Gets the object properties. May return duplicate properties.
+        /// </summary>
+        public IEnumerable<ObjectPropertySyntax> Properties => this.Children.OfType<ObjectPropertySyntax>();
     }
 }

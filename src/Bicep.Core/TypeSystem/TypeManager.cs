@@ -109,7 +109,7 @@ namespace Bicep.Core.TypeSystem
         {
             var errors = new List<Error>();
 
-            foreach (ObjectPropertySyntax objectProperty in @object.Properties.OfType<ObjectPropertySyntax>())
+            foreach (ObjectPropertySyntax objectProperty in @object.Properties)
             {
                 var propertyType = this.GetTypeInfo(objectProperty);
                 CollectErrors(errors, propertyType);
