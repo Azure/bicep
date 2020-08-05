@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
 {
     public class ArraySyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> items, Token closeBracket)
+        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBracket)
         {
             AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
@@ -14,7 +14,7 @@ namespace Bicep.Core.Syntax
 
             this.OpenBracket = openBracket;
             this.NewLines = newLines.ToImmutableArray();
-            this.Items = items.ToImmutableArray();
+            this.Children = children.ToImmutableArray();
             this.CloseBracket = closeBracket;
         }
 
@@ -22,12 +22,17 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Token> NewLines { get; }
 
-        public ImmutableArray<SyntaxBase> Items { get; }
+        /// <summary>
+        /// Gets the list of child nodes. Children may not necessarily be array item nodes.
+        /// </summary>
+        public ImmutableArray<SyntaxBase> Children { get; }
 
         public Token CloseBracket { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitArraySyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.OpenBracket, this.CloseBracket);
+
+        public IEnumerable<ArrayItemSyntax> Items => this.Children.OfType<ArrayItemSyntax>();
     }
 }

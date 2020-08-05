@@ -144,7 +144,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             return expression.Items
-                .OfType<ArrayItemSyntax>()
                 .SelectMany(arrayItemSyntax => GetExpressionAssignmentDiagnosticsInternal(
                     context,
                     arrayItemSyntax.Value,

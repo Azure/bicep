@@ -129,7 +129,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitToken(syntax.OpenBracket);
             this.VisitTokens(syntax.NewLines);
-            this.VisitNodes(syntax.Items);
+            this.VisitNodes(syntax.Children);
             this.VisitToken(syntax.CloseBracket);
         }
 
