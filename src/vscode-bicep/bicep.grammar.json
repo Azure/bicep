@@ -89,7 +89,7 @@
 			}
 		},
 		"properties": {
-			"match": "\\b([a-zA-Z][a-zA-Z0-9]*)\\w*\\b:",
+			"match": "\\b([a-zA-Z][a-zA-Z0-9]*)\\w*\\b\\s*:",
 			"captures": {
 				"1": {
 					"name": "support.type.property-name.bicep"

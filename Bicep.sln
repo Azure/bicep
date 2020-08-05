@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli", "src\Bicep.Cli\Bicep.Cli.csproj", "{58F20140-729B-41E0-91F0-7004C4E0CB1E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Wasm", "src\Bicep.Wasm\Bicep.Wasm.csproj", "{6679B13D-BA2B-43C8-A548-6C6D22E19BE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.WebDemo", "src\Bicep.WebDemo\Bicep.WebDemo.csproj", "{6679B13D-BA2B-43C8-A548-6C6D22E19BE1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Core", "src\Bicep.Core\Bicep.Core.csproj", "{D72C8232-24ED-4EDD-ABDB-16194681D9F2}"
 EndProject

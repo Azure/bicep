@@ -128,7 +128,7 @@ namespace Bicep.Core.TypeSystem
         {
             var errors = new List<Error>();
 
-            foreach (ArrayItemSyntax arrayItem in array.Items)
+            foreach (SyntaxBase arrayItem in array.Children)
             {
                 var itemType = this.GetTypeInfo(arrayItem);
                 CollectErrors(errors, itemType);
