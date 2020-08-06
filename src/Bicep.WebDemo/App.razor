@@ -2,6 +2,7 @@
 @using Bicep.Core.SemanticModel
 @using Bicep.Core.Emit
 @using Bicep.Core.Text
+@using Bicep.Core.Errors
 
 @inject IJSRuntime JsRuntime;
 
@@ -40,13 +41,13 @@
     public async Task JS_SetLhsDiagnostics(IEnumerable<dynamic> diagnostics)
         => await JsRuntime.InvokeVoidAsync("SetLhsDiagnostics", new object[] { diagnostics });
 
-    private static dynamic ToMonacoDiagnostic(Error error,IReadOnlyList<int> lineStarts)
+    private static dynamic ToMonacoDiagnostic(Error error, IReadOnlyList<int> lineStarts)
     {
         var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position);
         var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position + error.Span.Length);
 
         return new {
-            code = "BCP001",
+            code = error.ErrorCode,
             message = error.Message,
             startLineNumber = startLine + 1,
             startColumn = startChar + 1,
@@ -95,11 +96,11 @@
 
             // compilation failed
             var buffer = new StringBuilder();
-            foreach (Error diagnostic in emitResult.Diagnostics)
+            foreach (var diagnostic in emitResult.Diagnostics)
             {
                 var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
 
-                buffer.AppendLine($"({line + 1},{character + 1}): error BCP001: {diagnostic.Message}");
+                buffer.AppendLine($"({line + 1},{character + 1}): error {diagnostic.ErrorCode}: {diagnostic.Message}");
             }
 
             await JS_SetRhsContent(buffer.ToString());

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Errors;
 using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parser
@@ -46,11 +47,14 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(string message, TextSpan? span = null)
+        private void AddError(TextSpan span, ErrorBuilder.BuildDelegate errorFunc)
         {
-            span ??= textWindow.GetSpan();
-            this.errors.Add(new Error(message, span));
+            var error = errorFunc(ErrorBuilder.ForPosition(span));
+            this.errors.Add(error);
         }
+
+        private void AddError(ErrorBuilder.BuildDelegate errorFunc)
+            => AddError(textWindow.GetSpan(), errorFunc);
 
         public void Lex()
         {
@@ -218,7 +222,7 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                AddError($"The following token is not recognized: {tokenText}");
+                AddError(b => b.UnrecognizedToken(tokenText));
             }
 
             textWindow.Reset();
@@ -268,7 +272,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
+                    AddError(b => b.UnterminatedMultilineComment());
                     return;
                 }
 
@@ -282,7 +286,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
+                    AddError(b => b.UnterminatedMultilineComment());
                     return;
                 }
 
@@ -321,7 +325,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Terminate the string with a single quote character.");
+                    AddError(b => b.UnterminatedString());
                     return;
                 }
 
@@ -330,7 +334,7 @@ namespace Bicep.Core.Parser
                 if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
-                    this.AddError("The string at this location is not terminated due to an unexpected new line character.");
+                    AddError(b => b.UnterminatedStringWithNewLine());
                     return;
                 }
 
@@ -348,7 +352,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
+                    AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return;
                 }
 
@@ -358,7 +362,7 @@ namespace Bicep.Core.Parser
                 if (CharacterEscapes.ContainsKey(nextChar) == false)
                 {
                     // the span of the error is the incorrect escape sequence
-                    this.AddError($"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {CharacterEscapeSequences}", textWindow.GetLookbehindSpan(2));
+                    AddError(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
                 }
             }
         }

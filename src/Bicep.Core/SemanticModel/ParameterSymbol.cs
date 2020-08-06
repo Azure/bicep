@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Bicep.Core.Errors;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -52,7 +53,7 @@ namespace Bicep.Core.SemanticModel
 
                     if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                     {
-                        return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue).AsEnumerable();
+                        return this.CreateError(defaultValueSyntax.DefaultValue, b => b.ParameterTypeMismatch(this.Type.Name, defaultValueType.Name)).AsEnumerable();
                     }
 
                     break;

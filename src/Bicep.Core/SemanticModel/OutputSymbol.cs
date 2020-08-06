@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -47,7 +48,7 @@ namespace Bicep.Core.SemanticModel
 
             if (TypeValidator.AreTypesAssignable(valueType, this.Type) == false)
             {
-                return this.CreateError($"The output expects a value of type '{this.Type.Name} but the provided value is of type '{valueType?.Name}'.", this.Value).AsEnumerable();
+                return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
             }
 
             return Enumerable.Empty<Error>();

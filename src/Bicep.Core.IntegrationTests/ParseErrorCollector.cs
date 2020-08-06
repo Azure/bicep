@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -15,7 +16,7 @@ namespace Bicep.Core.IntegrationTests
 
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
-            this.errors.Add(new Error(syntax.ErrorMessage, syntax.Span));
+            this.errors.Add(syntax.ErrorInfo.WithSpan(syntax.Span));
         }
     }
 }

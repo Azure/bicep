@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;

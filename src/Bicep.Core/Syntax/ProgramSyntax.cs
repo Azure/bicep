@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
+using Bicep.Core.Errors;
 
 namespace Bicep.Core.Syntax
 {

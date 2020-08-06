@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Bicep.Core.Errors;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.SemanticModel
@@ -32,6 +34,7 @@ namespace Bicep.Core.SemanticModel
             yield break;
         }
 
-        protected Error CreateError(string message, IPositionable positionable) => new Error(message, positionable.Span);
+        protected Error CreateError(IPositionable positionable, ErrorBuilder.BuildDelegate errorFunc)
+            => errorFunc(ErrorBuilder.ForPosition(positionable));
     }
 }
