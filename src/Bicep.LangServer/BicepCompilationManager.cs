@@ -7,6 +7,8 @@ using Bicep.Core.Parser;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -19,7 +21,7 @@ namespace Bicep.LanguageServer
         private readonly ICompilationProvider provider;
 
         // represents compilations of open bicep files
-        private readonly ConcurrentDictionary<Uri, CompilationContext> activeContexts = new ConcurrentDictionary<Uri, CompilationContext>();
+        private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
         public BicepCompilationManager(ILanguageServer server, ICompilationProvider provider)
         {
@@ -27,7 +29,7 @@ namespace Bicep.LanguageServer
             this.provider = provider;
         }
 
-        public CompilationContext? UpsertCompilation(Uri uri, long version, string text)
+        public CompilationContext? UpsertCompilation(DocumentUri uri, long version, string text)
         {
             try
             {
@@ -73,7 +75,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public void CloseCompilation(Uri uri)
+        public void CloseCompilation(DocumentUri uri)
         {
             // remove the active compilation
             this.activeContexts.TryRemove(uri, out _);
@@ -83,7 +85,7 @@ namespace Bicep.LanguageServer
             PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<Diagnostic>());
         }
 
-        public CompilationContext? GetCompilation(Uri uri)
+        public CompilationContext? GetCompilation(DocumentUri uri)
         {
             this.activeContexts.TryGetValue(uri, out var context);
             return context;
@@ -92,9 +94,9 @@ namespace Bicep.LanguageServer
         // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
 
-        private void PublishDocumentDiagnostics(Uri uri, long version, IEnumerable<Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(DocumentUri uri, long version, IEnumerable<Diagnostic> diagnostics)
         {
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
+            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,

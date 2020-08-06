@@ -9,7 +9,6 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -25,14 +24,14 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider());
 
             const long version = 42;
-            Uri uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -40,7 +39,7 @@ namespace Bicep.LangServer.UnitTests
             // upsert the compilation
             CompilationContext? upserted = manager.UpsertCompilation(uri, version, "hello");
 
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
@@ -60,7 +59,7 @@ namespace Bicep.LangServer.UnitTests
             actual.Should().BeSameAs(upserted);
 
             // get should not have pushed diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
         [TestMethod]
@@ -68,14 +67,14 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider());
 
             const long version = 42;
-            Uri uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -83,7 +82,7 @@ namespace Bicep.LangServer.UnitTests
             // upsert the compilation
             manager.UpsertCompilation(uri, version, "hello");
 
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
@@ -100,19 +99,19 @@ namespace Bicep.LangServer.UnitTests
             actual.Should().NotBeNull();
 
             // get should not have pushed diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
 
             // 2nd get should be the same
             manager.GetCompilation(uri).Should().BeSameAs(actual);
 
             // get should not have pushed diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
 
             // close compilation
             manager.CloseCompilation(uri);
 
             // close should have cleared diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // expect zero diagnostics and 0 version
             receivedParams.Should().NotBeNull();
@@ -127,7 +126,7 @@ namespace Bicep.LangServer.UnitTests
             manager.GetCompilation(uri).Should().BeNull();
 
             // get should not have pushed diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Never);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
         [TestMethod]
@@ -135,14 +134,14 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider());
 
             const long version = 42;
-            Uri uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -151,7 +150,7 @@ namespace Bicep.LangServer.UnitTests
             var firstUpserted = manager.UpsertCompilation(uri, version, "hello");
 
             // should have pushed out diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // there should have been 1 diagnostic
             receivedParams.Should().NotBeNull();
@@ -178,7 +177,7 @@ namespace Bicep.LangServer.UnitTests
             secondUpserted.Should().NotBeSameAs(firstUpserted);
 
             // should have pushed out new diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // reset invocations
             document.Invocations.Clear();
@@ -202,7 +201,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider());
 
-            var uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             manager.GetCompilation(uri).Should().BeNull();
         }
@@ -212,18 +211,18 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider());
 
-            var uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             manager.CloseCompilation(uri);
 
             // close should have cleared diagnostics
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // expect zero diagnostics and 0 version
             receivedParams.Should().NotBeNull();
@@ -240,7 +239,7 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
@@ -251,13 +250,13 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, provider.Object);
 
             const long version = 74;
-            Uri uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, version, "fake").Should().BeNull();
 
             // diagnostics should have been published once
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
@@ -276,7 +275,7 @@ namespace Bicep.LangServer.UnitTests
             manager.CloseCompilation(uri);
 
             // diagnostics should have been published once
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             // 0 diagnostics expected
             receivedParams.Should().NotBeNull();
@@ -290,7 +289,7 @@ namespace Bicep.LangServer.UnitTests
         {
             PublishDiagnosticsParams? receivedParams = null;
 
-            var document = CreateMockDocument((_, p) => receivedParams = p);
+            var document = CreateMockDocument(p => receivedParams = p);
 
             var server = CreateMockServer(document);
 
@@ -306,13 +305,13 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, provider.Object);
 
             const long version = 74;
-            Uri uri = new Uri(this.TestContext!.TestName, UriKind.Relative);
+            var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, version, "fake").Should().BeNull();
 
             // diagnostics should have been published once
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
@@ -335,7 +334,7 @@ namespace Bicep.LangServer.UnitTests
             upserted.Should().NotBeNull();
 
             // new diagnostics should have been published once
-            document.Verify(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()), Times.Once);
+            document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Once);
 
             receivedParams.Should().NotBeNull();
             receivedParams!.Uri.Should().Be(uri);
@@ -349,22 +348,22 @@ namespace Bicep.LangServer.UnitTests
                 .Should().BeTrue();
         }
 
-        private static Mock<ILanguageServerDocument> CreateMockDocument(Action<string, PublishDiagnosticsParams> callback)
+        private static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
         {
-            var document = Repository.Create<ILanguageServerDocument>();
+            var document = Repository.Create<ITextDocumentLanguageServer>();
             document
-                .Setup(m => m.SendNotification(DocumentNames.PublishDiagnostics, It.IsAny<PublishDiagnosticsParams>()))
-                .Callback<string, PublishDiagnosticsParams>(callback)
+                .Setup(m => m.SendNotification(It.IsAny<MediatR.IRequest>()))
+                .Callback<MediatR.IRequest>((p) => callback((PublishDiagnosticsParams)p))
                 .Verifiable();
 
             return document;
         }
 
-        private static Mock<ILanguageServer> CreateMockServer(Mock<ILanguageServerDocument> document)
+        private static Mock<ILanguageServer> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
         {
             var server = Repository.Create<ILanguageServer>();
             server
-                .Setup(m => m.Document)
+                .Setup(m => m.TextDocument)
                 .Returns(document.Object);
 
             return server;
