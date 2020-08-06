@@ -24,11 +24,8 @@ import { workspace, ExtensionContext, window } from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
-    SettingMonitor,
     ServerOptions,
-    TransportKind,
-    InitializeParams
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { Trace } from "vscode-jsonrpc";
 
 export async function activate(context: ExtensionContext) {
