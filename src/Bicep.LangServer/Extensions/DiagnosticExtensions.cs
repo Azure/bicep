@@ -13,7 +13,7 @@ namespace Bicep.LanguageServer.Extensions
             source.Select(error => new Diagnostic
             {
                 Severity = DiagnosticSeverity.Error,
-                Code = error.UserVisibleCode,
+                Code = error.ErrorCode,
                 Message = error.Message,
                 Source = LanguageServerConstants.LanguageId,
                 Range = error.ToRange(lineStarts)

@@ -1,145 +1,145 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "userVisibleCode": "BCP007",
+    "errorCode": "BCP007",
     "span": "[24:27]",
     "spanText": "bad"
   },
   {
     "message": "Expected a resource identifier at this location.",
-    "userVisibleCode": "BCP017",
+    "errorCode": "BCP017",
     "span": "[55:55]",
     "spanText": ""
   },
   {
     "message": "Expected the '=' character at this location.",
-    "userVisibleCode": "BCP018",
+    "errorCode": "BCP018",
     "span": "[71:79]",
     "spanText": "resource"
   },
   {
     "message": "Expected the '=' character at this location.",
-    "userVisibleCode": "BCP018",
+    "errorCode": "BCP018",
     "span": "[104:104]",
     "spanText": ""
   },
   {
     "message": "Expected the '{' character at this location.",
-    "userVisibleCode": "BCP018",
+    "errorCode": "BCP018",
     "span": "[125:125]",
     "spanText": ""
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[162:165]",
     "spanText": "foo"
   },
   {
     "message": "The resource type is not valid. Specify a valid resource type.",
-    "userVisibleCode": "BCP029",
+    "errorCode": "BCP029",
     "span": "[166:171]",
     "spanText": "'ddd'"
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[219:222]",
     "spanText": "foo"
   },
   {
     "message": "The specified object is missing the following required properties: name.",
-    "userVisibleCode": "BCP035",
+    "errorCode": "BCP035",
     "span": "[261:265]",
     "spanText": "{\r\n}"
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[318:321]",
     "spanText": "foo"
   },
   {
     "message": "The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
-    "userVisibleCode": "BCP025",
+    "errorCode": "BCP025",
     "span": "[366:370]",
     "spanText": "name"
   },
   {
     "message": "The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
-    "userVisibleCode": "BCP025",
+    "errorCode": "BCP025",
     "span": "[381:385]",
     "spanText": "name"
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[437:440]",
     "spanText": "foo"
   },
   {
     "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
-    "userVisibleCode": "BCP025",
+    "errorCode": "BCP025",
     "span": "[519:522]",
     "spanText": "foo"
   },
   {
     "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
-    "userVisibleCode": "BCP025",
+    "errorCode": "BCP025",
     "span": "[533:536]",
     "spanText": "foo"
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[587:590]",
     "spanText": "foo"
   },
   {
     "message": "The property 'location' expected a value of type 'string' but the provided value is of type 'array'.",
-    "userVisibleCode": "BCP036",
+    "errorCode": "BCP036",
     "span": "[660:666]",
     "spanText": "[\r\n  ]"
   },
   {
     "message": "The property 'tags' expected a value of type 'Tags' but the provided value is of type 'string'.",
-    "userVisibleCode": "BCP036",
+    "errorCode": "BCP036",
     "span": "[676:699]",
     "spanText": "'tag are not a string?'"
   },
   {
     "message": "Cannot apply operator '+' to operands of type 'string' and 'int'.",
-    "userVisibleCode": "BCP045",
+    "errorCode": "BCP045",
     "span": "[783:790]",
     "spanText": "'a' + 1"
   },
   {
     "message": "Function calls are not currently supported.",
-    "userVisibleCode": "BCP039",
+    "errorCode": "BCP039",
     "span": "[816:819]",
     "spanText": "foo"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[847:849]",
     "spanText": "!4"
   },
   {
     "message": "Variable access is not currently supported.",
-    "userVisibleCode": "BCP042",
+    "errorCode": "BCP042",
     "span": "[868:869]",
     "spanText": "a"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'null'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[877:882]",
     "spanText": "!null"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'bool'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[913:918]",
     "spanText": "-true"
   }

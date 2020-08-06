@@ -22,7 +22,7 @@ namespace Bicep.Cli.Logging
         public void LogDiagnostic(string filePath, Error diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.UserVisibleCode}: {diagnostic.Message}";
+            string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.ErrorCode}: {diagnostic.Message}";
 
             this.logger.Log(LogLevel.Error, message);
 

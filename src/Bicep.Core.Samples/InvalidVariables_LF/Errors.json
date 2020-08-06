@@ -1,139 +1,139 @@
 [
   {
     "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "userVisibleCode": "BCP007",
+    "errorCode": "BCP007",
     "span": "[24:27]",
     "spanText": "bad"
   },
   {
     "message": "Expected a variable identifier at this location.",
-    "userVisibleCode": "BCP015",
+    "errorCode": "BCP015",
     "span": "[72:72]",
     "spanText": ""
   },
   {
     "message": "Expected the '=' character at this location.",
-    "userVisibleCode": "BCP018",
+    "errorCode": "BCP018",
     "span": "[109:109]",
     "spanText": ""
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
-    "userVisibleCode": "BCP009",
+    "errorCode": "BCP009",
     "span": "[146:146]",
     "spanText": ""
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
-    "userVisibleCode": "BCP009",
+    "errorCode": "BCP009",
     "span": "[182:183]",
     "spanText": "&"
   },
   {
     "message": "The following token is not recognized: '&'.",
-    "userVisibleCode": "BCP001",
+    "errorCode": "BCP001",
     "span": "[182:183]",
     "spanText": "&"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
-    "userVisibleCode": "BCP009",
+    "errorCode": "BCP009",
     "span": "[213:214]",
     "spanText": "*"
   },
   {
     "message": "Identifier 'bar' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[240:243]",
     "spanText": "bar"
   },
   {
     "message": "Variable access is not currently supported.",
-    "userVisibleCode": "BCP042",
+    "errorCode": "BCP042",
     "span": "[246:247]",
     "spanText": "x"
   },
   {
     "message": "Identifier 'bar' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[257:260]",
     "spanText": "bar"
   },
   {
     "message": "Function calls are not currently supported.",
-    "userVisibleCode": "BCP039",
+    "errorCode": "BCP039",
     "span": "[263:266]",
     "spanText": "foo"
   },
   {
     "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[278:279]",
     "spanText": "x"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[286:288]",
     "spanText": "!3"
   },
   {
     "message": "Identifier 'y' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[298:299]",
     "spanText": "y"
   },
   {
     "message": "Cannot apply operator '+' to operands of type 'bool' and 'int'.",
-    "userVisibleCode": "BCP045",
+    "errorCode": "BCP045",
     "span": "[310:318]",
     "spanText": "true + 1"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[321:323]",
     "spanText": "!4"
   },
   {
     "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[366:367]",
     "spanText": "x"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
-    "userVisibleCode": "BCP009",
+    "errorCode": "BCP009",
     "span": "[382:383]",
     "spanText": "="
   },
   {
     "message": "This is not a valid expression.",
-    "userVisibleCode": "BCP043",
+    "errorCode": "BCP043",
     "span": "[382:384]",
     "spanText": "=\n"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'null'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[386:391]",
     "spanText": "!null"
   },
   {
     "message": "Identifier 'y' is declared multiple times. Remove or rename the duplicates.",
-    "userVisibleCode": "BCP028",
+    "errorCode": "BCP028",
     "span": "[441:442]",
     "spanText": "y"
   },
   {
     "message": "Expected a property name at this location.",
-    "userVisibleCode": "BCP022",
+    "errorCode": "BCP022",
     "span": "[449:450]",
     "spanText": "="
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
-    "userVisibleCode": "BCP044",
+    "errorCode": "BCP044",
     "span": "[458:460]",
     "spanText": "!2"
   }
