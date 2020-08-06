@@ -55,9 +55,19 @@
     "spanText": "foo"
   },
   {
+    "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[278:279]",
+    "spanText": "x"
+  },
+  {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "span": "[286:288]",
     "spanText": "!3"
+  },
+  {
+    "message": "Identifier 'y' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[298:299]",
+    "spanText": "y"
   },
   {
     "message": "Cannot apply operator '+' to operands of type 'bool' and 'int'.",
@@ -68,5 +78,40 @@
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "span": "[321:323]",
     "spanText": "!4"
+  },
+  {
+    "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[366:367]",
+    "spanText": "x"
+  },
+  {
+    "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
+    "span": "[382:383]",
+    "spanText": "="
+  },
+  {
+    "message": "This is not a valid expression.",
+    "span": "[382:384]",
+    "spanText": "=\n"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'null'.",
+    "span": "[386:391]",
+    "spanText": "!null"
+  },
+  {
+    "message": "Identifier 'y' is declared multiple times. Remove or rename the duplicates.",
+    "span": "[441:442]",
+    "spanText": "y"
+  },
+  {
+    "message": "Expected a property name at this location.",
+    "span": "[449:450]",
+    "spanText": "="
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "span": "[458:460]",
+    "spanText": "!2"
   }
 ]

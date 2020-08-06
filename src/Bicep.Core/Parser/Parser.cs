@@ -408,7 +408,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Array()
         {
-            var items = new List<ArrayItemSyntax>();
+            var items = new List<SyntaxBase>();
             
             var openBracket = Expect(TokenType.LeftSquare, "Expected a [ character at this location.");
             var newLines = this.NewLines();
@@ -424,17 +424,20 @@ namespace Bicep.Core.Parser
             return new ArraySyntax(openBracket, newLines, items, closeBracket);
         }
 
-        private ArrayItemSyntax ArrayItem()
+        private SyntaxBase ArrayItem()
         {
-            var value = this.Expression();
-            var newLines = this.NewLines();
+            return this.WithRecovery(TokenType.NewLine, () =>
+            {
+                var value = this.Expression();
+                var newLines = this.NewLines();
 
-            return new ArrayItemSyntax(value, newLines);
+                return new ArrayItemSyntax(value, newLines);
+            });
         }
 
         private SyntaxBase Object()
         {
-            var properties = new List<ObjectPropertySyntax>();
+            var properties = new List<SyntaxBase>();
 
             var openBrace = Expect(TokenType.LeftBrace, "Expected a { character at this location.");
             var newLines = this.NewLines();
@@ -450,14 +453,17 @@ namespace Bicep.Core.Parser
             return new ObjectSyntax(openBrace, newLines, properties, closeBrace);
         }
 
-        private ObjectPropertySyntax ObjectProperty()
+        private SyntaxBase ObjectProperty()
         {
-            var identifier = this.Identifier("Expected a property name at this location.");
-            var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
-            var value = Expression();
-            var newLines = this.NewLines();
+            return this.WithRecovery(TokenType.NewLine, () =>
+            {
+                var identifier = this.Identifier("Expected a property name at this location.");
+                var colon = Expect(TokenType.Colon, "Expected a colon character at this location.");
+                var value = Expression();
+                var newLines = this.NewLines();
 
-            return new ObjectPropertySyntax(identifier, colon, value, newLines);
+                return new ObjectPropertySyntax(identifier, colon, value, newLines);
+            });
         }
 
         private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
@@ -470,7 +476,7 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                this.SynchronizeExclusive(terminatingType);
+                this.Synchronize(terminatingType);
                 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Message, exception.UnexpectedToken);
@@ -481,21 +487,8 @@ namespace Bicep.Core.Parser
         {
             while (!IsAtEnd())
             {
-                if (Match(expectedType))
-                {
-                    return;
-                }
-
-                reader.Read();
-            }
-        }
-
-        private void SynchronizeExclusive(TokenType expectedType)
-        {
-            while (true)
-            {
                 TokenType nextType = this.reader.Peek().Type;
-                if (nextType == TokenType.EndOfFile || nextType == expectedType)
+                if (Match(expectedType))
                 {
                     return;
                 }
