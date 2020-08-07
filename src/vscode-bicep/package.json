@@ -1,16 +1,38 @@
 {
     "name": "vscode-bicep",
-    "description": "VSCode part of a language server",
+    "displayName": "Bicep",
+    "description": "Bicep language support for Visual Studio Code",
     "author": "Microsoft Corporation",
     "license": "MIT",
     "version": "0.0.1",
-    "publisher": "vscode",
+    "publisher": "Azure",
+    "icon": "icons/azure-resource-manager.png",
+    "preview": true,
     "engines": {
         "vscode": "^1.8.0"
     },
     "categories": [
-        "Other"
+        "Azure",
+        "Programming Languages"
     ],
+    "keywords": [
+        "Bicep",
+        "Azure Resource Manager",
+        "ARM Template",
+        "Azure"
+    ],
+    "bugs": {
+        "url": "https://github.com/Azure/bicep/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Azure/bicep.git"
+    },
+    "galleryBanner": {
+        "color": "E7F1FA",
+        "theme": "light"
+    },
+    "homepage": "https://github.com/Azure/bicep/blob/master/README.md",
     "activationEvents": [
         "onLanguage:bicep"
     ],
@@ -19,24 +41,8 @@
     "contributes": {
         "configuration": {
             "type": "object",
-            "title": "Example configuration",
-            "properties": {
-                "bicep.maxNumberOfProblems": {
-                    "type": "number",
-                    "default": 100,
-                    "description": "Controls the maximum number of problems produced by the server."
-                },
-                "bicep.trace.server": {
-                    "type": "string",
-                    "enum": [
-                        "off",
-                        "messages",
-                        "verbose"
-                    ],
-                    "default": "verbose",
-                    "description": "Traces the communication between VSCode and the bicep service."
-                }
-            }
+            "title": "Bicep Configuration",
+            "properties": {}
         },
         "languages": [
             {
@@ -49,6 +55,12 @@
                     ".arm"
                 ],
                 "configuration": "./language-configuration.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "bicep",
+                "path": "./snippets/bicep.json"
             }
         ]
     },
