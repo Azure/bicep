@@ -20,6 +20,9 @@ namespace Bicep.LanguageServer
                     .WithOutput(Console.OpenStandardOutput())
                     .WithHandler<BicepTextDocumentSyncHandler>()
                     .WithHandler<BicepDocumentSymbolHandler>()
+#pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
+                    .WithHandler<BicepSemanticTokensHandler>()
+#pragma warning restore 0612
                     .WithServices(RegisterServices));
 
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams());

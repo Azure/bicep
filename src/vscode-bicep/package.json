@@ -50,13 +50,6 @@
                 ],
                 "configuration": "./language-configuration.json"
             }
-        ],
-        "grammars": [
-            {
-                "language": "bicep",
-                "scopeName": "source.bicep",
-                "path": "./bicep.grammar.json"
-            }
         ]
     },
     "scripts": {
