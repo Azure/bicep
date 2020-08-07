@@ -1,18 +1,18 @@
 ﻿using System;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Parser
 {
     public class ExpectedTokenException : Exception
     {
-        public ExpectedTokenException(Token unexpectedToken, ErrorBuilder.BuildDelegate errorFunc)
+        public ExpectedTokenException(Token unexpectedToken, DiagnosticBuilder.BuildDelegate errorFunc)
             : base()
         {
             UnexpectedToken = unexpectedToken;
-            Error = errorFunc(ErrorBuilder.ForPosition(unexpectedToken));
+            Error = errorFunc(DiagnosticBuilder.ForPosition(unexpectedToken));
         }
 
-        public Error Error { get; }
+        public Diagnostic Error { get; }
 
         public override string Message => Error.Message;
 

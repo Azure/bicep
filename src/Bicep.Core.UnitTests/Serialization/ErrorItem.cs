@@ -1,5 +1,5 @@
 ﻿using System;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Newtonsoft.Json;
 
@@ -16,12 +16,12 @@ namespace Bicep.Core.UnitTests.Serialization
             this.SpanText = spanText;
         }
 
-        public ErrorItem(Error error, string contents)
+        public ErrorItem(Diagnostic diagnostic, string contents)
         {
-            this.Message = error.Message;
-            this.ErrorCode = error.ErrorCode;
-            this.Span = error.Span;
-            this.SpanText = contents[new Range(error.Span.Position, error.Span.Position + error.Span.Length)];
+            this.Message = diagnostic.Message;
+            this.ErrorCode = diagnostic.Code;
+            this.Span = diagnostic.Span;
+            this.SpanText = contents[new Range(diagnostic.Span.Position, diagnostic.Span.Position + diagnostic.Span.Length)];
         }
 
         public string Message { get; }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
@@ -19,10 +19,10 @@ namespace Bicep.Cli.Logging
             this.HasLoggedErrors = false;
         }
 
-        public void LogDiagnostic(string filePath, Error diagnostic, ImmutableArray<int> lineStarts)
+        public void LogDiagnostic(string filePath, Diagnostic diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.ErrorCode}: {diagnostic.Message}";
+            string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.Code}: {diagnostic.Message}";
 
             this.logger.Log(LogLevel.Error, message);
 

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -10,9 +10,9 @@ namespace Bicep.Core.Parser
     /// </summary>
     public class ParseErrorVisitor : SyntaxVisitor
     {
-        private readonly IList<Error> errors;
+        private readonly IList<Diagnostic> errors;
         
-        public ParseErrorVisitor(IList<Error> errors)
+        public ParseErrorVisitor(IList<Diagnostic> errors)
         {
             this.errors = errors;
         }
@@ -45,7 +45,7 @@ namespace Bicep.Core.Parser
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.errors.Add(ErrorBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
+                this.errors.Add(DiagnosticBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
             }
 
             base.VisitIdentifierSyntax(syntax);
@@ -63,7 +63,7 @@ namespace Bicep.Core.Parser
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.errors.Add(ErrorBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
+                    this.errors.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
                 }
             }
         }

@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Parser
             tokens.Select(t => t.Span.Length).Should().Equal(expectedTexts.Select(s => s.Length));
         }
 
-        private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedErrorMessage, string expectedErrorCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
+        private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
         {
             expectedTokenText ??= text;
             expectedLength ??= text.Length - expectedStartPosition;
@@ -143,8 +143,8 @@ namespace Bicep.Core.UnitTests.Parser
             errors.Should().HaveCount(1);
 
             var error = errors.Single();
-            error.Message.Should().Be(expectedErrorMessage);
-            error.ErrorCode.Should().Be(expectedErrorCode);
+            error.Message.Should().Be(expectedMessage);
+            error.Code.Should().Be(expectedCode);
             error.Span.Position.Should().Be(expectedStartPosition);
             error.Span.Length.Should().Be(expectedLength);
         }

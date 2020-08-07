@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parser
@@ -39,7 +39,7 @@ namespace Bicep.Core.Parser
         private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
 
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Error> errors = new List<Error>();
+        private readonly IList<Diagnostic> errors = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
 
         public Lexer(SlidingTextWindow textWindow)
@@ -47,13 +47,13 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(TextSpan span, ErrorBuilder.BuildDelegate errorFunc)
+        private void AddError(TextSpan span, DiagnosticBuilder.BuildDelegate errorFunc)
         {
-            var error = errorFunc(ErrorBuilder.ForPosition(span));
+            var error = errorFunc(DiagnosticBuilder.ForPosition(span));
             this.errors.Add(error);
         }
 
-        private void AddError(ErrorBuilder.BuildDelegate errorFunc)
+        private void AddError(DiagnosticBuilder.BuildDelegate errorFunc)
             => AddError(textWindow.GetSpan(), errorFunc);
 
         public void Lex()
@@ -72,7 +72,7 @@ namespace Bicep.Core.Parser
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
+        public ImmutableArray<Diagnostic> GetErrors() => errors.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.

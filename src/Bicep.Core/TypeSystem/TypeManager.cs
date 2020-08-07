@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -45,10 +45,10 @@ namespace Bicep.Core.TypeSystem
                     return GetBinaryOperationType(binary);
 
                 case FunctionArgumentSyntax functionArgument:
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(functionArgument.Expression).NotImplementedFunctionArgs());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(functionArgument.Expression).NotImplementedFunctionArgs());
 
                 case FunctionCallSyntax functionCall:
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(functionCall.FunctionName).NotImplementedFunctionCalls());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(functionCall.FunctionName).NotImplementedFunctionCalls());
 
                 case NullLiteralSyntax _:
                     // null is its own type
@@ -59,10 +59,10 @@ namespace Bicep.Core.TypeSystem
                     return GetTypeInfo(parenthesized.Expression);
 
                 case PropertyAccessSyntax propertyAccess:
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(propertyAccess.Dot).NotImplementedPropertyAccess());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyAccess.Dot).NotImplementedPropertyAccess());
 
                 case ArrayAccessSyntax arrayAccess:
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(arrayAccess.OpenSquare).NotImplementedArrayAccess());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(arrayAccess.OpenSquare).NotImplementedArrayAccess());
 
                 case TernaryOperationSyntax ternary:
                     return GetTernaryOperationType(ternary);
@@ -72,10 +72,10 @@ namespace Bicep.Core.TypeSystem
 
                 case VariableAccessSyntax variableAccess:
                     // TODO: Variable access is not currently supported
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(variableAccess.Name).NotImplementedVariableAccess());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(variableAccess.Name).NotImplementedVariableAccess());
 
                 default:
-                    return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).InvalidExpression());
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
             }
         }
 
@@ -108,7 +108,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetObjectType(ObjectSyntax @object)
         {
-            var errors = new List<Error>();
+            var errors = new List<Diagnostic>();
 
             foreach (ObjectPropertySyntax objectProperty in @object.Properties)
             {
@@ -126,7 +126,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetArrayType(ArraySyntax array)
         {
-            var errors = new List<Error>();
+            var errors = new List<Diagnostic>();
 
             foreach (SyntaxBase arrayItem in array.Children)
             {
@@ -145,7 +145,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)
         {
-            var errors = new List<Error>();
+            var errors = new List<Diagnostic>();
 
             // TODO: When we add number type, this will have to be adjusted
             var expectedOperandType = syntax.Operator switch
@@ -165,7 +165,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
             {
-                return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
             }
 
             return expectedOperandType;
@@ -173,7 +173,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetBinaryOperationType(BinaryOperationSyntax syntax)
         {
-            var errors = new List<Error>();
+            var errors = new List<Diagnostic>();
 
             var operandType1 = this.GetTypeInfo(syntax.LeftExpression);
             CollectErrors(errors, operandType1);
@@ -197,12 +197,12 @@ namespace Bicep.Core.TypeSystem
 
             // we do not have a match
             // operand types didn't match available operators
-            return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
         }
 
         private TypeSymbol GetTernaryOperationType(TernaryOperationSyntax syntax)
         {
-            var errors = new List<Error>();
+            var errors = new List<Diagnostic>();
 
             // ternary operator requires the condition to be of bool type
             var conditionType = this.GetTypeInfo(syntax.ConditionExpression);
@@ -222,14 +222,14 @@ namespace Bicep.Core.TypeSystem
             var expectedConditionType = LanguageConstants.Bool;
             if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
             {
-                return new ErrorTypeSymbol(ErrorBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType.Name));
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType.Name));
             }
             
             // the return type is the union of true and false expression types
             return UnionType.Create(trueType, falseType);
         }
 
-        private static void CollectErrors(List<Error> errors, TypeSymbol type)
+        private static void CollectErrors(List<Diagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
         }

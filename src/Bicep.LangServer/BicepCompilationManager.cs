@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer
                 this.activeContexts[uri] = context;
 
                 // convert all the errors to LSP diagnostics
-                var diagnostics = GetErrorsFromContext(context).ToDiagnostics(context.LineStarts);
+                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
                 // publish all the errors
                 this.PublishDocumentDiagnostics(uri, version, diagnostics);
@@ -58,7 +58,7 @@ namespace Bicep.LanguageServer
                 // TODO: Tell user how to create an issue on GitHub.
                 this.PublishDocumentDiagnostics(uri, version, new[]
                 {
-                    new Diagnostic
+                    new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
                     {
                         Range = new Range
                         {
@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer
 
             // clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
-            PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<Diagnostic>());
+            PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>());
         }
 
         public CompilationContext? GetCompilation(DocumentUri uri)
@@ -92,15 +92,15 @@ namespace Bicep.LanguageServer
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
-        private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
+        private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
 
-        private void PublishDocumentDiagnostics(DocumentUri uri, long version, IEnumerable<Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(DocumentUri uri, long version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
         {
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
-                Diagnostics = new Container<Diagnostic>(diagnostics)
+                Diagnostics = new Container<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>(diagnostics)
             });
         }
     }

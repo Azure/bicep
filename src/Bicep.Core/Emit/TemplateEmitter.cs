@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
@@ -53,7 +53,7 @@ namespace Bicep.Core.Emit
             using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Error[0]);
+            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
         }
 
         private void EmitInternal(Stream stream)
