@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -36,7 +36,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<Diagnostic> GetDiagnostics()
         {
             TypeSymbol valueType = this.Context.GetTypeInfo(this.Value);
 
@@ -51,7 +51,7 @@ namespace Bicep.Core.SemanticModel
                 return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
             }
 
-            return Enumerable.Empty<Error>();
+            return Enumerable.Empty<Diagnostic>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as OutputDeclarationSyntax)?.Name;

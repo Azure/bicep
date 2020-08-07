@@ -1,256 +1,256 @@
 using System;
 using Bicep.Core.Parser;
 
-namespace Bicep.Core.Errors
+namespace Bicep.Core.Diagnostics
 {
-    public static class ErrorBuilder
+    public static class DiagnosticBuilder
     {
-        public delegate Error BuildDelegate(ErrorBuilderInternal builder);
+        public delegate Diagnostic BuildDelegate(DiagnosticBuilderInternal builder);
 
-        public class ErrorBuilderInternal
+        public class DiagnosticBuilderInternal
         {
-            public ErrorBuilderInternal(TextSpan textSpan)
+            public DiagnosticBuilderInternal(TextSpan textSpan)
             {
                 TextSpan = textSpan;
             }
 
             public TextSpan TextSpan { get; }
 
-            public Error UnrecognizedToken(object token) => new Error(
+            public Diagnostic UnrecognizedToken(object token) => new Diagnostic(
                 TextSpan,
                 "BCP001",
                 $"The following token is not recognized: '{token}'.");
 
-            public Error UnterminatedMultilineComment() => new Error(
+            public Diagnostic UnterminatedMultilineComment() => new Diagnostic(
                 TextSpan,
                 "BCP002",
                 "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
 
-            public Error UnterminatedString() => new Error(
+            public Diagnostic UnterminatedString() => new Diagnostic(
                 TextSpan,
                 "BCP003",
                 "The string at this location is not terminated. Terminate the string with a single quote character.");
 
-            public Error UnterminatedStringWithNewLine() => new Error(
+            public Diagnostic UnterminatedStringWithNewLine() => new Diagnostic(
                 TextSpan,
                 "BCP004",
                 "The string at this location is not terminated due to an unexpected new line character.");
 
-            public Error UnterminatedStringEscapeSequenceAtEof() => new Error(
+            public Diagnostic UnterminatedStringEscapeSequenceAtEof() => new Diagnostic(
                 TextSpan,
                 "BCP005",
                 "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
 
-            public Error UnterminatedStringEscapeSequenceUnrecognized(object escapeChars) => new Error(
+            public Diagnostic UnterminatedStringEscapeSequenceUnrecognized(object escapeChars) => new Diagnostic(
                 TextSpan,
                 "BCP006",
                 $"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {escapeChars}.");
 
-            public Error UnrecognizedDeclaration() => new Error(
+            public Diagnostic UnrecognizedDeclaration() => new Diagnostic(
                 TextSpan,
                 "BCP007",
                 "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.");
 
-            public Error ExpectedParameterContinuation() => new Error(
+            public Diagnostic ExpectedParameterContinuation() => new Diagnostic(
                 TextSpan,
                 "BCP008",
                 "Expected the default keyword, a parameter modifier, or a newline at this location.");
 
-            public Error UnrecognizedExpression() => new Error(
+            public Diagnostic UnrecognizedExpression() => new Diagnostic(
                 TextSpan,
                 "BCP009",
                 "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
 
-            public Error InvalidInteger() => new Error(
+            public Diagnostic InvalidInteger() => new Diagnostic(
                 TextSpan,
                 "BCP010",
                 "Expected a valid 32-bit signed integer.");
 
-            public Error InvalidType() => new Error(
+            public Diagnostic InvalidType() => new Diagnostic(
                 TextSpan,
                 "BCP011",
                 "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.");
 
-            public Error ExpectedKeyword(object keyword) => new Error(
+            public Diagnostic ExpectedKeyword(object keyword) => new Diagnostic(
                 TextSpan,
                 "BCP012",
                 $"Expected the '{keyword}' keyword at this location.");
 
-            public Error ExpectedParameterIdentifier() => new Error(
+            public Diagnostic ExpectedParameterIdentifier() => new Diagnostic(
                 TextSpan,
                 "BCP013",
                 "Expected a parameter identifier at this location.");
 
-            public Error ExpectedParameterType() => new Error(
+            public Diagnostic ExpectedParameterType() => new Diagnostic(
                 TextSpan,
                 "BCP014",
                 $"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
 
-            public Error ExpectedVariableIdentifier() => new Error(
+            public Diagnostic ExpectedVariableIdentifier() => new Diagnostic(
                 TextSpan,
                 "BCP015",
                 "Expected a variable identifier at this location.");
 
-            public Error ExpectedOutputIdentifier() => new Error(
+            public Diagnostic ExpectedOutputIdentifier() => new Diagnostic(
                 TextSpan,
                 "BCP016",
                 "Expected an output identifier at this location.");
 
-            public Error ExpectedResourceIdentifier() => new Error(
+            public Diagnostic ExpectedResourceIdentifier() => new Diagnostic(
                 TextSpan,
                 "BCP017",
                 "Expected a resource identifier at this location.");
 
-            public Error ExpectedCharacter(object character) => new Error(
+            public Diagnostic ExpectedCharacter(object character) => new Diagnostic(
                 TextSpan,
                 "BCP018",
                 $"Expected the '{character}' character at this location.");
 
-            public Error ExpectedNewLine() => new Error(
+            public Diagnostic ExpectedNewLine() => new Diagnostic(
                 TextSpan,
                 "BCP019",
                 "Expected a new line character at this location.");
 
-            public Error ExpectedPropertyIdentifier() => new Error(
+            public Diagnostic ExpectedPropertyIdentifier() => new Diagnostic(
                 TextSpan,
                 "BCP020",
                 "Expected a property identifier at this location.");
 
-            public Error ExpectedNumericLiteral() => new Error(
+            public Diagnostic ExpectedNumericLiteral() => new Diagnostic(
                 TextSpan,
                 "BCP021",
                 "Expected a numeric literal at this location.");
 
-            public Error ExpectedPropertyName() => new Error(
+            public Diagnostic ExpectedPropertyName() => new Diagnostic(
                 TextSpan,
                 "BCP022",
                 "Expected a property name at this location.");
 
-            public Error ExpectedFunctionName() => new Error(
+            public Diagnostic ExpectedFunctionName() => new Diagnostic(
                 TextSpan,
                 "BCP023",
                 "Expected a function name at this location.");
 
-            public Error IdentifierNameExceedsLimit() => new Error(
+            public Diagnostic IdentifierNameExceedsLimit() => new Diagnostic(
                 TextSpan,
                 "BCP024",
                 $"The identifier exceeds the limit of {LanguageConstants.MaxIdentifierLength}. Reduce the length of the identifier.");
 
-            public Error PropertyMultipleDeclarations(object property) => new Error(
+            public Diagnostic PropertyMultipleDeclarations(object property) => new Diagnostic(
                 TextSpan,
                 "BCP025",
                 $"The property '{property}' is declared multiple times in this object. Remove or rename the duplicate properties.");
 
-            public Error OutputTypeMismatch(object expectedType, object actualType) => new Error(
+            public Diagnostic OutputTypeMismatch(object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
                 "BCP026",
                 $"The output expects a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
 
-            public Error ParameterTypeMismatch(object expectedType, object actualType) => new Error(
+            public Diagnostic ParameterTypeMismatch(object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
                 "BCP027",
                 $"The parameter expects a default value of type '{expectedType}' but provided value is of type '{actualType}'.");
 
-            public Error IdentifierMultipleDeclarations(object identifier) => new Error(
+            public Diagnostic IdentifierMultipleDeclarations(object identifier) => new Diagnostic(
                 TextSpan,
                 "BCP028",
                 $"Identifier '{identifier}' is declared multiple times. Remove or rename the duplicates.");
 
-            public Error InvalidResourceType() => new Error(
+            public Diagnostic InvalidResourceType() => new Diagnostic(
                 TextSpan,
                 "BCP029",
                 "The resource type is not valid. Specify a valid resource type.");
 
-            public Error InvalidOutputType() => new Error(
+            public Diagnostic InvalidOutputType() => new Diagnostic(
                 TextSpan,
                 "BCP030",
                 $"The output type is not valid. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
 
-            public Error InvalidParameterType() => new Error(
+            public Diagnostic InvalidParameterType() => new Diagnostic(
                 TextSpan,
                 "BCP031",
                 $"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
 
-            public Error CompileTimeConstantRequired() => new Error(
+            public Diagnostic CompileTimeConstantRequired() => new Diagnostic(
                 TextSpan,
                 "BCP032",
                 "The value must be a compile-time constant.");
 
-            public Error ExpectdValueTypeMismatch(object expectedType, object actualType) => new Error(
+            public Diagnostic ExpectdValueTypeMismatch(object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
                 "BCP033",
                 $"Expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
 
-            public Error ArrayTypeMismatch(object expectedType, object actualType) => new Error(
+            public Diagnostic ArrayTypeMismatch(object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
                 "BCP034",
                 $"The enclosing array expected an item of type '{expectedType}', but the provided item was of type '{actualType}'.");
 
-            public Error MissingRequiredProperties(object properties) => new Error(
+            public Diagnostic MissingRequiredProperties(object properties) => new Diagnostic(
                 TextSpan,
                 "BCP035",
                 $"The specified object is missing the following required properties: {properties}.");
 
-            public Error PropertyTypeMismatch(object property, object expectedType, object actualType) => new Error(
+            public Diagnostic PropertyTypeMismatch(object property, object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
                 "BCP036",
                 $"The property '{property}' expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
 
-            public Error DisallowedProperty(object property, object type) => new Error(
+            public Diagnostic DisallowedProperty(object property, object type) => new Diagnostic(
                 TextSpan,
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type '{type}'.");
 
-            public Error NotImplementedFunctionArgs() => new Error(
+            public Diagnostic NotImplementedFunctionArgs() => new Diagnostic(
                 TextSpan,
                 "BCP038",
                 "Function arguments are not currently supported.");
 
-            public Error NotImplementedFunctionCalls() => new Error(
+            public Diagnostic NotImplementedFunctionCalls() => new Diagnostic(
                 TextSpan,
                 "BCP039",
                 "Function calls are not currently supported.");
 
-            public Error NotImplementedPropertyAccess() => new Error(
+            public Diagnostic NotImplementedPropertyAccess() => new Diagnostic(
                 TextSpan,
                 "BCP040",
                 "Property access is not currently supported.");
 
-            public Error NotImplementedArrayAccess() => new Error(
+            public Diagnostic NotImplementedArrayAccess() => new Diagnostic(
                 TextSpan,
                 "BCP041",
                 "Array access is not currently supported.");
 
-            public Error NotImplementedVariableAccess() => new Error(
+            public Diagnostic NotImplementedVariableAccess() => new Diagnostic(
                 TextSpan,
                 "BCP042",
                 "Variable access is not currently supported.");
 
-            public Error InvalidExpression() => new Error(
+            public Diagnostic InvalidExpression() => new Diagnostic(
                 TextSpan,
                 "BCP043",
                 "This is not a valid expression.");
 
-            public Error UnaryOperatorInvalidType(object operatorName, object type) => new Error(
+            public Diagnostic UnaryOperatorInvalidType(object operatorName, object type) => new Diagnostic(
                 TextSpan,
                 "BCP044",
                 $"Cannot apply operator '{operatorName}' to operand of type '{type}'.");
 
-            public Error BinaryOperatorInvalidType(object operatorName, object type1, object type2) => new Error(
+            public Diagnostic BinaryOperatorInvalidType(object operatorName, object type1, object type2) => new Diagnostic(
                 TextSpan,
                 "BCP045",
                 $"Cannot apply operator '{operatorName}' to operands of type '{type1}' and '{type2}'.");
 
-            public Error ValueTypeMismatch(object type) => new Error(
+            public Diagnostic ValueTypeMismatch(object type) => new Diagnostic(
                 TextSpan,
                 "BCP046",
                 $"Expected a value of type '{type}'.");
         }
 
-        public static ErrorBuilderInternal ForPosition(TextSpan span)
-            => new ErrorBuilderInternal(span);
+        public static DiagnosticBuilderInternal ForPosition(TextSpan span)
+            => new DiagnosticBuilderInternal(span);
 
-        public static ErrorBuilderInternal ForPosition(IPositionable positionable)
-            => new ErrorBuilderInternal(positionable.Span);
+        public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
+            => new DiagnosticBuilderInternal(positionable.Span);
     }
 }

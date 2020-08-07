@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<Diagnostic> GetDiagnostics()
         {
             switch (this.Modifier)
             {
@@ -62,7 +62,7 @@ namespace Bicep.Core.SemanticModel
                     return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
             }
 
-            return Enumerable.Empty<Error>();
+            return Enumerable.Empty<Diagnostic>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
-using Bicep.Core.Errors;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -12,7 +12,7 @@ namespace Bicep.Core.Parser
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<Error> lexicalErrors;
+        private readonly ImmutableArray<Diagnostic> lexicalErrors;
         
         public Parser(string text)
         {
@@ -349,14 +349,14 @@ namespace Bicep.Core.Parser
             return this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
         }
 
-        private IdentifierSyntax Identifier(ErrorBuilder.BuildDelegate errorFunc)
+        private IdentifierSyntax Identifier(DiagnosticBuilder.BuildDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
         }
 
-        private TypeSyntax Type(ErrorBuilder.BuildDelegate errorFunc)
+        private TypeSyntax Type(DiagnosticBuilder.BuildDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
@@ -503,7 +503,7 @@ namespace Bicep.Core.Parser
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
         }
 
-        private Token Expect(TokenType type, ErrorBuilder.BuildDelegate errorFunc)
+        private Token Expect(TokenType type, DiagnosticBuilder.BuildDelegate errorFunc)
         {
             if (this.Check(type))
             {
