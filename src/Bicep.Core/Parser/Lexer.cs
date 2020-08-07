@@ -201,7 +201,6 @@ namespace Bicep.Core.Parser
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
                     yield return ScanSingleLineComment();
-                    yield break;
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
@@ -219,7 +218,8 @@ namespace Bicep.Core.Parser
         {
             textWindow.Reset();
             ScanLeadingTrivia();
-            var leadingTrivia = ScanLeadingTrivia();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
             textWindow.Reset();
             var tokenType = ScanToken();
@@ -232,7 +232,8 @@ namespace Bicep.Core.Parser
             }
 
             textWindow.Reset();
-            var trailingTrivia = ScanTrailingTrivia();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);

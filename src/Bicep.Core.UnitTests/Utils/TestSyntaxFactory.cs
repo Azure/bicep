@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -31,7 +32,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ObjectPropertySyntax CreateProperty(IdentifierSyntax name, SyntaxBase value) => new ObjectPropertySyntax(name, CreateToken(TokenType.Colon), value, CreateNewLines());
 
-        private static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+        private static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());
 
         private static Token[] CreateNewLines() => new[] {CreateToken(TokenType.NewLine)};
     }
