@@ -29,8 +29,11 @@ namespace Bicep.LanguageServer
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRange = positionable.ToRange(compilationContext.LineStarts);
-                builder.Push(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType as SemanticTokenType?);
+                var tokenRanges = positionable.ToRangeSpanningLines(compilationContext.LineStarts);
+                foreach (var tokenRange in tokenRanges)
+                {
+                    builder.Push(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType as SemanticTokenType?);
+                }
             }
         }
 
@@ -175,6 +178,17 @@ namespace Bicep.LanguageServer
         public override void VisitToken(Token token)
         {
             base.VisitToken(token);
+        }
+
+        public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+            switch (syntaxTrivia.Type)
+            {
+                case SyntaxTriviaType.SingleLineComment:
+                case SyntaxTriviaType.MultiLineComment:
+                    AddTokenType(syntaxTrivia, SemanticTokenType.Comment);
+                    break;
+            }
         }
 
         public override void VisitTypeSyntax(TypeSyntax syntax)

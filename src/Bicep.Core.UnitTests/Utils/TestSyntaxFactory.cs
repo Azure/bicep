@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ObjectPropertySyntax CreateProperty(IdentifierSyntax name, SyntaxBase value) => new ObjectPropertySyntax(name, CreateToken(TokenType.Colon), value, CreateNewLines());
 
-        private static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, String.Empty, String.Empty);
+        private static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
         private static Token[] CreateNewLines() => new[] {CreateToken(TokenType.NewLine)};
     }
