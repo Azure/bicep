@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
+using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -22,7 +23,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         public void GetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
-            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, string.Empty, string.Empty);
+            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             var actual = Lexer.GetStringValue(token);
 
@@ -32,7 +33,7 @@ namespace Bicep.Core.UnitTests.Parser
         [TestMethod]
         public void GetStringValue_WrongTokenType_ShouldThrow()
         {
-            var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", string.Empty, string.Empty);
+            var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Action wrongType = () => Lexer.GetStringValue(token);
             wrongType.Should().Throw<ArgumentException>().WithMessage("The specified token must be of type 'String' but is of type 'Number'.");
@@ -45,7 +46,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow(@"'test\!'", "String token contains an invalid escape character. Text = 'test\\!'")]
         public void GetStringValue_InvalidStringLiteralToken_ShouldThrow(string literalText, string expectedExceptionMessage)
         {
-            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, string.Empty, string.Empty);
+            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Action invalidLiteral = () => Lexer.GetStringValue(token);
             invalidLiteral.Should().Throw<ArgumentException>().WithMessage(expectedExceptionMessage);

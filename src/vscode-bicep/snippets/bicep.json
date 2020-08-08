@@ -1,0 +1,32 @@
+{
+    "Resource": {
+        "prefix": "resource",
+        "body": [
+            "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {",
+            "  $0",
+            "}"
+        ],
+        "description": "Resource statement"
+    },
+    "Variable": {
+        "prefix": "variable",
+        "body": [
+            "variable ${1:Identifier} = $0"
+        ],
+        "description": "Variable statement"
+    },
+    "Parameter": {
+        "prefix": "parameter",
+        "body": [
+            "parameter ${1:Identifier} ${2:Type}"
+        ],
+        "description": "Parameter statement"
+    },
+    "Output": {
+        "prefix": "output",
+        "body": [
+            "output ${1:Identifier} ${2:Type} = $0"
+        ],
+        "description": "Output statement"
+    }
+}

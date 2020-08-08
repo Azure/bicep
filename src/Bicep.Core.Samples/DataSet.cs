@@ -57,7 +57,7 @@ namespace Bicep.Core.Samples
 
         private string ReadDataSetFile(string fileName) => ReadFile($"{Prefix}{this.Name}.{fileName}");
 
-        private static string ReadFile(string streamName)
+        public static string ReadFile(string streamName)
         {
             using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
             stream.Should().NotBeNull($"because stream '{streamName}' should exist");

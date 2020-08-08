@@ -1,6 +1,23 @@
 {
-    "version": "0.2.0",
+    "version": "2.0.0",
     "configurations": [
+        {
+            "name": "Bicep Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--enable-proposed-api",
+                "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
+            ],
+            "env": {
+                "bicepLanguageServerPath": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+            },
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+            "preLaunchTask": "vscodeext-build"
+        },
         {
             "name": "Bicep Web Demo",
             "type": "coreclr",
@@ -17,7 +34,7 @@
             },
         },
         {
-            "name": "Bicep.Cli",
+            "name": "Bicep Cli",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

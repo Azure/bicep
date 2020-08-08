@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
@@ -169,42 +170,46 @@ namespace Bicep.Core.Parser
             return buffer.ToString();
         }
 
-        private void ScanTrailingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
         {
-            ScanWhitespace();
+            if (IsWhiteSpace(textWindow.Peek()))
+            {
+                yield return ScanWhitespace();
+            }
             
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
-                ScanSingleLineComment();
-                return;
+                yield return ScanSingleLineComment();
+                yield break;
             }
 
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
             {
-                ScanMultiLineComment();
-                return;
+                yield return ScanMultiLineComment();
+                yield break;
             }
         }
 
-        private void ScanLeadingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
             while (true)
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    ScanWhitespace();
+                    yield return ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
-                    ScanSingleLineComment();
+                    yield return ScanSingleLineComment();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
-                    ScanMultiLineComment();
+                    yield return ScanMultiLineComment();
+                    yield break;
                 }
                 else
                 {
-                    return;
+                    yield break;
                 }
             }
         }
@@ -213,7 +218,8 @@ namespace Bicep.Core.Parser
         {
             textWindow.Reset();
             ScanLeadingTrivia();
-            var leadingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
             textWindow.Reset();
             var tokenType = ScanToken();
@@ -226,15 +232,17 @@ namespace Bicep.Core.Parser
             }
 
             textWindow.Reset();
-            ScanTrailingTrivia();
-            var trailingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);
         }
 
-        private void ScanWhitespace()
+        private SyntaxTrivia ScanWhitespace()
         {
+            textWindow.Reset();
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -243,15 +251,20 @@ namespace Bicep.Core.Parser
                     case ' ':
                     case '\t':
                         textWindow.Advance();
-                        break;
-                    default:
-                        return;
+                        continue;
                 }
+
+                break;
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanSingleLineComment()
+        private SyntaxTrivia ScanSingleLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -259,21 +272,26 @@ namespace Bicep.Core.Parser
                 // make sure we don't include the newline in the comment trivia
                 if (IsNewLine(nextChar))
                 {
-                    return;
+                    break;
                 }
 
                 textWindow.Advance();
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanMultiLineComment()
+        private SyntaxTrivia ScanMultiLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedMultilineComment());
-                    return;
+                    break;
                 }
 
                 var nextChar = textWindow.Peek();
@@ -287,7 +305,7 @@ namespace Bicep.Core.Parser
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedMultilineComment());
-                    return;
+                    break;
                 }
 
                 nextChar = textWindow.Peek();
@@ -295,9 +313,11 @@ namespace Bicep.Core.Parser
 
                 if (nextChar == '/')
                 {
-                    return;
+                    break;
                 }
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
         private void ScanNewLine()

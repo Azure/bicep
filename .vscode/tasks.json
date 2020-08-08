@@ -14,6 +14,19 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "vscodeext-build",
+            "command": "npm",
+            "args": ["run", "compile", "--loglevel", "silent"],
+            "type": "shell",
+            "problemMatcher": "$tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep"
+            },
+            "dependsOn": [
+                "build"
+            ]
+        },
+        {
             "label": "watch",
             "command": "dotnet",
             "type": "process",

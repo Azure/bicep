@@ -8,6 +8,7 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 

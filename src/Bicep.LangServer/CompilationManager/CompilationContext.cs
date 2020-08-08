@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 
 namespace Bicep.LanguageServer.CompilationManager
