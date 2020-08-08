@@ -8,13 +8,13 @@ namespace Bicep.Core.Parser
     [DebuggerDisplay("{Type} = {Text}")]
     public class Token : IPositionable
     {
-        public Token(TokenType type, TextSpan span, string text, ImmutableArray<SyntaxTrivia> leadingTrivia, ImmutableArray<SyntaxTrivia> trailingTrivia)
+        public Token(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
         {
             Type = type;
             Span = span;
             Text = text;
-            LeadingTrivia = leadingTrivia;
-            TrailingTrivia = trailingTrivia;
+            LeadingTrivia = leadingTrivia.ToImmutableArray();
+            TrailingTrivia = trailingTrivia.ToImmutableArray();
         }
 
         public TokenType Type { get; }

@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 namespace Bicep.LanguageServer
 {
     [Obsolete] // proposed LSP feature must be marked 'obsolete' to access
-    class SemanticTokenVisitor : SyntaxVisitor
+    public class SemanticTokenVisitor : SyntaxVisitor
     {
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens;
 
