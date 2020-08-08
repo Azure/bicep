@@ -107,3 +107,38 @@ jobs:
         with:
           name: vscode-bicep
           path: ./src/vscode-bicep/*.vsix
+
+  build-demo:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+
+      - name: Update NuGet config
+        # workaround for bug in setup-dotnet action (the config samples for authenticated feeds don't work)
+        # encryption does not work on Linux or MacOS
+        run: dotnet nuget update source Official --username bicep --password ${{ secrets.MSAZURE_NUGET_AUTH }} --valid-authentication-types=basic --configfile ./NuGet.config --store-password-in-clear-text
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: 10.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/bicep-demo
+
+      - name: Build
+        run: npm run build
+        working-directory: ./src/bicep-demo
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: bicep-demo
+          path: ./src/bicep-demo/dist/*

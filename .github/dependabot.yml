@@ -13,6 +13,10 @@ updates:
     directory: "/src/vscode-bicep"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/src/bicep-demo"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
