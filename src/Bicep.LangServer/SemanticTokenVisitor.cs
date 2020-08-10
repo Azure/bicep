@@ -130,7 +130,6 @@ namespace Bicep.LanguageServer
 
         public override void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
         {
-            AddTokenType(syntax.DefaultKeyword, SemanticTokenType.Keyword);
             base.VisitParameterDefaultValueSyntax(syntax);
         }
 

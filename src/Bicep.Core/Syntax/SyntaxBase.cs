@@ -32,6 +32,17 @@ namespace Bicep.Core.Syntax
             throw new ArgumentException($"{parameterName} must be of type {expectedTypeIfNotNull} but provided token type was {token.Type}.");
         }
 
+        protected void AssertKeyword(Token? token, [InvokerParameterName] string parameterName, string expectedKeywordNameIfNotNull)
+        {
+            AssertTokenType(token, parameterName, TokenType.Identifier);
+            if (token == null || token.Text == expectedKeywordNameIfNotNull)
+            {
+                return;
+            }
+
+            throw new ArgumentException($"{parameterName} must match keyword {expectedKeywordNameIfNotNull} but provided token was {token.Text}.");
+        }
+
         protected void AssertTokenTypeList(IEnumerable<Token> tokens, [InvokerParameterName] string parameterName, TokenType expectedType, int minimumCount)
         {
             int index = 0;

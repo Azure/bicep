@@ -4,20 +4,20 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDefaultValueSyntax : SyntaxBase
     {
-        public ParameterDefaultValueSyntax(Token defaultKeyword, SyntaxBase defaultValue)
+        public ParameterDefaultValueSyntax(Token assignmentToken, SyntaxBase defaultValue)
         {
-            this.AssertTokenType(defaultKeyword, nameof(defaultKeyword), TokenType.DefaultKeyword);
+            this.AssertTokenType(assignmentToken, nameof(assignmentToken), TokenType.Assignment);
 
-            this.DefaultKeyword = defaultKeyword;
+            this.AssignmentToken = assignmentToken;
             this.DefaultValue = defaultValue;
         }
 
-        public Token DefaultKeyword { get; }
+        public Token AssignmentToken { get; }
 
         public SyntaxBase DefaultValue { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitParameterDefaultValueSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.DefaultKeyword, this.DefaultValue);
+        public override TextSpan Span => TextSpan.Between(this.AssignmentToken, this.DefaultValue);
     }
 }
