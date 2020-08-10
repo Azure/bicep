@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>Bicep</AssemblyName>
+    <AssemblyName>bicep</AssemblyName>
     <StartupObject>Bicep.Cli.Program</StartupObject>
   </PropertyGroup>
 
