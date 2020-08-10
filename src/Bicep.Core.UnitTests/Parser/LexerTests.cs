@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
+using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -22,7 +23,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         public void GetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
-            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, string.Empty, string.Empty);
+            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             var actual = Lexer.GetStringValue(token);
 
@@ -32,7 +33,7 @@ namespace Bicep.Core.UnitTests.Parser
         [TestMethod]
         public void GetStringValue_WrongTokenType_ShouldThrow()
         {
-            var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", string.Empty, string.Empty);
+            var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Action wrongType = () => Lexer.GetStringValue(token);
             wrongType.Should().Throw<ArgumentException>().WithMessage("The specified token must be of type 'String' but is of type 'Number'.");
@@ -45,7 +46,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow(@"'test\!'", "String token contains an invalid escape character. Text = 'test\\!'")]
         public void GetStringValue_InvalidStringLiteralToken_ShouldThrow(string literalText, string expectedExceptionMessage)
         {
-            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, string.Empty, string.Empty);
+            var token = new Token(TokenType.String, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Action invalidLiteral = () => Lexer.GetStringValue(token);
             invalidLiteral.Should().Throw<ArgumentException>().WithMessage(expectedExceptionMessage);
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.Parser
         [TestMethod]
         public void UnrecognizedTokens_ShouldNotBeRecognized()
         {
-            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: ^");
+            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: '^'.", "BCP001");
         }
 
         [TestMethod]
@@ -65,6 +66,7 @@ namespace Bicep.Core.UnitTests.Parser
                 "'test'/* unfinished comment *",
                 TokenType.String,
                 "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
+                "BCP002",
                 expectedTokenText: expectedTokenText,
                 expectedStartPosition: expectedTokenText.Length);
 
@@ -72,6 +74,7 @@ namespace Bicep.Core.UnitTests.Parser
                 "'test'/* unfinished comment",
                 TokenType.String,
                 "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
+                "BCP002",
                 expectedTokenText: expectedTokenText,
                 expectedStartPosition: expectedTokenText.Length);
         }
@@ -79,8 +82,8 @@ namespace Bicep.Core.UnitTests.Parser
         [TestMethod]
         public void UnterminatedString_ShouldBeRecognizedWithError()
         {
-            RunSingleTokenTest("'string does not end", TokenType.String, "The string at this location is not terminated. Terminate the string with a single quote character.");
-            RunSingleTokenTest("'beginning an escape\\", TokenType.String, "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
+            RunSingleTokenTest("'string does not end", TokenType.String, "The string at this location is not terminated. Terminate the string with a single quote character.", "BCP003");
+            RunSingleTokenTest("'beginning an escape\\", TokenType.String, "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.", "BCP005");
         }
 
         [TestMethod]
@@ -89,7 +92,8 @@ namespace Bicep.Core.UnitTests.Parser
             RunSingleTokenTest(
                 "'bad \\escape'",
                 TokenType.String,
-                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t",
+                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
+                "BCP006",
                 expectedStartPosition: 5,
                 expectedLength: 2);
         }
@@ -122,7 +126,7 @@ namespace Bicep.Core.UnitTests.Parser
             tokens.Select(t => t.Span.Length).Should().Equal(expectedTexts.Select(s => s.Length));
         }
 
-        private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedErrorMessage, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
+        private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
         {
             expectedTokenText ??= text;
             expectedLength ??= text.Length - expectedStartPosition;
@@ -139,8 +143,9 @@ namespace Bicep.Core.UnitTests.Parser
             var errors = lexer.GetErrors().ToImmutableArray();
             errors.Should().HaveCount(1);
 
-            Error error = errors.Single();
-            error.Message.Should().Be(expectedErrorMessage);
+            var error = errors.Single();
+            error.Message.Should().Be(expectedMessage);
+            error.Code.Should().Be(expectedCode);
             error.Span.Position.Should().Be(expectedStartPosition);
             error.Span.Length.Should().Be(expectedLength);
         }

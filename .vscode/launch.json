@@ -1,14 +1,31 @@
 {
-    "version": "0.2.0",
+    "version": "2.0.0",
     "configurations": [
         {
-            "name": "Bicep.Wasm",
+            "name": "Bicep Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--enable-proposed-api",
+                "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
+            ],
+            "env": {
+                "bicepLanguageServerPath": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+            },
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+            "preLaunchTask": "vscodeext-build"
+        },
+        {
+            "name": "Bicep Web Demo",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             "program": "dotnet",
-            "args": ["run", "${workspaceFolder}/src/Bicep.Wasm/bin/Debug/netstandard2.1/Bicep.Wasm.dll"],
-            "cwd": "${workspaceFolder}/src/Bicep.Wasm",
+            "args": ["run", "${workspaceFolder}/src/Bicep.WebDemo/bin/Debug/netstandard2.1/Bicep.WebDemo.dll"],
+            "cwd": "${workspaceFolder}/src/Bicep.WebDemo",
             "console": "internalConsole",
             "stopAtEntry": false,
             "serverReadyAction": {
@@ -17,7 +34,7 @@
             },
         },
         {
-            "name": "Bicep.Cli",
+            "name": "Bicep Cli",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

@@ -6,6 +6,7 @@ using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -82,7 +83,7 @@ namespace Bicep.Cli
 
             var result = emitter.Emit(outputPath);
 
-            foreach (Error diagnostic in result.Diagnostics)
+            foreach (Diagnostic diagnostic in result.Diagnostics)
             {
                 logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
             }
@@ -109,7 +110,7 @@ namespace Bicep.Cli
 
                 var result = emitter.Emit(writer);
 
-                foreach (Error diagnostic in result.Diagnostics)
+                foreach (Diagnostic diagnostic in result.Diagnostics)
                 {
                     logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
                 }

@@ -12,6 +12,20 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitToken(Token token)
         {
+            foreach (var syntaxTrivia in token.LeadingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+
+            foreach (var syntaxTrivia in token.TrailingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+        }
+
+        public virtual void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+
         }
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -113,7 +127,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitToken(syntax.OpenBrace);
             this.VisitTokens(syntax.NewLines);
-            this.VisitNodes(syntax.Properties);
+            this.VisitNodes(syntax.Children);
             this.VisitToken(syntax.CloseBrace);
         }
 
@@ -129,7 +143,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitToken(syntax.OpenBracket);
             this.VisitTokens(syntax.NewLines);
-            this.VisitNodes(syntax.Items);
+            this.VisitNodes(syntax.Children);
             this.VisitToken(syntax.CloseBracket);
         }
 

@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Parser;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Diagnostic = Bicep.Core.Diagnostics.Diagnostic;
 
 namespace Bicep.LanguageServer.Extensions
 {
     public static class DiagnosticExtensions
     {
-        public static IEnumerable<Diagnostic> ToDiagnostics(this IEnumerable<Error> source, ImmutableArray<int> lineStarts) =>
-            source.Select(error => new Diagnostic
+        public static IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> ToDiagnostics(this IEnumerable<Diagnostic> source, ImmutableArray<int> lineStarts) =>
+            source.Select(diagnostic => new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
             {
                 Severity = DiagnosticSeverity.Error,
-                Message = error.Message,
+                Code = diagnostic.Code,
+                Message = diagnostic.Message,
                 Source = LanguageServerConstants.LanguageId,
-                Range = error.ToRange(lineStarts)
+                Range = diagnostic.ToRange(lineStarts)
             });
     }
 }

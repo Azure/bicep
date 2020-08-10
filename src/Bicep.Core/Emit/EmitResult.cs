@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Emit
 {
     public class EmitResult
     {
-        public EmitResult(EmitStatus status, IEnumerable<Error> diagnostics)
+        public EmitResult(EmitStatus status, IEnumerable<Diagnostic> diagnostics)
         {
             this.Status = status;
             this.Diagnostics = diagnostics.ToImmutableArray();
@@ -20,6 +21,6 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Gets a list of diagnostics collected during the emit operation.
         /// </summary>
-        public ImmutableArray<Error> Diagnostics { get; }
+        public ImmutableArray<Diagnostic> Diagnostics { get; }
     }
 }

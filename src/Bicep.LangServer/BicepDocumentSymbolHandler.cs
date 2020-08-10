@@ -7,9 +7,9 @@ using Bicep.Core.SemanticModel;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
 namespace Bicep.LanguageServer
@@ -19,8 +19,8 @@ namespace Bicep.LanguageServer
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
 
-        public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager, ProgressManager progressManager)
-            : base(GetSymbolRegistrationOptions(), progressManager)
+        public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
+            : base(GetSymbolRegistrationOptions())
         {
             this.logger = logger;
             this.compilationManager = compilationManager;

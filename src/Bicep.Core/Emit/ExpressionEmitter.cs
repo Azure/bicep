@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Azure.ResourceManager.Deployments.Expression.Configuration;
 using Azure.ResourceManager.Deployments.Expression.Expressions;
 using Azure.ResourceManager.Deployments.Expression.Serializers;

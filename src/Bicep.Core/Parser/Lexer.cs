@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
@@ -38,7 +40,7 @@ namespace Bicep.Core.Parser
         private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
 
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Error> errors = new List<Error>();
+        private readonly IList<Diagnostic> errors = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
 
         public Lexer(SlidingTextWindow textWindow)
@@ -46,11 +48,14 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(string message, TextSpan? span = null)
+        private void AddError(TextSpan span, DiagnosticBuilder.BuildDelegate errorFunc)
         {
-            span ??= textWindow.GetSpan();
-            this.errors.Add(new Error(message, span));
+            var error = errorFunc(DiagnosticBuilder.ForPosition(span));
+            this.errors.Add(error);
         }
+
+        private void AddError(DiagnosticBuilder.BuildDelegate errorFunc)
+            => AddError(textWindow.GetSpan(), errorFunc);
 
         public void Lex()
         {
@@ -68,7 +73,7 @@ namespace Bicep.Core.Parser
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
+        public ImmutableArray<Diagnostic> GetErrors() => errors.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
@@ -165,42 +170,46 @@ namespace Bicep.Core.Parser
             return buffer.ToString();
         }
 
-        private void ScanTrailingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
         {
-            ScanWhitespace();
+            if (IsWhiteSpace(textWindow.Peek()))
+            {
+                yield return ScanWhitespace();
+            }
             
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
-                ScanSingleLineComment();
-                return;
+                yield return ScanSingleLineComment();
+                yield break;
             }
 
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
             {
-                ScanMultiLineComment();
-                return;
+                yield return ScanMultiLineComment();
+                yield break;
             }
         }
 
-        private void ScanLeadingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
             while (true)
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    ScanWhitespace();
+                    yield return ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
-                    ScanSingleLineComment();
+                    yield return ScanSingleLineComment();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
-                    ScanMultiLineComment();
+                    yield return ScanMultiLineComment();
+                    yield break;
                 }
                 else
                 {
-                    return;
+                    yield break;
                 }
             }
         }
@@ -209,7 +218,8 @@ namespace Bicep.Core.Parser
         {
             textWindow.Reset();
             ScanLeadingTrivia();
-            var leadingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
             textWindow.Reset();
             var tokenType = ScanToken();
@@ -218,19 +228,21 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                AddError($"The following token is not recognized: {tokenText}");
+                AddError(b => b.UnrecognizedToken(tokenText));
             }
 
             textWindow.Reset();
-            ScanTrailingTrivia();
-            var trailingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);
         }
 
-        private void ScanWhitespace()
+        private SyntaxTrivia ScanWhitespace()
         {
+            textWindow.Reset();
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -239,15 +251,20 @@ namespace Bicep.Core.Parser
                     case ' ':
                     case '\t':
                         textWindow.Advance();
-                        break;
-                    default:
-                        return;
+                        continue;
                 }
+
+                break;
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanSingleLineComment()
+        private SyntaxTrivia ScanSingleLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -255,21 +272,26 @@ namespace Bicep.Core.Parser
                 // make sure we don't include the newline in the comment trivia
                 if (IsNewLine(nextChar))
                 {
-                    return;
+                    break;
                 }
 
                 textWindow.Advance();
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanMultiLineComment()
+        private SyntaxTrivia ScanMultiLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
-                    return;
+                    AddError(b => b.UnterminatedMultilineComment());
+                    break;
                 }
 
                 var nextChar = textWindow.Peek();
@@ -282,8 +304,8 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
-                    return;
+                    AddError(b => b.UnterminatedMultilineComment());
+                    break;
                 }
 
                 nextChar = textWindow.Peek();
@@ -291,9 +313,11 @@ namespace Bicep.Core.Parser
 
                 if (nextChar == '/')
                 {
-                    return;
+                    break;
                 }
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
         private void ScanNewLine()
@@ -321,7 +345,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Terminate the string with a single quote character.");
+                    AddError(b => b.UnterminatedString());
                     return;
                 }
 
@@ -330,7 +354,7 @@ namespace Bicep.Core.Parser
                 if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
-                    this.AddError("The string at this location is not terminated due to an unexpected new line character.");
+                    AddError(b => b.UnterminatedStringWithNewLine());
                     return;
                 }
 
@@ -348,7 +372,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
+                    AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return;
                 }
 
@@ -358,7 +382,7 @@ namespace Bicep.Core.Parser
                 if (CharacterEscapes.ContainsKey(nextChar) == false)
                 {
                     // the span of the error is the incorrect escape sequence
-                    this.AddError($"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {CharacterEscapeSequences}", textWindow.GetLookbehindSpan(2));
+                    AddError(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
                 }
             }
         }
