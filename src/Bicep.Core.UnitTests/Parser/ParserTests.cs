@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("(false)", "(false)")]
         [DataRow("(null)", "(null)")]
         [DataRow("(42)", "(42)")]
-        [DataRow("('a')", "('a')")]
+        [DataRow("('a${b}c${d}e')", "('a${b}c${d}e')")]
         public void ParenthesizedExpressionShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(ParenthesizedExpressionSyntax));

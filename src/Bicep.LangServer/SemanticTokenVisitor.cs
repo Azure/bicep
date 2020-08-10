@@ -124,7 +124,6 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.ParameterKeyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
-            AddTokenType(syntax.Type, SemanticTokenType.Type);
             base.VisitParameterDeclarationSyntax(syntax);
         }
 
@@ -163,7 +162,10 @@ namespace Bicep.LanguageServer
 
         public override void VisitStringSyntax(StringSyntax syntax)
         {
-            AddTokenType(syntax.StringToken, SemanticTokenType.String);
+            foreach (var token in syntax.StringTokens)
+            {
+                AddTokenType(token, SemanticTokenType.String);
+            }
             base.VisitStringSyntax(syntax);
         }
 

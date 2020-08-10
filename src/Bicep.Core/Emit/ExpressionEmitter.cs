@@ -29,12 +29,6 @@ namespace Bicep.Core.Emit
                     writer.WriteValue(numericSyntax.Value);
                     break;
 
-                case StringSyntax stringSyntax:
-                    // using the throwing method to get semantic value of the string because
-                    // error checking should have caught any errors by now
-                    writer.WriteValue(stringSyntax.GetValue());
-                    break;
-
                 case NullLiteralSyntax _:
                     writer.WriteNull();
 
@@ -63,6 +57,7 @@ namespace Bicep.Core.Emit
                 case UnaryOperationSyntax _:
                 case BinaryOperationSyntax _:
                 case TernaryOperationSyntax _:
+                case StringSyntax _:
                     EmitLanguageExpression(writer, syntax);
                     
                     break;

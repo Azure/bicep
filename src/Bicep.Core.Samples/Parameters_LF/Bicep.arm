@@ -8,7 +8,7 @@ parameter myInt int
 parameter myBool bool
 
 // parameters with default value
-parameter myString2 string = 'string value'
+parameter myString2 string = 'strin${2}g value'
 parameter myInt2 int = 42
 parameter myTruth bool = true
 parameter myFalsehood bool = false

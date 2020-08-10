@@ -9,6 +9,12 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
+    public enum LexMode
+    {
+        Normal,
+        String,
+    }
+
     public class Lexer
     {
         private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
@@ -33,6 +39,8 @@ namespace Bicep.Core.Parser
 
         private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
 
+        public LexMode CurrentLexMode => lexModeStack.Any() ? lexModeStack.Peek() : LexMode.Normal;
+        public readonly Stack<LexMode> lexModeStack = new Stack<LexMode>();
         private readonly IList<Token> tokens = new List<Token>();
         private readonly IList<Diagnostic> errors = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
@@ -91,46 +99,35 @@ namespace Bicep.Core.Parser
         /// <param name="stringToken">the string token</param>
         public static string GetStringValue(Token stringToken)
         {
-            if (stringToken.Type != TokenType.String)
+            var (start, end) = stringToken.Type switch {
+                TokenType.StringComplete => ("'", "'"),
+                TokenType.StringLeftPiece => ("'", "${"),
+                TokenType.StringMiddlePiece => ("}", "${"),
+                TokenType.StringRightPiece => ("}", "'"),
+                _ => throw new ArgumentException($"Unexpected token of type {stringToken.Type}."),
+            };
+
+            if (stringToken.Text.Length < start.Length + end.Length ||
+                stringToken.Text.Substring(0, start.Length) != start ||
+                stringToken.Text.Substring(stringToken.Text.Length - end.Length) != end)
             {
-                throw new ArgumentException($"The specified token must be of type '{TokenType.String}' but is of type '{stringToken.Type}'.");
+                // any lexer-generated token should not hit this problem as the start & end are already verified
+                throw new ArgumentException($"Unexpected start or end sequence for token of type {stringToken.Type}. Text = {stringToken.Text}");
             }
 
-            var window = new SlidingTextWindow(stringToken.Text);
-
-            // first char of a string token must be the opening quote
-            if (window.IsAtEnd() || window.Peek() != '\'')
-            {
-                // lexer guarantees this, but anything can create a token object
-                throw new ArgumentException($"The text of the specified token must start with a single quote. Text = {stringToken.Text}");
-            }
-
-            window.Advance();
+            var contents = stringToken.Text.Substring(start.Length, stringToken.Text.Length - start.Length - end.Length);
+            var window = new SlidingTextWindow(contents);
 
             // the value of the string will be shorter because escapes are longer than the characters they represent
-            var buffer = new StringBuilder(stringToken.Text.Length);
+            var buffer = new StringBuilder(contents.Length);
 
-            while (true)
+            while (!window.IsAtEnd())
             {
-                if (window.IsAtEnd())
-                {
-                    // this is hit in non-terminated strings (which are allowed to allow for error recovery)
-                    break;
-                }
-
-                var nextChar = window.Peek();
-                window.Advance();
+                var nextChar = window.Next();
 
                 if (nextChar == '\'')
                 {
-                    // string was terminated
-                    // we should be at the end
-                    if (window.IsAtEnd() == false)
-                    {
-                        throw new ArgumentException($"String token must not contain additional characters after the string-terminating single quote. Text = {stringToken.Text}");
-                    }
-
-                    break;
+                    throw new ArgumentException($"Unexpected unescaped single quote. Text = {stringToken.Text}");
                 }
 
                 if (nextChar == '\\')
@@ -138,12 +135,10 @@ namespace Bicep.Core.Parser
                     // escape sequence begins
                     if (window.IsAtEnd())
                     {
-                        // unterminated string (allowing this for error recovery purposes)
-                        break;
+                        throw new ArgumentException($"Unexpected escape character at end of string. Text = {stringToken.Text}");
                     }
 
-                    char escapeChar = window.Peek();
-                    window.Advance();
+                    char escapeChar = window.Next();
 
                     if (CharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
                     {
@@ -333,14 +328,34 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void ScanString()
+        private TokenType ScanString(bool isContinuation)
         {
+            TokenType TerminateString()
+            {
+                if (isContinuation)
+                {
+                    lexModeStack.Pop();
+                }
+
+                return isContinuation ? TokenType.StringRightPiece : TokenType.StringComplete;
+            }
+
+            TokenType ContinueString()
+            {
+                if (!isContinuation)
+                {
+                    lexModeStack.Push(LexMode.String);
+                }
+
+                return isContinuation ? TokenType.StringMiddlePiece : TokenType.StringLeftPiece;
+            }
+
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedString());
-                    return;
+                    return TerminateString();
                 }
 
                 var nextChar = textWindow.Peek();
@@ -349,14 +364,20 @@ namespace Bicep.Core.Parser
                 {
                     // do not consume the new line character
                     AddError(b => b.UnterminatedStringWithNewLine());
-                    return;
+                    return TerminateString();
                 }
 
                 textWindow.Advance();
 
                 if (nextChar == '\'')
                 {
-                    return;
+                    return TerminateString();
+                }
+
+                if (nextChar == '$' && !textWindow.IsAtEnd() && textWindow.Peek() == '{')
+                {
+                    textWindow.Advance();
+                    return ContinueString();
                 }
 
                 if (nextChar != '\\')
@@ -367,7 +388,7 @@ namespace Bicep.Core.Parser
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
-                    return;
+                    return TerminateString();
                 }
 
                 nextChar = textWindow.Peek();
@@ -444,6 +465,10 @@ namespace Bicep.Core.Parser
                 case '{':
                     return TokenType.LeftBrace;
                 case '}':
+                    if (CurrentLexMode == LexMode.String)
+                    {
+                        return ScanString(true);
+                    }
                     return TokenType.RightBrace;
                 case '(':
                     return TokenType.LeftParen;
@@ -546,10 +571,21 @@ namespace Bicep.Core.Parser
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    ScanString();
-                    return TokenType.String;
+                    return ScanString(false);
                 case '\n':
                 case '\r':
+                    if (CurrentLexMode == LexMode.String)
+                    {
+                        // need to re-check the newline token on next pass
+                        textWindow.Rewind();
+
+                        // do not consume the new line character
+                        // TODO figure out the span from the actual start of the string. may need to add this data to the stack.
+                        AddError(b => b.UnterminatedStringWithNewLine());
+
+                        lexModeStack.Pop();
+                        return TokenType.StringRightPiece;
+                    }
                     this.ScanNewLine();
                     return TokenType.NewLine;
                 default:

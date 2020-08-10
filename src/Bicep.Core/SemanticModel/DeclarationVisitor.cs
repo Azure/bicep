@@ -44,7 +44,9 @@ namespace Bicep.Core.SemanticModel
 
             // if type string is malformed, the type value will be null which will resolve to a null type
             // below this will be corrected into an error type
-            TypeSymbol? resourceType = this.context.GetTypeByName(syntax.Type.TryGetValue());
+            var stringSyntax = syntax.TryGetType();
+            var stringContent = (stringSyntax != null && !stringSyntax.IsInterpolated()) ? stringSyntax.TryGetFormatString() : null;
+            TypeSymbol? resourceType = this.context.GetTypeByName(stringContent);
 
             // TODO: This check is likely too simplistic
             if (resourceType?.TypeKind != TypeKind.Resource)

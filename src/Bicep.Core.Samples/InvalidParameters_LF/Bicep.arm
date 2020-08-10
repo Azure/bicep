@@ -35,6 +35,20 @@ parameter wrongType fluffyBunny = 'what\s up doc?'
 // unterminated string 
 parameter wrongType fluffyBunny = 'what\'s up doc?
 
+// unterminated interpolated string
+parameter wrongType fluffyBunny = 'what\'s ${
+parameter wrongType fluffyBunny = 'what\'s ${up
+parameter wrongType fluffyBunny = 'what\'s ${up}
+parameter wrongType fluffyBunny = 'what\'s ${'up
+
+// unterminated nested interpolated string
+parameter wrongType fluffyBunny = 'what\'s ${'up${
+parameter wrongType fluffyBunny = 'what\'s ${'up${
+parameter wrongType fluffyBunny = 'what\'s ${'up${doc
+parameter wrongType fluffyBunny = 'what\'s ${'up${doc}
+parameter wrongType fluffyBunny = 'what\'s ${'up${doc}'
+parameter wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
+
 parameter wrongType fluffyBunny = 'what\'s up doc?'
 
 // modifier on an invalid type
