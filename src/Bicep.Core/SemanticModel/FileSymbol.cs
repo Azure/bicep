@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -46,7 +47,7 @@ namespace Bicep.Core.SemanticModel
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<Diagnostic> GetDiagnostics()
         {
             var duplicateSymbols = this.AllDeclarations
                 .GroupBy(decl => decl.Name)
@@ -59,7 +60,7 @@ namespace Bicep.Core.SemanticModel
                     // use the identifier node as the error location with fallback to full declaration span
                     SyntaxBase identifierNode = duplicatedSymbol.NameSyntax ?? duplicatedSymbol.DeclaringSyntax;
 
-                    yield return this.CreateError($"Identifier '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicates.", identifierNode);
+                    yield return this.CreateError(identifierNode, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
             }
         }

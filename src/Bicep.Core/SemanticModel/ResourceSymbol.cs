@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -30,7 +31,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<Diagnostic> GetDiagnostics()
         {
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, this.Body, this.Type);
         }

@@ -24,11 +24,8 @@ import { workspace, ExtensionContext, window } from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
-    SettingMonitor,
     ServerOptions,
-    TransportKind,
-    InitializeParams
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 import { Trace } from "vscode-jsonrpc";
 
 export async function activate(context: ExtensionContext) {
@@ -124,7 +121,7 @@ function startLanguageServer(context: ExtensionContext, languageServerPath: stri
         clientOptions
     );
     client.registerProposedFeatures();
-    client.trace = Trace.Verbose;
+    client.trace = Trace.Off;
     let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the

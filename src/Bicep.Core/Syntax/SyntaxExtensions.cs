@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IList<Error> GetParseDiagnostics(this SyntaxBase syntax)
+        public static IList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
         {
-            var diagnostics = new List<Error>();
+            var diagnostics = new List<Diagnostic>();
             var visitor = new ParseErrorVisitor(diagnostics);
             visitor.Visit(syntax);
 

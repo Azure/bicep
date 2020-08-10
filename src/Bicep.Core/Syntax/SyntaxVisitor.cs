@@ -12,6 +12,20 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitToken(Token token)
         {
+            foreach (var syntaxTrivia in token.LeadingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+
+            foreach (var syntaxTrivia in token.TrailingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+        }
+
+        public virtual void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+
         }
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)

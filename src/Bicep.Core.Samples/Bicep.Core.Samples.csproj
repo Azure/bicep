@@ -90,6 +90,7 @@
     <EmbeddedResource Include="Variables_LF\Compiled.json" />
     <EmbeddedResource Include="Variables_LF\Errors.json" />
     <EmbeddedResource Include="Variables_LF\Tokens.json" />
+    <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
   </ItemGroup>
 
   <ItemGroup>

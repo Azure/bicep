@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -9,9 +10,9 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public sealed class CompileTimeConstantVisitor : SyntaxVisitor
     {
-        private readonly IList<Error> errors;
+        private readonly IList<Diagnostic> errors;
 
-        public CompileTimeConstantVisitor(IList<Error> errors)
+        public CompileTimeConstantVisitor(IList<Diagnostic> errors)
         {
             this.errors = errors;
         }
@@ -65,7 +66,7 @@ namespace Bicep.Core.TypeSystem
 
         private void AppendError(SyntaxBase syntax)
         {
-            this.errors.Add(new Error("The value must be a compile-time constant.", syntax));
+            this.errors.Add(DiagnosticBuilder.ForPosition(syntax).CompileTimeConstantRequired());
         }
     }
 }
