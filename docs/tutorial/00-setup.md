@@ -12,7 +12,19 @@ Validate that the cli is running by creating a blank file `main.arm` and then ru
 bicep build main.arm
 ```
 
-You should get an output json file of the same name, in this case `main.json`. It should be a skeleton ARM JSON template.
+You should get an output json file of the same name, in this case `main.json`. It should be a skeleton ARM JSON template:
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [],
+  "outputs": {}
+}
+```
 
 ## Install the Bicep VS Code extension (Language service)
 
