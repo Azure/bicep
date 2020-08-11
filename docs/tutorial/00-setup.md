@@ -28,7 +28,7 @@ You should get an output json file of the same name in your current directory --
 
 ## Verify the Bicep VS Code extension (Language service)
 
-Open the `main.arm` file in VS code. If the extension is installed, you should see syntax highlighting working and you should see the language in the lower right hand corner of the VS code window change to `bicep`.
+Open the `main.arm` file in VS code. If the extension is installed, you should see syntax highlighting working, and you should see the language in the lower right hand corner of the VS code window change to `bicep`.
 
 ## Next steps
 

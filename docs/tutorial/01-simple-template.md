@@ -5,7 +5,7 @@ In the previous step, we compiled the most basic bicep file -- a blank template.
 ## Add a resource
 
 ```
-resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: 'stg-${uniqueString(resourceGroup().id)}'
     location: 'eastus'
     kind: 'Storage'
@@ -16,12 +16,13 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 ```
 
 The resource declaration has four components:
+
 * `resource` keyword
-* **resource identifier** (`storage`) - this is a symbolic name for referencing the resource through your bicep file. It is *not* what the name of the resource will be when it's deployed.
+* **symbolic name** (`stg`) - this is an identifier for referencing the resource through your bicep file. It is *not* what the name of the resource will be when it's deployed.
 * **resource type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and apiVersion (`2019-06-01`). These properties should be familiar if you've ever deployed ARM Templates before.
 * **resource properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
 
-When we compile the template with `bicep build main.arm`, we see the following JSON. Notice the string interpolation in bicep gets translated to the `concat()` function in the ARM Template JSON:
+When we compile the template with `bicep build main.arm`, we see the following JSON. Notice the string interpolation in bicep gets translated to the `format()` function in the ARM Template JSON:
 
 ```json
 // todo - waiting for above to compile
@@ -41,7 +42,7 @@ In most cases, I want to expose a part of the resource name and the resource loc
 parameter location string = 'eastus'
 parameter namePrefix string = 'stg'
 
-resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
     location: location
     kind: 'Storage'
@@ -53,7 +54,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
 
-The end of the parameter declaration (`= 'eastus'`) is the default value, so this can be optionally overridden.
+The end of the parameter declaration (`= 'eastus'`) is the default value, so this can be optionally overridden at deployment time.
 
 Let's compile with `bicep build main.arm` and look at the output:
 
@@ -71,7 +72,7 @@ parameter namePrefix string = 'stg'
 
 variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
-resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
     location: location
     kind: 'Storage'
@@ -80,10 +81,10 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     }
 }
 
-output storageId string = storage.id
+output storageId string = stg.id
 ```
 
-Notice I can easily reference the resourceId from the symbolic name of the storage account (`storage.id`) which we will translate to the `resourceId(...)` function in the compiled template. When compiled, you should see the following ARM Template JSON:
+Notice I can easily reference the resourceId from the symbolic name of the storage account (`stg.id`) which we will translate to the `resourceId(...)` function in the compiled template. When compiled, you should see the following ARM Template JSON:
 
 ```json
 // todo
