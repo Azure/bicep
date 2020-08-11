@@ -108,7 +108,7 @@ jobs:
           name: vscode-bicep
           path: ./src/vscode-bicep/*.vsix
 
-  build-demo:
+  playground:
     runs-on: 'ubuntu-latest'
 
     steps:
@@ -131,14 +131,14 @@ jobs:
       
       - name: npm ci
         run: npm ci
-        working-directory: ./src/bicep-demo
+        working-directory: ./src/playground
 
       - name: Build
         run: npm run build
-        working-directory: ./src/bicep-demo
+        working-directory: ./src/playground
 
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
-          name: bicep-demo
-          path: ./src/bicep-demo/dist/*
+          name: playground
+          path: ./src/playground/dist/*
