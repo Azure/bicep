@@ -5,7 +5,7 @@ using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Wasm
+namespace Bicep.Wasm.LanguageHelpers
 {
     public class SemanticTokenVisitor : SyntaxVisitor
     {

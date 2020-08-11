@@ -7,6 +7,7 @@ using Bicep.Core.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
 
 namespace Bicep.Wasm
