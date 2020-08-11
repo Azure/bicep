@@ -12,30 +12,30 @@ parameter myBool bool
 
 parameter missingType
 
-parameter myString2 string default 'string value'
+parameter myString2 string = 'string value'
 
-parameter wrongDefaultValue string default 42
+parameter wrongDefaultValue string = 42
 
-parameter myInt2 int default 42
-parameter noValueAfterColon int default   
+parameter myInt2 int = 42
+parameter noValueAfterColon int =   
 
-parameter myTruth bool default 'not a boolean'
-parameter myFalsehood bool default 'false'
+parameter myTruth bool = 'not a boolean'
+parameter myFalsehood bool = 'false'
 
 parameter wrongAssignmentToken string: 'hello'
 
-parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string default 'why not?'
+parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
 // badly escaped string
-parameter wrongType fluffyBunny default 'what's up doc?'
+parameter wrongType fluffyBunny = 'what's up doc?'
 
 // invalid escape
-parameter wrongType fluffyBunny default 'what\s up doc?'
+parameter wrongType fluffyBunny = 'what\s up doc?'
 
 // unterminated string 
-parameter wrongType fluffyBunny default 'what\'s up doc?
+parameter wrongType fluffyBunny = 'what\'s up doc?
 
-parameter wrongType fluffyBunny default 'what\'s up doc?'
+parameter wrongType fluffyBunny = 'what\'s up doc?'
 
 // modifier on an invalid type
 parameter someArray arra {

@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public VariableDeclarationSyntax(Token variableKeyword, IdentifierSyntax name, Token assignment, SyntaxBase value, Token newLine)
         {
-            AssertTokenType(variableKeyword, nameof(variableKeyword), TokenType.VariableKeyword);
+            AssertKeyword(variableKeyword, nameof(variableKeyword), LanguageConstants.VariableKeyword);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 

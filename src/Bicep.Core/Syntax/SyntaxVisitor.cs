@@ -44,7 +44,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
         {
-            this.VisitToken(syntax.DefaultKeyword);
+            this.VisitToken(syntax.AssignmentToken);
             this.Visit(syntax.DefaultValue);
         }
 
