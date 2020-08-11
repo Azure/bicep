@@ -23,6 +23,20 @@ namespace Bicep.Core.UnitTests.Parser
         }
 
         [DataTestMethod]
+        [DataRow("'${abc}def'", "'${abc}def'")]
+        [DataRow("'abc${def}'", "'abc${def}'")]
+        [DataRow("'${abc}def${ghi}'", "'${abc}def${ghi}'")]
+        [DataRow("'abc${def}ghi${klm}nop'", "'abc${def}ghi${klm}nop'")]
+        [DataRow("'abc${1234}def'", "'abc${1234}def'")]
+        [DataRow("'abc${true}def'", "'abc${true}def'")]
+        // [DataRow("'abc${[]}def'", "'abc${[]}def'")] - currently unsupported because we force a newline between [ and ]
+        // [DataRow("'abc${{}}def'", "'abc${{}}def'")] - currently unsupported because we force a newline between { and }
+        public void StringInterpolationShouldParseCorrectly(string text, string expected)
+        {
+            var expression = (StringSyntax)RunExpressionTest(text, expected, typeof(StringSyntax));
+        }
+
+        [DataTestMethod]
         [DataRow("foo()", "foo()", 0)]
         [DataRow("bar(true)", "bar(true)", 1)]
         [DataRow("bar(true,1,'a',true,null)", "bar(true,1,'a',true,null)", 5)]

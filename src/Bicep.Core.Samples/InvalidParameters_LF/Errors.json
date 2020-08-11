@@ -170,18 +170,6 @@
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
-    "span": "[1336:1336]",
-    "spanText": ""
-  },
-  {
-    "message": "The string at this location is not terminated due to an unexpected new line character.",
-    "errorCode": "BCP004",
-    "span": "[1387:1387]",
-    "spanText": ""
-  },
-  {
-    "message": "The string at this location is not terminated due to an unexpected new line character.",
-    "errorCode": "BCP004",
     "span": "[1387:1387]",
     "spanText": ""
   },
@@ -190,12 +178,6 @@
     "errorCode": "BCP019",
     "span": "[1388:1397]",
     "spanText": "parameter"
-  },
-  {
-    "message": "The string at this location is not terminated due to an unexpected new line character.",
-    "errorCode": "BCP004",
-    "span": "[1441:1441]",
-    "spanText": ""
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
@@ -264,10 +246,16 @@
     "spanText": "}?"
   },
   {
-    "message": "The following token is not recognized: '{'.",
-    "errorCode": "BCP001",
-    "span": "[1694:1695]",
-    "spanText": "{"
+    "message": "The string at this location is not terminated due to an unexpected new line character.",
+    "errorCode": "BCP004",
+    "span": "[1714:1715]",
+    "spanText": "'"
+  },
+  {
+    "message": "The string at this location is not terminated due to an unexpected new line character.",
+    "errorCode": "BCP004",
+    "span": "[1715:1715]",
+    "spanText": ""
   },
   {
     "message": "Expected a new line character at this location.",

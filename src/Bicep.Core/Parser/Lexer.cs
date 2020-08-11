@@ -9,14 +9,6 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
-    // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
-    // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
-    public enum LexMode
-    {
-        Normal,
-        String,
-    }
-
     public class Lexer
     {
         private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
@@ -41,8 +33,9 @@ namespace Bicep.Core.Parser
 
         private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
 
-        public LexMode CurrentLexMode => lexModeStack.Any() ? lexModeStack.Peek() : LexMode.Normal;
-        public readonly Stack<LexMode> lexModeStack = new Stack<LexMode>();
+        // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
+        // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
+        private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
         private readonly IList<Token> tokens = new List<Token>();
         private readonly IList<Diagnostic> errors = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
@@ -334,7 +327,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private TokenType ScanStringSegment(bool isContinuation)
+        private TokenType ScanStringSegment(bool isAtStartOfString)
         {
             // to handle interpolation, strings are broken down into multiple segments, to detect the portions of string between the 'holes'.
             // 'complete' string: a string with no holes (no interpolation), e.g. "'hello'"
@@ -342,32 +335,12 @@ namespace Bicep.Core.Parser
             // string 'middle piece': the portion of an interpolated string between two holes, e.g. "}hello${"
             // string 'right piece': the portion of an interpolated string after the last hole, e.g. "]hello'"
 
-            TokenType TerminateString()
-            {
-                if (isContinuation)
-                {
-                    lexModeStack.Pop();
-                }
-
-                return isContinuation ? TokenType.StringRightPiece : TokenType.StringComplete;
-            }
-
-            TokenType ContinueString()
-            {
-                if (!isContinuation)
-                {
-                    lexModeStack.Push(LexMode.String);
-                }
-
-                return isContinuation ? TokenType.StringMiddlePiece : TokenType.StringLeftPiece;
-            }
-
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedString());
-                    return TerminateString();
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 var nextChar = textWindow.Peek();
@@ -376,20 +349,20 @@ namespace Bicep.Core.Parser
                 {
                     // do not consume the new line character
                     AddError(b => b.UnterminatedStringWithNewLine());
-                    return TerminateString();
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 textWindow.Advance();
 
                 if (nextChar == '\'')
                 {
-                    return TerminateString();
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 if (nextChar == '$' && !textWindow.IsAtEnd() && textWindow.Peek() == '{')
                 {
                     textWindow.Advance();
-                    return ContinueString();
+                    return isAtStartOfString ? TokenType.StringLeftPiece : TokenType.StringMiddlePiece;
                 }
 
                 if (nextChar != '\\')
@@ -400,7 +373,7 @@ namespace Bicep.Core.Parser
                 if (textWindow.IsAtEnd())
                 {
                     AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
-                    return TerminateString();
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 nextChar = textWindow.Peek();
@@ -475,16 +448,28 @@ namespace Bicep.Core.Parser
             switch (nextChar)
             {
                 case '{':
-                    if (CurrentLexMode == LexMode.String)
+                    if (templateStack.Any())
                     {
-                        // object literals in interpolations are unsupported, since we don't have a mechanism to lex the closing brace
-                        return TokenType.Unrecognized;
+                        // if we're inside a string interpolation hole, and we find an object open brace,
+                        // push it to the stack, so that we can match it up against an object close brace.
+                        // this allows us to determine whether we're terminating an object or closing an interpolation hole.
+                        templateStack.Push(TokenType.LeftBrace);
                     }
                     return TokenType.LeftBrace;
                 case '}':
-                    if (CurrentLexMode == LexMode.String)
+                    if (templateStack.Any())
                     {
-                        return ScanStringSegment(true);
+                        var prevTemplateToken = templateStack.Peek();
+                        if (prevTemplateToken != TokenType.LeftBrace)
+                        {
+                            var stringToken = ScanStringSegment(false);
+                            if (stringToken == TokenType.StringRightPiece)
+                            {
+                                templateStack.Pop();
+                            }
+
+                            return stringToken;
+                        }
                     }
                     return TokenType.RightBrace;
                 case '(':
@@ -588,10 +573,16 @@ namespace Bicep.Core.Parser
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    return ScanStringSegment(false);
+                    var token = ScanStringSegment(true);
+                    if (token == TokenType.StringLeftPiece)
+                    {
+                        // if we're beginning a string interpolation statement, we need to keep track of it
+                        templateStack.Push(token);
+                    }
+                    return token;
                 case '\n':
                 case '\r':
-                    if (CurrentLexMode == LexMode.String)
+                    if (templateStack.Any())
                     {
                         // need to re-check the newline token on next pass
                         textWindow.Rewind();
@@ -599,7 +590,7 @@ namespace Bicep.Core.Parser
                         // do not consume the new line character
                         AddError(b => b.UnterminatedStringWithNewLine());
 
-                        lexModeStack.Pop();
+                        templateStack.Clear();
                         return TokenType.StringRightPiece;
                     }
                     this.ScanNewLine();
