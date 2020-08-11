@@ -21,7 +21,7 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public dynamic CompileAndEmitDiagnostics(string content)
+        public object CompileAndEmitDiagnostics(string content)
         {
             var (output, diagnostics) = CompileInternal(content);
             
@@ -33,7 +33,7 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public dynamic GetSemanticTokensLegend()
+        public object GetSemanticTokensLegend()
         {
             var tokenTypes = Enum.GetValues(typeof(SemanticTokenType)).Cast<SemanticTokenType>();
             var tokenStrings = tokenTypes.OrderBy(t => (int)t).Select(t => t.ToString().ToLowerInvariant());
@@ -45,7 +45,7 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public dynamic GetSemanticTokens(string content)
+        public object GetSemanticTokens(string content)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(content);
             var compilation = new Compilation(SyntaxFactory.CreateFromText(content));
@@ -114,7 +114,7 @@ namespace Bicep.Wasm
             return reader.ReadToEnd();
         }
 
-        private static dynamic ToMonacoDiagnostic(Diagnostic error, IReadOnlyList<int> lineStarts)
+        private static object ToMonacoDiagnostic(Diagnostic error, IReadOnlyList<int> lineStarts)
         {
             var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position);
             var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position + error.Span.Length);
