@@ -592,7 +592,6 @@ namespace Bicep.Core.Parser
                         textWindow.Rewind();
 
                         // do not consume the new line character
-                        // TODO figure out the span from the actual start of the string. may need to add this data to the stack.
                         AddError(b => b.UnterminatedStringWithNewLine());
 
                         lexModeStack.Pop();
