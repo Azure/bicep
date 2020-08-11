@@ -9,6 +9,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
+    // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
+    // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
     public enum LexMode
     {
         Normal,
@@ -99,11 +101,15 @@ namespace Bicep.Core.Parser
         /// <param name="stringToken">the string token</param>
         public static string GetStringValue(Token stringToken)
         {
+            // This method should only be called once we've verified there are no lexer errors.
+            // In an error scenario, the lexer can produce string tokens for unterminated strings,
+            // whereas this method assumes the string token is correctly formed.
+
             var (start, end) = stringToken.Type switch {
-                TokenType.StringComplete => ("'", "'"),
-                TokenType.StringLeftPiece => ("'", "${"),
-                TokenType.StringMiddlePiece => ("}", "${"),
-                TokenType.StringRightPiece => ("}", "'"),
+                TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
+                TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
+                TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
+                TokenType.StringRightPiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringDelimiter),
                 _ => throw new ArgumentException($"Unexpected token of type {stringToken.Type}."),
             };
 
@@ -328,8 +334,14 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private TokenType ScanString(bool isContinuation)
+        private TokenType ScanStringSegment(bool isContinuation)
         {
+            // to handle interpolation, strings are broken down into multiple segments, to detect the portions of string between the 'holes'.
+            // 'complete' string: a string with no holes (no interpolation), e.g. "'hello'"
+            // string 'left piece': the portion of an interpolated string up to the first hole, e.g. "'hello$"
+            // string 'middle piece': the portion of an interpolated string between two holes, e.g. "}hello${"
+            // string 'right piece': the portion of an interpolated string after the last hole, e.g. "]hello'"
+
             TokenType TerminateString()
             {
                 if (isContinuation)
@@ -467,7 +479,7 @@ namespace Bicep.Core.Parser
                 case '}':
                     if (CurrentLexMode == LexMode.String)
                     {
-                        return ScanString(true);
+                        return ScanStringSegment(true);
                     }
                     return TokenType.RightBrace;
                 case '(':
@@ -571,7 +583,7 @@ namespace Bicep.Core.Parser
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    return ScanString(false);
+                    return ScanStringSegment(false);
                 case '\n':
                 case '\r':
                     if (CurrentLexMode == LexMode.String)

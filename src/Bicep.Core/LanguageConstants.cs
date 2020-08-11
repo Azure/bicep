@@ -19,6 +19,10 @@ namespace Bicep.Core
         public const string VariableKeyword = "variable";
         public const string ResourceKeyword = "resource";
 
+        public const string StringDelimiter = "'";
+        public const string StringHoleOpen = "${";
+        public const string StringHoleClose = "}";
+
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new ObjectType("object");

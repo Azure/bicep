@@ -1,13 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Parser;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Extensions
 {
     public static class IPositionableExtensions
     {
+        public static TextSpan GetSpanSlice(this IPositionable positionable, int start, int length)
+            => new TextSpan(positionable.Span.Position + start, length);
+
+        public static TextSpan SafeGetSpanSlice(this IPositionable positionable, int start, int length)
+            => GetSpanSlice(
+                positionable,
+                Math.Min(start, positionable.Span.Length),
+                Math.Min(length, positionable.Span.Length - start));
+
         public static Range ToRange(this IPositionable positionable, ImmutableArray<int> lineStarts) =>
             new Range
             {

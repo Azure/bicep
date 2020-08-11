@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
@@ -160,11 +161,46 @@ namespace Bicep.LanguageServer
             base.VisitSkippedTokensTriviaSyntax(syntax);
         }
 
+        private void AddStringToken(Token token)
+        {
+            var endInterp = token.Type switch {
+                TokenType.StringLeftPiece => LanguageConstants.StringHoleOpen,
+                TokenType.StringMiddlePiece => LanguageConstants.StringHoleOpen,
+                _ => "",
+            };
+
+            var startInterp = token.Type switch {
+                TokenType.StringMiddlePiece => LanguageConstants.StringHoleClose,
+                TokenType.StringRightPiece => LanguageConstants.StringHoleClose,
+                _ => "",
+            };
+
+            // need to be extremely cautious here. it may be that lexing has failed to find a string terminating character,
+            // but we still have a syntax tree to display tokens for.
+            var hasEndOperator = endInterp.Length > 0 && token.Text.EndsWith(endInterp);
+            var endOperatorLength = hasEndOperator ? endInterp.Length : 0;
+
+            var hasStartOperator = startInterp.Length > 0 && token.Text.Length >= startInterp.Length;
+            var startOperatorLength = hasStartOperator ? startInterp.Length : 0;
+
+            if (hasStartOperator)
+            {
+                AddTokenType(token.GetSpanSlice(0, startOperatorLength), SemanticTokenType.Operator);
+            }
+
+            AddTokenType(token.GetSpanSlice(startOperatorLength, token.Span.Length - startOperatorLength - endOperatorLength), SemanticTokenType.String);
+
+            if (hasEndOperator)
+            {
+                AddTokenType(token.GetSpanSlice(token.Span.Length - endOperatorLength, endOperatorLength), SemanticTokenType.Operator);
+            }
+        }
+
         public override void VisitStringSyntax(StringSyntax syntax)
         {
             foreach (var token in syntax.StringTokens)
             {
-                AddTokenType(token, SemanticTokenType.String);
+                AddStringToken(token);
             }
             base.VisitStringSyntax(syntax);
         }
