@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
-            AddTokenType(syntax.Literal, SemanticTokenType.Number);
+            AddTokenType(syntax.Literal, SemanticTokenType.Keyword);
             base.VisitBooleanLiteralSyntax(syntax);
         }
 
@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            AddTokenType(syntax.NullKeyword, SemanticTokenType.Number);
+            AddTokenType(syntax.NullKeyword, SemanticTokenType.Keyword);
             base.VisitNullLiteralSyntax(syntax);
         }
 
