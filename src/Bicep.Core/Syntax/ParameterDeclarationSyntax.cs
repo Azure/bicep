@@ -6,9 +6,9 @@ namespace Bicep.Core.Syntax
     {
         public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, SyntaxBase? modifier, Token newLine)
         {
-            this.AssertTokenType(parameterKeyword, nameof(parameterKeyword), TokenType.ParameterKeyword);
-            this.AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax));
-            this.AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
+            AssertKeyword(parameterKeyword, nameof(parameterKeyword), LanguageConstants.ParameterKeyword);
+            AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax));
+            AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 
             this.ParameterKeyword = parameterKeyword;
             this.Name = name;

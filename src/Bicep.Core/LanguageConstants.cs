@@ -14,6 +14,11 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
+        public const string ParameterKeyword = "parameter";
+        public const string OutputKeyword = "output";
+        public const string VariableKeyword = "variable";
+        public const string ResourceKeyword = "resource";
+
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new ObjectType("object");
