@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "configurations": [
         {
-            "name": "Bicep Extension",
+            "name": "Bicep VSCode Extension",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
@@ -17,21 +17,6 @@
             "sourceMaps": true,
             "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
             "preLaunchTask": "vscodeext-build"
-        },
-        {
-            "name": "Bicep Web Demo",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "dotnet",
-            "args": ["run", "${workspaceFolder}/src/Bicep.WebDemo/bin/Debug/netstandard2.1/Bicep.WebDemo.dll"],
-            "cwd": "${workspaceFolder}/src/Bicep.WebDemo",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "^\\s*Now listening on:\\s+(http://\\S+)"
-            },
         },
         {
             "name": "Bicep Cli",
