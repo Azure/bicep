@@ -475,6 +475,11 @@ namespace Bicep.Core.Parser
             switch (nextChar)
             {
                 case '{':
+                    if (CurrentLexMode == LexMode.String)
+                    {
+                        // object literals in interpolations are unsupported, since we don't have a mechanism to lex the closing brace
+                        return TokenType.Unrecognized;
+                    }
                     return TokenType.LeftBrace;
                 case '}':
                     if (CurrentLexMode == LexMode.String)
