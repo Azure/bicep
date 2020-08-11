@@ -31,10 +31,10 @@ ARM Template:
 
 Bicep:
 ```
-parameter name string default 'myName'
+parameter name string = 'myName'
 ```
 
-For a more complex parrameter with modifiers such as `allowedValues`:
+For a more complex parameter with modifiers such as `allowedValues`:
 
 ARM Template:
 ```json
@@ -68,6 +68,57 @@ parameter name string {
 }
 ```
 
+### Convert a variable
+
+Translation of a simple string variable:
+
+ARM Template:
+
+```
+"variables": {
+    "location": "eastus"
+}
+```
+
+Bicep:
+
+```
+variable location = 'eastus'
+```
+
+### Convert an output
+
+Translation of a simple string output
+
+ARM Template:
+
+```
+"outputs": {
+    "myOutput": {
+        "type": "string",
+        "value": "my output value"
+    }
+}
+```
+
+Bicep:
+
+```
+output myOutput string = 'my output value'
+```
+
 ## Convert resources
 
-Let's take a basic resource declared in ARM, and convert it to Bicep. Notice that all properties required in the ARM template are 
+Let's take a basic resource declared in ARM, and convert it to Bicep. Notice that all properties required in the ARM template are still required in bicep:
+
+ARM Template:
+
+```
+// todo
+```
+
+Bicep: 
+
+```
+// todo
+```

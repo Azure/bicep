@@ -1,7 +1,6 @@
 # Working with a basic bicep file
 
-
-In the previous step, we compiled the most basic bicep file -- a blank template. Now let's add a resource to our `main.arm` bicep file:
+In the previous step, we compiled the most basic bicep file -- a blank template. Now let's add a `resource` to our `main.arm` bicep file:
 
 ## Add a resource
 
@@ -18,17 +17,21 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 The resource declaration has four components:
 * `resource` keyword
-* **resource identifier** (`storage`) - this is a symbolic name for referencing the resource. It is *not* what the name of the resource will be when it's deployed.
+* **resource identifier** (`storage`) - this is a symbolic name for referencing the resource through your bicep file. It is *not* what the name of the resource will be when it's deployed.
 * **resource type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and apiVersion (`2019-06-01`). These properties should be familiar if you've ever deployed ARM Templates before.
-* **resource properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properities available to you in an ARM Template.
+* **resource properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
 
 When we compile the template with `bicep build main.arm`, we see the following JSON. Notice the string interpolation in bicep gets translated to the `concat()` function in the ARM Template JSON:
 
 ```json
-// todo
+// todo - waiting for above to compile
 ```
 
 At this point, I can deploy it like any other ARM template using the standard command line tools (`az deployment group create ...` or `New-AzResourceGroupDeployment ...`).
+
+```bash
+az deployment group create -f ./main.json -g my-rg
+```
 
 ## Add parameters
 
@@ -48,7 +51,11 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 ```
 
-Notice the `parameters` can be referenced directly in bicep, compared to requiring `parameters('location')` in ARM template JSON. Let's compile with `bicep build main.arm` and look at the output:
+Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
+
+The end of the parameter declaration (`= 'eastus'`) is the default value, so this can be optionally overridden.
+
+Let's compile with `bicep build main.arm` and look at the output:
 
 ```json
 //todo
@@ -56,7 +63,7 @@ Notice the `parameters` can be referenced directly in bicep, compared to requiri
 
 ## Add variables and outputs
 
-I can also add `variables` for storing repeated values or complex expressions, and emit `outputs`:
+I can also add `variables` for storing repeated values or complex expressions, and emit `outputs` to be passed to a script or another template:
 
 ```
 parameter location string = 'eastus'
@@ -76,9 +83,14 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 output storageId string = storage.id
 ```
 
-Notice I can easily reference the resourceId from the symbolic name of the storage account (`storage.id`) which we will translate to the `resourceId()` function in the compiled template. When compiled, you should see the following ARM Template JSON:
+Notice I can easily reference the resourceId from the symbolic name of the storage account (`storage.id`) which we will translate to the `resourceId(...)` function in the compiled template. When compiled, you should see the following ARM Template JSON:
 
 ```json
 // todo
 ```
 
+## Next steps
+
+In the next tutorial, we will start working with more advanced bicep expressions: 
+
+[2 - Using 'advanced' expressions](./02-using-expressions.md)
