@@ -8,14 +8,14 @@ parameter myInt int
 parameter myBool bool
 
 // parameters with default value
-parameter myString2 string default 'string value'
-parameter myInt2 int default 42
-parameter myTruth bool default true
-parameter myFalsehood bool default false
-parameter myEscapedString string default 'First line\r\nSecond\ttabbed\tline'
+parameter myString2 string = 'string value'
+parameter myInt2 int = 42
+parameter myTruth bool = true
+parameter myFalsehood bool = false
+parameter myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
-parameter foo object default {
+parameter foo object = {
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -39,7 +39,7 @@ parameter foo object default {
 }
 
 // array default value
-parameter myArrayParam array default [
+parameter myArrayParam array = [
   'a'
   'b'
   'c'
@@ -136,4 +136,4 @@ parameter defaultValueExpression int {
   defaultValue: true ? 4 + 2*3 : 0
 }
 
-parameter defaultExpression bool default 18 != (true || false)
+parameter defaultExpression bool = 18 != (true || false)

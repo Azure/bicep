@@ -6,7 +6,8 @@ namespace Bicep.Core.Syntax
     {
         public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, StringSyntax type, Token assignment, SyntaxBase body, Token newLine)
         {
-            AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.ResourceKeyword);
+            AssertKeyword(resourceKeyword, nameof(resourceKeyword), LanguageConstants.ResourceKeyword);
+            AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.Identifier);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 

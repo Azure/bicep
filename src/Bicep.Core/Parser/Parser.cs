@@ -44,32 +44,25 @@ namespace Bicep.Core.Parser
             return this.WithRecovery(TokenType.NewLine, () =>
             {
                 var current = reader.Peek();
-                switch (current.Type)
-                {
-                    case TokenType.ParameterKeyword:
-                        return this.ParameterDeclaration();
 
-                    case TokenType.VariableKeyword:
-                        return this.VariableDeclaration();
-
-                    case TokenType.ResourceKeyword:
-                        return this.ResourceDeclaration();
-
-                    case TokenType.OutputKeyword:
-                        return this.OutputDeclaration();
-
-                    case TokenType.NewLine:
-                        return this.NoOpStatement();
-                }
-
-                // TODO: Update when adding other statement types
-                throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration());
+                return current.Type switch {
+                    TokenType.Identifier => current.Text switch {
+                        LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
+                        LanguageConstants.VariableKeyword => this.VariableDeclaration(),
+                        LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
+                        LanguageConstants.OutputKeyword => this.OutputDeclaration(),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                    },
+                    TokenType.NewLine => this.NoOpStatement(),
+                    // TODO: Update when adding other statement types
+                    _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                };
             });
         }
 
         private SyntaxBase ParameterDeclaration()
         {
-            var keyword = Expect(TokenType.ParameterKeyword, b => b.ExpectedKeyword("parameter"));
+            var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = Identifier(b => b.ExpectedParameterIdentifier());
             var type = Type(b => b.ExpectedParameterType());
 
@@ -80,7 +73,7 @@ namespace Bicep.Core.Parser
                 TokenType.NewLine => null,
 
                 // default value is specified
-                TokenType.DefaultKeyword => this.ParameterDefaultValue(),
+                TokenType.Assignment => this.ParameterDefaultValue(),
 
                 // modifier is specified
                 TokenType.LeftBrace => this.Object(),
@@ -95,15 +88,15 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ParameterDefaultValue()
         {
-            Token defaultKeyword = this.Expect(TokenType.DefaultKeyword, b => b.ExpectedKeyword("default"));
+            var assignmentToken = this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
             SyntaxBase defaultValue = this.Expression();
 
-            return new ParameterDefaultValueSyntax(defaultKeyword, defaultValue);
+            return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
         }
 
         private SyntaxBase VariableDeclaration()
         {
-            var keyword = this.Expect(TokenType.VariableKeyword, b => b.ExpectedKeyword("variable"));
+            var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
             var name = this.Identifier(b => b.ExpectedVariableIdentifier());
             var assignment = this.Assignment();
             var value = this.Expression();
@@ -115,7 +108,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase OutputDeclaration()
         {
-            var keyword = this.Expect(TokenType.OutputKeyword, b => b.ExpectedKeyword("output"));
+            var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.Identifier(b => b.ExpectedOutputIdentifier());
             var type = Type(b => b.ExpectedParameterType());
             var assignment = this.Assignment();
@@ -128,7 +121,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ResourceDeclaration()
         {
-            var keyword = this.Expect(TokenType.ResourceKeyword, b => b.ExpectedKeyword("resource"));
+            var keyword = ExpectKeyword(LanguageConstants.ResourceKeyword);
             var name = this.Identifier(b => b.ExpectedResourceIdentifier());
 
             // TODO: Unify StringSyntax with TypeSyntax
@@ -513,6 +506,18 @@ namespace Bicep.Core.Parser
             }
 
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
+        }
+
+        private Token ExpectKeyword(string expectedKeyword)
+        {
+            if (this.Check(TokenType.Identifier) && reader.Peek().Text == expectedKeyword)
+            {
+                // only read the token if it matches the expectations
+                // otherwise, we could accidentally consume EOF
+                return reader.Read();
+            }
+
+            throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 
         private bool Match(TokenType type)

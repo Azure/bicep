@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public OutputDeclarationSyntax(Token outputKeyword, IdentifierSyntax name, TypeSyntax type, Token assignment, SyntaxBase value, Token newLine)
         {
-            AssertTokenType(outputKeyword, nameof(outputKeyword), TokenType.OutputKeyword);
+            AssertKeyword(outputKeyword, nameof(outputKeyword), LanguageConstants.OutputKeyword);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
             

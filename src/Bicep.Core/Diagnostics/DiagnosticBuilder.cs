@@ -54,7 +54,7 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExpectedParameterContinuation() => new Diagnostic(
                 TextSpan,
                 "BCP008",
-                "Expected the default keyword, a parameter modifier, or a newline at this location.");
+                "Expected the '=' token, a parameter modifier, or a newline at this location.");
 
             public Diagnostic UnrecognizedExpression() => new Diagnostic(
                 TextSpan,
