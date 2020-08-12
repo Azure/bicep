@@ -14,7 +14,7 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) STRING(type) "=" object NL
+resourceDecl -> "resource" IDENTIFIER(name) interpolatedString(type) "=" object NL
 
 outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 
@@ -67,6 +67,7 @@ memberExpression ->
 primaryExpression ->
   functionCall |
   literalValue |
+  interpolatedString |
   array |
   object |
   parenthesizedExpression
@@ -77,7 +78,9 @@ argumentList -> expression ("," expression)*
 
 parenthesizedExpression -> "(" expression ")"
 
-literalValue -> NUMBER | STRING | "true" | "false" | "null"
+interpolatedString -> "'" STRINGCHAR* ( "${" expression "}" STRINGCHAR* )* "'"
+
+literalValue -> NUMBER | "true" | "false" | "null"
 
 object -> "{" NL+ ( objectProperty NL+ )* "}" 
 objectProperty -> IDENTIFIER(name) ":" expression 
@@ -85,25 +88,4 @@ objectProperty -> IDENTIFIER(name) ":" expression
 array -> "[" NL+ arrayItem* "]"
 arrayItem -> expression NL+
 
-```
-
-
-Ignore everything below
-
-```
-expression -> ternary 
-ternary -> booleanOr ( "?" booleanOr ":" booleanOr )? 
-booleanOr -> booleanAnd ( "||" booleanOr )? 
-booleanAnd -> equality ( "&&" booleanAnd )? 
-equality -> comparison ( ( "==" | "!=" | "=~" | "!~" ) equality )? 
-comparison -> addition ( ( ">" | ">=" | "<" | "<=" ) comparison )? 
-addition -> multiplication ( ( "-" | "+" ) addition )? 
-multiplication -> unary ( ( "/" | "*" | "%" ) multiplication )? 
-unary -> ( "!" | "-" ) unary | memberAccess 
-memberAccess -> functionCall ( "." functionCall | "[" expression "]" )* 
-functionCall -> primary ( "(" ( expression ( "," expression )* )? ")" )? 
-primary -> NUMBER | STRING | IDENTIFIER | object | array | "false" | "true" | "null" | "(" expression ")" 
-object -> "{" ( objectProperty "," )* objectProperty? "}" 
-objectProperty -> IDENTIFIER ":" expression 
-array -> "[" ( expression "," )* expression? "]" 
 ```

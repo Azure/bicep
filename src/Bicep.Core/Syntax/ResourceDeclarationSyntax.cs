@@ -4,7 +4,7 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase
     {
-        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, StringSyntax type, Token assignment, SyntaxBase body, Token newLine)
+        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token newLine)
         {
             AssertKeyword(resourceKeyword, nameof(resourceKeyword), LanguageConstants.ResourceKeyword);
             AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.Identifier);
@@ -23,7 +23,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax Name { get; }
 
-        public StringSyntax Type { get; }
+        public SyntaxBase Type { get; }
 
         public Token Assignment { get; }
 
@@ -34,5 +34,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitResourceDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(ResourceKeyword, NewLine);
+
+        public StringSyntax? TryGetType() => Type as StringSyntax;
     }
 }

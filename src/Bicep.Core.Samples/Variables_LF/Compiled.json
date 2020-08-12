@@ -6,6 +6,11 @@
   "variables": {
     "myInt": 42,
     "myStr": "str",
+    "interp1": "[format('abc{0}def', 123)]",
+    "interp2": "[format('{0}def', 123)]",
+    "interp3": "[format('abc{0}', 123)]",
+    "interp4": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
+    "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "myTruth": true,
     "myFalsehood": false,
     "myObj": {

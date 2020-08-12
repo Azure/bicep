@@ -245,6 +245,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP046",
                 $"Expected a value of type '{type}'.");
+
+            public Diagnostic ResourceTypeInterpolationUnsupported() => new Diagnostic(
+                TextSpan,
+                "BCP047",
+                "String interpolation is unsupported for specifying the resource type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

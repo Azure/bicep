@@ -13,7 +13,7 @@
     },
     "myString2": {
       "type": "string",
-      "defaultValue": "string value"
+      "defaultValue": "[format('strin{0}g value', 2)]"
     },
     "myInt2": {
       "type": "int",

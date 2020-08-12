@@ -13,6 +13,10 @@ resource foo 'ddd'=
 resource foo 'ddd'={
 }
 
+// using string interpolation for the resource type
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
+}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 }

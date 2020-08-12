@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -99,7 +100,12 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitStringSyntax(StringSyntax syntax)
         {
-            this.VisitToken(syntax.StringToken);
+            for (var i = 0; i < syntax.Expressions.Length; i++)
+            {
+                this.VisitToken(syntax.StringTokens[i]);
+                this.Visit(syntax.Expressions[i]);
+            }
+            this.VisitToken(syntax.StringTokens.Last());
         }
 
         public virtual void VisitProgramSyntax(ProgramSyntax syntax)
