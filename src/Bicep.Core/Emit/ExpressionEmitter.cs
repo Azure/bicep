@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Azure.ResourceManager.Deployments.Expression.Configuration;
 using Azure.ResourceManager.Deployments.Expression.Expressions;
 using Azure.ResourceManager.Deployments.Expression.Serializers;
@@ -58,14 +57,13 @@ namespace Bicep.Core.Emit
                 case BinaryOperationSyntax _:
                 case TernaryOperationSyntax _:
                 case StringSyntax _:
+                case FunctionCallSyntax _:
+                case ArrayAccessSyntax _:
+                case PropertyAccessSyntax _:
                     EmitLanguageExpression(writer, syntax);
                     
                     break;
 
-                case ArrayAccessSyntax _:
-                case FunctionArgumentSyntax _:
-                case FunctionCallSyntax _:
-                case PropertyAccessSyntax _:
                 case VariableAccessSyntax _:
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");

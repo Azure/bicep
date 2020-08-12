@@ -18,6 +18,9 @@ namespace Bicep.Core
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "variable";
         public const string ResourceKeyword = "resource";
+		
+        public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
+        public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";

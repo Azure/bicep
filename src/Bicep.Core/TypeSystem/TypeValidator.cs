@@ -1,6 +1,5 @@
 ﻿using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using System;
@@ -211,7 +210,7 @@ namespace Bicep.Core.TypeSystem
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
                 .Select(p => p.Identifier.IdentifierName)
-                .Except(targetType.Properties.Values.Select(p => p.Name), StringComparer.Ordinal)
+                .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
             if (targetType.AdditionalPropertiesType == null)

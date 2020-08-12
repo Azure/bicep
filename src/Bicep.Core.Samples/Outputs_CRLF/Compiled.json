@@ -62,6 +62,18 @@
         "say",
         "[if(json('false'), 'arr2', 'arr')]"
       ]
+    },
+    "rgLocation": {
+      "type": "string",
+      "value": "[resourceGroup().location]"
+    },
+    "crossRegion": {
+      "type": "bool",
+      "value": "[if(equals(resourceGroup().location, deployment().location), json('false'), json('true'))]"
+    },
+    "expressionBasedIndexer": {
+      "type": "string",
+      "value": "[json('{\"eastus\":{\"foo\":true},\"westus\":{\"foo\":false}}')[resourceGroup().location].foo]"
     }
   }
 }

@@ -126,10 +126,10 @@
     "spanText": "'a' + 1"
   },
   {
-    "message": "Function calls are not currently supported.",
-    "errorCode": "BCP039",
-    "span": "[937:940]",
-    "spanText": "foo"
+    "message": "Cannot resolve function foo().",
+    "errorCode": "BCP048",
+    "span": "[937:942]",
+    "spanText": "foo()"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",

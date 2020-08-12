@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Azure.ResourceManager.Deployments.Core.Extensions;
 using Bicep.Core.Parser;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -201,26 +205,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type '{type}'.");
 
-            public Diagnostic NotImplementedFunctionArgs() => new Diagnostic(
-                TextSpan,
-                "BCP038",
-                "Function arguments are not currently supported.");
-
-            public Diagnostic NotImplementedFunctionCalls() => new Diagnostic(
-                TextSpan,
-                "BCP039",
-                "Function calls are not currently supported.");
-
-            public Diagnostic NotImplementedPropertyAccess() => new Diagnostic(
-                TextSpan,
-                "BCP040",
-                "Property access is not currently supported.");
-
-            public Diagnostic NotImplementedArrayAccess() => new Diagnostic(
-                TextSpan,
-                "BCP041",
-                "Array access is not currently supported.");
-
             public Diagnostic NotImplementedVariableAccess() => new Diagnostic(
                 TextSpan,
                 "BCP042",
@@ -250,6 +234,46 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP047",
                 "String interpolation is unsupported for specifying the resource type.");
+
+            public Diagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new Diagnostic(
+                TextSpan,
+                "BCP048",
+                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatStrings(", ")}).");
+
+            public Diagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new Diagnostic(
+                TextSpan,
+                "BCP049",
+                $"The array index must be of type '{LanguageConstants.String}' or '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
+
+            public Diagnostic ArrayRequiredForIntegerIndexer(TypeSymbol wrongType) => new Diagnostic(
+                TextSpan,
+                "BCP050",
+                $"Cannot use an integer indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Array}' type is required.");
+
+            public Diagnostic ObjectRequiredForStringIndexer(TypeSymbol wrongType) => new Diagnostic(
+                TextSpan,
+                "BCP051",
+                $"Cannot use a string indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
+
+            public Diagnostic MalformedPropertyNameString() => new Diagnostic(
+                TextSpan,
+                "BCP052",
+                "The property name in a string indexer is malformed.");
+
+            public Diagnostic UnknownProperty(TypeSymbol type, string badProperty) => new Diagnostic(
+                TextSpan,
+                "BCP053",
+                $"The type '{type}' does not contain property '{badProperty}'.");
+
+            public Diagnostic NoPropertiesAllowed(TypeSymbol type) => new Diagnostic(
+                TextSpan,
+                "BCP054",
+                $"The type '{type}' does not contain any properties.");
+
+            public Diagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => new Diagnostic(
+                TextSpan,
+                "BCP055",
+                $"Cannot access properties of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

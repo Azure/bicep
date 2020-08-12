@@ -17,7 +17,7 @@ namespace Bicep.Core.Syntax
 
         public Token Dot { get; }
 
-        public SyntaxBase PropertyName { get; }
+        public IdentifierSyntax PropertyName { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 
