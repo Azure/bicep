@@ -1,8 +1,8 @@
-﻿// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // ----------------------------------------------------------------------------
 
-namespace Azure.ResourceManager.Deployments.Expression.Configuration
+namespace Arm.Expression.Configuration
 {
     /// <summary>
     /// Expression serializer settings.

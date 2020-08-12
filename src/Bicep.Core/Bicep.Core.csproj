@@ -1,16 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework> 
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Azure.ResourceManager.Deployments.Expression" Version="1.0.24" />
+    <ProjectReference Include="..\Arm.Expression\Arm.Expression.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
   </ItemGroup>
+
   <ItemGroup>
     <Folder Include="Utils\" />
   </ItemGroup>
+
 </Project>

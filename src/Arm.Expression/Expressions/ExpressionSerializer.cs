@@ -2,23 +2,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // ----------------------------------------------------------------------------
 
-namespace Azure.ResourceManager.Deployments.Expression.Serializers
-{
-    using Azure.ResourceManager.Deployments.Core.ErrorResponses;
-    using Azure.ResourceManager.Deployments.Core.Extensions;
-    using Azure.ResourceManager.Deployments.Core.Instrumentation.Extensions;
-    using Azure.ResourceManager.Deployments.Expression.Configuration;
-    using Azure.ResourceManager.Deployments.Expression.Engines;
-    using Azure.ResourceManager.Deployments.Expression.Exceptions;
-    using Azure.ResourceManager.Deployments.Expression.Expressions;
-    using Azure.ResourceManager.Deployments.Expression.Extensions;
-    using Azure.ResourceManager.Deployments.Expression.Parsers;
-    using Newtonsoft.Json.Linq;
-    using System;
-    using System.Linq;
-    using System.Text;
+using Arm.Expression.Configuration;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Text;
 
-    /// <summary>t
+namespace Arm.Expression.Expressions
+{
+    /// <summary>
     /// Serializes language expressions into strings.
     /// </summary>
     public class ExpressionSerializer
@@ -78,7 +70,7 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
                     var valueStr = value.ToString();
 
                     // Note(majastrz): Add escape bracket if needed.
-                    if (valueStr.StartsWithOrdinally(prefix: "["))
+                    if (valueStr.Length > 0 && valueStr[0] == '[')
                     {
                         buffer.Append(value: '[');
                     }
@@ -244,10 +236,7 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
                     return;
 
                 case JTokenType.String:
-                    // Note(majastrz): Strings are serialized enclosed in single quotes. Double single quote character is used to escape a single quote in the string.
-                    buffer.Append(value: '\'');
-                    buffer.Append(value: ExpressionExtensions.EscapeStringLiteral(value.ToString()));
-                    buffer.Append(value: '\'');
+                    WriteEscapedStringLiteral(buffer, value.ToString());
 
                     return;
 
@@ -255,6 +244,21 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
                     // Note(majastrz): JTokenValue can only be created with string or int value.
                     throw new InvalidOperationException($"JTokenExpression has a value of unexpected type '{value.Type}'.");
             }
+        }
+
+        private static void WriteEscapedStringLiteral(StringBuilder buffer, string value)
+        {
+            // Note(majastrz): Strings are serialized enclosed in single quotes. Double single quote character is used to escape a single quote in the string.
+            buffer.Append(value: '\'');
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (value[i] == '\'')
+                {
+                    buffer.Append('\'');
+                }
+                buffer.Append(value[i]);
+            }
+            buffer.Append(value: '\'');
         }
 
         /// <summary>
@@ -265,19 +269,7 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
         {
             // Note(majastrz): EvaluateExpression on JTokenExpression just returns the value and does not use the context at all.
             // The constructor of JTokenExpression does not allow you to create one with a null value, so we don't really need to check
-            return valueExpression.EvaluateExpression(context: null);
-        }
-
-        /// <summary>
-        /// Validates that the specified expression is not null. Does not perform recursive validation.
-        /// </summary>
-        /// <param name="expression">The expression</param>
-        private static void ValidateExpression(LanguageExpression expression)
-        {
-            if (expression == null)
-            {
-                throw new ExpressionException(message: ErrorResponseMessages.ExpressionSerializerNullExpression.ToLocalizedMessage());
-            }
+            return valueExpression.Value;
         }
 
         /// <summary>
@@ -286,7 +278,16 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
         /// <param name="value">The string to check</param>
         private static bool IsIdentifier(string value)
         {
-            return !string.IsNullOrEmpty(value: value) && value.All(predicate: ExpressionScanner.IsSupportedIdentifierCharacter);
+            return !string.IsNullOrEmpty(value: value) && value.All(IsSupportedIdentifierCharacter);
+        }
+
+        /// <summary>
+        /// Determines whether character is a supported identifier character.
+        /// </summary>
+        /// <param name="character">Input character.</param>        
+        public static bool IsSupportedIdentifierCharacter(char character)
+        {
+            return char.IsLetterOrDigit(character) || character == '$' || character == '_';
         }
 
         /// <summary>
@@ -296,22 +297,16 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
         private static void ValidateFunctionExpression(FunctionExpression functionExpression)
         {
             ExpressionSerializer.ValidateExpression(expression: functionExpression);
-
+            ExpressionSerializer.ValidateExpressionArray(functionExpression.Parameters);
+            ExpressionSerializer.ValidateExpressionArray(functionExpression.Properties);
+/*
+            TODO: OK to remove this?
             if (!ExpressionsEngine.IsFunctionName(value: functionExpression.Function))
             {
                 // Note(majastrz): The function name is not a valid identifier.
                 throw new ExpressionException(message: ErrorResponseMessages.ExpressionSerializerInvalidFunctionName.ToLocalizedMessage(arg0: functionExpression.Function));
             }
-
-            ExpressionSerializer.ValidateExpressionArray(
-                expressions: functionExpression.Parameters,
-                functionName: functionExpression.Function,
-                propertyName: nameof(functionExpression.Parameters));
-
-            ExpressionSerializer.ValidateExpressionArray(
-                expressions: functionExpression.Properties,
-                functionName: functionExpression.Function,
-                propertyName: nameof(functionExpression.Properties));
+*/
         }
 
         /// <summary>
@@ -324,16 +319,26 @@ namespace Azure.ResourceManager.Deployments.Expression.Serializers
         }
 
         /// <summary>
+        /// Validates that the specified expression is not null. Does not perform recursive validation.
+        /// </summary>
+        /// <param name="expression">The expression</param>
+        private static void ValidateExpression(LanguageExpression expression)
+        {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+        }
+
+        /// <summary>
         /// Validates the specified array of property expressions. Does not perform recursive validation.
         /// </summary>
         /// <param name="expressions">The expressions array</param>
-        /// <param name="functionName">The function name</param>
-        /// <param name="propertyName">The name of the property being validated</param>
-        private static void ValidateExpressionArray(LanguageExpression[] expressions, string functionName, string propertyName)
+        private static void ValidateExpressionArray(LanguageExpression[] expressions)
         {
             if (expressions == null)
             {
-                throw new ExpressionException(message: ErrorResponseMessages.ExpressionSerializerFunctionNullExpressionCollection.ToLocalizedMessage(arg0: functionName, arg1: propertyName));
+                throw new ArgumentNullException(nameof(expressions));
             }
         }
     }

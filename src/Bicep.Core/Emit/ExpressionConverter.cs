@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Azure.ResourceManager.Deployments.Expression.Expressions;
+using Arm.Expression.Expressions;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -115,7 +115,7 @@ namespace Bicep.Core.Emit
                     return functionExpression;
 
                 case JTokenExpression valueExpression:
-                    JToken value = valueExpression.EvaluateExpression(null);
+                    JToken value = valueExpression.Value;
 
                     switch (value.Type)
                     {
@@ -232,10 +232,10 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("not", convertedOperand);
 
                 case UnaryOperator.Minus:
-                    if (convertedOperand is JTokenExpression literal && literal.EvaluateExpression(null).Type == JTokenType.Integer)
+                    if (convertedOperand is JTokenExpression literal && literal.Value.Type == JTokenType.Integer)
                     {
                         // invert the integer literal
-                        int literalValue = literal.EvaluateExpression(null).Value<int>();
+                        int literalValue = literal.Value.Value<int>();
                         return new JTokenExpression(-literalValue);
                     }
 
