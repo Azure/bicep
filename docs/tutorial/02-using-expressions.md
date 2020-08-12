@@ -26,7 +26,7 @@ parameter location string = 'eastus'
 variable storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: uniqueString(resourceGroup().id) // generates unique name based on resouceGroup ID
+    name: uniqueString(resourceGroup().id) // generates unique name based on resource group ID
     location: location
     kind: storageSku
     sku: {
@@ -39,16 +39,17 @@ output storageId string = stg.id
 
 ## Using string interpolation
 
-The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()`:
+The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use a `variable` to store this expression, so that our resource declaration is a bit cleaner: 
 
 ```
 parameter location string = 'eastus'
 parameter namePrefix string = 'stg'
 
 variable storageSku = 'Standard_LRS' // declare variable and assign value
+variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
+    name: storageAccountName
     location: location
     kind: 'Storage'
     sku: {
@@ -58,6 +59,8 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 output storageId string = stg.id
 ```
+
+If you compile with `bicep build`, you will notice we are compiling this into the `format()` function, not the `concat()` function. Functionally, the end result is the same, but the `format()` function is a bit more stable in the IL.
 
 ## Using the ternary operator
 
@@ -69,8 +72,10 @@ parameter namePrefix string = 'stg'
 
 parameter globalRedundancy bool = true // defaults to true, but can be overridden
 
+variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
+    name: storageAccountName
     location: location
     kind: 'Storage'
     sku: {

@@ -22,7 +22,7 @@ The resource declaration has four components:
 * **resource type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and apiVersion (`2019-06-01`). These properties should be familiar if you've ever deployed ARM Templates before.
 * **resource properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
 
-When we compile the template with `bicep build main.arm`, we see the following JSON. Notice the string interpolation in bicep gets translated to the `format()` function in the ARM Template JSON:
+When we compile the template with `bicep build main.arm`, we see the following JSON:
 
 ```json
 // todo - waiting for above to compile
