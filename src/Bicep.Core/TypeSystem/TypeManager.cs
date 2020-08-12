@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -45,10 +46,10 @@ namespace Bicep.Core.TypeSystem
                     return GetBinaryOperationType(binary);
 
                 case FunctionArgumentSyntax functionArgument:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(functionArgument.Expression).NotImplementedFunctionArgs());
+                    return GetTypeInfo(functionArgument.Expression);
 
                 case FunctionCallSyntax functionCall:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(functionCall.FunctionName).NotImplementedFunctionCalls());
+                    return GetFunctionCallType(functionCall);
 
                 case NullLiteralSyntax _:
                     // null is its own type
@@ -59,10 +60,10 @@ namespace Bicep.Core.TypeSystem
                     return GetTypeInfo(parenthesized.Expression);
 
                 case PropertyAccessSyntax propertyAccess:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyAccess.Dot).NotImplementedPropertyAccess());
+                    return GetPropertyAccessType(propertyAccess);
 
                 case ArrayAccessSyntax arrayAccess:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(arrayAccess.OpenSquare).NotImplementedArrayAccess());
+                    return GetArrayAccessType(arrayAccess);
 
                 case TernaryOperationSyntax ternary:
                     return GetTernaryOperationType(ternary);
@@ -121,6 +122,7 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
+            // TODO: Narrow down the object type
             return LanguageConstants.Object;
         }
 
@@ -128,9 +130,11 @@ namespace Bicep.Core.TypeSystem
         {
             var errors = new List<Diagnostic>();
 
+            var itemTypes = new List<TypeSymbol>(array.Children.Length);
             foreach (SyntaxBase arrayItem in array.Children)
             {
                 var itemType = this.GetTypeInfo(arrayItem);
+                itemTypes.Add(itemType);
                 CollectErrors(errors, itemType);
             }
 
@@ -139,8 +143,223 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            // TODO: In the future we should consider narrowing down the type of the array
-            return LanguageConstants.Array;
+            var aggregatedItemType = UnionType.Create(itemTypes);
+            if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never)
+            {
+                // array contains a mix of item types or is empty
+                // assume array of any for now
+                return LanguageConstants.Array;
+            }
+
+            return new TypedArrayType(aggregatedItemType);
+        }
+
+        private TypeSymbol GetPropertyAccessType(PropertyAccessSyntax syntax)
+        {
+            var errors = new List<Diagnostic>();
+
+            var baseType = this.GetTypeInfo(syntax.BaseExpression);
+            CollectErrors(errors, baseType);
+
+            if (errors.Any())
+            {
+                return new ErrorTypeSymbol(errors);
+            }
+
+            if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
+            {
+                // can only access properties of objects
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
+            }
+
+            if (baseType.TypeKind == TypeKind.Any || !(baseType is ObjectType objectType))
+            {
+                return LanguageConstants.Any;
+            }
+
+            return this.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName);
+        }
+
+        /// <summary>
+        /// Gets the type of the property whose name is an expression.
+        /// </summary>
+        /// <param name="baseType">The base object type</param>
+        /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
+        private TypeSymbol GetExpressionedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable)
+        {
+            if (baseType.TypeKind == TypeKind.Any)
+            {
+                // all properties of "any" type are of type "any"
+                return LanguageConstants.Any;
+            }
+
+            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
+            {
+                // the object type allows properties
+                return LanguageConstants.Any;
+            }
+
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).NoPropertiesAllowed(baseType));
+        }
+
+        /// <summary>
+        /// Gets the type of the property whose name we can obtain at compile-time.
+        /// </summary>
+        /// <param name="baseType">The base object type</param>
+        /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
+        /// <param name="propertyName">The resolved property name</param>
+        private TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName)
+        {
+            if (baseType.TypeKind == TypeKind.Any)
+            {
+                // all properties of "any" type are of type "any"
+                return LanguageConstants.Any;
+            }
+
+            // is there a declared property with this name
+            var declaredProperty = baseType.Properties.TryGetValue(propertyName);
+            if (declaredProperty != null)
+            {
+                // there is - return its type
+                return declaredProperty.Type;
+            }
+
+            // the property is not declared
+            // check additional properties
+            if (baseType.AdditionalPropertiesType != null)
+            {
+                // yes - return the additional property type
+                return baseType.AdditionalPropertiesType;
+            }
+
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
+        }
+
+        private TypeSymbol GetArrayAccessType(ArrayAccessSyntax syntax)
+        {
+            var errors = new List<Diagnostic>();
+
+            var baseType = this.GetTypeInfo(syntax.BaseExpression);
+            CollectErrors(errors, baseType);
+
+            var indexType = this.GetTypeInfo(syntax.IndexExpression);
+            CollectErrors(errors, indexType);
+
+            if (errors.Any())
+            {
+                return new ErrorTypeSymbol(errors);
+            }
+
+            if (indexType.TypeKind == TypeKind.Any)
+            {
+                // index type is "any"
+                switch (baseType)
+                {
+                    case AnyType _:
+                        return LanguageConstants.Any;
+
+                    case ArrayType arrayType:
+                        return arrayType.ItemType;
+
+                    case ObjectType objectType:
+                        return GetExpressionedPropertyType(objectType, syntax.IndexExpression);
+                }
+            }
+
+            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
+            {
+                // int indexer
+
+                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Array) != true)
+                {
+                    // can only index over arrays
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArrayRequiredForIntegerIndexer(baseType));
+                }
+
+                switch (baseType)
+                {
+                    case AnyType _:
+                        return LanguageConstants.Any;
+
+                    case ArrayType arrayType:
+                        return arrayType.ItemType;
+
+                    default:
+                        throw new NotImplementedException($"Unexpected array access base expression type '{baseType}'.");
+                }
+            }
+
+            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
+            {
+                // string indexer
+
+                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
+                {
+                    // string indexers only work on objects
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectRequiredForStringIndexer(baseType));
+                }
+
+                if (baseType.TypeKind == TypeKind.Any || !(baseType is ObjectType objectType))
+                {
+                    return LanguageConstants.Any;
+                }
+
+                switch (syntax.IndexExpression)
+                {
+                    case StringSyntax @string when @string.IsInterpolated() == false:
+                        var propertyName = @string.TryGetFormatString();
+                        if (propertyName == null)
+                        {
+                            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(@string).MalformedPropertyNameString());
+                        }
+
+                        return this.GetNamedPropertyType(objectType, syntax.IndexExpression, propertyName);
+
+                    default:
+                        // the property name is itself an expression
+                        return this.GetExpressionedPropertyType(objectType, syntax.IndexExpression);
+                }
+            }
+
+            // index was of the wrong type
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+        }
+
+        private TypeSymbol GetFunctionCallType(FunctionCallSyntax syntax)
+        {
+            var errors = new List<Diagnostic>();
+
+            var argumentTypes = syntax.Arguments.Select(GetTypeInfo).ToList();
+            foreach (TypeSymbol argumentType in argumentTypes)
+            {
+                CollectErrors(errors, argumentType);
+            }
+
+            if (errors.Any())
+            {
+                return new ErrorTypeSymbol(errors);
+            }
+
+            var matches = FunctionResolver.GetMatches(syntax.FunctionName.IdentifierName, argumentTypes).ToList();
+
+            switch (matches.Count)
+            {
+                case 0:
+                    // cannot find a function matching the types and number of arguments
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
+
+                case 1:
+                    // we have an exact match
+                    return matches.Single().ReturnType;
+
+                default:
+                    // function arguments are ambiguous (due to "any" type)
+                    // technically, the correct behavior would be to return a union of all possible types
+                    // unfortunately our language lacks a good type checking construct
+                    // and we also don't want users to have to use the converter functions to work around it
+                    // instead, we will return the "any" type to short circuit the type checking for those cases
+                    return LanguageConstants.Any;
+            }
         }
 
         private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)

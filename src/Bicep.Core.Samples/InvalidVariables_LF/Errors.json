@@ -60,10 +60,10 @@
     "spanText": "bar"
   },
   {
-    "message": "Function calls are not currently supported.",
-    "errorCode": "BCP039",
-    "span": "[263:266]",
-    "spanText": "foo"
+    "message": "Cannot resolve function foo().",
+    "errorCode": "BCP048",
+    "span": "[263:268]",
+    "spanText": "foo()"
   },
   {
     "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",

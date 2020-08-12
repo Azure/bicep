@@ -17,7 +17,7 @@ namespace Bicep.Core.Syntax
             this.CloseParen = closeParen;
         }
 
-        public SyntaxBase FunctionName { get; }
+        public IdentifierSyntax FunctionName { get; }
 
         public Token OpenParen { get; }
 

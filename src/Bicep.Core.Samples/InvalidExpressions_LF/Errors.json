@@ -72,10 +72,10 @@
     "spanText": "!"
   },
   {
-    "message": "Array access is not currently supported.",
-    "errorCode": "BCP041",
-    "span": "[411:412]",
-    "spanText": "["
+    "message": "Cannot use an integer indexer on an expression of type 'null'. An 'array' type is required.",
+    "errorCode": "BCP050",
+    "span": "[412:413]",
+    "spanText": "0"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
@@ -102,351 +102,369 @@
     "spanText": ""
   },
   {
-    "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
-    "errorCode": "BCP028",
-    "span": "[529:530]",
-    "spanText": "x"
-  },
-  {
     "message": "Variable access is not currently supported.",
     "errorCode": "BCP042",
     "span": "[533:534]",
     "spanText": "a"
   },
   {
-    "message": "Array access is not currently supported.",
-    "errorCode": "BCP041",
-    "span": "[592:593]",
-    "spanText": "["
-  },
-  {
-    "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
-    "errorCode": "BCP028",
-    "span": "[642:643]",
-    "spanText": "x"
-  },
-  {
-    "message": "Property access is not currently supported.",
-    "errorCode": "BCP040",
-    "span": "[661:662]",
-    "spanText": "."
-  },
-  {
-    "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",
-    "errorCode": "BCP028",
-    "span": "[711:712]",
-    "spanText": "x"
-  },
-  {
-    "message": "Function calls are not currently supported.",
-    "errorCode": "BCP039",
-    "span": "[715:728]",
-    "spanText": "resourceGroup"
-  },
-  {
     "message": "Identifier 'not' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[757:760]",
+    "span": "[565:568]",
     "spanText": "not"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'null'.",
     "errorCode": "BCP044",
-    "span": "[763:768]",
+    "span": "[571:576]",
     "spanText": "!null"
   },
   {
     "message": "Identifier 'not' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[779:782]",
+    "span": "[587:590]",
     "spanText": "not"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "errorCode": "BCP044",
-    "span": "[785:787]",
+    "span": "[593:595]",
     "spanText": "!4"
   },
   {
     "message": "Identifier 'not' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[798:801]",
+    "span": "[606:609]",
     "spanText": "not"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'string'.",
     "errorCode": "BCP044",
-    "span": "[804:808]",
+    "span": "[612:616]",
     "spanText": "!'s'"
   },
   {
     "message": "Identifier 'not' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[819:822]",
+    "span": "[627:630]",
     "spanText": "not"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'array'.",
     "errorCode": "BCP044",
-    "span": "[825:830]",
+    "span": "[633:638]",
     "spanText": "![\r\n]"
   },
   {
     "message": "Identifier 'not' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[841:844]",
+    "span": "[649:652]",
     "spanText": "not"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'object'.",
     "errorCode": "BCP044",
-    "span": "[847:852]",
+    "span": "[655:660]",
     "spanText": "!{\r\n}"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "errorCode": "BCP009",
-    "span": "[923:924]",
+    "span": "[731:732]",
     "spanText": "!"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "errorCode": "BCP009",
-    "span": "[1037:1038]",
+    "span": "[845:846]",
     "spanText": "-"
   },
   {
     "message": "Identifier 'minus' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1073:1078]",
+    "span": "[881:886]",
     "spanText": "minus"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'bool'.",
     "errorCode": "BCP044",
-    "span": "[1081:1086]",
+    "span": "[889:894]",
     "spanText": "-true"
   },
   {
     "message": "Identifier 'minus' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1097:1102]",
+    "span": "[905:910]",
     "spanText": "minus"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'null'.",
     "errorCode": "BCP044",
-    "span": "[1105:1110]",
+    "span": "[913:918]",
     "spanText": "-null"
   },
   {
     "message": "Identifier 'minus' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1121:1126]",
+    "span": "[929:934]",
     "spanText": "minus"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'string'.",
     "errorCode": "BCP044",
-    "span": "[1129:1133]",
+    "span": "[937:941]",
     "spanText": "-'s'"
   },
   {
     "message": "Identifier 'minus' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1144:1149]",
+    "span": "[952:957]",
     "spanText": "minus"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'array'.",
     "errorCode": "BCP044",
-    "span": "[1152:1157]",
+    "span": "[960:965]",
     "spanText": "-[\r\n]"
   },
   {
     "message": "Identifier 'minus' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1168:1173]",
+    "span": "[976:981]",
     "spanText": "minus"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'object'.",
     "errorCode": "BCP044",
-    "span": "[1176:1181]",
+    "span": "[984:989]",
     "spanText": "-{\r\n}"
   },
   {
     "message": "Cannot apply operator '%' to operands of type 'string' and 'bool'.",
     "errorCode": "BCP045",
-    "span": "[1219:1229]",
+    "span": "[1027:1037]",
     "spanText": "'s' % true"
   },
   {
     "message": "Cannot apply operator '*' to operands of type 'bool' and 'null'.",
     "errorCode": "BCP045",
-    "span": "[1246:1257]",
+    "span": "[1054:1065]",
     "spanText": "true * null"
   },
   {
     "message": "Cannot apply operator '/' to operands of type 'object' and 'array'.",
     "errorCode": "BCP045",
-    "span": "[1274:1285]",
+    "span": "[1082:1093]",
     "spanText": "{\r\n} / [\r\n]"
   },
   {
     "message": "Cannot apply operator '+' to operands of type 'null' and 'string'.",
     "errorCode": "BCP045",
-    "span": "[1317:1327]",
+    "span": "[1125:1135]",
     "spanText": "null + 's'"
   },
   {
     "message": "Cannot apply operator '-' to operands of type 'bool' and 'bool'.",
     "errorCode": "BCP045",
-    "span": "[1344:1356]",
+    "span": "[1152:1164]",
     "spanText": "true - false"
   },
   {
     "message": "Cannot apply operator '=~' to operands of type 'bool' and 'null'.",
     "errorCode": "BCP045",
-    "span": "[1455:1467]",
+    "span": "[1263:1275]",
     "spanText": "true =~ null"
   },
   {
     "message": "Cannot apply operator '!~' to operands of type 'int' and 'array'.",
     "errorCode": "BCP045",
-    "span": "[1483:1493]",
+    "span": "[1291:1301]",
     "spanText": "15 !~ [\r\n]"
   },
   {
     "message": "Cannot apply operator '<' to operands of type 'int' and 'string'.",
     "errorCode": "BCP045",
-    "span": "[1526:1533]",
+    "span": "[1334:1341]",
     "spanText": "4 < 's'"
   },
   {
     "message": "Cannot apply operator '<=' to operands of type 'null' and 'int'.",
     "errorCode": "BCP045",
-    "span": "[1551:1561]",
+    "span": "[1359:1369]",
     "spanText": "null <= 10"
   },
   {
     "message": "Cannot apply operator '>' to operands of type 'bool' and 'array'.",
     "errorCode": "BCP045",
-    "span": "[1577:1587]",
+    "span": "[1385:1395]",
     "spanText": "false>[\r\n]"
   },
   {
     "message": "Cannot apply operator '>=' to operands of type 'object' and 'bool'.",
     "errorCode": "BCP045",
-    "span": "[1605:1618]",
+    "span": "[1413:1426]",
     "spanText": "{\r\n} >= false"
   },
   {
     "message": "Cannot apply operator '&&' to operands of type 'null' and 'string'.",
     "errorCode": "BCP045",
-    "span": "[1649:1660]",
+    "span": "[1457:1468]",
     "spanText": "null && 'a'"
   },
   {
     "message": "Cannot apply operator '||' to operands of type 'int' and 'int'.",
     "errorCode": "BCP045",
-    "span": "[1676:1683]",
+    "span": "[1484:1491]",
     "spanText": "10 || 4"
   },
   {
     "message": "Expected a value of type 'bool'.",
     "errorCode": "BCP046",
-    "span": "[1722:1726]",
+    "span": "[1530:1534]",
     "spanText": "null"
   },
   {
     "message": "Identifier 'complex' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1775:1782]",
+    "span": "[1583:1590]",
     "spanText": "complex"
   },
   {
-    "message": "Function calls are not currently supported.",
-    "errorCode": "BCP039",
-    "span": "[1785:1789]",
-    "spanText": "test"
+    "message": "Cannot apply operator '&&' to operands of type 'bool' and 'null'.",
+    "errorCode": "BCP045",
+    "span": "[1615:1628]",
+    "spanText": "false && null"
   },
   {
     "message": "Identifier 'complex' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1832:1839]",
+    "span": "[1640:1647]",
     "spanText": "complex"
   },
   {
     "message": "Cannot apply operator '&&' to operands of type 'int' and 'int'.",
     "errorCode": "BCP045",
-    "span": "[1842:1849]",
+    "span": "[1650:1657]",
     "spanText": "-2 && 3"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "errorCode": "BCP044",
-    "span": "[1853:1855]",
+    "span": "[1661:1663]",
     "spanText": "!4"
   },
   {
     "message": "Identifier 'complex' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1871:1878]",
+    "span": "[1679:1686]",
     "spanText": "complex"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "errorCode": "BCP044",
-    "span": "[1888:1890]",
+    "span": "[1696:1698]",
     "spanText": "!4"
   },
   {
     "message": "Identifier 'complex' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[1908:1915]",
+    "span": "[1716:1723]",
     "spanText": "complex"
   },
   {
     "message": "Cannot apply operator '&&' to operands of type 'int' and 'int'.",
     "errorCode": "BCP045",
-    "span": "[1954:1961]",
+    "span": "[1762:1769]",
     "spanText": "-2 && 3"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "errorCode": "BCP044",
-    "span": "[1965:1967]",
+    "span": "[1773:1775]",
     "spanText": "!4"
   },
   {
     "message": "Cannot apply operator '&&' to operands of type 'bool' and 'null'.",
     "errorCode": "BCP045",
-    "span": "[1983:1996]",
+    "span": "[1791:1804]",
     "spanText": "false && null"
   },
   {
     "message": "Identifier 'nestedTernary' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[2009:2022]",
+    "span": "[1817:1830]",
     "spanText": "nestedTernary"
   },
   {
     "message": "Expected a value of type 'bool'.",
     "errorCode": "BCP046",
-    "span": "[2036:2037]",
+    "span": "[1844:1845]",
     "spanText": "2"
   },
   {
     "message": "Identifier 'nestedTernary' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
-    "span": "[2085:2098]",
+    "span": "[1893:1906]",
     "spanText": "nestedTernary"
   },
   {
     "message": "Expected a value of type 'bool'.",
     "errorCode": "BCP046",
-    "span": "[2102:2106]",
+    "span": "[1910:1914]",
     "spanText": "null"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'null'.",
+    "errorCode": "BCP044",
+    "span": "[2028:2033]",
+    "spanText": "!null"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'int'.",
+    "errorCode": "BCP044",
+    "span": "[2037:2039]",
+    "spanText": "!0"
+  },
+  {
+    "message": "Cannot use an integer indexer on an expression of type 'null'. An 'array' type is required.",
+    "errorCode": "BCP050",
+    "span": "[2083:2084]",
+    "spanText": "0"
+  },
+  {
+    "message": "Cannot use a string indexer on an expression of type 'string'. An 'object' type is required.",
+    "errorCode": "BCP051",
+    "span": "[2128:2134]",
+    "spanText": "'test'"
+  },
+  {
+    "message": "The property name in a string indexer is malformed.",
+    "errorCode": "BCP052",
+    "span": "[2174:2182]",
+    "spanText": "'test\\e'"
+  },
+  {
+    "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
+    "errorCode": "BCP006",
+    "span": "[2179:2181]",
+    "spanText": "\\e"
+  },
+  {
+    "message": "Cannot access properties of type 'bool'. An 'object' type is required.",
+    "errorCode": "BCP055",
+    "span": "[2247:2250]",
+    "spanText": "foo"
+  },
+  {
+    "message": "Cannot apply operator '!' to operand of type 'string'.",
+    "errorCode": "BCP044",
+    "span": "[2309:2320]",
+    "spanText": "!'location'"
+  },
+  {
+    "message": "Variable access is not currently supported.",
+    "errorCode": "BCP042",
+    "span": "[2361:2362]",
+    "spanText": "x"
   }
 ]

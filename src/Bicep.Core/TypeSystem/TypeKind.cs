@@ -8,6 +8,11 @@
         Error,
 
         /// <summary>
+        /// Empty union of types. 
+        /// </summary>
+        Never,
+
+        /// <summary>
         /// Any type
         /// </summary>
         Any,

@@ -54,3 +54,26 @@ variable myArrWithObjects = [
     enable: false && false || 'two' !~ 'three'
   }
 ]
+
+variable expressionIndexOnAny = any({
+})[resourceGroup().location]
+
+variable anyIndexOnAny = any(true)[any(false)]
+
+variable namedPropertyIndexer = {
+}['foo']
+
+variable intIndexer = [
+  's'
+][0]
+
+variable functionOnIndexer1 = concat([
+  's'
+][0], 's')
+
+variable functionOnIndexer2 = concat([
+][0], 's')
+
+variable functionOnIndexer3 = concat([
+][0], any('s'))
+
