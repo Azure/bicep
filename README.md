@@ -55,6 +55,14 @@ az deployment group create -f ./main.json -g my-rg
 
 The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
 
+## Known limitations
+
+* No support for the `copy` or `condition` property
+* Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
+* Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported
+* You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
+* more stuff...
+
 ## Reference
 
 * [complete language spec](./docs/spec)
