@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Parser
 {
-    public class TextSpan
+    public class TextSpan : IPositionable
     {
         private static readonly Regex TextSpanPattern = new Regex(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
@@ -26,6 +26,8 @@ namespace Bicep.Core.Parser
         public int Position { get; }
 
         public int Length { get; }
+
+        TextSpan IPositionable.Span => this;
 
         public override string ToString() => $"[{Position}:{Position + Length}]";
 

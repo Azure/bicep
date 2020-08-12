@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Azure.ResourceManager.Deployments.Expression.Expressions;
 using Bicep.Core.Syntax;
@@ -23,7 +24,7 @@ namespace Bicep.Core.Emit
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because
                     // error checking should have caught any errors by now
-                    return new JTokenExpression(stringSyntax.GetValue());
+                    return ConvertString(stringSyntax);
                     
                 case NullLiteralSyntax _:
                     return CreateJsonFunctionCall(JValue.CreateNull());
@@ -61,6 +62,26 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
+        }
+
+        private static LanguageExpression ConvertString(StringSyntax syntax)
+        {
+            var stringExpression = new JTokenExpression(syntax.GetFormatString());
+
+            if (!syntax.IsInterpolated())
+            {
+                // no need to build a format string
+                return stringExpression;
+            }
+
+            var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
+            formatArgs[0] = stringExpression;
+            for (var i = 0; i < syntax.Expressions.Length; i++)
+            {
+                formatArgs[i + 1] = syntax.Expressions[i].ToTemplateExpression();
+            }
+
+            return new FunctionExpression("format", formatArgs, Array.Empty<LanguageExpression>());
         }
 
         private static LanguageExpression ConvertComplexLiteral(SyntaxBase syntax)

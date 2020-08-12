@@ -41,7 +41,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Declaration()
         {
-            return this.WithRecovery(TokenType.NewLine, () =>
+            return this.WithRecovery(() =>
             {
                 var current = reader.Peek();
 
@@ -57,7 +57,7 @@ namespace Bicep.Core.Parser
                     // TODO: Update when adding other statement types
                     _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                 };
-            });
+            }, TokenType.NewLine);
         }
 
         private SyntaxBase ParameterDeclaration()
@@ -125,7 +125,7 @@ namespace Bicep.Core.Parser
             var name = this.Identifier(b => b.ExpectedResourceIdentifier());
 
             // TODO: Unify StringSyntax with TypeSyntax
-            var type = this.StringLiteral();
+            var type = this.InterpolableString();
 
             var assignment = this.Assignment();
             var body = this.Object();
@@ -245,12 +245,15 @@ namespace Bicep.Core.Parser
 
             switch (nextToken.Type)
             {
-                case TokenType.String:
                 case TokenType.Number:
                 case TokenType.NullKeyword:
                 case TokenType.TrueKeyword:
                 case TokenType.FalseKeyword:
                     return this.LiteralValue();
+
+                case TokenType.StringComplete:
+                case TokenType.StringLeftPiece:
+                    return this.InterpolableString();
 
                 case TokenType.LeftBrace:
                     return this.Object();
@@ -370,9 +373,49 @@ namespace Bicep.Core.Parser
             throw new ExpectedTokenException(literal, b => b.InvalidInteger());
         }
 
-        private StringSyntax StringLiteral()
+        private SyntaxBase InterpolableString()
         {
-            return new StringSyntax(reader.Read());
+            return this.WithRecovery(() => {
+                var stringTokens = new List<Token>();
+                var syntaxExpressions = new List<SyntaxBase>();
+
+                var nextToken = reader.Read();
+                switch (nextToken.Type)
+                {
+                    case TokenType.StringComplete:
+                        stringTokens.Add(nextToken);
+                        return new StringSyntax(stringTokens, syntaxExpressions);
+                    case TokenType.StringLeftPiece:
+                        stringTokens.Add(nextToken);
+                        syntaxExpressions.Add(Expression());
+                        break;
+                    default:
+                        // don't actually consume the next token - leave this up to recovery
+                        reader.StepBack();
+                        // TODO add error message for this
+                        throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
+                }
+                
+                while (true)
+                {
+                    nextToken = reader.Read();
+                    switch (nextToken.Type)
+                    {
+                        case TokenType.StringRightPiece:
+                            stringTokens.Add(nextToken);
+                            return new StringSyntax(stringTokens, syntaxExpressions);
+                        case TokenType.StringMiddlePiece:
+                            stringTokens.Add(nextToken);
+                            syntaxExpressions.Add(Expression());
+                            break;
+                        default:
+                            // don't actually consume the next token - leave this up to recovery
+                            reader.StepBack();
+                            // TODO add error message for this
+                            throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
+                    }
+                }
+            }, TokenType.NewLine);
         }
 
         private SyntaxBase LiteralValue()
@@ -388,9 +431,6 @@ namespace Bicep.Core.Parser
 
                 case TokenType.Number:
                     return this.NumericLiteral();
-
-                case TokenType.String:
-                    return StringLiteral();
 
                 case TokenType.NullKeyword:
                     return new NullLiteralSyntax(reader.Read());
@@ -420,13 +460,13 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ArrayItem()
         {
-            return this.WithRecovery(TokenType.NewLine, () =>
+            return this.WithRecovery(() =>
             {
                 var value = this.Expression();
                 var newLines = this.NewLines();
 
                 return new ArrayItemSyntax(value, newLines);
-            });
+            }, TokenType.NewLine);
         }
 
         private SyntaxBase Object()
@@ -449,7 +489,7 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase ObjectProperty()
         {
-            return this.WithRecovery(TokenType.NewLine, () =>
+            return this.WithRecovery(() =>
             {
                 var identifier = this.Identifier(b => b.ExpectedPropertyName());
                 var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
@@ -457,10 +497,10 @@ namespace Bicep.Core.Parser
                 var newLines = this.NewLines();
 
                 return new ObjectPropertySyntax(identifier, colon, value, newLines);
-            });
+            }, TokenType.NewLine);
         }
 
-        private SyntaxBase WithRecovery<TSyntax>(TokenType terminatingType, Func<TSyntax> syntaxFunc)
+        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase
         {
             var startPosition = reader.Position;
@@ -470,19 +510,18 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                this.Synchronize(terminatingType);
+                this.Synchronize(terminatingTypes);
                 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Error, exception.UnexpectedToken);
             }
         }
 
-        private void Synchronize(TokenType expectedType)
+        private void Synchronize(params TokenType[] expectedTypes)
         {
             while (!IsAtEnd())
             {
-                TokenType nextType = this.reader.Peek().Type;
-                if (Match(expectedType))
+                if (Match(expectedTypes))
                 {
                     return;
                 }
@@ -520,9 +559,9 @@ namespace Bicep.Core.Parser
             throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 
-        private bool Match(TokenType type)
+        private bool Match(params TokenType[] types)
         {
-            if (Check(type))
+            if (Check(types))
             {
                 reader.Read();
                 return true;
@@ -531,14 +570,14 @@ namespace Bicep.Core.Parser
             return false;
         }
 
-        private bool Check(TokenType type)
+        private bool Check(params TokenType[] types)
         {
             if (IsAtEnd())
             {
                 return false;
             }
 
-            return reader.Peek().Type == type;
+            return types.Contains(reader.Peek().Type);
         }
 
         private static int GetOperatorPrecedence(TokenType tokenType)

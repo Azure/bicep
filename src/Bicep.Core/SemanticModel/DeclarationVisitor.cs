@@ -44,12 +44,25 @@ namespace Bicep.Core.SemanticModel
 
             // if type string is malformed, the type value will be null which will resolve to a null type
             // below this will be corrected into an error type
-            TypeSymbol? resourceType = this.context.GetTypeByName(syntax.Type.TryGetValue());
+            var stringSyntax = syntax.TryGetType();
+            TypeSymbol? resourceType;
 
-            // TODO: This check is likely too simplistic
-            if (resourceType?.TypeKind != TypeKind.Resource)
+            if (stringSyntax != null && stringSyntax.IsInterpolated())
             {
-                resourceType = new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
+                // TODO: in the future, we can relax this check to allow interpolation with compile-time constants.
+                // right now, codegen will still generate a format string however, which will cause problems for the type.
+                resourceType = new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypeInterpolationUnsupported());
+            }
+            else
+            {
+                var stringContent = stringSyntax?.TryGetFormatString();
+                resourceType = this.context.GetTypeByName(stringContent);
+
+                // TODO: This check is likely too simplistic
+                if (resourceType?.TypeKind != TypeKind.Resource)
+                {
+                    resourceType = new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
+                }
             }
 
             var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax, resourceType, syntax.Body);

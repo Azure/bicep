@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
@@ -65,7 +66,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
-            AddTokenType(syntax.Literal, SemanticTokenType.Number);
+            AddTokenType(syntax.Literal, SemanticTokenType.Keyword);
             base.VisitBooleanLiteralSyntax(syntax);
         }
 
@@ -92,7 +93,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            AddTokenType(syntax.NullKeyword, SemanticTokenType.Number);
+            AddTokenType(syntax.NullKeyword, SemanticTokenType.Keyword);
             base.VisitNullLiteralSyntax(syntax);
         }
 
@@ -124,7 +125,6 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.ParameterKeyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
-            AddTokenType(syntax.Type, SemanticTokenType.Type);
             base.VisitParameterDeclarationSyntax(syntax);
         }
 
@@ -161,9 +161,47 @@ namespace Bicep.LanguageServer
             base.VisitSkippedTokensTriviaSyntax(syntax);
         }
 
+        private void AddStringToken(Token token)
+        {
+            var endInterp = token.Type switch {
+                TokenType.StringLeftPiece => LanguageConstants.StringHoleOpen,
+                TokenType.StringMiddlePiece => LanguageConstants.StringHoleOpen,
+                _ => "",
+            };
+
+            var startInterp = token.Type switch {
+                TokenType.StringMiddlePiece => LanguageConstants.StringHoleClose,
+                TokenType.StringRightPiece => LanguageConstants.StringHoleClose,
+                _ => "",
+            };
+
+            // need to be extremely cautious here. it may be that lexing has failed to find a string terminating character,
+            // but we still have a syntax tree to display tokens for.
+            var hasEndOperator = endInterp.Length > 0 && token.Text.EndsWith(endInterp);
+            var endOperatorLength = hasEndOperator ? endInterp.Length : 0;
+
+            var hasStartOperator = startInterp.Length > 0 && token.Text.Length >= startInterp.Length;
+            var startOperatorLength = hasStartOperator ? startInterp.Length : 0;
+
+            if (hasStartOperator)
+            {
+                AddTokenType(token.GetSpanSlice(0, startOperatorLength), SemanticTokenType.Operator);
+            }
+
+            AddTokenType(token.GetSpanSlice(startOperatorLength, token.Span.Length - startOperatorLength - endOperatorLength), SemanticTokenType.String);
+
+            if (hasEndOperator)
+            {
+                AddTokenType(token.GetSpanSlice(token.Span.Length - endOperatorLength, endOperatorLength), SemanticTokenType.Operator);
+            }
+        }
+
         public override void VisitStringSyntax(StringSyntax syntax)
         {
-            AddTokenType(syntax.StringToken, SemanticTokenType.String);
+            foreach (var token in syntax.StringTokens)
+            {
+                AddStringToken(token);
+            }
             base.VisitStringSyntax(syntax);
         }
 
