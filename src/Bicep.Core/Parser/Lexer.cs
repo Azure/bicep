@@ -333,7 +333,7 @@ namespace Bicep.Core.Parser
             // 'complete' string: a string with no holes (no interpolation), e.g. "'hello'"
             // string 'left piece': the portion of an interpolated string up to the first hole, e.g. "'hello$"
             // string 'middle piece': the portion of an interpolated string between two holes, e.g. "}hello${"
-            // string 'right piece': the portion of an interpolated string after the last hole, e.g. "]hello'"
+            // string 'right piece': the portion of an interpolated string after the last hole, e.g. "}hello'"
 
             while (true)
             {
