@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="../../basic.arm" />
+    <EmbeddedResource Include="../../basic.bicep" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@
 This document puts forward a proposal for ARMLang (name TBD). ARMLang is a declarative configuration language for Azure Resource Manager Template Deployments.
 
 ## Structure
-An individual `.arm` file at its most basic, consists of a set of runtime inputs, resources which will be deployed, and runtime outputs.
+An individual `.bicep` file at its most basic, consists of a set of runtime inputs, resources which will be deployed, and runtime outputs.
 
 ### Scoping
 Each file is given a new scope. Any `identifier` declared inside this file is added to this scope, and each `identifier` must be globally unique within this scope.

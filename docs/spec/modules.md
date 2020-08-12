@@ -7,7 +7,7 @@ A module is an opaque set of one or more resources to be deployed together. It o
 
 ## Declare a module
 
-Any bicep file is itself a module, so there is no specific syntax for defining a module. A module can be a single file or a directory. If a module references a directory, all root files in that directory will be combined. Here is an example bicep file (`sqlDatabases.arm`) that we will consume as a module:
+Any bicep file is itself a module, so there is no specific syntax for defining a module. A module can be a single file or a directory. If a module references a directory, all root files in that directory will be combined. Here is an example bicep file (`sqlDatabases.bicep`) that we will consume as a module:
 
 ```
 parameter accountName string
