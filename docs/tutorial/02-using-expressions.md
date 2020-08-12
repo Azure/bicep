@@ -1,6 +1,6 @@
 # Using 'advanced' expressions
 
-In the previous main.arm template, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs.
+In the previous tutorial, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs.
 
 While the bicep language is still in its infancy, there are some more advanced expressions you can already take advantage of in your files.
 
@@ -18,11 +18,50 @@ variable location = resourceGroup().location
 output makeCapital string = toUpper('all lowercase')
 ```
 
-In our `main.arm` file, we are already using two functions (`uniqueString()` and `resourceGroup()`).
+In our `main.arm` file, instead of forcing users to guess a unique storage account name, let's use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name:
+
+```
+parameter location string = 'eastus'
+
+variable storageSku = 'Standard_LRS' // declare variable and assign value
+
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+    name: uniqueString(resourceGroup().id) // generates unique name based on resouceGroup ID
+    location: location
+    kind: storageSku
+    sku: {
+        name: storageSku // assign variable
+    }
+}
+
+output storageId string = stg.id
+```
+
+## Using string interpolation
+
+The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()`:
+
+```
+parameter location string = 'eastus'
+parameter namePrefix string = 'stg'
+
+variable storageSku = 'Standard_LRS' // declare variable and assign value
+
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+    name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
+    location: location
+    kind: 'Storage'
+    sku: {
+        name: storageSku
+    }
+}
+
+output storageId string = stg.id
+```
 
 ## Using the ternary operator
 
-You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
+You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storak sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
 
 ```
 parameter location string = 'eastus'
@@ -30,10 +69,8 @@ parameter namePrefix string = 'stg'
 
 parameter globalRedundancy bool = true // defaults to true, but can be overridden
 
-variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
-
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: storageAccountName
+    name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
     location: location
     kind: 'Storage'
     sku: {

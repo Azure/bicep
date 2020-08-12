@@ -118,7 +118,7 @@ ARM Template:
     {
         "apiVersion": "2018-10-01",
         "type": "Microsoft.Network/virtualNetworks",
-        "name": "[concat('vnet', parameters('suffix'))]",
+        "name": "vnet001",
         "location": "[resourceGroup().location]",
         "tags": {
             "CostCenter": "12345",

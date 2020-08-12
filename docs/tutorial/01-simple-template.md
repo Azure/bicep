@@ -6,7 +6,7 @@ In the previous step, we compiled the most basic bicep file -- a blank template.
 
 ```
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: 'stg-${uniqueString(resourceGroup().id)}'
+    name: 'uniquestorage001' // must be globally unique
     location: 'eastus'
     kind: 'Storage'
     sku: {
@@ -40,10 +40,10 @@ In most cases, I want to expose a part of the resource name and the resource loc
 
 ```
 parameter location string = 'eastus'
-parameter namePrefix string = 'stg'
+parameter name string = 'uniquestorage001' // must be globally unique
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: '${namePrefix}-${uniqueString(resourceGroup().id)}'
+    name: name
     location: location
     kind: 'Storage'
     sku: {
@@ -54,7 +54,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
 
-The end of the parameter declaration (`= 'eastus'`) is the default value, so this can be optionally overridden at deployment time.
+The end of the parameter declaration (`= 'eastus'`) is only the default value and can be optionally overridden at deployment time.
 
 Let's compile with `bicep build main.arm` and look at the output:
 
@@ -64,24 +64,24 @@ Let's compile with `bicep build main.arm` and look at the output:
 
 ## Add variables and outputs
 
-I can also add `variables` for storing repeated values or complex expressions, and emit `outputs` to be passed to a script or another template:
+I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another template:
 
 ```
 parameter location string = 'eastus'
-parameter namePrefix string = 'stg'
+parameter name string = 'uniquestorage001' // must be globally unique
 
-variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+variable storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
     location: location
     kind: 'Storage'
     sku: {
-        name: 'Standard_LRS'
+        name: storageSku // reference variable
     }
 }
 
-output storageId string = stg.id
+output storageId string = stg.id // output resourceId of storage account
 ```
 
 Notice I can easily reference the resourceId from the symbolic name of the storage account (`stg.id`) which we will translate to the `resourceId(...)` function in the compiled template. When compiled, you should see the following ARM Template JSON:
@@ -92,6 +92,6 @@ Notice I can easily reference the resourceId from the symbolic name of the stora
 
 ## Next steps
 
-In the next tutorial, we will start working with more advanced bicep expressions: 
+In the next tutorial, we will start working with more advanced bicep expressions:
 
 [2 - Using 'advanced' expressions](./02-using-expressions.md)
