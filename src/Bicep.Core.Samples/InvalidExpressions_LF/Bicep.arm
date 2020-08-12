@@ -24,15 +24,6 @@ variable bad =
 // variables not supported
 variable x = a + 2
 
-// array access not supported
-variable y = (null)[0]
-
-// property access not supported
-variable x = resourceGroup().location
-
-// functions not supported
-variable x = resourceGroup()
-
 // unary NOT
 variable not = !null
 variable not = !4
@@ -96,3 +87,18 @@ variable complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true
 
 variable nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 variable nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
+
+// bad array access
+variable errorInsideArrayAccess = [
+  !null
+][!0]
+variable integerIndexOnNonArray = (null)[0]
+variable stringIndexOnNonObject = 'test'['test']
+variable malformedStringIndex = {
+}['test\e']
+
+// bad propertyAccess
+variable dotAccessOnNonObject = true.foo
+variable badExpressionInPropertyAccess = resourceGroup()[!'location']
+
+variable propertyAccessOnVariable = x.foo

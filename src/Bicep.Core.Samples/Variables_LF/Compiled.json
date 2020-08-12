@@ -47,7 +47,14 @@
         "name": "two",
         "enable": "[or(and(json('false'), json('false')), not(equals(toLower('two'), toLower('three'))))]"
       }
-    ]
+    ],
+    "expressionIndexOnAny": "[json('{}')[resourceGroup().location]]",
+    "anyIndexOnAny": "[json('true')[json('false')]]",
+    "namedPropertyIndexer": "[json('{}').foo]",
+    "intIndexer": "[json('[\"s\"]')[0]]",
+    "functionOnIndexer1": "[concat(json('[\"s\"]')[0], 's')]",
+    "functionOnIndexer2": "[concat(json('[]')[0], 's')]",
+    "functionOnIndexer3": "[concat(json('[]')[0], 's')]"
   },
   "resources": [],
   "outputs": {}

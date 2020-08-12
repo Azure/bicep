@@ -10,9 +10,9 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
         public static ImmutableDictionary<string, SyntaxBase> ToPropertyValueDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, p => p.Value, StringComparer.Ordinal);
+            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, p => p.Value, LanguageConstants.IdentifierComparer);
 
         public static ImmutableDictionary<string, ObjectPropertySyntax> ToPropertyDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, StringComparer.Ordinal);
+            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, LanguageConstants.IdentifierComparer);
     }
 }

@@ -14,7 +14,7 @@ namespace Bicep.Core.TypeSystem
             this.Members = members;
         }
 
-        public override TypeKind TypeKind => TypeKind.Union;
+        public override TypeKind TypeKind => this.Members.Any() ? TypeKind.Union : TypeKind.Never;
 
         public ImmutableArray<TypeSymbol> Members { get; }
 

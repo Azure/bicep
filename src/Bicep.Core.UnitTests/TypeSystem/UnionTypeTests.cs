@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var actual = UnionType.Create();
             actual.Name.Should().Be("never");
-            actual.TypeKind.Should().Be(TypeKind.Union);
+            actual.TypeKind.Should().Be(TypeKind.Never);
             actual.Should().BeOfType<UnionType>();
 
             ((UnionType) actual).Members.Should().BeEmpty();

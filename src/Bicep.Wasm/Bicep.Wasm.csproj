@@ -19,4 +19,8 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
 </Project>

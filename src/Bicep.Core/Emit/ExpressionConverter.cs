@@ -11,6 +11,11 @@ namespace Bicep.Core.Emit
 {
     public static class ExpressionConverter
     {
+        /// <summary>
+        /// Converts the specified bicep expression tree into an ARM template expression tree.
+        /// The returned tree may be rooted at either a function expression or jtoken expression.
+        /// </summary>
+        /// <param name="expression">The expression</param>
         public static LanguageExpression ToTemplateExpression(this SyntaxBase expression)
         {
             switch (expression)
@@ -54,10 +59,21 @@ namespace Bicep.Core.Emit
                         },
                         Array.Empty<LanguageExpression>());
 
-                case ArrayAccessSyntax _:
-                case FunctionArgumentSyntax _:
-                case FunctionCallSyntax _:
-                case PropertyAccessSyntax _:
+                case FunctionCallSyntax function:
+                    return ConvertFunction(
+                        function.FunctionName.IdentifierName,
+                        function.Arguments.Select(a => a.Expression.ToTemplateExpression()).ToArray());
+
+                case ArrayAccessSyntax arrayAccess:
+                    return AppendProperty(
+                        arrayAccess.BaseExpression.ToFunctionExpression(),
+                        arrayAccess.IndexExpression.ToTemplateExpression());
+
+                case PropertyAccessSyntax propertyAccess:
+                    return AppendProperty(
+                        propertyAccess.BaseExpression.ToFunctionExpression(),
+                        new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
+
                 case VariableAccessSyntax _:
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
@@ -84,7 +100,52 @@ namespace Bicep.Core.Emit
             return new FunctionExpression("format", formatArgs, Array.Empty<LanguageExpression>());
         }
 
-        private static LanguageExpression ConvertComplexLiteral(SyntaxBase syntax)
+        /// <summary>
+        /// Converts the specified bicep expression tree into an ARM template expression tree.
+        /// This always returns a function expression, which is useful when converting property access or array access
+        /// on literals.
+        /// </summary>
+        /// <param name="expression">The expression</param>
+        public static FunctionExpression ToFunctionExpression(this SyntaxBase expression)
+        {
+            var converted = expression.ToTemplateExpression();
+            switch (converted)
+            {
+                case FunctionExpression functionExpression:
+                    return functionExpression;
+
+                case JTokenExpression valueExpression:
+                    JToken value = valueExpression.EvaluateExpression(null);
+
+                    switch (value.Type)
+                    {
+                        case JTokenType.Integer:
+                            // convert integer literal to a function call via int() function
+                            return CreateUnaryFunction("int", valueExpression);
+
+                        case JTokenType.String:
+                            // convert string literal to function call via string() function
+                            return CreateUnaryFunction("string", valueExpression);
+                    }
+
+                    break;
+            }
+
+            throw new NotImplementedException($"Unexpected expression type '{converted.GetType().Name}'.");
+        }
+
+        private static LanguageExpression ConvertFunction(string functionName, LanguageExpression[] arguments)
+        {
+            if (string.Equals("any", functionName, LanguageConstants.IdentifierComparison))
+            {
+                // this is the any function - don't generate a function call for it
+                return arguments.Single();
+            }
+
+            return new FunctionExpression(functionName, arguments, Array.Empty<LanguageExpression>());
+        }
+
+        private static FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
         {
             // the tree node here should not contain any expressions inside
             // if it does, the emitted json expressions will not evaluate as expected due to IL limitations
@@ -187,6 +248,11 @@ namespace Bicep.Core.Emit
                     throw new NotImplementedException($"Cannot emit unexpected unary operator '{syntax.Operator}.");
             }
         }
+
+        private static FunctionExpression AppendProperty(FunctionExpression function, LanguageExpression newProperty) => 
+            // technically we could just mutate the provided function object, but let's hold off on that optimization
+            // until we have evidence that it is needed
+            new FunctionExpression(function.Function, function.Parameters, function.Properties.Append(newProperty).ToArray());
 
         private static FunctionExpression CreateUnaryFunction(string function, LanguageExpression operand) => 
             new FunctionExpression(function, new[] {operand}, Array.Empty<LanguageExpression>());

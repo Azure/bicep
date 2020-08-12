@@ -360,10 +360,10 @@
     "spanText": "a + 2"
   },
   {
-    "message": "Function calls are not currently supported.",
-    "errorCode": "BCP039",
-    "span": "[2488:2491]",
-    "spanText": "foo"
+    "message": "Cannot resolve function foo().",
+    "errorCode": "BCP048",
+    "span": "[2488:2493]",
+    "spanText": "foo()"
   },
   {
     "message": "The value must be a compile-time constant.",
