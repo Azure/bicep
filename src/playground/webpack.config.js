@@ -21,7 +21,7 @@ module.exports = {
       test: /\.ttf$/,
       use: ['file-loader']
     }, {
-      test: /\.arm$/,
+      test: /\.bicep$/,
       use: ['raw-loader']
     }]
   },
