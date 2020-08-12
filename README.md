@@ -4,7 +4,7 @@
 
 ## What is Bicep?
 
-Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax and support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All resource `types`, `apiVersions`, and resource `properties` that are valid in an ARM template are equally valid in Bicep.
+Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax and support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep.
 
 Bicep compiles down to standard ARM Template JSON files, which means the ARM JSON is effectively being treated as an Intermediate Language (IL).
 
@@ -53,7 +53,7 @@ az deployment group create -f ./main.json -g my-rg
 
 ## Get started with Bicep
 
-The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
+The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
