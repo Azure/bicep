@@ -65,12 +65,12 @@ namespace Bicep.Core.Emit
                         function.Arguments.Select(a => a.Expression.ToTemplateExpression()).ToArray());
 
                 case ArrayAccessSyntax arrayAccess:
-                    return AppendProperties(
+                    return AppendProperty(
                         arrayAccess.BaseExpression.ToFunctionExpression(),
                         arrayAccess.IndexExpression.ToTemplateExpression());
 
                 case PropertyAccessSyntax propertyAccess:
-                    return AppendProperties(
+                    return AppendProperty(
                         propertyAccess.BaseExpression.ToFunctionExpression(),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
 
@@ -249,7 +249,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static FunctionExpression AppendProperties(FunctionExpression function, LanguageExpression newProperty) => 
+        private static FunctionExpression AppendProperty(FunctionExpression function, LanguageExpression newProperty) => 
             // technically we could just mutate the provided function object, but let's hold off on that optimization
             // until we have evidence that it is needed
             new FunctionExpression(function.Function, function.Parameters, function.Properties.Append(newProperty).ToArray());
