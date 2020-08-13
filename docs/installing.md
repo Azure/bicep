@@ -45,24 +45,22 @@ bicep --version
 
 ### Windows
 #### Setting up $PATH (only required on first install)
-1. On the **Start** menu, right-click **Computer**.
-1. On the context menu, click **Properties**.
-1. In the **System** dialog box, click **Advanced system settings**.
-1. On the **Advanced** tab of the **System Properties** dialog box, click **Environment Variables**.
-1. In the **System Variables** box of the **Environment Variables** dialog box, scroll to **Path** and select it.
-1. Click the lower of the two **Edit** buttons in the dialog box.
-1. In the **Edit System Variable** dialog box, scroll to the end of the string in the **Variable** value box.
-1. Edit the current value to add `;%HOME\.bicep` at the end. Take care to make sure this value is correctly formatted.
-1. Click **OK** in three successive dialog boxes, and then close the **System** dialog box.
+1. Open the start menu, and search for **env**
+1. Select the item named **Edit the system environmental variables**
+1. In the window that appears, press **Environmental Variables...**
+1. Under the **User variables** section, find the variable named **Path**, and press **Edit...**
+1. In the edit window that appears, press **New**
+1. Enter `%USERPROFILE%\.bicep` for the value, and press **OK**
+1. Press **OK** to close the other 2 windows that were opened
 
-#### Installing (powershell)
+#### Installing (PowerShell)
 ```powershell
+# Create the install folder
+$installPath = "$env:USERPROFILE\.bicep"
+$installDir = New-Item -ItemType Directory -Path $installPath -Force
+$installDir.Attributes += 'Hidden'
 # Fetch the latest Bicep CLI binary
-Invoke-WebRequest -Uri "https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep.exe" -OutFile ".\bicep.exe"
-# Copy to local folder
-$installPath = "$env:HOME\.bicep"
-New-Item -ItemType Directory -Path $path -Force
-Copy-Item  -Path ".\bicep.exe" -Destination $AdminPath -Recurse -force
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep", "$installPath\bicep.exe")
 # Verify you can now access the 'bicep' command
 bicep --version
 ```
