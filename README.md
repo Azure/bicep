@@ -42,18 +42,18 @@ az deployment group create -f ./main.json -g my-rg
 ## How is life better with Bicep?
 
 * Much simpler syntax when compared to equivalent JSON
-  * no special `[...]` expressions syntax required
-    * directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
-  * no quotes on property names (e.g. `"location"`)
-  * simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
-  * simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
+  * No special `[...]` expressions syntax required
+    * Directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
+  * No quotes on property names (e.g. `"location"`)
+  * Simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
+  * Simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
   * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
-  * previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
+  * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 
 ## Get started with Bicep
 
-The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
+The best way to get started is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into the equivalent bicep file.
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
