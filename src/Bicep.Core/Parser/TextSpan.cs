@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Parser
@@ -175,5 +176,13 @@ namespace Bicep.Core.Parser
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         private static bool IsPairInOrder(TextSpan a, TextSpan b) => a.Position <= b.Position;
+
+        /// <summary>
+        /// Returns the last non-null <see cref="IPositionable"/> in a sequence.
+        /// </summary>
+        /// <param name="first">The first non-null positionable</param>
+        /// <param name="after">The sequence of nullable positionables</param>
+        public static IPositionable LastNonNull(IPositionable first, params IPositionable?[] after)
+            => after.LastOrDefault() ?? first;
     }
 }
