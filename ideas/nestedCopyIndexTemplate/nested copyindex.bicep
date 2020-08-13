@@ -19,7 +19,7 @@
 // List artifact. list [artifact identifier] for <index identifier> in <set of artifacts> {<list body>}. List value is an array of fully-qualified resourceIds of the resources created in the list.
 // For example, list.databaseContainers is an array of database container resource ids.
 
-// Module artifact. Modules are defined in separate .arm files and are used in format: module.<moduleName>{parameter list in name:value pairs}.
+// Module artifact. Modules are defined in separate .bicep files and are used in format: module.<moduleName>{parameter list in name:value pairs}.
 
 <#parameters
 

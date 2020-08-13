@@ -1,6 +1,6 @@
 import './main.css';
 import * as monaco from 'monaco-editor';
-import exampleFile from './template.arm';
+import exampleFile from './template.bicep';
 
 self.MonacoEnvironment = {
   getWorkerUrl: function (moduleId, label) {
@@ -14,7 +14,7 @@ self.MonacoEnvironment = {
 self.BicepInitialize = interop => {
   monaco.languages.register({
       id: 'bicep',
-      extensions: ['.arm'],
+      extensions: ['.bicep'],
       aliases: ['bicep'],
   });
 

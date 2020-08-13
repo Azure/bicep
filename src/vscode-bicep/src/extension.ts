@@ -96,7 +96,7 @@ function startLanguageServer(context: ExtensionContext, languageServerPath: stri
         // Register the server for plain text documents
         documentSelector: [
             {
-                pattern: "**/*.arm",
+                pattern: "**/*.bicep",
                 language: "bicep",
                 scheme: "file"
             },
@@ -109,7 +109,7 @@ function startLanguageServer(context: ExtensionContext, languageServerPath: stri
         synchronize: {
             // Synchronize the setting section 'bicep' to the server
             configurationSection: "bicep",
-            fileEvents: workspace.createFileSystemWatcher("**/*.arm")
+            fileEvents: workspace.createFileSystemWatcher("**/*.bicep")
         }
     };
 
