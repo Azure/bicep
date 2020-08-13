@@ -8,14 +8,44 @@ namespace Bicep.Core.SemanticModel
 {
     public class ResourceSymbol : DeclaredSymbol
     {
-        public ResourceSymbol(ISemanticContext context, string name, SyntaxBase declaringSyntax, TypeSymbol type, SyntaxBase body)
+        public ResourceSymbol(ITypeContext context, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
             : base(context, name, declaringSyntax)
         {
-            this.Type = type;
             this.Body = body;
         }
 
-        public TypeSymbol Type { get; }
+        public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type
+        {
+            get
+            {
+                // if type string is malformed, the type value will be null which will resolve to a null type
+                // below this will be corrected into an error type
+                var stringSyntax = this.DeclaringResource.TryGetType();
+                TypeSymbol? resourceType;
+
+                if (stringSyntax != null && stringSyntax.IsInterpolated())
+                {
+                    // TODO: in the future, we can relax this check to allow interpolation with compile-time constants.
+                    // right now, codegen will still generate a format string however, which will cause problems for the type.
+                    resourceType = new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringResource.Type).ResourceTypeInterpolationUnsupported());
+                }
+                else
+                {
+                    var stringContent = stringSyntax?.TryGetFormatString();
+                    resourceType = this.Context.GetTypeByName(stringContent);
+
+                    // TODO: This check is likely too simplistic
+                    if (resourceType?.TypeKind != TypeKind.Resource)
+                    {
+                        resourceType = new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringResource.Type).InvalidResourceType());
+                    }
+                }
+
+                return resourceType;
+            }
+        }
 
         public SyntaxBase Body { get; }
 

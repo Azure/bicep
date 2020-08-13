@@ -70,11 +70,11 @@
     "spanText": "bar"
   },
   {
-    "message": "Cannot resolve function foo().",
-    "errorCode": "BCP048",
+    "message": "The name 'foo' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
-    "span": "[263:268]",
-    "spanText": "foo()"
+    "span": "[263:266]",
+    "spanText": "foo"
   },
   {
     "message": "Identifier 'x' is declared multiple times. Remove or rename the duplicates.",

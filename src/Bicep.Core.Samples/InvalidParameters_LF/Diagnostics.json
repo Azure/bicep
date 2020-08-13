@@ -420,11 +420,11 @@
     "spanText": "a + 2"
   },
   {
-    "message": "Cannot resolve function foo().",
-    "errorCode": "BCP048",
+    "message": "The name 'foo' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
-    "span": "[2488:2493]",
-    "spanText": "foo()"
+    "span": "[2488:2491]",
+    "spanText": "foo"
   },
   {
     "message": "The value must be a compile-time constant.",

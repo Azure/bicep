@@ -10,15 +10,16 @@ namespace Bicep.Core.SemanticModel
 {
     public class OutputSymbol : DeclaredSymbol
     {
-        public OutputSymbol(ISemanticContext context, string name, SyntaxBase declaringSyntax, TypeSymbol type, SyntaxBase value)
+        public OutputSymbol(ITypeContext context, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
             : base(context, name, declaringSyntax)
         {
-            this.Type = type;
             this.Value = value;
         }
 
-        public TypeSymbol Type { get; }
-        
+        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringOutput.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringOutput.Type).InvalidOutputType());
+
         public SyntaxBase Value { get; }
 
         public override void Accept(SymbolVisitor visitor)

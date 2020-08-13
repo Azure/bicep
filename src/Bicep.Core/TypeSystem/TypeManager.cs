@@ -10,14 +10,29 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class TypeManager : ISemanticContext
+    public class TypeManager : ITypeContext
     {
-        public TypeManager()
+        private readonly IReadOnlyDictionary<SyntaxBase,Symbol> bindings;
+
+        private bool unlocked = false;
+
+        public TypeManager(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
+            // bindings will be modified by name binding after this object is created
+            // so we can't make an immutable copy here
+            // (using the IReadOnlyDictionary to prevent accidental mutation
+            this.bindings = bindings; 
+        }
+
+        public void Unlock()
+        {
+            this.unlocked = true;
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
         {
+            this.CheckLock();
+
             // TODO: When we have expressions, this class will cache the result, so we don't have walk the three all the time.
             switch (syntax)
             {
@@ -80,11 +95,11 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-
         // TODO: This does not recognize non-resource named objects yet
-
         public TypeSymbol? GetTypeByName(string? typeName)
         {
+            this.CheckLock();
+
             if (typeName == null)
             {
                 return null;
@@ -340,7 +355,23 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            var matches = FunctionResolver.GetMatches(syntax.FunctionName.IdentifierName, argumentTypes).ToList();
+            var symbol = this.ResolveSymbol(syntax);
+            switch (symbol)
+            {
+                case ErrorSymbol errorSymbol:
+                    return errorSymbol.ToErrorType();
+
+                case FunctionSymbol function:
+                    return GetFunctionSymbolType(syntax, function, argumentTypes);
+
+                default:
+                    throw new NotImplementedException($"Unexpected symbol kind '{symbol.Kind}' on a function call binding.");
+            }
+        }
+
+        private TypeSymbol GetFunctionSymbolType(FunctionCallSyntax syntax, FunctionSymbol function, List<TypeSymbol> argumentTypes)
+        {
+            var matches = FunctionResolver.GetMatches(function, argumentTypes).ToList();
 
             switch (matches.Count)
             {
@@ -349,7 +380,8 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
 
                 case 1:
-                    // we have an exact match
+                    // we have an exact match or a single ambiguous match
+                    // return its type
                     return matches.Single().ReturnType;
 
                 default:
@@ -451,6 +483,21 @@ namespace Bicep.Core.TypeSystem
         private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
+        }
+
+        private void CheckLock()
+        {
+            if (this.unlocked == false)
+            {
+                throw new InvalidOperationException("Type checks are blocked until name binding is completed.");
+            }
+        }
+
+        private Symbol ResolveSymbol(SyntaxBase syntax)
+        {
+            // the binder guarantees that all bindable syntax nodes have a symbol attached to them even if it's the error symbol
+            // if we see a null here, we have a code defect somewhere
+            return this.bindings.TryGetValue(syntax) ?? throw new InvalidOperationException($"Name binding failed to assign a symbol to syntax node of type '{syntax.GetType().Name}'.");
         }
     }
 }

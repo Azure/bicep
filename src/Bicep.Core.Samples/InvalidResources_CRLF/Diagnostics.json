@@ -147,11 +147,11 @@
     "spanText": "'a' + 1"
   },
   {
-    "message": "Cannot resolve function foo().",
-    "errorCode": "BCP048",
+    "message": "The name 'foo' is not a function.",
+    "errorCode": "BCP059",
     "level": "Error",
-    "span": "[937:942]",
-    "spanText": "foo()"
+    "span": "[937:940]",
+    "spanText": "foo"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",

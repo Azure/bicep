@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Extensions;
+using Bicep.Core.SemanticModel;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +17,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
         {
-            var matches = FunctionResolver.GetMatches(functionName, argumentTypes);
+            var matches = GetMatches(functionName, argumentTypes);
             matches.Should().HaveCount(1);
 
             matches.Single().ReturnType.Should().BeSameAs(expectedReturnType);
@@ -25,7 +27,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetAmbiguousMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void FullyAmbiguousMatchesShouldHaveCorrectReturnType(string displayName, string functionName, int numberOfArguments, IList<TypeSymbol> expectedReturnTypes)
         {
-            var matches = FunctionResolver.GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList());
+            var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList());
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
             matches.Select(m => m.ReturnType).Should().BeEquivalentTo(expectedReturnTypes);
@@ -35,7 +37,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void MismatchShouldReturnAnEmptySet(string displayName, string functionName, IList<TypeSymbol> argumentTypes)
         {
-            FunctionResolver.GetMatches(functionName, argumentTypes).Should().BeEmpty();
+            GetMatches(functionName, argumentTypes).Should().BeEmpty();
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)
@@ -120,6 +122,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // wrong name
             yield return CreateRow("fake");
             yield return CreateRow("fake", LanguageConstants.String);
+        }
+
+        private IEnumerable<FunctionOverload> GetMatches(string functionName, IList<TypeSymbol> argumentTypes)
+        {
+            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()};
+
+            return namespaces.SelectMany(ns => FunctionResolver.GetMatches(ns, functionName, argumentTypes));
         }
     }
 }

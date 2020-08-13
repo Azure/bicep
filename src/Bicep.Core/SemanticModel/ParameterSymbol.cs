@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -11,14 +9,15 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? modifier)
+        public ParameterSymbol(ITypeContext context, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
             : base(context, name, declaringSyntax)
         {
-            this.Type = type;
             this.Modifier = modifier;
         }
 
-        public TypeSymbol Type { get; }
+        public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringParameter.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringParameter.Type).InvalidParameterType());
 
         public SyntaxBase? Modifier { get; }
 

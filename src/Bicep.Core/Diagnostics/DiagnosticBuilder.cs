@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.ResourceManager.Deployments.Core.Extensions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
@@ -274,6 +276,26 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP055",
                 $"Cannot access properties of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
+
+            public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP056",
+                $"The reference to name '{name}' is ambiguous because it exists in namespaces '{namespaces.ConcatString(", ")}'. The reference must be fully-qualified.");
+
+            public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP057",
+                $"The name '{name}' does not exist in the current context.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAParameterOrVariable(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP058",
+                $"The name '{name}' is not a parameter or variable.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP059",
+                $"The name '{name}' is not a function.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

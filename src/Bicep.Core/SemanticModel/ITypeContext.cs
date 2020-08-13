@@ -3,7 +3,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public interface ISemanticContext
+    public interface ITypeContext
     {
         public TypeSymbol GetTypeInfo(SyntaxBase syntax);
 

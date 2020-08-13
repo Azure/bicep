@@ -86,7 +86,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic>? typeMismatchErrorFactory = null)
+        public static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnostics(ITypeContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic>? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
             typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
@@ -95,7 +95,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnosticsInternal(
-            ISemanticContext context,
+            ITypeContext context,
             SyntaxBase expression,
             TypeSymbol targetType,
             Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic> typeMismatchErrorFactory,
@@ -134,7 +134,7 @@ namespace Bicep.Core.TypeSystem
             return errors;
         }
 
-        private static IEnumerable<ErrorDiagnostic> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetArrayAssignmentDiagnostics(ITypeContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -153,7 +153,7 @@ namespace Bicep.Core.TypeSystem
                     skipTypeErrors: true)); 
         }
 
-        private static IEnumerable<ErrorDiagnostic> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetObjectAssignmentDiagnostics(ITypeContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
         {
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
