@@ -12,7 +12,7 @@ namespace Bicep.Core.Parser
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<Diagnostic> lexicalErrors;
+        private readonly ImmutableArray<ErrorDiagnostic> lexicalErrors;
         
         public Parser(string text)
         {

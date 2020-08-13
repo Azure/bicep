@@ -47,7 +47,7 @@ namespace Bicep.Core.SemanticModel
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             var duplicateSymbols = this.AllDeclarations
                 .GroupBy(decl => decl.Name)

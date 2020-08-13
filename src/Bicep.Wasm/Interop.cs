@@ -115,7 +115,7 @@ namespace Bicep.Wasm
             return reader.ReadToEnd();
         }
 
-        private static object ToMonacoDiagnostic(Diagnostic error, IReadOnlyList<int> lineStarts)
+        private static object ToMonacoDiagnostic(ErrorDiagnostic error, IReadOnlyList<int> lineStarts)
         {
             var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position);
             var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position + error.Span.Length);

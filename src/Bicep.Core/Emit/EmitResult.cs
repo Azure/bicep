@@ -7,7 +7,7 @@ namespace Bicep.Core.Emit
 {
     public class EmitResult
     {
-        public EmitResult(EmitStatus status, IEnumerable<Diagnostic> diagnostics)
+        public EmitResult(EmitStatus status, IEnumerable<ErrorDiagnostic> diagnostics)
         {
             this.Status = status;
             this.Diagnostics = diagnostics.ToImmutableArray();
@@ -21,6 +21,6 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Gets a list of diagnostics collected during the emit operation.
         /// </summary>
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
+        public ImmutableArray<ErrorDiagnostic> Diagnostics { get; }
     }
 }

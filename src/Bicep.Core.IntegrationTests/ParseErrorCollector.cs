@@ -7,9 +7,9 @@ namespace Bicep.Core.IntegrationTests
 {
     public class ParseErrorCollector : SyntaxVisitor
     {
-        private readonly IList<Diagnostic> errors;
+        private readonly IList<ErrorDiagnostic> errors;
         
-        public ParseErrorCollector(IList<Diagnostic> errors)
+        public ParseErrorCollector(IList<ErrorDiagnostic> errors)
         {
             this.errors = errors;
         }

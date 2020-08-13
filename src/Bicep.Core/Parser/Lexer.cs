@@ -37,7 +37,7 @@ namespace Bicep.Core.Parser
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Diagnostic> errors = new List<Diagnostic>();
+        private readonly IList<ErrorDiagnostic> errors = new List<ErrorDiagnostic>();
         private readonly SlidingTextWindow textWindow;
 
         public Lexer(SlidingTextWindow textWindow)
@@ -70,7 +70,7 @@ namespace Bicep.Core.Parser
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public ImmutableArray<Diagnostic> GetErrors() => errors.ToImmutableArray();
+        public ImmutableArray<ErrorDiagnostic> GetErrors() => errors.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.

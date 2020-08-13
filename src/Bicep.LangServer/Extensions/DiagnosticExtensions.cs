@@ -2,13 +2,13 @@
 using System.Collections.Immutable;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Diagnostic = Bicep.Core.Diagnostics.Diagnostic;
+using ErrorDiagnostic = Bicep.Core.Diagnostics.ErrorDiagnostic;
 
 namespace Bicep.LanguageServer.Extensions
 {
     public static class DiagnosticExtensions
     {
-        public static IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> ToDiagnostics(this IEnumerable<Diagnostic> source, ImmutableArray<int> lineStarts) =>
+        public static IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> ToDiagnostics(this IEnumerable<ErrorDiagnostic> source, ImmutableArray<int> lineStarts) =>
             source.Select(diagnostic => new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
             {
                 Severity = DiagnosticSeverity.Error,

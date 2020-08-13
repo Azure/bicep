@@ -52,7 +52,7 @@ namespace Bicep.Core.Emit
             using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Bicep.Core.Emit
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
         }
 
         private void EmitInternal(Stream stream)

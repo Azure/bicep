@@ -16,9 +16,9 @@ namespace Bicep.Core.TypeSystem
         /// It may return inaccurate results for malformed trees.
         /// </summary>
         /// <param name="expression">the expression to check for compile-time constant violations</param>
-        public static IList<Diagnostic> GetCompileTimeConstantViolation(SyntaxBase expression)
+        public static IList<ErrorDiagnostic> GetCompileTimeConstantViolation(SyntaxBase expression)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
             var visitor = new CompileTimeConstantVisitor(errors);
 
             visitor.Visit(expression);
@@ -86,7 +86,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic>? typeMismatchErrorFactory = null)
+        public static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic>? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
             typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectdValueTypeMismatch(expectedType.Name, actualType.Name);
@@ -94,11 +94,11 @@ namespace Bicep.Core.TypeSystem
             return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
 
-        private static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnosticsInternal(
+        private static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnosticsInternal(
             ISemanticContext context,
             SyntaxBase expression,
             TypeSymbol targetType,
-            Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic> typeMismatchErrorFactory,
+            Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic> typeMismatchErrorFactory,
             bool skipConstantCheck,
             bool skipTypeErrors)
         {
@@ -106,7 +106,7 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol? expressionType = context.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
-            var errors = Enumerable.Empty<Diagnostic>();
+            var errors = Enumerable.Empty<ErrorDiagnostic>();
             if (skipTypeErrors == false && expressionType is ErrorTypeSymbol)
             {
                 errors = errors.Concat(expressionType.GetDiagnostics());
@@ -134,13 +134,13 @@ namespace Bicep.Core.TypeSystem
             return errors;
         }
 
-        private static IEnumerable<Diagnostic> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {
-                return Enumerable.Empty<Diagnostic>();
+                return Enumerable.Empty<ErrorDiagnostic>();
             }
 
             return expression.Items
@@ -153,13 +153,13 @@ namespace Bicep.Core.TypeSystem
                     skipTypeErrors: true)); 
         }
 
-        private static IEnumerable<Diagnostic> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
         {
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
-            var result = Enumerable.Empty<Diagnostic>();
+            var result = Enumerable.Empty<ErrorDiagnostic>();
             if (expression.HasParseErrors())
             {
                 return result;

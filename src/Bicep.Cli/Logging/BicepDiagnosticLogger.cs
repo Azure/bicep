@@ -19,7 +19,7 @@ namespace Bicep.Cli.Logging
             this.HasLoggedErrors = false;
         }
 
-        public void LogDiagnostic(string filePath, Diagnostic diagnostic, ImmutableArray<int> lineStarts)
+        public void LogDiagnostic(string filePath, ErrorDiagnostic diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
             string message = $"{filePath}({line + 1},{character + 1}) : error {diagnostic.Code}: {diagnostic.Message}";
