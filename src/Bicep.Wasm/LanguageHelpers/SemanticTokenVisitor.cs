@@ -208,9 +208,9 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitTernaryOperationSyntax(syntax);
         }
 
-        public override void VisitToken(Token token)
+        protected override void VisitTokenInternal(Token token)
         {
-            base.VisitToken(token);
+            base.VisitTokenInternal(token);
         }
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
