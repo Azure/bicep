@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -20,6 +21,7 @@ namespace Bicep.LanguageServer
                     .WithOutput(Console.OpenStandardOutput())
                     .WithHandler<BicepTextDocumentSyncHandler>()
                     .WithHandler<BicepDocumentSymbolHandler>()
+                    .WithHandler<BicepExecuteCommandHandler>()
 #pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
 #pragma warning restore 0612

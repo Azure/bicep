@@ -27,6 +27,9 @@ export const defaultTraceLevel = 'Warning';
 // The language server path
 export const languageServerPath = "bicepLanguageServerPath";
 
+// The language id
+export const bicepLanguageId = 'bicep';
+
 // The workspace (user settings)
 export namespace workspaceSettings {
     export const prefix = 'bicepLanguageServer';

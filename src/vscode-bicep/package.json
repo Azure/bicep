@@ -9,7 +9,7 @@
     "icon": "icons/azure-resource-manager.png",
     "preview": true,
     "engines": {
-        "vscode": "^1.8.0"
+        "vscode": "^1.32.0"
     },
     "categories": [
         "Azure",
@@ -44,6 +44,20 @@
             "title": "Bicep Configuration",
             "properties": {}
         },
+        "commands": [
+            {
+                "command": "bicep.previewtemplate",
+                "title": "Bicep: Preview Template"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "bicep.previewtemplate",
+                    "when": "editorLangId == bicep"
+                }
+            ]
+        },
         "languages": [
             {
                 "id": "bicep",
@@ -74,6 +88,7 @@
     "devDependencies": {
         "@types/mocha": "^8.0.2",
         "@types/node": "^14.0.27",
+        "@types/vscode": "^1.32.0",
         "typescript": "^3.9.7",
         "vsce": "^1.78.0",
         "vscode": "^1.1.36"

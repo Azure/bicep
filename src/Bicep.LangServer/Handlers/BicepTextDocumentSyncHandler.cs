@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.Handlers
 {
     class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
     {
