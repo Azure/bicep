@@ -87,8 +87,7 @@ namespace Bicep.Core.TypeSystem
                     return GetUnaryOperationType(unary);
 
                 case VariableAccessSyntax variableAccess:
-                    // TODO: Variable access is not currently supported
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(variableAccess.Name).NotImplementedVariableAccess());
+                    return GetVariableAccessType(variableAccess);
 
                 default:
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
@@ -340,6 +339,36 @@ namespace Bicep.Core.TypeSystem
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
         }
 
+        private TypeSymbol GetVariableAccessType(VariableAccessSyntax syntax)
+        {
+            var symbol = this.ResolveSymbol(syntax);
+
+            switch (symbol)
+            {
+                case ErrorSymbol errorSymbol:
+                    // variable bind failure - pass the error along
+                    return errorSymbol.ToErrorType();
+
+                case ResourceSymbol _:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).ResourcePropertyAccessNotSupported());
+
+                case ParameterSymbol parameter:
+                    // TODO: This can cause a cycle
+                    return parameter.Type;
+
+                case VariableSymbol variable:
+                    // TODO: This can cause a cycle
+                    return variable.Type;
+
+                case OutputSymbol output:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
+
+                default:
+                    // code defect
+                    throw new NotImplementedException($"The name '{syntax.Name.IdentifierName}' was bound to an unexpected symbol kind '{symbol.Kind}'.");
+            }
+        }
+
         private TypeSymbol GetFunctionCallType(FunctionCallSyntax syntax)
         {
             var errors = new List<ErrorDiagnostic>();
@@ -359,13 +388,14 @@ namespace Bicep.Core.TypeSystem
             switch (symbol)
             {
                 case ErrorSymbol errorSymbol:
+                    // function bind failure - pass the error along
                     return errorSymbol.ToErrorType();
 
                 case FunctionSymbol function:
                     return GetFunctionSymbolType(syntax, function, argumentTypes);
 
                 default:
-                    throw new NotImplementedException($"Unexpected symbol kind '{symbol.Kind}' on a function call binding.");
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.FunctionName.Span).SymbolicNameIsNotAFunction(syntax.FunctionName.IdentifierName));
             }
         }
 

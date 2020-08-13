@@ -27,19 +27,9 @@ namespace Bicep.Core.SemanticModel
             base.VisitVariableAccessSyntax(syntax);
 
             var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
-            
-            switch (symbol.Kind)
-            {
-                case SymbolKind.Error:
-                case SymbolKind.Variable:
-                case SymbolKind.Parameter:
-                    this.bindings.Add(syntax, symbol);
-                    break;
 
-                default:
-                    this.bindings.Add(syntax, new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.Span).SymbolicNameIsNotAParameterOrVariable(syntax.Name.IdentifierName)));
-                    break;
-            }
+            // bind what we got - the type checker will validate if it fits
+            this.bindings.Add(syntax, symbol);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -48,17 +38,8 @@ namespace Bicep.Core.SemanticModel
 
             var symbol = this.LookupSymbolByName(syntax.FunctionName.IdentifierName, syntax.FunctionName.Span);
 
-            switch (symbol.Kind)
-            {
-                case SymbolKind.Error:
-                case SymbolKind.Function:
-                    this.bindings.Add(syntax, symbol);
-                    break;
-
-                default:
-                    this.bindings.Add(syntax, new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.FunctionName.Span).SymbolicNameIsNotAFunction(syntax.FunctionName.IdentifierName)));
-                    break;
-            }
+            // bind what we got - the type checker will validate if it fits
+            this.bindings.Add(syntax, symbol);
         }
 
         private Symbol LookupSymbolByName(string name, TextSpan span)

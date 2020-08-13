@@ -207,11 +207,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type '{type}'.");
 
-            public ErrorDiagnostic NotImplementedVariableAccess() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP042",
-                "Variable access is not currently supported.");
-
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -287,15 +282,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP057",
                 $"The name '{name}' does not exist in the current context.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAParameterOrVariable(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP058",
-                $"The name '{name}' is not a parameter or variable.");
+                $"The name '{name}' is an output. Outputs cannot be referenced in expressions.");
 
             public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP059",
                 $"The name '{name}' is not a function.");
+
+            public ErrorDiagnostic ResourcePropertyAccessNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP060",
+                "The resource property access capability is not yet implemented but is coming soon.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
