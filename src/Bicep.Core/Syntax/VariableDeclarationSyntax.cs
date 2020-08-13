@@ -4,7 +4,7 @@ namespace Bicep.Core.Syntax
 {
     public class VariableDeclarationSyntax : SyntaxBase
     {
-        public VariableDeclarationSyntax(Token variableKeyword, IdentifierSyntax name, Token assignment, SyntaxBase value, Token newLine)
+        public VariableDeclarationSyntax(Token variableKeyword, IdentifierSyntax name, Token assignment, SyntaxBase value, Token? newLine)
         {
             AssertKeyword(variableKeyword, nameof(variableKeyword), LanguageConstants.VariableKeyword);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
@@ -25,10 +25,10 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
-        public Token NewLine { get; }
+        public Token? NewLine { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(VariableKeyword, NewLine);
+        public override TextSpan Span => TextSpan.Between(VariableKeyword, TextSpan.LastNonNull(Value, NewLine));
     }
 }

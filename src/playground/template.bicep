@@ -1,4 +1,3 @@
-
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'basicblobs'
   location: 'westus'

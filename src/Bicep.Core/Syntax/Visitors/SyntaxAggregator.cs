@@ -46,14 +46,14 @@ namespace Bicep.Core.Syntax.Visitors
 
             public TAccumulate Value { get; private set; }
 
-            public override void Visit(SyntaxBase syntax)
+            protected override void VisitInternal(SyntaxBase syntax)
             {
                 // process other nodes if further processing is required
                 if (this.continuationFunction(this.Value, syntax))
                 {
                     this.Value = this.function(this.Value, syntax);
 
-                    base.Visit(syntax);
+                    base.VisitInternal(syntax);
                     return;
                 }
             }
