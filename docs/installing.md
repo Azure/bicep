@@ -25,6 +25,8 @@ curl -LO https://github.com/Azure/bicep/releases/download/latest/linux-x64/bicep
 chmod +x ./bicep
 # Add bicep to your PATH (requires admin)
 sudo mv ./bicep /usr/local/bin/bicep
+# Verify you can now access the 'bicep' command
+bicep --version
 ```
 
 ### macOS
@@ -37,4 +39,28 @@ chmod +x ./bicep
 sudo spctl --add ./bicep
 # Add bicep to your PATH (requires admin)
 sudo mv ./bicep /usr/local/bin/bicep
+# Verify you can now access the 'bicep' command
+bicep --version
+```
+
+### Windows
+#### Setting up $PATH (only required on first install)
+1. Open the start menu, and search for **env**
+1. Select the item named **Edit the system environmental variables**
+1. In the window that appears, press **Environmental Variables...**
+1. Under the **User variables** section, find the variable named **Path**, and press **Edit...**
+1. In the edit window that appears, press **New**
+1. Enter `%USERPROFILE%\.bicep` for the value, and press **OK**
+1. Press **OK** to close the other 2 windows that were opened
+
+#### Installing (PowerShell)
+```powershell
+# Create the install folder
+$installPath = "$env:USERPROFILE\.bicep"
+$installDir = New-Item -ItemType Directory -Path $installPath -Force
+$installDir.Attributes += 'Hidden'
+# Fetch the latest Bicep CLI binary
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep", "$installPath\bicep.exe")
+# Verify you can now access the 'bicep' command
+bicep --version
 ```

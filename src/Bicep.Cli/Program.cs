@@ -94,7 +94,7 @@ namespace Bicep.Cli
 
             var result = emitter.Emit(outputPath);
 
-            foreach (Diagnostic diagnostic in result.Diagnostics)
+            foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
             {
                 logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
             }
@@ -121,7 +121,7 @@ namespace Bicep.Cli
 
                 var result = emitter.Emit(writer);
 
-                foreach (Diagnostic diagnostic in result.Diagnostics)
+                foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
                 {
                     logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
                 }

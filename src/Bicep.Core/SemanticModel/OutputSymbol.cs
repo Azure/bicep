@@ -36,7 +36,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             TypeSymbol valueType = this.Context.GetTypeInfo(this.Value);
 
@@ -51,7 +51,7 @@ namespace Bicep.Core.SemanticModel
                 return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<ErrorDiagnostic>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as OutputDeclarationSyntax)?.Name;

@@ -109,7 +109,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetObjectType(ObjectSyntax @object)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             foreach (ObjectPropertySyntax objectProperty in @object.Properties)
             {
@@ -128,7 +128,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetArrayType(ArraySyntax array)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var itemTypes = new List<TypeSymbol>(array.Children.Length);
             foreach (SyntaxBase arrayItem in array.Children)
@@ -156,7 +156,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetPropertyAccessType(PropertyAccessSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var baseType = this.GetTypeInfo(syntax.BaseExpression);
             CollectErrors(errors, baseType);
@@ -237,7 +237,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetArrayAccessType(ArrayAccessSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var baseType = this.GetTypeInfo(syntax.BaseExpression);
             CollectErrors(errors, baseType);
@@ -327,7 +327,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetFunctionCallType(FunctionCallSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var argumentTypes = syntax.Arguments.Select(GetTypeInfo).ToList();
             foreach (TypeSymbol argumentType in argumentTypes)
@@ -364,7 +364,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             // TODO: When we add number type, this will have to be adjusted
             var expectedOperandType = syntax.Operator switch
@@ -392,7 +392,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetBinaryOperationType(BinaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var operandType1 = this.GetTypeInfo(syntax.LeftExpression);
             CollectErrors(errors, operandType1);
@@ -421,7 +421,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetTernaryOperationType(TernaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             // ternary operator requires the condition to be of bool type
             var conditionType = this.GetTypeInfo(syntax.ConditionExpression);
@@ -448,7 +448,7 @@ namespace Bicep.Core.TypeSystem
             return UnionType.Create(trueType, falseType);
         }
 
-        private static void CollectErrors(List<Diagnostic> errors, TypeSymbol type)
+        private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
         }

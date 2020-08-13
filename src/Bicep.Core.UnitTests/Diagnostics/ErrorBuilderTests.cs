@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var errorMethods = typeof(DiagnosticBuilder.DiagnosticBuilderInternal)
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(m => m.ReturnType == typeof(Diagnostic));
+                .Where(m => m.ReturnType == typeof(ErrorDiagnostic));
 
             // verify the above Linq is actually working
             errorMethods.Should().HaveCountGreaterThan(40);
@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             {
                 var mockParams = errorMethod.GetParameters().Select(CreateMockParameter);
                 
-                var error = errorMethod.Invoke(builder, mockParams.ToArray()) as Diagnostic;
+                var error = errorMethod.Invoke(builder, mockParams.ToArray()) as ErrorDiagnostic;
 
                 if (mockParams.Any())
                 {
