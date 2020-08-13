@@ -46,7 +46,7 @@ az deployment group create -f ./main.json -g my-rg
     * directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
   * no quotes on property names (e.g. `"location"`)
   * simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
-  * simpler resource declaration using positional properties to avoid typing common property names like `resourceType` and `apiVersion` explicitly.
+  * simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
   * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
   * previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
