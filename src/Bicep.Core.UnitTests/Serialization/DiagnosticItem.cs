@@ -5,21 +5,23 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.UnitTests.Serialization
 {
-    public class ErrorItem
+    public class DiagnosticItem
     {
         [JsonConstructor]
-        public ErrorItem(string message, string ErrorCode, TextSpan span, string spanText)
+        public DiagnosticItem(string message, string ErrorCode, string level, TextSpan span, string spanText)
         {
             this.Message = message;
             this.ErrorCode = ErrorCode;
+            this.Level = level;
             this.Span = span;
             this.SpanText = spanText;
         }
 
-        public ErrorItem(ErrorDiagnostic diagnostic, string contents)
+        public DiagnosticItem(ErrorDiagnostic diagnostic, string contents)
         {
             this.Message = diagnostic.Message;
             this.ErrorCode = diagnostic.Code;
+            this.Level = diagnostic.Level.ToString();
             this.Span = diagnostic.Span;
             this.SpanText = contents[new Range(diagnostic.Span.Position, diagnostic.Span.Position + diagnostic.Span.Length)];
         }
@@ -27,6 +29,8 @@ namespace Bicep.Core.UnitTests.Serialization
         public string Message { get; }
 
         public string ErrorCode { get; }
+
+        public string Level { get; }
 
         [JsonConverter(typeof(TextSpanConverter))]
         public TextSpan Span { get; }

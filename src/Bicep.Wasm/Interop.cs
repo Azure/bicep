@@ -115,19 +115,28 @@ namespace Bicep.Wasm
             return reader.ReadToEnd();
         }
 
-        private static object ToMonacoDiagnostic(ErrorDiagnostic error, IReadOnlyList<int> lineStarts)
+        private static object ToMonacoDiagnostic(Diagnostic diagnostic, IReadOnlyList<int> lineStarts)
         {
-            var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position);
-            var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, error.Span.Position + error.Span.Length);
+            var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+            var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position + diagnostic.Span.Length);
 
             return new {
-                code = error.Code,
-                message = error.Message,
+                code = diagnostic.Code,
+                message = diagnostic.Message,
+                severity = ToMonacoSeverity(diagnostic.Level),
                 startLineNumber = startLine + 1,
                 startColumn = startChar + 1,
                 endLineNumber = endLine + 1,
                 endColumn = endChar + 1,
             };
         }
+
+        private static int ToMonacoSeverity(DiagnosticLevel level)
+            => level switch {
+                DiagnosticLevel.Info => 2,
+                DiagnosticLevel.Warning => 4,
+                DiagnosticLevel.Error => 8,
+                _ => throw new ArgumentException($"Unrecognized level {level}"),
+            };
     }
 }
