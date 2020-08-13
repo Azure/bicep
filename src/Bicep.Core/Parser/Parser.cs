@@ -71,6 +71,7 @@ namespace Bicep.Core.Parser
             {
                 // the parameter does not have a modifier
                 TokenType.NewLine => null,
+                TokenType.EndOfFile => null,
 
                 // default value is specified
                 TokenType.Assignment => this.ParameterDefaultValue(),
@@ -81,7 +82,7 @@ namespace Bicep.Core.Parser
                 _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
             };
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new ParameterDeclarationSyntax(keyword, name, type, modifier, newLine);
         }
@@ -101,7 +102,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value, newLine);
         }
@@ -114,7 +115,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new OutputDeclarationSyntax(keyword, name, type, assignment, value, newLine);
         }
@@ -130,7 +131,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var body = this.Object();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body, newLine);
         }
@@ -139,6 +140,17 @@ namespace Bicep.Core.Parser
         {
             var newLine = this.NewLine();
             return new NoOpDeclarationSyntax(newLine);
+        }
+
+        private Token? NewLineOrEof()
+        {
+            if (reader.Peek().Type == TokenType.EndOfFile)
+            {
+                // don't actually consume the token
+                return null;
+            }
+
+            return NewLine();
         }
 
         private Token NewLine()
