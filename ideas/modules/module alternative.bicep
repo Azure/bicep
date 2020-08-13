@@ -2,13 +2,13 @@
 // A resource module contains a coherent set of resources meant to be deployed together.
 
 // Design considerations:
-// A resource module can be included in a regular .arm file or in another module.
+// A resource module can be included in a regular .bicep file or in another module.
 // DSL should validate and reject cyclic reference of modules.
 // A module can have optional input parameters or outputs, which must be strong-typed if provided.
 // A module should "hide" its internal resource details and only expose resources via outputs.
 // Users should be strongly encouraged, if not required, to define a single module in a file.
 
-// Please refer to sqlDatabaseListModule.arm and databaseContainerListModule.arm for examples.
+// Please refer to sqlDatabaseListModule.bicep and databaseContainerListModule.bicep for examples.
 
 module <module name>
 {

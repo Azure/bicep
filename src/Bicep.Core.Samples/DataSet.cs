@@ -24,7 +24,7 @@ namespace Bicep.Core.Samples
         {
             this.Name = name;
 
-            this.lazyBicep = this.CreateRequired("Bicep.arm");
+            this.lazyBicep = this.CreateRequired("Bicep.bicep");
             this.lazyTokens = this.CreateRequired("Tokens.json");
             this.lazyErrors = this.CreateRequired("Errors.json");
             this.lazyCompiled = this.CreateIffValid("Compiled.json");
