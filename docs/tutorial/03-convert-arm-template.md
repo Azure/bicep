@@ -191,4 +191,4 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
 
 You can take a look at an entire sample template converted to a bicep file here:
 
-[ARM Template](../examples/101/vnet-two-subnets/main.json) -> [Bicep file](../examples/101/vnet-two-subnets/main.arm)
+[ARM Template](../examples/101/vnet-two-subnets/main.json) -> [Bicep file](../examples/101/vnet-two-subnets/main.bicep)

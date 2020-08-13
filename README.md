@@ -28,10 +28,10 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](./docs/installing.md#bicep-vs-code-extension), then compile that code into an ARM template using the [Bicep CLI](./docs/installing.md#bicep-cli):
 
 ```
-bicep build ./main.arm
+bicep build ./main.bicep
 ```
 
-You should see the compiled template `main.json` get created in the same directory as `main.arm`. Now that you have the ARM Template, you can use all existing ARM Template tooling such as [what-if](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-deploy-what-if?tabs=azure-powershell), the [ARM Tools Extension](https://marketplace.visualstudio.com/items?itemName=msazurermtools.azurerm-vscode-tools), and the deployment CLI commands.
+You should see the compiled template `main.json` get created in the same directory as `main.bicep`. Now that you have the ARM Template, you can use all existing ARM Template tooling such as [what-if](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-deploy-what-if?tabs=azure-powershell), the [ARM Tools Extension](https://marketplace.visualstudio.com/items?itemName=msazurermtools.azurerm-vscode-tools), and the deployment CLI commands.
 
 You can now deploy this template via any method you would like such as:
 
@@ -62,6 +62,7 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
 * No explicit support for deployments across scopes (though this can be hacked together by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187](https://github.com/Azure/bicep/issues/187)]
   * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
+* `reference()`, `newGuid()`, `reference()`, and `list*()` functions are not yet supported
 * Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 
@@ -73,7 +74,7 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL generation. We'll keep a running list of good alternatives that may fit your use case better than bicep. 
 
-* [Farmer](https://compositionalit.github.io/farmer/) - There is a great project by **placeholder_username** for authoring ARM templates in an F# DSL
+* [Farmer](https://compositionalit.github.io/farmer/) (**placeholder_username**) - Generate ARM Templates using an F# DSL
 
 ## Contributing
 

@@ -6,10 +6,10 @@ To write and compile bicep files, you will need the cross-platform **bicep cli**
 
 ## Validate the install bicep CLI
 
-Validate that the cli is running by creating a blank file `main.arm` and then running:
+Validate that the cli is running by creating a blank file `main.bicep` and then running:
 
 ```bash
-bicep build main.arm
+bicep build main.bicep
 ```
 
 You should get an output json file of the same name in your current directory -- in this case `main.json`. It should be a skeleton ARM JSON template:
@@ -28,7 +28,7 @@ You should get an output json file of the same name in your current directory --
 
 ## Verify the Bicep VS Code extension (Language service)
 
-Open the `main.arm` file in VS code. If the extension is installed, you should see syntax highlighting working, and you should see the language in the lower right hand corner of the VS code window change to `bicep`.
+Open the `main.bicep` file in VS code. If the extension is installed, you should see syntax highlighting working, and you should see the language in the lower right hand corner of the VS code window change to `bicep`.
 
 ## Next steps
 

@@ -18,7 +18,7 @@ variable location = resourceGroup().location
 output makeCapital string = toUpper('all lowercase')
 ```
 
-In our `main.arm` file, instead of forcing users to guess a unique storage account name, let's use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name:
+In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name:
 
 ```
 parameter location string = 'eastus'

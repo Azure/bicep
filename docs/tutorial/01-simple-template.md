@@ -1,6 +1,6 @@
 # Working with a basic bicep file
 
-In the previous step, we compiled the most basic bicep file -- a blank template. Now let's add a `resource` to our `main.arm` bicep file:
+In the previous step, we compiled the most basic bicep file -- a blank template. Now let's add a `resource` to our `main.bicep` bicep file:
 
 ## Add a resource
 
@@ -22,7 +22,7 @@ The resource declaration has four components:
 * **resource type** (`Microsoft.Storage/storageAccounts@2019-06-01`) - composed of the resource provider (`Microsoft.Storage`), resource type (`storageAccounts`), and apiVersion (`2019-06-01`). These properties should be familiar if you've ever deployed ARM Templates before.
 * **resource properties** (everything inside `= {...}`) - these are the specific properties you would like to specify for the given resource type. These are *exactly* the same properties available to you in an ARM Template.
 
-When we compile the template with `bicep build main.arm`, we see the following JSON:
+When we compile the template with `bicep build main.bicep`, we see the following JSON:
 
 ```json
 // todo - waiting for above to compile
@@ -56,7 +56,7 @@ Notice the `parameters` can be referenced directly via their name in bicep, comp
 
 The end of the parameter declaration (`= 'eastus'`) is only the default value and can be optionally overridden at deployment time.
 
-Let's compile with `bicep build main.arm` and look at the output:
+Let's compile with `bicep build main.bicep` and look at the output:
 
 ```json
 //todo
