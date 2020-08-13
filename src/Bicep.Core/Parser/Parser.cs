@@ -12,7 +12,7 @@ namespace Bicep.Core.Parser
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<ErrorDiagnostic> lexicalErrors;
+        private readonly ImmutableArray<Diagnostic> lexerDiagnostics;
         
         public Parser(string text)
         {
@@ -20,7 +20,7 @@ namespace Bicep.Core.Parser
             var lexer = new Lexer(new SlidingTextWindow(text));
             lexer.Lex();
 
-            this.lexicalErrors = lexer.GetErrors();
+            this.lexerDiagnostics = lexer.GetDiagnostics();
 
             this.reader = new TokenReader(lexer.GetTokens());
         }
@@ -36,7 +36,7 @@ namespace Bicep.Core.Parser
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(statements, endOfFile, this.lexicalErrors);
+            return new ProgramSyntax(statements, endOfFile, this.lexerDiagnostics);
         }
 
         private SyntaxBase Declaration()
@@ -357,14 +357,14 @@ namespace Bicep.Core.Parser
             return this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
         }
 
-        private IdentifierSyntax Identifier(DiagnosticBuilder.BuildDelegate errorFunc)
+        private IdentifierSyntax Identifier(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
         }
 
-        private TypeSyntax Type(DiagnosticBuilder.BuildDelegate errorFunc)
+        private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
@@ -547,7 +547,7 @@ namespace Bicep.Core.Parser
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
         }
 
-        private Token Expect(TokenType type, DiagnosticBuilder.BuildDelegate errorFunc)
+        private Token Expect(TokenType type, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             if (this.Check(type))
             {

@@ -40,19 +40,18 @@ namespace Bicep.Core.Emit
         /// <param name="fileName">The path to the file.</param>
         public EmitResult Emit(string fileName)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -61,18 +60,17 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult Emit(Stream stream)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -81,18 +79,17 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The text writer to write the template</param>
         public EmitResult Emit(TextWriter writer)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -101,18 +98,17 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new ErrorDiagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         private void EmitInternal(Stream stream)
