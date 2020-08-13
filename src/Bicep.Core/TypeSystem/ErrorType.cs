@@ -9,24 +9,24 @@ namespace Bicep.Core.TypeSystem
     public class ErrorTypeSymbol : TypeSymbol
     {
         private const string ErrorTypeName = "error";
-        private readonly Diagnostic? error;
-        private readonly ImmutableArray<Diagnostic>? errors;
+        private readonly ErrorDiagnostic? error;
+        private readonly ImmutableArray<ErrorDiagnostic>? errors;
 
-        public ErrorTypeSymbol(Diagnostic error)
+        public ErrorTypeSymbol(ErrorDiagnostic error)
             : base(ErrorTypeName)
         {
             this.error = error;
             this.errors = null;
         }
 
-        public ErrorTypeSymbol(IEnumerable<Diagnostic> errors)
+        public ErrorTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
             : base(ErrorTypeName)
         {
             this.error = null;
             this.errors = errors.ToImmutableArray();
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             if (this.error != null)
             {

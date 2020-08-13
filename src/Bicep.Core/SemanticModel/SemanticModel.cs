@@ -20,15 +20,15 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
+        public IEnumerable<ErrorDiagnostic> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
+        public IEnumerable<ErrorDiagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnostics = new List<ErrorDiagnostic>();
             var visitor = new SemanticErrorVisitor(diagnostics);
             visitor.Visit(this.Root);
 
@@ -38,7 +38,7 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets all the diagnostics sorted by span position ascending. This includes lexer, parser, and semantic diagnostics.
         /// </summary>
-        public IEnumerable<Diagnostic> GetAllDiagnostics() => GetParseDiagnostics()
+        public IEnumerable<ErrorDiagnostic> GetAllDiagnostics() => GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 

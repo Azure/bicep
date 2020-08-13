@@ -12,7 +12,7 @@ namespace Bicep.Core.Parser
             Error = errorFunc(DiagnosticBuilder.ForPosition(unexpectedToken));
         }
 
-        public Diagnostic Error { get; }
+        public ErrorDiagnostic Error { get; }
 
         public override string Message => Error.Message;
 

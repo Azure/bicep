@@ -7,9 +7,9 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
+        public static IList<ErrorDiagnostic> GetParseDiagnostics(this SyntaxBase syntax)
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnostics = new List<ErrorDiagnostic>();
             var visitor = new ParseErrorVisitor(diagnostics);
             visitor.Visit(syntax);
 

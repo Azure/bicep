@@ -10,9 +10,9 @@ namespace Bicep.Core.Parser
     /// </summary>
     public class ParseErrorVisitor : SyntaxVisitor
     {
-        private readonly IList<Diagnostic> errors;
+        private readonly IList<ErrorDiagnostic> errors;
         
-        public ParseErrorVisitor(IList<Diagnostic> errors)
+        public ParseErrorVisitor(IList<ErrorDiagnostic> errors)
         {
             this.errors = errors;
         }
