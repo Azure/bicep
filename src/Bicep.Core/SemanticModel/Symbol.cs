@@ -34,7 +34,7 @@ namespace Bicep.Core.SemanticModel
             yield break;
         }
 
-        protected ErrorDiagnostic CreateError(IPositionable positionable, DiagnosticBuilder.BuildDelegate errorFunc)
+        protected ErrorDiagnostic CreateError(IPositionable positionable, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => errorFunc(DiagnosticBuilder.ForPosition(positionable));
     }
 }

@@ -7,16 +7,16 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IList<ErrorDiagnostic> GetParseDiagnostics(this SyntaxBase syntax)
+        public static IList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
         {
-            var diagnostics = new List<ErrorDiagnostic>();
-            var visitor = new ParseErrorVisitor(diagnostics);
+            var diagnostics = new List<Diagnostic>();
+            var visitor = new ParseDiagnosticsVisitor(diagnostics);
             visitor.Visit(syntax);
 
             return diagnostics;
         }
 
-        // TODO: Needs to account for warnings when we have warnings.
-        public static bool HasParseErrors(this SyntaxBase syntax) => syntax.GetParseDiagnostics().Any();
+        public static bool HasParseErrors(this SyntaxBase syntax)
+            => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
     }
 }

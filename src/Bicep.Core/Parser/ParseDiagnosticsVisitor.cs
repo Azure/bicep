@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -6,24 +6,24 @@ using Bicep.Core.Syntax;
 namespace Bicep.Core.Parser
 {
     /// <summary>
-    /// Visitor responsible for collecting all the parse errors from the parse tree.
+    /// Visitor responsible for collecting all the parse diagnostics from the parse tree.
     /// </summary>
-    public class ParseErrorVisitor : SyntaxVisitor
+    public class ParseDiagnosticsVisitor : SyntaxVisitor
     {
-        private readonly IList<ErrorDiagnostic> errors;
+        private readonly IList<Diagnostic> diagnostics;
         
-        public ParseErrorVisitor(IList<ErrorDiagnostic> errors)
+        public ParseDiagnosticsVisitor(IList<Diagnostic> diagnostics)
         {
-            this.errors = errors;
+            this.diagnostics = diagnostics;
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
 
-            foreach (var error in syntax.LexicalErrors)
+            foreach (var diagnostic in syntax.LexerDiagnostics)
             {
-                this.errors.Add(error);
+                this.diagnostics.Add(diagnostic);
             }
         }
 
@@ -34,18 +34,18 @@ namespace Bicep.Core.Parser
             // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
             // VS code will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
 
-            var errorInfo = syntax.ErrorCause.Type == TokenType.NewLine
+            var errorDiagnostic = syntax.ErrorCause.Type == TokenType.NewLine
                 ? syntax.ErrorInfo.WithSpan(new TextSpan(syntax.ErrorInfo.Span.Position, 0))
                 : syntax.ErrorInfo;
 
-            this.errors.Add(errorInfo);
+            this.diagnostics.Add(errorDiagnostic);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.errors.Add(DiagnosticBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
+                this.diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
             }
 
             base.VisitIdentifierSyntax(syntax);
@@ -63,7 +63,7 @@ namespace Bicep.Core.Parser
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.errors.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
+                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
                 }
             }
         }

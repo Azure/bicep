@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Serialization
             this.SpanText = spanText;
         }
 
-        public DiagnosticItem(ErrorDiagnostic diagnostic, string contents)
+        public DiagnosticItem(Diagnostic diagnostic, string contents)
         {
             this.Message = diagnostic.Message;
             this.ErrorCode = diagnostic.Code;

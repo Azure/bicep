@@ -17,32 +17,32 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void DiagnosticBuilder_CodesAreUnique()
         {
-            var errorMethods = typeof(DiagnosticBuilder.DiagnosticBuilderInternal)
+            var diagnosticMethods = typeof(DiagnosticBuilder.DiagnosticBuilderInternal)
                 .GetMethods(BindingFlags.Instance | BindingFlags.Public)
-                .Where(m => m.ReturnType == typeof(ErrorDiagnostic));
+                .Where(m => typeof(Diagnostic).IsAssignableFrom(m.ReturnType));
 
             // verify the above Linq is actually working
-            errorMethods.Should().HaveCountGreaterThan(40);
+            diagnosticMethods.Should().HaveCountGreaterThan(40);
 
             var builder = DiagnosticBuilder.ForPosition(new TextSpan(0, 10));
 
             var definedCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var errorMethod in errorMethods)
+            foreach (var diagnosticMethod in diagnosticMethods)
             {
-                var mockParams = errorMethod.GetParameters().Select(CreateMockParameter);
+                var mockParams = diagnosticMethod.GetParameters().Select(CreateMockParameter);
                 
-                var error = errorMethod.Invoke(builder, mockParams.ToArray()) as ErrorDiagnostic;
+                var diagnostic = diagnosticMethod.Invoke(builder, mockParams.ToArray()) as Diagnostic;
 
                 if (mockParams.Any())
                 {
                     // verify that all the params are actually being written in the message
-                    error!.Message.Should().ContainAll(CollectExpectedStrings(mockParams), $"method {errorMethod.Name} should use all of its parameters in the format string.");
+                    diagnostic!.Message.Should().ContainAll(CollectExpectedStrings(mockParams), $"method {diagnosticMethod.Name} should use all of its parameters in the format string.");
                 }
 
                 // verify that the Code is unique
-                definedCodes.Should().NotContain(error!.Code, $"Method {errorMethod.Name} should be assigned a unique error code.");
-                definedCodes.Add(error!.Code);
+                definedCodes.Should().NotContain(diagnostic!.Code, $"Method {diagnosticMethod.Name} should be assigned a unique error code.");
+                definedCodes.Add(diagnostic!.Code);
             }
         }
 

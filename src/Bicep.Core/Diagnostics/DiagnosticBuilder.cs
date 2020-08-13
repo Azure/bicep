@@ -9,7 +9,7 @@ namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
-        public delegate ErrorDiagnostic BuildDelegate(DiagnosticBuilderInternal builder);
+        public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
         {
@@ -180,7 +180,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP032",
                 "The value must be a compile-time constant.");
 
-            public ErrorDiagnostic ExpectdValueTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedValueTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP033",
                 $"Expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
