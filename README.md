@@ -4,7 +4,7 @@
 
 ## What is Bicep?
 
-Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax and support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All `resourceType`, `apiVersions`, and resource `properties` that are valid in an ARM template are equally valid in Bicep.
+Bicep is a Domain Specific Lanuage (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax and support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, so all of your knowledge of how resources are declared in a template will carry over to Bicep. All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep.
 
 Bicep compiles down to standard ARM Template JSON files, which means the ARM JSON is effectively being treated as an Intermediate Language (IL).
 
@@ -12,7 +12,7 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 ## High Level Design Goals
 
 1. Build the best possible language for describing, validating, and deploying infrastructure to Azure.
-1. The language should provide a 'transparent abstraction' for the underlying platform. There must be no "onboarding step" to enable it to a new `resourceType` or `apiVersion` in Bicep.
+1. The language should provide a 'transparent abstraction' for the underlying platform. There must be no "onboarding step" to enable it to a new resource `type` and/or `apiVersion` in Bicep.
 1. Code should be easy to understand at a glance and straightforward to learn, regardless of your experience with other programming languages.
 1. Users should be given a lot of freedom to modularize and reuse their code. Reusing code should not require any 'copy/paste'.
 1. Tooling should provide a high level of resource discoverability and validation, and should be developed alongside the compiler rather than added at the end.
@@ -21,7 +21,7 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 ### Non-goals
 
 1. Build a general purpose language to meet any need. This will not replace general purpose languages and you may still need to do pre or post bicep tasks in a script or high-level programming language.
-1. Provide a first-class provider model for non-Azure related tasks. While we will likely introduce an extensibility model at some point, but any extension points are intended to be focused on Azure infra or application deployment related tasks.
+1. Provide a first-class provider model for non-Azure related tasks. While we will likely introduce an extensibility model at some point, any extension points are intended to be focused on Azure infra or application deployment related tasks.
 
 ## How does Bicep work?
 
@@ -31,7 +31,7 @@ First, author your Bicep code using the Bicep language service as part of the [B
 bicep build ./main.arm
 ```
 
-You should see the compiled template `main.json`. Now that you have the ARM Template, you can use all existing ARM Template tooling such as [what-if](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-deploy-what-if?tabs=azure-powershell), the [ARM Tools Extension](https://marketplace.visualstudio.com/items?itemName=msazurermtools.azurerm-vscode-tools), and the deployment CLI commands.
+You should see the compiled template `main.json` get created in the same directory as `main.arm`. Now that you have the ARM Template, you can use all existing ARM Template tooling such as [what-if](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-deploy-what-if?tabs=azure-powershell), the [ARM Tools Extension](https://marketplace.visualstudio.com/items?itemName=msazurermtools.azurerm-vscode-tools), and the deployment CLI commands.
 
 You can now deploy this template via any method you would like such as:
 
@@ -53,7 +53,9 @@ az deployment group create -f ./main.json -g my-rg
 
 ## Get started with Bicep
 
-The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
+The best way to get started with Bicep is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into a bicep file.
+
+Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
 ## Known limitations
 
@@ -65,7 +67,13 @@ The best way to get started with Bicep is with the [bicep tutorial](./docs/tutor
 
 ## Reference
 
-* [complete language spec](./docs/spec)
+* [Complete language spec](./docs/spec)
+
+## Alternatives
+
+Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL generation. We'll keep a running list of good alternatives that may fit your use case better than bicep. 
+
+* [Farmer](https://compositionalit.github.io/farmer/) - There is a great project by **placeholder_username** for authoring ARM templates in an F# DSL
 
 ## Contributing
 

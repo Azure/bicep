@@ -1,4 +1,4 @@
-# Using 'advanced' expressions
+# Using "advanced" expressions
 
 In the previous tutorial, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs.
 
@@ -64,7 +64,7 @@ If you compile with `bicep build`, you will notice we are compiling this into th
 
 ## Using the ternary operator
 
-You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storak sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
+You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storage sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
 
 ```
 parameter location string = 'eastus'
