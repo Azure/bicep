@@ -10,81 +10,41 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class TypeManager : ISemanticContext
+    public class TypeManager : ITypeManager
     {
-        public TypeManager()
+        private readonly IReadOnlyDictionary<SyntaxBase,Symbol> bindings;
+
+        private bool unlocked;
+
+        public TypeManager(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
+            // bindings will be modified by name binding after this object is created
+            // so we can't make an immutable copy here
+            // (using the IReadOnlyDictionary to prevent accidental mutation)
+            this.bindings = bindings; 
         }
 
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax)
+        public void Unlock()
         {
-            // TODO: When we have expressions, this class will cache the result, so we don't have walk the three all the time.
-            switch (syntax)
-            {
-                case BooleanLiteralSyntax _:
-                    return LanguageConstants.Bool;
-
-                case NumericLiteralSyntax _:
-                    return LanguageConstants.Int;
-
-                case StringSyntax _:
-                    return LanguageConstants.String;
-
-                case ObjectSyntax @object:
-                    return GetObjectType(@object);
-
-                case ObjectPropertySyntax objectProperty:
-                    return GetTypeInfo(objectProperty.Value);
-
-                case ArraySyntax array:
-                    return GetArrayType(array);
-
-                case ArrayItemSyntax arrayItem:
-                    return GetTypeInfo(arrayItem.Value);
-
-                case BinaryOperationSyntax binary:
-                    return GetBinaryOperationType(binary);
-
-                case FunctionArgumentSyntax functionArgument:
-                    return GetTypeInfo(functionArgument.Expression);
-
-                case FunctionCallSyntax functionCall:
-                    return GetFunctionCallType(functionCall);
-
-                case NullLiteralSyntax _:
-                    // null is its own type
-                    return LanguageConstants.Null;
-
-                case ParenthesizedExpressionSyntax parenthesized:
-                    // parentheses don't change the type of the parenthesized expression
-                    return GetTypeInfo(parenthesized.Expression);
-
-                case PropertyAccessSyntax propertyAccess:
-                    return GetPropertyAccessType(propertyAccess);
-
-                case ArrayAccessSyntax arrayAccess:
-                    return GetArrayAccessType(arrayAccess);
-
-                case TernaryOperationSyntax ternary:
-                    return GetTernaryOperationType(ternary);
-
-                case UnaryOperationSyntax unary:
-                    return GetUnaryOperationType(unary);
-
-                case VariableAccessSyntax variableAccess:
-                    // TODO: Variable access is not currently supported
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(variableAccess.Name).NotImplementedVariableAccess());
-
-                default:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
-            }
+            this.unlocked = true;
         }
 
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context)
+        {
+            this.CheckLock();
+            return GetTypeInfoInternal(context, syntax);
+        }
 
         // TODO: This does not recognize non-resource named objects yet
-
         public TypeSymbol? GetTypeByName(string? typeName)
         {
+            /*
+             * Obtaining the type by name currently does not involve processing outgoing edges in the expression graph (function or variable refs)
+             * This means that we do not need to check for cycles. However, if that ever changes, ensure that proper cycle detection is added here.
+             */
+
+            this.CheckLock();
+
             if (typeName == null)
             {
                 return null;
@@ -107,13 +67,109 @@ namespace Bicep.Core.TypeSystem
             return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null);
         }
 
-        private TypeSymbol GetObjectType(ObjectSyntax @object)
+        private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)
         {
-            var errors = new List<Diagnostic>();
+            if (context.TryMarkVisited(syntax) == false)
+            {
+                // we have already visited this node, which means we have a cycle
+                // all the nodes that were visited are involved in the cycle
+                return new ErrorTypeSymbol(context.GetVisitedNodes().Select(node => DiagnosticBuilder.ForPosition(node.Span).CyclicExpression()));
+            }
+
+            // TODO: implement a type cache, so we don't have walk the three all the time.
+            switch (syntax)
+            {
+                case BooleanLiteralSyntax _:
+                    return LanguageConstants.Bool;
+
+                case NumericLiteralSyntax _:
+                    return LanguageConstants.Int;
+
+                case StringSyntax @string:
+                    return GetStringType(context, @string);
+
+                case ObjectSyntax @object:
+                    return GetObjectType(context, @object);
+
+                case ObjectPropertySyntax objectProperty:
+                    return GetTypeInfoInternal(context, objectProperty.Value);
+
+                case ArraySyntax array:
+                    return GetArrayType(context, array);
+
+                case ArrayItemSyntax arrayItem:
+                    return GetTypeInfoInternal(context, arrayItem.Value);
+
+                case BinaryOperationSyntax binary:
+                    return GetBinaryOperationType(context, binary);
+
+                case FunctionArgumentSyntax functionArgument:
+                    return GetTypeInfoInternal(context, functionArgument.Expression);
+
+                case FunctionCallSyntax functionCall:
+                    return GetFunctionCallType(context, functionCall);
+
+                case NullLiteralSyntax _:
+                    // null is its own type
+                    return LanguageConstants.Null;
+
+                case ParenthesizedExpressionSyntax parenthesized:
+                    // parentheses don't change the type of the parenthesized expression
+                    return GetTypeInfoInternal(context, parenthesized.Expression);
+
+                case PropertyAccessSyntax propertyAccess:
+                    return GetPropertyAccessType(context, propertyAccess);
+
+                case ArrayAccessSyntax arrayAccess:
+                    return GetArrayAccessType(context, arrayAccess);
+
+                case TernaryOperationSyntax ternary:
+                    return GetTernaryOperationType(context, ternary);
+
+                case UnaryOperationSyntax unary:
+                    return GetUnaryOperationType(context, unary);
+
+                case VariableAccessSyntax variableAccess:
+                    return GetVariableAccessType(context, variableAccess);
+
+                default:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
+            }
+        }
+
+        private TypeSymbol GetStringType(TypeManagerContext context, StringSyntax @string)
+        {
+            if (@string.IsInterpolated() == false)
+            {
+                // uninterpolated strings have a known type
+                return LanguageConstants.String;
+            }
+
+            var errors = new List<ErrorDiagnostic>();
+
+            foreach (var interpolatedExpression in @string.Expressions)
+            {
+                var expressionType = this.GetTypeInfoInternal(context, interpolatedExpression);
+                CollectErrors(errors, expressionType);
+            }
+
+            if (errors.Any())
+            {
+                return new ErrorTypeSymbol(errors);
+            }
+
+            // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
+            // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
+            return LanguageConstants.String;
+        }
+
+        private TypeSymbol GetObjectType(TypeManagerContext context, ObjectSyntax @object)
+        {
+            var errors = new List<ErrorDiagnostic>();
 
             foreach (ObjectPropertySyntax objectProperty in @object.Properties)
             {
-                var propertyType = this.GetTypeInfo(objectProperty);
+                var propertyType = this.GetTypeInfoInternal(context, objectProperty);
                 CollectErrors(errors, propertyType);
             }
 
@@ -126,14 +182,14 @@ namespace Bicep.Core.TypeSystem
             return LanguageConstants.Object;
         }
 
-        private TypeSymbol GetArrayType(ArraySyntax array)
+        private TypeSymbol GetArrayType(TypeManagerContext context, ArraySyntax array)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             var itemTypes = new List<TypeSymbol>(array.Children.Length);
             foreach (SyntaxBase arrayItem in array.Children)
             {
-                var itemType = this.GetTypeInfo(arrayItem);
+                var itemType = this.GetTypeInfoInternal(context, arrayItem);
                 itemTypes.Add(itemType);
                 CollectErrors(errors, itemType);
             }
@@ -154,11 +210,11 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(aggregatedItemType);
         }
 
-        private TypeSymbol GetPropertyAccessType(PropertyAccessSyntax syntax)
+        private TypeSymbol GetPropertyAccessType(TypeManagerContext context, PropertyAccessSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
-            var baseType = this.GetTypeInfo(syntax.BaseExpression);
+            var baseType = this.GetTypeInfoInternal(context, syntax.BaseExpression);
             CollectErrors(errors, baseType);
 
             if (errors.Any())
@@ -235,14 +291,14 @@ namespace Bicep.Core.TypeSystem
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
         }
 
-        private TypeSymbol GetArrayAccessType(ArrayAccessSyntax syntax)
+        private TypeSymbol GetArrayAccessType(TypeManagerContext context, ArrayAccessSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
-            var baseType = this.GetTypeInfo(syntax.BaseExpression);
+            var baseType = this.GetTypeInfoInternal(context, syntax.BaseExpression);
             CollectErrors(errors, baseType);
 
-            var indexType = this.GetTypeInfo(syntax.IndexExpression);
+            var indexType = this.GetTypeInfoInternal(context, syntax.IndexExpression);
             CollectErrors(errors, indexType);
 
             if (errors.Any())
@@ -325,11 +381,39 @@ namespace Bicep.Core.TypeSystem
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
         }
 
-        private TypeSymbol GetFunctionCallType(FunctionCallSyntax syntax)
+        private TypeSymbol GetVariableAccessType(TypeManagerContext context, VariableAccessSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var symbol = this.ResolveSymbol(syntax);
 
-            var argumentTypes = syntax.Arguments.Select(GetTypeInfo).ToList();
+            switch (symbol)
+            {
+                case ErrorSymbol errorSymbol:
+                    // variable bind failure - pass the error along
+                    return errorSymbol.ToErrorType();
+
+                case ResourceSymbol _:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).ResourcePropertyAccessNotSupported());
+
+                case ParameterSymbol parameter:
+                    // TODO: This can cause a cycle
+                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, parameter.Type);
+
+                case VariableSymbol variable:
+                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, variable.GetVariableType(context));
+
+                case OutputSymbol _:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
+
+                default:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
+            }
+        }
+
+        private TypeSymbol GetFunctionCallType(TypeManagerContext context, FunctionCallSyntax syntax)
+        {
+            var errors = new List<ErrorDiagnostic>();
+
+            var argumentTypes = syntax.Arguments.Select(syntax1 => GetTypeInfoInternal(context, syntax1)).ToList();
             foreach (TypeSymbol argumentType in argumentTypes)
             {
                 CollectErrors(errors, argumentType);
@@ -340,7 +424,24 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            var matches = FunctionResolver.GetMatches(syntax.FunctionName.IdentifierName, argumentTypes).ToList();
+            var symbol = this.ResolveSymbol(syntax);
+            switch (symbol)
+            {
+                case ErrorSymbol errorSymbol:
+                    // function bind failure - pass the error along
+                    return errorSymbol.ToErrorType();
+
+                case FunctionSymbol function:
+                    return GetFunctionSymbolType(syntax, function, argumentTypes);
+
+                default:
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.FunctionName.Span).SymbolicNameIsNotAFunction(syntax.FunctionName.IdentifierName));
+            }
+        }
+
+        private TypeSymbol GetFunctionSymbolType(FunctionCallSyntax syntax, FunctionSymbol function, List<TypeSymbol> argumentTypes)
+        {
+            var matches = FunctionResolver.GetMatches(function, argumentTypes).ToList();
 
             switch (matches.Count)
             {
@@ -349,7 +450,8 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
 
                 case 1:
-                    // we have an exact match
+                    // we have an exact match or a single ambiguous match
+                    // return its type
                     return matches.Single().ReturnType;
 
                 default:
@@ -362,9 +464,9 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)
+        private TypeSymbol GetUnaryOperationType(TypeManagerContext context, UnaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             // TODO: When we add number type, this will have to be adjusted
             var expectedOperandType = syntax.Operator switch
@@ -374,7 +476,7 @@ namespace Bicep.Core.TypeSystem
                 _ => throw new NotImplementedException()
             };
 
-            var operandType = this.GetTypeInfo(syntax.Expression);
+            var operandType = this.GetTypeInfoInternal(context, syntax.Expression);
             CollectErrors(errors, operandType);
 
             if (errors.Any())
@@ -390,14 +492,14 @@ namespace Bicep.Core.TypeSystem
             return expectedOperandType;
         }
 
-        private TypeSymbol GetBinaryOperationType(BinaryOperationSyntax syntax)
+        private TypeSymbol GetBinaryOperationType(TypeManagerContext context, BinaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
-            var operandType1 = this.GetTypeInfo(syntax.LeftExpression);
+            var operandType1 = this.GetTypeInfoInternal(context, syntax.LeftExpression);
             CollectErrors(errors, operandType1);
 
-            var operandType2 = this.GetTypeInfo(syntax.RightExpression);
+            var operandType2 = this.GetTypeInfoInternal(context, syntax.RightExpression);
             CollectErrors(errors, operandType2);
 
             if (errors.Any())
@@ -419,18 +521,18 @@ namespace Bicep.Core.TypeSystem
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
         }
 
-        private TypeSymbol GetTernaryOperationType(TernaryOperationSyntax syntax)
+        private TypeSymbol GetTernaryOperationType(TypeManagerContext context, TernaryOperationSyntax syntax)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
 
             // ternary operator requires the condition to be of bool type
-            var conditionType = this.GetTypeInfo(syntax.ConditionExpression);
+            var conditionType = this.GetTypeInfoInternal(context, syntax.ConditionExpression);
             CollectErrors(errors, conditionType);
 
-            var trueType = this.GetTypeInfo(syntax.TrueExpression);
+            var trueType = this.GetTypeInfoInternal(context, syntax.TrueExpression);
             CollectErrors(errors, trueType);
 
-            var falseType = this.GetTypeInfo(syntax.FalseExpression);
+            var falseType = this.GetTypeInfoInternal(context, syntax.FalseExpression);
             CollectErrors(errors, falseType);
 
             if (errors.Any())
@@ -448,9 +550,44 @@ namespace Bicep.Core.TypeSystem
             return UnionType.Create(trueType, falseType);
         }
 
-        private static void CollectErrors(List<Diagnostic> errors, TypeSymbol type)
+        private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
+        }
+
+        private void CheckLock()
+        {
+            if (this.unlocked == false)
+            {
+                throw new InvalidOperationException("Type checks are blocked until name binding is completed.");
+            }
+        }
+
+        private TypeSymbol HandleSymbolType(string symbolName, TextSpan symbolNameSpan, TypeSymbol symbolType)
+        {
+            // symbols are responsible for doing their own type checking
+            // the error from that should not be propagated to expressions that have type errors
+            // unless we're dealing with a cyclic expression error, then propagate away!
+            if (symbolType is ErrorTypeSymbol errorType)
+            {
+                if (errorType.GetDiagnostics().Any(ErrorDiagnostic.IsCyclicExpressionError))
+                {
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(symbolNameSpan).CyclicExpression());
+                }
+
+                // replace the original error with a different one
+                // we may consider suppressing this error in the future as well
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(symbolNameSpan).ReferencedSymbolHasErrors(symbolName));
+            }
+
+            return symbolType;
+        }
+
+        private Symbol ResolveSymbol(SyntaxBase syntax)
+        {
+            // the binder guarantees that all bindable syntax nodes have a symbol attached to them even if it's the error symbol
+            // if we see a null here, we have a code defect somewhere
+            return this.bindings.TryGetValue(syntax) ?? throw new InvalidOperationException($"Name binding failed to assign a symbol to syntax node of type '{syntax.GetType().Name}'.");
         }
     }
 }

@@ -9,13 +9,13 @@ namespace Bicep.Core.Emit
 {
     public static class ExpressionEmitter
     {
-        private static readonly ExpressionSerializer expressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
+        private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
         {
             IncludeOuterSquareBrackets = true,
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        public static void EmitExpression(JsonTextWriter writer, SyntaxBase syntax)
+        public static void EmitExpression(JsonTextWriter writer, SyntaxBase syntax, SemanticModel.SemanticModel model)
         {
             switch (syntax)
             {
@@ -34,7 +34,7 @@ namespace Bicep.Core.Emit
 
                 case ObjectSyntax objectSyntax:
                     writer.WriteStartObject();
-                    EmitObjectProperties(writer, objectSyntax);
+                    EmitObjectProperties(writer, objectSyntax, model);
                     writer.WriteEndObject();
 
                     break;
@@ -44,7 +44,7 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        EmitExpression(writer, itemSyntax.Value);
+                        EmitExpression(writer, itemSyntax.Value, model);
                     }
 
                     writer.WriteEndArray();
@@ -59,19 +59,19 @@ namespace Bicep.Core.Emit
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
-                    EmitLanguageExpression(writer, syntax);
+                case VariableAccessSyntax _:
+                    EmitLanguageExpression(writer, syntax, model);
                     
                     break;
 
-                case VariableAccessSyntax _:
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
         }
 
-        public static void EmitLanguageExpression(JsonTextWriter writer, SyntaxBase syntax)
+        public static void EmitLanguageExpression(JsonTextWriter writer, SyntaxBase syntax, SemanticModel.SemanticModel model)
         {
-            LanguageExpression converted = syntax.ToTemplateExpression();
+            LanguageExpression converted = syntax.ToTemplateExpression(model);
 
             if (converted is JTokenExpression valueExpression)
             {
@@ -89,16 +89,16 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            var serialized = expressionSerializer.SerializeExpression(converted);
+            var serialized = ExpressionSerializer.SerializeExpression(converted);
 
             writer.WriteValue(serialized);
         }
 
-        public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
+        public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax, SemanticModel.SemanticModel model)
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
+                EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value, model);
             }
         }
 
@@ -108,17 +108,17 @@ namespace Bicep.Core.Emit
             writer.WriteValue(value);
         }
 
-        public static void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression)
+        public static void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression, SemanticModel.SemanticModel model)
         {
             writer.WritePropertyName(name);
-            EmitExpression(writer, expression);
+            EmitExpression(writer, expression, model);
         }
 
-        public static void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression)
+        public static void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression, SemanticModel.SemanticModel model)
         {
             if (expression != null)
             {
-                EmitPropertyExpression(writer, name, expression);
+                EmitPropertyExpression(writer, name, expression, model);
             }
         }
     }

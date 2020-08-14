@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -24,23 +26,39 @@ namespace Bicep.Core.SemanticModel
 
         private SemanticModel GetSemanticModelInternal()
         {
-            var typeCache = new TypeManager();
+            var builtinNamespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()}.ToImmutableArray();
+            var bindings = new Dictionary<SyntaxBase, Symbol>();
+            
+            // create this in locked mode by default
+            // this blocks accidental type queries until binding is done
+            // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
+            var typeCache = new TypeManager(bindings);
 
-            List<Symbol> declarations = new List<Symbol>();
+            // collect declarations
+            var declarations = new List<Symbol>();
             var declarationVisitor = new DeclarationVisitor(typeCache, declarations);
             declarationVisitor.Visit(this.ProgramSyntax);
 
-            // TODO: Reparent context to semantic model?
+            // bind identifiers to declarations
+            var binder = new NameBindingVisitor(declarations, bindings, builtinNamespaces);
+            binder.Visit(this.ProgramSyntax);
+
+            // name binding is done
+            // allow type queries now
+            typeCache.Unlock();
+
             // TODO: Avoid looping 4 times?
             var file = new FileSymbol(
                 typeCache,
                 "main",
                 this.ProgramSyntax,
+                builtinNamespaces, 
                 declarations.OfType<ParameterSymbol>(),
                 declarations.OfType<VariableSymbol>(),
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
-            return new SemanticModel(file, typeCache);
+
+            return new SemanticModel(file, typeCache, bindings, typeCache);
         }
     }
 }

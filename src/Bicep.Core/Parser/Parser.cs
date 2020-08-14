@@ -12,7 +12,7 @@ namespace Bicep.Core.Parser
     {
         private readonly TokenReader reader;
 
-        private readonly ImmutableArray<Diagnostic> lexicalErrors;
+        private readonly ImmutableArray<Diagnostic> lexerDiagnostics;
         
         public Parser(string text)
         {
@@ -20,7 +20,7 @@ namespace Bicep.Core.Parser
             var lexer = new Lexer(new SlidingTextWindow(text));
             lexer.Lex();
 
-            this.lexicalErrors = lexer.GetErrors();
+            this.lexerDiagnostics = lexer.GetDiagnostics();
 
             this.reader = new TokenReader(lexer.GetTokens());
         }
@@ -36,7 +36,7 @@ namespace Bicep.Core.Parser
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(statements, endOfFile, this.lexicalErrors);
+            return new ProgramSyntax(statements, endOfFile, this.lexerDiagnostics);
         }
 
         private SyntaxBase Declaration()
@@ -71,6 +71,7 @@ namespace Bicep.Core.Parser
             {
                 // the parameter does not have a modifier
                 TokenType.NewLine => null,
+                TokenType.EndOfFile => null,
 
                 // default value is specified
                 TokenType.Assignment => this.ParameterDefaultValue(),
@@ -81,7 +82,7 @@ namespace Bicep.Core.Parser
                 _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
             };
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new ParameterDeclarationSyntax(keyword, name, type, modifier, newLine);
         }
@@ -101,7 +102,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value, newLine);
         }
@@ -114,7 +115,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new OutputDeclarationSyntax(keyword, name, type, assignment, value, newLine);
         }
@@ -130,7 +131,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var body = this.Object();
 
-            var newLine = this.NewLine();
+            var newLine = this.NewLineOrEof();
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body, newLine);
         }
@@ -139,6 +140,17 @@ namespace Bicep.Core.Parser
         {
             var newLine = this.NewLine();
             return new NoOpDeclarationSyntax(newLine);
+        }
+
+        private Token? NewLineOrEof()
+        {
+            if (reader.Peek().Type == TokenType.EndOfFile)
+            {
+                // don't actually consume the token
+                return null;
+            }
+
+            return NewLine();
         }
 
         private Token NewLine()
@@ -345,14 +357,14 @@ namespace Bicep.Core.Parser
             return this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
         }
 
-        private IdentifierSyntax Identifier(DiagnosticBuilder.BuildDelegate errorFunc)
+        private IdentifierSyntax Identifier(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
         }
 
-        private TypeSyntax Type(DiagnosticBuilder.BuildDelegate errorFunc)
+        private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
@@ -535,7 +547,7 @@ namespace Bicep.Core.Parser
             return reader.IsAtEnd() || reader.Peek().Type == TokenType.EndOfFile;
         }
 
-        private Token Expect(TokenType type, DiagnosticBuilder.BuildDelegate errorFunc)
+        private Token Expect(TokenType type, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             if (this.Check(type))
             {

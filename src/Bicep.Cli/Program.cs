@@ -13,6 +13,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Bicep.Cli.CommandLine.Arguments;
 
 namespace Bicep.Cli
 {
@@ -27,23 +28,33 @@ namespace Bicep.Cli
                 // and logging to multiple targets in the future (stdout AND a log file, for example)
                 // it does not help us with formatting of the messages however, so we will have to workaround that
                 IDiagnosticLogger logger = new BicepDiagnosticLogger(loggerFactory.CreateLogger("bicep"));
-
-                Arguments? arguments = ArgumentParser.Parse(args);
-                if (arguments == null)
+                try
                 {
-                    ArgumentParser.PrintUsage();
+                    switch (ArgumentParser.Parse(args))
+                    {
+                        case BuildArguments buildArguments: // build
+                            Build(logger, buildArguments);
+                            break;
+                        case VersionArguments _: // --version
+                            ArgumentParser.PrintVersion();
+                            break;
+                        case HelpArguments _: // --help
+                            ArgumentParser.PrintUsage();
+                            break;
+                        case UnrecognizedArguments unrecognizedArguments: // everything else
+                            var exeName = ArgumentParser.GetExeName();
+                            Console.Error.WriteLine($"Unrecognized arguments '{unrecognizedArguments.SuppliedArguments}' specified. Use '{exeName} --help' to view available options.");
+                            return 1;
+                    }
+
+                    // return non-zero exit code on errors
+                    return logger.HasLoggedErrors ? 1 : 0;
+                }
+                catch (CommandLineException cliException)
+                {
+                    Console.Error.WriteLine(cliException.Message);
                     return 1;
                 }
-
-                switch (arguments)
-                {
-                    case BuildArguments buildArguments:
-                        Build(logger, buildArguments);
-                        break;
-                }
-
-                // return non-zero exit code on errors
-                return logger.HasLoggedErrors ? 1 : 0;
             }
         }
 
@@ -83,7 +94,7 @@ namespace Bicep.Cli
 
             var result = emitter.Emit(outputPath);
 
-            foreach (Diagnostic diagnostic in result.Diagnostics)
+            foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
             {
                 logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
             }
@@ -110,7 +121,7 @@ namespace Bicep.Cli
 
                 var result = emitter.Emit(writer);
 
-                foreach (Diagnostic diagnostic in result.Diagnostics)
+                foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
                 {
                     logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
                 }

@@ -24,14 +24,14 @@ namespace Bicep.Core.IntegrationTests
             var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
             
-            var errors = model.GetAllDiagnostics().Select(error => new ErrorItem(error, dataSet.Bicep));
+            var errors = model.GetAllDiagnostics().Select(error => new DiagnosticItem(error, dataSet.Bicep));
 
             var actual = JToken.FromObject(errors, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Errors_Actual.json", actual.ToString(Formatting.Indented));
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Actual.json", actual.ToString(Formatting.Indented));
 
             var expected = JToken.Parse(dataSet.Errors);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Errors_Expected.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Errors_Delta.json");
+            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Expected.json", expected.ToString(Formatting.Indented));
+            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Diagnostics_Delta.json");
         }
 
         [TestMethod]

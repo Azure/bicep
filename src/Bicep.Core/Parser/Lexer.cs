@@ -37,7 +37,7 @@ namespace Bicep.Core.Parser
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Diagnostic> errors = new List<Diagnostic>();
+        private readonly IList<Diagnostic> diagnostics = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
 
         public Lexer(SlidingTextWindow textWindow)
@@ -45,14 +45,14 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(TextSpan span, DiagnosticBuilder.BuildDelegate errorFunc)
+        private void AddDiagnostic(TextSpan span, DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
         {
-            var error = errorFunc(DiagnosticBuilder.ForPosition(span));
-            this.errors.Add(error);
+            var diagnostic = diagnosticFunc(DiagnosticBuilder.ForPosition(span));
+            this.diagnostics.Add(diagnostic);
         }
 
-        private void AddError(DiagnosticBuilder.BuildDelegate errorFunc)
-            => AddError(textWindow.GetSpan(), errorFunc);
+        private void AddDiagnostic(DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
+            => AddDiagnostic(textWindow.GetSpan(), diagnosticFunc);
 
         public void Lex()
         {
@@ -70,7 +70,7 @@ namespace Bicep.Core.Parser
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public ImmutableArray<Diagnostic> GetErrors() => errors.ToImmutableArray();
+        public ImmutableArray<Diagnostic> GetDiagnostics() => diagnostics.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
@@ -216,7 +216,7 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                AddError(b => b.UnrecognizedToken(tokenText));
+                AddDiagnostic(b => b.UnrecognizedToken(tokenText));
             }
 
             textWindow.Reset();
@@ -278,7 +278,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(b => b.UnterminatedMultilineComment());
+                    AddDiagnostic(b => b.UnterminatedMultilineComment());
                     break;
                 }
 
@@ -292,7 +292,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(b => b.UnterminatedMultilineComment());
+                    AddDiagnostic(b => b.UnterminatedMultilineComment());
                     break;
                 }
 
@@ -339,7 +339,7 @@ namespace Bicep.Core.Parser
             {
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(b => b.UnterminatedString());
+                    AddDiagnostic(b => b.UnterminatedString());
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
@@ -348,7 +348,7 @@ namespace Bicep.Core.Parser
                 if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
-                    AddError(b => b.UnterminatedStringWithNewLine());
+                    AddDiagnostic(b => b.UnterminatedStringWithNewLine());
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
@@ -372,7 +372,7 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    AddError(b => b.UnterminatedStringEscapeSequenceAtEof());
+                    AddDiagnostic(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
@@ -382,7 +382,7 @@ namespace Bicep.Core.Parser
                 if (CharacterEscapes.ContainsKey(nextChar) == false)
                 {
                     // the span of the error is the incorrect escape sequence
-                    AddError(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
+                    AddDiagnostic(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
                 }
             }
         }
@@ -588,7 +588,7 @@ namespace Bicep.Core.Parser
                         textWindow.Rewind();
 
                         // do not consume the new line character
-                        AddError(b => b.UnterminatedStringWithNewLine());
+                        AddDiagnostic(b => b.UnterminatedStringWithNewLine());
 
                         templateStack.Clear();
                         return TokenType.StringRightPiece;

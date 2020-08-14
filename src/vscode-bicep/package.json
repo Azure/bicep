@@ -52,7 +52,7 @@
                     "bicep"
                 ],
                 "extensions": [
-                    ".arm"
+                    ".bicep"
                 ],
                 "configuration": "./language-configuration.json"
             }

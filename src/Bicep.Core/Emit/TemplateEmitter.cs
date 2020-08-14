@@ -40,19 +40,18 @@ namespace Bicep.Core.Emit
         /// <param name="fileName">The path to the file.</param>
         public EmitResult Emit(string fileName)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -61,18 +60,17 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult Emit(Stream stream)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(stream);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -81,18 +79,17 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The text writer to write the template</param>
         public EmitResult Emit(TextWriter writer)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         /// <summary>
@@ -101,18 +98,17 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer)
         {
-            // collect all the errors
+            // collect all the diagnostics
             var diagnostics = this.semanticModel.GetAllDiagnostics();
 
-            if (diagnostics.Any())
+            if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {
-                // TODO: This needs to account for warnings when we add severity.
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
             this.EmitInternal(writer);
 
-            return new EmitResult(EmitStatus.Succeeded, new Diagnostic[0]);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
 
         private void EmitInternal(Stream stream)
@@ -192,7 +188,7 @@ namespace Bicep.Core.Emit
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
-                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue);
+                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue, this.semanticModel);
 
                     break;
 
@@ -205,7 +201,7 @@ namespace Bicep.Core.Emit
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
                     {
-                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName));
+                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName), this.semanticModel);
                     }
                     
                     break;
@@ -230,7 +226,7 @@ namespace Bicep.Core.Emit
         private void EmitVariable(JsonTextWriter writer, VariableSymbol variableSymbol)
         {
             // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
-            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value);
+            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value, this.semanticModel);
         }
 
         private void EmitResources(JsonTextWriter writer)
@@ -255,7 +251,7 @@ namespace Bicep.Core.Emit
 
             ExpressionEmitter.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
             ExpressionEmitter.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
-            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
+            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body, this.semanticModel);
 
             writer.WriteEndObject();
         }
@@ -278,7 +274,7 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             ExpressionEmitter.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
-            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value);
+            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value, this.semanticModel);
 
             writer.WriteEndObject();
         }

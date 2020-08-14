@@ -5,14 +5,14 @@ namespace Bicep.Core.Parser
 {
     public class ExpectedTokenException : Exception
     {
-        public ExpectedTokenException(Token unexpectedToken, DiagnosticBuilder.BuildDelegate errorFunc)
+        public ExpectedTokenException(Token unexpectedToken, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             : base()
         {
             UnexpectedToken = unexpectedToken;
             Error = errorFunc(DiagnosticBuilder.ForPosition(unexpectedToken));
         }
 
-        public Diagnostic Error { get; }
+        public ErrorDiagnostic Error { get; }
 
         public override string Message => Error.Message;
 
