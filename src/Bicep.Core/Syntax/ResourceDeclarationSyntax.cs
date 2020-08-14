@@ -1,10 +1,11 @@
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase
     {
-        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token newLine)
+        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token? newLine)
         {
             AssertKeyword(resourceKeyword, nameof(resourceKeyword), LanguageConstants.ResourceKeyword);
             AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.Identifier);
@@ -29,11 +30,11 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
-        public Token NewLine { get; }
+        public Token? NewLine { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitResourceDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(ResourceKeyword, NewLine);
+        public override TextSpan Span => TextSpan.Between(ResourceKeyword, TextSpan.LastNonNull(Body, NewLine));
 
         public StringSyntax? TryGetType() => Type as StringSyntax;
     }

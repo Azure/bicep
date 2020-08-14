@@ -31,7 +31,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, this.Body, this.Type);
         }

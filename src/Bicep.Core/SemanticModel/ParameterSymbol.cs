@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             switch (this.Modifier)
             {
@@ -62,7 +62,7 @@ namespace Bicep.Core.SemanticModel
                     return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<ErrorDiagnostic>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;

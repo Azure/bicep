@@ -18,11 +18,11 @@ namespace Bicep.Core.Syntax.Visitors
             this.callback = callback;
         }
 
-        public override void Visit(SyntaxBase node)
+        protected override void VisitInternal(SyntaxBase node)
         {
             if (this.callback(node))
             {
-                base.Visit(node);
+                base.VisitInternal(node);
             }
         }
     }

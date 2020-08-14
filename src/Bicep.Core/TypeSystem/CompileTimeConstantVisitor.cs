@@ -10,9 +10,9 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public sealed class CompileTimeConstantVisitor : SyntaxVisitor
     {
-        private readonly IList<Diagnostic> errors;
+        private readonly IList<ErrorDiagnostic> errors;
 
-        public CompileTimeConstantVisitor(IList<Diagnostic> errors)
+        public CompileTimeConstantVisitor(IList<ErrorDiagnostic> errors)
         {
             this.errors = errors;
         }

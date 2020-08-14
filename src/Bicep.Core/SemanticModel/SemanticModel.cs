@@ -26,9 +26,9 @@ namespace Bicep.Core.SemanticModel
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
+        public IEnumerable<ErrorDiagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnostics = new List<ErrorDiagnostic>();
             var visitor = new SemanticErrorVisitor(diagnostics);
             visitor.Visit(this.Root);
 
