@@ -619,42 +619,42 @@
     "message": "Cannot resolve function concat().",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[2799:2807]",
-    "spanText": "concat()"
+    "span": "[2799:2805]",
+    "spanText": "concat"
   },
   {
     "message": "Cannot resolve function padLeft(string).",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[2837:2849]",
-    "spanText": "padLeft('s')"
+    "span": "[2837:2844]",
+    "spanText": "padLeft"
   },
   {
     "message": "Cannot resolve function take(array, int, int, string).",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[2874:2892]",
-    "spanText": "take([\r\n],1,2,'s')"
+    "span": "[2874:2878]",
+    "spanText": "take"
   },
   {
     "message": "Cannot resolve function concat(object).",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[2949:2961]",
-    "spanText": "concat({\r\n})"
+    "span": "[2949:2955]",
+    "spanText": "concat"
   },
   {
     "message": "Cannot resolve function concat(string, array).",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[3004:3021]",
-    "spanText": "concat('s', [\r\n])"
+    "span": "[3004:3010]",
+    "spanText": "concat"
   },
   {
     "message": "Cannot resolve function indexOf(int, int).",
     "errorCode": "BCP048",
     "level": "Error",
-    "span": "[3052:3064]",
-    "spanText": "indexOf(1,1)"
+    "span": "[3052:3059]",
+    "spanText": "indexOf"
   }
 ]

@@ -447,7 +447,7 @@ namespace Bicep.Core.TypeSystem
             {
                 case 0:
                     // cannot find a function matching the types and number of arguments
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.FunctionName).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
 
                 case 1:
                     // we have an exact match or a single ambiguous match
