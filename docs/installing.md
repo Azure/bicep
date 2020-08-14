@@ -60,7 +60,7 @@ $installPath = "$env:USERPROFILE\.bicep"
 $installDir = New-Item -ItemType Directory -Path $installPath -Force
 $installDir.Attributes += 'Hidden'
 # Fetch the latest Bicep CLI binary
-(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep", "$installPath\bicep.exe")
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep.exe", "$installPath\bicep.exe")
 # Verify you can now access the 'bicep' command
 bicep --version
 ```
