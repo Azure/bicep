@@ -85,8 +85,8 @@ namespace Bicep.Core.TypeSystem
                 case NumericLiteralSyntax _:
                     return LanguageConstants.Int;
 
-                case StringSyntax _:
-                    return LanguageConstants.String;
+                case StringSyntax @string:
+                    return GetStringType(context, @string);
 
                 case ObjectSyntax @object:
                     return GetObjectType(context, @object);
@@ -135,6 +135,32 @@ namespace Bicep.Core.TypeSystem
                 default:
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
             }
+        }
+
+        private TypeSymbol GetStringType(TypeManagerContext context, StringSyntax @string)
+        {
+            if (@string.IsInterpolated() == false)
+            {
+                // uninterpolated strings have a known type
+                return LanguageConstants.String;
+            }
+
+            var errors = new List<ErrorDiagnostic>();
+
+            foreach (var interpolatedExpression in @string.Expressions)
+            {
+                var expressionType = this.GetTypeInfoInternal(context, interpolatedExpression);
+                CollectErrors(errors, expressionType);
+            }
+
+            if (errors.Any())
+            {
+                return new ErrorTypeSymbol(errors);
+            }
+
+            // normally we would also do an assignability check, but we allow "any" type in string interpolation expressions
+            // so the assignability check cannot possibly fail (we already collected type errors from the inner expressions at this point)
+            return LanguageConstants.String;
         }
 
         private TypeSymbol GetObjectType(TypeManagerContext context, ObjectSyntax @object)
