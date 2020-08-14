@@ -3,7 +3,7 @@
 ## Bicep VSCode Extension
 
 ### Manually
-Download the latest extension by clicking [here](https://github.com/Azure/bicep/files/latest/bicep.vsix).
+Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
 
 Open VSCode, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
 
