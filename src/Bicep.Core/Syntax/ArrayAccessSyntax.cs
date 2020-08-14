@@ -2,28 +2,29 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    //public class ArrayAccessSyntax : SyntaxBase
-    //{
-    //    public ArrayAccessSyntax(SyntaxBase parent, Token openSquare, SyntaxBase property, Token closeSquare)
-    //    {
-    //        Parent = parent;
-    //        OpenSquare = openSquare;
-    //        Property = property;
-    //        CloseSquare = closeSquare;
-    //    }
+    public class ArrayAccessSyntax : SyntaxBase, IExpressionSyntax
+    {
+        public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, SyntaxBase indexExpression, Token closeSquare)
+        {
+            this.AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
+            this.AssertTokenType(closeSquare, nameof(closeSquare), TokenType.RightSquare);
 
-    //    public SyntaxBase Parent { get; }
+            this.BaseExpression = baseExpression;
+            this.OpenSquare = openSquare;
+            this.IndexExpression = indexExpression;
+            this.CloseSquare = closeSquare;
+        }
 
-    //    public Token OpenSquare { get; }
+        public SyntaxBase BaseExpression { get; }
 
-    //    public SyntaxBase Property { get; }
+        public Token OpenSquare { get; }
 
-    //    public Token CloseSquare { get; }
+        public SyntaxBase IndexExpression { get; }
 
-    //    public override void Accept(SyntaxVisitor visitor)
-    //        => visitor.VisitArrayAccessSyntax(this);
+        public Token CloseSquare { get; }
 
-    //    public override TextSpan Span
-    //        => TextSpan.Between(Parent, CloseSquare);
-    //}
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
+
+        public override TextSpan Span => TextSpan.Between(BaseExpression, CloseSquare);
+    }
 }

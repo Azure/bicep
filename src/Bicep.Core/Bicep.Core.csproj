@@ -3,6 +3,9 @@
     <TargetFramework>netstandard2.0</TargetFramework> 
   </PropertyGroup>
   <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.ResourceManager.Deployments.Expression" Version="1.0.24" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

@@ -2,19 +2,19 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class NullLiteralSyntax : SyntaxBase
+    public class NullLiteralSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public NullLiteralSyntax(Token literal)
+        public NullLiteralSyntax(Token nullKeyword)
         {
-            Literal = literal;
+            this.AssertTokenType(nullKeyword, nameof(nullKeyword), TokenType.NullKeyword);
+
+            this.NullKeyword = nullKeyword;
         }
 
-        public Token Literal { get; }
+        public Token NullKeyword { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
-            => visitor.VisitNullLiteralSyntax(this);
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitNullLiteralSyntax(this);
 
-        public override TextSpan Span
-            => TextSpan.Between(Literal, Literal);
+        public override TextSpan Span => this.NullKeyword.Span;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Parser;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -23,9 +24,17 @@ namespace Bicep.Core.UnitTests.Utils
 
         public void WriteToken(Token token)
         {
-            this.buffer.Append(token.LeadingTrivia);
+            WriteTrivia(token.LeadingTrivia);
             this.buffer.Append(token.Text);
-            this.buffer.Append(token.TrailingTrivia);
+            WriteTrivia(token.TrailingTrivia);
+        }
+
+        private void WriteTrivia(IEnumerable<SyntaxTrivia> triviaList)
+        {
+            foreach (var trivia in triviaList)
+            {
+                this.buffer.Append(trivia.Text);
+            }
         }
     }
 }

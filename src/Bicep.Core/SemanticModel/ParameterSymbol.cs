@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Parser;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -8,14 +9,15 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? modifier)
-            : base(context, name, declaringSyntax)
+        public ParameterSymbol(ITypeManager typeManager, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
+            : base(typeManager, name, declaringSyntax)
         {
-            this.Type = type;
             this.Modifier = modifier;
         }
 
-        public TypeSymbol Type { get; }
+        public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringParameter.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringParameter.Type).InvalidParameterType());
 
         public SyntaxBase? Modifier { get; }
 
@@ -34,26 +36,32 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             switch (this.Modifier)
             {
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     // figure out type of the default value
-                    TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
+                    TypeSymbol? defaultValueType = this.TypeManager.GetTypeInfo(defaultValueSyntax.DefaultValue, new TypeManagerContext());
+
+                    // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
+                    if (defaultValueType is ErrorTypeSymbol)
+                    {
+                        return defaultValueType.GetDiagnostics();
+                    }
 
                     if (TypeValidator.AreTypesAssignable(defaultValueType, this.Type) == false)
                     {
-                        return this.CreateError($"The parameter expects a default value of type '{this.Type.Name}' but provided value is of type '{defaultValueType?.Name}'.", defaultValueSyntax.DefaultValue).AsEnumerable();
+                        return this.CreateError(defaultValueSyntax.DefaultValue, b => b.ParameterTypeMismatch(this.Type.Name, defaultValueType.Name)).AsEnumerable();
                     }
 
                     break;
 
                 case ObjectSyntax modifierSyntax when this.Type.TypeKind != TypeKind.Error:
-                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
+                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
             }
 
-            return Enumerable.Empty<Error>();
+            return Enumerable.Empty<ErrorDiagnostic>();
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;

@@ -2,10 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -18,7 +21,7 @@ namespace Bicep.LanguageServer
         private readonly ICompilationProvider provider;
 
         // represents compilations of open bicep files
-        private readonly ConcurrentDictionary<Uri, CompilationContext> activeContexts = new ConcurrentDictionary<Uri, CompilationContext>();
+        private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
         public BicepCompilationManager(ILanguageServer server, ICompilationProvider provider)
         {
@@ -26,7 +29,7 @@ namespace Bicep.LanguageServer
             this.provider = provider;
         }
 
-        public CompilationContext? UpsertCompilation(Uri uri, long version, string text)
+        public CompilationContext? UpsertCompilation(DocumentUri uri, long version, string text)
         {
             try
             {
@@ -35,10 +38,10 @@ namespace Bicep.LanguageServer
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[uri] = context;
 
-                // convert all the errors to LSP diagnostics
-                var diagnostics = GetErrorsFromContext(context).ToDiagnostics(context.LineStarts);
+                // convert all the diagnostics to LSP diagnostics
+                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
-                // publish all the errors
+                // publish all the diagnostics
                 this.PublishDocumentDiagnostics(uri, version, diagnostics);
 
                 return context;
@@ -55,7 +58,7 @@ namespace Bicep.LanguageServer
                 // TODO: Tell user how to create an issue on GitHub.
                 this.PublishDocumentDiagnostics(uri, version, new[]
                 {
-                    new Diagnostic
+                    new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
                     {
                         Range = new Range
                         {
@@ -72,32 +75,32 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public void CloseCompilation(Uri uri)
+        public void CloseCompilation(DocumentUri uri)
         {
             // remove the active compilation
             this.activeContexts.TryRemove(uri, out _);
 
             // clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
-            PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<Diagnostic>());
+            PublishDocumentDiagnostics(uri, 0, Enumerable.Empty<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>());
         }
 
-        public CompilationContext? GetCompilation(Uri uri)
+        public CompilationContext? GetCompilation(DocumentUri uri)
         {
             this.activeContexts.TryGetValue(uri, out var context);
             return context;
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
-        private IEnumerable<Error> GetErrorsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
+        private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
 
-        private void PublishDocumentDiagnostics(Uri uri, long version, IEnumerable<Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(DocumentUri uri, long version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
         {
-            server.Document.PublishDiagnostics(new PublishDiagnosticsParams
+            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
-                Diagnostics = new Container<Diagnostic>(diagnostics)
+                Diagnostics = new Container<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic>(diagnostics)
             });
         }
     }

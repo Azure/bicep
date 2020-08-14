@@ -1,17 +1,52 @@
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxVisitor
     {
-        public void Visit(SyntaxBase node)
+        public void Visit(SyntaxBase? node)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            VisitInternal(node);
+        }
+
+        protected virtual void VisitInternal(SyntaxBase node)
         {
             node.Accept(this);
         }
 
-        public virtual void VisitToken(Token token)
+        public void VisitToken(Token? token)
         {
+            if (token == null)
+            {
+                return;
+            }
+
+            VisitTokenInternal(token);
+        }
+
+        protected virtual void VisitTokenInternal(Token token)
+        {
+            foreach (var syntaxTrivia in token.LeadingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+
+            foreach (var syntaxTrivia in token.TrailingTrivia)
+            {
+                this.VisitSyntaxTrivia(syntaxTrivia);
+            }
+        }
+
+        public virtual void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+
         }
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -19,18 +54,13 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.ParameterKeyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
-
-            if (syntax.Modifier != null)
-            {
-                this.Visit(syntax.Modifier);
-            }
-
+            this.Visit(syntax.Modifier);
             this.VisitToken(syntax.NewLine);
         }
 
         public virtual void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
         {
-            this.VisitToken(syntax.DefaultKeyword);
+            this.VisitToken(syntax.AssignmentToken);
             this.Visit(syntax.DefaultValue);
         }
 
@@ -85,7 +115,12 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitStringSyntax(StringSyntax syntax)
         {
-            this.VisitToken(syntax.StringToken);
+            for (var i = 0; i < syntax.Expressions.Length; i++)
+            {
+                this.VisitToken(syntax.StringTokens[i]);
+                this.Visit(syntax.Expressions[i]);
+            }
+            this.VisitToken(syntax.StringTokens.Last());
         }
 
         public virtual void VisitProgramSyntax(ProgramSyntax syntax)
@@ -101,7 +136,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            this.VisitToken(syntax.Literal);
+            this.VisitToken(syntax.NullKeyword);
         }
 
         public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
@@ -113,7 +148,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitToken(syntax.OpenBrace);
             this.VisitTokens(syntax.NewLines);
-            this.VisitNodes(syntax.Properties);
+            this.VisitNodes(syntax.Children);
             this.VisitToken(syntax.CloseBrace);
         }
 
@@ -129,7 +164,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitToken(syntax.OpenBracket);
             this.VisitTokens(syntax.NewLines);
-            this.VisitNodes(syntax.Items);
+            this.VisitNodes(syntax.Children);
             this.VisitToken(syntax.CloseBracket);
         }
 
@@ -137,6 +172,69 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Value);
             this.VisitTokens(syntax.NewLines);
+        }
+
+        public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
+        {
+            this.Visit(syntax.ConditionExpression);
+            this.VisitToken(syntax.Question);
+            this.Visit(syntax.TrueExpression);
+            this.VisitToken(syntax.Colon);
+            this.Visit(syntax.FalseExpression);
+        }
+
+        public virtual void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
+        {
+            this.Visit(syntax.LeftExpression);
+            this.VisitToken(syntax.OperatorToken);
+            this.Visit(syntax.RightExpression);
+        }
+
+        public virtual void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
+        {
+            this.VisitToken(syntax.OperatorToken);
+            this.Visit(syntax.Expression);
+        }
+
+        public virtual void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.VisitToken(syntax.OpenSquare);
+            this.Visit(syntax.IndexExpression);
+            this.VisitToken(syntax.CloseSquare);
+        }
+
+        public virtual void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.VisitToken(syntax.Dot);
+            this.Visit(syntax.PropertyName);
+        }
+
+        public virtual void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
+        {
+            this.VisitToken(syntax.OpenParen);
+            this.Visit(syntax.Expression);
+            this.VisitToken(syntax.CloseParen);
+        }
+
+        public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            this.Visit(syntax.FunctionName);
+            this.VisitToken(syntax.OpenParen);
+            this.VisitNodes(syntax.Arguments);
+            this.VisitToken(syntax.CloseParen);
+        }
+
+        public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+            this.VisitToken(syntax.Comma);
+        }
+
+        public virtual void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            this.Visit(syntax.Name);
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)

@@ -46,7 +46,7 @@ The constraint will be evaluated at deployment time of the compiled template.
 ## Default value
 Default values can be declared as follows:
 ```
-parameter myParam string default 'my default value'
+parameter myParam string = 'my default value'
 ```
 
 If you need to combine a default value with other identifiers, you may also use the following syntax to achieve the same:

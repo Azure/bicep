@@ -74,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
-            foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.String))
+            foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.StringComplete))
             {
                 Action getStringValue = () => Lexer.GetStringValue(stringToken);
                 getStringValue.Should().NotThrow($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");

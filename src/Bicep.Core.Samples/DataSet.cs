@@ -24,9 +24,9 @@ namespace Bicep.Core.Samples
         {
             this.Name = name;
 
-            this.lazyBicep = this.CreateRequired("Bicep.arm");
+            this.lazyBicep = this.CreateRequired("Bicep.bicep");
             this.lazyTokens = this.CreateRequired("Tokens.json");
-            this.lazyErrors = this.CreateRequired("Errors.json");
+            this.lazyErrors = this.CreateRequired("Diagnostics.json");
             this.lazyCompiled = this.CreateIffValid("Compiled.json");
         }
 
@@ -57,7 +57,7 @@ namespace Bicep.Core.Samples
 
         private string ReadDataSetFile(string fileName) => ReadFile($"{Prefix}{this.Name}.{fileName}");
 
-        private static string ReadFile(string streamName)
+        public static string ReadFile(string streamName)
         {
             using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
             stream.Should().NotBeNull($"because stream '{streamName}' should exist");

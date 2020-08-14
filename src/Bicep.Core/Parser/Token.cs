@@ -1,17 +1,20 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
     [DebuggerDisplay("{Type} = {Text}")]
     public class Token : IPositionable
     {
-        public Token(TokenType type, TextSpan span, string text, string leadingTrivia, string trailingTrivia)
+        public Token(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
         {
             Type = type;
             Span = span;
             Text = text;
-            LeadingTrivia = leadingTrivia;
-            TrailingTrivia = trailingTrivia;
+            LeadingTrivia = leadingTrivia.ToImmutableArray();
+            TrailingTrivia = trailingTrivia.ToImmutableArray();
         }
 
         public TokenType Type { get; }
@@ -20,8 +23,8 @@ namespace Bicep.Core.Parser
 
         public string Text { get; }
 
-        public string LeadingTrivia { get; }
+        public ImmutableArray<SyntaxTrivia> LeadingTrivia { get; }
 
-        public string TrailingTrivia { get; }
+        public ImmutableArray<SyntaxTrivia> TrailingTrivia { get; }
     }
 }

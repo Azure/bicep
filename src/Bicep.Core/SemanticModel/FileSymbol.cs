@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -9,27 +10,32 @@ namespace Bicep.Core.SemanticModel
     public class FileSymbol : DeclaredSymbol
     {
         public FileSymbol(
-            ISemanticContext context,
+            ITypeManager typeManager,
             string name,
             ProgramSyntax declaringSyntax,
+            IEnumerable<NamespaceSymbol> importedNamespaces,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<OutputSymbol> outputDeclarations)
-            : base(context, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax)
         {
+            this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
-        public override IEnumerable<Symbol> Descendants => this.ParameterDeclarations
-            .Concat<Symbol>(this.VariableDeclarations)
+        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces
+            .Concat<Symbol>(this.ParameterDeclarations)
+            .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.OutputDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
+
+        public ImmutableArray<NamespaceSymbol> ImportedNamespaces { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
@@ -46,7 +52,7 @@ namespace Bicep.Core.SemanticModel
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             var duplicateSymbols = this.AllDeclarations
                 .GroupBy(decl => decl.Name)
@@ -59,7 +65,7 @@ namespace Bicep.Core.SemanticModel
                     // use the identifier node as the error location with fallback to full declaration span
                     SyntaxBase identifierNode = duplicatedSymbol.NameSyntax ?? duplicatedSymbol.DeclaringSyntax;
 
-                    yield return this.CreateError($"Identifier '{duplicatedSymbol.Name}' is declared multiple times. Remove or rename the duplicates.", identifierNode);
+                    yield return this.CreateError(identifierNode, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
             }
         }

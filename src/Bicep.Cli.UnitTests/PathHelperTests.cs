@@ -81,44 +81,44 @@ namespace Bicep.Cli.UnitTests
             yield return CreateFullPathRow(@"C:\test");
             yield return CreateFullPathRow(@"C:\test.json");
             yield return CreateFullPathRow(@"C:\test\foo");
-            yield return CreateFullPathRow(@"C:\test\foo.arm");
-            yield return CreateFullPathRow(@"\\reddog\Builds\branches\git_mgmt_governance_blueprint_master\test.arm");
+            yield return CreateFullPathRow(@"C:\test\foo.bicep");
+            yield return CreateFullPathRow(@"\\reddog\Builds\branches\git_mgmt_governance_blueprint_master\test.bicep");
             yield return CreateFullPathRow(@"C:\test");
 
             yield return CreateRelativePathRow(@"test");
-            yield return CreateRelativePathRow(@"test.arm");
-            yield return CreateRelativePathRow(@"folder\test.arm");
-            yield return CreateRelativePathRow(@"deeper\folder\test.arm");
-            yield return CreateRelativePathRow(@"\deeper\folder\test.arm");
+            yield return CreateRelativePathRow(@"test.bicep");
+            yield return CreateRelativePathRow(@"folder\test.bicep");
+            yield return CreateRelativePathRow(@"deeper\folder\test.bicep");
+            yield return CreateRelativePathRow(@"\deeper\folder\test.bicep");
 #else
             yield return CreateFullPathRow(@"/lib");
-            yield return CreateFullPathRow(@"/lib.arm");
-            yield return CreateFullPathRow(@"/lib/var/test.arm");
-            yield return CreateFullPathRow(@"/lib/var/something/test.arm");
+            yield return CreateFullPathRow(@"/lib.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test.bicep");
+            yield return CreateFullPathRow(@"/lib/var/something/test.bicep");
 
             yield return CreateRelativePathRow(@"test");
-            yield return CreateRelativePathRow(@"test.arm");
-            yield return CreateRelativePathRow(@"folder/test.arm");
-            yield return CreateRelativePathRow(@"deeper/folder/test.arm");
-            yield return CreateRelativePathRow(@"/deeper/folder/test.arm");
+            yield return CreateRelativePathRow(@"test.bicep");
+            yield return CreateRelativePathRow(@"folder/test.bicep");
+            yield return CreateRelativePathRow(@"deeper/folder/test.bicep");
+            yield return CreateRelativePathRow(@"/deeper/folder/test.bicep");
 #endif
         }
 
         private static IEnumerable<object[]> GetOutputPathData()
         {
-            yield return CreateRow(@"foo.arm", @"foo.json");
+            yield return CreateRow(@"foo.bicep", @"foo.json");
 
 #if LINUX_BUILD
-            yield return CreateRow(@"/lib/bar/foo.arm", @"/lib/bar/foo.json");
+            yield return CreateRow(@"/lib/bar/foo.bicep", @"/lib/bar/foo.json");
 
             // these will throw on Windows
             yield return CreateRow(@"/lib/bar/foo.JSON", @"/lib/bar/foo.json");
             yield return CreateRow(@"/bar/foo.jSoN", @"/bar/foo.json");
 #else
-            yield return CreateRow(@"C:\foo.arm", @"C:\foo.json");
-            yield return CreateRow(@"D:\a\b\c\foo.arm", @"D:\a\b\c\foo.json");
+            yield return CreateRow(@"C:\foo.bicep", @"C:\foo.json");
+            yield return CreateRow(@"D:\a\b\c\foo.bicep", @"D:\a\b\c\foo.json");
 
-            yield return CreateRow(@"/foo.arm", @"/foo.json");
+            yield return CreateRow(@"/foo.bicep", @"/foo.json");
 #endif
         }
 

@@ -41,6 +41,31 @@
       "sku": {
         "name": "Standard_LRS"
       }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": "[not(json('false'))]",
+        "accessTier": "[if(json('true'), 'Hot', 'Cold')]",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[or(json('true'), json('false'))]"
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
     }
   ],
   "outputs": {}

@@ -18,5 +18,10 @@ namespace Bicep.Core.TypeSystem
         {
             visitor.VisitTypeSymbol(this);
         }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }

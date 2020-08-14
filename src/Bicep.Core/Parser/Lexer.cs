@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
 {
@@ -11,14 +13,9 @@ namespace Bicep.Core.Parser
     {
         private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
-            ["default"] = TokenType.DefaultKeyword,
-            ["parameter"] = TokenType.ParameterKeyword,
-            ["output"] = TokenType.OutputKeyword,
-            ["variable"] = TokenType.VariableKeyword,
-            ["resource"] = TokenType.ResourceKeyword,
-            //["module"] = TokenType.ModuleKeyword,
             ["true"] = TokenType.TrueKeyword,
             ["false"] = TokenType.FalseKeyword,
+            ["null"] = TokenType.NullKeyword
         }.ToImmutableDictionary();
 
         // maps the escape character (that follows the backslash) to its value
@@ -36,8 +33,11 @@ namespace Bicep.Core.Parser
 
         private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
 
+        // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
+        // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
+        private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Error> errors = new List<Error>();
+        private readonly IList<Diagnostic> diagnostics = new List<Diagnostic>();
         private readonly SlidingTextWindow textWindow;
 
         public Lexer(SlidingTextWindow textWindow)
@@ -45,11 +45,14 @@ namespace Bicep.Core.Parser
             this.textWindow = textWindow;
         }
 
-        private void AddError(string message, TextSpan? span = null)
+        private void AddDiagnostic(TextSpan span, DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
         {
-            span ??= textWindow.GetSpan();
-            this.errors.Add(new Error(message, span));
+            var diagnostic = diagnosticFunc(DiagnosticBuilder.ForPosition(span));
+            this.diagnostics.Add(diagnostic);
         }
+
+        private void AddDiagnostic(DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
+            => AddDiagnostic(textWindow.GetSpan(), diagnosticFunc);
 
         public void Lex()
         {
@@ -67,7 +70,7 @@ namespace Bicep.Core.Parser
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
 
-        public ImmutableArray<Error> GetErrors() => errors.ToImmutableArray();
+        public ImmutableArray<Diagnostic> GetDiagnostics() => diagnostics.ToImmutableArray();
 
         /// <summary>
         /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
@@ -91,46 +94,39 @@ namespace Bicep.Core.Parser
         /// <param name="stringToken">the string token</param>
         public static string GetStringValue(Token stringToken)
         {
-            if (stringToken.Type != TokenType.String)
+            // This method should only be called once we've verified there are no lexer errors.
+            // In an error scenario, the lexer can produce string tokens for unterminated strings,
+            // whereas this method assumes the string token is correctly formed.
+
+            var (start, end) = stringToken.Type switch {
+                TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
+                TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
+                TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
+                TokenType.StringRightPiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringDelimiter),
+                _ => throw new ArgumentException($"Unexpected token of type {stringToken.Type}."),
+            };
+
+            if (stringToken.Text.Length < start.Length + end.Length ||
+                stringToken.Text.Substring(0, start.Length) != start ||
+                stringToken.Text.Substring(stringToken.Text.Length - end.Length) != end)
             {
-                throw new ArgumentException($"The specified token must be of type '{TokenType.String}' but is of type '{stringToken.Type}'.");
+                // any lexer-generated token should not hit this problem as the start & end are already verified
+                throw new ArgumentException($"Unexpected start or end sequence for token of type {stringToken.Type}. Text = {stringToken.Text}");
             }
 
-            var window = new SlidingTextWindow(stringToken.Text);
-
-            // first char of a string token must be the opening quote
-            if (window.IsAtEnd() || window.Peek() != '\'')
-            {
-                // lexer guarantees this, but anything can create a token object
-                throw new ArgumentException($"The text of the specified token must start with a single quote. Text = {stringToken.Text}");
-            }
-
-            window.Advance();
+            var contents = stringToken.Text.Substring(start.Length, stringToken.Text.Length - start.Length - end.Length);
+            var window = new SlidingTextWindow(contents);
 
             // the value of the string will be shorter because escapes are longer than the characters they represent
-            var buffer = new StringBuilder(stringToken.Text.Length);
+            var buffer = new StringBuilder(contents.Length);
 
-            while (true)
+            while (!window.IsAtEnd())
             {
-                if (window.IsAtEnd())
-                {
-                    // this is hit in non-terminated strings (which are allowed to allow for error recovery)
-                    break;
-                }
-
-                var nextChar = window.Peek();
-                window.Advance();
+                var nextChar = window.Next();
 
                 if (nextChar == '\'')
                 {
-                    // string was terminated
-                    // we should be at the end
-                    if (window.IsAtEnd() == false)
-                    {
-                        throw new ArgumentException($"String token must not contain additional characters after the string-terminating single quote. Text = {stringToken.Text}");
-                    }
-
-                    break;
+                    throw new ArgumentException($"Unexpected unescaped single quote. Text = {stringToken.Text}");
                 }
 
                 if (nextChar == '\\')
@@ -138,12 +134,10 @@ namespace Bicep.Core.Parser
                     // escape sequence begins
                     if (window.IsAtEnd())
                     {
-                        // unterminated string (allowing this for error recovery purposes)
-                        break;
+                        throw new ArgumentException($"Unexpected escape character at end of string. Text = {stringToken.Text}");
                     }
 
-                    char escapeChar = window.Peek();
-                    window.Advance();
+                    char escapeChar = window.Next();
 
                     if (CharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
                     {
@@ -164,42 +158,46 @@ namespace Bicep.Core.Parser
             return buffer.ToString();
         }
 
-        private void ScanTrailingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
         {
-            ScanWhitespace();
+            if (IsWhiteSpace(textWindow.Peek()))
+            {
+                yield return ScanWhitespace();
+            }
             
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
-                ScanSingleLineComment();
-                return;
+                yield return ScanSingleLineComment();
+                yield break;
             }
 
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
             {
-                ScanMultiLineComment();
-                return;
+                yield return ScanMultiLineComment();
+                yield break;
             }
         }
 
-        private void ScanLeadingTrivia()
+        private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
             while (true)
             {
                 if (IsWhiteSpace(textWindow.Peek()))
                 {
-                    ScanWhitespace();
+                    yield return ScanWhitespace();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
                 {
-                    ScanSingleLineComment();
+                    yield return ScanSingleLineComment();
                 }
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
-                    ScanMultiLineComment();
+                    yield return ScanMultiLineComment();
+                    yield break;
                 }
                 else
                 {
-                    return;
+                    yield break;
                 }
             }
         }
@@ -208,7 +206,8 @@ namespace Bicep.Core.Parser
         {
             textWindow.Reset();
             ScanLeadingTrivia();
-            var leadingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
             textWindow.Reset();
             var tokenType = ScanToken();
@@ -217,19 +216,21 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                AddError($"The following token is not recognized: {tokenText}");
+                AddDiagnostic(b => b.UnrecognizedToken(tokenText));
             }
 
             textWindow.Reset();
-            ScanTrailingTrivia();
-            var trailingTrivia = textWindow.GetText();
+            // important to force enum evaluation here via .ToImmutableArray()!
+            var trailingTrivia = ScanTrailingTrivia().ToImmutableArray();
 
             var token = new Token(tokenType, tokenSpan, tokenText, leadingTrivia, trailingTrivia);
             this.tokens.Add(token);
         }
 
-        private void ScanWhitespace()
+        private SyntaxTrivia ScanWhitespace()
         {
+            textWindow.Reset();
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -238,15 +239,20 @@ namespace Bicep.Core.Parser
                     case ' ':
                     case '\t':
                         textWindow.Advance();
-                        break;
-                    default:
-                        return;
+                        continue;
                 }
+
+                break;
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.Whitespace, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanSingleLineComment()
+        private SyntaxTrivia ScanSingleLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -254,21 +260,26 @@ namespace Bicep.Core.Parser
                 // make sure we don't include the newline in the comment trivia
                 if (IsNewLine(nextChar))
                 {
-                    return;
+                    break;
                 }
 
                 textWindow.Advance();
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
-        private void ScanMultiLineComment()
+        private SyntaxTrivia ScanMultiLineComment()
         {
+            textWindow.Reset();
+            textWindow.Advance(2);
+
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
-                    return;
+                    AddDiagnostic(b => b.UnterminatedMultilineComment());
+                    break;
                 }
 
                 var nextChar = textWindow.Peek();
@@ -281,8 +292,8 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
-                    return;
+                    AddDiagnostic(b => b.UnterminatedMultilineComment());
+                    break;
                 }
 
                 nextChar = textWindow.Peek();
@@ -290,9 +301,11 @@ namespace Bicep.Core.Parser
 
                 if (nextChar == '/')
                 {
-                    return;
+                    break;
                 }
             }
+
+            return new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, textWindow.GetSpan(), textWindow.GetText());
         }
 
         private void ScanNewLine()
@@ -314,14 +327,20 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private void ScanString()
+        private TokenType ScanStringSegment(bool isAtStartOfString)
         {
+            // to handle interpolation, strings are broken down into multiple segments, to detect the portions of string between the 'holes'.
+            // 'complete' string: a string with no holes (no interpolation), e.g. "'hello'"
+            // string 'left piece': the portion of an interpolated string up to the first hole, e.g. "'hello$"
+            // string 'middle piece': the portion of an interpolated string between two holes, e.g. "}hello${"
+            // string 'right piece': the portion of an interpolated string after the last hole, e.g. "}hello'"
+
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Terminate the string with a single quote character.");
-                    return;
+                    AddDiagnostic(b => b.UnterminatedString());
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 var nextChar = textWindow.Peek();
@@ -329,15 +348,21 @@ namespace Bicep.Core.Parser
                 if (IsNewLine(nextChar))
                 {
                     // do not consume the new line character
-                    this.AddError("The string at this location is not terminated due to an unexpected new line character.");
-                    return;
+                    AddDiagnostic(b => b.UnterminatedStringWithNewLine());
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 textWindow.Advance();
 
                 if (nextChar == '\'')
                 {
-                    return;
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
+                }
+
+                if (nextChar == '$' && !textWindow.IsAtEnd() && textWindow.Peek() == '{')
+                {
+                    textWindow.Advance();
+                    return isAtStartOfString ? TokenType.StringLeftPiece : TokenType.StringMiddlePiece;
                 }
 
                 if (nextChar != '\\')
@@ -347,8 +372,8 @@ namespace Bicep.Core.Parser
 
                 if (textWindow.IsAtEnd())
                 {
-                    this.AddError("The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
-                    return;
+                    AddDiagnostic(b => b.UnterminatedStringEscapeSequenceAtEof());
+                    return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
                 nextChar = textWindow.Peek();
@@ -357,7 +382,7 @@ namespace Bicep.Core.Parser
                 if (CharacterEscapes.ContainsKey(nextChar) == false)
                 {
                     // the span of the error is the incorrect escape sequence
-                    this.AddError($"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {CharacterEscapeSequences}", textWindow.GetLookbehindSpan(2));
+                    AddDiagnostic(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
                 }
             }
         }
@@ -423,8 +448,29 @@ namespace Bicep.Core.Parser
             switch (nextChar)
             {
                 case '{':
+                    if (templateStack.Any())
+                    {
+                        // if we're inside a string interpolation hole, and we find an object open brace,
+                        // push it to the stack, so that we can match it up against an object close brace.
+                        // this allows us to determine whether we're terminating an object or closing an interpolation hole.
+                        templateStack.Push(TokenType.LeftBrace);
+                    }
                     return TokenType.LeftBrace;
                 case '}':
+                    if (templateStack.Any())
+                    {
+                        var prevTemplateToken = templateStack.Peek();
+                        if (prevTemplateToken != TokenType.LeftBrace)
+                        {
+                            var stringToken = ScanStringSegment(false);
+                            if (stringToken == TokenType.StringRightPiece)
+                            {
+                                templateStack.Pop();
+                            }
+
+                            return stringToken;
+                        }
+                    }
                     return TokenType.RightBrace;
                 case '(':
                     return TokenType.LeftParen;
@@ -449,7 +495,7 @@ namespace Bicep.Core.Parser
                 case '-':
                     return TokenType.Minus;
                 case '%':
-                    return TokenType.Modulus;
+                    return TokenType.Modulo;
                 case '*':
                     return TokenType.Asterisk;
                 case '/':
@@ -498,8 +544,6 @@ namespace Bicep.Core.Parser
                             case '=':
                                 textWindow.Advance();
                                 return TokenType.Equals;
-
-                            // TODO: Check if ARM actually supports this
                             case '~':
                                 textWindow.Advance();
                                 return TokenType.EqualsInsensitive;
@@ -513,7 +557,7 @@ namespace Bicep.Core.Parser
                         {
                             case '&':
                                 textWindow.Advance();
-                                return TokenType.BinaryAnd;
+                                return TokenType.LogicalAnd;
                         }
                     }
                     return TokenType.Unrecognized;
@@ -524,15 +568,31 @@ namespace Bicep.Core.Parser
                         {
                             case '|':
                                 textWindow.Advance();
-                                return TokenType.BinaryOr;
+                                return TokenType.LogicalOr;
                         }
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    ScanString();
-                    return TokenType.String;
+                    var token = ScanStringSegment(true);
+                    if (token == TokenType.StringLeftPiece)
+                    {
+                        // if we're beginning a string interpolation statement, we need to keep track of it
+                        templateStack.Push(token);
+                    }
+                    return token;
                 case '\n':
                 case '\r':
+                    if (templateStack.Any())
+                    {
+                        // need to re-check the newline token on next pass
+                        textWindow.Rewind();
+
+                        // do not consume the new line character
+                        AddDiagnostic(b => b.UnterminatedStringWithNewLine());
+
+                        templateStack.Clear();
+                        return TokenType.StringRightPiece;
+                    }
                     this.ScanNewLine();
                     return TokenType.NewLine;
                 default:

@@ -14,6 +14,28 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "vscodeext-build",
+            "command": "npm",
+            "args": ["run", "compile", "--loglevel", "silent"],
+            "type": "shell",
+            "problemMatcher": "$tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep"
+            },
+            "dependsOn": [
+                "build"
+            ]
+        },
+        {
+            "label": "playground-build-wasm",
+            "command": "npm",
+            "args": ["run", "build-wasm"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/playground"
+            }
+        },
+        {
             "label": "watch",
             "command": "dotnet",
             "type": "process",
