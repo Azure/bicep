@@ -72,9 +72,9 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
 ## Alternatives
 
-Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL generation. We'll keep a running list of good alternatives that may fit your use case better than bicep. 
+Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of good alternatives that may fit your use case better than bicep.
 
-* [Farmer](https://compositionalit.github.io/farmer/) (**placeholder_username**) - Generate ARM Templates using an F# DSL
+* [Farmer](https://compositionalit.github.io/farmer/) - Generate ARM Templates using an F# DSL
 
 ## Contributing
 
