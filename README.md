@@ -70,6 +70,10 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
 * [Complete language spec](./docs/spec)
 
+## Help & Support
+
+* [@BicepLang](https://twitter.com/BicepLang)
+
 ## Alternatives
 
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of good alternatives that may fit your use case better than bicep.
