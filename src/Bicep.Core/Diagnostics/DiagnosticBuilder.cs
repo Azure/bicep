@@ -307,6 +307,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP062",
                 $"The referenced declaration with name '{name}' is not valid.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP063",
+                $"The name '{name}' is not a parameter or variable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

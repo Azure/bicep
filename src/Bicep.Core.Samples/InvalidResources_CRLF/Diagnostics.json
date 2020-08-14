@@ -180,5 +180,26 @@
     "level": "Error",
     "span": "[1034:1039]",
     "spanText": "-true"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1112:1115]",
+    "spanText": "bar"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1153:1156]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1187:1190]",
+    "spanText": "bar"
   }
 ]

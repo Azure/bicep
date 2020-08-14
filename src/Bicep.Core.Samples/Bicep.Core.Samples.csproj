@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="AKS_LF\Bicep.bicep" />
+    <None Remove="AKS_LF\Compiled.json" />
+    <None Remove="AKS_LF\Diagnostics.json" />
+    <None Remove="AKS_LF\Tokens.json" />
     <None Remove="Empty\Bicep.bicep" />
     <None Remove="Empty\Compiled.json" />
     <None Remove="Empty\Errors.err" />
     <None Remove="Empty\Diagnostics.json" />
     <None Remove="Empty\Tokens.json" />
+    <None Remove="InvalidCycles_CRLF\Bicep.bicep" />
+    <None Remove="InvalidCycles_CRLF\Diagnostics.json" />
+    <None Remove="InvalidCycles_CRLF\Tokens.json" />
     <None Remove="InvalidExpressions_LF\Bicep.bicep" />
     <None Remove="InvalidExpressions_LF\Diagnostics.json" />
     <None Remove="InvalidExpressions_LF\Tokens.json" />
@@ -51,10 +58,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="AKS_LF\Bicep.bicep" />
+    <EmbeddedResource Include="AKS_LF\Compiled.json" />
+    <EmbeddedResource Include="AKS_LF\Diagnostics.json" />
+    <EmbeddedResource Include="AKS_LF\Tokens.json" />
     <EmbeddedResource Include="Empty\Bicep.bicep" />
     <EmbeddedResource Include="Empty\Diagnostics.json" />
     <EmbeddedResource Include="Empty\Compiled.json" />
     <EmbeddedResource Include="Empty\Tokens.json" />
+    <EmbeddedResource Include="InvalidCycles_CRLF\Bicep.bicep" />
+    <EmbeddedResource Include="InvalidCycles_CRLF\Diagnostics.json" />
+    <EmbeddedResource Include="InvalidCycles_CRLF\Tokens.json" />
     <EmbeddedResource Include="InvalidExpressions_LF\Bicep.bicep" />
     <EmbeddedResource Include="InvalidExpressions_LF\Diagnostics.json" />
     <EmbeddedResource Include="InvalidExpressions_LF\Tokens.json" />

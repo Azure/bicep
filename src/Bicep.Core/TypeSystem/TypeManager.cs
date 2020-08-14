@@ -375,12 +375,11 @@ namespace Bicep.Core.TypeSystem
                 case VariableSymbol variable:
                     return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, variable.GetVariableType(context));
 
-                case OutputSymbol output:
+                case OutputSymbol _:
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
 
                 default:
-                    // code defect
-                    throw new NotImplementedException($"The name '{syntax.Name.IdentifierName}' was bound to an unexpected symbol kind '{symbol.Kind}'.");
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
             }
         }
 
