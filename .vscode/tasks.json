@@ -27,6 +27,15 @@
             ]
         },
         {
+            "label": "playground-build-wasm",
+            "command": "npm",
+            "args": ["run", "build-wasm"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/playground"
+            }
+        },
+        {
             "label": "watch",
             "command": "dotnet",
             "type": "process",

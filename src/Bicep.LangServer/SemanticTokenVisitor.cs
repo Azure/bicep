@@ -145,7 +145,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            AddTokenType(syntax.PropertyName, SemanticTokenType.Member);
+            AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
         }
 
