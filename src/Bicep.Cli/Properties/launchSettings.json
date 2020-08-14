@@ -2,7 +2,7 @@
   "profiles": {
     "Bicep.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "build C:\\GitHub\\alex-frankel\\markruss-julydemo\\aks.bicep",
+      "commandLineArgs": "build C:\\Users\\majastrz\\Downloads\\main.bicep",
       "remoteDebugEnabled": false
     }
   }
