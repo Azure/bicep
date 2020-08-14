@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.TypeSystem;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.SemanticModel
 {
-    public class FunctionInfo
+    public class FunctionOverload
     {
-        public FunctionInfo(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType)
+        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType)
         {
             if (maximumArgumentCount.HasValue && maximumArgumentCount.Value < minimumArgumentCount)
             {
@@ -75,14 +76,14 @@ namespace Bicep.Core.TypeSystem
             return FunctionMatchResult.Match;
         }
 
-        public static FunctionInfo CreateFixed(string name, TypeSymbol returnType, params TypeSymbol[] argumentTypes) => 
-            new FunctionInfo(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableArgumentType: null);
+        public static FunctionOverload CreateFixed(string name, TypeSymbol returnType, params TypeSymbol[] argumentTypes) => 
+            new FunctionOverload(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableArgumentType: null);
 
-        public static FunctionInfo CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
-            new FunctionInfo(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);
+        public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
+            new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);
 
-        public static FunctionInfo CreateWithVarArgs(string name, TypeSymbol returnType, int minimumArgumentCount, TypeSymbol argumentType) =>
-            new FunctionInfo(
+        public static FunctionOverload CreateWithVarArgs(string name, TypeSymbol returnType, int minimumArgumentCount, TypeSymbol argumentType) =>
+            new FunctionOverload(
                 name,
                 returnType,
                 minimumArgumentCount,

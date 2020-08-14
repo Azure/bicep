@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.ResourceManager.Deployments.Core.Extensions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
 
@@ -9,6 +9,9 @@ namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
+        // ReSharper disable once InconsistentNaming
+        public const string BCP061CyclicExpressionCode = "BCP061";
+
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
@@ -205,11 +208,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type '{type}'.");
 
-            public ErrorDiagnostic NotImplementedVariableAccess() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP042",
-                "Variable access is not currently supported.");
-
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -274,6 +272,46 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP055",
                 $"Cannot access properties of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
+
+            public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP056",
+                $"The reference to name '{name}' is ambiguous because it exists in namespaces '{namespaces.ConcatString(", ")}'. The reference must be fully-qualified.");
+
+            public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP057",
+                $"The name '{name}' does not exist in the current context.");
+
+            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP058",
+                $"The name '{name}' is an output. Outputs cannot be referenced in expressions.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP059",
+                $"The name '{name}' is not a function.");
+
+            public ErrorDiagnostic ResourcePropertyAccessNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP060",
+                "The resource property access capability is not yet implemented but is coming soon.");
+
+            public ErrorDiagnostic CyclicExpression() => new ErrorDiagnostic(
+                TextSpan,
+                BCP061CyclicExpressionCode,
+                "The expression is involved in a cycle.");
+
+            public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP062",
+                $"The referenced declaration with name '{name}' is not valid.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP063",
+                $"The name '{name}' is not a parameter or variable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

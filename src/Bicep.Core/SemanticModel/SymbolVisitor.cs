@@ -39,6 +39,21 @@ namespace Bicep.Core.SemanticModel
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitNamespaceSymbol(NamespaceSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitFunctionSymbol(FunctionSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitErrorSymbol(ErrorSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         protected void VisitDescendants(Symbol symbol)
         {
             foreach (Symbol descendant in symbol.Descendants)

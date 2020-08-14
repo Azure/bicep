@@ -147,11 +147,11 @@
     "spanText": "'a' + 1"
   },
   {
-    "message": "Cannot resolve function foo().",
-    "errorCode": "BCP048",
+    "message": "The name 'foo' is not a function.",
+    "errorCode": "BCP059",
     "level": "Error",
-    "span": "[937:942]",
-    "spanText": "foo()"
+    "span": "[937:940]",
+    "spanText": "foo"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
@@ -161,8 +161,8 @@
     "spanText": "!4"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'a' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[989:990]",
     "spanText": "a"
@@ -180,5 +180,26 @@
     "level": "Error",
     "span": "[1034:1039]",
     "spanText": "-true"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1112:1115]",
+    "spanText": "bar"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1153:1156]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The resource property access capability is not yet implemented but is coming soon.",
+    "errorCode": "BCP060",
+    "level": "Error",
+    "span": "[1187:1190]",
+    "spanText": "bar"
   }
 ]

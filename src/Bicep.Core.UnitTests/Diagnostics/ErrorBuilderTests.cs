@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -74,6 +73,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(IList<TypeSymbol>))
             {
                 return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>")};
+            }
+
+            if (parameter.ParameterType == typeof(IEnumerable<string>))
+            {
+                return new List<string> {$"<value_{index}"};
             }
 
             return $"<param_{index}>";

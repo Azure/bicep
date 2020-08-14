@@ -154,6 +154,13 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The name 'up' does not exist in the current context.",
+    "errorCode": "BCP057",
+    "level": "Error",
+    "span": "[1189:1191]",
+    "spanText": "up"
+  },
+  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -231,6 +238,13 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The name 'doc' does not exist in the current context.",
+    "errorCode": "BCP057",
+    "level": "Error",
+    "span": "[1492:1495]",
+    "spanText": "doc"
+  },
+  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -259,6 +273,13 @@
     "spanText": "fluffyBunny"
   },
   {
+    "message": "The name 'doc' does not exist in the current context.",
+    "errorCode": "BCP057",
+    "level": "Error",
+    "span": "[1547:1550]",
+    "spanText": "doc"
+  },
+  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -278,6 +299,13 @@
     "level": "Error",
     "span": "[1573:1584]",
     "spanText": "fluffyBunny"
+  },
+  {
+    "message": "The name 'doc' does not exist in the current context.",
+    "errorCode": "BCP057",
+    "level": "Error",
+    "span": "[1603:1606]",
+    "spanText": "doc"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
@@ -406,8 +434,8 @@
     "spanText": "2 + 3"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'a' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[2469:2470]",
     "spanText": "a"
@@ -420,11 +448,11 @@
     "spanText": "a + 2"
   },
   {
-    "message": "Cannot resolve function foo().",
-    "errorCode": "BCP048",
+    "message": "The name 'foo' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
-    "span": "[2488:2493]",
-    "spanText": "foo()"
+    "span": "[2488:2491]",
+    "spanText": "foo"
   },
   {
     "message": "The value must be a compile-time constant.",
@@ -434,8 +462,8 @@
     "spanText": "foo()"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'i' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[2517:2518]",
     "spanText": "i"

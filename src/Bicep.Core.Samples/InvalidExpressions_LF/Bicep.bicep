@@ -102,3 +102,30 @@ variable dotAccessOnNonObject = true.foo
 variable badExpressionInPropertyAccess = resourceGroup()[!'location']
 
 variable propertyAccessOnVariable = x.foo
+
+// function used like a variable
+variable funcvarvar = concat + base64 || !uniqueString
+parameter funcvarparam bool = concat
+output funcvarout array = padLeft
+
+// non-existent function
+variable fakeFunc = red() + green() * orange()
+parameter fakeFuncP string {
+  defaultValue: blue()
+}
+
+// non-existent variable
+variable fakeVar = concat(totallyFakeVar, 's')
+
+// bad functions arguments
+variable concatNotEnough = concat()
+variable padLeftNotEnough = padLeft('s')
+variable takeTooMany = take([
+],1,2,'s')
+
+// wrong argument types
+variable concatWrongTypes = concat({
+})
+variable concatWrongTypesContradiction = concat('s', [
+])
+variable indexOfWrongTypes = indexOf(1,1)

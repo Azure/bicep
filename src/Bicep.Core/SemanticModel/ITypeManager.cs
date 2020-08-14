@@ -3,9 +3,9 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public interface ISemanticContext
+    public interface ITypeManager
     {
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax);
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context);
 
         public TypeSymbol? GetTypeByName(string? typeName);
     }
