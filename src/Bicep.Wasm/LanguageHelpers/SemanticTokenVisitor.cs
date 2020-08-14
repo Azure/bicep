@@ -101,7 +101,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Member);
+            AddTokenType(syntax.Identifier, SemanticTokenType.Property);
             base.VisitObjectPropertySyntax(syntax);
         }
 
