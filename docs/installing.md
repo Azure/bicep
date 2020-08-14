@@ -5,7 +5,11 @@
 ### Manually
 Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
 
+>NOTE: Do **not** double-click the `*.vsix` file 
+
 Open VSCode, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
+
+
 
 ### Via command line
 ```sh
