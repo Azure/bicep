@@ -5,7 +5,7 @@ An individual `.bicep` file is composed of the following declarations, in any or
 * [Parameters](./parameters.md)
 * [Variables](./variables.md) 
 * [Resources](./resources.md)
-* [Outputs](./outpus.md)
+* [Outputs](./outputs.md)
 
 ## Whitespace
 Spaces and tabs are ignored when authoring Bicep files. New lines however have semantic meaning, for example in [object](#objects) and [array](#arrays) declarations.
