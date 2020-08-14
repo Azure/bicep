@@ -3,9 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework> 
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Utils\**" />
-    <EmbeddedResource Remove="Utils\**" />
-    <None Remove="Utils\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.ResourceManager.Deployments.Expression" Version="1.0.24" />
