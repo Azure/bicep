@@ -63,7 +63,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
     capacity: appServicePlanInstances
   }
   properties: {
-    name: '${hostingPlanName}' // just hostingPlanName results in an error
+    name: hostingPlanName
   }
 }
 

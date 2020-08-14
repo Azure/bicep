@@ -13,8 +13,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
         '10.0.0.0/15'
       ]
     }
-    enableVmProtection: false
-    enableDdosProtection: false
+    enableVmProtection: true
+    enableDdosProtection: true
     subnets: [
       {
         name: 'subnet001'
