@@ -6,12 +6,12 @@ While the bicep language is still in its infancy, there are some more advanced e
 
 ## Using a bicep function
 
-Any valid [ARM Template function](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions) is also a valid bicep function. Resource functions do not yet understand new concepts like the resource identifier, so they still require a resourceId.
+Any valid [ARM Template function](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions) is also a valid bicep function. Resource functions do not yet understand new concepts like the symbolic resource name, so they still require a resourceId.
 
 The following are all valid function calls in bicep:
 
 ```
-parameter currentTime string = utcNow() // only valid as a default value of a parameter
+parameter serverFarmId string = resourceId('Microsoft.Web/sites', 'myWebsite')
 
 variable location = resourceGroup().location
 
@@ -39,7 +39,7 @@ output storageId string = stg.id
 
 ## Using string interpolation
 
-The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use a `variable` to store this expression, so that our resource declaration is a bit cleaner: 
+The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use the variable `storageAccountName` to store this expression, so that our resource declaration is a bit cleaner: 
 
 ```
 parameter location string = 'eastus'
@@ -86,7 +86,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 output storageId string = stg.id
 ```
 
-## Referencing a resource identifier
+## Referencing the symbolic name of a resource
 
 With the resource's symbolic name, it is much easier to retrieve properties of a resource. Instead of using the `reference()` or `resourceId()` function, you can simply use the identifier and retrieve the relevant property. We've already done this with our output `stg.id`.
 
