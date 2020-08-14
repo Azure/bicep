@@ -119,8 +119,8 @@
     "spanText": ""
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'a' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[533:534]",
     "spanText": "a"
@@ -539,8 +539,8 @@
     "spanText": "!'location'"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The referenced declaration with name 'x' is not valid.",
+    "errorCode": "BCP062",
     "level": "Error",
     "span": "[2361:2362]",
     "spanText": "x"

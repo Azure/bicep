@@ -10,8 +10,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class OutputSymbol : DeclaredSymbol
     {
-        public OutputSymbol(ITypeContext context, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
-            : base(context, name, declaringSyntax)
+        public OutputSymbol(ITypeManager typeManager, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
+            : base(typeManager, name, declaringSyntax)
         {
             this.Value = value;
         }
@@ -39,7 +39,7 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            TypeSymbol valueType = this.Context.GetTypeInfo(this.Value);
+            TypeSymbol valueType = this.TypeManager.GetTypeInfo(this.Value, new TypeManagerContext());
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorTypeSymbol)

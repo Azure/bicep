@@ -9,8 +9,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ITypeContext context, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
-            : base(context, name, declaringSyntax)
+        public ParameterSymbol(ITypeManager typeManager, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
+            : base(typeManager, name, declaringSyntax)
         {
             this.Modifier = modifier;
         }
@@ -42,7 +42,7 @@ namespace Bicep.Core.SemanticModel
             {
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     // figure out type of the default value
-                    TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
+                    TypeSymbol? defaultValueType = this.TypeManager.GetTypeInfo(defaultValueSyntax.DefaultValue, new TypeManagerContext());
 
                     // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
                     if (defaultValueType is ErrorTypeSymbol)
@@ -58,7 +58,7 @@ namespace Bicep.Core.SemanticModel
                     break;
 
                 case ObjectSyntax modifierSyntax when this.Type.TypeKind != TypeKind.Error:
-                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
+                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
             }
 
             return Enumerable.Empty<ErrorDiagnostic>();

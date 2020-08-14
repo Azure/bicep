@@ -74,10 +74,20 @@ namespace Bicep.Core.Emit
                         propertyAccess.BaseExpression.ToFunctionExpression(),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
 
-                case VariableAccessSyntax _:
+                case VariableAccessSyntax variableAccess:
+                    return ConvertVariableAccess(variableAccess);
+
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
+        }
+
+        private static LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
+        {
+            string name = variableAccessSyntax.Name.IdentifierName;
+
+            // TODO: This will change to support inlined functions like reference() or list*()
+            return CreateUnaryFunction("variables", new JTokenExpression(name));
         }
 
         private static LanguageExpression ConvertString(StringSyntax syntax)

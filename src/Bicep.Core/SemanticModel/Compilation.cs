@@ -31,6 +31,7 @@ namespace Bicep.Core.SemanticModel
             
             // create this in locked mode by default
             // this blocks accidental type queries until binding is done
+            // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
             var typeCache = new TypeManager(bindings);
 
             // collect declarations

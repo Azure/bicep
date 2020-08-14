@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             Action byName = () => tm.GetTypeByName("string");
             byName.Should().Throw<InvalidOperationException>().WithMessage(expectedMessage);
 
-            Action byNode = () => tm.GetTypeInfo(TestSyntaxFactory.CreateBool(true));
+            Action byNode = () => tm.GetTypeInfo(TestSyntaxFactory.CreateBool(true), new TypeManagerContext());
             byNode.Should().Throw<InvalidOperationException>().WithMessage(expectedMessage);
         }
     }

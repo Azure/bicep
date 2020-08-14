@@ -56,8 +56,8 @@
     "spanText": "bar"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The referenced declaration with name 'x' is not valid.",
+    "errorCode": "BCP062",
     "level": "Error",
     "span": "[246:247]",
     "spanText": "x"

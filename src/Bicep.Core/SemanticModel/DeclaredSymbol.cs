@@ -5,14 +5,14 @@ namespace Bicep.Core.SemanticModel
 {
     public abstract class DeclaredSymbol : Symbol
     {
-        protected DeclaredSymbol(ITypeContext context, string name, SyntaxBase declaringSyntax)
+        protected DeclaredSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax)
             : base(name)
         {
-            this.Context = context;
+            this.TypeManager = typeManager;
             this.DeclaringSyntax = declaringSyntax;
         }
 
-        public ITypeContext Context { get; }
+        public ITypeManager TypeManager { get; }
 
         /// <summary>
         /// Gets the syntax node that declared this symbol.
@@ -26,7 +26,7 @@ namespace Bicep.Core.SemanticModel
 
         protected TypeSymbol? GetPrimitiveTypeByName(string typeName)
         {
-            var type = this.Context.GetTypeByName(typeName);
+            var type = this.TypeManager.GetTypeByName(typeName);
             if (type?.TypeKind == TypeKind.Primitive)
             {
                 return type;

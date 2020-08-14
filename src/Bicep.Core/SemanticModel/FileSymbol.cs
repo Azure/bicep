@@ -10,7 +10,7 @@ namespace Bicep.Core.SemanticModel
     public class FileSymbol : DeclaredSymbol
     {
         public FileSymbol(
-            ITypeContext context,
+            ITypeManager typeManager,
             string name,
             ProgramSyntax declaringSyntax,
             IEnumerable<NamespaceSymbol> importedNamespaces,
@@ -18,7 +18,7 @@ namespace Bicep.Core.SemanticModel
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<OutputSymbol> outputDeclarations)
-            : base(context, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax)
         {
             this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -8,8 +7,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class ResourceSymbol : DeclaredSymbol
     {
-        public ResourceSymbol(ITypeContext context, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
-            : base(context, name, declaringSyntax)
+        public ResourceSymbol(ITypeManager typeManager, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
+            : base(typeManager, name, declaringSyntax)
         {
             this.Body = body;
         }
@@ -34,7 +33,7 @@ namespace Bicep.Core.SemanticModel
                 else
                 {
                     var stringContent = stringSyntax?.TryGetFormatString();
-                    resourceType = this.Context.GetTypeByName(stringContent);
+                    resourceType = this.TypeManager.GetTypeByName(stringContent);
 
                     // TODO: This check is likely too simplistic
                     if (resourceType?.TypeKind != TypeKind.Resource)
@@ -63,7 +62,7 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, this.Body, this.Type);
+            return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, this.Body, this.Type);
         }
 
         public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ResourceDeclarationSyntax)?.Name;

@@ -1,5 +1,4 @@
-﻿using System;
-using Azure.ResourceManager.Deployments.Expression.Configuration;
+﻿using Azure.ResourceManager.Deployments.Expression.Configuration;
 using Azure.ResourceManager.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.UnitTests.Utils;
@@ -47,6 +46,8 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("[\n4\n][0]", "[json('[4]')[0]]")]
         [DataRow("42[33].foo","[int(42)[33].foo]")]
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
+        [DataRow("x","[variables('x')]")]
+        [DataRow("x + y + concat(z,a) / true % null", "[add(add(variables('x'), variables('y')), mod(div(concat(variables('z'), variables('a')), json('true')), json('null')))]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var parsed = ParserHelper.ParseExpression(text);

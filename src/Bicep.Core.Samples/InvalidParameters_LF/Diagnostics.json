@@ -406,8 +406,8 @@
     "spanText": "2 + 3"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'a' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[2469:2470]",
     "spanText": "a"
@@ -434,8 +434,8 @@
     "spanText": "foo()"
   },
   {
-    "message": "Variable access is not currently supported.",
-    "errorCode": "BCP042",
+    "message": "The name 'i' does not exist in the current context.",
+    "errorCode": "BCP057",
     "level": "Error",
     "span": "[2517:2518]",
     "spanText": "i"

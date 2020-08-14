@@ -1,16 +1,17 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.ResourceManager.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
+        // ReSharper disable once InconsistentNaming
+        public const string BCP061CyclicExpressionCode = "BCP061";
+
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
@@ -296,6 +297,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP060",
                 "The resource property access capability is not yet implemented but is coming soon.");
+
+            public ErrorDiagnostic CyclicExpression() => new ErrorDiagnostic(
+                TextSpan,
+                BCP061CyclicExpressionCode,
+                "The expression is involved in a cycle.");
+
+            public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP062",
+                $"The referenced declaration with name '{name}' is not valid.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

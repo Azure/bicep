@@ -5,13 +5,13 @@ namespace Bicep.Core.SemanticModel
 {
     public class DeclarationVisitor: SyntaxVisitor
     {
-        private readonly ITypeContext context;
+        private readonly ITypeManager typeManager;
 
         private readonly List<Symbol> declaredSymbols;
 
-        public DeclarationVisitor(ITypeContext context, List<Symbol> declaredSymbols)
+        public DeclarationVisitor(ITypeManager typeManager, List<Symbol> declaredSymbols)
         {
-            this.context = context;
+            this.typeManager = typeManager;
             this.declaredSymbols = declaredSymbols;
         }
 
@@ -19,7 +19,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitParameterDeclarationSyntax(syntax);
 
-            var symbol = new ParameterSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Modifier);
+            var symbol = new ParameterSymbol(this.typeManager, syntax.Name.IdentifierName, syntax, syntax.Modifier);
             this.declaredSymbols.Add(symbol);
         }
 
@@ -27,7 +27,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitVariableDeclarationSyntax(syntax);
 
-            var symbol = new VariableSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            var symbol = new VariableSymbol(this.typeManager, syntax.Name.IdentifierName, syntax, syntax.Value);
             this.declaredSymbols.Add(symbol);
         }
 
@@ -35,7 +35,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitResourceDeclarationSyntax(syntax);
 
-            var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Body);
+            var symbol = new ResourceSymbol(this.typeManager, syntax.Name.IdentifierName, syntax, syntax.Body);
             this.declaredSymbols.Add(symbol);
         }
 
@@ -43,7 +43,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitOutputDeclarationSyntax(syntax);
 
-            var symbol = new OutputSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            var symbol = new OutputSymbol(this.typeManager, syntax.Name.IdentifierName, syntax, syntax.Value);
             this.declaredSymbols.Add(symbol);
         }
     }
