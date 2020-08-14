@@ -22,18 +22,6 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 1. Build a general purpose language to meet any need. This will not replace general purpose languages and you may still need to do pre or post bicep tasks in a script or high-level programming language.
 1. Provide a first-class provider model for non-Azure related tasks. While we will likely introduce an extensibility model at some point, any extension points are intended to be focused on Azure infra or application deployment related tasks.
 
-## How is life better with Bicep?
-
-* Simpler syntax when compared to equivalent JSON
-  * No special `[...]` expressions syntax required
-    * Directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
-  * No quotes on property names (e.g. `"location"`)
-  * Simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
-  * Simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
-  * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
-* Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
-  * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
-
 ## Get started with Bicep
 
 The best way to get started is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into the equivalent bicep file.
@@ -55,6 +43,18 @@ You can now deploy this template via any method you would like such as:
 ```bash
 az deployment group create -f ./main.json -g my-rg
 ```
+
+## How is life better with Bicep?
+
+* Simpler syntax when compared to equivalent JSON
+  * No special `[...]` expressions syntax required
+    * Directly call parameters or variables in expressions without a function (no more need for `parameters('myParam')`)
+  * No quotes on property names (e.g. `"location"`)
+  * Simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
+  * Simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
+  * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
+* Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
+  * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 
 ## Known limitations
 
