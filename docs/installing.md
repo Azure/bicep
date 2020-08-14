@@ -10,7 +10,7 @@ Open VSCode, and in the Extensions view, select 'Install from VSIX'. Provide the
 ### Via command line
 ```sh
 # Fetch the latest Bicep VSCode extension
-curl -LO https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
+curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
 # Install the extension
 code --install-extension vscode-bicep.vsix
 ```
@@ -20,7 +20,7 @@ code --install-extension vscode-bicep.vsix
 ### Linux
 ```sh
 # Fetch the latest Bicep CLI binary
-curl -LO https://github.com/Azure/bicep/releases/download/latest/linux-x64/bicep
+curl -Lo bicep https://github.com/Azure/bicep/releases/download/latest/bicep-linux-x64
 # Mark it as executable
 chmod +x ./bicep
 # Add bicep to your PATH (requires admin)
@@ -32,7 +32,7 @@ bicep --version
 ### macOS
 ```sh
 # Fetch the latest Bicep CLI binary
-curl -LO https://github.com/Azure/bicep/releases/download/latest/osx-x64/bicep
+curl -Lo bicep https://github.com/Azure/bicep/releases/download/latest/bicep-osx-x64
 # Mark it as executable
 chmod +x ./bicep
 # Add Gatekeeper exception (requires admin)
@@ -60,7 +60,7 @@ $installPath = "$env:USERPROFILE\.bicep"
 $installDir = New-Item -ItemType Directory -Path $installPath -Force
 $installDir.Attributes += 'Hidden'
 # Fetch the latest Bicep CLI binary
-(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/win-x64/bicep.exe", "$installPath\bicep.exe")
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/bicep-win-x64.exe", "$installPath\bicep.exe")
 # Verify you can now access the 'bicep' command
 bicep --version
 ```
