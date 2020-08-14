@@ -105,12 +105,25 @@ variable x = {
 
 Given the above declaration, the expression `x.y.z` would evaluate to the literal string `'Hello'`. Similarly, the expression `x.q` would evaluate to the integer literal `42`.
 
+Property accessors can be used with any object. This includes parameters and variables of object types and object literals. Using a property accessor on an expression of non-object type is an error.
+
 ## Array Indexers
+Array indexers serve two purposes. Most commonly, they are used to access items in an array. However, they can also be used to access properties of objects via expressions or string literals.
 
+Consider the following:
+```
+variable index = 1
 
-### Indexers containing expressions
-When referencing an object property using a parameter value, you will need to use the `[]` syntax. Let's say we have an `environment` parameter and an object declaration like the following:
+variable myArray = [
+  1
+  2
+  3
+]
+```
 
+Arrays in bicep are 0-based. In other words, the first item in an array is at index 0. As such, the expression `myArray[0]` will evaluate to `1` and `myArray[2]` will evaluate to `3`. The index of the indexer may itself be another expression. In the above example, `myArray[index]` would evaluate to `2`. Integer indexers are only allowed on expression of array types. Usage of integer indexers on other types is an error.
+
+String-based indexers are also allowed in bicep. Consider the following:
 ```
 parameter environment string = 'prod'
 
@@ -124,8 +137,16 @@ variable environmentSettings = {
 }
 ```
 
-To reference the `prod` or `dev` object properties, in this case in the context of a resource declaration, use the following syntax:
+Given the above, the expression `environmentSettings['dev']` would evaluate to this object:
+```
+{
+  name: 'dev'
+}
+```
 
+Just like with integer indexers, the string indexer can also be an expression. Given the above example, the expression `environmentSettings[environment].name` would evaluate to `'dev'`, `'prod'`, or a runtime error depending on the value of the `environment` parameter. String-based indexers can only be used with expression of object type. Usage on expressions of other types is an error.
+
+In general, expressions are allowed anywhere where a value is specified in bicep. For example you could use the expressions above in a resource declaration as follows:
 ```
 resource site 'microsoft.web/sites@2018-11-01' = {
   name: environmentSettings[environment].name
