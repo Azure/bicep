@@ -5,28 +5,7 @@ To get the best bicep authoring experience, you will need two components:
 * Bicep CLI (required) - Compiles bicep files into ARM templates. Cross-platform.
 * Bicep VS Code Extension - Authoring support, intellisense, validation. Optional, but recommended.
 
-## Install the Bicep VS Code Extension
-
-### Manually
-Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
-
->NOTE: You cannot install the `vscode-bicep.vsix` file by opening it directly.
-
-Open VS Code, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
-
-### Via command line
-```sh
-# Fetch the latest Bicep VS Code extension
-curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
-# Install the extension
-code --install-extension vscode-bicep.vsix
-```
-
-## Verify the Bicep VS Code extension (Language service)
-
-Open the `main.bicep` file in VS code. If the extension is installed, you should see syntax highlighting working, and you should see the language in the lower right hand corner of the VS code window change to `bicep`.
-
-## Bicep CLI
+## Install the Bicep CLI
 
 ### Linux
 ```sh
@@ -75,6 +54,27 @@ $installDir.Attributes += 'Hidden'
 # Verify you can now access the 'bicep' command
 bicep --version
 ```
+
+## Install the Bicep VS Code Extension
+
+### Manually
+Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
+
+>NOTE: You cannot install the `vscode-bicep.vsix` file by opening it directly.
+
+Open VS Code, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
+
+### Via command line
+```sh
+# Fetch the latest Bicep VS Code extension
+curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
+# Install the extension
+code --install-extension vscode-bicep.vsix
+```
+
+### Verify the Bicep VS Code extension is running
+
+Open a file called `main.bicep` VS code. If the extension is installed, you should see syntax highlighting working, and you should see the `language mode` in the lower right hand corner of the VS code window change to `bicep`.
 
 ## Next steps
 
