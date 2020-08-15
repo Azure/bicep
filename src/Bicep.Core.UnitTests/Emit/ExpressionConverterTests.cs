@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Emit
 
             var parsed = ParserHelper.ParseExpression(text);
 
-            var converted = parsed.ToTemplateExpression(compilation.GetSemanticModel());
+            var converted = parsed.ConvertExpression();
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {

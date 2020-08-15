@@ -27,11 +27,15 @@ namespace Bicep.Core.Emit
             "metadata"
         }.ToImmutableArray();
 
+        private readonly JsonTextWriter writer;
         private readonly SemanticModel.SemanticModel semanticModel;
+        private readonly ExpressionEmitter emitter;
 
-        public TemplateEmitter(SemanticModel.SemanticModel semanticModel)
+        public TemplateEmitter(JsonTextWriter writer, SemanticModel.SemanticModel semanticModel)
         {
+            this.writer = writer;
             this.semanticModel = semanticModel;
+            this.emitter = new ExpressionEmitter(writer, semanticModel);
         }
 
         /// <summary>
@@ -131,48 +135,48 @@ namespace Bicep.Core.Emit
             EmitInternal(writer);
         }
 
-        private void EmitInternal(JsonTextWriter writer)
+        private void EmitInternal()
         {
             writer.WriteStartObject();
 
             // TODO: Select by scope type
-            ExpressionEmitter.EmitPropertyValue(writer, "$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
+            this.emitter.EmitPropertyValue("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
 
-            ExpressionEmitter.EmitPropertyValue(writer, "contentVersion", "1.0.0.0");
+            this.emitter.EmitPropertyValue("contentVersion", "1.0.0.0");
 
             writer.WritePropertyName("parameters");
-            this.EmitParameters(writer);
+            this.EmitParameters();
             
             writer.WritePropertyName("functions");
             writer.WriteStartArray();
             writer.WriteEndArray();
 
             writer.WritePropertyName("variables");
-            this.EmitVariables(writer);
+            this.EmitVariables();
 
             writer.WritePropertyName("resources");
-            this.EmitResources(writer);
+            this.EmitResources();
 
             writer.WritePropertyName("outputs");
-            this.EmitOutputs(writer);
+            this.EmitOutputs();
 
             writer.WriteEndObject();
         }
 
-        private void EmitParameters(JsonTextWriter writer)
+        private void EmitParameters()
         {
             writer.WriteStartObject();
 
             foreach (var parameterSymbol in this.semanticModel.Root.ParameterDeclarations)
             {
                 writer.WritePropertyName(parameterSymbol.Name);
-                this.EmitParameter(writer, parameterSymbol);
+                this.EmitParameter(parameterSymbol);
             }
 
             writer.WriteEndObject();
         }
 
-        private void EmitParameter(JsonTextWriter writer, ParameterSymbol parameterSymbol)
+        private void EmitParameter(ParameterSymbol parameterSymbol)
         {
             // local function
             bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
@@ -182,13 +186,13 @@ namespace Bicep.Core.Emit
             switch (parameterSymbol.Modifier)
             {
                 case null:
-                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
 
                     break;
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
-                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue, this.semanticModel);
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    this.emitter.EmitPropertyExpression("defaultValue", defaultValueSyntax.DefaultValue);
 
                     break;
 
@@ -196,12 +200,12 @@ namespace Bicep.Core.Emit
                     // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
                     var properties = modifierSyntax.ToPropertyValueDictionary();
 
-                    ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
 
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
                     {
-                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName), this.semanticModel);
+                        this.emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
                     }
                     
                     break;
@@ -210,38 +214,38 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-        private void EmitVariables(JsonTextWriter writer)
+        private void EmitVariables()
         {
             writer.WriteStartObject();
 
             foreach (var variableSymbol in this.semanticModel.Root.VariableDeclarations)
             {
                 writer.WritePropertyName(variableSymbol.Name);
-                this.EmitVariable(writer, variableSymbol);
+                this.EmitVariable(variableSymbol);
             }
 
             writer.WriteEndObject();
         }
 
-        private void EmitVariable(JsonTextWriter writer, VariableSymbol variableSymbol)
+        private void EmitVariable(VariableSymbol variableSymbol)
         {
             // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
-            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value, this.semanticModel);
+            this.emitter.EmitExpression(variableSymbol.Value);
         }
 
-        private void EmitResources(JsonTextWriter writer)
+        private void EmitResources()
         {
             writer.WriteStartArray();
 
             foreach (var resourceSymbol in this.semanticModel.Root.ResourceDeclarations)
             {
-                this.EmitResource(writer, resourceSymbol);
+                this.EmitResource(resourceSymbol);
             }
 
             writer.WriteEndArray();
         }
 
-        private void EmitResource(JsonTextWriter writer, ResourceSymbol resourceSymbol)
+        private void EmitResource(ResourceSymbol resourceSymbol)
         {
             writer.WriteStartObject();
 
@@ -249,32 +253,32 @@ namespace Bicep.Core.Emit
             // (it's a code defect if it some errors were not emitted)
             ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
 
-            ExpressionEmitter.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
-            ExpressionEmitter.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
-            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body, this.semanticModel);
+            this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
+            this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
+            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
 
             writer.WriteEndObject();
         }
 
-        private void EmitOutputs(JsonTextWriter writer)
+        private void EmitOutputs()
         {
             writer.WriteStartObject();
 
             foreach (var outputSymbol in this.semanticModel.Root.OutputDeclarations)
             {
                 writer.WritePropertyName(outputSymbol.Name);
-                this.EmitOutput(writer, outputSymbol);
+                this.EmitOutput(outputSymbol);
             }
 
             writer.WriteEndObject();
         }
 
-        private void EmitOutput(JsonTextWriter writer, OutputSymbol outputSymbol)
+        private void EmitOutput(OutputSymbol outputSymbol)
         {
             writer.WriteStartObject();
 
-            ExpressionEmitter.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
-            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value, this.semanticModel);
+            this.emitter.EmitPropertyValue("type", outputSymbol.Type.Name);
+            this.emitter.EmitPropertyExpression("value", outputSymbol.Value);
 
             writer.WriteEndObject();
         }
