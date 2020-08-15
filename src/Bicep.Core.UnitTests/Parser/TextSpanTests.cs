@@ -61,8 +61,43 @@ namespace Bicep.Core.UnitTests.Parser
             var first = new TextSpan(firstPosition, firstLength);
             var second = new TextSpan(secondPosition, secondLength);
 
-            TextSpan.BetweenNonInclusive(first, second).ToString().Should().Be(expectedBetweenRange);
-            TextSpan.BetweenNonInclusive(second, first).ToString().Should().Be(expectedBetweenRange);
+            TextSpan.BetweenExclusive(first, second).ToString().Should().Be(expectedBetweenRange);
+            TextSpan.BetweenExclusive(second, first).ToString().Should().Be(expectedBetweenRange);
+        }
+
+        [DataTestMethod]
+        [DataRow("[0:0]", "[0:0]", false)]
+        [DataRow("[0:1]", "[1:1]", false)]
+        [DataRow("[0:1]", "[0:0]", false)]
+        [DataRow("[0:1]", "[0:1]", true)]
+        [DataRow("[0:1]", "[0:5]", true)]
+        [DataRow("[0:4]", "[4:6]", false)]
+        [DataRow("[0:4]", "[3:4]", true)]
+        [DataRow("[520:580]", "[1000:1100]", false)]
+        [DataRow("[520:580]", "[530:540]", true)]
+        [DataRow("[520:520]", "[530:540]", false)]
+        public void AreOverlapping_ShouldDetermineOverlapCorrectly(string firstSpan, string secondSpan, bool expectedOverlapResult)
+        {
+            var first = TextSpan.Parse(firstSpan);
+            var second = TextSpan.Parse(secondSpan);
+
+            TextSpan.AreOverlapping(first, second).Should().Be(expectedOverlapResult);
+            TextSpan.AreOverlapping(second, first).Should().Be(expectedOverlapResult);
+        }
+
+        [DataTestMethod]
+        [DataRow("[0:0]", "[0:0]", "[0:0]")]
+        [DataRow("[0:2]", "[2:3]", "[0:2]")]
+        [DataRow("[2:3]", "[0:2]", "[2:3]")]
+        [DataRow("[14:18]", "[35:48]", "[14:35]")]
+        [DataRow("[35:48]", "[14:18]", "[18:48]")]
+        public void BetweenInclusiveAndExclusive_ShouldProduceCorrectSpan(string inclusiveSpan, string exclusiveSpan, string expected)
+        {
+            var inclusive = TextSpan.Parse(inclusiveSpan);
+            var exclusive = TextSpan.Parse(exclusiveSpan);
+
+            // this operation is not commutative
+            TextSpan.BetweenInclusiveAndExclusive(inclusive, exclusive).ToString().Should().Be(expected);
         }
 
         [DataTestMethod]
@@ -83,6 +118,9 @@ namespace Bicep.Core.UnitTests.Parser
         {
             TextSpan.TryParse(str, out var span).Should().BeFalse();
             span.Should().BeNull();
+
+            Action parse = () => TextSpan.Parse(str);
+            parse.Should().Throw<FormatException>().WithMessage($"The specified text span string '{str}' is not valid.");
         }
 
         [DataTestMethod]
@@ -94,7 +132,11 @@ namespace Bicep.Core.UnitTests.Parser
             TextSpan.TryParse(str, out var span).Should().BeTrue();
             span.Should().NotBeNull();
             span!.Position.Should().Be(expectedPosition);
-            span!.Length.Should().Be(expectedLength);
+            span.Length.Should().Be(expectedLength);
+
+            var second = TextSpan.Parse(str);
+            second.Position.Should().Be(expectedPosition);
+            second.Length.Should().Be(expectedLength);
         }
     }
 }

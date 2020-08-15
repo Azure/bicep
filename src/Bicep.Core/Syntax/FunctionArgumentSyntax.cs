@@ -1,0 +1,26 @@
+using Bicep.Core.Parser;
+
+namespace Bicep.Core.Syntax
+{
+    public class FunctionArgumentSyntax : SyntaxBase, IExpressionSyntax
+    {
+        public FunctionArgumentSyntax(SyntaxBase expression, Token? comma)
+        {
+            this.AssertTokenType(comma, nameof(comma), TokenType.Comma);
+
+            this.Expression = expression;
+            this.Comma = comma;
+        }
+
+        public SyntaxBase Expression { get; }
+
+        // will be null on the last argument in a function call
+        public Token? Comma { get; }
+
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionArgumentSyntax(this);
+
+        public override TextSpan Span => this.Comma == null 
+            ? this.Expression.Span
+            : TextSpan.Between(this.Expression, this.Comma);
+    }
+}

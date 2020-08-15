@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -13,11 +14,19 @@ namespace Bicep.Core.IntegrationTests
             this.buffer = buffer;
         }
 
-        public override void VisitToken(Token token)
+        protected override void VisitTokenInternal(Token token)
         {
-            buffer.Append(token.LeadingTrivia);
+            WriteTrivia(token.LeadingTrivia);
             buffer.Append(token.Text);
-            buffer.Append(token.TrailingTrivia);
+            WriteTrivia(token.TrailingTrivia);
+        }
+
+        private void WriteTrivia(IEnumerable<SyntaxTrivia> triviaList)
+        {
+            foreach (var trivia in triviaList)
+            {
+                buffer.Append(trivia.Text);
+            }
         }
     }
 }

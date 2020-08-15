@@ -1,0 +1,72 @@
+[
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[29:30]",
+    "spanText": "x"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[52:53]",
+    "spanText": "q"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[56:57]",
+    "spanText": "q"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[86:87]",
+    "spanText": "b"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[106:107]",
+    "spanText": "a"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[138:139]",
+    "spanText": "f"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[154:155]",
+    "spanText": "g"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[178:179]",
+    "spanText": "e"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[182:183]",
+    "spanText": "e"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[186:187]",
+    "spanText": "e"
+  }
+]

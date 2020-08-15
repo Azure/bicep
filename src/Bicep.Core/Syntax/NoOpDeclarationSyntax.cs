@@ -2,7 +2,7 @@
 
 namespace Bicep.Core.Syntax
 {
-    public class NoOpDeclarationSyntax : StatementSyntax
+    public class NoOpDeclarationSyntax : SyntaxBase
     {
         public NoOpDeclarationSyntax(Token newLine)
         {

@@ -8,6 +8,8 @@
         Parameter,
         Variable,
         Resource,
-        Output
+        Output,
+        Namespace,
+        Function
     }
 }

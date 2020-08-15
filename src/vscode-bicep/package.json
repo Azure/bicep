@@ -1,16 +1,38 @@
 {
     "name": "vscode-bicep",
-    "description": "VSCode part of a language server",
+    "displayName": "Bicep",
+    "description": "Bicep language support for Visual Studio Code",
     "author": "Microsoft Corporation",
     "license": "MIT",
     "version": "0.0.1",
-    "publisher": "vscode",
+    "publisher": "Azure",
+    "icon": "icons/azure-resource-manager.png",
+    "preview": true,
     "engines": {
         "vscode": "^1.8.0"
     },
     "categories": [
-        "Other"
+        "Azure",
+        "Programming Languages"
     ],
+    "keywords": [
+        "Bicep",
+        "Azure Resource Manager",
+        "ARM Template",
+        "Azure"
+    ],
+    "bugs": {
+        "url": "https://github.com/Azure/bicep/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Azure/bicep.git"
+    },
+    "galleryBanner": {
+        "color": "E7F1FA",
+        "theme": "light"
+    },
+    "homepage": "https://github.com/Azure/bicep/blob/master/README.md",
     "activationEvents": [
         "onLanguage:bicep"
     ],
@@ -19,24 +41,8 @@
     "contributes": {
         "configuration": {
             "type": "object",
-            "title": "Example configuration",
-            "properties": {
-                "bicep.maxNumberOfProblems": {
-                    "type": "number",
-                    "default": 100,
-                    "description": "Controls the maximum number of problems produced by the server."
-                },
-                "bicep.trace.server": {
-                    "type": "string",
-                    "enum": [
-                        "off",
-                        "messages",
-                        "verbose"
-                    ],
-                    "default": "verbose",
-                    "description": "Traces the communication between VSCode and the bicep service."
-                }
-            }
+            "title": "Bicep Configuration",
+            "properties": {}
         },
         "languages": [
             {
@@ -46,34 +52,34 @@
                     "bicep"
                 ],
                 "extensions": [
-                    ".arm"
-                ]
+                    ".bicep"
+                ],
+                "configuration": "./language-configuration.json"
             }
         ],
-        "grammars": [
+        "snippets": [
             {
                 "language": "bicep",
-                "scopeName": "source.bicep",
-                "path": "./bicep.grammar.json"
+                "path": "./snippets/bicep.json"
             }
         ]
     },
     "scripts": {
-        "vscode:prepublish": "dotnet build ..\\Bicep.LangServer --configuration Release --output bicepLanguageServer && tsc -p ./",
+        "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "package": "node node_modules/vsce/out/vsce package --out ./"
     },
     "devDependencies": {
-        "@types/mocha": "^7.0.2",
-        "@types/node": "^13.11.1",
-        "typescript": "^3.8.3",
-        "vscode": "^1.1.36",
-        "vsce": "^1.75.0"
+        "@types/mocha": "^8.0.2",
+        "@types/node": "^14.0.27",
+        "typescript": "^3.9.7",
+        "vsce": "^1.78.0",
+        "vscode": "^1.1.36"
     },
     "dependencies": {
-        "vscode-languageclient": "^6.2.0-next.2"
+        "vscode-languageclient": "^7.0.0-next.8"
     },
     "extensionDependencies": [
         "ms-dotnettools.vscode-dotnet-runtime"

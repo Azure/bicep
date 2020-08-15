@@ -8,6 +8,11 @@
         Error,
 
         /// <summary>
+        /// Empty union of types. 
+        /// </summary>
+        Never,
+
+        /// <summary>
         /// Any type
         /// </summary>
         Any,
@@ -25,6 +30,11 @@
         /// <summary>
         /// Resource type
         /// </summary>
-        Resource
+        Resource,
+
+        /// <summary>
+        /// Union of multiple types.
+        /// </summary>
+        Union
     }
 }

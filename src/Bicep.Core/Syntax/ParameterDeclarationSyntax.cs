@@ -1,26 +1,19 @@
-using System;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterDeclarationSyntax : StatementSyntax
+    public class ParameterDeclarationSyntax : SyntaxBase
     {
-        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, Token? assignment, SyntaxBase? value, Token newLine)
+        public ParameterDeclarationSyntax(Token parameterKeyword, IdentifierSyntax name, TypeSyntax type, SyntaxBase? modifier, Token? newLine)
         {
-            AssertTokenType(parameterKeyword, nameof(parameterKeyword), TokenType.ParameterKeyword);
-            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertKeyword(parameterKeyword, nameof(parameterKeyword), LanguageConstants.ParameterKeyword);
+            AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax));
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
-
-            if ((assignment == null) != (value == null))
-            {
-                throw new ArgumentException($"Both {nameof(assignment)} and {nameof(value)} must be null or they both must be non-null.");
-            }
 
             this.ParameterKeyword = parameterKeyword;
             this.Name = name;
             this.Type = type;
-            this.Assignment = assignment;
-            this.Value = value;
+            this.Modifier = modifier;
             this.NewLine = newLine;
         }
 
@@ -30,18 +23,14 @@ namespace Bicep.Core.Syntax
 
         public TypeSyntax Type { get; }
 
-        public Token? Assignment { get; }
+        // This is a modifier of the parameter and not a modifier of the type
+        public SyntaxBase? Modifier { get; }
 
-        public SyntaxBase? Value { get; }
-
-        public Token NewLine { get; }
+        public Token? NewLine { get; }
 
         public override void Accept(SyntaxVisitor visitor)
             => visitor.VisitParameterDeclarationSyntax(this);
 
-        public override TextSpan Span
-            => this.Value == null
-                ? TextSpan.Between(this.ParameterKeyword, this.Type)
-                : TextSpan.Between(this.ParameterKeyword, this.Value);
+        public override TextSpan Span => TextSpan.Between(this.ParameterKeyword, TextSpan.LastNonNull(Type, Modifier, NewLine));
     }
 }

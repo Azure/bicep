@@ -67,7 +67,7 @@ namespace Bicep.Core.Parser
             var nextChar = Peek(0);
             if (nextChar != InvalidCharacter)
             {
-                Advance(nextChar);
+                Advance(1);
             }
 
             return nextChar;
@@ -76,6 +76,11 @@ namespace Bicep.Core.Parser
         public void Advance(int numChars = 1)
         {
             offset += numChars;
+        }
+
+        public void Rewind(int numChars = 1)
+        {
+            offset -= numChars;
         }
 
         public void Reset()

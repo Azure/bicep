@@ -1,0 +1,60 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "suffix": {
+      "type": "string",
+      "defaultValue": "001"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-10-01",
+      "name": "[variables('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "CostCenter": "12345",
+        "Owner": "alex"
+      },
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/15"
+          ]
+        },
+        "enableVmProtection": true,
+        "enableDdosProtection": true
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-10-01",
+      "name": "[format('{0}/sub001', variables('vnetName'))]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/24"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2018-10-01",
+      "name": "[format('{0}/sub002', variables('vnetName'))]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.1.0/24"
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

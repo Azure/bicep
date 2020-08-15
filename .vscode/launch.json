@@ -1,23 +1,36 @@
 {
-    "version": "0.2.0",
+    "version": "2.0.0",
     "configurations": [
         {
-            "name": "Bicep.Wasm",
-            "type": "coreclr",
+            "name": "Bicep VSCode Extension",
+            "type": "extensionHost",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "dotnet",
-            "args": ["run", "${workspaceFolder}/src/Bicep.Wasm/bin/Debug/netstandard2.1/Bicep.Wasm.dll"],
-            "cwd": "${workspaceFolder}/src/Bicep.Wasm",
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "^\\s*Now listening on:\\s+(http://\\S+)"
+            "runtimeExecutable": "${execPath}",
+            "args": [
+                "--enable-proposed-api",
+                "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
+            ],
+            "env": {
+                "bicepLanguageServerPath": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
             },
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+            "preLaunchTask": "vscodeext-build"
         },
         {
-            "name": "Bicep.Cli",
+            "name": "Bicep Playground",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/playground/node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+            "args": ["--progress", "--inline", "--config", "webpack.config.js"],
+            "cwd": "${workspaceFolder}/src/playground",
+            "autoAttachChildProcesses": true,
+            "stopOnEntry": false,
+            "preLaunchTask": "playground-build-wasm"
+        },
+        {
+            "name": "Bicep Cli",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

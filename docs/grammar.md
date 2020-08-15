@@ -2,47 +2,90 @@
 The following is the active pseudo-grammar of the bicep language.
 ```
 program -> statement* EOF 
-statement -> parameterDecl | 
-             variableDecl |
-             resourceDecl |
-             outputDecl |
-             NL
+statement -> 
+  parameterDecl | 
+  variableDecl |
+  resourceDecl |
+  outputDecl |
+  NL
 
-parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (( "=" value )? | object(modifier) ) NL
+parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (parameterDefaultValue | object(modifier))? NL
+parameterDefaultValue -> "=" expression
 
-variableDecl -> "variable" IDENTIFIER(name) "=" value NL
+variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) STRING(type) "=" object NL
+resourceDecl -> "resource" IDENTIFIER(name) interpolatedString(type) "=" object NL
 
-outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" value NL
-
-value -> NUMBER | STRING | "true" | "false" | object | array
-
-object -> "{" NL+ ( objectProperty NL+ )* "}" 
-objectProperty -> IDENTIFIER(name) ":" value 
-
-array -> "[" NL+ arrayItem* "]"
-arrayItem -> value NL+
+outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 
 NL -> ("\n" | "\r")+
-```
 
-Ignore everything below
+expression -> 
+  binaryExpression |
+  binaryExpression "?" expression ":" expression
 
-```
-expression -> ternary 
-ternary -> booleanOr ( "?" booleanOr ":" booleanOr )? 
-booleanOr -> booleanAnd ( "||" booleanOr )? 
-booleanAnd -> equality ( "&&" booleanAnd )? 
-equality -> comparison ( ( "==" | "!=" | "=~" | "!~" ) equality )? 
-comparison -> addition ( ( ">" | ">=" | "<" | "<=" ) comparison )? 
-addition -> multiplication ( ( "-" | "+" ) addition )? 
-multiplication -> unary ( ( "/" | "*" | "%" ) multiplication )? 
-unary -> ( "!" | "-" ) unary | memberAccess 
-memberAccess -> functionCall ( "." functionCall | "[" expression "]" )* 
-functionCall -> primary ( "(" ( expression ( "," expression )* )? ")" )? 
-primary -> NUMBER | STRING | IDENTIFIER | object | array | "false" | "true" | "null" | "(" expression ")" 
-object -> "{" ( objectProperty "," )* objectProperty? "}" 
-objectProperty -> IDENTIFIER ":" expression 
-array -> "[" ( expression "," )* expression? "]" 
+binaryExpression -> 
+  equalityExpression |
+  binaryExpression "&&" equalityExpression |
+  binaryExpression "||" equalityExpression |
+  binaryExpression "??" equalityExpression
+
+equalityExpression -> 
+  relationalExpression |
+  equalityExpression "==" relationalExpression |
+  equalityExpression "!=" relationalExpression
+
+relationalExpression -> 
+  additiveExpression |
+  relationalExpression ">" additiveExpression |
+  relationalExpression ">=" additiveExpression |
+  relationalExpression "<" additiveExpression |
+  relationalExpression "<=" additiveExpression
+
+additiveExpression -> 
+  multiplicativeExpression |
+  additiveExpression "+" multiplicativeExpression |
+  additiveExpression "-" multiplicativeExpression
+
+multiplicativeExpression -> 
+  unaryExpression |
+  multiplicativeExpression "*" unaryExpression |
+  multiplicativeExpression "/" unaryExpression |
+  multiplicativeExpression "%" unaryExpression
+
+unaryExpression ->
+  memberExpression |
+  unaryOperator unaryExpression
+
+unaryOperator -> "!" | "-" | "+"
+
+memberExpression ->
+  primaryExpression |
+  memberExpression "[" expression "]" |
+  memberExpression "." IDENTIFIER(property)
+
+primaryExpression ->
+  functionCall |
+  literalValue |
+  interpolatedString |
+  array |
+  object |
+  parenthesizedExpression
+
+functionCall -> IDENTIFIER "(" argumentList? ")"
+
+argumentList -> expression ("," expression)*
+
+parenthesizedExpression -> "(" expression ")"
+
+interpolatedString -> "'" STRINGCHAR* ( "${" expression "}" STRINGCHAR* )* "'"
+
+literalValue -> NUMBER | "true" | "false" | "null"
+
+object -> "{" NL+ ( objectProperty NL+ )* "}" 
+objectProperty -> IDENTIFIER(name) ":" expression 
+
+array -> "[" NL+ arrayItem* "]"
+arrayItem -> expression NL+
+
 ```

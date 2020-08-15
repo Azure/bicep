@@ -7,16 +7,22 @@ namespace Bicep.Core.SemanticModel
 {
     public class VariableSymbol : DeclaredSymbol
     {
-        public VariableSymbol(ISemanticContext context, string name, SyntaxBase declaringSyntax, SyntaxBase value, TypeSymbol type) 
-            : base(context, name, declaringSyntax)
+        public VariableSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax, SyntaxBase value) 
+            : base(typeManager, name, declaringSyntax)
         {
             this.Value = value;
-            this.Type = type;
         }
+
+        public VariableDeclarationSyntax DeclaringVariable => (VariableDeclarationSyntax) this.DeclaringSyntax;
 
         public SyntaxBase Value { get; }
 
-        public TypeSymbol Type { get; }
+        public TypeSymbol Type => GetVariableType(new TypeManagerContext());
+
+        public TypeSymbol GetVariableType(TypeManagerContext context)
+        {
+            return this.TypeManager.GetTypeInfo(this.DeclaringVariable.Value, context);
+        }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitVariableSymbol(this);
 

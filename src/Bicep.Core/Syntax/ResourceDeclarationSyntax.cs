@@ -1,12 +1,14 @@
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase
     {
-        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, StringSyntax type, Token assignment, SyntaxBase body, Token newLine)
+        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token? newLine)
         {
-            AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.ResourceKeyword);
+            AssertKeyword(resourceKeyword, nameof(resourceKeyword), LanguageConstants.ResourceKeyword);
+            AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.Identifier);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
             AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 
@@ -22,16 +24,18 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax Name { get; }
 
-        public StringSyntax Type { get; }
+        public SyntaxBase Type { get; }
 
         public Token Assignment { get; }
 
         public SyntaxBase Body { get; }
 
-        public Token NewLine { get; }
+        public Token? NewLine { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitResourceDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(ResourceKeyword, NewLine);
+        public override TextSpan Span => TextSpan.Between(ResourceKeyword, TextSpan.LastNonNull(Body, NewLine));
+
+        public StringSyntax? TryGetType() => Type as StringSyntax;
     }
 }

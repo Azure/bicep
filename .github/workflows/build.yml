@@ -3,28 +3,142 @@ name: Build
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-bicep:
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # don't print dotnet logo
+      DOTNET_NOLOGO: true
+
+      # disable telemetry (reduces dotnet tool output in logs)
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
 
     strategy:
+      # let us get failures from other jobs even if one fails
+      fail-fast: false
+
       matrix:
-        rid: [ 'win-x64', 'linux-x64', 'osx-x64' ]
-        # other rids: win-x64, win-x86, win-arm, win-arm64, linux-x64, linux-arm, linux-arm64, osx-x64
+        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
+        include:
+        - os: 'windows-latest'
+          rid: 'win-x64'
+          configuration: 'Release'
+        - os: 'ubuntu-latest'
+          rid: 'linux-x64'
+          configuration: 'Release'
+        - os: 'macos-latest'
+          rid: 'osx-x64'
+          configuration: 'Release'
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.100
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+      
+      - name: Update NuGet config
+        # workaround for bug in setup-dotnet action (the config samples for authenticated feeds don't work)
+        # encryption does not work on Linux or MacOS
+        run: dotnet nuget update source Official --username bicep --password ${{ secrets.MSAZURE_NUGET_AUTH }} --valid-authentication-types=basic --configfile ./NuGet.config --store-password-in-clear-text
+      
+      - name: Build
+        run: dotnet build --configuration ${{ matrix.configuration }}
+      
+      - name: Test
+        run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage"
+      
+      - name: Publish Language Server
+        run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
+      
+      - name: Publish Bicep
+        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+      
+      - name: Upload Language Server
+        uses: actions/upload-artifact@v2
+        with:
+          name: LangServer_${{ matrix.configuration }}_${{ matrix.rid }}
+          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/netcoreapp3.1/publish/*
+      
+      - name: Upload Bicep
+        uses: actions/upload-artifact@v2
+        with:
+          name: Bicep_${{ matrix.configuration }}_${{ matrix.rid }}
+          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.rid }}/publish/*
 
-    - name: Publish
-      run: dotnet publish --configuration Release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ matrix.rid }}
-        path: ./src/Bicep.Cli/bin/Release/netcoreapp3.1/${{ matrix.rid }}/publish/*
+  build-vscode:
+    runs-on: 'ubuntu-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: 10.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: Download Language Server
+        uses: actions/download-artifact@v2
+        with:
+          name: LangServer_Release_linux-x64
+          path: ./src/vscode-bicep/bicepLanguageServer
+
+      - name: List language Server files
+        run: ls -R
+        working-directory: ./src/vscode-bicep
+
+      - name: Create VSIX
+        run: npm run package
+        working-directory: ./src/vscode-bicep
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v2
+        with:
+          name: vscode-bicep
+          path: ./src/vscode-bicep/*.vsix
+
+  playground:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+
+      - name: Update NuGet config
+        # workaround for bug in setup-dotnet action (the config samples for authenticated feeds don't work)
+        # encryption does not work on Linux or MacOS
+        run: dotnet nuget update source Official --username bicep --password ${{ secrets.MSAZURE_NUGET_AUTH }} --valid-authentication-types=basic --configfile ./NuGet.config --store-password-in-clear-text
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.1
+        with:
+          node-version: 10.x
+      
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/playground
+
+      - name: Build
+        run: npm run build
+        working-directory: ./src/playground
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: playground
+          path: ./src/playground/dist/*

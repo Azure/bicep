@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Providers
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             var parser = new Parser(text);
-            var program = parser.Parse();
+            var program = parser.Program();
 
             var compilation = new Compilation(program);
 

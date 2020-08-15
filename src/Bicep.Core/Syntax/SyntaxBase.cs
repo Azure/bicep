@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
+using JetBrains.Annotations;
 
 namespace Bicep.Core.Syntax
 {
@@ -19,7 +22,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        protected void AssertTokenType(Token? token, string parameterName, TokenType expectedTypeIfNotNull)
+        protected void AssertTokenType(Token? token, [InvokerParameterName] string parameterName, TokenType expectedTypeIfNotNull)
         {
             if (token == null || token.Type == expectedTypeIfNotNull)
             {
@@ -29,7 +32,18 @@ namespace Bicep.Core.Syntax
             throw new ArgumentException($"{parameterName} must be of type {expectedTypeIfNotNull} but provided token type was {token.Type}.");
         }
 
-        protected void AssertTokenTypeList(IEnumerable<Token> tokens, string parameterName, TokenType expectedType, int minimumCount)
+        protected void AssertKeyword(Token? token, [InvokerParameterName] string parameterName, string expectedKeywordNameIfNotNull)
+        {
+            AssertTokenType(token, parameterName, TokenType.Identifier);
+            if (token == null || token.Text == expectedKeywordNameIfNotNull)
+            {
+                return;
+            }
+
+            throw new ArgumentException($"{parameterName} must match keyword {expectedKeywordNameIfNotNull} but provided token was {token.Text}.");
+        }
+
+        protected void AssertTokenTypeList(IEnumerable<Token> tokens, [InvokerParameterName] string parameterName, TokenType expectedType, int minimumCount)
         {
             int index = 0;
             foreach (Token token in tokens)
@@ -45,6 +59,20 @@ namespace Bicep.Core.Syntax
             if (index < minimumCount)
             {
                 throw new ArgumentException($"{parameterName} must contain at least {minimumCount}, but the list contains {index} token(s).");
+            }
+        }
+
+        protected void AssertSyntaxType(SyntaxBase? syntax, [InvokerParameterName] string parameterName, params Type[] expectedTypes)
+        {
+            if (syntax == null)
+            {
+                return;
+            }
+
+            var syntaxType = syntax.GetType();
+            if (expectedTypes.Any(expectedType => syntaxType == expectedType) == false)
+            {
+                throw new ArgumentException($"{parameterName} is of an unexpected type {syntaxType.Name}. Expected types: {expectedTypes.Select(t => t.Name).ConcatString(", ")}");
             }
         }
     }

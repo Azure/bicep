@@ -1,23 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
     public class ErrorTypeSymbol : TypeSymbol
     {
-        private readonly Error error;
+        private const string ErrorTypeName = "error";
+        private readonly ErrorDiagnostic? error;
+        private readonly ImmutableArray<ErrorDiagnostic>? errors;
 
-        public ErrorTypeSymbol(Error error)
-            : base("error")
+        public ErrorTypeSymbol(ErrorDiagnostic error)
+            : base(ErrorTypeName)
         {
             this.error = error;
+            this.errors = null;
         }
 
-        public override IEnumerable<Error> GetDiagnostics()
+        public ErrorTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
+            : base(ErrorTypeName)
         {
-            yield return this.error;
+            this.error = null;
+            this.errors = errors.ToImmutableArray();
+        }
+
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+        {
+            if (this.error != null)
+            {
+                return this.error.AsEnumerable();
+            }
+
+            return this.errors!;
         }
 
         public override TypeKind TypeKind => TypeKind.Error;

@@ -237,6 +237,9 @@ ClientBin/
 *.publishsettings
 orleans.codegen.cs
 
+# OSX .DS_Store files
+.DS_Store
+
 # Including strong name files can present a security risk
 # (https://github.com/github/gitignore/pull/2483#issue-259490424)
 #*.snk
@@ -359,5 +362,8 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Language Server bit
+# Language Server bits
 bicepLanguageServer/
+
+# Test output file.
+basic.json

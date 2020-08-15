@@ -14,48 +14,81 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
+        public const string ParameterKeyword = "parameter";
+        public const string OutputKeyword = "output";
+        public const string VariableKeyword = "variable";
+        public const string ResourceKeyword = "resource";
+		
+        public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
+        public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
+
+        public const string StringDelimiter = "'";
+        public const string StringHoleOpen = "${";
+        public const string StringHoleClose = "}";
+
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int");
         public static readonly TypeSymbol Bool = new PrimitiveType("bool");
+        public static readonly TypeSymbol Null = new PrimitiveType("null");
         public static readonly TypeSymbol Array = new ArrayType("array");
 
-        // strict schema on the modifier - no extra properties allowed
-        public static readonly TypeSymbol ParameterModifier = new NamedObjectType(nameof(ParameterModifier), CreateParameterModifierProperties(), additionalPropertiesType: null);
-
         // declares the description property but also allows any other property of any type
-        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any);
+        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
         public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String);
 
-        public static readonly TypeSymbol StringArray = new NamedArrayType("StringArray", String);
-
         public static readonly ImmutableArray<TypeProperty> TopLevelResourceProperties = CreateResourceProperties().ToImmutableArray();
 
-        public static readonly ImmutableSortedDictionary<string, TypeSymbol> PrimitiveTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+        // types allowed to use in output and parameter declarations
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string PrimitiveTypesString = LanguageConstants.PrimitiveTypes.Keys.ConcatString(ListSeparator);
+        public static readonly string PrimitiveTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
 
-        private static IEnumerable<TypeProperty> CreateParameterModifierProperties()
+        public static TypeSymbol CreateParameterModifierType(TypeSymbol parameterType)
         {
-            yield return new TypeProperty("secure", Bool, required: false);
-            yield return new TypeProperty("defaultValue", Any, required: false);
+            if (parameterType.TypeKind != TypeKind.Primitive)
+            {
+                throw new ArgumentException($"Modifiers are not supported for type '{parameterType.Name}'.");
+            }
 
-            yield return new TypeProperty("allowedValues", Array, required: false);
+            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalPropertiesType: null);
+        }
 
-            yield return new TypeProperty("minValue", Int, required: false);
-            yield return new TypeProperty("maxValue", Int, required: false);
+        private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol parameterType)
+        {
+            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Object))
+            {
+                // only string and object types have secure equivalents
+                yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
+            }
 
-            yield return new TypeProperty("minLength", Int, required: false);
-            yield return new TypeProperty("maxLength", Int, required: false);
+            // default value is allowed to have expressions
+            yield return new TypeProperty("defaultValue", parameterType);
 
-            yield return new TypeProperty("metadata", ParameterModifierMetadata, false);
+            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
+
+            if (ReferenceEquals(parameterType, Int))
+            {
+                // value constraints are valid on integer parameters only
+                yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
+                yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
+            }
+
+            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Array))
+            {
+                // strings and arrays can have length constraints
+                yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);
+                yield return new TypeProperty("maxLength", Int, TypePropertyFlags.Constant);
+            }
+
+            yield return new TypeProperty("metadata", ParameterModifierMetadata, TypePropertyFlags.Constant);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierMetadataProperties()
         {
-            yield return new TypeProperty("description", String, required: false);
+            yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
         private static IEnumerable<TypeProperty> CreateResourceProperties()
@@ -68,36 +101,37 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
-            yield return new TypeProperty("name", String, required: true);
+            yield return new TypeProperty("name", String, TypePropertyFlags.Required);
 
             // TODO: Model type fully
-            yield return new TypeProperty("sku", Object, required: false);
+            yield return new TypeProperty("sku", Object);
 
-            yield return new TypeProperty("kind", String, required: false);
-            yield return new TypeProperty("managedBy", String, required: false);
+            yield return new TypeProperty("kind", String);
+            yield return new TypeProperty("managedBy", String);
 
-            yield return new TypeProperty("managedByExtended", StringArray, required: false);
+            var stringArray = new TypedArrayType(String);
+            yield return new TypeProperty("managedByExtended", stringArray);
 
-            yield return new TypeProperty("location", String, required: false);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("extendedLocation", Object, required: false);
-
-            yield return new TypeProperty("zones", StringArray, required: false);
-
-            yield return new TypeProperty("plan", Object, required: false);
-
-            yield return new TypeProperty("eTag", String, required: false);
-
-            yield return new TypeProperty("tags", Tags, required: false);
+            yield return new TypeProperty("location", String);
 
             // TODO: Model type fully
-            yield return new TypeProperty("scale", Object, required: false);
+            yield return new TypeProperty("extendedLocation", Object);
+
+            yield return new TypeProperty("zones", stringArray);
+
+            yield return new TypeProperty("plan", Object);
+
+            yield return new TypeProperty("eTag", String);
+
+            yield return new TypeProperty("tags", Tags);
 
             // TODO: Model type fully
-            yield return new TypeProperty("identity", Object, required: false);
+            yield return new TypeProperty("scale", Object);
 
-            yield return new TypeProperty("properties", Object, required: false);
+            // TODO: Model type fully
+            yield return new TypeProperty("identity", Object);
+
+            yield return new TypeProperty("properties", Object);
         }
     }
 }

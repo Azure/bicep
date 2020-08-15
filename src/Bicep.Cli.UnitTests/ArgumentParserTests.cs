@@ -1,5 +1,6 @@
 ﻿using System;
 using Bicep.Cli.CommandLine;
+using Bicep.Cli.CommandLine.Arguments;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,16 +16,17 @@ namespace Bicep.Cli.UnitTests
         }
 
         [TestMethod]
-        public void NullOrEmptyParameters_ShouldReturnNull()
+        public void Null_or_empty_parameters_should_return_UnrecognizedArguments_instance()
         {
-            ArgumentParser.Parse(Array.Empty<string>()).Should().BeNull();
+            var arguments = ArgumentParser.Parse(Array.Empty<string>());
+            arguments.Should().BeOfType<UnrecognizedArguments>();
         }
 
         [TestMethod]
-        public void WrongCommand_ShouldThrow()
+        public void Wrong_command_should_return_UnrecognizedArguments_instance()
         {
-            Action wrongCommand = () => ArgumentParser.Parse(new[] {"wrong"});
-            wrongCommand.Should().Throw<CommandLineException>().WithMessage("Unexpected command 'wrong' was specified. Valid command include: Build");
+            var arguments = ArgumentParser.Parse(new[] {"wrong"});
+            arguments.Should().BeOfType<UnrecognizedArguments>();
         }
 
         [TestMethod]
@@ -32,7 +34,15 @@ namespace Bicep.Cli.UnitTests
         {
             Action noFiles = () => ArgumentParser.Parse(new[] {"build"});
 
-            noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the Build command.");
+            noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the build command.");
+        }
+
+        [TestMethod]
+        public void BuildNoFilesButStdOut_ShouldThrow()
+        {
+            Action noFiles = () => ArgumentParser.Parse(new[] {"build", "--stdout"});
+
+            noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the build command.");
         }
 
         [TestMethod]
@@ -43,6 +53,29 @@ namespace Bicep.Cli.UnitTests
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void BuildOneFileStdOut_ShouldReturnOneFileAndStdout()
+        {
+            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--stdout", "file1"});
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeTrue();
+        }
+
+                [TestMethod]
+        public void BuildOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
+        {
+            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--STDOUT", "file1"});
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1");
+            arguments!.OutputToStdOut.Should().BeTrue();
         }
 
         [TestMethod]
@@ -52,6 +85,43 @@ namespace Bicep.Cli.UnitTests
 
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void BuildMultipleFilesStdOut_ShouldReturnAllFilesAndStdOut()
+        {
+            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "file3"});
+
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void BuildMultipleFilesStdOutTwice_ShouldReturnAllFilesAndStdOut()
+        {
+            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "--stdout", "file3"});
+
+            Assert.IsNotNull(arguments);
+            arguments!.Files.Should().Equal("file1", "file2", "file3");
+            arguments!.OutputToStdOut.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void Version_argument_should_return_VersionArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"--version"});
+
+            arguments.Should().BeOfType<VersionArguments>();
+        }
+
+        [TestMethod]
+        public void Help_argument_should_return_HelpArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"--help"});
+
+            arguments.Should().BeOfType<HelpArguments>();
         }
     }
 }
