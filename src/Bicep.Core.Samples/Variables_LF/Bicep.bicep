@@ -77,3 +77,5 @@ variable functionOnIndexer2 = concat([
 variable functionOnIndexer3 = concat([
 ][0], any('s'))
 
+variable singleQuote = '\''
+variable myPropertyName = '${singleQuote}foo${singleQuote}'
