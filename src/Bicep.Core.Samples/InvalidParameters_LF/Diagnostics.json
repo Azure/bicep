@@ -91,13 +91,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[920:936]",
-    "spanText": "'what\\s up doc?'"
-  },
-  {
     "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
     "errorCode": "BCP006",
     "level": "Error",
@@ -117,13 +110,6 @@
     "level": "Error",
     "span": "[982:993]",
     "spanText": "fluffyBunny"
-  },
-  {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[996:1012]",
-    "spanText": "'what\\'s up doc?"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
@@ -168,13 +154,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[1178:1192]",
-    "spanText": "'what\\'s ${up}"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -194,13 +173,6 @@
     "level": "Error",
     "span": "[1213:1224]",
     "spanText": "fluffyBunny"
-  },
-  {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[1227:1241]",
-    "spanText": "'what\\'s ${'up"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
@@ -259,13 +231,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[1476:1496]",
-    "spanText": "'what\\'s ${'up${doc}"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -294,13 +259,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[1531:1552]",
-    "spanText": "'what\\'s ${'up${doc}'"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -320,13 +278,6 @@
     "level": "Error",
     "span": "[1573:1584]",
     "spanText": "fluffyBunny"
-  },
-  {
-    "message": "The string at this location is malformed.",
-    "errorCode": "BCP064",
-    "level": "Error",
-    "span": "[1587:1610]",
-    "spanText": "'what\\'s ${'up${doc}'}?"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",

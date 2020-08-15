@@ -29,6 +29,11 @@ namespace Bicep.Core.Parser
 
         public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
         {
+            if (syntax.ErrorCause == null || syntax.ErrorInfo == null)
+            {
+                return;
+            }
+
             // parse errors live on skipped token nodes
 
             // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines

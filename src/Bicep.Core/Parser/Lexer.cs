@@ -595,6 +595,7 @@ namespace Bicep.Core.Parser
                         textWindow.Rewind();
 
                         // do not consume the new line character
+                        // TODO: figure out a way to avoid returning this multiple times for nested interpolation
                         AddDiagnostic(b => b.UnterminatedStringWithNewLine());
 
                         templateStack.Clear();

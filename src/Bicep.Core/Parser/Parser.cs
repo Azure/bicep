@@ -399,8 +399,7 @@ namespace Bicep.Core.Parser
                     // which would force the Parser to skip to the end of the line.
                     var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition).ToArray();
                     var tokensSpan = TextSpan.Between(skippedTokens.First(), skippedTokens.Last());
-                    var diagnostic = DiagnosticBuilder.ForPosition(tokensSpan).MalformedString();
-                    return new SkippedTokensTriviaSyntax(skippedTokens, diagnostic, stringTokens.Last());
+                    return new SkippedTokensTriviaSyntax(skippedTokens, null, null);
                 }
                 return new StringSyntax(stringTokens, syntaxExpressions, segments);
             }
