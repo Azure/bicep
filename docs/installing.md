@@ -5,18 +5,18 @@ To get the best bicep authoring experience, you will need two components:
 * Bicep CLI (required) - Compiles bicep files into ARM templates. Cross-platform.
 * Bicep VS Code Extension - Authoring support, intellisense, validation. Optional, but recommended.
 
-## Install the Bicep VSCode Extension
+## Install the Bicep VS Code Extension
 
 ### Manually
 Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
 
->NOTE: Do **not** double-click the `vscode-bicep.vsix` file
+>NOTE: You cannot install the `vscode-bicep.vsix` file by opening it directly.
 
-Open VSCode, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
+Open VS Code, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
 
 ### Via command line
 ```sh
-# Fetch the latest Bicep VSCode extension
+# Fetch the latest Bicep VS Code extension
 curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
 # Install the extension
 code --install-extension vscode-bicep.vsix
@@ -74,28 +74,6 @@ $installDir.Attributes += 'Hidden'
 (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/bicep-win-x64.exe", "$installPath\bicep.exe")
 # Verify you can now access the 'bicep' command
 bicep --version
-```
-
-### Validate the install
-
-Validate that the cli is running by creating a blank file `main.bicep` and then running:
-
-```bash
-bicep build main.bicep
-```
-
-You should get an output json file of the same name in your current directory -- in this case `main.json`. It should be a skeleton ARM JSON template:
-
-```json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {},
-  "functions": [],
-  "variables": {},
-  "resources": [],
-  "outputs": {}
-}
 ```
 
 ## Next steps

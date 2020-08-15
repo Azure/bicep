@@ -70,14 +70,11 @@ az deployment group create -f ./main.json -g my-rg
 ## Reference
 
 * [Complete language spec](./docs/spec/bicep.md)
-
-## Help & Support
-
 * [@BicepLang](https://twitter.com/BicepLang)
 
 ## Alternatives
 
-Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may fit your use case better more closely.
+Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may better fit your use case.
 
 * [Farmer](https://compositionalit.github.io/farmer/) - Generate ARM Templates using an F# DSL
 
