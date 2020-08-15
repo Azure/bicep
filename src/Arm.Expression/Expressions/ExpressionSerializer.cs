@@ -299,14 +299,6 @@ namespace Arm.Expression.Expressions
             ExpressionSerializer.ValidateExpression(expression: functionExpression);
             ExpressionSerializer.ValidateExpressionArray(functionExpression.Parameters);
             ExpressionSerializer.ValidateExpressionArray(functionExpression.Properties);
-/*
-            TODO: OK to remove this?
-            if (!ExpressionsEngine.IsFunctionName(value: functionExpression.Function))
-            {
-                // Note(majastrz): The function name is not a valid identifier.
-                throw new ExpressionException(message: ErrorResponseMessages.ExpressionSerializerInvalidFunctionName.ToLocalizedMessage(arg0: functionExpression.Function));
-            }
-*/
         }
 
         /// <summary>

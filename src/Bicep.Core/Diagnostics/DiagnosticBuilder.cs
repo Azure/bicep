@@ -235,7 +235,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP048",
-                $"Cannot resolve function {functionName}({string.Join(", ", argumentTypes.Select(t => t.Name))}).");
+                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatString(", ")}).");
 
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
