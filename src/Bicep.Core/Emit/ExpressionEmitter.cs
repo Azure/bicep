@@ -1,7 +1,6 @@
 ﻿using System;
-using Azure.ResourceManager.Deployments.Expression.Configuration;
-using Azure.ResourceManager.Deployments.Expression.Expressions;
-using Azure.ResourceManager.Deployments.Expression.Serializers;
+using Arm.Expression.Configuration;
+using Arm.Expression.Expressions;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -77,7 +76,7 @@ namespace Bicep.Core.Emit
             if (converted is JTokenExpression valueExpression)
             {
                 // the converted expression is a literal
-                JToken value = valueExpression.EvaluateExpression(null);
+                JToken value = valueExpression.Value;
 
                 // for integer literals the expression will look like "[42]" or "[-12]"
                 // while it's still a valid template expression that works in ARM, it looks weird

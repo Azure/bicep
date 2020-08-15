@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.ResourceManager.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
@@ -236,7 +235,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP048",
-                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatStrings(", ")}).");
+                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatString(", ")}).");
 
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
