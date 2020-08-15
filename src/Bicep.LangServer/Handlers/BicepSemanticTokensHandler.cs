@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.Handlers
 {
     [Obsolete] // proposed LSP feature must be marked 'obsolete' to access
     public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
