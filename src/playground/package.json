@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run blazor && npm run webpack",
-    "start": "npm run blazor && webpack-dev-server",
-    "blazor": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
+    "build": "npm run build-wasm && npm run webpack",
+    "start": "npm run build-wasm && webpack-dev-server",
+    "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
     "webpack": "webpack"
   },
   "author": "",

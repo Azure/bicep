@@ -188,7 +188,7 @@ namespace Bicep.Core.Emit
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     ExpressionEmitter.EmitPropertyValue(writer, "type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
-                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue);
+                    ExpressionEmitter.EmitPropertyExpression(writer, "defaultValue", defaultValueSyntax.DefaultValue, this.semanticModel);
 
                     break;
 
@@ -201,7 +201,7 @@ namespace Bicep.Core.Emit
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
                     {
-                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName));
+                        ExpressionEmitter.EmitOptionalPropertyExpression(writer, modifierPropertyName, properties.TryGetValue(modifierPropertyName), this.semanticModel);
                     }
                     
                     break;
@@ -226,7 +226,7 @@ namespace Bicep.Core.Emit
         private void EmitVariable(JsonTextWriter writer, VariableSymbol variableSymbol)
         {
             // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
-            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value);
+            ExpressionEmitter.EmitExpression(writer, variableSymbol.Value, this.semanticModel);
         }
 
         private void EmitResources(JsonTextWriter writer)
@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
 
             ExpressionEmitter.EmitPropertyValue(writer, "type", typeReference.FullyQualifiedType);
             ExpressionEmitter.EmitPropertyValue(writer, "apiVersion", typeReference.ApiVersion);
-            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body);
+            ExpressionEmitter.EmitObjectProperties(writer, (ObjectSyntax) resourceSymbol.Body, this.semanticModel);
 
             writer.WriteEndObject();
         }
@@ -274,7 +274,7 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             ExpressionEmitter.EmitPropertyValue(writer, "type", outputSymbol.Type.Name);
-            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value);
+            ExpressionEmitter.EmitPropertyExpression(writer, "value", outputSymbol.Value, this.semanticModel);
 
             writer.WriteEndObject();
         }
