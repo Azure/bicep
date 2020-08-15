@@ -22,28 +22,56 @@ namespace Bicep.Core.Emit
         /// <param name="fileName">The path to the file.</param>
         public EmitResult Emit(string fileName)
         {
-            return EmitOrFail(() => CreateWriter(CreateFileStream(fileName)));
+            return EmitOrFail(() =>
+            {
+                using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096))
+                {
+                    Formatting = Formatting.Indented
+                };
+
+                new TemplateWriter(writer, this.model).Write();
+            });
         }
 
         /// <summary>
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
         /// </summary>
         /// <param name="stream">The stream to write the template</param>
-        public EmitResult Emit(Stream stream) => EmitOrFail(() => CreateWriter(stream));
+        public EmitResult Emit(Stream stream) => EmitOrFail(() =>
+        {
+            using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true))
+            {
+                Formatting = Formatting.Indented
+            };
+
+            new TemplateWriter(writer, this.model).Write();
+        });
 
         /// <summary>
         /// Emits a template to the specified text writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
-        /// <param name="writer">The text writer to write the template</param>
-        public EmitResult Emit(TextWriter writer) => EmitOrFail(() => CreateWriter(writer));
+        /// <param name="textWriter">The text writer to write the template</param>
+        public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
+        {
+            using var writer = new JsonTextWriter(textWriter)
+            {
+                Formatting = Formatting.Indented
+            };
+
+            new TemplateWriter(writer, this.model).Write();
+        });
 
         /// <summary>
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
-        public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() => writer);
+        public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
+        {
+            new TemplateWriter(writer, this.model).Write();
+        });
 
-        private EmitResult EmitOrFail(Func<JsonTextWriter> writerFactory)
+        private EmitResult EmitOrFail(Action write)
         {
             // collect all the diagnostics
             var diagnostics = this.model.GetAllDiagnostics();
@@ -53,20 +81,9 @@ namespace Bicep.Core.Emit
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
-            using var writer = writerFactory();
-            new TemplateWriter(writer, this.model).Write();
+            write();
 
             return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
-
-        private Stream CreateFileStream(string fileName) => new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-
-        private JsonTextWriter CreateWriter(Stream stream) => CreateWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true));
-
-        private JsonTextWriter CreateWriter(TextWriter textWriter) =>
-            new JsonTextWriter(textWriter)
-            {
-                Formatting = Formatting.Indented
-            };
     }
 }
