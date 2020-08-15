@@ -4,7 +4,7 @@ In this tutorial we'll start from a blank file and build up to a file with the b
 
 ## Compile an empty bicep file
 
-Validate that the cli is running by creating a blank file `main.bicep` and then running:
+Let's start by creating a blank file `main.bicep` and compiling it by running:
 
 ```bash
 bicep build main.bicep
