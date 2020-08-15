@@ -1,11 +1,7 @@
-﻿﻿using System.Collections.Generic;
-using System.Linq;
-using Arm.Expression.Configuration;
+﻿using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -57,7 +53,8 @@ namespace Bicep.Core.UnitTests.Emit
 
             var parsed = ParserHelper.ParseExpression(text);
 
-            var converted = parsed.ToTemplateExpression(compilation.GetSemanticModel());
+            var converter = new ExpressionConverter(compilation.GetSemanticModel());
+            var converted = converter.ConvertExpression(parsed);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {
