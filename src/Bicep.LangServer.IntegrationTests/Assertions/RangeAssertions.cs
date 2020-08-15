@@ -3,7 +3,7 @@ using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LangServer.UnitTests.Assertions
+namespace Bicep.LangServer.IntegrationTests.Assertions
 {
     public static class RangeExtensions 
     {

@@ -1,4 +1,4 @@
-using System.IO.Pipelines;
+﻿using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer;
@@ -8,11 +8,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.LangServer.UnitTests
+namespace Bicep.LangServer.IntegrationTests
 {
-    public abstract class ClientIntegrationTestBase
+    public static class IntegrationTestHelper
     {
-        protected async Task<ILanguageClient> StartServerWithClientConnection(Action<LanguageClientOptions> onClientOptions)
+        public static async Task<ILanguageClient> StartServerWithClientConnection(Action<LanguageClientOptions> onClientOptions)
         {
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests
             return client;
         }
 
-        protected static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 60000)
+        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 60000)
         {
             var completed = await Task.WhenAny(
                 task,

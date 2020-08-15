@@ -4,12 +4,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using Bicep.LangServer.UnitTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Assertions;
 
-namespace Bicep.LangServer.UnitTests
+namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class DocumentSymbolTests : ClientIntegrationTestBase
+    public class DocumentSymbolTests
     {
         [TestMethod]
         public async Task RequestDocumentSymbol_should_return_full_symbol_list()
@@ -17,7 +17,7 @@ namespace Bicep.LangServer.UnitTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await StartServerWithClientConnection(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnection(options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);

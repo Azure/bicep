@@ -4,12 +4,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using Bicep.LangServer.UnitTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Assertions;
 
-namespace Bicep.LangServer.UnitTests
+namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class TextDocumentSyncTests : ClientIntegrationTestBase
+    public class TextDocumentSyncTests
     {
         [TestMethod]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
@@ -17,7 +17,7 @@ namespace Bicep.LangServer.UnitTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await StartServerWithClientConnection(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnection(options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);
@@ -41,7 +41,7 @@ randomToken
                 },
             });
 
-            var response = await WithTimeout(diagsReceived.Task);
+            var response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((1, 27), (1, 28));
@@ -79,7 +79,7 @@ randomToken
                 ),
             });
 
-            response = await WithTimeout(diagsReceived.Task);
+            response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
