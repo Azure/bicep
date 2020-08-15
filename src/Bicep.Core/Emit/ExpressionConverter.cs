@@ -44,7 +44,7 @@ namespace Bicep.Core.Emit
 
                 case ObjectSyntax _:
                 case ArraySyntax _:
-                    return ConvertComplexLiteral(expression, model);
+                    return ConvertComplexLiteral(expression);
 
                 case ParenthesizedExpressionSyntax parenthesized:
                     // template expressions do not have operators so parentheses are irrelevant
@@ -175,7 +175,7 @@ namespace Bicep.Core.Emit
             return new FunctionExpression(functionName, arguments, Array.Empty<LanguageExpression>());
         }
 
-        private static FunctionExpression ConvertComplexLiteral(SyntaxBase syntax, SemanticModel.SemanticModel model)
+        private FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
         {
             // the tree node here should not contain any expressions inside
             // if it does, the emitted json expressions will not evaluate as expected due to IL limitations
@@ -183,7 +183,7 @@ namespace Bicep.Core.Emit
             var buffer = new StringBuilder();
             using (var writer = new JsonTextWriter(new StringWriter(buffer)) {Formatting = Formatting.None})
             {
-                ExpressionEmitter.EmitExpression(syntax);
+                new ExpressionEmitter(writer, this.model).EmitExpression(syntax);
             }
 
             return CreateJsonFunctionCall(JToken.Parse(buffer.ToString()));
