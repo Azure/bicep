@@ -126,13 +126,6 @@
     "spanText": "="
   },
   {
-    "message": "This is not a valid expression.",
-    "errorCode": "BCP043",
-    "level": "Error",
-    "span": "[382:384]",
-    "spanText": "=\n"
-  },
-  {
     "message": "Cannot apply operator '!' to operand of type 'null'.",
     "errorCode": "BCP044",
     "level": "Error",

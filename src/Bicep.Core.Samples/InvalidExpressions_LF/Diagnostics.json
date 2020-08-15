@@ -511,8 +511,15 @@
     "spanText": "'test'"
   },
   {
-    "message": "The property name in a string indexer is malformed.",
-    "errorCode": "BCP052",
+    "message": "The string at this location is malformed.",
+    "errorCode": "BCP064",
+    "level": "Error",
+    "span": "[2174:2182]",
+    "spanText": "'test\\e'"
+  },
+  {
+    "message": "The array index must be of type 'string' or 'int' but the provided index was of type 'error'.",
+    "errorCode": "BCP049",
     "level": "Error",
     "span": "[2174:2182]",
     "spanText": "'test\\e'"

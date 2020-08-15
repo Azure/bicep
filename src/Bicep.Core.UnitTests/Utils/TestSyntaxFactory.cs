@@ -18,8 +18,12 @@ namespace Bicep.Core.UnitTests.Utils
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value) => new ArrayItemSyntax(value, CreateNewLines());
 
         // TODO: Escape string correctly
-        // TODO fix this
-        public static StringSyntax CreateString(string value) => new StringSyntax(new [] { CreateToken(TokenType.StringComplete, $"'{value}'")}, Enumerable.Empty<SyntaxBase>());
+        public static StringSyntax CreateString(string value)
+        {
+            var token = CreateToken(TokenType.StringComplete, $"'{value}'");
+
+            return new StringSyntax(new [] { token }, Enumerable.Empty<SyntaxBase>(), new [] { Lexer.GetStringValue(token) });
+        }
 
         public static NumericLiteralSyntax CreateInt(int value) => new NumericLiteralSyntax(CreateToken(TokenType.Number), value);
 

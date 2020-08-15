@@ -138,6 +138,10 @@ namespace Bicep.Core.TypeSystem
                     case VariableAccessSyntax variableAccess:
                         return GetVariableAccessType(context, variableAccess);
 
+                    case SkippedTokensTriviaSyntax _:
+                        // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
+                        return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
+
                     default:
                         return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
                 }
@@ -381,7 +385,7 @@ namespace Bicep.Core.TypeSystem
                 switch (syntax.IndexExpression)
                 {
                     case StringSyntax @string when @string.IsInterpolated() == false:
-                        var propertyName = @string.TryGetFormatString();
+                        var propertyName = @string.GetLiteralValue();
                         if (propertyName == null)
                         {
                             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(@string).MalformedPropertyNameString());
