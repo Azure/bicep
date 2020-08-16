@@ -323,7 +323,7 @@ namespace Bicep.Core.TypeSystem
             var indexType = this.GetTypeInfoInternal(context, syntax.IndexExpression);
             CollectErrors(errors, indexType);
 
-            if (errors.Any())
+            if (errors.Any() || indexType.TypeKind == TypeKind.Error)
             {
                 return new ErrorTypeSymbol(errors);
             }

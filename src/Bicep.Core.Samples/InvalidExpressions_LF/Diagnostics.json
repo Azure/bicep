@@ -511,13 +511,6 @@
     "spanText": "'test'"
   },
   {
-    "message": "The array index must be of type 'string' or 'int' but the provided index was of type 'error'.",
-    "errorCode": "BCP049",
-    "level": "Error",
-    "span": "[2174:2182]",
-    "spanText": "'test\\e'"
-  },
-  {
     "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
     "errorCode": "BCP006",
     "level": "Error",
