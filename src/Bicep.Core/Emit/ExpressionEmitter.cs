@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
+using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -78,6 +80,14 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
+        }
+
+        public void EmitResourceIdReference(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        {
+            var resourceIdExpression = converter.GetResourceIdExpression(resourceSyntax, typeReference);
+            var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
+
+            writer.WriteValue(serialized);
         }
 
         public void EmitLanguageExpression(SyntaxBase syntax)

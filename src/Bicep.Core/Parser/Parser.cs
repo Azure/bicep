@@ -497,7 +497,7 @@ namespace Bicep.Core.Parser
             }, TokenType.NewLine);
         }
 
-        private SyntaxBase Object()
+        private ObjectSyntax Object()
         {
             var properties = new List<SyntaxBase>();
 

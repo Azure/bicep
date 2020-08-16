@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Arm.Expression.Expressions;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
@@ -90,7 +91,44 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax, SemanticModel.SemanticModel model)
+        public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        {
+            var nameProperty = (resourceSyntax.Body as ObjectSyntax)?.Properties.FirstOrDefault(p => p.Identifier.IdentifierName == "name")?.Value;
+            if (nameProperty == null)
+            {
+                throw new ArgumentException();
+            }
+
+            return new FunctionExpression(
+                "resourceId",
+                new LanguageExpression[]
+                {
+                    new JTokenExpression(typeReference.FullyQualifiedType),
+                    ConvertExpression(nameProperty),
+                },
+                Array.Empty<LanguageExpression>());
+        }
+
+        public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        {
+            var nameProperty = (resourceSyntax.Body as ObjectSyntax)?.Properties.FirstOrDefault(p => p.Identifier.IdentifierName == "name")?.Value;
+            if (nameProperty == null)
+            {
+                throw new ArgumentException();
+            }
+
+            return new FunctionExpression(
+                "reference",
+                new LanguageExpression[]
+                {
+                    GetResourceIdExpression(resourceSyntax, typeReference),
+                    new JTokenExpression(typeReference.ApiVersion),
+                    new JTokenExpression("full"),
+                },
+                Array.Empty<LanguageExpression>());
+        }
+
+        private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax, SemanticModel.SemanticModel model)
         {
             string name = variableAccessSyntax.Name.IdentifierName;
 
@@ -104,6 +142,10 @@ namespace Bicep.Core.Emit
 
                 case VariableSymbol _:
                     return CreateUnaryFunction("variables", new JTokenExpression(name));
+
+                case ResourceSymbol resourceSymbol:
+                    var typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+                    return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

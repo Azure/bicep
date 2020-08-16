@@ -1,4 +1,7 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using Arm.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -155,9 +158,29 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
+            // TODO should we merge with the supplied props? Do we need to check if it's already been set? Add a test for this scenario
+            this.EmitDependsOn(resourceSymbol);
             this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
 
             writer.WriteEndObject();
+        }
+
+        private void EmitDependsOn(ResourceSymbol resourceSymbol)
+        {
+            var dependencies = this.semanticModel.GetDependencies(resourceSymbol);
+            if (dependencies.Length == 0)
+            {
+                return;
+            }
+
+            writer.WritePropertyName("dependsOn");
+            writer.WriteStartArray();
+            foreach (var dependency in dependencies)
+            {
+                var typeReference = ResourceTypeReference.Parse(dependency.Type.Name);
+                emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);
+            }
+            writer.WriteEndArray();
         }
 
         private void EmitOutputs()

@@ -59,13 +59,16 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2017-10-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', 'myencryptedone')]"
+      ],
       "name": "myencryptedone",
       "location": "eastus2",
       "properties": {
         "supportsHttpsTrafficOnly": "[not(json('false'))]",
         "accessTier": "[if(json('true'), 'Hot', 'Cold')]",
         "encryption": {
-          "keySource": "Microsoft.Storage",
+          "keySource": "[reference(resourceId('Microsoft.Storage/storageAccounts', 'myencryptedone'), '2017-10-01', 'full').id]",
           "services": {
             "blob": {
               "enabled": "[or(json('true'), json('false'))]"

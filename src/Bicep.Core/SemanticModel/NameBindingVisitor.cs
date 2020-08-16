@@ -9,15 +9,15 @@ namespace Bicep.Core.SemanticModel
 {
     public sealed class NameBindingVisitor : SyntaxVisitor
     {
-        private readonly ILookup<string, Symbol> declarations;
+        private readonly IReadOnlyDictionary<string, Symbol> declarations;
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly ImmutableArray<NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IList<Symbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, Symbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
         {
-            this.declarations = declarations.ToLookup(declaration => declaration.Name, LanguageConstants.IdentifierComparer);
+            this.declarations = declarations;
             this.bindings = bindings;
             this.namespaces = namespaces.ToImmutableArray();
         }
@@ -47,9 +47,7 @@ namespace Bicep.Core.SemanticModel
             // in cases of duplicate declarations we will see multiple declaration symbols in the result list
             // for simplicitly we will bind to the first one
             // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
-            Symbol? localSymbol = this.declarations[name].FirstOrDefault();
-
-            if (localSymbol != null)
+            if (this.declarations.TryGetValue(name, out var localSymbol))
             {
                 // we found the symbol in the local namespace
                 return localSymbol;
