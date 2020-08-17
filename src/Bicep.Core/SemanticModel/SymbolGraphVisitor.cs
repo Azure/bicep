@@ -13,49 +13,50 @@ namespace Bicep.Core.SemanticModel
         private readonly IDictionary<Symbol, IList<Symbol>> symbolGraph;
         private Symbol? currentDeclaration;
 
-        public static SymbolGraph Build(ProgramSyntax programSyntax, IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static SymbolDependencyGraph Build(ProgramSyntax programSyntax, IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new SymbolGraphVisitor(declarations, bindings);
             visitor.VisitProgramSyntax(programSyntax);
 
-            var resourceGraph = visitor.GetResourceDependencyGraph();
+            var dependencyGraph = visitor.GetSymbolDependencyGraph();
 
-            return new SymbolGraph(resourceGraph);
+            return new SymbolDependencyGraph(dependencyGraph);
         }
 
-        private ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> GetResourceDependencyGraph()
+        private ImmutableDictionary<Symbol, SymbolDependencies> GetSymbolDependencyGraph()
         {
-            var output = new Dictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>>();
+            var output = new Dictionary<Symbol, SymbolDependencies>();
             foreach (var declaration in declarations.Values)
             {
-                if (!(declaration is ResourceSymbol resourceSymbol))
-                {
-                    continue;
-                }
-                
-                output[resourceSymbol] = GetResourceDependencies(resourceSymbol);
+                output[declaration] = GetSymbolDependencies(declaration);
             }
 
             return output.ToImmutableDictionary(x => x.Key, x => x.Value);
         }
 
-        private ImmutableArray<ResourceSymbol> GetResourceDependencies(ResourceSymbol startNode)
+        private SymbolDependencies GetSymbolDependencies(Symbol startNode)
         {
-            var output = new List<ResourceSymbol>();
+            // TODO: this could be smarter by caching results from already-visited nodes.
+            var resources = new HashSet<ResourceSymbol>();
+
             var visited = new HashSet<Symbol>();
             var nodeQueue = new Queue<Symbol>();
-
-            visited.Add(startNode);            
             nodeQueue.Enqueue(startNode);
 
             // non-recursive DFS
             while (nodeQueue.Any())
             {
                 var node = nodeQueue.Dequeue();
-                if (node is ResourceSymbol dependency && dependency != startNode)
+                if (visited.Contains(node))
                 {
-                    // stop searching here, we only need direct dependencies
-                    output.Add(dependency);
+                    // no infinite loop pls
+                    continue;
+                }
+
+                if (node is ResourceSymbol dependency && node != startNode)
+                {
+                    // stop searching here, we only need direct resource dependencies
+                    resources.Add(dependency);
                 }
                 else if (symbolGraph.TryGetValue(node, out var symbols))
                 {
@@ -69,7 +70,7 @@ namespace Bicep.Core.SemanticModel
                 visited.Add(node);
             }
 
-            return output.ToImmutableArray();
+            return new SymbolDependencies(resources);
         }
 
         private SymbolGraphVisitor(IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)

@@ -182,7 +182,12 @@ namespace Bicep.Core.Emit
                 case ParameterSymbol _:
                     return CreateUnaryFunction("parameters", new JTokenExpression(name));
 
-                case VariableSymbol _:
+                case VariableSymbol variableSymbol:
+                    if (model.RequiresInlining(variableSymbol))
+                    {
+                        // we've got a runtime dependency, so we have to inline the variable usage
+                        return ConvertExpression(variableSymbol.DeclaringVariable.Value);
+                    }
                     return CreateUnaryFunction("variables", new JTokenExpression(name));
 
                 case ResourceSymbol resourceSymbol:

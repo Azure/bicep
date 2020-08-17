@@ -73,8 +73,8 @@ namespace Bicep.Core.Samples
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);
             
-            result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
+            result.Status.Should().Be(EmitStatus.Succeeded);
 
             stream.Position = 0;
             var generated = new StreamReader(stream).ReadToEnd();

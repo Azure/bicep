@@ -123,8 +123,11 @@ namespace Bicep.Core.Emit
 
             foreach (var variableSymbol in this.semanticModel.Root.VariableDeclarations)
             {
-                writer.WritePropertyName(variableSymbol.Name);
-                this.EmitVariable(variableSymbol);
+                if (!this.semanticModel.RequiresInlining(variableSymbol))
+                {
+                    writer.WritePropertyName(variableSymbol.Name);
+                    this.EmitVariable(variableSymbol);
+                }
             }
 
             writer.WriteEndObject();
@@ -167,8 +170,8 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(ResourceSymbol resourceSymbol)
         {
-            var dependencies = this.semanticModel.GetDependencies(resourceSymbol);
-            if (dependencies.Length == 0)
+            var dependencies = this.semanticModel.GetResourceDependencies(resourceSymbol);
+            if (!dependencies.Any())
             {
                 return;
             }

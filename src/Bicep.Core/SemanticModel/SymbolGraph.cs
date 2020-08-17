@@ -1,14 +1,26 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class SymbolGraph
+    public class SymbolDependencies
     {
-        public SymbolGraph(ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> resourceGraph)
+        public SymbolDependencies(IEnumerable<ResourceSymbol> resouces)
         {
-            ResourceGraph = resourceGraph;
+            Resources = resouces.ToImmutableArray();
         }
 
-        public ImmutableDictionary<ResourceSymbol, ImmutableArray<ResourceSymbol>> ResourceGraph { get; } 
+        public ImmutableArray<ResourceSymbol> Resources { get; }
+    }
+
+    public class SymbolDependencyGraph
+    {
+        public SymbolDependencyGraph(ImmutableDictionary<Symbol, SymbolDependencies> graph)
+        {
+            Graph = graph;
+        }
+
+        public ImmutableDictionary<Symbol, SymbolDependencies> Graph { get; }
     }
 }

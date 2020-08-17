@@ -14,9 +14,9 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly SymbolGraph symbolGraph;
+        private readonly SymbolDependencyGraph symbolGraph;
 
-        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
+        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolDependencyGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
@@ -56,8 +56,10 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public FileSymbol Root { get; }
 
-        // TODO: refactor this to make it less resource-specific (that can probably happen in template gen)
-        public ImmutableArray<ResourceSymbol> GetDependencies(ResourceSymbol symbol)
-            => symbolGraph.ResourceGraph[symbol];
+        public ImmutableArray<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
+            => symbolGraph.Graph[symbol].Resources;
+
+        public bool RequiresInlining(VariableSymbol symbol)
+            => symbolGraph.Graph[symbol].Resources.Any();
     }
 }
