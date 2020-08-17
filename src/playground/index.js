@@ -1,6 +1,6 @@
 import './main.css';
 import * as monaco from 'monaco-editor';
-import exampleFile from './template.bicep';
+import exampleFile from '../../docs/examples/101/1vm-2nics-2subnets-1vnet/main.bicep';
 
 self.MonacoEnvironment = {
   getWorkerUrl: function (moduleId, label) {
