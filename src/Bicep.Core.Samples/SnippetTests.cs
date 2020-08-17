@@ -84,7 +84,7 @@ namespace Bicep.Core.Samples
                 body = body.Substring(0, match.Index) + replacement + body.Substring(match.Index + match.Length);
             }
 
-            var program = SyntaxFactory.CreateFromText(body + "\n");
+            var program = SyntaxFactory.CreateFromText(body);
             program.GetParseDiagnostics().Should().BeEmpty($"compilation failed: {body}");
         }
     }

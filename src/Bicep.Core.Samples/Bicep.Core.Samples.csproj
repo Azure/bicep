@@ -105,6 +105,8 @@
     <EmbeddedResource Include="Variables_LF\Diagnostics.json" />
     <EmbeddedResource Include="Variables_LF\Tokens.json" />
     <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
+    <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
+    <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
   </ItemGroup>
 
   <ItemGroup>
@@ -120,6 +122,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>
