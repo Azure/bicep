@@ -52,14 +52,14 @@ param myParam string = 'my default value'
 If you need to combine a default value with other identifiers, you may also use the following syntax to achieve the same:
 ```
 param myParam string {
-  defaultValue: 'my default value'
+  default: 'my default value'
 }
 ```
 
-You may use [expressions](./expressions.md) with the `defaultValue` modifier. (All other modifiers require a constant literal.) Here is an example of a location parameter whose value defaults to the location of the current resource group if the parameter is not specified during the deployment:
+You may use [expressions](./expressions.md) with the `default` modifier. (All other modifiers require a constant literal.) Here is an example of a location parameter whose value defaults to the location of the current resource group if the parameter is not specified during the deployment:
 ```
 param myParam string {
-  defaultValue: resourceGroup().location
+  default: resourceGroup().location
 }
 ```
 
@@ -101,7 +101,7 @@ If applicable to the parameter type, multiple modifiers can be combined together
 param storageAccountName string {
   minLength: 3
   maxLength: 24
-  defaultValue: concat(uniqueString(resourceGroup().id), 'sa')
+  default: concat(uniqueString(resourceGroup().id), 'sa')
   metadata: {
     description: "Name of the storage account"
   }

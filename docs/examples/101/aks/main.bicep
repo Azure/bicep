@@ -13,12 +13,12 @@ param servicePrincipalClientSecret string {
 param clusterName string = 'aks101cluster'
 param location string = resourceGroup().location
 param osDiskSizeGB int {
-    defaultValue: 0
+    default: 0
     minValue: 0
     maxValue: 1023
 }
 param agentCount int {
-    defaultValue: 3
+    default: 3
     minValue: 1
     maxValue: 50
 }

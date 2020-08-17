@@ -75,7 +75,7 @@ param secureInt int {
 
 // wrong modifier value types
 param wrongIntModifier int {
-  defaultValue: true
+  default: true
   allowedValues: [
     'test'
     true
@@ -96,7 +96,7 @@ param wrongMetadataSchema string {
 
 // expression in modifier
 param expressionInModifier string {
-  defaultValue: 2 + 3
+  default: 2 + 3
   maxLength: a + 2
   minLength: foo()
   allowedValues: [

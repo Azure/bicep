@@ -2,7 +2,7 @@ param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 param location string = resourceGroup().location
 
 param appServicePlanTier string {
-    defaultValue: 'F1'
+    default: 'F1'
     allowedValues: [
       'F1'
       'D1'
@@ -20,7 +20,7 @@ param appServicePlanTier string {
 }
 
 param appServicePlanInstances int {
-  defaultValue: 1
+  default: 1
   minValue: 1
   maxValue: 3
 }

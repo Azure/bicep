@@ -47,7 +47,7 @@ param myArrayParam array = [
 
 // alternative array parameter
 param myAlternativeArrayParam array {
-  defaultValue: [
+  default: [
     'a'
     'b'
     'c'
@@ -121,7 +121,7 @@ param someParameter string {
   secure: true
   minLength: 3
   maxLength: 24
-  defaultValue: 'one'
+  default: 'one'
   allowedValues: [
     'one'
     'two'
@@ -133,7 +133,7 @@ param someParameter string {
 }
 
 param defaultValueExpression int {
-  defaultValue: true ? 4 + 2*3 : 0
+  default: true ? 4 + 2*3 : 0
 }
 
 param defaultExpression bool = 18 != (true || false)

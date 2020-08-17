@@ -111,7 +111,7 @@ output funcvarout array = padLeft
 // non-existent function
 var fakeFunc = red() + green() * orange()
 param fakeFuncP string {
-  defaultValue: blue()
+  default: blue()
 }
 
 // non-existent variable
