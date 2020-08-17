@@ -94,7 +94,7 @@ Enclosing an expression between `(` and `)` allows you to override the default b
 ## Property Accessors
 Property accessors are used to access properties of an object. They are constructed using the `.` operator. Consider the following:
 ```
-variable x = {
+var x = {
   y: {
     z: 'Hello`
     a: true
@@ -112,9 +112,9 @@ Array indexers serve two purposes. Most commonly, they are used to access items 
 
 Consider the following:
 ```
-variable index = 1
+var index = 1
 
-variable myArray = [
+var myArray = [
   1
   2
   3
@@ -127,7 +127,7 @@ String-based indexers are also allowed in bicep. Consider the following:
 ```
 parameter environment string = 'prod'
 
-variable environmentSettings = {
+var environmentSettings = {
   dev: {
     name: 'dev'
   }

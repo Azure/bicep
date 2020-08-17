@@ -46,7 +46,7 @@ In the example below, we are iteration over the `storageConfiguration` array var
 ```
 parameter storageAccountNamePrefix string
 
-variable storageConfigurations = [
+var storageConfigurations = [
   {
     suffix: 'local'
     sku: 'Standard_LRS'

@@ -70,7 +70,7 @@ I can also add `variables` for storing values or complex expressions, and emit `
 parameter location string = 'eastus'
 parameter name string = 'uniquestorage001' // must be globally unique
 
-variable storageSku = 'Standard_LRS' // declare variable and assign value
+var storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName

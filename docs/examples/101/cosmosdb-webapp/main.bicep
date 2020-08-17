@@ -31,9 +31,9 @@ parameter branch string = 'master'
 parameter databaseName string = 'Tasks'
 parameter containerName string = 'Items'
 
-variable cosmosAccountName = toLower(applicationName)
-variable websiteName = applicationName // why not just use the param directly?
-variable hostingPlanName = applicationName // why not just use the param directly?
+var cosmosAccountName = toLower(applicationName)
+var websiteName = applicationName // why not just use the param directly?
+var hostingPlanName = applicationName // why not just use the param directly?
 
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
   name: cosmosAccountName

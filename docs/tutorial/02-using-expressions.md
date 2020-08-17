@@ -13,7 +13,7 @@ The following are all valid function calls in bicep:
 ```
 parameter serverFarmId string = resourceId('Microsoft.Web/sites', 'myWebsite')
 
-variable location = resourceGroup().location
+var location = resourceGroup().location
 
 output makeCapital string = toUpper('all lowercase')
 ```
@@ -23,7 +23,7 @@ In our `main.bicep` file, instead of forcing users to guess a unique storage acc
 ```
 parameter location string = 'eastus'
 
-variable storageSku = 'Standard_LRS' // declare variable and assign value
+var storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: uniqueString(resourceGroup().id) // generates unique name based on resource group ID
@@ -45,8 +45,8 @@ The `concat()` function is one of the most commonly used ARM Template functions 
 parameter location string = 'eastus'
 parameter namePrefix string = 'stg'
 
-variable storageSku = 'Standard_LRS' // declare variable and assign value
-variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+var storageSku = 'Standard_LRS' // declare variable and assign value
+var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
@@ -72,7 +72,7 @@ parameter namePrefix string = 'stg'
 
 parameter globalRedundancy bool = true // defaults to true, but can be overridden
 
-variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
@@ -98,7 +98,7 @@ parameter namePrefix string = 'stg'
 
 parameter globalRedundancy bool = true // defaults to true, but can be overridden
 
-variable storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName

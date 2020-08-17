@@ -24,7 +24,7 @@ namespace Bicep.Core.UnitTests.Parser
 
         [DataTestMethod]
         [DataRow("parameter myParam string", typeof(ParameterDeclarationSyntax))]
-        [DataRow("variable mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
+        [DataRow("var mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
         [DataRow("resource myRes 'My.Provider/someResource@2020-08-01' = { \n }", typeof(ResourceDeclarationSyntax))]
         [DataRow("output string myOutput = 'hello'", typeof(OutputDeclarationSyntax))]
         public void NewLinesForDeclarationsShouldBeOptionalAtEof(string text, Type expectedType)

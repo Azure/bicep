@@ -9,9 +9,9 @@
         "description": "Resource statement"
     },
     "Variable": {
-        "prefix": "variable",
+        "prefix": "var",
         "body": [
-            "variable ${1:Identifier} = $0"
+            "var ${1:Identifier} = $0"
         ],
         "description": "Variable statement"
     },

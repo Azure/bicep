@@ -58,12 +58,12 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 parameter applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
-variable hostingPlanName = applicationName // why not just use the param directly?
+var hostingPlanName = applicationName // why not just use the param directly?
 
 parameter appServicePlanTier string
 parameter appServicePlanInstances int
 
-variable location = resourceGroup().location
+var location = resourceGroup().location
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)

@@ -83,7 +83,7 @@ ARM Template:
 Bicep:
 
 ```
-variable location = 'eastus'
+var location = 'eastus'
 ```
 
 ### Convert an output

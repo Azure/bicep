@@ -47,7 +47,7 @@ module databases '../sqlDatabases' {
 }
 
 // To reference module outputs
-variable myArray array = databases.outputs.sqlDatabases
+var myArray array = databases.outputs.sqlDatabases
 ```
 
 A bicep module can reference another Bicep file or directory of bicep files as a module. This means the module name may refer to either a file or directory. For directory, all files under the directory will be loaded. It is a compiler error if a file and directory with the same name exist under the path.
