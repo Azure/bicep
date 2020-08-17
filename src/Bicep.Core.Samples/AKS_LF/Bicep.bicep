@@ -1,28 +1,28 @@
 ﻿// mandatory params
-parameter dnsPrefix string
-parameter linuxAdminUsername string
-parameter sshRSAPublicKey string
-parameter servcePrincipalClientId string {
+param dnsPrefix string
+param linuxAdminUsername string
+param sshRSAPublicKey string
+param servcePrincipalClientId string {
     secure: true
 }
-parameter servicePrincipalClientSecret string {
+param servicePrincipalClientSecret string {
     secure: true
 }
 
 // optional params
-parameter clusterName string = 'aks101cluster'
-parameter location string = resourceGroup().location
-parameter osDiskSizeGB int {
+param clusterName string = 'aks101cluster'
+param location string = resourceGroup().location
+param osDiskSizeGB int {
     defaultValue: 0
     minValue: 0
     maxValue: 1023
 }
-parameter agentCount int {
+param agentCount int {
     defaultValue: 3
     minValue: 1
     maxValue: 50
 }
-parameter agentVMSize string = 'Standard_DS2_v2'
+param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {

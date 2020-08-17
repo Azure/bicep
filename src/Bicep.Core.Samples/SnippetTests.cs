@@ -27,7 +27,7 @@ namespace Bicep.Core.Samples
         {
             ["resource"] = body => ValidateSnippet(body, "myResource", "myProvider", "myType", "2020-01-01", "name: 'myResource'"),
             ["var"] = body => ValidateSnippet(body, "myVariable", "'stringVal'"),
-            ["parameter"] = body => ValidateSnippet(body, "myParam", "string"),
+            ["param"] = body => ValidateSnippet(body, "myParam", "string"),
             ["output"] = body => ValidateSnippet(body, "myOutput", "string", "'stringVal'"),
         };
 

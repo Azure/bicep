@@ -11,7 +11,7 @@ Any valid [ARM Template function](https://docs.microsoft.com/azure/azure-resourc
 The following are all valid function calls in bicep:
 
 ```
-parameter serverFarmId string = resourceId('Microsoft.Web/sites', 'myWebsite')
+param serverFarmId string = resourceId('Microsoft.Web/sites', 'myWebsite')
 
 var location = resourceGroup().location
 
@@ -21,7 +21,7 @@ output makeCapital string = toUpper('all lowercase')
 In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name:
 
 ```
-parameter location string = 'eastus'
+param location string = 'eastus'
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 
@@ -42,8 +42,8 @@ output storageId string = stg.id
 The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use the variable `storageAccountName` to store this expression, so that our resource declaration is a bit cleaner: 
 
 ```
-parameter location string = 'eastus'
-parameter namePrefix string = 'stg'
+param location string = 'eastus'
+param namePrefix string = 'stg'
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
@@ -67,10 +67,10 @@ If you compile with `bicep build`, you will notice we are compiling this into th
 You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storage sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
 
 ```
-parameter location string = 'eastus'
-parameter namePrefix string = 'stg'
+param location string = 'eastus'
+param namePrefix string = 'stg'
 
-parameter globalRedundancy bool = true // defaults to true, but can be overridden
+param globalRedundancy bool = true // defaults to true, but can be overridden
 
 var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 
@@ -93,10 +93,10 @@ With the resource's symbolic name, it is much easier to retrieve properties of a
 Let's add another output to retrieve the `primaryEndpoint` of our storage account:
 
 ```
-parameter location string = 'eastus'
-parameter namePrefix string = 'stg'
+param location string = 'eastus'
+param namePrefix string = 'stg'
 
-parameter globalRedundancy bool = true // defaults to true, but can be overridden
+param globalRedundancy bool = true // defaults to true, but can be overridden
 
 var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
 

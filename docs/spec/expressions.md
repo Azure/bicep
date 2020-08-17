@@ -61,7 +61,7 @@ Ternary operators operate on 3 operands. Bicep supports only one such operator.
 
 Example usage:
 ```
-parameter replicateGlobally bool
+param replicateGlobally bool
 
 resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
   name: storageAccountName
@@ -125,7 +125,7 @@ Arrays in bicep are 0-based. In other words, the first item in an array is at in
 
 String-based indexers are also allowed in bicep. Consider the following:
 ```
-parameter environment string = 'prod'
+param environment string = 'prod'
 
 var environmentSettings = {
   dev: {

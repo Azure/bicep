@@ -16,9 +16,9 @@
         "description": "Variable statement"
     },
     "Parameter": {
-        "prefix": "parameter",
+        "prefix": "param",
         "body": [
-            "parameter ${1:Identifier} ${2:Type}"
+            "param ${1:Identifier} ${2:Type}"
         ],
         "description": "Parameter statement"
     },

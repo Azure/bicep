@@ -14,7 +14,7 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
-        public const string ParameterKeyword = "parameter";
+        public const string ParameterKeyword = "param";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";

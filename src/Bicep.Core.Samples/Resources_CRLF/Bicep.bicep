@@ -57,11 +57,11 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   }
 }
 
-parameter applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
+param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 var hostingPlanName = applicationName // why not just use the param directly?
 
-parameter appServicePlanTier string
-parameter appServicePlanInstances int
+param appServicePlanTier string
+param appServicePlanInstances int
 
 var location = resourceGroup().location
 

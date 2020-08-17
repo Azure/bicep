@@ -1,2 +1,2 @@
-parameter rgLocation string
-parameter namePrefix string
+param rgLocation string
+param namePrefix string

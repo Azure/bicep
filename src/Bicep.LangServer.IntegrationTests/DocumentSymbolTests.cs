@@ -33,7 +33,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Version = 0,
                     Uri = documentUri,
                     Text = @"
-parameter myParam string = 'test'
+param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name = 'test'
   }
@@ -82,7 +82,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
                     new TextDocumentContentChangeEvent
                     {
                         Text = @"
-parameter myParam string = 'test'
+param myParam string = 'test'
 resource myRenamedRes 'myRp/provider@2019-01-01' = {
   name = 'test'
   }

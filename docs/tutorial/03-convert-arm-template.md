@@ -31,7 +31,7 @@ ARM Template:
 
 Bicep:
 ```
-parameter name string = 'myName'
+param name string = 'myName'
 ```
 
 For a more complex parameter with modifiers such as `allowedValues`:
@@ -57,7 +57,7 @@ ARM Template:
 Bicep:
 
 ```
-parameter name string {
+param name string {
   default: 'myName'
   allowedValues: [
     'myName'

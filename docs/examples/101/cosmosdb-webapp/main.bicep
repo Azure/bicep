@@ -1,7 +1,7 @@
-parameter applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
-parameter location string = resourceGroup().location
+param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
+param location string = resourceGroup().location
 
-parameter appServicePlanTier string {
+param appServicePlanTier string {
     defaultValue: 'F1'
     allowedValues: [
       'F1'
@@ -19,17 +19,17 @@ parameter appServicePlanTier string {
     ]
 }
 
-parameter appServicePlanInstances int {
+param appServicePlanInstances int {
   defaultValue: 1
   minValue: 1
   maxValue: 3
 }
 
-parameter repositoryUrl string = 'https://github.com/Azure-Samples/cosmos-dotnet-core-todo-app.git'
-parameter branch string = 'master'
+param repositoryUrl string = 'https://github.com/Azure-Samples/cosmos-dotnet-core-todo-app.git'
+param branch string = 'master'
 
-parameter databaseName string = 'Tasks'
-parameter containerName string = 'Items'
+param databaseName string = 'Tasks'
+param containerName string = 'Items'
 
 var cosmosAccountName = toLower(applicationName)
 var websiteName = applicationName // why not just use the param directly?

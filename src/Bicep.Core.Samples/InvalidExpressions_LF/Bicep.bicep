@@ -105,12 +105,12 @@ var propertyAccessOnVariable = x.foo
 
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
-parameter funcvarparam bool = concat
+param funcvarparam bool = concat
 output funcvarout array = padLeft
 
 // non-existent function
 var fakeFunc = red() + green() * orange()
-parameter fakeFuncP string {
+param fakeFuncP string {
   defaultValue: blue()
 }
 

@@ -1,18 +1,18 @@
 # Parameters
 > **Note**: Parameter modifiers are not implemented.
 
-Parameter declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
+param declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
 
 There are no constraints on placement of parameter declarations. They can be mixed with any other valid declarations in any order and they do not have to appear at the top of the file.
 
 ## Minimal Declaration
 These are smallest possible parameter declarations:
 ```
-parameter myString string
-parameter myInt int
-parameter myBool bool
-parameter myObject object
-parameter myArray array
+param myString string
+param myInt int
+param myBool bool
+param myObject object
+param myArray array
 ```
 
 A parameter cannot have the same name as a [variable](./variables.md), [resource](./resources.md), or another parameter in the same scope.
@@ -22,18 +22,18 @@ If you are familiar with ARM template parameters, you will notice a conspicuous 
 
 The following declarations will compile into a `secureString` and `secureObject` parameters, respectively.
 ```
-parameter myPassword string { 
+param myPassword string { 
   secure: true
 }
 
-parameter mySuperSecretObject object { 
+param mySuperSecretObject object { 
   secure: true
 }
 ```
 ## Allowed Values
 You can constrain which values are allowed using the `allowedValues` modifier:
 ```
-parameter myEnum string {
+param myEnum string {
   allowedValues: [
     'one'
     'two'
@@ -46,19 +46,19 @@ The constraint will be evaluated at deployment time of the compiled template.
 ## Default value
 Default values can be declared as follows:
 ```
-parameter myParam string = 'my default value'
+param myParam string = 'my default value'
 ```
 
 If you need to combine a default value with other identifiers, you may also use the following syntax to achieve the same:
 ```
-parameter myParam string {
+param myParam string {
   defaultValue: 'my default value'
 }
 ```
 
 You may use [expressions](./expressions.md) with the `defaultValue` modifier. (All other modifiers require a constant literal.) Here is an example of a location parameter whose value defaults to the location of the current resource group if the parameter is not specified during the deployment:
 ```
-parameter myParam string {
+param myParam string {
   defaultValue: resourceGroup().location
 }
 ```
@@ -66,7 +66,7 @@ parameter myParam string {
 ## String and array length constraint
 Parameters of type `string` and `array` can have length constraints. The following declares a storage account name parameter of type strings whose length can only be between 3-24 characters (inclusive).
 ```
-parameter storageAccountName string {
+param storageAccountName string {
   minLength: 3
   maxLength: 24
 }
@@ -77,7 +77,7 @@ The length constraint is evaluated at compiled template deployment time.
 ## Integer value constraint
 Integer parameters can also have a value constraint. These are expressed as follows:
 ```
-parameter month int {
+param month int {
   minValue: 1
   maxValue: 12
 }
@@ -88,7 +88,7 @@ The value constraint is evaluated at compiled template deployment time.
 ## Description
 Parameters of any type can have a description associated with them. This looks like the following:
 ```
-parameter myObject object {
+param myObject object {
   metadata: {
     description: "There are many like this, but this object is mine."
   }
@@ -98,7 +98,7 @@ parameter myObject object {
 ## Combined modifiers
 If applicable to the parameter type, multiple modifiers can be combined together. The following is an example of this:
 ```
-parameter storageAccountName string {
+param storageAccountName string {
   minLength: 3
   maxLength: 24
   defaultValue: concat(uniqueString(resourceGroup().id), 'sa')

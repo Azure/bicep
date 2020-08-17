@@ -39,8 +39,8 @@ az deployment group create -f ./main.json -g my-rg
 In most cases, I want to expose a part of the resource name and the resource location via parameters, so I can add the following:
 
 ```
-parameter location string = 'eastus'
-parameter name string = 'uniquestorage001' // must be globally unique
+param location string = 'eastus'
+param name string = 'uniquestorage001' // must be globally unique
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: name
@@ -67,8 +67,8 @@ Let's compile with `bicep build main.bicep` and look at the output:
 I can also add `variables` for storing values or complex expressions, and emit `outputs` to be passed to a script or another template:
 
 ```
-parameter location string = 'eastus'
-parameter name string = 'uniquestorage001' // must be globally unique
+param location string = 'eastus'
+param name string = 'uniquestorage001' // must be globally unique
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 
