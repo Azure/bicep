@@ -54,7 +54,9 @@
     "intIndexer": "[json('[\"s\"]')[0]]",
     "functionOnIndexer1": "[concat(json('[\"s\"]')[0], 's')]",
     "functionOnIndexer2": "[concat(json('[]')[0], 's')]",
-    "functionOnIndexer3": "[concat(json('[]')[0], 's')]"
+    "functionOnIndexer3": "[concat(json('[]')[0], 's')]",
+    "singleQuote": "'",
+    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]"
   },
   "resources": [],
   "outputs": {}

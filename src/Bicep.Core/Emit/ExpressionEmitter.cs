@@ -1,14 +1,13 @@
 ﻿using System;
-using Azure.ResourceManager.Deployments.Expression.Configuration;
-using Azure.ResourceManager.Deployments.Expression.Expressions;
-using Azure.ResourceManager.Deployments.Expression.Serializers;
+using Arm.Expression.Configuration;
+using Arm.Expression.Expressions;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public static class ExpressionEmitter
+    public class ExpressionEmitter
     {
         private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
         {
@@ -16,7 +15,18 @@ namespace Bicep.Core.Emit
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        public static void EmitExpression(JsonTextWriter writer, SyntaxBase syntax, SemanticModel.SemanticModel model)
+        private readonly JsonTextWriter writer;
+        private readonly SemanticModel.SemanticModel model;
+        private readonly ExpressionConverter converter;
+
+        public ExpressionEmitter(JsonTextWriter writer, SemanticModel.SemanticModel model)
+        {
+            this.writer = writer;
+            this.model = model;
+            this.converter = new ExpressionConverter(this.model);
+        }
+
+        public void EmitExpression(SyntaxBase syntax)
         {
             switch (syntax)
             {
@@ -35,7 +45,7 @@ namespace Bicep.Core.Emit
 
                 case ObjectSyntax objectSyntax:
                     writer.WriteStartObject();
-                    EmitObjectProperties(writer, objectSyntax, model);
+                    EmitObjectProperties(objectSyntax);
                     writer.WriteEndObject();
 
                     break;
@@ -45,7 +55,7 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        EmitExpression(writer, itemSyntax.Value, model);
+                        EmitExpression(itemSyntax.Value);
                     }
 
                     writer.WriteEndArray();
@@ -61,7 +71,7 @@ namespace Bicep.Core.Emit
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
                 case VariableAccessSyntax _:
-                    EmitLanguageExpression(writer, syntax, model);
+                    EmitLanguageExpression(syntax);
                     
                     break;
 
@@ -70,14 +80,14 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void EmitLanguageExpression(JsonTextWriter writer, SyntaxBase syntax, SemanticModel.SemanticModel model)
+        public void EmitLanguageExpression(SyntaxBase syntax)
         {
-            LanguageExpression converted = syntax.ToTemplateExpression(model);
+            LanguageExpression converted = converter.ConvertExpression(syntax);
 
             if (converted is JTokenExpression valueExpression)
             {
                 // the converted expression is a literal
-                JToken value = valueExpression.EvaluateExpression(null);
+                JToken value = valueExpression.Value;
 
                 // for integer literals the expression will look like "[42]" or "[-12]"
                 // while it's still a valid template expression that works in ARM, it looks weird
@@ -95,31 +105,31 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax, SemanticModel.SemanticModel model)
+        public void EmitObjectProperties(ObjectSyntax objectSyntax)
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value, model);
+                EmitPropertyExpression(propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
             }
         }
 
-        public static void EmitPropertyValue(JsonTextWriter writer, string name, string value)
+        public void EmitPropertyValue(string name, string value)
         {
             writer.WritePropertyName(name);
             writer.WriteValue(value);
         }
 
-        public static void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression, SemanticModel.SemanticModel model)
+        public void EmitPropertyExpression(string name, SyntaxBase expression)
         {
             writer.WritePropertyName(name);
-            EmitExpression(writer, expression, model);
+            EmitExpression(expression);
         }
 
-        public static void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression, SemanticModel.SemanticModel model)
+        public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {
             if (expression != null)
             {
-                EmitPropertyExpression(writer, name, expression, model);
+                EmitPropertyExpression(name, expression);
             }
         }
     }
