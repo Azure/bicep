@@ -16,7 +16,7 @@ chmod +x ./bicep
 # Add bicep to your PATH (requires admin)
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
-bicep --version
+bicep --help
 ```
 
 ### macOS
@@ -30,7 +30,7 @@ sudo spctl --add ./bicep
 # Add bicep to your PATH (requires admin)
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
-bicep --version
+bicep --help
 ```
 
 ### Windows
@@ -52,7 +52,7 @@ $installDir.Attributes += 'Hidden'
 # Fetch the latest Bicep CLI binary
 (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/bicep-win-x64.exe", "$installPath\bicep.exe")
 # Verify you can now access the 'bicep' command
-bicep --version
+bicep --help
 ```
 
 ## Install the Bicep VS Code Extension

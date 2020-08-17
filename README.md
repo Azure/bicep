@@ -24,7 +24,9 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 
 ## Get started with Bicep
 
-The best way to get started is with the [bicep tutorial](./docs/tutorial/00-setup.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into the equivalent bicep file.
+To get going with bicep, start by [installing the tooling](./docs/installing.md).
+
+Once the tooling is installed, you can start the [bicep tutorial](./docs/tutorial/01-simple-template.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into the equivalent bicep file.
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
