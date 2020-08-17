@@ -154,13 +154,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The name 'up' does not exist in the current context.",
-    "errorCode": "BCP057",
-    "level": "Error",
-    "span": "[1189:1191]",
-    "spanText": "up"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -238,13 +231,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The name 'doc' does not exist in the current context.",
-    "errorCode": "BCP057",
-    "level": "Error",
-    "span": "[1492:1495]",
-    "spanText": "doc"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -273,13 +259,6 @@
     "spanText": "fluffyBunny"
   },
   {
-    "message": "The name 'doc' does not exist in the current context.",
-    "errorCode": "BCP057",
-    "level": "Error",
-    "span": "[1547:1550]",
-    "spanText": "doc"
-  },
-  {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
@@ -299,13 +278,6 @@
     "level": "Error",
     "span": "[1573:1584]",
     "spanText": "fluffyBunny"
-  },
-  {
-    "message": "The name 'doc' does not exist in the current context.",
-    "errorCode": "BCP057",
-    "level": "Error",
-    "span": "[1603:1606]",
-    "spanText": "doc"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",

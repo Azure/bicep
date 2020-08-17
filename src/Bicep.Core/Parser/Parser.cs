@@ -387,6 +387,23 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase InterpolableString()
         {
+            var startPosition = reader.Position;
+            SyntaxBase TerminateString(IReadOnlyList<Token> stringTokens, IEnumerable<SyntaxBase> syntaxExpressions)
+            {
+                // the lexer may return unterminated string tokens to allow lexing to continue over an interpolated string.
+                // we should catch that here and prevent parsing from succeeding.
+                var segments = Lexer.TryGetRawStringSegments(stringTokens);
+                if (segments == null)
+                {
+                    // We've got a string terminator, so we can do better than throwing an ExpectedTokenException,
+                    // which would force the Parser to skip to the end of the line.
+                    var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition).ToArray();
+                    var tokensSpan = TextSpan.Between(skippedTokens.First(), skippedTokens.Last());
+                    return new SkippedTokensTriviaSyntax(skippedTokens, null, null);
+                }
+                return new StringSyntax(stringTokens, syntaxExpressions, segments);
+            }
+
             return this.WithRecovery(() => {
                 var stringTokens = new List<Token>();
                 var syntaxExpressions = new List<SyntaxBase>();
@@ -396,7 +413,7 @@ namespace Bicep.Core.Parser
                 {
                     case TokenType.StringComplete:
                         stringTokens.Add(nextToken);
-                        return new StringSyntax(stringTokens, syntaxExpressions);
+                        return TerminateString(stringTokens, syntaxExpressions);
                     case TokenType.StringLeftPiece:
                         stringTokens.Add(nextToken);
                         syntaxExpressions.Add(Expression());
@@ -404,10 +421,10 @@ namespace Bicep.Core.Parser
                     default:
                         // don't actually consume the next token - leave this up to recovery
                         reader.StepBack();
-                        // TODO add error message for this
-                        throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
+                        throw new ExpectedTokenException(nextToken, b => b.MalformedString());
                 }
                 
+                // we're handling an interpolated string
                 while (true)
                 {
                     nextToken = reader.Read();
@@ -415,7 +432,7 @@ namespace Bicep.Core.Parser
                     {
                         case TokenType.StringRightPiece:
                             stringTokens.Add(nextToken);
-                            return new StringSyntax(stringTokens, syntaxExpressions);
+                            return TerminateString(stringTokens, syntaxExpressions);
                         case TokenType.StringMiddlePiece:
                             stringTokens.Add(nextToken);
                             syntaxExpressions.Add(Expression());
@@ -423,8 +440,7 @@ namespace Bicep.Core.Parser
                         default:
                             // don't actually consume the next token - leave this up to recovery
                             reader.StepBack();
-                            // TODO add error message for this
-                            throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
+                            throw new ExpectedTokenException(nextToken, b => b.MalformedString());
                     }
                 }
             }, TokenType.NewLine);

@@ -1,55 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Bicep.Core.Parser;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.Syntax
 {
     public static class StringSyntaxExtensions
     {
-        public static string? TryGetFormatString(this StringSyntax syntax)
+        /// <summary>
+        /// Checks if the syntax node contains an interpolated string or a literal string.
+        /// </summary>
+        /// <param name="syntax">The string syntax node</param>
+        public static bool IsInterpolated(this StringSyntax syntax)
+            => syntax.SegmentValues.Length > 1;
+
+        /// <summary>
+        /// Try to get the string literal value for a syntax node. This method should only be called after verifying the string is not interpolated.
+        /// </summary>
+        /// <param name="syntax">The string syntax node</param>
+        public static string GetLiteralValue(this StringSyntax syntax)
         {
-            var stringBuilder = new StringBuilder();
-            var segments = new List<string>();
-
-            foreach (var segment in syntax.StringTokens.Select(Lexer.TryGetStringValue))
+            var value = syntax.SegmentValues.SingleOrDefault();
+            if (value == null)
             {
-                if (segment == null)
-                {
-                    return null;
-                }
-
-                segments.Add(segment);
+                throw new ArgumentException("Cannot return literal value for interpolated string");
             }
 
-            return BuildFormatString(segments);
-        }
-
-        public static string GetFormatString(this StringSyntax syntax)
-        {
-            var segments = syntax.StringTokens.Select(Lexer.GetStringValue);
-
-            return BuildFormatString(segments);
-        }
-
-        private static string BuildFormatString(IEnumerable<string> segments)
-        {
-            var stringBuilder = new StringBuilder();
-            var segmentsArray = segments.ToArray();
-
-            for (var i = 0; i < segmentsArray.Length - 1; i++)
-            {
-                stringBuilder.Append(segmentsArray[i]);
-                stringBuilder.Append('{');
-                stringBuilder.Append(i);
-                stringBuilder.Append('}');
-            }
-
-            stringBuilder.Append(segmentsArray[segmentsArray.Length - 1]);
-
-            return stringBuilder.ToString();
+            return value;
         }
     }
 }

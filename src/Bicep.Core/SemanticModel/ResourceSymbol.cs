@@ -32,7 +32,7 @@ namespace Bicep.Core.SemanticModel
                 }
                 else
                 {
-                    var stringContent = stringSyntax?.TryGetFormatString();
+                    var stringContent = stringSyntax?.GetLiteralValue();
                     resourceType = this.TypeManager.GetTypeByName(stringContent);
 
                     // TODO: This check is likely too simplistic

@@ -112,16 +112,17 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertString(StringSyntax syntax)
         {
-            var stringExpression = new JTokenExpression(syntax.GetFormatString());
-
             if (!syntax.IsInterpolated())
             {
                 // no need to build a format string
-                return stringExpression;
+                return new JTokenExpression(syntax.GetLiteralValue());;
             }
 
             var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
-            formatArgs[0] = stringExpression;
+
+            var formatString = StringFormatConverter.BuildFormatString(syntax);
+            formatArgs[0] = new JTokenExpression(formatString);
+
             for (var i = 0; i < syntax.Expressions.Length; i++)
             {
                 formatArgs[i + 1] = ConvertExpression(syntax.Expressions[i]);

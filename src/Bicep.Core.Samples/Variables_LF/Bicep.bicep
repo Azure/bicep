@@ -4,11 +4,13 @@ variable myInt = 42
 
 // a string variable
 variable myStr = 'str'
+variable curliesWithNoInterp = '}{1}{'
 variable interp1 = 'abc${123}def'
 variable interp2 = '${123}def'
 variable interp3 = 'abc${123}'
 variable interp4 = 'abc${123}${456}jk$l${789}p$'
 variable doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
+variable curliesInInterp = '{${123}{0}${true}}'
 
 // booleans
 variable myTruth = true
