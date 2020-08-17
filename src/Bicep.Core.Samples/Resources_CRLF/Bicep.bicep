@@ -40,7 +40,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
     encryption: {
-      keySource: myStorageAccount.id
+      keySource: 'Microsoft.Storage'
       services: {
         blob: {
           enabled: true || false

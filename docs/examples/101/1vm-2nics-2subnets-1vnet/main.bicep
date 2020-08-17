@@ -194,4 +194,4 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2016-09-01' = {
   }
 }
 
-output publicIp string = pip.ipAddress
+output publicIp string = pip.properties.ipAddress

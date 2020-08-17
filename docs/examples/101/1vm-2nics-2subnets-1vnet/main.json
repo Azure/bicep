@@ -229,7 +229,7 @@
   "outputs": {
     "publicIp": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2017-06-01', 'full').ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))).ipAddress]"
     }
   }
 }
