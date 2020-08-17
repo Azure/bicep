@@ -3,6 +3,7 @@ using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
 using Bicep.Core.Resources;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -92,6 +93,13 @@ namespace Bicep.Core.Emit
 
         public void EmitLanguageExpression(SyntaxBase syntax)
         {
+            var symbol = model.GetSymbolInfo(syntax);
+            if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol && model.RequiresInlining(variableSymbol))
+            {
+                EmitExpression(variableSymbol.Value);
+                return;
+            }
+
             LanguageExpression converted = converter.ConvertExpression(syntax);
 
             if (converted is JTokenExpression valueExpression)

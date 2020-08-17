@@ -35,7 +35,15 @@
       ],
       "name": "resB",
       "properties": {
-        "dependencies": "[json('{\"dependenciesA\":[\"[resourceId(''My.Rp/myResourceType'', ''resA'')]\",\"resA\",\"My.Rp/myResourceType\",\"[reference(resourceId(''My.Rp/myResourceType'', ''resA'')).deployTime]\",\"[reference(resourceId(''My.Rp/myResourceType'', ''resA''), ''2020-01-01'', ''full'').eTag]\"]}')]"
+        "dependencies": {
+          "dependenciesA": [
+            "[resourceId('My.Rp/myResourceType', 'resA')]",
+            "resA",
+            "My.Rp/myResourceType",
+            "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
+            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01', 'full').eTag]"
+          ]
+        }
       }
     },
     {
@@ -47,7 +55,10 @@
       ],
       "name": "resC",
       "properties": {
-        "resourceIds": "[json('{\"a\":\"[resourceId(''My.Rp/myResourceType'', ''resA'')]\",\"b\":\"[resourceId(''My.Rp/myResourceType'', ''resB'')]\"}')]"
+        "resourceIds": {
+          "a": "[resourceId('My.Rp/myResourceType', 'resA')]",
+          "b": "[resourceId('My.Rp/myResourceType', 'resB')]"
+        }
       }
     },
     {
