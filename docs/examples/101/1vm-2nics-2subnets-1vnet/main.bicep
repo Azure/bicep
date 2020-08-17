@@ -4,7 +4,7 @@ param adminPassword string {
   secure: true
 }
 param storageAccountType string
-param location string = resourceGroup().lcoation
+param location string = resourceGroup().location
 
 var virtualMachineName = 'VM-MultiNic'
 var nic1Name = 'nic-1'

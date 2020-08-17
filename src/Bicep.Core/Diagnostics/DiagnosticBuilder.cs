@@ -292,11 +292,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name '{name}' is not a function.");
 
-            public ErrorDiagnostic ResourcePropertyAccessNotSupported() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP060",
-                "The resource property access capability is not yet implemented but is coming soon.");
-
             public ErrorDiagnostic CyclicExpression() => new ErrorDiagnostic(
                 TextSpan,
                 BCP061CyclicExpressionCode,

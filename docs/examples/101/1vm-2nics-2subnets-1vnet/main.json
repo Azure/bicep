@@ -16,7 +16,7 @@
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().lcoation]"
+      "defaultValue": "[resourceGroup().location]"
     }
   },
   "functions": [],
@@ -73,20 +73,20 @@
               "properties": {
                 "primary": true
               },
-              "id": "[reference(resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name')), '2017-06-01', 'full').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]"
             },
             {
               "properties": {
                 "primary": false
               },
-              "id": "[reference(resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name')), '2017-06-01', 'full').id]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
             }
           ]
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName')), '2017-06-01', 'full').properties.primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
           }
         }
       }
@@ -134,7 +134,7 @@
             "properties": {
               "addressPrefix": "10.0.1.0/24",
               "networkSecurityGroup": {
-                "id": "[reference(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2')), '2019-08-01', 'full').id]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
               }
             }
           }
@@ -157,17 +157,17 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[format('{0}/subnets/{1}', reference(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '2017-06-01', 'full').id, variables('subnet1Name'))]"
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnet1Name'))]"
               },
               "privateIPAllocationMethod": "Dynamic",
               "publicIpAddress": {
-                "id": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2017-06-01', 'full').id]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               }
             }
           }
         ],
         "networkSecurityGroup": {
-          "id": "[reference(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName')), '2016-09-01', 'full').id]"
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
         }
       }
     },
@@ -185,7 +185,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[format('{0}/subnets/{1}', reference(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '2017-06-01', 'full').id, variables('subnet2Name'))]"
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnet2Name'))]"
               },
               "privateIPAllocationMethod": "Dynamic"
             }

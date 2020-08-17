@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -79,6 +80,29 @@ namespace Bicep.Core.Emit
                         ConvertExpression(arrayAccess.IndexExpression));
 
                 case PropertyAccessSyntax propertyAccess:
+                    if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccess &&
+                        model.GetSymbolInfo(propVariableAccess) is ResourceSymbol resourceSymbol)
+                    {
+                        // special cases for certain resource property access. if we recurse normally, we'll end up
+                        // generating statements like reference(resourceId(...)).id which are not accepted by ARM
+
+                        var typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+                        switch (propertyAccess.PropertyName.IdentifierName)
+                        {
+                            case "id":
+                                return GetResourceIdExpression(resourceSymbol.DeclaringResource, typeReference);
+                            case "name":
+                                return GetResourceNameExpression(resourceSymbol.DeclaringResource);
+                            case "type":
+                                return new JTokenExpression(typeReference.FullyQualifiedType);
+                            case "apiVersion":
+                                return new JTokenExpression(typeReference.ApiVersion);
+                            case "properties":
+                                // use the reference() overload without "full" to generate a shorter expression
+                                return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, false);
+                        }
+                    }
+
                     return AppendProperty(
                         ToFunctionExpression(propertyAccess.BaseExpression),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
@@ -91,30 +115,50 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
         {
-            var nameProperty = (resourceSyntax.Body as ObjectSyntax)?.Properties.FirstOrDefault(p => p.Identifier.IdentifierName == "name")?.Value;
-            if (nameProperty == null)
+            if (!(resourceSyntax.Body is ObjectSyntax objectSyntax))
             {
-                throw new ArgumentException();
+                // this condition should have already been validated by the type checker
+                throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
 
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.Identifier.IdentifierName, "name"));
+            if (namePropertySyntax == null)
+            {
+                // this condition should have already been validated by the type checker
+                throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+            }
+
+            return ConvertExpression(namePropertySyntax.Value);
+        }
+
+        public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        {
             return new FunctionExpression(
                 "resourceId",
                 new LanguageExpression[]
                 {
                     new JTokenExpression(typeReference.FullyQualifiedType),
-                    ConvertExpression(nameProperty),
+                    GetResourceNameExpression(resourceSyntax),
                 },
                 Array.Empty<LanguageExpression>());
         }
 
-        public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference, bool full)
         {
-            var nameProperty = (resourceSyntax.Body as ObjectSyntax)?.Properties.FirstOrDefault(p => p.Identifier.IdentifierName == "name")?.Value;
-            if (nameProperty == null)
+            // full gives access to top-level resource properties, but generates a longer statement
+            if (full)
             {
-                throw new ArgumentException();
+                return new FunctionExpression(
+                    "reference",
+                    new LanguageExpression[]
+                    {
+                        GetResourceIdExpression(resourceSyntax, typeReference),
+                        new JTokenExpression(typeReference.ApiVersion),
+                        new JTokenExpression("full"),
+                    },
+                    Array.Empty<LanguageExpression>());
             }
 
             return new FunctionExpression(
@@ -122,8 +166,6 @@ namespace Bicep.Core.Emit
                 new LanguageExpression[]
                 {
                     GetResourceIdExpression(resourceSyntax, typeReference),
-                    new JTokenExpression(typeReference.ApiVersion),
-                    new JTokenExpression("full"),
                 },
                 Array.Empty<LanguageExpression>());
         }
@@ -144,8 +186,9 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("variables", new JTokenExpression(name));
 
                 case ResourceSymbol resourceSymbol:
+                    // TODO should we cache this on the resourceSymbol?
                     var typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
-                    return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference);
+                    return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
