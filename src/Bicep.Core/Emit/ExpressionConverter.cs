@@ -135,13 +135,30 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
         {
+            if (typeReference.Types.Length == 1)
+            {
+                return new FunctionExpression(
+                    "resourceId",
+                    new LanguageExpression[]
+                    {
+                        new JTokenExpression(typeReference.FullyQualifiedType),
+                        GetResourceNameExpression(resourceSyntax),
+                    },
+                    Array.Empty<LanguageExpression>());
+            }
+
+            var nameSegments = typeReference.Types.Select(
+                (type, i) => new FunctionExpression(
+                    "split",
+                    new LanguageExpression[] { GetResourceNameExpression(resourceSyntax), new JTokenExpression("/") },
+                    new LanguageExpression[] { new JTokenExpression(i) }));
+
             return new FunctionExpression(
                 "resourceId",
                 new LanguageExpression[]
                 {
                     new JTokenExpression(typeReference.FullyQualifiedType),
-                    GetResourceNameExpression(resourceSyntax),
-                },
+                }.Concat(nameSegments).ToArray(),
                 Array.Empty<LanguageExpression>());
         }
 

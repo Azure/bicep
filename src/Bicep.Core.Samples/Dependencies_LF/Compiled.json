@@ -49,6 +49,26 @@
       "properties": {
         "resourceIds": "[json('{\"a\":\"[resourceId(''My.Rp/myResourceType'', ''resA'')]\",\"b\":\"[resourceId(''My.Rp/myResourceType'', ''resB'')]\"}')]"
       }
+    },
+    {
+      "type": "My.Rp/myResourceType/childType",
+      "apiVersion": "2020-01-01",
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType', 'resC')]"
+      ],
+      "name": "[format('{0}/resD', 'resC')]",
+      "properties": {}
+    },
+    {
+      "type": "My.Rp/myResourceType/childType",
+      "apiVersion": "2020-01-01",
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
+      ],
+      "name": "resC/resD",
+      "properties": {
+        "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
+      }
     }
   ],
   "outputs": {
