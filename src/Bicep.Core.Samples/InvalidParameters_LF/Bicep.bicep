@@ -6,7 +6,7 @@ param myString string
 wrong
 
 param myInt int
-parameter
+param
 
 param myBool bool
 

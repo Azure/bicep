@@ -7,451 +7,451 @@
     "spanText": "wrong"
   },
   {
-    "message": "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
-    "errorCode": "BCP007",
+    "message": "Expected a parameter identifier at this location.",
+    "errorCode": "BCP013",
     "level": "Error",
-    "span": "[157:166]",
-    "spanText": "parameter"
+    "span": "[162:162]",
+    "spanText": ""
   },
   {
     "message": "Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP014",
     "level": "Error",
-    "span": "[204:204]",
+    "span": "[200:200]",
     "spanText": ""
   },
   {
     "message": "The parameter expects a default value of type 'string' but provided value is of type 'int'.",
     "errorCode": "BCP027",
     "level": "Error",
-    "span": "[280:282]",
+    "span": "[276:278]",
     "spanText": "42"
   },
   {
     "message": "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.",
     "errorCode": "BCP009",
     "level": "Error",
-    "span": "[338:338]",
+    "span": "[334:334]",
     "spanText": ""
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
     "errorCode": "BCP027",
     "level": "Error",
-    "span": "[361:376]",
+    "span": "[357:372]",
     "spanText": "'not a boolean'"
   },
   {
     "message": "The parameter expects a default value of type 'bool' but provided value is of type 'string'.",
     "errorCode": "BCP027",
     "level": "Error",
-    "span": "[402:409]",
+    "span": "[398:405]",
     "spanText": "'false'"
   },
   {
     "message": "Expected the '=' token, a parameter modifier, or a newline at this location.",
     "errorCode": "BCP008",
     "level": "Error",
-    "span": "[444:445]",
+    "span": "[440:441]",
     "spanText": ":"
   },
   {
     "message": "The identifier exceeds the limit of 255. Reduce the length of the identifier.",
     "errorCode": "BCP024",
     "level": "Error",
-    "span": "[461:722]",
+    "span": "[457:718]",
     "spanText": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong"
   },
   {
     "message": "Expected a new line character at this location.",
     "errorCode": "BCP019",
     "level": "Error",
-    "span": "[804:805]",
+    "span": "[800:801]",
     "spanText": "s"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[813:814]",
+    "span": "[809:810]",
     "spanText": "'"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[840:849]",
+    "span": "[836:845]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[850:861]",
+    "span": "[846:857]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
     "errorCode": "BCP006",
     "level": "Error",
-    "span": "[869:871]",
+    "span": "[865:867]",
     "spanText": "\\s"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[912:921]",
+    "span": "[908:917]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[922:933]",
+    "span": "[918:929]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[936:952]",
+    "span": "[932:948]",
     "spanText": "'what\\'s up doc?"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1031:1031]",
+    "span": "[1027:1027]",
     "spanText": ""
   },
   {
     "message": "Expected a new line character at this location.",
     "errorCode": "BCP019",
     "level": "Error",
-    "span": "[1032:1037]",
+    "span": "[1028:1033]",
     "spanText": "param"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1075:1075]",
+    "span": "[1071:1071]",
     "spanText": ""
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[1082:1091]",
+    "span": "[1078:1087]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1092:1103]",
+    "span": "[1088:1099]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1119:1120]",
+    "span": "[1115:1116]",
     "spanText": "}"
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[1127:1136]",
+    "span": "[1123:1132]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1137:1148]",
+    "span": "[1133:1144]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1162:1165]",
+    "span": "[1158:1161]",
     "spanText": "'up"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1165:1165]",
+    "span": "[1161:1161]",
     "spanText": ""
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1256:1256]",
+    "span": "[1252:1252]",
     "spanText": ""
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1303:1303]",
+    "span": "[1299:1299]",
     "spanText": ""
   },
   {
     "message": "Expected a new line character at this location.",
     "errorCode": "BCP019",
     "level": "Error",
-    "span": "[1304:1309]",
+    "span": "[1300:1305]",
     "spanText": "param"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1353:1353]",
+    "span": "[1349:1349]",
     "spanText": ""
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[1360:1369]",
+    "span": "[1356:1365]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1370:1381]",
+    "span": "[1366:1377]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1403:1404]",
+    "span": "[1399:1400]",
     "spanText": "}"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1404:1404]",
+    "span": "[1400:1400]",
     "spanText": ""
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[1411:1420]",
+    "span": "[1407:1416]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1421:1432]",
+    "span": "[1417:1428]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1456:1456]",
+    "span": "[1452:1452]",
     "spanText": ""
   },
   {
     "message": "Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[1463:1472]",
+    "span": "[1459:1468]",
     "spanText": "wrongType"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1473:1484]",
+    "span": "[1469:1480]",
     "spanText": "fluffyBunny"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1508:1510]",
+    "span": "[1504:1506]",
     "spanText": "}?"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1610:1611]",
+    "span": "[1606:1607]",
     "spanText": "'"
   },
   {
     "message": "The string at this location is not terminated due to an unexpected new line character.",
     "errorCode": "BCP004",
     "level": "Error",
-    "span": "[1611:1611]",
+    "span": "[1607:1607]",
     "spanText": ""
   },
   {
     "message": "Expected a new line character at this location.",
     "errorCode": "BCP019",
     "level": "Error",
-    "span": "[1613:1618]",
+    "span": "[1609:1614]",
     "spanText": "param"
   },
   {
     "message": "The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string.",
     "errorCode": "BCP031",
     "level": "Error",
-    "span": "[1709:1713]",
+    "span": "[1705:1709]",
     "spanText": "arra"
   },
   {
     "message": "The property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "errorCode": "BCP025",
     "level": "Error",
-    "span": "[1825:1834]",
+    "span": "[1821:1830]",
     "spanText": "minLength"
   },
   {
     "message": "The property 'minLength' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "errorCode": "BCP025",
     "level": "Error",
-    "span": "[1840:1849]",
+    "span": "[1836:1845]",
     "spanText": "minLength"
   },
   {
     "message": "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
     "errorCode": "BCP037",
     "level": "Error",
-    "span": "[1907:1913]",
+    "span": "[1903:1909]",
     "spanText": "secure"
   },
   {
     "message": "The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'.",
     "errorCode": "BCP037",
     "level": "Error",
-    "span": "[1922:1931]",
+    "span": "[1918:1927]",
     "spanText": "minLength"
   },
   {
     "message": "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'.",
     "errorCode": "BCP037",
     "level": "Error",
-    "span": "[1937:1946]",
+    "span": "[1933:1942]",
     "spanText": "maxLength"
   },
   {
     "message": "The property 'default' expected a value of type 'int' but the provided value is of type 'bool'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2025:2029]",
+    "span": "[2021:2025]",
     "spanText": "true"
   },
   {
     "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'string'.",
     "errorCode": "BCP034",
     "level": "Error",
-    "span": "[2053:2059]",
+    "span": "[2049:2055]",
     "spanText": "'test'"
   },
   {
     "message": "The enclosing array expected an item of type 'int', but the provided item was of type 'bool'.",
     "errorCode": "BCP034",
     "level": "Error",
-    "span": "[2064:2068]",
+    "span": "[2060:2064]",
     "spanText": "true"
   },
   {
     "message": "The property 'minValue' expected a value of type 'int' but the provided value is of type 'object'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2085:2090]",
+    "span": "[2081:2086]",
     "spanText": "{\n  }"
   },
   {
     "message": "The property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2103:2108]",
+    "span": "[2099:2104]",
     "spanText": "[\n  ]"
   },
   {
     "message": "The property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2121:2128]",
+    "span": "[2117:2124]",
     "spanText": "'wrong'"
   },
   {
     "message": "The property 'description' expected a value of type 'string' but the provided value is of type 'bool'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2223:2227]",
+    "span": "[2219:2223]",
     "spanText": "true"
   },
   {
     "message": "The property 'default' expected a value of type 'string' but the provided value is of type 'int'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[2308:2313]",
+    "span": "[2304:2309]",
     "spanText": "2 + 3"
   },
   {
     "message": "The name 'a' does not exist in the current context.",
     "errorCode": "BCP057",
     "level": "Error",
-    "span": "[2327:2328]",
+    "span": "[2323:2324]",
     "spanText": "a"
   },
   {
     "message": "The value must be a compile-time constant.",
     "errorCode": "BCP032",
     "level": "Error",
-    "span": "[2327:2332]",
+    "span": "[2323:2328]",
     "spanText": "a + 2"
   },
   {
     "message": "The name 'foo' does not exist in the current context.",
     "errorCode": "BCP057",
     "level": "Error",
-    "span": "[2346:2349]",
+    "span": "[2342:2345]",
     "spanText": "foo"
   },
   {
     "message": "The value must be a compile-time constant.",
     "errorCode": "BCP032",
     "level": "Error",
-    "span": "[2346:2351]",
+    "span": "[2342:2347]",
     "spanText": "foo()"
   },
   {
     "message": "The name 'i' does not exist in the current context.",
     "errorCode": "BCP057",
     "level": "Error",
-    "span": "[2375:2376]",
+    "span": "[2371:2372]",
     "spanText": "i"
   },
   {
     "message": "The value must be a compile-time constant.",
     "errorCode": "BCP032",
     "level": "Error",
-    "span": "[2375:2376]",
+    "span": "[2371:2372]",
     "spanText": "i"
   },
   {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
     "errorCode": "BCP002",
     "level": "Error",
-    "span": "[2419:2425]",
+    "span": "[2415:2421]",
     "spanText": "/*    "
   }
 ]

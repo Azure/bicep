@@ -3,7 +3,7 @@
 bad
 
 // incomplete variable declaration
-variable
+var
 
 // unassigned variable
 var foo
