@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel.Namespaces
 {
@@ -34,9 +35,9 @@ namespace Bicep.Core.SemanticModel.Namespaces
             // TODO: return type is string[]
             new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null),
 
-            //TODO: must be inlined
-            new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
-            new FunctionOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, regexName: new Regex("^list[a-zA-Z]+")),
+            // the use of FunctionPlacementConstraints.Resources prevents use of these functions anywhere where they can't be directly inlined into a resource body
+            new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null, FunctionPlacementConstraints.Resources),
+            new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]+"), FunctionPlacementConstraints.Resources),
         }.ToImmutableArray();
 
         public AzNamespaceSymbol() : base("az", AzOverloads)

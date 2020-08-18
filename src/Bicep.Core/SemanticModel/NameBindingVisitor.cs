@@ -113,17 +113,10 @@ namespace Bicep.Core.SemanticModel
             // try it in the imported namespaces
 
             // match in one of the namespaces
-            IEnumerable<FunctionSymbol> foundSymbols = this.namespaces
-                .Where(ns => ns.Symbols.ContainsKey(name))
-                .Select(ns => ns.Symbols[name])
+            var foundSymbols = this.namespaces
+                .Select(ns => ns.TryGetFunctionSymbol(name))
+                .Where(symbol => symbol != null)
                 .ToList();
-
-            if (!foundSymbols.Any())
-            {
-                foundSymbols = this.namespaces
-                    .SelectMany(ns => ns.WildcardSymbols.Where(s => s.RegexName.IsMatch(name)))
-                    .ToList();                    
-            }
 
             if (foundSymbols.Count() > 1)
             {

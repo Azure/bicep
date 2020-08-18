@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using System.Linq;
 using Bicep.Core.TypeSystem;
 
@@ -9,7 +8,7 @@ namespace Bicep.Core.SemanticModel
 {
     public class FunctionOverload
     {
-        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType, FunctionPlacementConstraints placementConstraints = FunctionPlacementConstraints.All, Regex? regexName = null)
+        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType, FunctionPlacementConstraints placementConstraints = FunctionPlacementConstraints.All)
         {
             if (maximumArgumentCount.HasValue && maximumArgumentCount.Value < minimumArgumentCount)
             {
@@ -29,12 +28,9 @@ namespace Bicep.Core.SemanticModel
             this.FixedArgumentTypes = fixedTypes;
             this.VariableArgumentType = variableArgumentType;
             this.PlacementConstraints = placementConstraints;
-            this.RegexName = regexName;
         }
 
         public string Name { get; }
-
-        public Regex? RegexName { get; }
 
         public ImmutableArray<TypeSymbol> FixedArgumentTypes { get; }
 
