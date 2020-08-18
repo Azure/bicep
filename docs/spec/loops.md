@@ -13,7 +13,7 @@ Filtering the loop is also allowed via the `where` keyword. (See the examples be
 In the below example, we are looping over `storageAccounts` array. For each loop iteration, `storageName` is set to the current array item and is referenced by name in the loop body.
 ```
 // array of storage account names
-parameter storageAccounts array
+param storageAccounts array
 
 resource[] storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for storageName in storageAccounts: {
   name: storageName
@@ -44,9 +44,9 @@ resource[] storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01
 In the example below, we are iteration over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
 
 ```
-parameter storageAccountNamePrefix string
+param storageAccountNamePrefix string
 
-variable storageConfigurations = [
+var storageConfigurations = [
   {
     suffix: 'local'
     sku: 'Standard_LRS'

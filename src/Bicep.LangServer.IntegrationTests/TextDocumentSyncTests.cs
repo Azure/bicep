@@ -32,7 +32,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Version = 1,
                     Uri = documentUri,
                     Text = @"
-parameter myParam string = 2
+param myParam string = 2
 resource myRes 'invalidFormat' = {
 
 }
@@ -44,7 +44,7 @@ randomToken
             var response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
-                    d.Range.Should().HaveRange((1, 27), (1, 28));
+                    d.Range.Should().HaveRange((1, 23), (1, 24));
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
                 },
                 d => {
@@ -69,7 +69,7 @@ randomToken
                     new TextDocumentContentChangeEvent
                     {
                         Text = @"
-parameter myParam string = 'fixed!'
+param myParam string = 'fixed!'
 resource myRes 'invalidFormat' = {
 
 }

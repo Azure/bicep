@@ -3,35 +3,35 @@
 bad
 
 // incomplete variable declaration
-variable
+var
 
 // unassigned variable
-variable foo
+var foo
 
 // no value assigned
-variable foo =
+var foo =
 
 // bad token value
-variable foo = &
+var foo = &
 
 // bad value
-variable foo = *
+var foo = *
 
 // expressions
-variable bar = x
-variable bar = foo()
-variable x = 2 + !3
-variable y = false ? true + 1 : !4
+var bar = x
+var bar = foo()
+var x = 2 + !3
+var y = false ? true + 1 : !4
 
 // test for array item recovery
-variable x = [
+var x = [
   3 + 4
   =
   !null
 ]
 
 // test for object property recovery
-variable y = {
+var y = {
   =
   foo: !2
 }

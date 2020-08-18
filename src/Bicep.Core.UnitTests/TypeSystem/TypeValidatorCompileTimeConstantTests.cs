@@ -155,7 +155,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetNonExpressionData()
         {
-            yield return CreateRow("parameter declaration", new Core.Parser.Parser("parameter foo string").Program());
+            yield return CreateRow("param declaration", new Core.Parser.Parser("param foo string").Program());
 
             yield return CreateRow("empty file", new Core.Parser.Parser("").Program());
         }

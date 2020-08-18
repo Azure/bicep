@@ -26,8 +26,8 @@ namespace Bicep.Core.Samples
         private static IDictionary<string, Action<string>> SnippetValidations = new Dictionary<string, Action<string>>
         {
             ["resource"] = body => ValidateSnippet(body, "myResource", "myProvider", "myType", "2020-01-01", "name: 'myResource'"),
-            ["variable"] = body => ValidateSnippet(body, "myVariable", "'stringVal'"),
-            ["parameter"] = body => ValidateSnippet(body, "myParam", "string"),
+            ["var"] = body => ValidateSnippet(body, "myVariable", "'stringVal'"),
+            ["param"] = body => ValidateSnippet(body, "myParam", "string"),
             ["output"] = body => ValidateSnippet(body, "myOutput", "string", "'stringVal'"),
         };
 
