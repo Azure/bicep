@@ -78,6 +78,8 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+
 param webSiteName string
 param cosmosDb object
 resource site 'Microsoft.Web/sites@2019-08-01' = {
@@ -89,11 +91,11 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
       appSettings: [
         {
           name: 'CosmosDb:Account'
-          value: reference(cosmosDb.account)
+          value: reference(cosmosDbResourceId).documentEndpoint
         }
         {
           name: 'CosmosDb:Key'
-          value: listKeys(cosmosDb.resourceId, '2020-04-01').primaryMasterKey
+          value: listKeys(cosmosDbResourceId, '2020-04-01').primaryMasterKey
         }
         {
           name: 'CosmosDb:DatabaseName'

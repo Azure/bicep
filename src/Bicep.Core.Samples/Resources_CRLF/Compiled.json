@@ -22,7 +22,8 @@
   "functions": [],
   "variables": {
     "hostingPlanName": "[parameters('applicationName')]",
-    "location": "[resourceGroup().location]"
+    "location": "[resourceGroup().location]",
+    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]"
   },
   "resources": [
     {
@@ -110,11 +111,11 @@
           "appSettings": [
             {
               "name": "CosmosDb:Account",
-              "value": "[reference(parameters('cosmosDb').account)]"
+              "value": "[reference(variables('cosmosDbResourceId')).documentEndpoint]"
             },
             {
               "name": "CosmosDb:Key",
-              "value": "[listKeys(parameters('cosmosDb').resourceId, '2020-04-01').primaryMasterKey]"
+              "value": "[listKeys(variables('cosmosDbResourceId'), '2020-04-01').primaryMasterKey]"
             },
             {
               "name": "CosmosDb:DatabaseName",
