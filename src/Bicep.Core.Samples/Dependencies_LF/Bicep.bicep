@@ -1,13 +1,13 @@
-parameter deployTimeParam string = 'steve'
-variable deployTimeVar = 'nigel'
-variable dependentVar = {
+param deployTimeParam string = 'steve'
+var deployTimeVar = 'nigel'
+var dependentVar = {
   dependencies: [
     deployTimeVar
     deployTimeParam
   ]
 }
 
-variable resourceDependency = {
+var resourceDependency = {
   dependenciesA: [
     resA.id
     resA.name
@@ -34,7 +34,7 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
   }
 }
 
-variable resourceIds = {
+var resourceIds = {
   a: resA.id
   b: resB.id
 }
