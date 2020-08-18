@@ -111,24 +111,33 @@ namespace Bicep.Core.SemanticModel
 
             // symbol does not exist in the local namespace
             // try it in the imported namespaces
-            if (this.namespaces.Count(ns => ns.Symbols.ContainsKey(name)) > 1)
+
+            // match in one of the namespaces
+            IEnumerable<FunctionSymbol> foundSymbols = this.namespaces
+                .Where(ns => ns.Symbols.ContainsKey(name))
+                .Select(ns => ns.Symbols[name])
+                .ToList();
+
+            if (!foundSymbols.Any())
+            {
+                foundSymbols = this.namespaces
+                    .SelectMany(ns => ns.WildcardSymbols.Where(s => s.RegexName.IsMatch(name)))
+                    .ToList();                    
+            }
+
+            if (foundSymbols.Count() > 1)
             {
                 // ambiguous symbol
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
             }
 
-            // match in one of the namespaces
-            var functionSymbol = this.namespaces
-                .Where(ns => ns.Symbols.ContainsKey(name))
-                .Select(ns => ns.Symbols[name])
-                .FirstOrDefault();
-                
-            if (functionSymbol == null)
+            var foundSymbol = foundSymbols.FirstOrDefault();
+            if (foundSymbol == null)
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
             }
 
-            return ValidateFunctionConstraints(functionSymbol, span);
+            return ValidateFunctionConstraints(foundSymbol, span);
         }
     }
 }

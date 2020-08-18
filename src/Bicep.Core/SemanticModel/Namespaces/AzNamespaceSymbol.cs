@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.SemanticModel.Namespaces
 {
@@ -31,11 +32,11 @@ namespace Bicep.Core.SemanticModel.Namespaces
             new FunctionOverload("providers", LanguageConstants.Array, 1, 2, Enumerable.Repeat(LanguageConstants.String, 2), null),
 
             // TODO: return type is string[]
-            new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null)
+            new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null),
 
-            //TODO: reference function (has to be inlined)
-            //TODO: list* function (has to be inlined)
-
+            //TODO: must be inlined
+            new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
+            new FunctionOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, regexName: new Regex("^list[a-zA-Z]+")),
         }.ToImmutableArray();
 
         public AzNamespaceSymbol() : base("az", AzOverloads)

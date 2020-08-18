@@ -11,6 +11,12 @@
     },
     "appServicePlanInstances": {
       "type": "int"
+    },
+    "webSiteName": {
+      "type": "string"
+    },
+    "cosmosDb": {
+      "type": "object"
     }
   },
   "functions": [],
@@ -92,6 +98,34 @@
       },
       "properties": {
         "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('webSiteName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "CosmosDb:Account",
+              "value": "[reference(parameters('cosmosDb').account)]"
+            },
+            {
+              "name": "CosmosDb:Key",
+              "value": "[listKeys(parameters('cosmosDb').resourceId, '2020-04-01').primaryMasterKey]"
+            },
+            {
+              "name": "CosmosDb:DatabaseName",
+              "value": "[parameters('cosmosDb').databaseName]"
+            },
+            {
+              "name": "CosmosDb:ContainerName",
+              "value": "[parameters('cosmosDb').containerName]"
+            }
+          ]
+        }
       }
     }
   ],

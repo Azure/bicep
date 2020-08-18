@@ -10,14 +10,19 @@ namespace Bicep.Core.TypeSystem
         // TODO: Can potentially remove this
         public static IEnumerable<FunctionOverload> GetMatches(NamespaceSymbol @namespace, string name, IList<TypeSymbol> argumentTypes)
         {
-            var symbol = @namespace.Symbols.TryGetValue(name);
-            if (symbol == null || !(symbol is FunctionSymbol function))
+            if (@namespace.Symbols.TryGetValue(name) is FunctionSymbol function)
             {
-                // function does not exist
-                return Enumerable.Empty<FunctionOverload>();
+                return GetMatches(function, argumentTypes);
             }
 
-            return GetMatches(function, argumentTypes);
+            var wildCardFunction = @namespace.WildcardSymbols.OfType<FunctionWildcardSymbol>().FirstOrDefault(x => x.RegexName.IsMatch(name));
+            if (wildCardFunction != null)
+            {
+                return GetMatches(wildCardFunction, argumentTypes);
+            }
+
+            // function does not exist
+            return Enumerable.Empty<FunctionOverload>();
         }
 
         public static IEnumerable<FunctionOverload> GetMatches(FunctionSymbol function, IList<TypeSymbol> argumentTypes)
