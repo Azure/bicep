@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
   entry: {
-    "main": './index.js',
+    "main": './src/index.ts',
     // monaco workers
     "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js',
     "json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
@@ -15,6 +15,10 @@ module.exports = {
   },
   module: {
     rules: [{
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+    },{
       test: /\.css$/,
       use: ['style-loader', 'css-loader']
     }, {
@@ -25,12 +29,15 @@ module.exports = {
       use: ['raw-loader']
     }]
   },
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.js' ],
+  },
   plugins: [
     new CopyPlugin({
       patterns: [
         { from: '../Bicep.Wasm/bin/Release/netstandard2.1/wwwroot/_framework', to: './_framework/' },
-        { from: './index.html' },
-        { from: './favicon.ico' }
+        { from: './src/index.html' },
+        { from: './src/favicon.ico' }
       ],
     }),
   ],
