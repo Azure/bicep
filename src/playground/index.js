@@ -1,6 +1,9 @@
 import './main.css';
 import * as monaco from 'monaco-editor';
 import exampleFile from './template.bicep';
+var buildVersion = require('./package.json').version;
+
+document.title = `${document.title} ${buildVersion}`;
 
 self.MonacoEnvironment = {
   getWorkerUrl: function (moduleId, label) {

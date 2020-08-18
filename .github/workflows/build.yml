@@ -124,7 +124,7 @@ jobs:
         working-directory: ./src/playground
 
       - name: Build
-        run: npm run build
+        run: npm run package
         working-directory: ./src/playground
 
       - name: Upload
