@@ -1,0 +1,65 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sqlAdministratorLogin": {
+      "type": "string"
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "secureString"
+    },
+    "transparentDataEncryption": {
+      "type": "string",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "defaultValue": "Enabled"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "databaseName": "sample-db-with-tde",
+    "databaseEdition": "Basic",
+    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
+    "databaseServiceObjectiveName": "Basic",
+    "sqlServerName": "[format('sqlserver{0}', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[variables('sqlServerName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+        "version": "12.0"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[format('{0}/{1}', variables('sqlServerName'), variables('databaseName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "edition": "[variables('databaseEdition')]",
+        "collation": "[variables('databaseCollation')]",
+        "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+      "apiVersion": "2014-04-01-preview",
+      "name": "[format('{0}/{1}/current', variables('sqlServerName'), variables('databaseName'))]",
+      "properties": {
+        "status": "[parameters('transparentDataEncryption')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

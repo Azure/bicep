@@ -1,16 +1,17 @@
 param suffix string = '001'
+param owner string = 'alex'
+param costCenter string = '12345'
+param addressPrefix string = '10.0.0.0/15'
+
+var vnetName = 'vnet-${suffix}'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-  name: 'vnet-${suffix}'
+  name: vnetName
   location: resourceGroup().location
-  tags: {
-    CostCenter: '12345'
-    Owner: 'alex'
-  }
   properties: {
     addressSpace: {
       addressPrefixes: [
-        '10.0.0.0/15'
+        addressPrefix
       ]
     }
     enableVmProtection: true

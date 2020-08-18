@@ -28,31 +28,21 @@
           ]
         },
         "enableVmProtection": true,
-        "enableDdosProtection": true
-      }
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-10-01",
-      "name": "[format('{0}/sub001', variables('vnetName'))]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/24"
-          ]
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-10-01",
-      "name": "[format('{0}/sub002', variables('vnetName'))]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.1.0/24"
-          ]
-        }
+        "enableDdosProtection": true,
+        "subnets": [
+          {
+            "name": "subnet001",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24"
+            }
+          },
+          {
+            "name": "subnet002",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24"
+            }
+          }
+        ]
       }
     }
   ],
