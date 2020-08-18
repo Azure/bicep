@@ -311,6 +311,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP063",
                 $"The name '{name}' is not a parameter or variable.");
+
+            public ErrorDiagnostic MalformedString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP064",
+                "The string at this location is malformed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

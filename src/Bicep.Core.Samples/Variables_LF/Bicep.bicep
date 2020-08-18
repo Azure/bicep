@@ -1,21 +1,23 @@
 
 // an int variable
-variable myInt = 42
+var myInt = 42
 
 // a string variable
-variable myStr = 'str'
-variable interp1 = 'abc${123}def'
-variable interp2 = '${123}def'
-variable interp3 = 'abc${123}'
-variable interp4 = 'abc${123}${456}jk$l${789}p$'
-variable doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
+var myStr = 'str'
+var curliesWithNoInterp = '}{1}{'
+var interp1 = 'abc${123}def'
+var interp2 = '${123}def'
+var interp3 = 'abc${123}'
+var interp4 = 'abc${123}${456}jk$l${789}p$'
+var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
+var curliesInInterp = '{${123}{0}${true}}'
 
 // booleans
-variable myTruth = true
-variable myFalsehood = false
+var myTruth = true
+var myFalsehood = false
 
 // object
-variable myObj = {
+var myObj = {
   a: 'a'
   b: -12
   c: true
@@ -37,14 +39,14 @@ variable myObj = {
 }
 
 // array
-variable myArr = [
+var myArr = [
   'pirates'
   'say'
   'arr'
 ]
 
 // array with objects
-variable myArrWithObjects = [
+var myArrWithObjects = [
   {
     name: 'one'
     enable: true
@@ -55,27 +57,27 @@ variable myArrWithObjects = [
   }
 ]
 
-variable expressionIndexOnAny = any({
+var expressionIndexOnAny = any({
 })[resourceGroup().location]
 
-variable anyIndexOnAny = any(true)[any(false)]
+var anyIndexOnAny = any(true)[any(false)]
 
-variable namedPropertyIndexer = {
+var namedPropertyIndexer = {
 }['foo']
 
-variable intIndexer = [
+var intIndexer = [
   's'
 ][0]
 
-variable functionOnIndexer1 = concat([
+var functionOnIndexer1 = concat([
   's'
 ][0], 's')
 
-variable functionOnIndexer2 = concat([
+var functionOnIndexer2 = concat([
 ][0], 's')
 
-variable functionOnIndexer3 = concat([
+var functionOnIndexer3 = concat([
 ][0], any('s'))
 
-variable singleQuote = '\''
-variable myPropertyName = '${singleQuote}foo${singleQuote}'
+var singleQuote = '\''
+var myPropertyName = '${singleQuote}foo${singleQuote}'

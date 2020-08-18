@@ -1,4 +1,4 @@
-parameter suffix string = '001'
+param suffix string = '001'
 
 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
   name: 'vnet-${suffix}'

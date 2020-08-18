@@ -58,8 +58,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 // unsupported resource ref
-variable resrefvar = bar.name
+var resrefvar = bar.name
 
-parameter resrefpar string = foo.id
+param resrefpar string = foo.id
 
 output resrefout bool = bar.id

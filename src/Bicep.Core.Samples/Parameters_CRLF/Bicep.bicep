@@ -3,19 +3,19 @@
 */
 
 // parameters without default value
-parameter myString string
-parameter myInt int
-parameter myBool bool
+param myString string
+param myInt int
+param myBool bool
 
 // parameters with default value
-parameter myString2 string = 'string value'
-parameter myInt2 int = 42
-parameter myTruth bool = true
-parameter myFalsehood bool = false
-parameter myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
+param myString2 string = 'string value'
+param myInt2 int = 42
+param myTruth bool = true
+param myFalsehood bool = false
+param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
-parameter foo object = {
+param foo object = {
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -39,15 +39,15 @@ parameter foo object = {
 }
 
 // array default value
-parameter myArrayParam array = [
+param myArrayParam array = [
   'a'
   'b'
   'c'
 ]
 
 // alternative array parameter
-parameter myAlternativeArrayParam array {
-  defaultValue: [
+param myAlternativeArrayParam array {
+  default: [
     'a'
     'b'
     'c'
@@ -55,22 +55,22 @@ parameter myAlternativeArrayParam array {
 }
 
 // secure string
-parameter password string {
+param password string {
   secure: true
 }
 
 // non-secure string
-parameter nonSecure string {
+param nonSecure string {
   secure: false
 }
 
 // secure object
-parameter secretObject object {
+param secretObject object {
   secure: true
 }
 
 // enum parameter
-parameter storageSku string {
+param storageSku string {
   allowedValues: [
     'Standard_LRS'
     'Standard_GRS'
@@ -78,32 +78,32 @@ parameter storageSku string {
 }
 
 // length constraint on a string
-parameter storageName string {
+param storageName string {
   minLength: 3
   maxLength: 24
 }
 
 // length constraint on an array
-parameter someArray array {
+param someArray array {
   minLength: 3
   maxLength: 24
 }
 
 // empty metadata
-parameter emptyMetadata string {
+param emptyMetadata string {
   metadata: {
   }
 }
 
 // description
-parameter description string {
+param description string {
   metadata: {
     description: 'my description'
   }
 }
 
 // random extra metadata
-parameter additionalMetadata string {
+param additionalMetadata string {
   metadata: {
     description: 'my description'
     a: 1
@@ -117,11 +117,11 @@ parameter additionalMetadata string {
 }
 
 // all modifiers together
-parameter someParameter string {
+param someParameter string {
   secure: true
   minLength: 3
   maxLength: 24
-  defaultValue: 'one'
+  default: 'one'
   allowedValues: [
     'one'
     'two'
@@ -132,8 +132,8 @@ parameter someParameter string {
   }
 }
 
-parameter defaultValueExpression int {
-  defaultValue: true ? 4 + 2*3 : 0
+param defaultValueExpression int {
+  default: true ? 4 + 2*3 : 0
 }
 
-parameter defaultExpression bool = 18 != (true || false)
+param defaultExpression bool = 18 != (true || false)

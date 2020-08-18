@@ -19,13 +19,13 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DataRow("")]
-        [DataRow("parameter")]
-        [DataRow("parameter\r\n")]
-        [DataRow("parameter ")]
-        [DataRow("parameter foo")]
-        [DataRow("parameter foo bar")]
-        [DataRow("parameter foo bar =")]
-        [DataRow("parameter foo bar = 1")]
+        [DataRow("param")]
+        [DataRow("param\r\n")]
+        [DataRow("param ")]
+        [DataRow("param foo")]
+        [DataRow("param foo bar")]
+        [DataRow("param foo bar =")]
+        [DataRow("param foo bar = 1")]
         public void Oneliners_ShouldRoundTripSuccessfully(string contents)
         {
             RunRoundTripTest(contents);

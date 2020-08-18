@@ -15,7 +15,7 @@ Spaces and tabs are ignored when authoring Bicep files. New lines however have s
 Single line comments begin with `//`.
 #### Examples
 ```
-variable myVar = 'hi!' // this is a comment
+var myVar = 'hi!' // this is a comment
 ```
 
 ### Multi line
@@ -26,7 +26,7 @@ Multi-line comments are declared between `/*` and `*/` characters.
 is a 
 multi line comment */
 
-variable myVar = 'hi!' /* so is
+var myVar = 'hi!' /* so is
 this */
 ```
 
@@ -50,14 +50,14 @@ All strings in Bicep support interpolation, in order to reference expressions in
 #### Examples
 ```
 // myVar evaluates to "hello!"
-variable myVar = 'hello!'
+var myVar = 'hello!'
 
 // myVar evaluates to "what's up?"
-variable myVar2 = 'what\'s up?'
+var myVar2 = 'what\'s up?'
 
 // myVar evaluates to "hello steve!"
-variable name = 'steve'
-variable myVar3 = 'hello ${name}!'
+var name = 'steve'
+var myVar3 = 'hello ${name}!'
 ```
 
 ### Numbers
@@ -65,9 +65,9 @@ Number literals are formatted as integers - a list of digits optionally preceede
 
 #### Examples
 ```
-variable myVar = 123
-variable myVar2 = -454
-variable mvVar3 = 0
+var myVar = 123
+var myVar2 = -454
+var mvVar3 = 0
 ```
 
 ### Booleans
@@ -75,8 +75,8 @@ Boolean literals consist of the keywords `true` and `false`
 
 #### Examples
 ```
-variable myVar = false
-variable myVar2 = true
+var myVar = false
+var myVar2 = true
 ```
 
 ### Arrays
@@ -86,16 +86,16 @@ Note that commas are not required or permitted between array values.
 
 #### Examples
 ```
-variable myArray = [
+var myArray = [
   5983
   3923
   -241
 ]
 
-variable myEmptyArray = [
+var myEmptyArray = [
 ]
 
-variable myMixedArray = [
+var myMixedArray = [
   myVariable
   'hello!'
   true
@@ -110,7 +110,7 @@ Note that commas are not required or permitted between object property pairs.
 
 #### Examples
 ```
-variable myObj = {
+var myObj = {
   stringProp: 'hello!'
   boolProp: false
   numberProp: -464
@@ -124,7 +124,7 @@ variable myObj = {
   variableProp: myVariable
 }
 
-variable myEmptyObj = {
+var myEmptyObj = {
 }
 ```
 
@@ -133,5 +133,5 @@ Null may be declared using the keyword `null`
 
 #### Examples
 ```
-variable myVar = null
+var myVar = null
 ```

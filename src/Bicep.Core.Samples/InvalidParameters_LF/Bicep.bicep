@@ -2,80 +2,80 @@
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 
-parameter myString string
+param myString string
 wrong
 
-parameter myInt int
-parameter
+param myInt int
+param
 
-parameter myBool bool
+param myBool bool
 
-parameter missingType
+param missingType
 
-parameter myString2 string = 'string value'
+param myString2 string = 'string value'
 
-parameter wrongDefaultValue string = 42
+param wrongDefaultValue string = 42
 
-parameter myInt2 int = 42
-parameter noValueAfterColon int =   
+param myInt2 int = 42
+param noValueAfterColon int =   
 
-parameter myTruth bool = 'not a boolean'
-parameter myFalsehood bool = 'false'
+param myTruth bool = 'not a boolean'
+param myFalsehood bool = 'false'
 
-parameter wrongAssignmentToken string: 'hello'
+param wrongAssignmentToken string: 'hello'
 
-parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
+param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
 // badly escaped string
-parameter wrongType fluffyBunny = 'what's up doc?'
+param wrongType fluffyBunny = 'what's up doc?'
 
 // invalid escape
-parameter wrongType fluffyBunny = 'what\s up doc?'
+param wrongType fluffyBunny = 'what\s up doc?'
 
 // unterminated string 
-parameter wrongType fluffyBunny = 'what\'s up doc?
+param wrongType fluffyBunny = 'what\'s up doc?
 
 // unterminated interpolated string
-parameter wrongType fluffyBunny = 'what\'s ${
-parameter wrongType fluffyBunny = 'what\'s ${up
-parameter wrongType fluffyBunny = 'what\'s ${up}
-parameter wrongType fluffyBunny = 'what\'s ${'up
+param wrongType fluffyBunny = 'what\'s ${
+param wrongType fluffyBunny = 'what\'s ${up
+param wrongType fluffyBunny = 'what\'s ${up}
+param wrongType fluffyBunny = 'what\'s ${'up
 
 // unterminated nested interpolated string
-parameter wrongType fluffyBunny = 'what\'s ${'up${
-parameter wrongType fluffyBunny = 'what\'s ${'up${
-parameter wrongType fluffyBunny = 'what\'s ${'up${doc
-parameter wrongType fluffyBunny = 'what\'s ${'up${doc}
-parameter wrongType fluffyBunny = 'what\'s ${'up${doc}'
-parameter wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
+param wrongType fluffyBunny = 'what\'s ${'up${
+param wrongType fluffyBunny = 'what\'s ${'up${
+param wrongType fluffyBunny = 'what\'s ${'up${doc
+param wrongType fluffyBunny = 'what\'s ${'up${doc}
+param wrongType fluffyBunny = 'what\'s ${'up${doc}'
+param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 
 // object literal inside interpolated string
-parameter wrongType fluffyBunny = '${{this: doesnt}.work}'
+param wrongType fluffyBunny = '${{this: doesnt}.work}'
 
-parameter wrongType fluffyBunny = 'what\'s up doc?'
+param wrongType fluffyBunny = 'what\'s up doc?'
 
 // modifier on an invalid type
-parameter someArray arra {
+param someArray arra {
   minLength: 3
   maxLength: 24
 }
 
 // duplicate modifier property
-parameter duplicatedModifierProperty string {
+param duplicatedModifierProperty string {
   minLength: 3
   minLength: 24
 }
 
 // non-existent modifiers
-parameter secureInt int {
+param secureInt int {
   secure: true
   minLength: 3
   maxLength: 123
 }
 
 // wrong modifier value types
-parameter wrongIntModifier int {
-  defaultValue: true
+param wrongIntModifier int {
+  default: true
   allowedValues: [
     'test'
     true
@@ -88,15 +88,15 @@ parameter wrongIntModifier int {
 }
 
 // wrong metadata schema
-parameter wrongMetadataSchema string {
+param wrongMetadataSchema string {
   metadata: {
     description: true
   }
 }
 
 // expression in modifier
-parameter expressionInModifier string {
-  defaultValue: 2 + 3
+param expressionInModifier string {
+  default: 2 + 3
   maxLength: a + 2
   minLength: foo()
   allowedValues: [

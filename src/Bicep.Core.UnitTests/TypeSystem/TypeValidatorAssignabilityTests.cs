@@ -287,7 +287,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateBool(false)),
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateObject(new[]
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateObject(new[]
                 {
                     TestSyntaxFactory.CreateProperty("test", TestSyntaxFactory.CreateInt(333))
                 })),
@@ -315,7 +315,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateBool(false)),
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateString("foo")),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateString("foo")),
 
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
                 {
@@ -342,7 +342,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateInt(324)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateInt(324)),
 
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
                 {
@@ -369,7 +369,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateBool(true)),
 
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
                 {
@@ -393,7 +393,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateArray(new []
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateArray(new []
                 {
                     TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateBool(true))
                 })),
@@ -427,7 +427,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
 
                 // default value of wrong type
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateBool(true)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
@@ -451,7 +451,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'defaultValue' expected a value of type 'string' but the provided value is of type 'bool'.",
+                    "The property 'default' expected a value of type 'string' but the provided value is of type 'bool'.",
                     "The property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
                     //"The property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
                     //"The property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
@@ -471,7 +471,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
 
                 // default value of wrong type
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateBool(true)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
@@ -497,7 +497,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Should().BeEquivalentTo(
                     "The property 'allowedValues' expected a value of type 'int[]' but the provided value is of type 'object'.",
                     "The property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'defaultValue' expected a value of type 'int' but the provided value is of type 'bool'.",
+                    "The property 'default' expected a value of type 'int' but the provided value is of type 'bool'.",
                     "The property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
                     "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
                     "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
@@ -515,7 +515,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
 
                 // default value of wrong type
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateInt(1231)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateInt(1231)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateArray(new []
@@ -542,7 +542,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'defaultValue' expected a value of type 'bool' but the provided value is of type 'int'.",
+                    "The property 'default' expected a value of type 'bool' but the provided value is of type 'int'.",
                     "The enclosing array expected an item of type 'bool', but the provided item was of type 'int'.",
                     "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
                     "The property 'secure' is not allowed on objects of type 'ParameterModifier_bool'.",
@@ -562,7 +562,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
 
                 // default value of wrong type
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateBool(true)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
@@ -590,7 +590,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
                     "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
                     "The property 'allowedValues' expected a value of type 'object[]' but the provided value is of type 'object'.",
-                    "The property 'defaultValue' expected a value of type 'object' but the provided value is of type 'bool'.",
+                    "The property 'default' expected a value of type 'object' but the provided value is of type 'bool'.",
                     "The property 'minValue' is not allowed on objects of type 'ParameterModifier_object'.",
                     "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_object'.",
                     "The property 'minLength' is not allowed on objects of type 'ParameterModifier_object'.",
@@ -607,7 +607,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateInt(1)),
 
                 // default value of wrong type
-                TestSyntaxFactory.CreateProperty("defaultValue", TestSyntaxFactory.CreateBool(true)),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateBool(true)),
 
                 // not an array
                 TestSyntaxFactory.CreateProperty("allowedValues", TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0])),
@@ -632,7 +632,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'defaultValue' expected a value of type 'array' but the provided value is of type 'bool'.",
+                    "The property 'default' expected a value of type 'array' but the provided value is of type 'bool'.",
                     "The property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
                     "The property 'allowedValues' expected a value of type 'array[]' but the provided value is of type 'object'.",
                     "The property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",

@@ -72,8 +72,8 @@
         "package": "node node_modules/vsce/out/vsce package --out ./"
     },
     "devDependencies": {
-        "@types/mocha": "^8.0.2",
-        "@types/node": "^14.0.27",
+        "@types/mocha": "^8.0.3",
+        "@types/node": "^14.6.0",
         "typescript": "^3.9.7",
         "vsce": "^1.78.0",
         "vscode": "^1.1.36"
