@@ -112,8 +112,8 @@ namespace Bicep.Core.SemanticModel.Namespaces
             new FunctionOverload("dateTimeAdd", LanguageConstants.String, 2, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
 
             // newGuid and utcNow are only allowed in parameter default values
-            new FunctionOverload("utcNow", LanguageConstants.String, 0, 1, Enumerable.Repeat(LanguageConstants.String, 1), null, FunctionPlacementConstraints.ParameterDefaults),
-            new FunctionOverload("newGuid", LanguageConstants.String, 0, 0, Enumerable.Empty<TypeSymbol>(), null, FunctionPlacementConstraints.ParameterDefaults),
+            new FunctionOverload("utcNow", LanguageConstants.String, 0, 1, Enumerable.Repeat(LanguageConstants.String, 1), null, FunctionFlags.ParamDefaultsOnly),
+            new FunctionOverload("newGuid", LanguageConstants.String, 0, 0, Enumerable.Empty<TypeSymbol>(), null, FunctionFlags.ParamDefaultsOnly),
         }.ToImmutableArray();
 
         public SystemNamespaceSymbol() : base("sys", SystemOverloads)

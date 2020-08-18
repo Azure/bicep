@@ -11,7 +11,7 @@ namespace Bicep.Core.SemanticModel
 {
     public sealed class NameBindingVisitor : SyntaxVisitor
     {
-        private FunctionPlacementConstraints currentConstraints;
+        private FunctionFlags allowedFlags;
 
         private readonly ILookup<string, Symbol> declarations;
 
@@ -38,34 +38,17 @@ namespace Bicep.Core.SemanticModel
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            currentConstraints = FunctionPlacementConstraints.Resources;
-            // TODO: is this precise enough or should we only set when visiting the specific sub-node?
+            allowedFlags = FunctionFlags.RequiresInlining;
+            // TODO: revisit this when we're able to inline through variables
             base.VisitResourceDeclarationSyntax(syntax);
-            currentConstraints = FunctionPlacementConstraints.None;
+            allowedFlags = FunctionFlags.Default;
         }
 
-        public override void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
+        public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            currentConstraints = FunctionPlacementConstraints.ParameterDefaults;
-            // TODO: is this precise enough or should we only set when visiting the specific sub-node?
-            base.VisitParameterDefaultValueSyntax(syntax);
-            currentConstraints = FunctionPlacementConstraints.None;
-        }
-
-        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-        {
-            currentConstraints = FunctionPlacementConstraints.Variables;
-            // TODO: is this precise enough or should we only set when visiting the specific sub-node?
-            base.VisitVariableDeclarationSyntax(syntax);
-            currentConstraints = FunctionPlacementConstraints.None;
-        }
-
-        public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
-        {
-            currentConstraints = FunctionPlacementConstraints.Outputs;
-            // TODO: is this precise enough or should we only set when visiting the specific sub-node?
-            base.VisitOutputDeclarationSyntax(syntax);
-            currentConstraints = FunctionPlacementConstraints.None;
+            allowedFlags = FunctionFlags.ParamDefaultsOnly;
+            base.VisitParameterDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.ParamDefaultsOnly;
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -78,19 +61,23 @@ namespace Bicep.Core.SemanticModel
             this.bindings.Add(syntax, symbol);
         }
 
-        private Symbol ValidateFunctionConstraints(Symbol symbol, TextSpan span)
+        private Symbol ValidateFunctionFlags(Symbol symbol, TextSpan span)
         {
             if (!(symbol is FunctionSymbol functionSymbol))
             {
                 return symbol;
             }
 
-            var validConstraints = functionSymbol.Overloads.Select(overload => overload.PlacementConstraints).Aggregate((x, y) => x | y);
-            if ((validConstraints & currentConstraints) == FunctionPlacementConstraints.None)
+            var functionFlags = functionSymbol.Overloads.Select(overload => overload.Flags).Aggregate((x, y) => x | y);
+            
+            if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionDisallowedForLocation(
-                    functionSymbol.Name,
-                    DiagnosticBuilder.GetFunctionPlacementConstraintsList(validConstraints)));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
+            }
+            
+            if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
             }
 
             return symbol;
@@ -106,7 +93,7 @@ namespace Bicep.Core.SemanticModel
             if (localSymbol != null)
             {
                 // we found the symbol in the local namespace
-                return ValidateFunctionConstraints(localSymbol, span);
+                return ValidateFunctionFlags(localSymbol, span);
             }
 
             // symbol does not exist in the local namespace
@@ -130,7 +117,7 @@ namespace Bicep.Core.SemanticModel
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
             }
 
-            return ValidateFunctionConstraints(foundSymbol, span);
+            return ValidateFunctionFlags(foundSymbol, span);
         }
     }
 }

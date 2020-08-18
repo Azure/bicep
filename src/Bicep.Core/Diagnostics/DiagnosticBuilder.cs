@@ -317,10 +317,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP064",
                 "The string at this location is malformed.");
 
-            public ErrorDiagnostic FunctionDisallowedForLocation(string functionName, string allowed) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP065",
-                $"Function '{functionName}' can only be used in {allowed}.");
+                $"Function '{functionName}' is not valid at this location. It can only be used in parameter default declarations.");
+
+            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP066",
+                $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
@@ -328,26 +333,5 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
             => new DiagnosticBuilderInternal(positionable.Span);
-
-        private static readonly IReadOnlyDictionary<FunctionPlacementConstraints, string> FunctionPlacementConstraintsStrings = new Dictionary<FunctionPlacementConstraints, string>
-        {
-            [FunctionPlacementConstraints.Outputs] = "output declarations",
-            [FunctionPlacementConstraints.ParameterDefaults] = "parameter defaults",
-            [FunctionPlacementConstraints.Resources] = "resource declarations",
-            [FunctionPlacementConstraints.Variables] = "variable declarations",
-        };
-
-        public static string GetFunctionPlacementConstraintsList(FunctionPlacementConstraints constraints)
-            => FormatLoggingList(FunctionPlacementConstraintsStrings.Where(kvp => (kvp.Key & constraints) == kvp.Key).Select(kvp => kvp.Value));
-
-        private static string FormatLoggingList(IEnumerable<string> items)
-        {
-            if (items.Count() < 2)
-            {
-                return items.FirstOrDefault() ?? "";
-            }
-
-            return $"{items.Take(items.Count() - 1).ConcatString(", ")} and {items.Last()}";
-        }
     }
 }
