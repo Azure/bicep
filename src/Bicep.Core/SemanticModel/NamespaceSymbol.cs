@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -10,44 +9,45 @@ namespace Bicep.Core.SemanticModel
         public NamespaceSymbol(string name, IEnumerable<FunctionOverload> functionOverloads)
             : base(name)
         {
-            this.Symbols = CreateFunctions(functionOverloads.OfType<FunctionOverload>());
-            this.FunctionWildcardOverloads = functionOverloads.OfType<FunctionWildcardOverload>().ToImmutableArray();
+            // prepopulate cache with all known (non-wildcard) symbols
+            this.SymbolCache = functionOverloads
+                .Where(fo => !(fo is FunctionWildcardOverload))
+                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(name, overloads), LanguageConstants.IdentifierComparer)
+                .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
+
+            // don't pre-build symbols for wildcard functions, because we don't want to equate two differently-named symbols with each other
+            this.FunctionWildcardOverloads = functionOverloads
+                .OfType<FunctionWildcardOverload>()
+                .ToImmutableArray();
         }
 
-        public override IEnumerable<Symbol> Descendants => this.Symbols.Values;
+        public override IEnumerable<Symbol> Descendants => this.SymbolCache.Values.OfType<Symbol>();
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitNamespaceSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Namespace;
 
-        private ImmutableDictionary<string, FunctionSymbol> Symbols { get; }
+        private IDictionary<string, FunctionSymbol?> SymbolCache { get; }
 
         private ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
 
         public FunctionSymbol? TryGetFunctionSymbol(string name)
         {
-            // exact match
-            if (Symbols.TryGetValue(name, out var symbol))
+            // symbol comparison relies on object equality; use of this cache ensures that different symbols with the same name are not returned.
+            // we also cache negative lookups (null) so that we don't slow down when looking up references to a missing symbol
+            if (SymbolCache.TryGetValue(name, out var symbol))
             {
                 return symbol;
             }
 
             // wildcard match (e.g. list*)
             var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
-            if (!wildcardOverloads.Any())
-            {
-                return null;
-            }
 
-            // build a new symbol with the correct name. we don't want to return a symbol with name 'list*'.
-            return new FunctionSymbol(name, wildcardOverloads);
-        }
+            // create a new symbol for each unique name that matches the wildcard
+            var cachedSymbol = wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
+            SymbolCache[name] = cachedSymbol;
 
-        private static ImmutableDictionary<string, FunctionSymbol> CreateFunctions(IEnumerable<FunctionOverload> functionOverloads)
-        {
-            return functionOverloads
-                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(name, overloads), LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(f => f.Name, LanguageConstants.IdentifierComparer);
+            return cachedSymbol;
         }
     }
 }
