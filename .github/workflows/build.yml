@@ -37,6 +37,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -73,6 +75,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.1
@@ -108,6 +112,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
@@ -124,7 +130,7 @@ jobs:
         working-directory: ./src/playground
 
       - name: Build
-        run: npm run build
+        run: npm run package
         working-directory: ./src/playground
 
       - name: Upload

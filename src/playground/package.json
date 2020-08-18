@@ -1,13 +1,14 @@
 {
   "name": "bicep-playground",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.0-placeholder",
+  "description": "Bicep playground",
   "main": "index.js",
   "scripts": {
     "build": "npm run build-wasm && npm run webpack",
     "start": "npm run build-wasm && webpack-dev-server",
     "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "package": "gulp setversion && npm run build && gulp resetversion"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +16,8 @@
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^4.2.1",
     "file-loader": "^6.0.0",
+    "gulp": "^4.0.2",
+    "nerdbank-gitversioning": "^3.2.31",
     "raw-loader": "^4.0.1",
     "style-loader": "^1.2.1",
     "webpack": "^4.44.1",
