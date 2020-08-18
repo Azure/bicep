@@ -58,7 +58,7 @@ $installDir.Attributes += 'Hidden'
 (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/bicep-win-x64.exe", "$installPath\bicep.exe")
 # Add bicep to your PATH
 $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
-if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { Set-ItemProperty -Path "HKCU:\Environment" -Name Path -Value ($currentPath + ";%USERPROFILE%\.bicep") }
-# Verify you can now access the 'bicep' command
+if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
+# Verify you can now access the 'bicep' command. Note that on first install, you'll need to open a new PowerShell or CMD window
 bicep --version
 ```
