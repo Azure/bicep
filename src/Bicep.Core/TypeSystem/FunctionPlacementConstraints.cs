@@ -16,31 +16,26 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used in parameter defaults.
         /// </summary>
-        ParameterDefault = 1,
+        ParameterDefaults = 1 << 0,
 
         /// <summary>
         /// The function can be used in variables.
         /// </summary>
-        Variables = 2,
+        Variables = 1 << 1,
 
         /// <summary>
         /// The function can be used in resource declarations.
         /// </summary>
-        Resources = 4,
-
-        /// <summary>
-        /// The function can be used in module references.
-        /// </summary>
-        Modules = 8,
+        Resources = 1 << 2,
 
         /// <summary>
         /// The function can be used in output declarations.
         /// </summary>
-        Outputs = 16,
+        Outputs = 1 << 3,
 
         /// <summary>
         /// The function can be used everywhere.
         /// </summary>
-        All = ParameterDefault | Variables | Resources | Modules | Outputs
+        All = ParameterDefaults | Variables | Resources | Outputs
     }
 }

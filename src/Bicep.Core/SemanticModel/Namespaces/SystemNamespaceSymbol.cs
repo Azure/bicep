@@ -110,14 +110,10 @@ namespace Bicep.Core.SemanticModel.Namespaces
             FunctionOverload.CreateFixed("if", LanguageConstants.Any, LanguageConstants.Bool, LanguageConstants.Any, LanguageConstants.Any),
 
             new FunctionOverload("dateTimeAdd", LanguageConstants.String, 2, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
-            
-            //TODO: newGuid and utcNow are only allowed in parameter default values
-            //FunctionInfo.CreateFixed("newGuid", LanguageConstants.String),
-            //new FunctionInfo("utcNow", LanguageConstants.String, 0, 1, LanguageConstants.String.AsEnumerable(), null),
 
-            //TODO: reference function (has to be inlined)
-            //TODO: list* function (has to be inlined)
-
+            // newGuid and utcNow are only allowed in parameter default values
+            new FunctionOverload("utcNow", LanguageConstants.String, 0, 1, Enumerable.Repeat(LanguageConstants.String, 1), null, FunctionPlacementConstraints.ParameterDefaults),
+            new FunctionOverload("newGuid", LanguageConstants.String, 0, 0, Enumerable.Empty<TypeSymbol>(), null, FunctionPlacementConstraints.ParameterDefaults),
         }.ToImmutableArray();
 
         public SystemNamespaceSymbol() : base("sys", SystemOverloads)

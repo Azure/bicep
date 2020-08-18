@@ -8,7 +8,7 @@ namespace Bicep.Core.SemanticModel
 {
     public class FunctionOverload
     {
-        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType)
+        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType, FunctionPlacementConstraints placementConstraints = FunctionPlacementConstraints.All)
         {
             if (maximumArgumentCount.HasValue && maximumArgumentCount.Value < minimumArgumentCount)
             {
@@ -27,6 +27,7 @@ namespace Bicep.Core.SemanticModel
             this.MaximumArgumentCount = maximumArgumentCount;
             this.FixedArgumentTypes = fixedTypes;
             this.VariableArgumentType = variableArgumentType;
+            this.PlacementConstraints = placementConstraints;
         }
 
         public string Name { get; }
@@ -40,6 +41,8 @@ namespace Bicep.Core.SemanticModel
         public TypeSymbol? VariableArgumentType { get; }
 
         public TypeSymbol ReturnType { get; }
+
+        public FunctionPlacementConstraints PlacementConstraints { get; }
 
         public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes)
         {

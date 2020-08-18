@@ -32,6 +32,10 @@ namespace Bicep.Core.SemanticModel.Namespaces
 
             // TODO: return type is string[]
             new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null)
+
+            //TODO: reference function (has to be inlined)
+            //TODO: list* function (has to be inlined)
+
         }.ToImmutableArray();
 
         public AzNamespaceSymbol() : base("az", AzOverloads)
