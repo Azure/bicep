@@ -152,5 +152,19 @@
     "level": "Error",
     "span": "[403:405]",
     "spanText": "!2"
+  },
+  {
+    "message": "Function 'utcNow' is not valid at this location. It can only be used in parameter default declarations.",
+    "errorCode": "BCP065",
+    "level": "Error",
+    "span": "[477:483]",
+    "spanText": "utcNow"
+  },
+  {
+    "message": "Function 'newGuid' is not valid at this location. It can only be used in parameter default declarations.",
+    "errorCode": "BCP065",
+    "level": "Error",
+    "span": "[501:508]",
+    "spanText": "newGuid"
   }
 ]

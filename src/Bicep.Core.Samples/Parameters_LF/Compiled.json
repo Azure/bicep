@@ -31,6 +31,14 @@
       "type": "string",
       "defaultValue": "First line\nSecond\ttabbed\tline"
     },
+    "myNewGuid": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    },
+    "myUtcTime": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    },
     "foo": {
       "type": "object",
       "defaultValue": {
@@ -52,7 +60,11 @@
           {
             "a": "b"
           }
-        ]
+        ],
+        "test": {
+          "time": "[utcNow('u')]",
+          "guid": "[newGuid()]"
+        }
       }
     },
     "myArrayParam": {
@@ -68,7 +80,9 @@
       "defaultValue": [
         "a",
         "b",
-        "c"
+        "c",
+        "[newGuid()]",
+        "[utcNow()]"
       ]
     },
     "password": {
@@ -121,7 +135,6 @@
     },
     "someParameter": {
       "type": "secureString",
-      "defaultValue": "one",
       "allowedValues": [
         "one",
         "two",
@@ -131,7 +144,8 @@
       "maxLength": 24,
       "metadata": {
         "description": "Name of the storage account"
-      }
+      },
+      "defaultValue": "one"
     },
     "defaultValueExpression": {
       "type": "int",

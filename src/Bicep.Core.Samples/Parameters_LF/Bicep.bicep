@@ -13,6 +13,8 @@ param myInt2 int = 42
 param myTruth bool = true
 param myFalsehood bool = false
 param myEscapedString string = 'First line\nSecond\ttabbed\tline'
+param myNewGuid string = newGuid()
+param myUtcTime string = utcNow()
 
 // object default value
 param foo object = {
@@ -36,6 +38,10 @@ param foo object = {
       a: 'b'
     }
   ]
+  test: {
+    time: utcNow('u')
+    guid: newGuid()
+  }
 }
 
 // array default value
@@ -51,6 +57,8 @@ param myAlternativeArrayParam array {
     'a'
     'b'
     'c'
+    newGuid()
+    utcNow()
   ]
 }
 
