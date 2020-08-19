@@ -1,0 +1,79 @@
+[
+  {
+    "name": "main",
+    "kind": "file",
+    "span": "[0:786]"
+  },
+  {
+    "name": "myStr",
+    "kind": "output",
+    "span": "[2:35]",
+    "nameSpan": "[9:14]"
+  },
+  {
+    "name": "myInt",
+    "kind": "output",
+    "span": "[35:57]",
+    "nameSpan": "[42:47]"
+  },
+  {
+    "name": "myOtherInt",
+    "kind": "output",
+    "span": "[57:102]",
+    "nameSpan": "[64:74]"
+  },
+  {
+    "name": "myBool",
+    "kind": "output",
+    "span": "[102:131]",
+    "nameSpan": "[109:115]"
+  },
+  {
+    "name": "myOtherBool",
+    "kind": "output",
+    "span": "[131:165]",
+    "nameSpan": "[138:149]"
+  },
+  {
+    "name": "suchEmpty",
+    "kind": "output",
+    "span": "[165:198]",
+    "nameSpan": "[172:181]"
+  },
+  {
+    "name": "suchEmpty2",
+    "kind": "output",
+    "span": "[198:233]",
+    "nameSpan": "[205:215]"
+  },
+  {
+    "name": "obj",
+    "kind": "output",
+    "span": "[233:415]",
+    "nameSpan": "[240:243]"
+  },
+  {
+    "name": "myArr",
+    "kind": "output",
+    "span": "[415:493]",
+    "nameSpan": "[422:427]"
+  },
+  {
+    "name": "rgLocation",
+    "kind": "output",
+    "span": "[493:548]",
+    "nameSpan": "[500:510]"
+  },
+  {
+    "name": "crossRegion",
+    "kind": "output",
+    "span": "[548:642]",
+    "nameSpan": "[555:566]"
+  },
+  {
+    "name": "expressionBasedIndexer",
+    "kind": "output",
+    "span": "[642:786]",
+    "nameSpan": "[649:671]"
+  }
+]

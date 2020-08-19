@@ -1,0 +1,67 @@
+[
+  {
+    "name": "main",
+    "kind": "file",
+    "span": "[0:1184]"
+  },
+  {
+    "name": "resrefpar",
+    "kind": "parameter",
+    "span": "[1119:1154]",
+    "nameSpan": "[1125:1134]"
+  },
+  {
+    "name": "resrefvar",
+    "kind": "variable",
+    "span": "[1091:1119]",
+    "nameSpan": "[1095:1104]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[153:180]",
+    "nameSpan": "[162:165]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[233:301]",
+    "nameSpan": "[242:245]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[331:390]",
+    "nameSpan": "[340:343]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[430:519]",
+    "nameSpan": "[439:442]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[549:674]",
+    "nameSpan": "[558:561]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[699:827]",
+    "nameSpan": "[708:711]"
+  },
+  {
+    "name": "bar",
+    "kind": "resource",
+    "span": "[827:1062]",
+    "nameSpan": "[836:839]"
+  },
+  {
+    "name": "resrefout",
+    "kind": "output",
+    "span": "[1154:1184]",
+    "nameSpan": "[1161:1170]"
+  }
+]

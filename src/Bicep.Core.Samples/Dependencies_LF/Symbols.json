@@ -1,0 +1,85 @@
+[
+  {
+    "name": "main",
+    "kind": "file",
+    "span": "[0:1084]"
+  },
+  {
+    "name": "deployTimeParam",
+    "kind": "parameter",
+    "span": "[0:39]",
+    "nameSpan": "[6:21]"
+  },
+  {
+    "name": "deployTimeVar",
+    "kind": "variable",
+    "span": "[39:67]",
+    "nameSpan": "[43:56]"
+  },
+  {
+    "name": "dependentVar",
+    "kind": "variable",
+    "span": "[67:151]",
+    "nameSpan": "[71:83]"
+  },
+  {
+    "name": "resourceDependency",
+    "kind": "variable",
+    "span": "[151:289]",
+    "nameSpan": "[155:173]"
+  },
+  {
+    "name": "resourceIds",
+    "kind": "variable",
+    "span": "[626:675]",
+    "nameSpan": "[630:641]"
+  },
+  {
+    "name": "resA",
+    "kind": "resource",
+    "span": "[329:463]",
+    "nameSpan": "[338:342]"
+  },
+  {
+    "name": "resB",
+    "kind": "resource",
+    "span": "[499:626]",
+    "nameSpan": "[508:512]"
+  },
+  {
+    "name": "resC",
+    "kind": "resource",
+    "span": "[675:794]",
+    "nameSpan": "[684:688]"
+  },
+  {
+    "name": "resD",
+    "kind": "resource",
+    "span": "[794:907]",
+    "nameSpan": "[803:807]"
+  },
+  {
+    "name": "resE",
+    "kind": "resource",
+    "span": "[907:1033]",
+    "nameSpan": "[916:920]"
+  },
+  {
+    "name": "resourceAType",
+    "kind": "output",
+    "span": "[289:329]",
+    "nameSpan": "[296:309]"
+  },
+  {
+    "name": "resourceBId",
+    "kind": "output",
+    "span": "[463:499]",
+    "nameSpan": "[470:481]"
+  },
+  {
+    "name": "resourceCProperties",
+    "kind": "output",
+    "span": "[1033:1084]",
+    "nameSpan": "[1040:1059]"
+  }
+]

@@ -1,0 +1,145 @@
+[
+  {
+    "name": "main",
+    "kind": "file",
+    "span": "[0:1225]"
+  },
+  {
+    "name": "myInt",
+    "kind": "variable",
+    "span": "[20:36]",
+    "nameSpan": "[24:29]"
+  },
+  {
+    "name": "myStr",
+    "kind": "variable",
+    "span": "[57:75]",
+    "nameSpan": "[61:66]"
+  },
+  {
+    "name": "curliesWithNoInterp",
+    "kind": "variable",
+    "span": "[75:109]",
+    "nameSpan": "[79:98]"
+  },
+  {
+    "name": "interp1",
+    "kind": "variable",
+    "span": "[109:138]",
+    "nameSpan": "[113:120]"
+  },
+  {
+    "name": "interp2",
+    "kind": "variable",
+    "span": "[138:164]",
+    "nameSpan": "[142:149]"
+  },
+  {
+    "name": "interp3",
+    "kind": "variable",
+    "span": "[164:190]",
+    "nameSpan": "[168:175]"
+  },
+  {
+    "name": "interp4",
+    "kind": "variable",
+    "span": "[190:234]",
+    "nameSpan": "[194:201]"
+  },
+  {
+    "name": "doubleInterp",
+    "kind": "variable",
+    "span": "[234:291]",
+    "nameSpan": "[238:250]"
+  },
+  {
+    "name": "curliesInInterp",
+    "kind": "variable",
+    "span": "[291:335]",
+    "nameSpan": "[295:310]"
+  },
+  {
+    "name": "myTruth",
+    "kind": "variable",
+    "span": "[347:366]",
+    "nameSpan": "[351:358]"
+  },
+  {
+    "name": "myFalsehood",
+    "kind": "variable",
+    "span": "[366:391]",
+    "nameSpan": "[370:381]"
+  },
+  {
+    "name": "myObj",
+    "kind": "variable",
+    "span": "[401:607]",
+    "nameSpan": "[405:410]"
+  },
+  {
+    "name": "myArr",
+    "kind": "variable",
+    "span": "[616:661]",
+    "nameSpan": "[620:625]"
+  },
+  {
+    "name": "myArrWithObjects",
+    "kind": "variable",
+    "span": "[683:823]",
+    "nameSpan": "[687:703]"
+  },
+  {
+    "name": "expressionIndexOnAny",
+    "kind": "variable",
+    "span": "[823:886]",
+    "nameSpan": "[827:847]"
+  },
+  {
+    "name": "anyIndexOnAny",
+    "kind": "variable",
+    "span": "[886:929]",
+    "nameSpan": "[890:903]"
+  },
+  {
+    "name": "namedPropertyIndexer",
+    "kind": "variable",
+    "span": "[929:968]",
+    "nameSpan": "[933:953]"
+  },
+  {
+    "name": "intIndexer",
+    "kind": "variable",
+    "span": "[968:999]",
+    "nameSpan": "[972:982]"
+  },
+  {
+    "name": "functionOnIndexer1",
+    "kind": "variable",
+    "span": "[999:1051]",
+    "nameSpan": "[1003:1021]"
+  },
+  {
+    "name": "functionOnIndexer2",
+    "kind": "variable",
+    "span": "[1051:1097]",
+    "nameSpan": "[1055:1073]"
+  },
+  {
+    "name": "functionOnIndexer3",
+    "kind": "variable",
+    "span": "[1097:1148]",
+    "nameSpan": "[1101:1119]"
+  },
+  {
+    "name": "singleQuote",
+    "kind": "variable",
+    "span": "[1148:1171]",
+    "nameSpan": "[1152:1163]"
+  },
+  {
+    "name": "myPropertyName",
+    "kind": "variable",
+    "span": "[1171:1225]",
+    "nameSpan": "[1175:1189]"
+  }
+]

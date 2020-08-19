@@ -1,0 +1,49 @@
+[
+  {
+    "name": "main",
+    "kind": "file",
+    "span": "[0:152]"
+  },
+  {
+    "name": "x",
+    "kind": "variable",
+    "span": "[16:27]",
+    "nameSpan": "[20:21]"
+  },
+  {
+    "name": "q",
+    "kind": "variable",
+    "span": "[27:52]",
+    "nameSpan": "[31:32]"
+  },
+  {
+    "name": "a",
+    "kind": "variable",
+    "span": "[63:74]",
+    "nameSpan": "[67:68]"
+  },
+  {
+    "name": "b",
+    "kind": "variable",
+    "span": "[74:94]",
+    "nameSpan": "[78:79]"
+  },
+  {
+    "name": "e",
+    "kind": "variable",
+    "span": "[105:116]",
+    "nameSpan": "[109:110]"
+  },
+  {
+    "name": "f",
+    "kind": "variable",
+    "span": "[116:135]",
+    "nameSpan": "[120:121]"
+  },
+  {
+    "name": "g",
+    "kind": "variable",
+    "span": "[135:152]",
+    "nameSpan": "[139:140]"
+  }
+]
