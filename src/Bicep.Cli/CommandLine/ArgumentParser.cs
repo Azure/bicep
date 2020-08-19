@@ -30,16 +30,20 @@ namespace Bicep.Cli.CommandLine
         }
 
         public static string GetExeName()
-            => Path.GetFileNameWithoutExtension(Path.GetFileName(Assembly.GetExecutingAssembly().Location));
+            => ThisAssembly.AssemblyName;
 
-        private static string GetVersion()
-            => Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "<unknown>";
+        private static string GetVersionString()
+        {
+            var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
+
+            // <major>.<minor>.<patch> (<commmithash>)
+            return $"{versionSplit[0]} ({versionSplit[1]})";
+        }
 
         public static void PrintVersion()
         {
-            var exeVersion = GetVersion();
             var output =
-$@"Bicep CLI version {exeVersion}
+$@"Bicep CLI version {GetVersionString()}
 "; //newline is intentional
 
             Console.Out.Write(output);
@@ -49,9 +53,8 @@ $@"Bicep CLI version {exeVersion}
         public static void PrintUsage()
         {
             var exeName = GetExeName();
-            var exeVersion = GetVersion();
             var output = 
-$@"Bicep CLI version {exeVersion}
+$@"Bicep CLI version {GetVersionString()}
 
 Usage:
   {exeName} build [options] [<files>...]
