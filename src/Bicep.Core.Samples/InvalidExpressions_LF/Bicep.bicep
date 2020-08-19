@@ -129,3 +129,12 @@ var concatWrongTypes = concat({
 var concatWrongTypesContradiction = concat('s', [
 ])
 var indexOfWrongTypes = indexOf(1,1)
+
+// not enough params
+var test1 = listKeys('abcd')
+
+// list spelled wrong 
+var test2 = lsitKeys('abcd', '2020-01-01')
+
+// just 'list' 
+var test3 = list('abcd', '2020-01-01')

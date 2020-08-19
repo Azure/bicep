@@ -316,6 +316,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP064",
                 "The string at this location is malformed.");
+
+            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP065",
+                $"Function '{functionName}' is not valid at this location. It can only be used in parameter default declarations.");
+
+            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP066",
+                $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
