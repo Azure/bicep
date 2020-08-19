@@ -11,6 +11,10 @@
     <None Remove="AKS_LF\Compiled.json" />
     <None Remove="AKS_LF\Diagnostics.json" />
     <None Remove="AKS_LF\Tokens.json" />
+    <None Remove="Dependencies_LF\Bicep.bicep" />
+    <None Remove="Dependencies_LF\Compiled.json" />
+    <None Remove="Dependencies_LF\Diagnostics.json" />
+    <None Remove="Dependencies_LF\Tokens.json" />
     <None Remove="Empty\Bicep.bicep" />
     <None Remove="Empty\Compiled.json" />
     <None Remove="Empty\Errors.err" />
@@ -62,6 +66,10 @@
     <EmbeddedResource Include="AKS_LF\Compiled.json" />
     <EmbeddedResource Include="AKS_LF\Diagnostics.json" />
     <EmbeddedResource Include="AKS_LF\Tokens.json" />
+    <EmbeddedResource Include="Dependencies_LF\Bicep.bicep" />
+    <EmbeddedResource Include="Dependencies_LF\Compiled.json" />
+    <EmbeddedResource Include="Dependencies_LF\Diagnostics.json" />
+    <EmbeddedResource Include="Dependencies_LF\Tokens.json" />
     <EmbeddedResource Include="Empty\Bicep.bicep" />
     <EmbeddedResource Include="Empty\Diagnostics.json" />
     <EmbeddedResource Include="Empty\Compiled.json" />
@@ -105,6 +113,8 @@
     <EmbeddedResource Include="Variables_LF\Diagnostics.json" />
     <EmbeddedResource Include="Variables_LF\Tokens.json" />
     <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
+    <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
+    <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
   </ItemGroup>
 
   <ItemGroup>
@@ -120,6 +130,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

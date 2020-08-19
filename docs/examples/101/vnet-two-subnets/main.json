@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -8,14 +8,12 @@
     }
   },
   "functions": [],
-  "variables": {
-    "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
-  },
+  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2018-10-01",
-      "name": "[variables('vnetName')]",
+      "name": "[format('vnet-{0}', parameters('suffix'))]",
       "location": "[resourceGroup().location]",
       "tags": {
         "CostCenter": "12345",
@@ -27,8 +25,8 @@
             "10.0.0.0/15"
           ]
         },
-        "enableVmProtection": true,
-        "enableDdosProtection": true,
+        "enableVmProtection": false,
+        "enableDdosProtection": false,
         "subnets": [
           {
             "name": "subnet001",

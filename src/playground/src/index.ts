@@ -1,6 +1,6 @@
 import './main.css';
 import * as monaco from 'monaco-editor';
-import exampleFile from '../../../docs/examples/101/aks/main.bicep';
+import exampleFile from '../../../docs/examples/101/1vm-2nics-2subnets-1vnet/main.bicep';
 var buildVersion = require('../package.json').version;
 
 document.title = `${document.title} ${buildVersion}`;

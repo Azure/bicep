@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -55,13 +55,7 @@
   "variables": {
     "cosmosAccountName": "[toLower(parameters('applicationName'))]",
     "websiteName": "[parameters('applicationName')]",
-    "hostingPlanName": "[parameters('applicationName')]",
-    "thing": {
-      "a": "one"
-    },
-    "b": {
-      "a": "[variables('thing').a]"
-    }
+    "hostingPlanName": "[parameters('applicationName')]"
   },
   "resources": [
     {
@@ -94,7 +88,7 @@
         "capacity": "[parameters('appServicePlanInstances')]"
       },
       "properties": {
-        "name": "[variables('hostingPlanName')]"
+        "name": "[format('{0}', variables('hostingPlanName'))]"
       }
     },
     {

@@ -68,7 +68,7 @@ namespace Bicep.Core.TypeSystem
 
             // TODO: Construct/lookup type information based on JSON schema or swagger
             // for now assuming very basic resource schema
-            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null);
+            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null, typeReference);
         }
 
         private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)
@@ -413,8 +413,8 @@ namespace Bicep.Core.TypeSystem
                     // variable bind failure - pass the error along
                     return errorSymbol.ToErrorType();
 
-                case ResourceSymbol _:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).ResourcePropertyAccessNotSupported());
+                case ResourceSymbol resource:
+                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.GetVariableType(context));
 
                 case ParameterSymbol parameter:
                     // TODO: This can cause a cycle

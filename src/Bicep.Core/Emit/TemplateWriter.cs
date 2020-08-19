@@ -1,4 +1,7 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using Arm.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -120,8 +123,11 @@ namespace Bicep.Core.Emit
 
             foreach (var variableSymbol in this.semanticModel.Root.VariableDeclarations)
             {
-                writer.WritePropertyName(variableSymbol.Name);
-                this.EmitVariable(variableSymbol);
+                if (!this.semanticModel.RequiresInlining(variableSymbol))
+                {
+                    writer.WritePropertyName(variableSymbol.Name);
+                    this.EmitVariable(variableSymbol);
+                }
             }
 
             writer.WriteEndObject();
@@ -149,15 +155,35 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            // using the throwing variant here because the semantic model should be completely valid at this point
-            // (it's a code defect if it some errors were not emitted)
-            ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
             this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
 
+            // dependsOn is currently not allowed as a top-level resource property in bicep
+            // we will need to revisit this and probably merge the two if we decide to allow it
+            this.EmitDependsOn(resourceSymbol);
+
             writer.WriteEndObject();
+        }
+
+        private void EmitDependsOn(ResourceSymbol resourceSymbol)
+        {
+            var dependencies = this.semanticModel.GetResourceDependencies(resourceSymbol);
+            if (!dependencies.Any())
+            {
+                return;
+            }
+
+            writer.WritePropertyName("dependsOn");
+            writer.WriteStartArray();
+            foreach (var dependency in dependencies)
+            {
+                var typeReference = EmitHelpers.GetTypeReference(dependency);
+                emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);
+            }
+            writer.WriteEndArray();
         }
 
         private void EmitOutputs()
