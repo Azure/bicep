@@ -48,7 +48,7 @@ namespace Bicep.Core.SemanticModel
         {
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
             base.VisitParameterDeclarationSyntax(syntax);
-            allowedFlags = FunctionFlags.ParamDefaultsOnly;
+            allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
