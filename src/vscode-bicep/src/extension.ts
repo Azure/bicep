@@ -37,6 +37,11 @@ export async function activate(context: ExtensionContext) {
 
     try {
         const dotNetRuntimePath = await getDotNetRuntimePath();
+
+        if (!dotNetRuntimePath) {
+            throw new Error("Unable to download and install .NET Core.")
+        }
+
         //Write to output.
         info.appendLine(`DotNet version installed: '${dotNetRuntimePath}'`);
         const languageServerPath = getLanguageServerPath(context);
