@@ -159,9 +159,11 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
-            // TODO should we merge with the supplied props? Do we need to check if it's already been set? Add a test for this scenario
-            this.EmitDependsOn(resourceSymbol);
             this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
+
+            // dependsOn is currently not allowed as a top-level resource property in bicep
+            // we will need to revisit this and probably merge the two if we decide to allow it
+            this.EmitDependsOn(resourceSymbol);
 
             writer.WriteEndObject();
         }

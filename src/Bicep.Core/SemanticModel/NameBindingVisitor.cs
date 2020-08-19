@@ -44,9 +44,6 @@ namespace Bicep.Core.SemanticModel
 
         private Symbol LookupSymbolByName(string name, TextSpan span)
         {
-            // in cases of duplicate declarations we will see multiple declaration symbols in the result list
-            // for simplicitly we will bind to the first one
-            // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
             if (this.declarations.TryGetValue(name, out var localSymbol))
             {
                 // we found the symbol in the local namespace
