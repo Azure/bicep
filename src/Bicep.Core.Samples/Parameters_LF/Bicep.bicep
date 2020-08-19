@@ -57,6 +57,8 @@ param myAlternativeArrayParam array {
     'a'
     'b'
     'c'
+    newGuid()
+    utcNow()
   ]
 }
 

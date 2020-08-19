@@ -80,7 +80,9 @@
       "defaultValue": [
         "a",
         "b",
-        "c"
+        "c",
+        "[newGuid()]",
+        "[utcNow()]"
       ]
     },
     "password": {
