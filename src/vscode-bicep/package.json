@@ -69,8 +69,6 @@
         "compile": "tsc -p ./",
         "lint": "eslint src --ext ts",
         "lint:fix": "eslint src --ext ts --fix",
-        "update-vscode": "node ./node_modules/vscode/bin/install",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "package": "gulp setversion && vsce package --out ./ && gulp resetversion"
     },
     "devDependencies": {
