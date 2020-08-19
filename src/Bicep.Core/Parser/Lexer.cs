@@ -73,14 +73,21 @@ namespace Bicep.Core.Parser
         public ImmutableArray<Diagnostic> GetDiagnostics() => diagnostics.ToImmutableArray();
 
         /// <summary>
-        /// Converts string literal text into its value. May return null if wrong token type is passed in or if the token is malformed.
+        /// Converts a set of string literal tokens into their raw values. May return null if any of the tokens are of the wrong type or malformed.
         /// </summary>
-        /// <param name="stringToken">the string token</param>
-        public static string? TryGetStringValue(Token stringToken)
+        /// <param name="stringTokens">the string tokens</param>
+        public static IEnumerable<string>? TryGetRawStringSegments(IReadOnlyList<Token> stringTokens)
         {
             try
             {
-                return GetStringValue(stringToken);
+                var segments = new string[stringTokens.Count];
+
+                for (var i = 0; i < stringTokens.Count; i++)
+                {
+                    segments[i] = Lexer.GetStringValue(stringTokens[i]);
+                }
+
+                return segments;
             }
             catch (ArgumentException)
             {
@@ -588,6 +595,7 @@ namespace Bicep.Core.Parser
                         textWindow.Rewind();
 
                         // do not consume the new line character
+                        // TODO: figure out a way to avoid returning this multiple times for nested interpolation
                         AddDiagnostic(b => b.UnterminatedStringWithNewLine());
 
                         templateStack.Clear();

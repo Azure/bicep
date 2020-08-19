@@ -12,7 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDocumentSymbolHandler: DocumentSymbolHandler
     {

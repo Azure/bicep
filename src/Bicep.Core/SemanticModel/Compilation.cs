@@ -39,13 +39,22 @@ namespace Bicep.Core.SemanticModel
             var declarationVisitor = new DeclarationVisitor(typeCache, declarations);
             declarationVisitor.Visit(this.ProgramSyntax);
 
+            // in cases of duplicate declarations we will see multiple declaration symbols in the result list
+            // for simplicitly we will bind to the first one
+            // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
+            var uniqueDeclarations = declarations
+                .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+
             // bind identifiers to declarations
-            var binder = new NameBindingVisitor(declarations, bindings, builtinNamespaces);
+            var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtinNamespaces);
             binder.Visit(this.ProgramSyntax);
 
             // name binding is done
             // allow type queries now
             typeCache.Unlock();
+
+            var symbolGraph = SymbolGraphVisitor.Build(this.ProgramSyntax, uniqueDeclarations, bindings);
 
             // TODO: Avoid looping 4 times?
             var file = new FileSymbol(
@@ -58,7 +67,7 @@ namespace Bicep.Core.SemanticModel
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
 
-            return new SemanticModel(file, typeCache, bindings, typeCache);
+            return new SemanticModel(file, typeCache, bindings, symbolGraph);
         }
     }
 }

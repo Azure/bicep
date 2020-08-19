@@ -3,129 +3,138 @@
 */
 
 // bad expressions
-variable bad = a+
-variable bad = *
-variable bad = /
-variable bad = %
-variable bad = 33-
-variable bad = --33
-variable bad = 3 * 4 /
-variable bad = 222222222222222222222222222222222222222222 * 4
-variable bad = (null) ?
-variable bad = (null) ? :
-variable bad = (null) ? !
-variable bad = (null)!
-variable bad = (null)[0]
-variable bad = ()
-variable bad = {}
-variable bad = []
-variable bad = 
+var bad = a+
+var bad = *
+var bad = /
+var bad = %
+var bad = 33-
+var bad = --33
+var bad = 3 * 4 /
+var bad = 222222222222222222222222222222222222222222 * 4
+var bad = (null) ?
+var bad = (null) ? :
+var bad = (null) ? !
+var bad = (null)!
+var bad = (null)[0]
+var bad = ()
+var bad = {}
+var bad = []
+var bad = 
 
 // variables not supported
-variable x = a + 2
+var x = a + 2
 
 // unary NOT
-variable not = !null
-variable not = !4
-variable not = !'s'
-variable not = ![
+var not = !null
+var not = !4
+var not = !'s'
+var not = ![
 ]
-variable not = !{
+var not = !{
 }
 
 // unary not chaining will be added in the future
-variable not = !!!!!!!true
+var not = !!!!!!!true
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
-variable minus = ------12
+var minus = ------12
 
 // unary minus
-variable minus = -true
-variable minus = -null
-variable minus = -'s'
-variable minus = -[
+var minus = -true
+var minus = -null
+var minus = -'s'
+var minus = -[
 ]
-variable minus = -{
+var minus = -{
 }
 
 // multiplicative
-variable mod = 's' % true
-variable mul = true * null
-variable div = {
+var mod = 's' % true
+var mul = true * null
+var div = {
 } / [
 ]
 
 // additive
-variable add = null + 's'
-variable sub = true - false
+var add = null + 's'
+var sub = true - false
 
 // equality (== and != can't have a type error because they work on "any" type)
-variable eq = true =~ null
-variable ne = 15 !~ [
+var eq = true =~ null
+var ne = 15 !~ [
 ]
 
 // relational
-variable lt = 4 < 's'
-variable lteq = null <= 10
-variable gt = false>[
+var lt = 4 < 's'
+var lteq = null <= 10
+var gt = false>[
 ]
-variable gteq = {
+var gteq = {
 } >= false
 
 // logical
-variable and = null && 'a'
-variable or = 10 || 4
+var and = null && 'a'
+var or = 10 || 4
 
 // conditional
-variable ternary = null ? 4 : false
+var ternary = null ? 4 : false
 
 // complex expressions
-variable complex = test(2 + 3*4, true || false && null)
-variable complex = -2 && 3 && !4 && 5
-variable complex = null ? !4: false
-variable complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
+var complex = test(2 + 3*4, true || false && null)
+var complex = -2 && 3 && !4 && 5
+var complex = null ? !4: false
+var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
 
-variable nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
-variable nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
+var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
+var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 
 // bad array access
-variable errorInsideArrayAccess = [
+var errorInsideArrayAccess = [
   !null
 ][!0]
-variable integerIndexOnNonArray = (null)[0]
-variable stringIndexOnNonObject = 'test'['test']
-variable malformedStringIndex = {
+var integerIndexOnNonArray = (null)[0]
+var stringIndexOnNonObject = 'test'['test']
+var malformedStringIndex = {
 }['test\e']
 
 // bad propertyAccess
-variable dotAccessOnNonObject = true.foo
-variable badExpressionInPropertyAccess = resourceGroup()[!'location']
+var dotAccessOnNonObject = true.foo
+var badExpressionInPropertyAccess = resourceGroup()[!'location']
 
-variable propertyAccessOnVariable = x.foo
+var propertyAccessOnVariable = x.foo
 
 // function used like a variable
-variable funcvarvar = concat + base64 || !uniqueString
-parameter funcvarparam bool = concat
+var funcvarvar = concat + base64 || !uniqueString
+param funcvarparam bool = concat
 output funcvarout array = padLeft
 
 // non-existent function
-variable fakeFunc = red() + green() * orange()
-parameter fakeFuncP string {
-  defaultValue: blue()
+var fakeFunc = red() + green() * orange()
+param fakeFuncP string {
+  default: blue()
 }
 
 // non-existent variable
-variable fakeVar = concat(totallyFakeVar, 's')
+var fakeVar = concat(totallyFakeVar, 's')
 
 // bad functions arguments
-variable concatNotEnough = concat()
-variable padLeftNotEnough = padLeft('s')
-variable takeTooMany = take([
+var concatNotEnough = concat()
+var padLeftNotEnough = padLeft('s')
+var takeTooMany = take([
 ],1,2,'s')
 
 // wrong argument types
-variable concatWrongTypes = concat({
+var concatWrongTypes = concat({
 })
-variable concatWrongTypesContradiction = concat('s', [
+var concatWrongTypesContradiction = concat('s', [
 ])
-variable indexOfWrongTypes = indexOf(1,1)
+var indexOfWrongTypes = indexOf(1,1)
+
+// not enough params
+var test1 = listKeys('abcd')
+
+// list spelled wrong 
+var test2 = lsitKeys('abcd', '2020-01-01')
+
+// just 'list' 
+var test3 = list('abcd', '2020-01-01')

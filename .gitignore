@@ -364,6 +364,3 @@ FodyWeavers.xsd
 
 # Language Server bits
 bicepLanguageServer/
-
-# Test output file.
-basic.json

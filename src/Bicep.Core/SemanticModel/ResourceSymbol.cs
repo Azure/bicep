@@ -15,6 +15,11 @@ namespace Bicep.Core.SemanticModel
 
         public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax) this.DeclaringSyntax;
 
+        public TypeSymbol GetVariableType(TypeManagerContext context)
+        {
+            return this.TypeManager.GetTypeInfo(this.DeclaringResource.Body, context);
+        }
+
         public TypeSymbol Type
         {
             get
@@ -32,7 +37,7 @@ namespace Bicep.Core.SemanticModel
                 }
                 else
                 {
-                    var stringContent = stringSyntax?.TryGetFormatString();
+                    var stringContent = stringSyntax?.GetLiteralValue();
                     resourceType = this.TypeManager.GetTypeByName(stringContent);
 
                     // TODO: This check is likely too simplistic
@@ -65,6 +70,6 @@ namespace Bicep.Core.SemanticModel
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, this.Body, this.Type);
         }
 
-        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ResourceDeclarationSyntax)?.Name;
+        public override SyntaxBase? NameSyntax => this.DeclaringResource.Name;
     }
 }

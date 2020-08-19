@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Azure.ResourceManager.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
@@ -236,7 +235,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP048",
-                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatStrings(", ")}).");
+                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatString(", ")}).");
 
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
@@ -293,11 +292,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name '{name}' is not a function.");
 
-            public ErrorDiagnostic ResourcePropertyAccessNotSupported() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP060",
-                "The resource property access capability is not yet implemented but is coming soon.");
-
             public ErrorDiagnostic CyclicExpression() => new ErrorDiagnostic(
                 TextSpan,
                 BCP061CyclicExpressionCode,
@@ -312,6 +306,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP063",
                 $"The name '{name}' is not a parameter or variable.");
+
+            public ErrorDiagnostic MalformedString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP064",
+                "The string at this location is malformed.");
+
+            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP065",
+                $"Function '{functionName}' is not valid at this location. It can only be used in parameter default declarations.");
+
+            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP066",
+                $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

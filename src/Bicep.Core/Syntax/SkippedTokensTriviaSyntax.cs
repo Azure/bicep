@@ -7,7 +7,7 @@ namespace Bicep.Core.Syntax
 {
     public class SkippedTokensTriviaSyntax : SyntaxBase
     {
-        public SkippedTokensTriviaSyntax(IEnumerable<Token> tokens, ErrorDiagnostic errorInfo, Token errorCause)
+        public SkippedTokensTriviaSyntax(IEnumerable<Token> tokens, ErrorDiagnostic? errorInfo, Token? errorCause)
         {
             this.Tokens = tokens.ToList().AsReadOnly();
             this.ErrorInfo = errorInfo;
@@ -19,12 +19,12 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public IReadOnlyList<Token> Tokens { get; }
 
-        public ErrorDiagnostic ErrorInfo { get; }
+        public ErrorDiagnostic? ErrorInfo { get; }
 
         /// <summary>
         /// Gets the token that caused the error. This token may fall outside of the Tokens list. For example, an unexpected newline will terminate parsing of a parameter declaration but will not be included in skipped tokens.
         /// </summary>
-        public Token ErrorCause { get; }
+        public Token? ErrorCause { get; }
 
         public override void Accept(SyntaxVisitor visitor)
             => visitor.VisitSkippedTokensTriviaSyntax(this);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -13,6 +14,9 @@ namespace Bicep.Core.TypeSystem
     public class TypeManager : ITypeManager
     {
         private readonly IReadOnlyDictionary<SyntaxBase,Symbol> bindings;
+
+        // stores results of type checks
+        private readonly ConcurrentDictionary<SyntaxBase, TypeSymbol> typeCheckCache = new ConcurrentDictionary<SyntaxBase, TypeSymbol>();
 
         private bool unlocked;
 
@@ -64,77 +68,95 @@ namespace Bicep.Core.TypeSystem
 
             // TODO: Construct/lookup type information based on JSON schema or swagger
             // for now assuming very basic resource schema
-            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null);
+            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null, typeReference);
         }
 
         private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)
         {
-            if (context.TryMarkVisited(syntax) == false)
+            // local function because I don't want this called directly
+            TypeSymbol GetTypeInfoWithoutCache()
             {
-                // we have already visited this node, which means we have a cycle
-                // all the nodes that were visited are involved in the cycle
-                return new ErrorTypeSymbol(context.GetVisitedNodes().Select(node => DiagnosticBuilder.ForPosition(node.Span).CyclicExpression()));
+                if (context.TryMarkVisited(syntax) == false)
+                {
+                    // we have already visited this node, which means we have a cycle
+                    // all the nodes that were visited are involved in the cycle
+                    return new ErrorTypeSymbol(context.GetVisitedNodes().Select(node => DiagnosticBuilder.ForPosition(node.Span).CyclicExpression()));
+                }
+
+                switch (syntax)
+                {
+                    case BooleanLiteralSyntax _:
+                        return LanguageConstants.Bool;
+
+                    case NumericLiteralSyntax _:
+                        return LanguageConstants.Int;
+
+                    case StringSyntax @string:
+                        return GetStringType(context, @string);
+
+                    case ObjectSyntax @object:
+                        return GetObjectType(context, @object);
+
+                    case ObjectPropertySyntax objectProperty:
+                        return GetTypeInfoInternal(context, objectProperty.Value);
+
+                    case ArraySyntax array:
+                        return GetArrayType(context, array);
+
+                    case ArrayItemSyntax arrayItem:
+                        return GetTypeInfoInternal(context, arrayItem.Value);
+
+                    case BinaryOperationSyntax binary:
+                        return GetBinaryOperationType(context, binary);
+
+                    case FunctionArgumentSyntax functionArgument:
+                        return GetTypeInfoInternal(context, functionArgument.Expression);
+
+                    case FunctionCallSyntax functionCall:
+                        return GetFunctionCallType(context, functionCall);
+
+                    case NullLiteralSyntax _:
+                        // null is its own type
+                        return LanguageConstants.Null;
+
+                    case ParenthesizedExpressionSyntax parenthesized:
+                        // parentheses don't change the type of the parenthesized expression
+                        return GetTypeInfoInternal(context, parenthesized.Expression);
+
+                    case PropertyAccessSyntax propertyAccess:
+                        return GetPropertyAccessType(context, propertyAccess);
+
+                    case ArrayAccessSyntax arrayAccess:
+                        return GetArrayAccessType(context, arrayAccess);
+
+                    case TernaryOperationSyntax ternary:
+                        return GetTernaryOperationType(context, ternary);
+
+                    case UnaryOperationSyntax unary:
+                        return GetUnaryOperationType(context, unary);
+
+                    case VariableAccessSyntax variableAccess:
+                        return GetVariableAccessType(context, variableAccess);
+
+                    case SkippedTokensTriviaSyntax _:
+                        // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
+                        return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
+
+                    default:
+                        return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
+                }
             }
 
-            // TODO: implement a type cache, so we don't have walk the three all the time.
-            switch (syntax)
+            if (this.typeCheckCache.TryGetValue(syntax, out var cachedType))
             {
-                case BooleanLiteralSyntax _:
-                    return LanguageConstants.Bool;
-
-                case NumericLiteralSyntax _:
-                    return LanguageConstants.Int;
-
-                case StringSyntax @string:
-                    return GetStringType(context, @string);
-
-                case ObjectSyntax @object:
-                    return GetObjectType(context, @object);
-
-                case ObjectPropertySyntax objectProperty:
-                    return GetTypeInfoInternal(context, objectProperty.Value);
-
-                case ArraySyntax array:
-                    return GetArrayType(context, array);
-
-                case ArrayItemSyntax arrayItem:
-                    return GetTypeInfoInternal(context, arrayItem.Value);
-
-                case BinaryOperationSyntax binary:
-                    return GetBinaryOperationType(context, binary);
-
-                case FunctionArgumentSyntax functionArgument:
-                    return GetTypeInfoInternal(context, functionArgument.Expression);
-
-                case FunctionCallSyntax functionCall:
-                    return GetFunctionCallType(context, functionCall);
-
-                case NullLiteralSyntax _:
-                    // null is its own type
-                    return LanguageConstants.Null;
-
-                case ParenthesizedExpressionSyntax parenthesized:
-                    // parentheses don't change the type of the parenthesized expression
-                    return GetTypeInfoInternal(context, parenthesized.Expression);
-
-                case PropertyAccessSyntax propertyAccess:
-                    return GetPropertyAccessType(context, propertyAccess);
-
-                case ArrayAccessSyntax arrayAccess:
-                    return GetArrayAccessType(context, arrayAccess);
-
-                case TernaryOperationSyntax ternary:
-                    return GetTernaryOperationType(context, ternary);
-
-                case UnaryOperationSyntax unary:
-                    return GetUnaryOperationType(context, unary);
-
-                case VariableAccessSyntax variableAccess:
-                    return GetVariableAccessType(context, variableAccess);
-
-                default:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
+                // the result was already in our cache
+                return cachedType;
             }
+
+            var type = GetTypeInfoWithoutCache();
+            this.typeCheckCache.TryAdd(syntax, type);
+
+            return type;
         }
 
         private TypeSymbol GetStringType(TypeManagerContext context, StringSyntax @string)
@@ -301,7 +323,7 @@ namespace Bicep.Core.TypeSystem
             var indexType = this.GetTypeInfoInternal(context, syntax.IndexExpression);
             CollectErrors(errors, indexType);
 
-            if (errors.Any())
+            if (errors.Any() || indexType.TypeKind == TypeKind.Error)
             {
                 return new ErrorTypeSymbol(errors);
             }
@@ -363,7 +385,7 @@ namespace Bicep.Core.TypeSystem
                 switch (syntax.IndexExpression)
                 {
                     case StringSyntax @string when @string.IsInterpolated() == false:
-                        var propertyName = @string.TryGetFormatString();
+                        var propertyName = @string.GetLiteralValue();
                         if (propertyName == null)
                         {
                             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(@string).MalformedPropertyNameString());
@@ -391,8 +413,8 @@ namespace Bicep.Core.TypeSystem
                     // variable bind failure - pass the error along
                     return errorSymbol.ToErrorType();
 
-                case ResourceSymbol _:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).ResourcePropertyAccessNotSupported());
+                case ResourceSymbol resource:
+                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.GetVariableType(context));
 
                 case ParameterSymbol parameter:
                     // TODO: This can cause a cycle

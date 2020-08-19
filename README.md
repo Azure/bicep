@@ -62,7 +62,6 @@ Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
 * No explicit support for deployments across scopes (though this can be hacked together by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187](https://github.com/Azure/bicep/issues/187)]
   * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
-* `reference()`, `newGuid()`, `reference()`, and `list*()` functions are not yet supported
 * Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 

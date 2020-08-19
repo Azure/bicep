@@ -182,24 +182,17 @@
     "spanText": "-true"
   },
   {
-    "message": "The resource property access capability is not yet implemented but is coming soon.",
-    "errorCode": "BCP060",
+    "message": "The referenced declaration with name 'bar' is not valid.",
+    "errorCode": "BCP062",
     "level": "Error",
-    "span": "[1112:1115]",
+    "span": "[1107:1110]",
     "spanText": "bar"
   },
   {
-    "message": "The resource property access capability is not yet implemented but is coming soon.",
-    "errorCode": "BCP060",
+    "message": "The referenced declaration with name 'bar' is not valid.",
+    "errorCode": "BCP062",
     "level": "Error",
-    "span": "[1153:1156]",
-    "spanText": "foo"
-  },
-  {
-    "message": "The resource property access capability is not yet implemented but is coming soon.",
-    "errorCode": "BCP060",
-    "level": "Error",
-    "span": "[1187:1190]",
+    "span": "[1178:1181]",
     "spanText": "bar"
   }
 ]

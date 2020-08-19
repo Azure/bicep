@@ -61,7 +61,7 @@ Ternary operators operate on 3 operands. Bicep supports only one such operator.
 
 Example usage:
 ```
-parameter replicateGlobally bool
+param replicateGlobally bool
 
 resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
   name: storageAccountName
@@ -94,7 +94,7 @@ Enclosing an expression between `(` and `)` allows you to override the default b
 ## Property Accessors
 Property accessors are used to access properties of an object. They are constructed using the `.` operator. Consider the following:
 ```
-variable x = {
+var x = {
   y: {
     z: 'Hello`
     a: true
@@ -112,9 +112,9 @@ Array indexers serve two purposes. Most commonly, they are used to access items 
 
 Consider the following:
 ```
-variable index = 1
+var index = 1
 
-variable myArray = [
+var myArray = [
   1
   2
   3
@@ -125,9 +125,9 @@ Arrays in bicep are 0-based. In other words, the first item in an array is at in
 
 String-based indexers are also allowed in bicep. Consider the following:
 ```
-parameter environment string = 'prod'
+param environment string = 'prod'
 
-variable environmentSettings = {
+var environmentSettings = {
   dev: {
     name: 'dev'
   }
