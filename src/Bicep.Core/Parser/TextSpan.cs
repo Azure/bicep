@@ -32,6 +32,10 @@ namespace Bicep.Core.Parser
 
         public override string ToString() => $"[{Position}:{Position + Length}]";
 
+        public bool Contains(int offset) => offset >= this.Position && offset < this.Position + this.Length;
+
+        public bool ContainsInclusive(int offset) => offset >= this.Position && offset <= this.Position + this.Length;
+
         /// <summary>
         /// Calculates the span from the beginning of the first span to the end of the second span.
         /// </summary>

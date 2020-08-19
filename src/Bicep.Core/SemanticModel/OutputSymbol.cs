@@ -2,16 +2,16 @@
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class OutputSymbol : DeclaredSymbol
+    public class OutputSymbol : DeclaredSymbol, INavigableSymbol
     {
         public OutputSymbol(ITypeManager typeManager, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
-            : base(typeManager, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Value = value;
         }
@@ -54,7 +54,5 @@ namespace Bicep.Core.SemanticModel
 
             return Enumerable.Empty<ErrorDiagnostic>();
         }
-
-        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as OutputDeclarationSyntax)?.Name;
     }
 }

@@ -1,9 +1,10 @@
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceDeclarationSyntax : SyntaxBase
+    public class ResourceDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
         public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token? newLine)
         {

@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.SemanticModel
@@ -18,7 +17,7 @@ namespace Bicep.Core.SemanticModel
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<OutputSymbol> outputDeclarations)
-            : base(typeManager, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax, null)
         {
             this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
@@ -69,7 +68,5 @@ namespace Bicep.Core.SemanticModel
                 }
             }
         }
-
-        public override SyntaxBase? NameSyntax => null;
     }
 }

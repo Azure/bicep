@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class ResourceSymbol : DeclaredSymbol
+    public class ResourceSymbol : DeclaredSymbol, INavigableSymbol
     {
         public ResourceSymbol(ITypeManager typeManager, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
-            : base(typeManager, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Body = body;
         }
@@ -69,7 +70,5 @@ namespace Bicep.Core.SemanticModel
         {
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, this.Body, this.Type);
         }
-
-        public override SyntaxBase? NameSyntax => this.DeclaringResource.Name;
     }
 }

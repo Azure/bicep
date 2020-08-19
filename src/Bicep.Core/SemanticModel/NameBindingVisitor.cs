@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -24,6 +23,19 @@ namespace Bicep.Core.SemanticModel
             this.declarations = declarations;
             this.bindings = bindings;
             this.namespaces = namespaces.ToImmutableArray();
+        }
+
+        public override void VisitProgramSyntax(ProgramSyntax syntax)
+        {
+            base.VisitProgramSyntax(syntax);
+
+            // create bindings for all of the declarations to their corresponding symbol
+            // this is needed to make find all references work correctly
+            // (doing this here to avoid side-effects in the constructor)
+            foreach (DeclaredSymbol declaredSymbol in this.declarations.Values.OfType<DeclaredSymbol>())
+            {
+                this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
+            }
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -55,7 +67,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.FunctionName.IdentifierName, syntax.FunctionName.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);

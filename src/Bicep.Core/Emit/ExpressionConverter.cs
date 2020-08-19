@@ -71,7 +71,7 @@ namespace Bicep.Core.Emit
 
                 case FunctionCallSyntax function:
                     return ConvertFunction(
-                        function.FunctionName.IdentifierName,
+                        function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
 
                 case ArrayAccessSyntax arrayAccess:

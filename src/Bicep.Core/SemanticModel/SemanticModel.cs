@@ -49,7 +49,23 @@ namespace Bicep.Core.SemanticModel
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax, new TypeManagerContext());
+
+        /// <summary>
+        /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
+        /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
+        /// </summary>
+        /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
+
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
+        /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.bindings
+            .Where(binding => ReferenceEquals(binding.Value, symbol))
+            .Select(binding => binding.Key);
 
         /// <summary>
         /// Gets the file that was compiled.

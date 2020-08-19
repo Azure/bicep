@@ -1,8 +1,9 @@
-﻿using Bicep.Core.Parser;
+﻿using Bicep.Core.Navigation;
+using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class VariableAccessSyntax: SyntaxBase, IExpressionSyntax
+    public class VariableAccessSyntax: SyntaxBase, IExpressionSyntax, ISymbolReference
     {
         public VariableAccessSyntax(IdentifierSyntax name)
         {
