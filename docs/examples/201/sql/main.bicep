@@ -30,9 +30,8 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 }
 
-// todo - check that auto dependsOn is working
 resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlServerName}/${databaseName}'
+  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, so dependsOn was not automatically added
   location: location
   properties: {
     edition: databaseEdition
@@ -42,9 +41,8 @@ resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
 }
 
 // very long type...
-// todo - check that auto dependsOn is working
 resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01-preview' = {
-  name: '${sqlServerName}/${databaseName}/current'
+  name: '${sqlServer.name}/${db.name}/current' // had to change databaseName => db.name to get dependsOn working
   properties: {
     status: transparentDataEncryption
   }

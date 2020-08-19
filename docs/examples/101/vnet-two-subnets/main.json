@@ -1,28 +1,42 @@
-{
+﻿{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "suffix": {
       "type": "string",
       "defaultValue": "001"
+    },
+    "owner": {
+      "type": "string",
+      "defaultValue": "alex"
+    },
+    "costCenter": {
+      "type": "string",
+      "defaultValue": "12345"
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/15"
     }
   },
   "functions": [],
-  "variables": {},
+  "variables": {
+    "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
+  },
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2018-10-01",
-      "name": "[format('vnet-{0}', parameters('suffix'))]",
+      "name": "[variables('vnetName')]",
       "location": "[resourceGroup().location]",
       "tags": {
-        "CostCenter": "12345",
-        "Owner": "alex"
+        "Owner": "[parameters('owner')]",
+        "CostCenter": "[parameters('costCenter')]"
       },
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "10.0.0.0/15"
+            "[parameters('addressPrefix')]"
           ]
         },
         "enableVmProtection": false,
@@ -42,7 +56,24 @@
           }
         ]
       }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2018-10-01",
+      "name": "[format('{0}/subnet003', variables('vnetName'))]",
+      "properties": {
+        "addressPrefix": "10.0.3.0/24"
+      }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "stateOfVnet": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/subnet003', variables('vnetName')), '/')[0], split(format('{0}/subnet003', variables('vnetName')), '/')[1])).provisioningState]"
+    },
+    "vnetType": {
+      "type": "string",
+      "value": "Microsoft.Network/virtualNetworks/subnets"
+    }
+  }
 }
