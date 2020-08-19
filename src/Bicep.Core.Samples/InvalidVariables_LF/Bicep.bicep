@@ -35,3 +35,7 @@ var y = {
   =
   foo: !2
 }
+
+// utcNow and newGuid used outside a param default value
+var test = utcNow('u')
+var test2 = newGuid()
