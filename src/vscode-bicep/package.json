@@ -4,7 +4,7 @@
     "description": "Bicep language support for Visual Studio Code",
     "author": "Microsoft Corporation",
     "license": "MIT",
-    "version": "0.0.1",
+    "version": "0.0.0-placeholder",
     "publisher": "Azure",
     "icon": "icons/azure-resource-manager.png",
     "preview": true,
@@ -69,11 +69,13 @@
         "compile": "tsc -p ./",
         "update-vscode": "node ./node_modules/vscode/bin/install",
         "postinstall": "node ./node_modules/vscode/bin/install",
-        "package": "node node_modules/vsce/out/vsce package --out ./"
+        "package": "gulp setversion && vsce package --out ./ && gulp resetversion"
     },
     "devDependencies": {
         "@types/mocha": "^8.0.3",
         "@types/node": "^14.6.0",
+        "gulp": "^4.0.2",
+        "nerdbank-gitversioning": "^3.2.31",
         "typescript": "^3.9.7",
         "vsce": "^1.78.0",
         "vscode": "^1.1.36"

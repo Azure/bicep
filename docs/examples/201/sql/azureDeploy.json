@@ -1,3 +1,4 @@
+// PULLED FROM: https://github.com/Azure/azure-quickstart-templates/blob/46830f5ebc177e9db7b01827e759a48db6630212/201-sql-database-transparent-encryption-create/azuredeploy.json
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",

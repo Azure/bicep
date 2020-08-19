@@ -42,6 +42,7 @@ resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
 }
 
 // very long type...
+// todo - check that auto dependsOn is working
 resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01-preview' = {
   name: '${sqlServerName}/${databaseName}/current'
   properties: {

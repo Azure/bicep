@@ -34,15 +34,6 @@ bicep --help
 ```
 
 ### Windows
-#### Setting up $PATH (only required on first install)
-1. Open the start menu, and search for **env**
-1. Select the item named **Edit the system environmental variables**
-1. In the window that appears, press **Environmental Variables...**
-1. Under the **User variables** section, find the variable named **Path**, and press **Edit...**
-1. In the edit window that appears, press **New**
-1. Enter `%USERPROFILE%\.bicep` for the value, and press **OK**
-1. Press **OK** to close the other 2 windows that were opened
-
 #### Installing (PowerShell)
 ```powershell
 # Create the install folder
@@ -51,25 +42,11 @@ $installDir = New-Item -ItemType Directory -Path $installPath -Force
 $installDir.Attributes += 'Hidden'
 # Fetch the latest Bicep CLI binary
 (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/bicep-win-x64.exe", "$installPath\bicep.exe")
-# Verify you can now access the 'bicep' command
+# Add bicep to your PATH
+$currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
+if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
+# Verify you can now access the 'bicep' command. Note that on first install, you'll need to open a new PowerShell or CMD window
 bicep --help
-```
-
-## Install the Bicep VS Code Extension
-
-### Manually
-Download the latest extension by clicking [here](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix).
-
->NOTE: You cannot install the `vscode-bicep.vsix` file by opening it directly.
-
-Open VS Code, and in the Extensions view, select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
-
-### Via command line
-```sh
-# Fetch the latest Bicep VS Code extension
-curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
-# Install the extension
-code --install-extension vscode-bicep.vsix
 ```
 
 ### Verify the Bicep VS Code extension is running

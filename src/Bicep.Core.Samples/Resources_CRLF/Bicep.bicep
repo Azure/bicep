@@ -77,3 +77,35 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
     name: hostingPlanName // just hostingPlanName results in an error
   }
 }
+
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+
+param webSiteName string
+param cosmosDb object
+resource site 'Microsoft.Web/sites@2019-08-01' = {
+  name: webSiteName
+  location: location
+  properties: {
+    // not yet supported // serverFarmId: farm.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'CosmosDb:Account'
+          value: reference(cosmosDbResourceId).documentEndpoint
+        }
+        {
+          name: 'CosmosDb:Key'
+          value: listKeys(cosmosDbResourceId, '2020-04-01').primaryMasterKey
+        }
+        {
+          name: 'CosmosDb:DatabaseName'
+          value: cosmosDb.databaseName
+        }
+        {
+          name: 'CosmosDb:ContainerName'
+          value: cosmosDb.containerName
+        }
+      ]
+    }
+  }
+}

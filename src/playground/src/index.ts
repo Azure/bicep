@@ -1,8 +1,11 @@
 import './main.css';
 import * as monaco from 'monaco-editor';
-import exampleFile from './template.bicep';
+import exampleFile from '../../../docs/examples/101/aks/main.bicep';
+var buildVersion = require('../package.json').version;
 
-self.MonacoEnvironment = {
+document.title = `${document.title} ${buildVersion}`;
+
+self['MonacoEnvironment'] = {
   getWorkerUrl: function (moduleId, label) {
     if (label === 'json') {
       return './json.worker.bundle.js';
@@ -11,11 +14,11 @@ self.MonacoEnvironment = {
   }
 }
 
-self.BicepInitialize = interop => {
+self['BicepInitialize'] = (interop) => {
   monaco.languages.register({
-      id: 'bicep',
-      extensions: ['.bicep'],
-      aliases: ['bicep'],
+    id: 'bicep',
+    extensions: ['.bicep'],
+    aliases: ['bicep'],
   });
 
   monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
@@ -25,16 +28,18 @@ self.BicepInitialize = interop => {
   });
 
   const editorLhs = monaco.editor.create(document.getElementById('editor_lhs'), {
-      theme: 'vs-dark',
-      automaticLayout: true,
-      language: 'bicep',
-      minimap: {
-          enabled: false,
-      },
-      value: exampleFile,
-      'semanticHighlighting.enabled': true
+    theme: 'vs-dark',
+    automaticLayout: true,
+    language: 'bicep',
+    minimap: {
+      enabled: false,
+    },
+    value: exampleFile,
+    // @ts-expect-error
+    'semanticHighlighting.enabled': true
   });
 
+  // @ts-expect-error
   editorLhs._themeService._theme.getTokenStyleMetadata = (type, modifiers) => {
     switch (type) {
       case 'keyword':
@@ -76,13 +81,13 @@ self.BicepInitialize = interop => {
   };
 
   const editorRhs = monaco.editor.create(document.getElementById('editor_rhs'), {
-      theme: 'vs-dark',
-      automaticLayout: true,
-      language: 'json',
-      minimap: {
-          enabled: false,
-      },
-      readOnly: true,
+    theme: 'vs-dark',
+    automaticLayout: true,
+    language: 'json',
+    minimap: {
+      enabled: false,
+    },
+    readOnly: true,
   });
 
   function compileAndEmitDiagnostics() {

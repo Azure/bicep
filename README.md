@@ -63,8 +63,7 @@ az deployment group create -f ./main.json -g my-rg
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
 * No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187](https://github.com/Azure/bicep/issues/187)]
   * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
-* `utcnow()`, `reference()`, `newGuid()`, `reference()`, and `list*()` functions are not yet supported
-* Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported. Array elements must be [separated via a new line](./docs/spec/bicep.md#arrays).
+* Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 * No IntelliSense whatsoever
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
