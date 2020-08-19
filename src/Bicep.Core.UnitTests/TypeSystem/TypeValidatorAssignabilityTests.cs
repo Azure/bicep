@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
@@ -683,7 +684,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            return new ResourceType("Mock", LanguageConstants.TopLevelResourceProperties, null);
+            var type = "Mock.Rp/mockType@2020-01-01";
+            var typeReference = ResourceTypeReference.TryParse(type)!;
+
+            return new ResourceType(type, LanguageConstants.TopLevelResourceProperties, null, typeReference);
         }
 
         private TypeManager CreateTypeManager()

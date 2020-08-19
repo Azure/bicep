@@ -41,8 +41,6 @@ namespace Bicep.Core.Resources
 
         public string FullyQualifiedType => $"{this.Namespace}/{this.Types.ConcatString("/")}";
 
-        public static ResourceTypeReference Parse(string resourceType) => TryParse(resourceType) ?? throw new FormatException($"The specified resource type '{resourceType}' is not valid.");
-
         public static ResourceTypeReference? TryParse(string? resourceType)
         {
             if (resourceType == null)
