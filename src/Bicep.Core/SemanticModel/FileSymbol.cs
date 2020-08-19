@@ -27,6 +27,8 @@ namespace Bicep.Core.SemanticModel
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
+        public ProgramSyntax DeclaringProgram => (ProgramSyntax)this.DeclaringSyntax;
+
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces
             .Concat<Symbol>(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)

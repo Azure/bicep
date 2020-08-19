@@ -14,14 +14,15 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly SymbolDependencyGraph symbolGraph;
+        private readonly SymbolGraph symbolGraph;
 
-        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolDependencyGraph symbolGraph)
+        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
             this.symbolGraph = symbolGraph;
+            this.variableRequiresInliningCache = new SymbolResultCache<bool>(RequiresInliningInternal);
         }
 
         /// <summary>
@@ -56,10 +57,24 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public FileSymbol Root { get; }
 
-        public ImmutableArray<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources;
+        public ImmutableHashSet<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
+            => symbolGraph.GetResourceDependencies(symbol);
 
-        public bool RequiresInlining(VariableSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources.Any();
+        public bool RequiresInlining(VariableSymbol symbol) => variableRequiresInliningCache.Lookup(symbol);
+        private readonly SymbolResultCache<bool> variableRequiresInliningCache;
+        private bool RequiresInliningInternal(Symbol symbol)
+        {
+            if (symbolGraph.GetResourceDependencies(symbol).Any())
+            {
+                return true;
+            }
+
+            if (symbolGraph.GetFunctionDependencies(symbol).Any(f => f.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining)))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -54,8 +54,6 @@ namespace Bicep.Core.SemanticModel
             // allow type queries now
             typeCache.Unlock();
 
-            var symbolGraph = SymbolGraphVisitor.Build(this.ProgramSyntax, uniqueDeclarations, bindings);
-
             // TODO: Avoid looping 4 times?
             var file = new FileSymbol(
                 typeCache,
@@ -66,6 +64,8 @@ namespace Bicep.Core.SemanticModel
                 declarations.OfType<VariableSymbol>(),
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
+
+            var symbolGraph = SymbolGraphVisitor.Build(file, uniqueDeclarations, bindings);
 
             return new SemanticModel(file, typeCache, bindings, symbolGraph);
         }

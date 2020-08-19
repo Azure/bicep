@@ -39,8 +39,21 @@ namespace Bicep.Core.SemanticModel
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.RequiresInlining;
-            // TODO: revisit this when we're able to inline through variables
             base.VisitResourceDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
+        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.RequiresInlining;
+            base.VisitVariableDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
+        public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.RequiresInlining;
+            base.VisitOutputDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.Default;
         }
 

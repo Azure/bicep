@@ -178,7 +178,8 @@ namespace Bicep.Core.Emit
 
             writer.WritePropertyName("dependsOn");
             writer.WriteStartArray();
-            foreach (var dependency in dependencies)
+            // need to put dependencies in a deterministic order to generate a deterministic template
+            foreach (var dependency in dependencies.OrderBy(x => x.Name))
             {
                 var typeReference = EmitHelpers.GetTypeReference(dependency);
                 emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);

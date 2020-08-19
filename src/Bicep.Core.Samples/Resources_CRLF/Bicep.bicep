@@ -79,6 +79,8 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 }
 
 var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
+var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
 
 param webSiteName string
 param cosmosDb object
