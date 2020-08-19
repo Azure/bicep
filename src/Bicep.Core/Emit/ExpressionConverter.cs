@@ -86,7 +86,7 @@ namespace Bicep.Core.Emit
                         // special cases for certain resource property access. if we recurse normally, we'll end up
                         // generating statements like reference(resourceId(...)).id which are not accepted by ARM
 
-                        var typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+                        var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
                         switch (propertyAccess.PropertyName.IdentifierName)
                         {
                             case "id":
@@ -208,8 +208,7 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("variables", new JTokenExpression(name));
 
                 case ResourceSymbol resourceSymbol:
-                    // TODO should we cache this on the resourceSymbol?
-                    var typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+                    var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
                     return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
 
                 default:

@@ -68,7 +68,7 @@ namespace Bicep.Core.TypeSystem
 
             // TODO: Construct/lookup type information based on JSON schema or swagger
             // for now assuming very basic resource schema
-            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null);
+            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null, typeReference);
         }
 
         private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)

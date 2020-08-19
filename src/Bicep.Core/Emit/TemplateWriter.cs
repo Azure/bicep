@@ -155,9 +155,7 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            // using the throwing variant here because the semantic model should be completely valid at this point
-            // (it's a code defect if it some errors were not emitted)
-            ResourceTypeReference typeReference = ResourceTypeReference.Parse(resourceSymbol.Type.Name);
+            var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
@@ -180,7 +178,7 @@ namespace Bicep.Core.Emit
             writer.WriteStartArray();
             foreach (var dependency in dependencies)
             {
-                var typeReference = ResourceTypeReference.Parse(dependency.Type.Name);
+                var typeReference = EmitHelpers.GetTypeReference(dependency);
                 emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);
             }
             writer.WriteEndArray();
