@@ -448,10 +448,80 @@
     "spanText": "i"
   },
   {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2437:2457]",
+    "spanText": "paramDefaultOneCycle"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2517:2538]",
+    "spanText": "paramDefaultTwoCycle2"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2576:2597]",
+    "spanText": "paramDefaultTwoCycle1"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2677:2698]",
+    "spanText": "paramModifierOneCycle"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2812:2834]",
+    "spanText": "paramModifierSelfCycle"
+  },
+  {
+    "message": "The value must be a compile-time constant.",
+    "errorCode": "BCP032",
+    "level": "Error",
+    "span": "[2812:2834]",
+    "spanText": "paramModifierSelfCycle"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2921:2943]",
+    "spanText": "paramModifierTwoCycle2"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[2995:3017]",
+    "spanText": "paramModifierTwoCycle1"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[3088:3107]",
+    "spanText": "paramMixedTwoCycle2"
+  },
+  {
+    "message": "The expression is involved in a cycle.",
+    "errorCode": "BCP061",
+    "level": "Error",
+    "span": "[3154:3173]",
+    "spanText": "paramMixedTwoCycle1"
+  },
+  {
     "message": "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.",
     "errorCode": "BCP002",
     "level": "Error",
-    "span": "[2415:2421]",
+    "span": "[3212:3218]",
     "spanText": "/*    "
   }
 ]
