@@ -14,11 +14,11 @@ namespace Bicep.Core.Emit
 {
     public class ExpressionConverter
     {
-        private readonly SemanticModel.SemanticModel model;
+        private readonly EmitterContext context;
 
-        public ExpressionConverter(SemanticModel.SemanticModel model)
+        public ExpressionConverter(EmitterContext context)
         {
-            this.model = model;
+            this.context = context;
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Bicep.Core.Emit
 
                 case PropertyAccessSyntax propertyAccess:
                     if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccess &&
-                        model.GetSymbolInfo(propVariableAccess) is ResourceSymbol resourceSymbol)
+                        context.SemanticModel.GetSymbolInfo(propVariableAccess) is ResourceSymbol resourceSymbol)
                     {
                         // special cases for certain resource property access. if we recurse normally, we'll end up
                         // generating statements like reference(resourceId(...)).id which are not accepted by ARM
@@ -108,7 +108,7 @@ namespace Bicep.Core.Emit
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
 
                 case VariableAccessSyntax variableAccess:
-                    return ConvertVariableAccess(variableAccess, model);
+                    return ConvertVariableAccess(variableAccess);
 
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
@@ -187,11 +187,11 @@ namespace Bicep.Core.Emit
                 Array.Empty<LanguageExpression>());
         }
 
-        private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax, SemanticModel.SemanticModel model)
+        private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
         {
             string name = variableAccessSyntax.Name.IdentifierName;
 
-            var symbol = model.GetSymbolInfo(variableAccessSyntax);
+            var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
             // TODO: This will change to support inlined functions like reference() or list*()
             switch (symbol)
@@ -200,7 +200,7 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("parameters", new JTokenExpression(name));
 
                 case VariableSymbol variableSymbol:
-                    if (model.RequiresInlining(variableSymbol))
+                    if (context.RequiresInlining(variableSymbol))
                     {
                         // we've got a runtime dependency, so we have to inline the variable usage
                         return ConvertExpression(variableSymbol.DeclaringVariable.Value);
@@ -290,7 +290,7 @@ namespace Bicep.Core.Emit
             var buffer = new StringBuilder();
             using (var writer = new JsonTextWriter(new StringWriter(buffer)) {Formatting = Formatting.None})
             {
-                new ExpressionEmitter(writer, this.model).EmitExpression(syntax);
+                new ExpressionEmitter(writer, context).EmitExpression(syntax);
             }
 
             return CreateJsonFunctionCall(JToken.Parse(buffer.ToString()));

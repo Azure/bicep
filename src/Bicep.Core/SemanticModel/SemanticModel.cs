@@ -14,15 +14,14 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly SymbolGraph symbolGraph;
+        public SymbolGraph SymbolGraph { get; }
 
         public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
-            this.symbolGraph = symbolGraph;
-            this.variableRequiresInliningCache = new SymbolResultCache<bool>(RequiresInliningInternal);
+            this.SymbolGraph = symbolGraph;
         }
 
         /// <summary>
@@ -56,25 +55,5 @@ namespace Bicep.Core.SemanticModel
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
-
-        public ImmutableHashSet<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
-            => symbolGraph.GetResourceDependencies(symbol);
-
-        public bool RequiresInlining(VariableSymbol symbol) => variableRequiresInliningCache.Lookup(symbol);
-        private readonly SymbolResultCache<bool> variableRequiresInliningCache;
-        private bool RequiresInliningInternal(Symbol symbol)
-        {
-            if (symbolGraph.GetResourceDependencies(symbol).Any())
-            {
-                return true;
-            }
-
-            if (symbolGraph.GetFunctionDependencies(symbol).Any(f => f.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining)))
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 }

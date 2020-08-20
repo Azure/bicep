@@ -80,6 +80,9 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 
 var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
+
+// this variable is not accessed anywhere in this template and depends on a run-time reference
+// it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
 
 param webSiteName string

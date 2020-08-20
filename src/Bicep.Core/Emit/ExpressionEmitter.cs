@@ -19,14 +19,14 @@ namespace Bicep.Core.Emit
         });
 
         private readonly JsonTextWriter writer;
-        private readonly SemanticModel.SemanticModel model;
+        private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public ExpressionEmitter(JsonTextWriter writer, SemanticModel.SemanticModel model)
+        public ExpressionEmitter(JsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
-            this.model = model;
-            this.converter = new ExpressionConverter(this.model);
+            this.context = context;
+            this.converter = new ExpressionConverter(context);
         }
 
         public void EmitExpression(SyntaxBase syntax)
@@ -93,8 +93,8 @@ namespace Bicep.Core.Emit
 
         public void EmitLanguageExpression(SyntaxBase syntax)
         {
-            var symbol = model.GetSymbolInfo(syntax);
-            if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol && model.RequiresInlining(variableSymbol))
+            var symbol = context.SemanticModel.GetSymbolInfo(syntax);
+            if (symbol is VariableSymbol variableSymbol && context.RequiresInlining(variableSymbol))
             {
                 EmitExpression(variableSymbol.Value);
                 return;

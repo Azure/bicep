@@ -26,14 +26,14 @@ namespace Bicep.Core.Emit
         }.ToImmutableArray();
 
         private readonly JsonTextWriter writer;
-        private readonly SemanticModel.SemanticModel semanticModel;
+        private readonly EmitterContext context;
         private readonly ExpressionEmitter emitter;
 
         public TemplateWriter(JsonTextWriter writer, SemanticModel.SemanticModel semanticModel)
         {
             this.writer = writer;
-            this.semanticModel = semanticModel;
-            this.emitter = new ExpressionEmitter(writer, semanticModel);
+            this.context = new EmitterContext(semanticModel);
+            this.emitter = new ExpressionEmitter(writer, context);
         }
 
         public void Write()
@@ -68,7 +68,7 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            foreach (var parameterSymbol in this.semanticModel.Root.ParameterDeclarations)
+            foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
             {
                 writer.WritePropertyName(parameterSymbol.Name);
                 this.EmitParameter(parameterSymbol);
@@ -121,9 +121,9 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            foreach (var variableSymbol in this.semanticModel.Root.VariableDeclarations)
+            foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
             {
-                if (!this.semanticModel.RequiresInlining(variableSymbol))
+                if (!this.context.RequiresInlining(variableSymbol))
                 {
                     writer.WritePropertyName(variableSymbol.Name);
                     this.EmitVariable(variableSymbol);
@@ -143,7 +143,7 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartArray();
 
-            foreach (var resourceSymbol in this.semanticModel.Root.ResourceDeclarations)
+            foreach (var resourceSymbol in this.context.SemanticModel.Root.ResourceDeclarations)
             {
                 this.EmitResource(resourceSymbol);
             }
@@ -170,7 +170,7 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(ResourceSymbol resourceSymbol)
         {
-            var dependencies = this.semanticModel.GetResourceDependencies(resourceSymbol);
+            var dependencies = this.context.SemanticModel.SymbolGraph.GetResourceDependencies(resourceSymbol);
             if (!dependencies.Any())
             {
                 return;
@@ -191,7 +191,7 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            foreach (var outputSymbol in this.semanticModel.Root.OutputDeclarations)
+            foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
             {
                 writer.WritePropertyName(outputSymbol.Name);
                 this.EmitOutput(outputSymbol);
