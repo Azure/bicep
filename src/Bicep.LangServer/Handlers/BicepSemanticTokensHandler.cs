@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
@@ -44,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return new SemanticTokensRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId),
+                DocumentSelector = DocumentSelectorFactory.Create(),
                 Legend = new SemanticTokensLegend(),
                 Full = new SemanticTokensCapabilityRequestFull
                 {

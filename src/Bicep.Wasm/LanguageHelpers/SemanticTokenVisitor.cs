@@ -73,7 +73,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            AddTokenType(syntax.FunctionName, SemanticTokenType.Function);
+            AddTokenType(syntax.Name, SemanticTokenType.Function);
             base.VisitFunctionCallSyntax(syntax);
         }
 

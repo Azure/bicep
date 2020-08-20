@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            AddTokenType(syntax.FunctionName, SemanticTokenType.Function);
+            AddTokenType(syntax.Name, SemanticTokenType.Function);
             base.VisitFunctionCallSyntax(syntax);
         }
 

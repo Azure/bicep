@@ -2,24 +2,22 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class FileSymbol : DeclaredSymbol
+    public class FileSymbol : Symbol
     {
-        public FileSymbol(
-            ITypeManager typeManager,
-            string name,
-            ProgramSyntax declaringSyntax,
+        public FileSymbol(string name,
+            ProgramSyntax syntax,
             IEnumerable<NamespaceSymbol> importedNamespaces,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
             IEnumerable<OutputSymbol> outputDeclarations)
-            : base(typeManager, name, declaringSyntax)
+            : base(name)
         {
+            this.Syntax = syntax;
             this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
@@ -34,6 +32,8 @@ namespace Bicep.Core.SemanticModel
             .Concat(this.OutputDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
+
+        public ProgramSyntax Syntax { get; }
 
         public ImmutableArray<NamespaceSymbol> ImportedNamespaces { get; }
 
@@ -62,14 +62,9 @@ namespace Bicep.Core.SemanticModel
             {
                 foreach (DeclaredSymbol duplicatedSymbol in group)
                 {
-                    // use the identifier node as the error location with fallback to full declaration span
-                    SyntaxBase identifierNode = duplicatedSymbol.NameSyntax ?? duplicatedSymbol.DeclaringSyntax;
-
-                    yield return this.CreateError(identifierNode, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
+                    yield return this.CreateError(duplicatedSymbol.NameSyntax, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
             }
         }
-
-        public override SyntaxBase? NameSyntax => null;
     }
 }

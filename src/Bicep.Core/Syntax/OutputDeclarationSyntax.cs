@@ -1,8 +1,9 @@
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class OutputDeclarationSyntax : SyntaxBase
+    public class OutputDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
         public OutputDeclarationSyntax(Token outputKeyword, IdentifierSyntax name, TypeSyntax type, Token assignment, SyntaxBase value, Token? newLine)
         {

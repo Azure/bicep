@@ -8,12 +8,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class SymbolGraphVisitor : SyntaxVisitor
     {
-        private readonly IReadOnlyDictionary<string, Symbol> declarations;
+        private readonly IReadOnlyDictionary<string, DeclaredSymbol> declarations;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly IDictionary<Symbol, IList<Symbol>> symbolGraph;
         private Symbol? currentDeclaration;
 
-        public static SymbolDependencyGraph Build(ProgramSyntax programSyntax, IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static SymbolDependencyGraph Build(ProgramSyntax programSyntax, IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new SymbolGraphVisitor(declarations, bindings);
             visitor.VisitProgramSyntax(programSyntax);
@@ -73,7 +73,7 @@ namespace Bicep.Core.SemanticModel
             return new SymbolDependencies(resources);
         }
 
-        private SymbolGraphVisitor(IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        private SymbolGraphVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.declarations = declarations;
             this.bindings = bindings;

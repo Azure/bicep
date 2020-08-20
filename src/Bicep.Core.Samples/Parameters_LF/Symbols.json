@@ -1,0 +1,156 @@
+[
+  {
+    "name": "main",
+    "kind": "file"
+  },
+  {
+    "name": "myString",
+    "kind": "parameter",
+    "span": "[71:93]",
+    "nameSpan": "[77:85]"
+  },
+  {
+    "name": "myInt",
+    "kind": "parameter",
+    "span": "[93:109]",
+    "nameSpan": "[99:104]"
+  },
+  {
+    "name": "myBool",
+    "kind": "parameter",
+    "span": "[109:128]",
+    "nameSpan": "[115:121]"
+  },
+  {
+    "name": "myString2",
+    "kind": "parameter",
+    "span": "[161:205]",
+    "nameSpan": "[167:176]"
+  },
+  {
+    "name": "myInt2",
+    "kind": "parameter",
+    "span": "[205:227]",
+    "nameSpan": "[211:217]"
+  },
+  {
+    "name": "myTruth",
+    "kind": "parameter",
+    "span": "[227:253]",
+    "nameSpan": "[233:240]"
+  },
+  {
+    "name": "myFalsehood",
+    "kind": "parameter",
+    "span": "[253:284]",
+    "nameSpan": "[259:270]"
+  },
+  {
+    "name": "myEscapedString",
+    "kind": "parameter",
+    "span": "[284:350]",
+    "nameSpan": "[290:305]"
+  },
+  {
+    "name": "myNewGuid",
+    "kind": "parameter",
+    "span": "[350:385]",
+    "nameSpan": "[356:365]"
+  },
+  {
+    "name": "myUtcTime",
+    "kind": "parameter",
+    "span": "[385:420]",
+    "nameSpan": "[391:400]"
+  },
+  {
+    "name": "foo",
+    "kind": "parameter",
+    "span": "[444:734]",
+    "nameSpan": "[450:453]"
+  },
+  {
+    "name": "myArrayParam",
+    "kind": "parameter",
+    "span": "[757:807]",
+    "nameSpan": "[763:775]"
+  },
+  {
+    "name": "myAlternativeArrayParam",
+    "kind": "parameter",
+    "span": "[838:947]",
+    "nameSpan": "[844:867]"
+  },
+  {
+    "name": "password",
+    "kind": "parameter",
+    "span": "[964:1006]",
+    "nameSpan": "[970:978]"
+  },
+  {
+    "name": "nonSecure",
+    "kind": "parameter",
+    "span": "[1027:1071]",
+    "nameSpan": "[1033:1042]"
+  },
+  {
+    "name": "secretObject",
+    "kind": "parameter",
+    "span": "[1088:1134]",
+    "nameSpan": "[1094:1106]"
+  },
+  {
+    "name": "storageSku",
+    "kind": "parameter",
+    "span": "[1152:1242]",
+    "nameSpan": "[1158:1168]"
+  },
+  {
+    "name": "storageName",
+    "kind": "parameter",
+    "span": "[1275:1336]",
+    "nameSpan": "[1281:1292]"
+  },
+  {
+    "name": "someArray",
+    "kind": "parameter",
+    "span": "[1369:1427]",
+    "nameSpan": "[1375:1384]"
+  },
+  {
+    "name": "emptyMetadata",
+    "kind": "parameter",
+    "span": "[1445:1495]",
+    "nameSpan": "[1451:1464]"
+  },
+  {
+    "name": "description",
+    "kind": "parameter",
+    "span": "[1510:1592]",
+    "nameSpan": "[1516:1527]"
+  },
+  {
+    "name": "additionalMetadata",
+    "kind": "parameter",
+    "span": "[1617:1775]",
+    "nameSpan": "[1623:1641]"
+  },
+  {
+    "name": "someParameter",
+    "kind": "parameter",
+    "span": "[1801:2016]",
+    "nameSpan": "[1807:1820]"
+  },
+  {
+    "name": "defaultValueExpression",
+    "kind": "parameter",
+    "span": "[2016:2084]",
+    "nameSpan": "[2022:2044]"
+  },
+  {
+    "name": "defaultExpression",
+    "kind": "parameter",
+    "span": "[2084:2137]",
+    "nameSpan": "[2090:2107]"
+  }
+]

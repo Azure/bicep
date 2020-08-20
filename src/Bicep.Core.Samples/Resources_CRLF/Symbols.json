@@ -1,0 +1,90 @@
+[
+  {
+    "name": "main",
+    "kind": "file"
+  },
+  {
+    "name": "applicationName",
+    "kind": "parameter",
+    "span": "[1204:1283]",
+    "nameSpan": "[1210:1225]"
+  },
+  {
+    "name": "appServicePlanTier",
+    "kind": "parameter",
+    "span": "[1364:1397]",
+    "nameSpan": "[1370:1388]"
+  },
+  {
+    "name": "appServicePlanInstances",
+    "kind": "parameter",
+    "span": "[1397:1434]",
+    "nameSpan": "[1403:1426]"
+  },
+  {
+    "name": "webSiteName",
+    "kind": "parameter",
+    "span": "[1950:1976]",
+    "nameSpan": "[1956:1967]"
+  },
+  {
+    "name": "cosmosDb",
+    "kind": "parameter",
+    "span": "[1976:1999]",
+    "nameSpan": "[1982:1990]"
+  },
+  {
+    "name": "hostingPlanName",
+    "kind": "variable",
+    "span": "[1283:1364]",
+    "nameSpan": "[1287:1302]"
+  },
+  {
+    "name": "location",
+    "kind": "variable",
+    "span": "[1434:1477]",
+    "nameSpan": "[1438:1446]"
+  },
+  {
+    "name": "cosmosDbResourceId",
+    "kind": "variable",
+    "span": "[1852:1950]",
+    "nameSpan": "[1856:1874]"
+  },
+  {
+    "name": "basicStorage",
+    "kind": "resource",
+    "span": "[2:125]",
+    "nameSpan": "[11:23]"
+  },
+  {
+    "name": "dnsZone",
+    "kind": "resource",
+    "span": "[125:232]",
+    "nameSpan": "[134:141]"
+  },
+  {
+    "name": "myStorageAccount",
+    "kind": "resource",
+    "span": "[232:705]",
+    "nameSpan": "[241:257]"
+  },
+  {
+    "name": "withExpressions",
+    "kind": "resource",
+    "span": "[705:1204]",
+    "nameSpan": "[714:729]"
+  },
+  {
+    "name": "farm",
+    "kind": "resource",
+    "span": "[1477:1852]",
+    "nameSpan": "[1486:1490]"
+  },
+  {
+    "name": "site",
+    "kind": "resource",
+    "span": "[1999:2688]",
+    "nameSpan": "[2008:2012]"
+  }
+]
