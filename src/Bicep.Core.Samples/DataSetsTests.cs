@@ -26,11 +26,9 @@ namespace Bicep.Core.Samples
             
             // Bicep files may be empty
             dataSet.Bicep.Should().NotBeNull();
-
-            // tokens are serialized in JSON format, so can't be whitespace
-            dataSet.Tokens.Should().NotBeNullOrWhiteSpace();
-
-            dataSet.Errors.Should().NotBeNullOrWhiteSpace();
+            dataSet.Tokens.Should().NotBeNull();
+            dataSet.Diagnostics.Should().NotBeNull();
+            dataSet.Symbols.Should().NotBeNull();
         }
 
         [DataTestMethod]
