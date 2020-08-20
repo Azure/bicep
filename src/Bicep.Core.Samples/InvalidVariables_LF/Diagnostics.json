@@ -166,5 +166,26 @@
     "level": "Error",
     "span": "[501:508]",
     "spanText": "newGuid"
+  },
+  {
+    "message": "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
+    "errorCode": "BCP006",
+    "level": "Error",
+    "span": "[576:578]",
+    "spanText": "\\e"
+  },
+  {
+    "message": "The property 'duplicate' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[637:648]",
+    "spanText": "'duplicate'"
+  },
+  {
+    "message": "The property 'duplicate' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[657:666]",
+    "spanText": "duplicate"
   }
 ]

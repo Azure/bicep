@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -7,18 +8,25 @@ namespace Bicep.Core.Syntax
 {
     public class ObjectPropertySyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
     {
-        public ObjectPropertySyntax(IdentifierSyntax identifier, Token colon, SyntaxBase value, IEnumerable<Token> newLines)
+        public ObjectPropertySyntax(SyntaxBase key, Token colon, SyntaxBase value, IEnumerable<Token> newLines)
         {
             AssertTokenType(colon, nameof(colon), TokenType.Colon);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
 
-            this.Identifier = identifier;
+            this.Key = key;
             this.Colon = colon;
             this.Value = value;
             this.NewLines = newLines.ToImmutableArray();
         }
 
-        public IdentifierSyntax Identifier { get; }
+        public string GetKeyText()
+            => Key switch {
+                IdentifierSyntax identifier => identifier.IdentifierName,
+                StringSyntax @string => @string.GetLiteralValue(),
+                _ => string.Empty,
+            };
+
+        public SyntaxBase Key { get; }
 
         public Token Colon { get; }
 
@@ -28,6 +36,6 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.Identifier, this.NewLines.Last());
+        public override TextSpan Span => TextSpan.Between(this.Key, this.NewLines.Last());
     }
 }

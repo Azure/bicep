@@ -96,7 +96,13 @@
   {
     "name": "site",
     "kind": "resource",
-    "span": "[2313:3002]",
+    "span": "[2313:3006]",
     "nameSpan": "[2322:2326]"
+  },
+  {
+    "name": "nested",
+    "kind": "resource",
+    "span": "[3006:3360]",
+    "nameSpan": "[3015:3021]"
   }
 ]

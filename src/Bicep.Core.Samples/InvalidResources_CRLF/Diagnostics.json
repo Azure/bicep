@@ -101,98 +101,140 @@
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[558:561]",
+    "span": "[595:598]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[643:647]",
+    "spanText": "name"
+  },
+  {
+    "message": "The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[658:664]",
+    "spanText": "'name'"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "errorCode": "BCP028",
+    "level": "Error",
+    "span": "[716:719]",
     "spanText": "foo"
   },
   {
     "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "errorCode": "BCP025",
     "level": "Error",
-    "span": "[640:643]",
+    "span": "[798:801]",
     "spanText": "foo"
   },
   {
     "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
     "errorCode": "BCP025",
     "level": "Error",
-    "span": "[654:657]",
+    "span": "[812:815]",
     "spanText": "foo"
   },
   {
     "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
     "errorCode": "BCP028",
     "level": "Error",
-    "span": "[708:711]",
+    "span": "[898:901]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[980:983]",
+    "spanText": "foo"
+  },
+  {
+    "message": "The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties.",
+    "errorCode": "BCP025",
+    "level": "Error",
+    "span": "[994:999]",
+    "spanText": "'foo'"
+  },
+  {
+    "message": "Identifier 'foo' is declared multiple times. Remove or rename the duplicates.",
+    "errorCode": "BCP028",
+    "level": "Error",
+    "span": "[1050:1053]",
     "spanText": "foo"
   },
   {
     "message": "The property 'location' expected a value of type 'string' but the provided value is of type 'array'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[781:787]",
+    "span": "[1123:1129]",
     "spanText": "[\r\n  ]"
   },
   {
     "message": "The property 'tags' expected a value of type 'Tags' but the provided value is of type 'string'.",
     "errorCode": "BCP036",
     "level": "Error",
-    "span": "[797:820]",
+    "span": "[1139:1162]",
     "spanText": "'tag are not a string?'"
   },
   {
     "message": "Cannot apply operator '+' to operands of type 'string' and 'int'.",
     "errorCode": "BCP045",
     "level": "Error",
-    "span": "[904:911]",
+    "span": "[1246:1253]",
     "spanText": "'a' + 1"
   },
   {
     "message": "The name 'foo' is not a function.",
     "errorCode": "BCP059",
     "level": "Error",
-    "span": "[937:940]",
+    "span": "[1279:1282]",
     "spanText": "foo"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'int'.",
     "errorCode": "BCP044",
     "level": "Error",
-    "span": "[968:970]",
+    "span": "[1310:1312]",
     "spanText": "!4"
   },
   {
     "message": "The name 'a' does not exist in the current context.",
     "errorCode": "BCP057",
     "level": "Error",
-    "span": "[989:990]",
+    "span": "[1331:1332]",
     "spanText": "a"
   },
   {
     "message": "Cannot apply operator '!' to operand of type 'null'.",
     "errorCode": "BCP044",
     "level": "Error",
-    "span": "[998:1003]",
+    "span": "[1340:1345]",
     "spanText": "!null"
   },
   {
     "message": "Cannot apply operator '-' to operand of type 'bool'.",
     "errorCode": "BCP044",
     "level": "Error",
-    "span": "[1034:1039]",
+    "span": "[1376:1381]",
     "spanText": "-true"
   },
   {
     "message": "The referenced declaration with name 'bar' is not valid.",
     "errorCode": "BCP062",
     "level": "Error",
-    "span": "[1107:1110]",
+    "span": "[1449:1452]",
     "spanText": "bar"
   },
   {
     "message": "The referenced declaration with name 'bar' is not valid.",
     "errorCode": "BCP062",
     "level": "Error",
-    "span": "[1178:1181]",
+    "span": "[1520:1523]",
     "spanText": "bar"
   }
 ]

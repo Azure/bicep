@@ -6,14 +6,14 @@
   {
     "name": "resrefpar",
     "kind": "parameter",
-    "span": "[1119:1154]",
-    "nameSpan": "[1125:1134]"
+    "span": "[1461:1496]",
+    "nameSpan": "[1467:1476]"
   },
   {
     "name": "resrefvar",
     "kind": "variable",
-    "span": "[1091:1119]",
-    "nameSpan": "[1095:1104]"
+    "span": "[1433:1461]",
+    "nameSpan": "[1437:1446]"
   },
   {
     "name": "foo",
@@ -42,25 +42,37 @@
   {
     "name": "foo",
     "kind": "resource",
-    "span": "[549:674]",
-    "nameSpan": "[558:561]"
+    "span": "[586:677]",
+    "nameSpan": "[595:598]"
   },
   {
     "name": "foo",
     "kind": "resource",
-    "span": "[699:827]",
-    "nameSpan": "[708:711]"
+    "span": "[707:832]",
+    "nameSpan": "[716:719]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[889:1016]",
+    "nameSpan": "[898:901]"
+  },
+  {
+    "name": "foo",
+    "kind": "resource",
+    "span": "[1041:1169]",
+    "nameSpan": "[1050:1053]"
   },
   {
     "name": "bar",
     "kind": "resource",
-    "span": "[827:1062]",
-    "nameSpan": "[836:839]"
+    "span": "[1169:1404]",
+    "nameSpan": "[1178:1181]"
   },
   {
     "name": "resrefout",
     "kind": "output",
-    "span": "[1154:1184]",
-    "nameSpan": "[1161:1170]"
+    "span": "[1496:1526]",
+    "nameSpan": "[1503:1512]"
   }
 ]

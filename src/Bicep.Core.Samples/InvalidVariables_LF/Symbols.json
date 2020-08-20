@@ -48,7 +48,19 @@
   {
     "name": "test2",
     "kind": "variable",
-    "span": "[489:510]",
+    "span": "[489:512]",
     "nameSpan": "[493:498]"
+  },
+  {
+    "name": "test3",
+    "kind": "variable",
+    "span": "[556:594]",
+    "nameSpan": "[560:565]"
+  },
+  {
+    "name": "testDupe",
+    "kind": "variable",
+    "span": "[618:674]",
+    "nameSpan": "[622:630]"
   }
 ]

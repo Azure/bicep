@@ -27,12 +27,27 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: true
 }
 
+// duplicate property at the top level with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'foo'
+  'name': true
+}
+
 // duplicate property inside
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'foo'
   properties: {
     foo: 'a'
     foo: 'a'
+  }
+}
+
+// duplicate property inside with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'foo'
+  properties: {
+    foo: 'a'
+    'foo': 'a'
   }
 }
 

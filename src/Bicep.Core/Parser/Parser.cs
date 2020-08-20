@@ -519,12 +519,18 @@ namespace Bicep.Core.Parser
         {
             return this.WithRecovery(() =>
             {
-                var identifier = this.Identifier(b => b.ExpectedPropertyName());
+                var current = this.reader.Peek();
+                var key = current.Type switch {
+                    TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                    TokenType.StringComplete => this.InterpolableString(),
+                    TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
+                    _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                };
                 var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
                 var value = Expression();
                 var newLines = this.NewLines();
 
-                return new ObjectPropertySyntax(identifier, colon, value, newLines);
+                return new ObjectPropertySyntax(key, colon, value, newLines);
             }, TokenType.NewLine);
         }
 

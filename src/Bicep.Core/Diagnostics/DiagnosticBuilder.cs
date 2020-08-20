@@ -321,6 +321,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
+
+            public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP067",
+                $"String interpolation in not supported in object keys.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
