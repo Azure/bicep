@@ -6,6 +6,11 @@ namespace Bicep.Core.SemanticModel
     {
         public void Visit(Symbol node)
         {
+            VisitInternal(node);
+        }
+
+        protected virtual void VisitInternal(Symbol node)
+        {
             node.Accept(this);
         }
 

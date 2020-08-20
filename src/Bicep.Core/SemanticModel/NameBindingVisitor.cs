@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -13,17 +12,30 @@ namespace Bicep.Core.SemanticModel
     {
         private FunctionFlags allowedFlags;
 
-        private readonly IReadOnlyDictionary<string, Symbol> declarations;
+        private readonly IReadOnlyDictionary<string, DeclaredSymbol> declarations;
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly ImmutableArray<NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, Symbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
         {
             this.declarations = declarations;
             this.bindings = bindings;
             this.namespaces = namespaces.ToImmutableArray();
+        }
+
+        public override void VisitProgramSyntax(ProgramSyntax syntax)
+        {
+            base.VisitProgramSyntax(syntax);
+
+            // create bindings for all of the declarations to their corresponding symbol
+            // this is needed to make find all references work correctly
+            // (doing this here to avoid side-effects in the constructor)
+            foreach (DeclaredSymbol declaredSymbol in this.declarations.Values)
+            {
+                this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
+            }
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -39,8 +51,21 @@ namespace Bicep.Core.SemanticModel
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.RequiresInlining;
-            // TODO: revisit this when we're able to inline through variables
             base.VisitResourceDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
+        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.RequiresInlining;
+            base.VisitVariableDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
+        public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.RequiresInlining;
+            base.VisitOutputDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.Default;
         }
 
@@ -55,7 +80,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.FunctionName.IdentifierName, syntax.FunctionName.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);

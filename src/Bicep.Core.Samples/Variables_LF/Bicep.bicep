@@ -81,3 +81,6 @@ var functionOnIndexer3 = concat([
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
+
+var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
+var unusedIntermediateRef = unusedIntermediate.secondaryKey

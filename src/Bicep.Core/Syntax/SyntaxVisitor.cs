@@ -220,7 +220,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.Visit(syntax.FunctionName);
+            this.Visit(syntax.Name);
             this.VisitToken(syntax.OpenParen);
             this.VisitNodes(syntax.Arguments);
             this.VisitToken(syntax.CloseParen);

@@ -52,3 +52,7 @@ output expressionBasedIndexer string = {
   }
 }[resourceGroup().location].foo
 
+var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
+
+output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
+output secondaryKey string = secondaryKeyIntermediateVar

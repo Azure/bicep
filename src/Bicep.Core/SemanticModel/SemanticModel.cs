@@ -14,20 +14,20 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly SymbolDependencyGraph symbolGraph;
+        public SymbolGraph SymbolGraph { get; }
 
-        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolDependencyGraph symbolGraph)
+        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
-            this.symbolGraph = symbolGraph;
+            this.SymbolGraph = symbolGraph;
         }
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
+        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
@@ -49,17 +49,27 @@ namespace Bicep.Core.SemanticModel
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax, new TypeManagerContext());
+
+        /// <summary>
+        /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
+        /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
+        /// </summary>
+        /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
+
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
+        /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.bindings
+            .Where(binding => ReferenceEquals(binding.Value, symbol))
+            .Select(binding => binding.Key);
 
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
-
-        public ImmutableArray<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources;
-
-        public bool RequiresInlining(VariableSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources.Any();
     }
 }
