@@ -134,5 +134,59 @@
     "kind": "parameter",
     "span": "[2257:2380]",
     "nameSpan": "[2263:2283]"
+  },
+  {
+    "name": "paramDefaultOneCycle",
+    "kind": "parameter",
+    "span": "[2401:2459]",
+    "nameSpan": "[2407:2427]"
+  },
+  {
+    "name": "paramDefaultTwoCycle1",
+    "kind": "parameter",
+    "span": "[2480:2539]",
+    "nameSpan": "[2486:2507]"
+  },
+  {
+    "name": "paramDefaultTwoCycle2",
+    "kind": "parameter",
+    "span": "[2539:2599]",
+    "nameSpan": "[2545:2566]"
+  },
+  {
+    "name": "paramModifierOneCycle",
+    "kind": "parameter",
+    "span": "[2629:2702]",
+    "nameSpan": "[2635:2656]"
+  },
+  {
+    "name": "paramModifierSelfCycle",
+    "kind": "parameter",
+    "span": "[2751:2842]",
+    "nameSpan": "[2757:2779]"
+  },
+  {
+    "name": "paramModifierTwoCycle1",
+    "kind": "parameter",
+    "span": "[2872:2946]",
+    "nameSpan": "[2878:2900]"
+  },
+  {
+    "name": "paramModifierTwoCycle2",
+    "kind": "parameter",
+    "span": "[2946:3021]",
+    "nameSpan": "[2952:2974]"
+  },
+  {
+    "name": "paramMixedTwoCycle1",
+    "kind": "parameter",
+    "span": "[3053:3108]",
+    "nameSpan": "[3059:3078]"
+  },
+  {
+    "name": "paramMixedTwoCycle2",
+    "kind": "parameter",
+    "span": "[3108:3177]",
+    "nameSpan": "[3114:3133]"
   }
 ]
