@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -26,15 +29,17 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         {
             var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
+
+            string getDiagnosticSpanText(Diagnostic diagnostic)
+                => dataSet.Bicep[new Range(diagnostic.Span.Position, diagnostic.Span.Position + diagnostic.Span.Length)];
             
-            var errors = model.GetAllDiagnostics().Select(error => new DiagnosticItem(error, dataSet.Bicep));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, model.GetAllDiagnostics(), diag => $"{diag.Level} {diag.Message} |{getDiagnosticSpanText(diag)}|");
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainDiagnostics}", sourceTextWithDiags);
 
-            var actual = JToken.FromObject(errors, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Actual.json", actual.ToString(Formatting.Indented));
-
-            var expected = JToken.Parse(dataSet.Errors);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Expected.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Diagnostics_Delta.json");
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                dataSet.Diagnostics,
+                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainDiagnostics}",
+                targetLocation: resultsFile);
         }
 
         [TestMethod]
@@ -53,15 +58,15 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
-                .Where(FilterSymbol)
-                .Select(symbol => new SymbolItem(symbol));
+                .OfType<DeclaredSymbol>();
 
-            var actual = JToken.FromObject(symbols, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Symbols_Actual.json", actual.ToString(Formatting.Indented));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, symbols, symb => symb.NameSyntax.Span, symb => $"{symb.Kind} {symb.Name}");
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainSymbols}", sourceTextWithDiags);
 
-            var expected = JToken.Parse(dataSet.Symbols);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Symbols_Expected.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Symbols_Delta.json");
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                dataSet.Symbols,
+                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainSymbols}",
+                targetLocation: resultsFile);
         }
 
         [DataTestMethod]
