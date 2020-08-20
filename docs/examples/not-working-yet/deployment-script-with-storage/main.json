@@ -45,18 +45,20 @@
     {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2019-10-01-preview",
-      "name": "[concat(copyIndex(), 'scriptWithStorage')]",
+      "name": "scriptWithStorage",
       "location": "[parameters('location')]",
       "kind": "AzureCLI",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('uamiId')]": {}
+        }
+      },
       "properties": {
         "azCliVersion": "2.0.80",
         "storageAccountSettings": {
           "storageAccountName": "[format('dscript{0}', uniqueString(resourceGroup().id))]",
           "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('dscript{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value]"
-        },
-        "copy": {
-          "name": "thing",
-          "count": 6
         },
         "scriptContent": "[parameters('scriptToExecute')]",
         "cleanupPreference": "OnSuccess",
@@ -70,10 +72,8 @@
   ],
   "outputs": {
     "scriptLogs": {
-      "type": "object",
-      "value": {
-        "placeholder": "placeholder"
-      }
+      "type": "string",
+      "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'scriptWithStorage')), '2019-10-01-preview', 'Full').properties.log]"
     }
   }
 }

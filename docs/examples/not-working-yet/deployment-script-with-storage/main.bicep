@@ -1,4 +1,5 @@
 // TODO - should not merge this example to master until it is working
+// blocked on strings in property names
 
 param location string = resourceGroup().location
 param scriptToExecute string = 'date' // will print current date & time on container
@@ -23,9 +24,14 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   name: 'scriptWithStorage'
   location: location
   kind: 'AzureCLI'
-  // TODO:
-  // identity will hopefully, eventually, be optional
-  // but we will support expressions in property names
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      // todo - add expression once properties can be set as strings
+      replaceWithId: {
+      }
+    }
+  }
   properties: {
     azCliVersion: '2.0.80'
     storageAccountSettings: {
@@ -40,6 +46,4 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
 }
 
 // print logs from script after template is finished deploying
-output scriptLogs object = {
-  placeholder: 'placeholder'
-} // reference('${dScript.id}/logs', dScript.apiVersion, 'Full')
+output scriptLogs string = reference('${dScript.id}/logs/default', dScript.apiVersion, 'Full').properties.log
