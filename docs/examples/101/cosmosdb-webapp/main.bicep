@@ -58,7 +58,6 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
 }
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
-  // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
   name: hostingPlanName
   location: location
   sku: {
