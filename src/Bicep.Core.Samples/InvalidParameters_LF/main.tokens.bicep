@@ -450,6 +450,128 @@ param expressionInModifier string {
 //@[0:1] RightBrace |}|
 //@[1:3] NewLine |\n\n|
 
+// 1-cycle in params
+//@[20:21] NewLine |\n|
+param paramDefaultOneCycle string = paramDefaultOneCycle
+//@[0:5] Identifier |param|
+//@[6:26] Identifier |paramDefaultOneCycle|
+//@[27:33] Identifier |string|
+//@[34:35] Assignment |=|
+//@[36:56] Identifier |paramDefaultOneCycle|
+//@[56:58] NewLine |\n\n|
+
+// 2-cycle in params
+//@[20:21] NewLine |\n|
+param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
+//@[0:5] Identifier |param|
+//@[6:27] Identifier |paramDefaultTwoCycle1|
+//@[28:34] Identifier |string|
+//@[35:36] Assignment |=|
+//@[37:58] Identifier |paramDefaultTwoCycle2|
+//@[58:59] NewLine |\n|
+param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
+//@[0:5] Identifier |param|
+//@[6:27] Identifier |paramDefaultTwoCycle2|
+//@[28:34] Identifier |string|
+//@[35:36] Assignment |=|
+//@[37:58] Identifier |paramDefaultTwoCycle1|
+//@[58:60] NewLine |\n\n|
+
+// 1-cycle in modifier params
+//@[29:30] NewLine |\n|
+param paramModifierOneCycle string {
+//@[0:5] Identifier |param|
+//@[6:27] Identifier |paramModifierOneCycle|
+//@[28:34] Identifier |string|
+//@[35:36] LeftBrace |{|
+//@[36:37] NewLine |\n|
+  default: paramModifierOneCycle
+//@[2:9] Identifier |default|
+//@[9:10] Colon |:|
+//@[11:32] Identifier |paramModifierOneCycle|
+//@[32:33] NewLine |\n|
+}
+//@[0:1] RightBrace |}|
+//@[1:3] NewLine |\n\n|
+
+// 1-cycle in modifier with non-default property
+//@[48:49] NewLine |\n|
+param paramModifierSelfCycle string {
+//@[0:5] Identifier |param|
+//@[6:28] Identifier |paramModifierSelfCycle|
+//@[29:35] Identifier |string|
+//@[36:37] LeftBrace |{|
+//@[37:38] NewLine |\n|
+  allowedValues: [
+//@[2:15] Identifier |allowedValues|
+//@[15:16] Colon |:|
+//@[17:18] LeftSquare |[|
+//@[18:19] NewLine |\n|
+    paramModifierSelfCycle
+//@[4:26] Identifier |paramModifierSelfCycle|
+//@[26:27] NewLine |\n|
+  ]
+//@[2:3] RightSquare |]|
+//@[3:4] NewLine |\n|
+}
+//@[0:1] RightBrace |}|
+//@[1:3] NewLine |\n\n|
+
+// 2-cycle in modifier params
+//@[29:30] NewLine |\n|
+param paramModifierTwoCycle1 string {
+//@[0:5] Identifier |param|
+//@[6:28] Identifier |paramModifierTwoCycle1|
+//@[29:35] Identifier |string|
+//@[36:37] LeftBrace |{|
+//@[37:38] NewLine |\n|
+  default: paramModifierTwoCycle2
+//@[2:9] Identifier |default|
+//@[9:10] Colon |:|
+//@[11:33] Identifier |paramModifierTwoCycle2|
+//@[33:34] NewLine |\n|
+}
+//@[0:1] RightBrace |}|
+//@[1:2] NewLine |\n|
+param paramModifierTwoCycle2 string {
+//@[0:5] Identifier |param|
+//@[6:28] Identifier |paramModifierTwoCycle2|
+//@[29:35] Identifier |string|
+//@[36:37] LeftBrace |{|
+//@[37:38] NewLine |\n|
+  default: paramModifierTwoCycle1
+//@[2:9] Identifier |default|
+//@[9:10] Colon |:|
+//@[11:33] Identifier |paramModifierTwoCycle1|
+//@[33:34] NewLine |\n|
+}
+//@[0:1] RightBrace |}|
+//@[1:3] NewLine |\n\n|
+
+// 2-cycle mixed param syntaxes
+//@[31:32] NewLine |\n|
+param paramMixedTwoCycle1 string = paramMixedTwoCycle2
+//@[0:5] Identifier |param|
+//@[6:25] Identifier |paramMixedTwoCycle1|
+//@[26:32] Identifier |string|
+//@[33:34] Assignment |=|
+//@[35:54] Identifier |paramMixedTwoCycle2|
+//@[54:55] NewLine |\n|
+param paramMixedTwoCycle2 string {
+//@[0:5] Identifier |param|
+//@[6:25] Identifier |paramMixedTwoCycle2|
+//@[26:32] Identifier |string|
+//@[33:34] LeftBrace |{|
+//@[34:35] NewLine |\n|
+  default: paramMixedTwoCycle1
+//@[2:9] Identifier |default|
+//@[9:10] Colon |:|
+//@[11:30] Identifier |paramMixedTwoCycle1|
+//@[30:31] NewLine |\n|
+}
+//@[0:1] RightBrace |}|
+//@[1:3] NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35] NewLine |\n|
 /*    

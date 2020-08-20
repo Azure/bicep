@@ -168,6 +168,49 @@ param expressionInModifier string {
   ]
 }
 
+// 1-cycle in params
+param paramDefaultOneCycle string = paramDefaultOneCycle
+//@[36:56] Error The expression is involved in a cycle. |paramDefaultOneCycle|
+
+// 2-cycle in params
+param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
+//@[37:58] Error The expression is involved in a cycle. |paramDefaultTwoCycle2|
+param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
+//@[37:58] Error The expression is involved in a cycle. |paramDefaultTwoCycle1|
+
+// 1-cycle in modifier params
+param paramModifierOneCycle string {
+  default: paramModifierOneCycle
+//@[11:32] Error The expression is involved in a cycle. |paramModifierOneCycle|
+}
+
+// 1-cycle in modifier with non-default property
+param paramModifierSelfCycle string {
+  allowedValues: [
+    paramModifierSelfCycle
+//@[4:26] Error The expression is involved in a cycle. |paramModifierSelfCycle|
+//@[4:26] Error The value must be a compile-time constant. |paramModifierSelfCycle|
+  ]
+}
+
+// 2-cycle in modifier params
+param paramModifierTwoCycle1 string {
+  default: paramModifierTwoCycle2
+//@[11:33] Error The expression is involved in a cycle. |paramModifierTwoCycle2|
+}
+param paramModifierTwoCycle2 string {
+  default: paramModifierTwoCycle1
+//@[11:33] Error The expression is involved in a cycle. |paramModifierTwoCycle1|
+}
+
+// 2-cycle mixed param syntaxes
+param paramMixedTwoCycle1 string = paramMixedTwoCycle2
+//@[35:54] Error The expression is involved in a cycle. |paramMixedTwoCycle2|
+param paramMixedTwoCycle2 string {
+  default: paramMixedTwoCycle1
+//@[11:30] Error The expression is involved in a cycle. |paramMixedTwoCycle1|
+}
+
 // unterminated multi-line comment
 /*    
 //@[0:6] Error The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |

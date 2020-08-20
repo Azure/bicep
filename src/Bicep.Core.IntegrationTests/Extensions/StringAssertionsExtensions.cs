@@ -30,7 +30,6 @@ namespace Bicep.Core.IntegrationTests.Extensons
             var diff = InlineDiffBuilder.Diff(instance.Subject, expected);
 
             var lineLogs = diff.Lines
-                .Take(truncate)
                 .Where(line => line.Type != ChangeType.Unchanged)
                 .Select(line => $"[{line.Position}] {GetDiffMarker(line.Type)} {EscapeWhitespace(line.Text)}")
                 .Take(truncate);

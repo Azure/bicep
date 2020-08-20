@@ -126,5 +126,47 @@ param expressionInModifier string {
   ]
 }
 
+// 1-cycle in params
+param paramDefaultOneCycle string = paramDefaultOneCycle
+//@[6:26] Parameter paramDefaultOneCycle
+
+// 2-cycle in params
+param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
+//@[6:27] Parameter paramDefaultTwoCycle1
+param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
+//@[6:27] Parameter paramDefaultTwoCycle2
+
+// 1-cycle in modifier params
+param paramModifierOneCycle string {
+//@[6:27] Parameter paramModifierOneCycle
+  default: paramModifierOneCycle
+}
+
+// 1-cycle in modifier with non-default property
+param paramModifierSelfCycle string {
+//@[6:28] Parameter paramModifierSelfCycle
+  allowedValues: [
+    paramModifierSelfCycle
+  ]
+}
+
+// 2-cycle in modifier params
+param paramModifierTwoCycle1 string {
+//@[6:28] Parameter paramModifierTwoCycle1
+  default: paramModifierTwoCycle2
+}
+param paramModifierTwoCycle2 string {
+//@[6:28] Parameter paramModifierTwoCycle2
+  default: paramModifierTwoCycle1
+}
+
+// 2-cycle mixed param syntaxes
+param paramMixedTwoCycle1 string = paramMixedTwoCycle2
+//@[6:25] Parameter paramMixedTwoCycle1
+param paramMixedTwoCycle2 string {
+//@[6:25] Parameter paramMixedTwoCycle2
+  default: paramMixedTwoCycle1
+}
+
 // unterminated multi-line comment
 /*    
