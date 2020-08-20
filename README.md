@@ -67,6 +67,7 @@ az deployment group create -f ./main.json -g my-rg
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 * No IntelliSense whatsoever
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
+* There is no way to use an expression in a property name (which is uncommon, but required for user-assigned managed identities)
 
 ## Reference
 
