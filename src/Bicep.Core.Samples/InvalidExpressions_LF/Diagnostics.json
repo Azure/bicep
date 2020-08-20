@@ -651,11 +651,11 @@
     "spanText": "indexOf(1,1)"
   },
   {
-    "message": "Function 'listKeys' is not valid at this location. It can only be used in resource declarations.",
-    "errorCode": "BCP066",
+    "message": "Cannot resolve function listKeys(string).",
+    "errorCode": "BCP048",
     "level": "Error",
-    "span": "[2759:2767]",
-    "spanText": "listKeys"
+    "span": "[2759:2775]",
+    "spanText": "listKeys('abcd')"
   },
   {
     "message": "The name 'lsitKeys' does not exist in the current context.",

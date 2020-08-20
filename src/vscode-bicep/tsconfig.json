@@ -6,7 +6,10 @@
         "outDir": "out",
         "lib": ["es2016"],
         "sourceMap": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true
     },
     "exclude": ["node_modules", "server"]
 }

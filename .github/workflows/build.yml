@@ -87,6 +87,10 @@ jobs:
         run: npm ci
         working-directory: ./src/vscode-bicep
 
+      - name: Run lint
+        run: npm run lint
+        working-directory: ./src/vscode-bicep
+
       - name: Download Language Server
         uses: actions/download-artifact@v2
         with:

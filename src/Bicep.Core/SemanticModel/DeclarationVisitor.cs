@@ -7,9 +7,9 @@ namespace Bicep.Core.SemanticModel
     {
         private readonly ITypeManager typeManager;
 
-        private readonly List<Symbol> declaredSymbols;
+        private readonly IList<DeclaredSymbol> declaredSymbols;
 
-        public DeclarationVisitor(ITypeManager typeManager, List<Symbol> declaredSymbols)
+        public DeclarationVisitor(ITypeManager typeManager, IList<DeclaredSymbol> declaredSymbols)
         {
             this.typeManager = typeManager;
             this.declaredSymbols = declaredSymbols;

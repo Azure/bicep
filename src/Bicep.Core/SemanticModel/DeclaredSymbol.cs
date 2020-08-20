@@ -5,11 +5,12 @@ namespace Bicep.Core.SemanticModel
 {
     public abstract class DeclaredSymbol : Symbol
     {
-        protected DeclaredSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax)
+        protected DeclaredSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)
         {
             this.TypeManager = typeManager;
             this.DeclaringSyntax = declaringSyntax;
+            this.NameSyntax = nameSyntax;
         }
 
         public ITypeManager TypeManager { get; }
@@ -20,9 +21,9 @@ namespace Bicep.Core.SemanticModel
         public SyntaxBase DeclaringSyntax { get; }
 
         /// <summary>
-        /// Gets the syntax node of the identifier. May be null if the symbol is in an invalid state.
+        /// Gets the syntax node of the identifier.
         /// </summary>
-        public abstract SyntaxBase? NameSyntax { get; }
+        public IdentifierSyntax NameSyntax { get; }
 
         protected TypeSymbol? GetPrimitiveTypeByName(string typeName)
         {

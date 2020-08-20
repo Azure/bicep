@@ -8,7 +8,7 @@ namespace Bicep.Core.SemanticModel
     public class ResourceSymbol : DeclaredSymbol
     {
         public ResourceSymbol(ITypeManager typeManager, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
-            : base(typeManager, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Body = body;
         }
@@ -69,7 +69,5 @@ namespace Bicep.Core.SemanticModel
         {
             return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, this.Body, this.Type);
         }
-
-        public override SyntaxBase? NameSyntax => this.DeclaringResource.Name;
     }
 }
