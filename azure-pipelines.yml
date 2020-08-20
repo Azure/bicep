@@ -10,6 +10,13 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'config'
+    nugetConfigPath: 'NuGet.config'
+    noCache: true
 - task: ComponentGovernanceComponentDetection@0
   inputs:
     scanType: 'LogOnly'
