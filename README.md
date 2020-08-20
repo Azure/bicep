@@ -78,7 +78,7 @@ az deployment group create -f ./main.json -g my-rg
 
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may better fit your use case.
 
-* [Farmer](https://compositionalit.github.io/farmer/) - Generate ARM Templates using an F# DSL
+* [Farmer](https://compositionalit.github.io/farmer/) - Generate and deploy ARM Templates on .NET
 
 ## Contributing
 

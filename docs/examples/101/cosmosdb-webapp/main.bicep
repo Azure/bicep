@@ -1,4 +1,7 @@
-param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
+param applicationName string {
+  default: 'to-do-app${uniqueString(resourceGroup().id)}'
+  maxLength: 30
+}
 param location string = resourceGroup().location
 
 param appServicePlanTier string {
@@ -68,7 +71,6 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 }
 
 resource website 'Microsoft.Web/sites@2019-08-01' = {
-  // dependsOn: resourceId('Microsoft.Web/serverfarms', hostingPlanName) 
   name: websiteName
   location: location
   properties: {
@@ -77,9 +79,31 @@ resource website 'Microsoft.Web/sites@2019-08-01' = {
       appSettings: [
         {
           name: 'CosmosDb:Account'
-          // value: 
+          value: cosmos.properties.documentEndpoint 
+        }
+        {
+          name: 'CosmosDb:Key'
+          value: listKeys(cosmos.id, cosmos.apiVersion).primaryMasterKey
+        }
+        {
+          name: 'CosmosDb:DatabaseName'
+          value: databaseName
+        }
+        {
+          name: 'CosmosDb:ContainerName'
+          value: containerName
         }
       ]
     }
+  }
+}
+
+resource srcCtrl 'Microsoft.Web/sites/sourcecontrols@2019-08-01' = {
+  name: '${website.name}/web'
+  location: location
+  properties: {
+    repoUrl: repositoryUrl
+    branch: branch
+    isManualIntegration: true
   }
 }
