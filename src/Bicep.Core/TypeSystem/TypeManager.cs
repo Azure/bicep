@@ -417,8 +417,7 @@ namespace Bicep.Core.TypeSystem
                     return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.GetVariableType(context));
 
                 case ParameterSymbol parameter:
-                    // TODO: This can cause a cycle
-                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, parameter.Type);
+                    return GetParameterType(context, syntax, parameter);
 
                 case VariableSymbol variable:
                     return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, variable.GetVariableType(context));
@@ -431,6 +430,40 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private TypeSymbol GetParameterType(TypeManagerContext context, VariableAccessSyntax syntax, ParameterSymbol parameter)
+        {
+            // parameter default values can participate in cycles with their own parameters or other symbols
+            // need to explicitly force a type check to detect that
+            SyntaxBase? expressionToTypeCheck;
+            switch (parameter.Modifier)
+            {
+                case ParameterDefaultValueSyntax defaultValueSyntax:
+                    expressionToTypeCheck = defaultValueSyntax.DefaultValue;
+                    break;
+
+                case ObjectSyntax modifierSyntax:
+                    // technically it's redundant to type check the entire object because we have existing
+                    // compile-time constant checks, but it shouldn't harm anything
+                    expressionToTypeCheck = modifierSyntax;
+                    break;
+
+                case null:
+                    // there's no default value or modifier - this parameter cannot participate in a cycle
+                    expressionToTypeCheck = null;
+                    break;
+
+                default:
+                    throw new NotImplementedException($"Unexpected parameter modifier type '{parameter.Modifier.GetType()}");
+            }
+
+            if (expressionToTypeCheck != null && ContainsCyclicExpressionError(this.GetTypeInfoInternal(context, expressionToTypeCheck)))
+            {
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).CyclicExpression());
+            }
+
+            return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, parameter.Type);
+        }
+        
         private TypeSymbol GetFunctionCallType(TypeManagerContext context, FunctionCallSyntax syntax)
         {
             var errors = new List<ErrorDiagnostic>();
@@ -592,7 +625,7 @@ namespace Bicep.Core.TypeSystem
             // unless we're dealing with a cyclic expression error, then propagate away!
             if (symbolType is ErrorTypeSymbol errorType)
             {
-                if (errorType.GetDiagnostics().Any(ErrorDiagnostic.IsCyclicExpressionError))
+                if (ContainsCyclicExpressionError(errorType))
                 {
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(symbolNameSpan).CyclicExpression());
                 }
@@ -604,6 +637,8 @@ namespace Bicep.Core.TypeSystem
 
             return symbolType;
         }
+
+        private static bool ContainsCyclicExpressionError(Symbol errorType) => errorType.GetDiagnostics().Any(ErrorDiagnostic.IsCyclicExpressionError);
 
         private Symbol ResolveSymbol(SyntaxBase syntax)
         {
