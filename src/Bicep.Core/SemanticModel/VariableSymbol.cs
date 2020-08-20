@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class VariableSymbol : DeclaredSymbol, INavigableSymbol
+    public class VariableSymbol : DeclaredSymbol
     {
         public VariableSymbol(ITypeManager typeManager, string name, VariableDeclarationSyntax declaringSyntax, SyntaxBase value) 
             : base(typeManager, name, declaringSyntax, declaringSyntax.Name)

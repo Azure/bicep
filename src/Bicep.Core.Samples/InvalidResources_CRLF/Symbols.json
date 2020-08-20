@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[0:1184]"
+    "kind": "file"
   },
   {
     "name": "resrefpar",

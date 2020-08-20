@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new LocationOrLocationLinks());
             }
 
-            if (result.Symbol is DeclaredSymbol declaration && result.Symbol is INavigableSymbol)
+            if (result.Symbol is DeclaredSymbol declaration)
             {
                 return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                 {
@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
                     TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
 
                     // span of the variable name
-                    TargetSelectionRange = declaration.NameSyntax!.ToRange(result.Context.LineStarts)
+                    TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
                 })));
             }
 

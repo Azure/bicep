@@ -12,13 +12,13 @@ namespace Bicep.Core.SemanticModel
     {
         private FunctionFlags allowedFlags;
 
-        private readonly IReadOnlyDictionary<string, Symbol> declarations;
+        private readonly IReadOnlyDictionary<string, DeclaredSymbol> declarations;
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly ImmutableArray<NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, Symbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
         {
             this.declarations = declarations;
             this.bindings = bindings;
@@ -32,7 +32,7 @@ namespace Bicep.Core.SemanticModel
             // create bindings for all of the declarations to their corresponding symbol
             // this is needed to make find all references work correctly
             // (doing this here to avoid side-effects in the constructor)
-            foreach (DeclaredSymbol declaredSymbol in this.declarations.Values.OfType<DeclaredSymbol>())
+            foreach (DeclaredSymbol declaredSymbol in this.declarations.Values)
             {
                 this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
             }

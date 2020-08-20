@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[0:152]"
+    "kind": "file"
   },
   {
     "name": "x",

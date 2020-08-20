@@ -27,7 +27,7 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
+        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.

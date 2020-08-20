@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[62:2904]"
+    "kind": "file"
   },
   {
     "name": "funcvarparam",

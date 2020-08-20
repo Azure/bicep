@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class ResourceSymbol : DeclaredSymbol, INavigableSymbol
+    public class ResourceSymbol : DeclaredSymbol
     {
         public ResourceSymbol(ITypeManager typeManager, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
             : base(typeManager, name, declaringSyntax, declaringSyntax.Name)

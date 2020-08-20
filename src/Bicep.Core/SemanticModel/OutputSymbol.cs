@@ -2,13 +2,12 @@
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class OutputSymbol : DeclaredSymbol, INavigableSymbol
+    public class OutputSymbol : DeclaredSymbol
     {
         public OutputSymbol(ITypeManager typeManager, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
             : base(typeManager, name, declaringSyntax, declaringSyntax.Name)

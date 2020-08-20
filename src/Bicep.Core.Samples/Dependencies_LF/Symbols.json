@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[0:1084]"
+    "kind": "file"
   },
   {
     "name": "deployTimeParam",

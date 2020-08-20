@@ -1,7 +1,6 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[0:0]"
+    "kind": "file"
   }
 ]

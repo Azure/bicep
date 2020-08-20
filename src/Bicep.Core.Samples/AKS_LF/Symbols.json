@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[19:1579]"
+    "kind": "file"
   },
   {
     "name": "dnsPrefix",

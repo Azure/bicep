@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
                 Detail = FormatDetail(symbol),
                 Range = symbol.DeclaringSyntax.ToRange(lineStarts),
                 // use the name node span with fallback to entire declaration span
-                SelectionRange = (symbol.NameSyntax ?? symbol.DeclaringSyntax).ToRange(lineStarts)
+                SelectionRange = symbol.NameSyntax.ToRange(lineStarts)
             };
 
         private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)

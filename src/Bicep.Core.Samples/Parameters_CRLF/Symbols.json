@@ -1,8 +1,7 @@
 [
   {
     "name": "main",
-    "kind": "file",
-    "span": "[35:2122]"
+    "kind": "file"
   },
   {
     "name": "myString",

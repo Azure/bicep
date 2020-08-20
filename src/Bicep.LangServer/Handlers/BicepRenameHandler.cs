@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -25,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
         public override Task<WorkspaceEdit> Handle(RenameParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
-            if (result == null || !(result.Symbol is INavigableSymbol navigable))
+            if (result == null || !(result.Symbol is DeclaredSymbol))
             {
                 // result is not a symbol or it's a built-in symbol that was not declared by the user (namespaces, functions, for example)
                 // symbols that are not declared by the user cannot be renamed

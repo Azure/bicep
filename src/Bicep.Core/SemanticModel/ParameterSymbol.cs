@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class ParameterSymbol : DeclaredSymbol, INavigableSymbol
+    public class ParameterSymbol : DeclaredSymbol
     {
         public ParameterSymbol(ITypeManager typeManager, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
             : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
