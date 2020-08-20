@@ -1,0 +1,144 @@
+[
+  {
+    "name": "main",
+    "kind": "file"
+  },
+  {
+    "name": "myString",
+    "kind": "parameter",
+    "span": "[76:99]",
+    "nameSpan": "[82:90]"
+  },
+  {
+    "name": "myInt",
+    "kind": "parameter",
+    "span": "[99:116]",
+    "nameSpan": "[105:110]"
+  },
+  {
+    "name": "myBool",
+    "kind": "parameter",
+    "span": "[116:137]",
+    "nameSpan": "[122:128]"
+  },
+  {
+    "name": "myString2",
+    "kind": "parameter",
+    "span": "[171:212]",
+    "nameSpan": "[177:186]"
+  },
+  {
+    "name": "myInt2",
+    "kind": "parameter",
+    "span": "[212:235]",
+    "nameSpan": "[218:224]"
+  },
+  {
+    "name": "myTruth",
+    "kind": "parameter",
+    "span": "[235:262]",
+    "nameSpan": "[241:248]"
+  },
+  {
+    "name": "myFalsehood",
+    "kind": "parameter",
+    "span": "[262:294]",
+    "nameSpan": "[268:279]"
+  },
+  {
+    "name": "myEscapedString",
+    "kind": "parameter",
+    "span": "[294:365]",
+    "nameSpan": "[300:315]"
+  },
+  {
+    "name": "foo",
+    "kind": "parameter",
+    "span": "[390:647]",
+    "nameSpan": "[396:399]"
+  },
+  {
+    "name": "myArrayParam",
+    "kind": "parameter",
+    "span": "[671:727]",
+    "nameSpan": "[677:689]"
+  },
+  {
+    "name": "myAlternativeArrayParam",
+    "kind": "parameter",
+    "span": "[759:849]",
+    "nameSpan": "[765:788]"
+  },
+  {
+    "name": "password",
+    "kind": "parameter",
+    "span": "[867:913]",
+    "nameSpan": "[873:881]"
+  },
+  {
+    "name": "nonSecure",
+    "kind": "parameter",
+    "span": "[935:983]",
+    "nameSpan": "[941:950]"
+  },
+  {
+    "name": "secretObject",
+    "kind": "parameter",
+    "span": "[1001:1051]",
+    "nameSpan": "[1007:1019]"
+  },
+  {
+    "name": "storageSku",
+    "kind": "parameter",
+    "span": "[1070:1167]",
+    "nameSpan": "[1076:1086]"
+  },
+  {
+    "name": "storageName",
+    "kind": "parameter",
+    "span": "[1201:1267]",
+    "nameSpan": "[1207:1218]"
+  },
+  {
+    "name": "someArray",
+    "kind": "parameter",
+    "span": "[1301:1364]",
+    "nameSpan": "[1307:1316]"
+  },
+  {
+    "name": "emptyMetadata",
+    "kind": "parameter",
+    "span": "[1383:1438]",
+    "nameSpan": "[1389:1402]"
+  },
+  {
+    "name": "description",
+    "kind": "parameter",
+    "span": "[1454:1542]",
+    "nameSpan": "[1460:1471]"
+  },
+  {
+    "name": "additionalMetadata",
+    "kind": "parameter",
+    "span": "[1568:1739]",
+    "nameSpan": "[1574:1592]"
+  },
+  {
+    "name": "someParameter",
+    "kind": "parameter",
+    "span": "[1766:1996]",
+    "nameSpan": "[1772:1785]"
+  },
+  {
+    "name": "defaultValueExpression",
+    "kind": "parameter",
+    "span": "[1996:2068]",
+    "nameSpan": "[2002:2024]"
+  },
+  {
+    "name": "defaultExpression",
+    "kind": "parameter",
+    "span": "[2068:2122]",
+    "nameSpan": "[2074:2091]"
+  }
+]

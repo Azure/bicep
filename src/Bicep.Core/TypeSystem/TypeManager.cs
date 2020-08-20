@@ -457,7 +457,7 @@ namespace Bicep.Core.TypeSystem
                     return GetFunctionSymbolType(syntax, function, argumentTypes);
 
                 default:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.FunctionName.Span).SymbolicNameIsNotAFunction(syntax.FunctionName.IdentifierName));
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName));
             }
         }
 
@@ -469,7 +469,7 @@ namespace Bicep.Core.TypeSystem
             {
                 case 0:
                     // cannot find a function matching the types and number of arguments
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.FunctionName.IdentifierName, argumentTypes));
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.Name.IdentifierName, argumentTypes));
 
                 case 1:
                     // we have an exact match or a single ambiguous match

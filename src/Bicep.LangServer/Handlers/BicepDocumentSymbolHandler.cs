@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Bicep.Core.SemanticModel;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return new DocumentSymbolRegistrationOptions
             {
-                DocumentSelector = DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId)
+                DocumentSelector = DocumentSelectorFactory.Create()
             };
         }
 
@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
                 Detail = FormatDetail(symbol),
                 Range = symbol.DeclaringSyntax.ToRange(lineStarts),
                 // use the name node span with fallback to entire declaration span
-                SelectionRange = (symbol.NameSyntax ?? symbol.DeclaringSyntax).ToRange(lineStarts)
+                SelectionRange = symbol.NameSyntax.ToRange(lineStarts)
             };
 
         private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)

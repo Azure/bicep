@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -19,13 +20,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILogger<BicepTextDocumentSyncHandler> logger;
         private readonly ILanguageServerConfiguration configuration;
         private readonly ILanguageServer server;
-
-        private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
-            => new TextDocumentSaveRegistrationOptions
-            {
-                DocumentSelector = DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId),
-                IncludeText = true,
-            };
 
         public BicepTextDocumentSyncHandler(
             ICompilationManager compilationManager,
@@ -80,5 +74,12 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager.CloseCompilation(request.TextDocument.Uri);
             return Unit.Task;
         }
+
+        private static TextDocumentSaveRegistrationOptions GetSaveRegistrationOptions()
+            => new TextDocumentSaveRegistrationOptions
+            {
+                DocumentSelector = DocumentSelectorFactory.Create(),
+                IncludeText = true,
+            };
     }
 }

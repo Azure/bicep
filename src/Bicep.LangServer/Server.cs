@@ -14,7 +14,7 @@ namespace Bicep.LanguageServer
 {
     public class Server
     {
-        private OmnisharpLanguageServer server;
+        private readonly OmnisharpLanguageServer server;
 
         public Server(PipeReader input, PipeWriter output)
             : this(options => options.WithInput(input).WithOutput(output))
@@ -33,6 +33,11 @@ namespace Bicep.LanguageServer
                 options
                     .WithHandler<BicepTextDocumentSyncHandler>()
                     .WithHandler<BicepDocumentSymbolHandler>()
+                    .WithHandler<BicepDefinitionHandler>()
+                    .WithHandler<BicepReferencesHandler>()
+                    .WithHandler<BicepDocumentHighlightHandler>()
+                    .WithHandler<BicepRenameHandler>()
+                    .WithHandler<BicepHoverHandler>()
 #pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
 #pragma warning restore 0612
@@ -55,6 +60,7 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
+            services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
         }
     }
 }

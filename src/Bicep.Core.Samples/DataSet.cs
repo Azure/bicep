@@ -20,6 +20,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string>? lazyCompiled;
 
+        private readonly Lazy<string> lazySymbols;
+
         public DataSet(string name)
         {
             this.Name = name;
@@ -28,6 +30,7 @@ namespace Bicep.Core.Samples
             this.lazyTokens = this.CreateRequired("Tokens.json");
             this.lazyErrors = this.CreateRequired("Diagnostics.json");
             this.lazyCompiled = this.CreateIffValid("Compiled.json");
+            this.lazySymbols = this.CreateRequired("Symbols.json");
         }
 
         public string Name { get; }
@@ -41,6 +44,8 @@ namespace Bicep.Core.Samples
         public string Errors => this.lazyErrors.Value;
 
         public string? Compiled => this.lazyCompiled?.Value;
+
+        public string Symbols => this.lazySymbols.Value;
 
         // validity is set by naming convention
 

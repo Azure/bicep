@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -10,7 +11,7 @@ namespace Bicep.Core.SemanticModel
     public class ParameterSymbol : DeclaredSymbol
     {
         public ParameterSymbol(ITypeManager typeManager, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
-            : base(typeManager, name, declaringSyntax)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Modifier = modifier;
         }
@@ -63,7 +64,5 @@ namespace Bicep.Core.SemanticModel
 
             return Enumerable.Empty<ErrorDiagnostic>();
         }
-
-        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;
     }
 }

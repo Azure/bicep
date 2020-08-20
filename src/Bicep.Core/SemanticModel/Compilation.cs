@@ -35,7 +35,7 @@ namespace Bicep.Core.SemanticModel
             var typeCache = new TypeManager(bindings);
 
             // collect declarations
-            var declarations = new List<Symbol>();
+            var declarations = new List<DeclaredSymbol>();
             var declarationVisitor = new DeclarationVisitor(typeCache, declarations);
             declarationVisitor.Visit(this.ProgramSyntax);
 
@@ -55,11 +55,9 @@ namespace Bicep.Core.SemanticModel
             typeCache.Unlock();
 
             // TODO: Avoid looping 4 times?
-            var file = new FileSymbol(
-                typeCache,
-                "main",
+            var file = new FileSymbol("main",
                 this.ProgramSyntax,
-                builtinNamespaces, 
+                builtinNamespaces,
                 declarations.OfType<ParameterSymbol>(),
                 declarations.OfType<VariableSymbol>(),
                 declarations.OfType<ResourceSymbol>(),

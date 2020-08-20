@@ -7,20 +7,20 @@ namespace Bicep.Core.SemanticModel
 {
     public class SymbolGraphVisitor : SyntaxVisitor
     {
-        private readonly IReadOnlyDictionary<string, Symbol> declarations;
+        private readonly IReadOnlyDictionary<string, DeclaredSymbol> declarations;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly Dictionary<Symbol, IList<Symbol>> symbolGraph;
         private Symbol currentDeclaration;
 
-        public static SymbolGraph Build(FileSymbol fileSymbol, IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static SymbolGraph Build(FileSymbol fileSymbol, IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new SymbolGraphVisitor(fileSymbol, declarations, bindings);
-            visitor.VisitProgramSyntax(fileSymbol.DeclaringProgram);
+            visitor.VisitProgramSyntax(fileSymbol.Syntax);
 
             return new SymbolGraph(visitor.symbolGraph.ToDictionary(kvp => kvp.Key, kvp => new HashSet<Symbol>(kvp.Value)));
         }
 
-        private SymbolGraphVisitor(FileSymbol fileSymbol, IReadOnlyDictionary<string, Symbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        private SymbolGraphVisitor(FileSymbol fileSymbol, IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.currentDeclaration = fileSymbol;
             this.declarations = declarations;
