@@ -10,13 +10,19 @@ namespace Bicep.Core.Samples
     [DebuggerDisplay("{" + nameof(DisplayName) + "}")]
     public class DataSet
     {
+        public const string TestFileMain = "main.bicep";
+        public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
+        public const string TestFileMainTokens = "main.tokens.bicep";
+        public const string TestFileMainSymbols = "main.symbols.bicep";
+        public const string TestFileMainCompiled = "main.json";
+
         private static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
 
         private readonly Lazy<string> lazyBicep;
 
         private readonly Lazy<string> lazyTokens;
 
-        private readonly Lazy<string> lazyErrors;
+        private readonly Lazy<string> lazyDiagnostics;
 
         private readonly Lazy<string>? lazyCompiled;
 
@@ -26,11 +32,11 @@ namespace Bicep.Core.Samples
         {
             this.Name = name;
 
-            this.lazyBicep = this.CreateRequired("Bicep.bicep");
-            this.lazyTokens = this.CreateRequired("Tokens.json");
-            this.lazyErrors = this.CreateRequired("Diagnostics.json");
-            this.lazyCompiled = this.CreateIffValid("Compiled.json");
-            this.lazySymbols = this.CreateRequired("Symbols.json");
+            this.lazyBicep = this.CreateRequired(TestFileMain);
+            this.lazyTokens = this.CreateRequired(TestFileMainTokens);
+            this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
+            this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
+            this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
         }
 
         public string Name { get; }
@@ -41,7 +47,7 @@ namespace Bicep.Core.Samples
 
         public string Tokens => this.lazyTokens.Value;
 
-        public string Errors => this.lazyErrors.Value;
+        public string Diagnostics => this.lazyDiagnostics.Value;
 
         public string? Compiled => this.lazyCompiled?.Value;
 
