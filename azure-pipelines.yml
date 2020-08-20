@@ -17,9 +17,10 @@ steps:
     feedsToUse: 'config'
     nugetConfigPath: 'NuGet.config'
     noCache: true
+    verbosityRestore: 'Normal'
 - task: ComponentGovernanceComponentDetection@0
   inputs:
-    scanType: 'LogOnly'
+    scanType: 'Register'
     verbosity: 'Verbose'
     alertWarningLevel: 'High'
     failOnAlert: true
