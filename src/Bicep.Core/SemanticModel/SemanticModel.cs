@@ -14,14 +14,14 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly SymbolDependencyGraph symbolGraph;
+        public SymbolGraph SymbolGraph { get; }
 
-        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolDependencyGraph symbolGraph)
+        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
-            this.symbolGraph = symbolGraph;
+            this.SymbolGraph = symbolGraph;
         }
 
         /// <summary>
@@ -71,11 +71,5 @@ namespace Bicep.Core.SemanticModel
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
-
-        public ImmutableArray<ResourceSymbol> GetResourceDependencies(ResourceSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources;
-
-        public bool RequiresInlining(VariableSymbol symbol)
-            => symbolGraph.Graph[symbol].Resources.Any();
     }
 }

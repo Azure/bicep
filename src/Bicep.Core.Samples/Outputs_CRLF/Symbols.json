@@ -4,6 +4,12 @@
     "kind": "file"
   },
   {
+    "name": "secondaryKeyIntermediateVar",
+    "kind": "variable",
+    "span": "[786:896]",
+    "nameSpan": "[790:817]"
+  },
+  {
     "name": "myStr",
     "kind": "output",
     "span": "[2:35]",
@@ -74,5 +80,17 @@
     "kind": "output",
     "span": "[642:786]",
     "nameSpan": "[649:671]"
+  },
+  {
+    "name": "primaryKey",
+    "kind": "output",
+    "span": "[896:995]",
+    "nameSpan": "[903:913]"
+  },
+  {
+    "name": "secondaryKey",
+    "kind": "output",
+    "span": "[995:1051]",
+    "nameSpan": "[1002:1014]"
   }
 ]

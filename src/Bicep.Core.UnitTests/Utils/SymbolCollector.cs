@@ -5,7 +5,7 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class SymbolCollector
     {
-        public static IList<Symbol> CollectSymbols(SemanticModel.SemanticModel model)
+        public static IList<Symbol> CollectSymbols(Core.SemanticModel.SemanticModel model)
         {
             var symbols = new List<Symbol>();
             var visitor = new SymbolCollectorVisitor(symbols);

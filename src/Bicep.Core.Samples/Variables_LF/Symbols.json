@@ -138,7 +138,19 @@
   {
     "name": "myPropertyName",
     "kind": "variable",
-    "span": "[1171:1225]",
+    "span": "[1171:1227]",
     "nameSpan": "[1175:1189]"
+  },
+  {
+    "name": "unusedIntermediate",
+    "kind": "variable",
+    "span": "[1227:1312]",
+    "nameSpan": "[1231:1249]"
+  },
+  {
+    "name": "unusedIntermediateRef",
+    "kind": "variable",
+    "span": "[1312:1371]",
+    "nameSpan": "[1316:1337]"
   }
 ]

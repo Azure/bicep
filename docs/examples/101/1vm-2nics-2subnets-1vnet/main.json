@@ -36,11 +36,6 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2017-03-30",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]"
-      ],
       "name": "[variables('virtualMachineName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -89,7 +84,12 @@
             "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic1Name'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
+      ]
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -111,9 +111,6 @@
     {
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2017-06-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
-      ],
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -139,16 +136,14 @@
             }
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
+      ]
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-06-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-      ],
       "name": "[variables('nic1Name')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -169,14 +164,16 @@
         "networkSecurityGroup": {
           "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-06-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
-      ],
       "name": "[variables('nic2Name')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -191,7 +188,10 @@
             }
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",

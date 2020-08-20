@@ -24,14 +24,14 @@
   {
     "name": "webSiteName",
     "kind": "parameter",
-    "span": "[1950:1976]",
-    "nameSpan": "[1956:1967]"
+    "span": "[2264:2290]",
+    "nameSpan": "[2270:2281]"
   },
   {
     "name": "cosmosDb",
     "kind": "parameter",
-    "span": "[1976:1999]",
-    "nameSpan": "[1982:1990]"
+    "span": "[2290:2313]",
+    "nameSpan": "[2296:2304]"
   },
   {
     "name": "hostingPlanName",
@@ -48,8 +48,20 @@
   {
     "name": "cosmosDbResourceId",
     "kind": "variable",
-    "span": "[1852:1950]",
+    "span": "[1852:1948]",
     "nameSpan": "[1856:1874]"
+  },
+  {
+    "name": "cosmosDbRef",
+    "kind": "variable",
+    "span": "[1948:2016]",
+    "nameSpan": "[1952:1963]"
+  },
+  {
+    "name": "cosmosDbEndpoint",
+    "kind": "variable",
+    "span": "[2209:2264]",
+    "nameSpan": "[2213:2229]"
   },
   {
     "name": "basicStorage",
@@ -84,7 +96,7 @@
   {
     "name": "site",
     "kind": "resource",
-    "span": "[1999:2688]",
-    "nameSpan": "[2008:2012]"
+    "span": "[2313:3002]",
+    "nameSpan": "[2322:2326]"
   }
 ]
