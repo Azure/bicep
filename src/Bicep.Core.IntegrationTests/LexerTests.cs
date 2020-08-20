@@ -59,7 +59,12 @@ namespace Bicep.Core.IntegrationTests
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, lexer.GetTokens(), token => $"{token.Type} |{token.Text}|");
+            string getLoggingString(Token token)
+            {
+                return $"{token.Type} |{token.Text}|";
+            }
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, lexer.GetTokens(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainTokens}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(

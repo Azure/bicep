@@ -18,12 +18,6 @@ namespace Bicep.Core.IntegrationTests.Extensons
                 _ => "  ",
             };
 
-        private static string EscapeWhitespace(string input)
-            => input
-            .Replace("\r", "\\r")
-            .Replace("\n", "\\n")
-            .Replace("\t", "\\t");
-
         public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, string expected, string sourceLocation, string targetLocation, string because = "", params object[] becauseArgs)
         {
             const int truncate = 100;
@@ -31,7 +25,7 @@ namespace Bicep.Core.IntegrationTests.Extensons
 
             var lineLogs = diff.Lines
                 .Where(line => line.Type != ChangeType.Unchanged)
-                .Select(line => $"[{line.Position}] {GetDiffMarker(line.Type)} {EscapeWhitespace(line.Text)}")
+                .Select(line => $"[{line.Position}] {GetDiffMarker(line.Type)} {OutputHelper.EscapeWhitespace(line.Text)}")
                 .Take(truncate);
 
             if (diff.Lines.Count > truncate)

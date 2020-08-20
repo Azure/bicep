@@ -20,6 +20,12 @@ namespace Bicep.Core.IntegrationTests
 {
     public static class OutputHelper
     {
+        public static string EscapeWhitespace(string input)
+            => input
+            .Replace("\r", "\\r")
+            .Replace("\n", "\\n")
+            .Replace("\t", "\\t");
+
         public static string AddDiagsToSourceText<T>(string sourceText, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(sourceText);
@@ -40,8 +46,8 @@ namespace Bicep.Core.IntegrationTests
                 stringBuilder.AppendLine(sourceTextLines[i]);
                 foreach (var (line, character, item) in itemsByLine[i])
                 {
-                    var escapedDiagsText = diagsFunc(item).Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
-                    stringBuilder.AppendLine($"//@[{character}:{character + getSpanFunc(item).Length}] {escapedDiagsText}");
+                    var escapedDiagsText = EscapeWhitespace(diagsFunc(item));
+                    stringBuilder.AppendLine($"//@[{character}:{character + getSpanFunc(item).Length}) {escapedDiagsText}");
                 }
             }
 
@@ -51,5 +57,12 @@ namespace Bicep.Core.IntegrationTests
         public static string AddDiagsToSourceText<TPositionable>(string sourceText, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
             where TPositionable : IPositionable
             => AddDiagsToSourceText(sourceText, items, item => item.Span, diagsFunc);
+
+        public static string GetSpanText(string sourceText, IPositionable positionable)
+        {
+            var spanText = sourceText[new Range(positionable.Span.Position, positionable.Span.Position + positionable.Span.Length)];
+
+            return EscapeWhitespace(spanText);
+        }
     }
 }

@@ -8,6 +8,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
@@ -30,10 +31,14 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
 
-            string getDiagnosticSpanText(Diagnostic diagnostic)
-                => dataSet.Bicep[new Range(diagnostic.Span.Position, diagnostic.Span.Position + diagnostic.Span.Length)];
+            string getLoggingString(Diagnostic diagnostic)
+            {
+                var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
+
+                return $"{diagnostic.Level} {diagnostic.Message} |{spanText}|";
+            }
             
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, model.GetAllDiagnostics(), diag => $"{diag.Level} {diag.Message} |{getDiagnosticSpanText(diag)}|");
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, model.GetAllDiagnostics(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainDiagnostics}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -60,7 +65,15 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 .CollectSymbols(model)
                 .OfType<DeclaredSymbol>();
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, symbols, symb => symb.NameSyntax.Span, symb => $"{symb.Kind} {symb.Name}");
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            string getLoggingString(DeclaredSymbol symbol)
+            {
+                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
+
+                return $"{symbol.Kind} {symbol.Name}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
+            }
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, symbols, symb => symb.NameSyntax.Span, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainSymbols}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(

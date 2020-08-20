@@ -1,2 +1,2 @@
 
-//@[0:0] EndOfFile ||
+//@[0:0) EndOfFile ||

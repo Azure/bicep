@@ -1,35 +1,35 @@
 
 // an int variable
 var myInt = 42
-//@[4:9] Variable myInt
+//@[4:9) Variable myInt. Declaration start char: 0, length: 16
 
 // a string variable
 var myStr = 'str'
-//@[4:9] Variable myStr
+//@[4:9) Variable myStr. Declaration start char: 0, length: 18
 var curliesWithNoInterp = '}{1}{'
-//@[4:23] Variable curliesWithNoInterp
+//@[4:23) Variable curliesWithNoInterp. Declaration start char: 0, length: 34
 var interp1 = 'abc${123}def'
-//@[4:11] Variable interp1
+//@[4:11) Variable interp1. Declaration start char: 0, length: 29
 var interp2 = '${123}def'
-//@[4:11] Variable interp2
+//@[4:11) Variable interp2. Declaration start char: 0, length: 26
 var interp3 = 'abc${123}'
-//@[4:11] Variable interp3
+//@[4:11) Variable interp3. Declaration start char: 0, length: 26
 var interp4 = 'abc${123}${456}jk$l${789}p$'
-//@[4:11] Variable interp4
+//@[4:11) Variable interp4. Declaration start char: 0, length: 44
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
-//@[4:16] Variable doubleInterp
+//@[4:16) Variable doubleInterp. Declaration start char: 0, length: 57
 var curliesInInterp = '{${123}{0}${true}}'
-//@[4:19] Variable curliesInInterp
+//@[4:19) Variable curliesInInterp. Declaration start char: 0, length: 44
 
 // booleans
 var myTruth = true
-//@[4:11] Variable myTruth
+//@[4:11) Variable myTruth. Declaration start char: 0, length: 19
 var myFalsehood = false
-//@[4:15] Variable myFalsehood
+//@[4:15) Variable myFalsehood. Declaration start char: 0, length: 25
 
 // object
 var myObj = {
-//@[4:9] Variable myObj
+//@[4:9) Variable myObj. Declaration start char: 0, length: 206
   a: 'a'
   b: -12
   c: true
@@ -52,7 +52,7 @@ var myObj = {
 
 // array
 var myArr = [
-//@[4:9] Variable myArr
+//@[4:9) Variable myArr. Declaration start char: 0, length: 45
   'pirates'
   'say'
   'arr'
@@ -60,7 +60,7 @@ var myArr = [
 
 // array with objects
 var myArrWithObjects = [
-//@[4:20] Variable myArrWithObjects
+//@[4:20) Variable myArrWithObjects. Declaration start char: 0, length: 140
   {
     name: 'one'
     enable: true
@@ -72,40 +72,40 @@ var myArrWithObjects = [
 ]
 
 var expressionIndexOnAny = any({
-//@[4:24] Variable expressionIndexOnAny
+//@[4:24) Variable expressionIndexOnAny. Declaration start char: 0, length: 63
 })[resourceGroup().location]
 
 var anyIndexOnAny = any(true)[any(false)]
-//@[4:17] Variable anyIndexOnAny
+//@[4:17) Variable anyIndexOnAny. Declaration start char: 0, length: 43
 
 var namedPropertyIndexer = {
-//@[4:24] Variable namedPropertyIndexer
+//@[4:24) Variable namedPropertyIndexer. Declaration start char: 0, length: 39
 }['foo']
 
 var intIndexer = [
-//@[4:14] Variable intIndexer
+//@[4:14) Variable intIndexer. Declaration start char: 0, length: 31
   's'
 ][0]
 
 var functionOnIndexer1 = concat([
-//@[4:22] Variable functionOnIndexer1
+//@[4:22) Variable functionOnIndexer1. Declaration start char: 0, length: 52
   's'
 ][0], 's')
 
 var functionOnIndexer2 = concat([
-//@[4:22] Variable functionOnIndexer2
+//@[4:22) Variable functionOnIndexer2. Declaration start char: 0, length: 46
 ][0], 's')
 
 var functionOnIndexer3 = concat([
-//@[4:22] Variable functionOnIndexer3
+//@[4:22) Variable functionOnIndexer3. Declaration start char: 0, length: 51
 ][0], any('s'))
 
 var singleQuote = '\''
-//@[4:15] Variable singleQuote
+//@[4:15) Variable singleQuote. Declaration start char: 0, length: 23
 var myPropertyName = '${singleQuote}foo${singleQuote}'
-//@[4:18] Variable myPropertyName
+//@[4:18) Variable myPropertyName. Declaration start char: 0, length: 56
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
-//@[4:22] Variable unusedIntermediate
+//@[4:22) Variable unusedIntermediate. Declaration start char: 0, length: 85
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
-//@[4:25] Variable unusedIntermediateRef
+//@[4:25) Variable unusedIntermediateRef. Declaration start char: 0, length: 59
