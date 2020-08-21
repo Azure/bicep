@@ -31,7 +31,7 @@ namespace Bicep.Core.SemanticModel
 
             this.ParameterTypeSignatures = fixedTypes
                 .Select((parameterType, i) => $"param{i}: {parameterType}")
-                .ToList();
+                .ToImmutableArray();
 
             if (variableParameterType != null)
             {
@@ -58,7 +58,7 @@ namespace Bicep.Core.SemanticModel
 
         public string TypeSignature { get; }
 
-        public IList<string> ParameterTypeSignatures { get; }
+        public ImmutableArray<string> ParameterTypeSignatures { get; }
 
         public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes, out ArgumentCountMismatch? argumentCountMismatch, out ArgumentTypeMismatch? argumentTypeMismatch)
         {
