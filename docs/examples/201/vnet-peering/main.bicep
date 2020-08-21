@@ -1,3 +1,5 @@
+// converted from: https://github.com/Azure/azure-quickstart-templates/tree/master/201-existing-vnet-to-vnet-peering
+
 param localVnetName string
 param remoteVnetName string
 param remoteVnetRg string

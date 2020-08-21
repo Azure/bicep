@@ -1,3 +1,5 @@
+// coverted from: https://github.com/Azure/azure-quickstart-templates/tree/master/201-vm-push-certificate-windows
+
 param location string = resourceGroup().location
 
 param vmName string = 'WindowsVM'

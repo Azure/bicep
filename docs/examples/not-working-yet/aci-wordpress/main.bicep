@@ -45,11 +45,15 @@ var uamiId = resourceId(mi.type, mi.name)
 resource stg 'microsoft.storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
     location: location
+    tags: {
+      // todo: switch to dependsOn
+      // in quickstart template, they set a manual dependsOn to give time for the role assignment
+      fakeDependsOn: miRoleAssign.id
+    }
     sku: {
         name: storageAccountType
     }
     kind: 'StorageV2'
-    // in quickstart, they try to set a manual dependsOn to give time for the role assignment
 }
 
 // create file share for wordpress
@@ -107,11 +111,14 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
     }
 }
 
-// TODO - need to declare manual dependency
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
   name: 'wordpress-containerinstance'
   location: location
-  // need dependsOn
+  // todo - replace tags with dependsOn
+  tags: {
+    fakeDependsOn1: dScriptSql.id
+    fakeDependsOn2: dScriptWp.id
+  }
   properties: {
     containers: [
       {
