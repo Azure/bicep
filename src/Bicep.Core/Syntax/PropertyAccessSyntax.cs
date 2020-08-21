@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax propertyName)
         {
-            this.AssertTokenType(dot, nameof(dot), TokenType.Dot);
+            AssertTokenType(dot, nameof(dot), TokenType.Dot);
 
             this.BaseExpression = baseExpression;
             this.Dot = dot;

@@ -9,8 +9,8 @@ namespace Bicep.Core.Syntax
     {
         public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
-            this.AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
-            this.AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
+            AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
 
             this.Name = name;
             this.OpenParen = openParen;

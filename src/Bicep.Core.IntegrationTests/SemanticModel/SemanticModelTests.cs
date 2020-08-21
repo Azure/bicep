@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 return $"{diagnostic.Level} {diagnostic.Message} |{spanText}|";
             }
             
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, model.GetAllDiagnostics(), getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainDiagnostics}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 return $"{symbol.Kind} {symbol.Name}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainSymbols}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(

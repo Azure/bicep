@@ -166,7 +166,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidResourceType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type.");
+                "The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
 
             public ErrorDiagnostic InvalidOutputType() => new ErrorDiagnostic(
                 TextSpan,
@@ -341,9 +341,19 @@ namespace Bicep.Core.Diagnostics
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
 
-            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+            public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP067",
+                $"String interpolation in not supported in object keys.");
+
+            public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP068",
+                "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
+
+            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP069",
                 $"Argument of type '{argumentType}' is not assignable to parameter of type '{parameterType}'.");
 
             public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
@@ -365,7 +375,7 @@ namespace Bicep.Core.Diagnostics
 
                 return new ErrorDiagnostic(
                     TextSpan,
-                    "BCP068",
+                    "BCP070",
                     $"Expected {expected}, but got {argumentCount}.");
             }
         }
