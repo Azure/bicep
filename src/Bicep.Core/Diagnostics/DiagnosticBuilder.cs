@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
@@ -232,10 +233,28 @@ namespace Bicep.Core.Diagnostics
                 "BCP047",
                 "String interpolation is unsupported for specifying the resource type.");
 
-            public ErrorDiagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP048",
-                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatString(", ")}).");
+            public ErrorDiagnostic CannotResolveFunctionOverload(IList<string> overloadSignatures, TypeSymbol argumentType, IList<TypeSymbol> parameterTypes)
+            {
+                var messageBuilder = new StringBuilder();
+                var overloadCount = overloadSignatures.Count;
+
+                messageBuilder.Append("Cannot resolve function overload.");
+
+                for (int i = 0; i < overloadCount; i++)
+                {
+                    messageBuilder
+                        .Append("\n")
+                        .Append($"  Overload {i + 1} of {overloadCount}, '{overloadSignatures[i]}', gave the following error:\n")
+                        .Append($"    Argument of type '{argumentType}' is not assignable to parameter of type '{parameterTypes[i]}'.");
+                }
+
+                var message = messageBuilder.ToString();
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP048",
+                    message);
+            }
 
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
@@ -336,6 +355,34 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP069",
                 "The expression is inside an object or array literal that is itself part of another expression. This is not currently supported.");
+
+            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP070",
+                $"Argument of type '{argumentType}' is not assignable to parameter of type '{parameterType}'.");
+
+            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
+            {
+                string expected;
+
+                if (!maximumArgumentCount.HasValue)
+                {
+                    expected = $"as least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                }
+                else if (mininumArgumentCount == maximumArgumentCount.Value)
+                {
+                    expected = $"{mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                }
+                else
+                {
+                    expected = $"{mininumArgumentCount} to {maximumArgumentCount} arguments";
+                }
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP071",
+                    $"Expected {expected}, but got {argumentCount}.");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
