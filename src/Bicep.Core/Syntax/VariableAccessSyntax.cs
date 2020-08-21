@@ -16,5 +16,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableAccessSyntax(this);
 
         public override TextSpan Span => this.Name.Span;
+
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

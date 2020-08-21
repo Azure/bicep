@@ -331,6 +331,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
+
+            public ErrorDiagnostic EmitLimitationDetected() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP069",
+                "The expression is inside an object or array literal that is itself part of another expression. This is not currently supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
