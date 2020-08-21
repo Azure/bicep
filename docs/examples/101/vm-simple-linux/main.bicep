@@ -106,9 +106,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
     location: location
     tags: {
         // Workaround for dependsOn.
-        dep0: nsg.name
-        dep1: vnet.name
-        dep2: publicIP.name
+        dep0: vnet.name
     }
     properties: {
         ipConfigurations: [
@@ -195,9 +193,6 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
 resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
     name: vmName
     location: location
-    tags: {
-        dep0: nic.name
-    }
     properties: {
         hardwareProfile: {
             vmSize: vmSize

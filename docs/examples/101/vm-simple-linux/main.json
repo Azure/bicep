@@ -115,9 +115,7 @@
       "name": "[variables('networkInterfaceName')]",
       "location": "[parameters('location')]",
       "tags": {
-        "dep0": "[parameters('networkSecurityGroupName')]",
-        "dep1": "[parameters('virtualNetworkName')]",
-        "dep2": "[variables('publicIPAddressName')]"
+        "dep0": "[parameters('virtualNetworkName')]"
       },
       "properties": {
         "ipConfigurations": [
@@ -213,9 +211,6 @@
       "apiVersion": "2019-03-01",
       "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
-      "tags": {
-        "dep0": "[variables('networkInterfaceName')]"
-      },
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
