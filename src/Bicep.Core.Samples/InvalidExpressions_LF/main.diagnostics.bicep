@@ -136,6 +136,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
+//@[14:18) Error The name 'test' does not exist in the current context. |test|
 //@[36:49) Error Cannot apply operator '&&' to operands of type 'bool' and 'null'. |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
@@ -206,26 +207,26 @@ var fakeVar = concat(totallyFakeVar, 's')
 
 // bad functions arguments
 var concatNotEnough = concat()
-//@[22:30) Error Cannot resolve function concat(). |concat()|
+//@[28:30) Error Expected as least 1 argument, but got 0. |()|
 var padLeftNotEnough = padLeft('s')
-//@[23:35) Error Cannot resolve function padLeft(string). |padLeft('s')|
+//@[30:35) Error Expected 2 to 3 arguments, but got 1. |('s')|
 var takeTooMany = take([
-//@[18:36) Error Cannot resolve function take(array, int, int, string). |take([\r\n],1,2,'s')|
+//@[22:36) Error Expected 2 arguments, but got 4. |([\r\n],1,2,'s')|
 ],1,2,'s')
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[23:35) Error Cannot resolve function concat(object). |concat({\r\n})|
+//@[30:34) Error Cannot resolve function overload.\r\n  Overload 1 of 2, '(param0: array, ...rest: array[]): array', gave the following error:\r\n    Argument of type 'object' is not assignable to parameter of type 'array'.\r\n  Overload 2 of 2, '(param0: bool | int | string, ...rest: (bool | int | string)[]): string', gave the following error:\r\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\r\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[36:53) Error Cannot resolve function concat(string, array). |concat('s', [\r\n])|
+//@[48:52) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\r\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
-//@[24:36) Error Cannot resolve function indexOf(int, int). |indexOf(1,1)|
+//@[32:34) Error Argument of type 'int' is not assignable to parameter of type 'string'. |1,|
 
 // not enough params
 var test1 = listKeys('abcd')
-//@[12:28) Error Cannot resolve function listKeys(string). |listKeys('abcd')|
+//@[20:28) Error Expected 2 to 3 arguments, but got 1. |('abcd')|
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
