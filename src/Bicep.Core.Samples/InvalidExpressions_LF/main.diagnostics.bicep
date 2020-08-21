@@ -272,8 +272,8 @@ var emitLimit2 = {
 //@[9:33) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
     } == 2
     c: concat([
-//@[7:31) Error Cannot resolve function concat(array, bool). |concat([\r\n\r\n    ], true)|
 
     ], true)
+//@[7:11) Error Argument of type 'bool' is not assignable to parameter of type 'array'. |true|
   }
 }
