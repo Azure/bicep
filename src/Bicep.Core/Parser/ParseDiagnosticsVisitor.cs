@@ -61,14 +61,14 @@ namespace Bicep.Core.Parser
             base.VisitObjectSyntax(syntax);
 
             var duplicatedProperties = syntax.Properties
-                .GroupBy(propertySyntax => propertySyntax.Identifier.IdentifierName)
+                .GroupBy(propertySyntax => propertySyntax.GetKeyText())
                 .Where(group => group.Count() > 1);
 
             foreach (IGrouping<string, ObjectPropertySyntax> group in duplicatedProperties)
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Identifier).PropertyMultipleDeclarations(duplicatedProperty.Identifier.IdentifierName));
+                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(duplicatedProperty.GetKeyText()));
                 }
             }
         }

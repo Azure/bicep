@@ -80,6 +80,21 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> {$"<value_{index}"};
             }
 
+            if (parameter.ParameterType == typeof(IList<string>))
+            {
+                return new List<string> {$"<value_{index}"};
+            }
+
+            if (parameter.ParameterType == typeof(int))
+            {
+                return 0;
+            }
+
+            if (parameter.ParameterType == typeof(int?))
+            {
+                return 0;
+            }
+
             return $"<param_{index}>";
         }
     }

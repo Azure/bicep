@@ -8,19 +8,20 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public static string GetResultFilePath(TestContext testContext, string fileName)
         {
-            string directory = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName);
-            Directory.CreateDirectory(directory);
+            string filePath = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, fileName);
 
-            string filePath = Path.Combine(directory, fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             testContext.AddResultFile(filePath);
 
             return filePath;
         }
 
-        public static void SaveResultFile(TestContext testContext, string fileName, string contents)
+        public static string SaveResultFile(TestContext testContext, string fileName, string contents)
         {
             var filePath = GetResultFilePath(testContext, fileName);
             File.WriteAllText(filePath, contents);
+
+            return filePath;
         }
     }
 }

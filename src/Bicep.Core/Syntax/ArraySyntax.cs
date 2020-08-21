@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArraySyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class ArraySyntax : SyntaxBase, IExpressionSyntax
     {
         public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBracket)
         {
@@ -34,5 +34,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.OpenBracket, this.CloseBracket);
 
         public IEnumerable<ArrayItemSyntax> Items => this.Children.OfType<ArrayItemSyntax>();
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.ComplexLiteral;
     }
 }

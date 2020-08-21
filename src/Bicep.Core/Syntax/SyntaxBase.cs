@@ -13,7 +13,9 @@ namespace Bicep.Core.Syntax
 
         public abstract TextSpan Span { get; }
 
-        protected void Assert(bool predicate, string message)
+        public virtual bool IsSkipped => false;
+
+        protected static void Assert(bool predicate, string message)
         {
             if (predicate == false)
             {
@@ -22,7 +24,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        protected void AssertTokenType(Token? token, [InvokerParameterName] string parameterName, TokenType expectedTypeIfNotNull)
+        protected static void AssertTokenType(Token? token, [InvokerParameterName] string parameterName, TokenType expectedTypeIfNotNull)
         {
             if (token == null || token.Type == expectedTypeIfNotNull)
             {
@@ -32,7 +34,7 @@ namespace Bicep.Core.Syntax
             throw new ArgumentException($"{parameterName} must be of type {expectedTypeIfNotNull} but provided token type was {token.Type}.");
         }
 
-        protected void AssertKeyword(Token? token, [InvokerParameterName] string parameterName, string expectedKeywordNameIfNotNull)
+        protected static void AssertKeyword(Token? token, [InvokerParameterName] string parameterName, string expectedKeywordNameIfNotNull)
         {
             AssertTokenType(token, parameterName, TokenType.Identifier);
             if (token == null || token.Text == expectedKeywordNameIfNotNull)
@@ -43,7 +45,7 @@ namespace Bicep.Core.Syntax
             throw new ArgumentException($"{parameterName} must match keyword {expectedKeywordNameIfNotNull} but provided token was {token.Text}.");
         }
 
-        protected void AssertTokenTypeList(IEnumerable<Token> tokens, [InvokerParameterName] string parameterName, TokenType expectedType, int minimumCount)
+        protected static void AssertTokenTypeList(IEnumerable<Token> tokens, [InvokerParameterName] string parameterName, TokenType expectedType, int minimumCount)
         {
             int index = 0;
             foreach (Token token in tokens)
@@ -62,7 +64,24 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        protected void AssertSyntaxType(SyntaxBase? syntax, [InvokerParameterName] string parameterName, params Type[] expectedTypes)
+        protected static void AssertIdentifierOrStringLiteral(SyntaxBase syntax, [InvokerParameterName] string parameterName)
+        {
+            switch (syntax)
+            {
+                case StringSyntax stringSyntax:
+                    if (stringSyntax.IsInterpolated())
+                    {
+                        throw new ArgumentException($"{parameterName} is an interpolated string");
+                    }
+                    break;
+                case IdentifierSyntax _:
+                    break;
+                default:
+                    throw new ArgumentException($"{parameterName} is of an unexpected type {syntax.GetType().Name}.");
+            }
+        }
+
+        protected static void AssertSyntaxType(SyntaxBase? syntax, [InvokerParameterName] string parameterName, params Type[] expectedTypes)
         {
             if (syntax == null)
             {

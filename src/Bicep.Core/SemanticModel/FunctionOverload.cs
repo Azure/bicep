@@ -8,15 +8,15 @@ namespace Bicep.Core.SemanticModel
 {
     public class FunctionOverload
     {
-        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol? variableArgumentType, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedParameterTypes, TypeSymbol? variableParameterType, FunctionFlags flags = FunctionFlags.Default)
         {
             if (maximumArgumentCount.HasValue && maximumArgumentCount.Value < minimumArgumentCount)
             {
                 throw new ArgumentException($"{nameof(maximumArgumentCount.Value)} cannot be less than {nameof(minimumArgumentCount)}.");
             }
 
-            var fixedTypes = fixedArgumentTypes.ToImmutableArray();
-            if (fixedTypes.Length < minimumArgumentCount && variableArgumentType == null)
+            var fixedTypes = fixedParameterTypes.ToImmutableArray();
+            if (fixedTypes.Length < minimumArgumentCount && variableParameterType == null)
             {
                 throw new ArgumentException("Not enough argument types are specified.");
             }
@@ -25,36 +25,52 @@ namespace Bicep.Core.SemanticModel
             this.ReturnType = returnType;
             this.MinimumArgumentCount = minimumArgumentCount;
             this.MaximumArgumentCount = maximumArgumentCount;
-            this.FixedArgumentTypes = fixedTypes;
-            this.VariableArgumentType = variableArgumentType;
+            this.FixedParameterTypes = fixedTypes;
+            this.VariableParameterType = variableParameterType;
             this.Flags = flags;
+
+            this.ParameterTypeSignatures = fixedTypes
+                .Select((parameterType, i) => $"param{i}: {parameterType}")
+                .ToImmutableArray();
+
+            if (variableParameterType != null)
+            {
+                var restParameterType = variableParameterType.TypeKind == TypeKind.Union ? $"({variableParameterType})[]": $"{variableParameterType}[]";
+                this.ParameterTypeSignatures.Add($"...rest: {restParameterType}");
+            }
+
+            this.TypeSignature = $"({string.Join(", ", this.ParameterTypeSignatures)}): {returnType}";
         }
 
         public string Name { get; }
 
-        public ImmutableArray<TypeSymbol> FixedArgumentTypes { get; }
+        public ImmutableArray<TypeSymbol> FixedParameterTypes { get; }
 
         public int MinimumArgumentCount { get; }
 
         public int? MaximumArgumentCount { get; }
 
-        public TypeSymbol? VariableArgumentType { get; }
+        public TypeSymbol? VariableParameterType { get; }
 
         public TypeSymbol ReturnType { get; }
 
         public FunctionFlags Flags { get; }
 
-        public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes)
-        {
-            if (argumentTypes.Count < this.MinimumArgumentCount)
-            {
-                // too few arguments
-                return FunctionMatchResult.Mismatch;
-            }
+        public string TypeSignature { get; }
 
-            if (this.MaximumArgumentCount.HasValue && argumentTypes.Count > this.MaximumArgumentCount.Value)
+        public ImmutableArray<string> ParameterTypeSignatures { get; }
+
+        public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes, out ArgumentCountMismatch? argumentCountMismatch, out ArgumentTypeMismatch? argumentTypeMismatch)
+        {
+            argumentCountMismatch = null;
+            argumentTypeMismatch = null;
+
+            if (argumentTypes.Count < this.MinimumArgumentCount ||
+                (this.MaximumArgumentCount.HasValue && argumentTypes.Count > this.MaximumArgumentCount.Value))
             {
-                // too many arguments
+                // Too few or too many arguments.
+                argumentCountMismatch = new ArgumentCountMismatch(argumentTypes.Count, this.MinimumArgumentCount, this.MaximumArgumentCount);
+
                 return FunctionMatchResult.Mismatch;
             }
 
@@ -68,10 +84,30 @@ namespace Bicep.Core.SemanticModel
             for (int i = 0; i < argumentTypes.Count; i++)
             {
                 var argumentType = argumentTypes[i];
-                var expectedType = i < this.FixedArgumentTypes.Length ? this.FixedArgumentTypes[i] : this.VariableArgumentType;
+                TypeSymbol expectedType;
+
+                if (i < this.FixedParameterTypes.Length)
+                {
+                    expectedType = this.FixedParameterTypes[i];
+                }
+                else
+                {
+                    if (this.VariableParameterType == null)
+                    {
+                        // Theoretically this shouldn't happen, becase it already passed argument count checking, either:
+                        // - The function takes 0 argument - argumentTypes must be empty, so it won't enter the loop
+                        // - The function take at least one argument - when i >= FixedParameterTypes.Length, VariableParameterType
+                        //   must not be null, otherwise, the function overload has invalid parameter count definition.
+                        throw new ArgumentException($"Got unexpected null value for {nameof(this.VariableParameterType)}. Ensure the function overload definition is correct: '{this.TypeSignature}'.");
+                    }
+
+                    expectedType = this.VariableParameterType;
+                }
 
                 if (TypeValidator.AreTypesAssignable(argumentType, expectedType) != true)
                 {
+                    argumentTypeMismatch = new ArgumentTypeMismatch(this, i, argumentType, expectedType);
+
                     return FunctionMatchResult.Mismatch;
                 }
             }
@@ -80,7 +116,7 @@ namespace Bicep.Core.SemanticModel
         }
 
         public static FunctionOverload CreateFixed(string name, TypeSymbol returnType, params TypeSymbol[] argumentTypes) => 
-            new FunctionOverload(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableArgumentType: null);
+            new FunctionOverload(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableParameterType: null);
 
         public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
             new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);

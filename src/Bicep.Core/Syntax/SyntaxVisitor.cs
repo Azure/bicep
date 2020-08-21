@@ -154,7 +154,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            this.Visit(syntax.Identifier);
+            this.Visit(syntax.Key);
             this.VisitToken(syntax.Colon);
             this.Visit(syntax.Value);
             this.VisitTokens(syntax.NewLines);

@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public ParameterDefaultValueSyntax(Token assignmentToken, SyntaxBase defaultValue)
         {
-            this.AssertTokenType(assignmentToken, nameof(assignmentToken), TokenType.Assignment);
+            AssertTokenType(assignmentToken, nameof(assignmentToken), TokenType.Assignment);
 
             this.AssignmentToken = assignmentToken;
             this.DefaultValue = defaultValue;
