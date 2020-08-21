@@ -9,5 +9,8 @@ namespace Bicep.Core.Samples
         {
             return source.Select(ds => new object[] {ds});
         }
+
+        public static bool HasCrLfNewlines(this DataSet dataSet)
+            => dataSet.Name.EndsWith("_CRLF");
     }
 }

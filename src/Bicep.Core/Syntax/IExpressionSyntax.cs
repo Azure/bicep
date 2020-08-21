@@ -5,5 +5,9 @@
     /// </summary>
     public interface IExpressionSyntax
     {
+        /// <summary>
+        /// Gets the type of the expression node.
+        /// </summary>
+        ExpressionKind ExpressionKind { get; }
     }
 }

@@ -1,9 +1,10 @@
-{
+﻿{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "applicationName": {
       "type": "string",
+      "maxLength": 30,
       "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
     },
     "location": {
@@ -12,7 +13,6 @@
     },
     "appServicePlanTier": {
       "type": "string",
-      "defaultValue": "F1",
       "allowedValues": [
         "F1",
         "D1",
@@ -26,13 +26,14 @@
         "P2",
         "P3",
         "P4"
-      ]
+      ],
+      "defaultValue": "F1"
     },
     "appServicePlanInstances": {
       "type": "int",
-      "defaultValue": 1,
       "minValue": 1,
-      "maxValue": 3
+      "maxValue": 3,
+      "defaultValue": 1
     },
     "repositoryUrl": {
       "type": "string",
@@ -88,7 +89,7 @@
         "capacity": "[parameters('appServicePlanInstances')]"
       },
       "properties": {
-        "name": "[format('{0}', variables('hostingPlanName'))]"
+        "name": "[variables('hostingPlanName')]"
       }
     },
     {
@@ -101,11 +102,41 @@
         "siteConfig": {
           "appSettings": [
             {
-              "name": "CosmosDb:Account"
+              "name": "CosmosDb:Account",
+              "value": "[reference(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))).documentEndpoint]"
+            },
+            {
+              "name": "CosmosDb:Key",
+              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '2020-04-01').primaryMasterKey]"
+            },
+            {
+              "name": "CosmosDb:DatabaseName",
+              "value": "[parameters('databaseName')]"
+            },
+            {
+              "name": "CosmosDb:ContainerName",
+              "value": "[parameters('containerName')]"
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2019-08-01",
+      "name": "[format('{0}/web', variables('websiteName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "repoUrl": "[parameters('repositoryUrl')]",
+        "branch": "[parameters('branch')]",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('websiteName'))]"
+      ]
     }
   ],
   "outputs": {}

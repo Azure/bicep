@@ -1,6 +1,28 @@
 # Working with a basic bicep file
 
-In the previous step, we compiled the most basic bicep file -- a blank template. Now let's add a `resource` to our `main.bicep` bicep file:
+In this tutorial we'll start from a blank file and build up to a file with the basic bicep primitives.
+
+## Compile an empty bicep file
+
+Let's start by creating a blank file `main.bicep` and compiling it by running:
+
+```bash
+bicep build main.bicep
+```
+
+You should get an output json file of the same name in your current directory -- in this case `main.json`. It should be a skeleton ARM JSON template:
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [],
+  "outputs": {}
+}
+```
 
 ## Add a resource
 

@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
@@ -26,15 +30,21 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         {
             var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
+
+            string getLoggingString(Diagnostic diagnostic)
+            {
+                var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
+
+                return $"{diagnostic.Level} {diagnostic.Message} |{spanText}|";
+            }
             
-            var errors = model.GetAllDiagnostics().Select(error => new DiagnosticItem(error, dataSet.Bicep));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainDiagnostics}", sourceTextWithDiags);
 
-            var actual = JToken.FromObject(errors, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Actual.json", actual.ToString(Formatting.Indented));
-
-            var expected = JToken.Parse(dataSet.Errors);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Diagnostics_Expected.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Diagnostics_Delta.json");
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                dataSet.Diagnostics,
+                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainDiagnostics}",
+                targetLocation: resultsFile);
         }
 
         [TestMethod]
@@ -53,15 +63,23 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
-                .Where(FilterSymbol)
-                .Select(symbol => new SymbolItem(symbol));
+                .OfType<DeclaredSymbol>();
 
-            var actual = JToken.FromObject(symbols, DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Symbols_Actual.json", actual.ToString(Formatting.Indented));
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            string getLoggingString(DeclaredSymbol symbol)
+            {
+                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
 
-            var expected = JToken.Parse(dataSet.Symbols);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Symbols_Expected.json", expected.ToString(Formatting.Indented));
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Symbols_Delta.json");
+                return $"{symbol.Kind} {symbol.Name}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
+            }
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainSymbols}", sourceTextWithDiags);
+
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                dataSet.Symbols,
+                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainSymbols}",
+                targetLocation: resultsFile);
         }
 
         [DataTestMethod]

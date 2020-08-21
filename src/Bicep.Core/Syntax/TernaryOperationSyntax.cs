@@ -6,8 +6,8 @@ namespace Bicep.Core.Syntax
     {
         public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, Token colon, SyntaxBase falseExpression)
         {
-            this.AssertTokenType(question,nameof(question), TokenType.Question);
-            this.AssertTokenType(colon, nameof(colon), TokenType.Colon);
+            AssertTokenType(question,nameof(question), TokenType.Question);
+            AssertTokenType(colon, nameof(colon), TokenType.Colon);
 
             this.ConditionExpression = conditionExpression;
             this.Question = question;
@@ -29,5 +29,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitTernaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.ConditionExpression, this.FalseExpression);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
