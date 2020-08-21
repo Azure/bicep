@@ -120,13 +120,13 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
                     }
                     privateIPAllocationMethod: 'Dynamic'
                     publicIpAddress: {
-                        id: resourceId('Microsoft.Network/publicIPAddress', publicIPAddressName)
+                        id: publicIP.id
                     }
                 }
             }
         ]
         networkSecurityGroup: {
-            id: resourceId('Microsoft.Network/networkSecurityGroups',networkSecurityGroupName)
+            id: nsg.id
         }
     }
 }
@@ -175,7 +175,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
     }
 }
 
-resource publicIP 'Microsoft.Network/publicIpAddresses@2019-02-01' = {
+resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
     name: publicIPAddressName
     location: location
     properties: {
@@ -219,7 +219,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
         networkProfile: {
             networkInterfaces: [
                 {
-                    id: resourceId('Microsoft.Network/networkInterfaces', networkInterfaceName)
+                    id: nic.id
                 }
             ]
         }
@@ -233,5 +233,5 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
 }
 
 output administratorUsername string = adminUsername
-output hostname string = reference(publicIPAddressName).dnsSettings.fqdn
-output sshCommand string = 'ssh${adminUsername}@${reference(publicIPAddressName).dnsSettings.fqdn}'
+output hostname string = publicIP.properties.dnsSettings.fqdn
+output sshCommand string = 'ssh${adminUsername}@${publicIP.properties.dnsSettings.fqdn}'
