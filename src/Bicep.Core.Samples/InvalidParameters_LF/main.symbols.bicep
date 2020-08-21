@@ -48,7 +48,9 @@ param wrongType fluffyBunny = 'what\'s up doc?
 
 // unterminated interpolated string
 param wrongType fluffyBunny = 'what\'s ${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 42
 param wrongType fluffyBunny = 'what\'s ${up
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 44
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 45
 param wrongType fluffyBunny = 'what\'s ${'up
@@ -56,8 +58,11 @@ param wrongType fluffyBunny = 'what\'s ${'up
 
 // unterminated nested interpolated string
 param wrongType fluffyBunny = 'what\'s ${'up${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 47
 param wrongType fluffyBunny = 'what\'s ${'up${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 47
 param wrongType fluffyBunny = 'what\'s ${'up${doc
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 50
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 51
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
@@ -67,8 +72,10 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 56
 
 param wrongType fluffyBunny = 'what\'s up doc?'
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 49
 
 // modifier on an invalid type
 param someArray arra {

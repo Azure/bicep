@@ -67,6 +67,7 @@ var test2 = newGuid()
 // bad string escape sequence in object key
 var test3 = {
   'bad\escape': true
+//@[2:14) Error Expected a property name at this location. |'bad\escape'|
 //@[6:8) Error The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
 }
 

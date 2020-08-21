@@ -7,8 +7,9 @@ bad
 resource 
 //@[9:9) Error Expected a resource identifier at this location. ||
 resource foo
+//@[12:12) Error Expected the '=' character at this location. ||
 resource fo/o
-//@[0:8) Error Expected the '=' character at this location. |resource|
+//@[13:13) Error Expected the '=' character at this location. ||
 resource foo 'ddd'
 //@[18:18) Error Expected the '=' character at this location. ||
 resource foo 'ddd'=
