@@ -138,3 +138,39 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
+
+// cannot compile an expression like this
+var emitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+      ], [
+        !true
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
+    }
+  }
+]
+
+// cannot compile an expression like this
+var emitLimit2 = {
+  a: {
+    b: {
+      a: resourceGroup().location
+    } == 2
+    c: concat([
+
+    ], true)
+  }
+}
