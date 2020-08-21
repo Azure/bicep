@@ -820,4 +820,169 @@ var test3 = list('abcd', '2020-01-01')
 //@[23:24) Comma |,|
 //@[25:37) StringComplete |'2020-01-01'|
 //@[37:38) RightParen |)|
-//@[38:38) EndOfFile ||
+//@[38:42) NewLine |\r\n\r\n|
+
+// cannot compile an expression like this
+//@[41:43) NewLine |\r\n|
+var emitLimit = [
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |emitLimit|
+//@[14:15) Assignment |=|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+  concat('s')
+//@[2:8) Identifier |concat|
+//@[8:9) LeftParen |(|
+//@[9:12) StringComplete |'s'|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+  '${4}'
+//@[2:5) StringLeftPiece |'${|
+//@[5:6) Number |4|
+//@[6:8) StringRightPiece |}'|
+//@[8:10) NewLine |\r\n|
+  {
+//@[2:3) LeftBrace |{|
+//@[3:5) NewLine |\r\n|
+    a: {
+//@[4:5) Identifier |a|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+      b: base64('s')
+//@[6:7) Identifier |b|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |base64|
+//@[15:16) LeftParen |(|
+//@[16:19) StringComplete |'s'|
+//@[19:20) RightParen |)|
+//@[20:22) NewLine |\r\n|
+      c: concat([
+//@[6:7) Identifier |c|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |concat|
+//@[15:16) LeftParen |(|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+        12 + 3
+//@[8:10) Number |12|
+//@[11:12) Plus |+|
+//@[13:14) Number |3|
+//@[14:16) NewLine |\r\n|
+      ], [
+//@[6:7) RightSquare |]|
+//@[7:8) Comma |,|
+//@[9:10) LeftSquare |[|
+//@[10:12) NewLine |\r\n|
+        !true
+//@[8:9) Exclamation |!|
+//@[9:13) TrueKeyword |true|
+//@[13:15) NewLine |\r\n|
+        'hello'
+//@[8:15) StringComplete |'hello'|
+//@[15:17) NewLine |\r\n|
+      ])
+//@[6:7) RightSquare |]|
+//@[7:8) RightParen |)|
+//@[8:10) NewLine |\r\n|
+      d: resourceGroup().location
+//@[6:7) Identifier |d|
+//@[7:8) Colon |:|
+//@[9:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:24) RightParen |)|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |location|
+//@[33:35) NewLine |\r\n|
+      e: concat([
+//@[6:7) Identifier |e|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |concat|
+//@[15:16) LeftParen |(|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+        true
+//@[8:12) TrueKeyword |true|
+//@[12:14) NewLine |\r\n|
+      ])
+//@[6:7) RightSquare |]|
+//@[7:8) RightParen |)|
+//@[8:10) NewLine |\r\n|
+      f: concat([
+//@[6:7) Identifier |f|
+//@[7:8) Colon |:|
+//@[9:15) Identifier |concat|
+//@[15:16) LeftParen |(|
+//@[16:17) LeftSquare |[|
+//@[17:19) NewLine |\r\n|
+        's' == 12
+//@[8:11) StringComplete |'s'|
+//@[12:14) Equals |==|
+//@[15:17) Number |12|
+//@[17:19) NewLine |\r\n|
+      ])
+//@[6:7) RightSquare |]|
+//@[7:8) RightParen |)|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+// cannot compile an expression like this
+//@[41:43) NewLine |\r\n|
+var emitLimit2 = {
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |emitLimit2|
+//@[15:16) Assignment |=|
+//@[17:18) LeftBrace |{|
+//@[18:20) NewLine |\r\n|
+  a: {
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:6) LeftBrace |{|
+//@[6:8) NewLine |\r\n|
+    b: {
+//@[4:5) Identifier |b|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+      a: resourceGroup().location
+//@[6:7) Identifier |a|
+//@[7:8) Colon |:|
+//@[9:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:24) RightParen |)|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |location|
+//@[33:35) NewLine |\r\n|
+    } == 2
+//@[4:5) RightBrace |}|
+//@[6:8) Equals |==|
+//@[9:10) Number |2|
+//@[10:12) NewLine |\r\n|
+    c: concat([
+//@[4:5) Identifier |c|
+//@[5:6) Colon |:|
+//@[7:13) Identifier |concat|
+//@[13:14) LeftParen |(|
+//@[14:15) LeftSquare |[|
+//@[15:19) NewLine |\r\n\r\n|
+
+    ], true)
+//@[4:5) RightSquare |]|
+//@[5:6) Comma |,|
+//@[7:11) TrueKeyword |true|
+//@[11:12) RightParen |)|
+//@[12:14) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

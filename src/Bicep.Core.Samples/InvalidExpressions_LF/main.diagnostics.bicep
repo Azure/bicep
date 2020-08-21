@@ -161,6 +161,7 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 // bad array access
 var errorInsideArrayAccess = [
   !null
+//@[2:7) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!null|
 //@[2:7) Error Cannot apply operator '!' to operand of type 'null'. |!null|
 ][!0]
 //@[2:4) Error Cannot apply operator '!' to operand of type 'int'. |!0|
@@ -235,3 +236,44 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
 //@[12:16) Error The name 'list' does not exist in the current context. |list|
+
+// cannot compile an expression like this
+var emitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+//@[8:14) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |12 + 3|
+      ], [
+        !true
+//@[8:13) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!true|
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+//@[8:17) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |'s' == 12|
+      ])
+    }
+  }
+]
+
+// cannot compile an expression like this
+var emitLimit2 = {
+  a: {
+    b: {
+      a: resourceGroup().location
+//@[9:33) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
+    } == 2
+    c: concat([
+//@[7:31) Error Cannot resolve function concat(array, bool). |concat([\r\n\r\n    ], true)|
+
+    ], true)
+  }
+}

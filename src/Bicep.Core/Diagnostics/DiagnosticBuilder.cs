@@ -351,9 +351,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
 
-            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+            public ErrorDiagnostic EmitLimitationDetected() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP069",
+                "The expression is inside an object or array literal that is itself part of another expression. This is not currently supported.");
+
+            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP070",
                 $"Argument of type '{argumentType}' is not assignable to parameter of type '{parameterType}'.");
 
             public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
@@ -375,7 +380,7 @@ namespace Bicep.Core.Diagnostics
 
                 return new ErrorDiagnostic(
                     TextSpan,
-                    "BCP070",
+                    "BCP071",
                     $"Expected {expected}, but got {argumentCount}.");
             }
         }

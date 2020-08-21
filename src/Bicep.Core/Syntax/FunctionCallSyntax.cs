@@ -29,5 +29,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Name, CloseParen);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

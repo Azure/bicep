@@ -26,5 +26,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, CloseSquare);
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
