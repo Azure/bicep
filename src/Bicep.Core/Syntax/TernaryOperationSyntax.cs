@@ -29,5 +29,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitTernaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.ConditionExpression, this.FalseExpression);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
