@@ -56,7 +56,7 @@ async function activatePreviewCommand(context: ExtensionContext, client: Languag
       await client.sendRequest('workspace/executeCommand', {
         command: 'compile',
         arguments: [
-          editor.document.getText(),
+          editor.document.uri.toString(),
           tmpFile,
         ]
       });
@@ -70,7 +70,6 @@ async function activatePreviewCommand(context: ExtensionContext, client: Languag
 
       languages.setTextDocumentLanguage(doc, armTemplateLanguageId);
       await window.showTextDocument(doc, { preview: true, viewColumn: ViewColumn.Beside});
-      await activatePreviewCommand(context, client, info);
     } catch (err) {
       window.showErrorMessage('Generating template preview failed');
       info.appendLine(`Error: ${err}`);
@@ -97,7 +96,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
     const languageServerPath = getLanguageServerPath(context);
     //Write to output.
     info.appendLine(`Bicep language server path: '${languageServerPath}'`);
-    startLanguageServer(context, languageServerPath, dotNetRuntimePath);
+    const client = startLanguageServer(context, languageServerPath, dotNetRuntimePath);
+    await activatePreviewCommand(context, client, info);
   } catch (err) {
     info.appendLine(`Error: ${err}`);
   }
@@ -185,4 +185,6 @@ function startLanguageServer(
   // Push the disposable to the context's subscriptions so that the
   // client can be deactivated on extension deactivation
   context.subscriptions.push(disposable);
+
+  return client;
 }

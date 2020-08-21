@@ -1,17 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server;
-=======
->>>>>>> origin/master
 
 namespace Bicep.LanguageServer
 {
