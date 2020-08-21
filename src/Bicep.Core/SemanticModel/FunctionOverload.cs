@@ -84,7 +84,25 @@ namespace Bicep.Core.SemanticModel
             for (int i = 0; i < argumentTypes.Count; i++)
             {
                 var argumentType = argumentTypes[i];
-                var expectedType = i < this.FixedParameterTypes.Length ? this.FixedParameterTypes[i] : this.VariableParameterType!;
+                TypeSymbol expectedType;
+
+                if (i < this.FixedParameterTypes.Length)
+                {
+                    expectedType = this.FixedParameterTypes[i];
+                }
+                else
+                {
+                    if (this.VariableParameterType == null)
+                    {
+                        // Theoretically this shouldn't happen, becase it already passed argument count checking, either:
+                        // - The function takes 0 argument - argumentTypes must be empty, so it won't enter the loop
+                        // - The function take at least one argument - when i >= FixedParameterTypes.Length, VariableParameterType
+                        //   must not be null, otherwise, the function overload has invalid parameter count definition.
+                        throw new ArgumentException($"Got unexpected null value for {nameof(this.VariableParameterType)}. Ensure the function overload definition is correct: '{this.TypeSignature}'.");
+                    }
+
+                    expectedType = this.VariableParameterType;
+                }
 
                 if (TypeValidator.AreTypesAssignable(argumentType, expectedType) != true)
                 {
