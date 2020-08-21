@@ -49,6 +49,22 @@ if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPat
 bicep --help
 ```
 
+## Install the Bicep VS Code extension
+
+### Manually
+* Download the [latest version of the extension](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix). **Note**: You cannot install the vscode-bicep.vsix file by double-clicking it.
+* Open VSCode, and in the Extensions tab, select the options (...) menu in the top right corner and select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.	
+
+
+
+### Via command line	
+```sh	
+# Fetch the latest Bicep VSCode extension	
+curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix	
+# Install the extension	
+code --install-extension vscode-bicep.vsix	
+```
+
 ### Verify the Bicep VS Code extension is running
 
 Open a file called `main.bicep` VS code. If the extension is installed, you should see syntax highlighting working, and you should see the `language mode` in the lower right hand corner of the VS code window change to `bicep`.
@@ -57,4 +73,4 @@ Open a file called `main.bicep` VS code. If the extension is installed, you shou
 
 Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
 
-[1 - Working with a basic bicep file](./01-simple-template.md)
+[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
