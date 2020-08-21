@@ -73,4 +73,4 @@ Open a file called `main.bicep` VS code. If the extension is installed, you shou
 
 Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
 
-[1 - Working with a basic bicep file](./01-simple-template.md)
+[1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
