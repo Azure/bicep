@@ -1,40 +1,25 @@
-param vmName string {
-    default: 'simpleLinuxVM'
-    metadata: {
-        description: 'The name of you Virtual Machine.'
-    }
-}
+// The name of your Virtual Machine.
+param vmName string = 'simpleLinuxVM'
 
-param adminUsername string {
-    metadata: {
-        description: 'Username for the Virtual Machine.'
-    }
-}
+// Username for the Virtual Machine.
+param adminUsername string
 
+// Type of authentication to use on the Virtual Machine. SSH key is recommended.
 param authenticationType string {
     default: 'password'
     allowedValues: [
         'sshPublicKey'
         'password'
     ]
-    metadata: {
-        description: 'Type of authentication to use on the Virtual Machine. SSH key is recommended.'
-    }
 }
 
-param adminPasswordOrKey string {
-    metadata: {
-        description: 'SSH Key or password for the Virtual Machine. SSH key is recommended.'
-    }
-}
+// SSH Key or password for the Virtual Machine. SSH key is recommended.
+param adminPasswordOrKey string
 
-param dnsLabelPrefix string {
-    default: toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
-    metadata: {
-        description: 'Unique DNS Name for the Public IP used to access the Virtual Machine.'
-    }
-}
+// Unique DNS Name for the Public IP used to access the Virtual Machine.
+param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
 
+// The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.
 param ubuntuOSVersion string {
     default: '18.04-LTS'
     allowedValues: [
@@ -43,45 +28,22 @@ param ubuntuOSVersion string {
         '16.04.0-LTS'
         '18.04-LTS'
     ]
-    metadata: {
-        description: 'The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.'
-    }
 }
 
-param location string {
-    default: resourceGroup().location
-    metadata: {
-        description: 'Location for all resources.'
-    }
-}
+// Location for all resources.
+param location string = resourceGroup().location
 
-param vmSize string {
-    default: 'Standard_B2s'
-    metadata: {
-        description: 'The size of the VM'
-    }
-}
+// The size of the VM.
+param vmSize string = 'Standard_B2s'
 
-param virtualNetworkName string {
-    default: 'vNet'
-    metadata: {
-        'description': 'Name of the VNET'
-    }
-}
+// Name of the VNET.
+param virtualNetworkName string = 'vNet'
 
-param subnetName string {
-    default: 'Subnet'
-    metadata: {
-        description: 'Name of the subnet in the virtual network'
-    }
-}
+// Name of the subnet in the virtual network.
+param subnetName string = 'Subnet'
 
-param networkSecurityGroupName string {
-    default: 'SecGroupNet'
-    metadata: {
-        description: 'Name of the Network Security Group'
-    }
-}
+// Name of the Network Security Group.
+param networkSecurityGroupName string = 'SecGroupNet'
 
 var publicIPAddressName = '${vmName}PublicIP'
 var networkInterfaceName = '${vmName}NetInt'

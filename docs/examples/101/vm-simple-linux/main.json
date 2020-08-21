@@ -4,16 +4,10 @@
   "parameters": {
     "vmName": {
       "type": "string",
-      "metadata": {
-        "description": "The name of you Virtual Machine."
-      },
       "defaultValue": "simpleLinuxVM"
     },
     "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Username for the Virtual Machine."
-      }
+      "type": "string"
     },
     "authenticationType": {
       "type": "string",
@@ -21,22 +15,13 @@
         "sshPublicKey",
         "password"
       ],
-      "metadata": {
-        "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
-      },
       "defaultValue": "password"
     },
     "adminPasswordOrKey": {
-      "type": "string",
-      "metadata": {
-        "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
-      }
+      "type": "string"
     },
     "dnsLabelPrefix": {
       "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-      },
       "defaultValue": "[toLower(format('simplelinuxvm-{0}', uniqueString(resourceGroup().id)))]"
     },
     "ubuntuOSVersion": {
@@ -47,44 +32,26 @@
         "16.04.0-LTS",
         "18.04-LTS"
       ],
-      "metadata": {
-        "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
-      },
       "defaultValue": "18.04-LTS"
     },
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Location for all resources."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "vmSize": {
       "type": "string",
-      "metadata": {
-        "description": "The size of the VM"
-      },
       "defaultValue": "Standard_B2s"
     },
     "virtualNetworkName": {
       "type": "string",
-      "metadata": {
-        "description": "Name of the VNET"
-      },
       "defaultValue": "vNet"
     },
     "subnetName": {
       "type": "string",
-      "metadata": {
-        "description": "Name of the subnet in the virtual network"
-      },
       "defaultValue": "Subnet"
     },
     "networkSecurityGroupName": {
       "type": "string",
-      "metadata": {
-        "description": "Name of the Network Security Group"
-      },
       "defaultValue": "SecGroupNet"
     }
   },
