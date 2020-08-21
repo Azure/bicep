@@ -22,5 +22,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => this.Comma == null 
             ? this.Expression.Span
             : TextSpan.Between(this.Expression, this.Comma);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

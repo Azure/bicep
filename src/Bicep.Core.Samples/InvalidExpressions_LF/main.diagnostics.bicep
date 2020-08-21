@@ -136,6 +136,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
+//@[14:18) Error The name 'test' does not exist in the current context. |test|
 //@[36:49) Error Cannot apply operator '&&' to operands of type 'bool' and 'null'. |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
@@ -160,6 +161,7 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 // bad array access
 var errorInsideArrayAccess = [
   !null
+//@[2:7) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!null|
 //@[2:7) Error Cannot apply operator '!' to operand of type 'null'. |!null|
 ][!0]
 //@[2:4) Error Cannot apply operator '!' to operand of type 'int'. |!0|
@@ -206,26 +208,26 @@ var fakeVar = concat(totallyFakeVar, 's')
 
 // bad functions arguments
 var concatNotEnough = concat()
-//@[22:30) Error Cannot resolve function concat(). |concat()|
+//@[28:30) Error Expected as least 1 argument, but got 0. |()|
 var padLeftNotEnough = padLeft('s')
-//@[23:35) Error Cannot resolve function padLeft(string). |padLeft('s')|
+//@[30:35) Error Expected 2 to 3 arguments, but got 1. |('s')|
 var takeTooMany = take([
-//@[18:35) Error Cannot resolve function take(array, int, int, string). |take([\n],1,2,'s')|
+//@[22:35) Error Expected 2 arguments, but got 4. |([\n],1,2,'s')|
 ],1,2,'s')
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[23:34) Error Cannot resolve function concat(object). |concat({\n})|
+//@[30:33) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'array'.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[36:52) Error Cannot resolve function concat(string, array). |concat('s', [\n])|
+//@[48:51) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
-//@[24:36) Error Cannot resolve function indexOf(int, int). |indexOf(1,1)|
+//@[32:34) Error Argument of type 'int' is not assignable to parameter of type 'string'. |1,|
 
 // not enough params
 var test1 = listKeys('abcd')
-//@[12:28) Error Cannot resolve function listKeys(string). |listKeys('abcd')|
+//@[20:28) Error Expected 2 to 3 arguments, but got 1. |('abcd')|
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
@@ -234,3 +236,44 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
 //@[12:16) Error The name 'list' does not exist in the current context. |list|
+
+// cannot compile an expression like this
+var emitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+//@[8:14) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |12 + 3|
+      ], [
+        !true
+//@[8:13) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!true|
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+//@[8:17) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |'s' == 12|
+      ])
+    }
+  }
+]
+
+// cannot compile an expression like this
+var emitLimit2 = {
+  a: {
+    b: {
+      a: resourceGroup().location
+//@[9:33) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
+    } == 2
+    c: concat([
+
+    ], true)
+//@[7:11) Error Argument of type 'bool' is not assignable to parameter of type 'array'. |true|
+  }
+}
