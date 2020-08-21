@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -467,11 +468,75 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetFunctionCallType(TypeManagerContext context, FunctionCallSyntax syntax)
         {
             var errors = new List<ErrorDiagnostic>();
-
             var argumentTypes = syntax.Arguments.Select(syntax1 => GetTypeInfoInternal(context, syntax1)).ToList();
+
             foreach (TypeSymbol argumentType in argumentTypes)
             {
                 CollectErrors(errors, argumentType);
+            }
+
+            switch (this.ResolveSymbol(syntax))
+            {
+                case ErrorSymbol errorSymbol:
+                    // function bind failure - pass the error along
+                    return new ErrorTypeSymbol(errors.Concat(errorSymbol.GetDiagnostics()));
+
+                case FunctionSymbol function:
+                    return GetFunctionSymbolType(syntax, function, syntax.Arguments, argumentTypes, errors);
+
+                default:
+                    return new ErrorTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
+            }
+        }
+
+        private TypeSymbol GetFunctionSymbolType(
+            FunctionCallSyntax syntax,
+            FunctionSymbol function,
+            ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes,
+            IList<TypeSymbol> argumentTypes,
+            IList<ErrorDiagnostic> errors)
+        {
+            // Recover argument type errors so we can continue type checking for the parent function call.
+            var recoveredArgumentTypes = argumentTypes
+                .Select(t => t.TypeKind == TypeKind.Error ? LanguageConstants.Any : t)
+                .ToList();
+
+            var matches = FunctionResolver.GetMatches(
+                function,
+                recoveredArgumentTypes,
+                out IList<ArgumentCountMismatch> countMismatches,
+                out IList<ArgumentTypeMismatch> typeMismatches).ToList();
+            
+            if (matches.Count == 0)
+            {
+                if (typeMismatches.Any())
+                {
+                    if (typeMismatches.Count > 1 && typeMismatches.Skip(1).All(tm => tm.ArgumentIndex == typeMismatches[0].ArgumentIndex))
+                    {
+                        // All type mismatches are equally good (or bad).
+                        var parameterTypes = typeMismatches.Select(tm => tm.ParameterType).ToList();
+                        var argumentType = typeMismatches[0].ArgumentType;
+                        var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
+                        var argumentSyntax = argumentSyntaxes[typeMismatches[0].ArgumentIndex];
+
+                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
+                    }
+                    else
+                    {
+                        // Choose the type mismatch that has the largest index as the best one.
+                        var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
+
+                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntaxes[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
+                    }
+                }
+                else
+                {
+                    // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
+                    var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
+                    var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
+
+                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, mininumArgumentCount, maximumArgumentCount));
+                }
             }
 
             if (errors.Any())
@@ -479,44 +544,19 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            var symbol = this.ResolveSymbol(syntax);
-            switch (symbol)
+            if (matches.Count == 1)
             {
-                case ErrorSymbol errorSymbol:
-                    // function bind failure - pass the error along
-                    return errorSymbol.ToErrorType();
-
-                case FunctionSymbol function:
-                    return GetFunctionSymbolType(syntax, function, argumentTypes);
-
-                default:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName));
+                // we have an exact match or a single ambiguous match
+                // return its type
+                return matches.Single().ReturnType;
             }
-        }
 
-        private TypeSymbol GetFunctionSymbolType(FunctionCallSyntax syntax, FunctionSymbol function, List<TypeSymbol> argumentTypes)
-        {
-            var matches = FunctionResolver.GetMatches(function, argumentTypes).ToList();
-
-            switch (matches.Count)
-            {
-                case 0:
-                    // cannot find a function matching the types and number of arguments
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.Name.IdentifierName, argumentTypes));
-
-                case 1:
-                    // we have an exact match or a single ambiguous match
-                    // return its type
-                    return matches.Single().ReturnType;
-
-                default:
-                    // function arguments are ambiguous (due to "any" type)
-                    // technically, the correct behavior would be to return a union of all possible types
-                    // unfortunately our language lacks a good type checking construct
-                    // and we also don't want users to have to use the converter functions to work around it
-                    // instead, we will return the "any" type to short circuit the type checking for those cases
-                    return LanguageConstants.Any;
-            }
+            // function arguments are ambiguous (due to "any" type)
+            // technically, the correct behavior would be to return a union of all possible types
+            // unfortunately our language lacks a good type checking construct
+            // and we also don't want users to have to use the converter functions to work around it
+            // instead, we will return the "any" type to short circuit the type checking for those cases
+            return LanguageConstants.Any;
         }
 
         private TypeSymbol GetUnaryOperationType(TypeManagerContext context, UnaryOperationSyntax syntax)
