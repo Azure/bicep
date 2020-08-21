@@ -14,7 +14,7 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) interpolatedString(type) "=" object NL
+resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "=" object NL
 
 outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 
@@ -67,7 +67,7 @@ memberExpression ->
 primaryExpression ->
   functionCall |
   literalValue |
-  interpolatedString |
+  interpString |
   array |
   object |
   parenthesizedExpression
@@ -78,12 +78,16 @@ argumentList -> expression ("," expression)*
 
 parenthesizedExpression -> "(" expression ")"
 
-interpolatedString -> "'" STRINGCHAR* ( "${" expression "}" STRINGCHAR* )* "'"
+interpString ->  interpStringLeftPiece ( expression interpStringMiddlePiece )* expression interpStringRightPiece | literalString
+interpStringLeftPiece -> "'" STRINGCHAR* "${"
+interpStringMiddlePiece -> "}" STRINGCHAR* "${"
+interpStringRightPiece -> "}" STRINGCHAR* "'"
+literalString -> "'" STRINGCHAR* "'"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 
 object -> "{" NL+ ( objectProperty NL+ )* "}" 
-objectProperty -> IDENTIFIER(name) ":" expression 
+objectProperty -> ( IDENTIFIER(name) | literalString ) ":" expression 
 
 array -> "[" NL+ arrayItem* "]"
 arrayItem -> expression NL+

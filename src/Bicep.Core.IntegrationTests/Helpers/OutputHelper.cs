@@ -26,9 +26,10 @@ namespace Bicep.Core.IntegrationTests
             .Replace("\n", "\\n")
             .Replace("\t", "\\t");
 
-        public static string AddDiagsToSourceText<T>(string sourceText, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
+        public static string AddDiagsToSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
         {
-            var lineStarts = TextCoordinateConverter.GetLineStarts(sourceText);
+            var newlineSequence = dataSet.HasCrLfNewlines() ? "\r\n" : "\n";
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
             var orderedItems = items.OrderBy(t => getSpanFunc(t).Position).ThenBy(t => getSpanFunc(t).Length);
             var itemsByLine = orderedItems
@@ -38,25 +39,27 @@ namespace Bicep.Core.IntegrationTests
                 })
                 .ToLookup(t => t.line);
 
-            var sourceTextLines = sourceText.Replace("\r\n", "\n").Split("\n");
+            var sourceTextLines = dataSet.Bicep.Split(newlineSequence);
             var stringBuilder = new StringBuilder();
 
             for (var i = 0; i < sourceTextLines.Length; i++)
             {
-                stringBuilder.AppendLine(sourceTextLines[i]);
+                stringBuilder.Append(sourceTextLines[i]);
+                stringBuilder.Append(newlineSequence);
                 foreach (var (line, character, item) in itemsByLine[i])
                 {
                     var escapedDiagsText = EscapeWhitespace(diagsFunc(item));
-                    stringBuilder.AppendLine($"//@[{character}:{character + getSpanFunc(item).Length}) {escapedDiagsText}");
+                    stringBuilder.Append($"//@[{character}:{character + getSpanFunc(item).Length}) {escapedDiagsText}");
+                    stringBuilder.Append(newlineSequence);
                 }
             }
 
             return stringBuilder.ToString();
         }
 
-        public static string AddDiagsToSourceText<TPositionable>(string sourceText, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
+        public static string AddDiagsToSourceText<TPositionable>(DataSet dataSet, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
             where TPositionable : IPositionable
-            => AddDiagsToSourceText(sourceText, items, item => item.Span, diagsFunc);
+            => AddDiagsToSourceText(dataSet, items, item => item.Span, diagsFunc);
 
         public static string GetSpanText(string sourceText, IPositionable positionable)
         {

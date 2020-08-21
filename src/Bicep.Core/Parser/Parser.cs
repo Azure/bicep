@@ -57,7 +57,7 @@ namespace Bicep.Core.Parser
                     // TODO: Update when adding other statement types
                     _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                 };
-            }, TokenType.NewLine);
+            }, true, TokenType.NewLine);
         }
 
         private SyntaxBase ParameterDeclaration()
@@ -126,7 +126,7 @@ namespace Bicep.Core.Parser
             var name = this.Identifier(b => b.ExpectedResourceIdentifier());
 
             // TODO: Unify StringSyntax with TypeSyntax
-            var type = this.InterpolableString();
+            var type = ThrowIfSkipped(() => this.InterpolableString(), b => b.ExpectedResourceTypeString());
 
             var assignment = this.Assignment();
             var body = this.Object();
@@ -443,7 +443,7 @@ namespace Bicep.Core.Parser
                             throw new ExpectedTokenException(nextToken, b => b.MalformedString());
                     }
                 }
-            }, TokenType.NewLine);
+            }, false, TokenType.NewLine);
         }
 
         private SyntaxBase LiteralValue()
@@ -494,7 +494,7 @@ namespace Bicep.Core.Parser
                 var newLines = this.NewLines();
 
                 return new ArrayItemSyntax(value, newLines);
-            }, TokenType.NewLine);
+            }, true, TokenType.NewLine);
         }
 
         private ObjectSyntax Object()
@@ -519,16 +519,24 @@ namespace Bicep.Core.Parser
         {
             return this.WithRecovery(() =>
             {
-                var identifier = this.Identifier(b => b.ExpectedPropertyName());
+                var current = this.reader.Peek();
+                var key = ThrowIfSkipped(() => 
+                    current.Type switch {
+                        TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                        TokenType.StringComplete => this.InterpolableString(),
+                        TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                    }, b => b.ExpectedPropertyName());
+
                 var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
                 var value = Expression();
                 var newLines = this.NewLines();
 
-                return new ObjectPropertySyntax(identifier, colon, value, newLines);
-            }, TokenType.NewLine);
+                return new ObjectPropertySyntax(key, colon, value, newLines);
+            }, true, TokenType.NewLine);
         }
 
-        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, params TokenType[] terminatingTypes)
+        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase
         {
             var startPosition = reader.Position;
@@ -538,18 +546,31 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                this.Synchronize(terminatingTypes);
+                this.Synchronize(consumeTerminator, terminatingTypes);
                 
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Error, exception.UnexpectedToken);
             }
         }
 
-        private void Synchronize(params TokenType[] expectedTypes)
+        private SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            var startToken = reader.Peek();
+            var syntax = syntaxFunc();
+
+            if (syntax.IsSkipped)
+            {
+                throw new ExpectedTokenException(startToken, errorFunc);
+            }
+
+            return syntax;
+        }
+
+        private void Synchronize(bool consumeTerminator, params TokenType[] expectedTypes)
         {
             while (!IsAtEnd())
             {
-                if (Match(expectedTypes))
+                if (consumeTerminator ? Match(expectedTypes) : Check(expectedTypes))
                 {
                     return;
                 }

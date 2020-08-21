@@ -208,14 +208,14 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Select(p => p.Identifier.IdentifierName)
+                .Select(p => p.GetKeyText())
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Identifier).DisallowedProperty(extraProperty.Identifier.IdentifierName, targetType.Name)));
+                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
             }
             else
             {
@@ -238,7 +238,7 @@ namespace Bicep.Core.TypeSystem
                         typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 

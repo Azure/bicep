@@ -104,10 +104,11 @@ var myMixedArray = [
 ```
 
 ### Objects
-Objects are declared using the open and close brace characters (`{` and `}`), and consist of a set of keys and values. Each key/value pair **must** be on a new line, and there **must** be a new line after the opening brace and before the closing brace. Keys and values are separated with the colon (`:`) character. The values may consist of either a [literal](#literals) or an [expression](./expressions.md).
+Objects are declared using the open and close brace characters (`{` and `}`), and consist of a set of keys and values. Each key/value pair **must** be on a new line, and there **must** be a new line after the opening brace and before the closing brace. Keys and values are separated with the colon (`:`) character.
+
+Keys must either be a sequence of alphanumeric characters, or an uninterpolated string in cases where special characters are needed. Values may consist of any [literal](#literals) or an [expression](./expressions.md).
 
 Note that commas are not required or permitted between object property pairs.
-
 #### Examples
 ```
 var myObj = {
@@ -122,6 +123,11 @@ var myObj = {
     3435
   ]
   variableProp: myVariable
+}
+
+var myObjWithSpecialChars = {
+  '$special\tchars!': true
+  normalKey: 'val'
 }
 
 var myEmptyObj = {

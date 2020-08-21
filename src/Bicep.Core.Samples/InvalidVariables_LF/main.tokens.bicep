@@ -147,4 +147,43 @@ var test2 = newGuid()
 //@[12:19) Identifier |newGuid|
 //@[19:20) LeftParen |(|
 //@[20:21) RightParen |)|
-//@[21:21) EndOfFile ||
+//@[21:23) NewLine |\n\n|
+
+// bad string escape sequence in object key
+//@[43:44) NewLine |\n|
+var test3 = {
+//@[0:3) Identifier |var|
+//@[4:9) Identifier |test3|
+//@[10:11) Assignment |=|
+//@[12:13) LeftBrace |{|
+//@[13:14) NewLine |\n|
+  'bad\escape': true
+//@[2:14) StringComplete |'bad\escape'|
+//@[14:15) Colon |:|
+//@[16:20) TrueKeyword |true|
+//@[20:21) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// duplicate properties
+//@[23:24) NewLine |\n|
+var testDupe = {
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |testDupe|
+//@[13:14) Assignment |=|
+//@[15:16) LeftBrace |{|
+//@[16:17) NewLine |\n|
+  'duplicate': true
+//@[2:13) StringComplete |'duplicate'|
+//@[13:14) Colon |:|
+//@[15:19) TrueKeyword |true|
+//@[19:20) NewLine |\n|
+  duplicate: true
+//@[2:11) Identifier |duplicate|
+//@[11:12) Colon |:|
+//@[13:17) TrueKeyword |true|
+//@[17:18) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

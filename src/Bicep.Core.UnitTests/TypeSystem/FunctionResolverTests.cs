@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Extensions;
@@ -17,7 +18,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
         {
-            var matches = GetMatches(functionName, argumentTypes);
+            var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
             matches.Single().ReturnType.Should().BeSameAs(expectedReturnType);
@@ -27,7 +28,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetAmbiguousMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void FullyAmbiguousMatchesShouldHaveCorrectReturnType(string displayName, string functionName, int numberOfArguments, IList<TypeSymbol> expectedReturnTypes)
         {
-            var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList());
+            var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
             matches.Select(m => m.ReturnType).Should().BeEquivalentTo(expectedReturnTypes);
@@ -37,7 +38,47 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void MismatchShouldReturnAnEmptySet(string displayName, string functionName, IList<TypeSymbol> argumentTypes)
         {
-            GetMatches(functionName, argumentTypes).Should().BeEmpty();
+            GetMatches(functionName, argumentTypes, out _, out _).Should().BeEmpty();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetArgumentCountMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void IncorrectArgumentCountShouldSetArgumentCountMismatches(string displayName, string functionName, Tuple<int, int?> argumentCountRange, IList<TypeSymbol> argumentTypes)
+        {
+            GetMatches(functionName, argumentTypes, out List<ArgumentCountMismatch> countMismatches, out List<ArgumentTypeMismatch> typeMismatches);
+
+            countMismatches.Should().NotBeEmpty();
+            typeMismatches.Should().BeEmpty();
+
+            foreach (var (argumentCount, minimumArgumentCount, maximumArgumentCount) in countMismatches)
+            {
+                argumentCount.Should().Be(argumentTypes.Count);
+                minimumArgumentCount.Should().Be(argumentCountRange.Item1);
+                maximumArgumentCount.Should().Be(argumentCountRange.Item2);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetArgumentTypeMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void IncorrectArgumentTypeShouldSetArgumentCountMismatches(string displayName, string functionName, List<Tuple<int, TypeSymbol>> parameterTypeAtIndexOverloads, IList<TypeSymbol> argumentTypes)
+        {
+            GetMatches(functionName, argumentTypes, out List<ArgumentCountMismatch> countMismatches, out List<ArgumentTypeMismatch> typeMismatches);
+
+            countMismatches.Should().BeEmpty();
+            typeMismatches.Should().HaveCount(parameterTypeAtIndexOverloads.Count);
+
+            typeMismatches = typeMismatches.OrderBy(tm => tm.ArgumentIndex).ToList();
+
+            for (int i = 0; i < typeMismatches.Count; i++)
+            {
+                var (source, argumentIndex, argumentType, parameterType) = typeMismatches[i];
+                var (expectedIndex, expectedParameterType) = parameterTypeAtIndexOverloads[i];
+
+                source.Name.Should().Be(functionName);
+                argumentIndex.Should().Be(expectedIndex);
+                argumentType.Should().Be(argumentTypes[argumentIndex]);
+                parameterType.Should().Be(expectedParameterType);
+            }
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)
@@ -97,6 +138,60 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("base64", 1, LanguageConstants.String);
         }
 
+        private static IEnumerable<object[]> GetArgumentCountMismatchData()
+        {
+            // local function
+            object[] CreateRow(string functionName, Tuple<int, int?> argumentCountRange, params TypeSymbol[] argumentTypes)
+            {
+                string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
+                return new object[] { displayName, functionName, argumentCountRange, argumentTypes };
+            }
+
+            yield return CreateRow("concat", Tuple.Create(1, (int?)null));
+            yield return CreateRow("resourceGroup", Tuple.Create(0, (int?)0), LanguageConstants.Int);
+            yield return CreateRow("add", Tuple.Create(2, (int?)2), LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
+            yield return CreateRow("padLeft", Tuple.Create(2, (int?)3));
+        }
+
+        private static IEnumerable<object[]> GetArgumentTypeMismatchData()
+        {
+            // local function
+            object[] CreateRow(string functionName, List<Tuple<int, TypeSymbol>> parameterTypeAtIndexOverloads, params TypeSymbol[] argumentTypes)
+            {
+                string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
+                return new object[] { displayName, functionName, parameterTypeAtIndexOverloads, argumentTypes };
+            }
+
+            yield return CreateRow(
+                "add",
+                new List<Tuple<int, TypeSymbol>>
+                {
+                    Tuple.Create(1, LanguageConstants.Int)
+                },
+                LanguageConstants.Int,
+                LanguageConstants.Bool);
+
+            yield return CreateRow(
+                "union",
+                new List<Tuple<int, TypeSymbol>>
+                {
+                    Tuple.Create(0, LanguageConstants.Object),
+                    Tuple.Create(0, LanguageConstants.Array)
+                },
+                LanguageConstants.Int,
+                LanguageConstants.Object);
+
+            yield return CreateRow(
+                "union",
+                new List<Tuple<int, TypeSymbol>>
+                {
+                    Tuple.Create(0, LanguageConstants.Object),
+                    Tuple.Create(1, LanguageConstants.Array)
+                },
+                LanguageConstants.Array,
+                LanguageConstants.Bool);
+        }
+
         private static IEnumerable<object[]> GetMismatchData()
         {
             // local function
@@ -124,11 +219,26 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("fake", LanguageConstants.String);
         }
 
-        private IEnumerable<FunctionOverload> GetMatches(string functionName, IList<TypeSymbol> argumentTypes)
+        private IEnumerable<FunctionOverload> GetMatches(
+            string functionName,
+            IList<TypeSymbol> argumentTypes,
+            out List<ArgumentCountMismatch> argumentCountMismatches,
+            out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
             var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()};
+            var matches = new List<FunctionOverload>();
 
-            return namespaces.SelectMany(ns => FunctionResolver.GetMatches(ns, functionName, argumentTypes));
+            argumentCountMismatches = new List<ArgumentCountMismatch>();
+            argumentTypeMismatches = new List<ArgumentTypeMismatch>();
+
+            foreach (var ns in namespaces)
+            {
+                matches.AddRange(FunctionResolver.GetMatches(ns, functionName, argumentTypes, out var countMismatches, out var typeMismatches));
+                argumentCountMismatches.AddRange(countMismatches);
+                argumentTypeMismatches.AddRange(typeMismatches);
+            }
+
+            return matches;
         }
     }
 }

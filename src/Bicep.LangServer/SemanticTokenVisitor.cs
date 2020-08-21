@@ -105,7 +105,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Member);
+            if (syntax.Key is StringSyntax @string)
+            {
+                Visit(@string);
+            }
+            else
+            {
+                AddTokenType(syntax.Key, SemanticTokenType.Member);
+            }
             base.VisitObjectPropertySyntax(syntax);
         }
 

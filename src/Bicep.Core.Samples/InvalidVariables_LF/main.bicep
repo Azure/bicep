@@ -39,3 +39,14 @@ var y = {
 // utcNow and newGuid used outside a param default value
 var test = utcNow('u')
 var test2 = newGuid()
+
+// bad string escape sequence in object key
+var test3 = {
+  'bad\escape': true
+}
+
+// duplicate properties
+var testDupe = {
+  'duplicate': true
+  duplicate: true
+}

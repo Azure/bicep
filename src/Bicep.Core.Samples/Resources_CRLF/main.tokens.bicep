@@ -529,4 +529,61 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:15) Identifier |nested|
+//@[16:60) StringComplete |'Microsoft.Resources/deployments@2019-10-01'|
+//@[61:62) Assignment |=|
+//@[63:64) LeftBrace |{|
+//@[64:66) NewLine |\r\n|
+  name: 'nestedTemplate1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:25) StringComplete |'nestedTemplate1'|
+//@[25:27) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    mode: 'Incremental'
+//@[4:8) Identifier |mode|
+//@[8:9) Colon |:|
+//@[10:23) StringComplete |'Incremental'|
+//@[23:25) NewLine |\r\n|
+    template: {
+//@[4:12) Identifier |template|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+      // string key value
+//@[25:27) NewLine |\r\n|
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+//@[6:15) StringComplete |'$schema'|
+//@[15:16) Colon |:|
+//@[17:98) StringComplete |'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'|
+//@[98:100) NewLine |\r\n|
+      contentVersion: '1.0.0.0'
+//@[6:20) Identifier |contentVersion|
+//@[20:21) Colon |:|
+//@[22:31) StringComplete |'1.0.0.0'|
+//@[31:33) NewLine |\r\n|
+      resources: [
+//@[6:15) Identifier |resources|
+//@[15:16) Colon |:|
+//@[17:18) LeftSquare |[|
+//@[18:20) NewLine |\r\n|
+      ]
+//@[6:7) RightSquare |]|
+//@[7:9) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||
