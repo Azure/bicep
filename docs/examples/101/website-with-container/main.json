@@ -4,7 +4,7 @@
   "parameters": {
     "name": {
       "type": "string",
-      "defaultValue": "lfa-experimental"
+      "defaultValue": "site001"
     },
     "location": {
       "type": "string",
@@ -12,15 +12,15 @@
     },
     "acrName": {
       "type": "string",
-      "defaultValue": "feldspar"
+      "defaultValue": "myAcr"
     },
     "dockerUsername": {
       "type": "string",
-      "defaultValue": "feldspar"
+      "defaultValue": "adminUser"
     },
     "dockerImageAndTag": {
       "type": "string",
-      "defaultValue": "lfa/frontend:latest"
+      "defaultValue": "app/frontend:latest"
     }
   },
   "functions": [],
@@ -92,10 +92,6 @@
     "ftpUser": {
       "type": "string",
       "value": "[reference(resourceId('microsoft.web/sites', variables('websiteName'))).ftpUsername]"
-    },
-    "acrCreds": {
-      "type": "string",
-      "value": "[listCredentials(variables('containerRegistryId'), variables('acrApiVersion')).passwords[0].value]"
     }
   }
 }
