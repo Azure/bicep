@@ -104,10 +104,6 @@ var linuxConfiguration = {
 resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
     name: networkInterfaceName
     location: location
-    tags: {
-        // Workaround for dependsOn.
-        dep0: vnet.name
-    }
     properties: {
         ipConfigurations: [
             {

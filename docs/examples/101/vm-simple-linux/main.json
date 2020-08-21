@@ -113,9 +113,6 @@
       "apiVersion": "2018-10-01",
       "name": "[variables('networkInterfaceName')]",
       "location": "[parameters('location')]",
-      "tags": {
-        "dep0": "[parameters('virtualNetworkName')]"
-      },
       "properties": {
         "ipConfigurations": [
           {
