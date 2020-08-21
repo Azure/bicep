@@ -242,9 +242,10 @@ namespace Bicep.Core.Diagnostics
 
                 for (int i = 0; i < overloadCount; i++)
                 {
-                    messageBuilder.AppendLine();
-                    messageBuilder.AppendLine($"  Overload {i + 1} of {overloadCount}, '{overloadSignatures[i]}', gave the following error:");
-                    messageBuilder.Append($"    Argument of type '{argumentType}' is not assignable to parameter of type '{parameterTypes[i]}'.");
+                    messageBuilder
+                        .Append("\n")
+                        .Append($"  Overload {i + 1} of {overloadCount}, '{overloadSignatures[i]}', gave the following error:\n")
+                        .Append($"    Argument of type '{argumentType}' is not assignable to parameter of type '{parameterTypes[i]}'.");
                 }
 
                 var message = messageBuilder.ToString();
