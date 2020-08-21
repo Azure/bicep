@@ -25,9 +25,6 @@ namespace Bicep.Core.UnitTests.Resource
         public void InvalidType_ShouldBeRejected(string value)
         {
             ResourceTypeReference.TryParse(value).Should().BeNull();
-
-            Action parse = () => ResourceTypeReference.Parse(value);
-            parse.Should().Throw<FormatException>().WithMessage($"The specified resource type '{value}' is not valid.");
         }
 
         [DataTestMethod]
@@ -48,9 +45,6 @@ namespace Bicep.Core.UnitTests.Resource
 
             var actual = ResourceTypeReference.TryParse(value);
             AssertExpectations(actual);
-
-            var actual2 = ResourceTypeReference.Parse(value);
-            AssertExpectations(actual2);
         }
 
         [DataTestMethod]
@@ -58,8 +52,10 @@ namespace Bicep.Core.UnitTests.Resource
         [DataRow("Microsoft.Blueprint/blueprints/versions/artifacts@2018-11-01-preview", "Microsoft.Blueprint/blueprints/versions/artifacts")]
         public void ValidType_FullyQualitifedTypeShouldBeCorrect(string value, string expectedFullyQualifiedType)
         {
-            var actual = ResourceTypeReference.Parse(value);
-            actual.FullyQualifiedType.Should().Be(expectedFullyQualifiedType);
+            var actual = ResourceTypeReference.TryParse(value);
+
+            actual.Should().NotBeNull();
+            actual!.FullyQualifiedType.Should().Be(expectedFullyQualifiedType);
         }
     }
 }

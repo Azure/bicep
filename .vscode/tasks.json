@@ -23,8 +23,27 @@
                 "cwd": "${workspaceFolder}/src/vscode-bicep"
             },
             "dependsOn": [
-                "build"
+                "build",
+                "vscodeext-install"
             ]
+        },
+        {
+            "label": "vscodeext-install",
+            "command": "npm",
+            "args": ["install"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep"
+            }
+        },
+        {
+            "label": "playground-build-wasm",
+            "command": "npm",
+            "args": ["run", "build-wasm"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/playground"
+            }
         },
         {
             "label": "watch",

@@ -1,34 +1,41 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class SemanticModel : ISemanticContext
+    public class SemanticModel
     {
         private readonly TypeManager typeManager;
 
-        public SemanticModel(FileSymbol root, TypeManager typeManager)
+        private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
+
+        public SymbolGraph SymbolGraph { get; }
+
+        public SemanticModel(FileSymbol root, TypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
         {
             this.Root = root;
             this.typeManager = typeManager;
+            this.bindings = bindings.ToImmutableDictionary();
+            this.SymbolGraph = symbolGraph;
         }
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.DeclaringSyntax.GetParseDiagnostics();
+        public IEnumerable<Diagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
+        public IEnumerable<ErrorDiagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnostics = new List<ErrorDiagnostic>();
             var visitor = new SemanticErrorVisitor(diagnostics);
             visitor.Visit(this.Root);
 
@@ -42,13 +49,27 @@ namespace Bicep.Core.SemanticModel
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax, new TypeManagerContext());
+
+        /// <summary>
+        /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
+        /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
+        /// </summary>
+        /// <param name="syntax">the syntax node</param>
+        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
+
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
+        /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.bindings
+            .Where(binding => ReferenceEquals(binding.Value, symbol))
+            .Select(binding => binding.Key);
+
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
-
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
-
-        public TypeSymbol? GetTypeByName(string? typeName) => this.typeManager.GetTypeByName(typeName);
     }
 }

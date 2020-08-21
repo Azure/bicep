@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            AddTokenType(syntax.FunctionName, SemanticTokenType.Function);
+            AddTokenType(syntax.Name, SemanticTokenType.Function);
             base.VisitFunctionCallSyntax(syntax);
         }
 
@@ -105,7 +105,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Member);
+            if (syntax.Key is StringSyntax @string)
+            {
+                Visit(@string);
+            }
+            else
+            {
+                AddTokenType(syntax.Key, SemanticTokenType.Member);
+            }
             base.VisitObjectPropertySyntax(syntax);
         }
 
@@ -145,7 +152,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            AddTokenType(syntax.PropertyName, SemanticTokenType.Member);
+            AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
         }
 
@@ -212,9 +219,9 @@ namespace Bicep.LanguageServer
             base.VisitTernaryOperationSyntax(syntax);
         }
 
-        public override void VisitToken(Token token)
+        protected override void VisitTokenInternal(Token token)
         {
-            base.VisitToken(token);
+            base.VisitTokenInternal(token);
         }
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)

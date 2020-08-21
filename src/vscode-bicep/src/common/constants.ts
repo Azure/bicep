@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 // The dotnet version to download and run the language server against
-export const downloadDotnetVersion = '3.1';
+export const downloadDotnetVersion = "3.1";
 
 // The language server output label
 export const bicepOutputLanguageServer = "Bicep Language Server";
@@ -13,16 +13,16 @@ export const bicepOutputLanguageServer = "Bicep Language Server";
 export const bicepOutputExtension = "Bicep Extension";
 
 // The language server folder name
-export const languageServerFolderName = 'bicepLanguageServer';
+export const languageServerFolderName = "bicepLanguageServer";
 
 // The language server name
-export const languageServerName = 'Bicep Language Server';
+export const languageServerName = "Bicep Language Server";
 
 // The language server binary
-export const languageServerDllName = 'Bicep.LangServer.dll';
+export const languageServerDllName = "Bicep.LangServer.dll";
 
 // The default tracing level
-export const defaultTraceLevel = 'Warning';
+export const defaultTraceLevel = "Warning";
 
 // The language server path
 export const languageServerPath = "bicepLanguageServerPath";
@@ -31,7 +31,7 @@ export const languageServerPath = "bicepLanguageServerPath";
 export const bicepLanguageId = 'bicep';
 
 // The workspace (user settings)
-export namespace workspaceSettings {
-    export const prefix = 'bicepLanguageServer';
-    export const traceLevel = 'bicepLanguageServer.traceLevel';
-}
+export const workspaceSettings = {
+  prefix: "bicepLanguageServer",
+  traceLevel: "bicepLanguageServer.traceLevel",
+};

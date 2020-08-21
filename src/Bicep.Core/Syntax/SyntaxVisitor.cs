@@ -6,12 +6,32 @@ namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxVisitor
     {
-        public virtual void Visit(SyntaxBase node)
+        public void Visit(SyntaxBase? node)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            VisitInternal(node);
+        }
+
+        protected virtual void VisitInternal(SyntaxBase node)
         {
             node.Accept(this);
         }
 
-        public virtual void VisitToken(Token token)
+        public void VisitToken(Token? token)
+        {
+            if (token == null)
+            {
+                return;
+            }
+
+            VisitTokenInternal(token);
+        }
+
+        protected virtual void VisitTokenInternal(Token token)
         {
             foreach (var syntaxTrivia in token.LeadingTrivia)
             {
@@ -34,12 +54,7 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.ParameterKeyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
-
-            if (syntax.Modifier != null)
-            {
-                this.Visit(syntax.Modifier);
-            }
-
+            this.Visit(syntax.Modifier);
             this.VisitToken(syntax.NewLine);
         }
 
@@ -139,7 +154,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            this.Visit(syntax.Identifier);
+            this.Visit(syntax.Key);
             this.VisitToken(syntax.Colon);
             this.Visit(syntax.Value);
             this.VisitTokens(syntax.NewLines);
@@ -205,7 +220,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.Visit(syntax.FunctionName);
+            this.Visit(syntax.Name);
             this.VisitToken(syntax.OpenParen);
             this.VisitNodes(syntax.Arguments);
             this.VisitToken(syntax.CloseParen);
@@ -214,10 +229,7 @@ namespace Bicep.Core.Syntax
         public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             this.Visit(syntax.Expression);
-            if (syntax.Comma != null)
-            {
-                this.VisitToken(syntax.Comma);
-            }
+            this.VisitToken(syntax.Comma);
         }
 
         public virtual void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

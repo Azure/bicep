@@ -1,23 +1,24 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionCallSyntax : SyntaxBase, IExpressionSyntax
+    public class FunctionCallSyntax : SyntaxBase, IExpressionSyntax, ISymbolReference
     {
-        public FunctionCallSyntax(IdentifierSyntax functionName, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
+        public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
-            this.AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
-            this.AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
+            AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
 
-            this.FunctionName = functionName;
+            this.Name = name;
             this.OpenParen = openParen;
             this.Arguments = arguments.ToImmutableArray();
             this.CloseParen = closeParen;
         }
 
-        public IdentifierSyntax FunctionName { get; }
+        public IdentifierSyntax Name { get; }
 
         public Token OpenParen { get; }
 
@@ -27,6 +28,6 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(FunctionName, CloseParen);
+        public override TextSpan Span => TextSpan.Between(Name, CloseParen);
     }
 }

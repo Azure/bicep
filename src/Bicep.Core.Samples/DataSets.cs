@@ -8,7 +8,13 @@ namespace Bicep.Core.Samples
 {
     public static class DataSets
     {
+        public static DataSet AKS_LF => CreateDataSet(); 
+
+        public static DataSet Dependencies_LF => CreateDataSet(); 
+
         public static DataSet Empty => CreateDataSet();
+
+        public static DataSet InvalidCycles_CRLF => CreateDataSet();
 
         public static DataSet InvalidExpressions_LF => CreateDataSet();
 

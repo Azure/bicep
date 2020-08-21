@@ -13,11 +13,8 @@ namespace Bicep.Core.UnitTests.Serialization
             this.Span = span;
         }
 
-        public TokenItem(Token token)
+        public TokenItem(Token token) : this(token.Type, token.Text, token.Span)
         {
-            this.Type = token.Type;
-            this.Text = token.Text;
-            this.Span = token.Span;
         }
 
         public TokenType? Type { get; set; }

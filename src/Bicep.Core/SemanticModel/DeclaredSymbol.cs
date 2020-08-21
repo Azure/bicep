@@ -1,17 +1,19 @@
 ﻿using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
     public abstract class DeclaredSymbol : Symbol
     {
-        protected DeclaredSymbol(ISemanticContext context, string name, SyntaxBase declaringSyntax)
+        protected DeclaredSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)
         {
-            this.Context = context;
+            this.TypeManager = typeManager;
             this.DeclaringSyntax = declaringSyntax;
+            this.NameSyntax = nameSyntax;
         }
 
-        public ISemanticContext Context { get; }
+        public ITypeManager TypeManager { get; }
 
         /// <summary>
         /// Gets the syntax node that declared this symbol.
@@ -19,8 +21,19 @@ namespace Bicep.Core.SemanticModel
         public SyntaxBase DeclaringSyntax { get; }
 
         /// <summary>
-        /// Gets the syntax node of the identifier. May be null if the symbol is in an invalid state.
+        /// Gets the syntax node of the identifier.
         /// </summary>
-        public abstract SyntaxBase? NameSyntax { get; }
+        public IdentifierSyntax NameSyntax { get; }
+
+        protected TypeSymbol? GetPrimitiveTypeByName(string typeName)
+        {
+            var type = this.TypeManager.GetTypeByName(typeName);
+            if (type?.TypeKind == TypeKind.Primitive)
+            {
+                return type;
+            }
+
+            return null;
+        }
     }
 }

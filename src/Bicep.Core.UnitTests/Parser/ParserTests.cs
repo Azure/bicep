@@ -23,6 +23,43 @@ namespace Bicep.Core.UnitTests.Parser
         }
 
         [DataTestMethod]
+        [DataRow("param myParam string", typeof(ParameterDeclarationSyntax))]
+        [DataRow("var mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
+        [DataRow("resource myRes 'My.Provider/someResource@2020-08-01' = { \n }", typeof(ResourceDeclarationSyntax))]
+        [DataRow("output string myOutput = 'hello'", typeof(OutputDeclarationSyntax))]
+        public void NewLinesForDeclarationsShouldBeOptionalAtEof(string text, Type expectedType)
+        {
+            var validFiles = new (int statementCount, string file)[]
+            {
+                (1, text),
+                (1, $"{text}\n"),
+                (1, $"{text}\r\n"),
+                (1, $"{text}\n\n"),
+                (1, $"{text}\r\n\r\n"),
+                (2, $"{text}\n{text}"),
+                (2, $"{text}\n{text}\r\n"),
+            };
+
+            foreach (var (statementCount, file) in validFiles)
+            {
+                var becauseFileValid = $"{file} is considered valid";
+                var program = ParserHelper.Parse(file, diags => diags.Should().BeEmpty(becauseFileValid));
+                program.Statements.Should().HaveCount(statementCount, becauseFileValid);
+                program.Statements.Should().AllBeOfType(expectedType, becauseFileValid);
+            }
+
+            var invalidFiles = new []
+            {
+                $"{text} {text}", // newline should be enforced between statements
+            };
+
+            foreach (var file in invalidFiles)
+            {
+                var program = ParserHelper.Parse(file, diags => diags.Should().NotBeEmpty());
+            }
+        }
+
+        [DataTestMethod]
         [DataRow("'${abc}def'", "'${abc}def'")]
         [DataRow("'abc${def}'", "'abc${def}'")]
         [DataRow("'${abc}def${ghi}'", "'${abc}def${ghi}'")]

@@ -2,7 +2,6 @@
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -10,15 +9,16 @@ namespace Bicep.Core.SemanticModel
 {
     public class OutputSymbol : DeclaredSymbol
     {
-        public OutputSymbol(ISemanticContext context, string name, SyntaxBase declaringSyntax, TypeSymbol type, SyntaxBase value)
-            : base(context, name, declaringSyntax)
+        public OutputSymbol(ITypeManager typeManager, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Type = type;
             this.Value = value;
         }
 
-        public TypeSymbol Type { get; }
-        
+        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringOutput.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringOutput.Type).InvalidOutputType());
+
         public SyntaxBase Value { get; }
 
         public override void Accept(SymbolVisitor visitor)
@@ -36,9 +36,9 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            TypeSymbol valueType = this.Context.GetTypeInfo(this.Value);
+            TypeSymbol valueType = this.TypeManager.GetTypeInfo(this.Value, new TypeManagerContext());
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorTypeSymbol)
@@ -51,9 +51,7 @@ namespace Bicep.Core.SemanticModel
                 return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<ErrorDiagnostic>();
         }
-
-        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as OutputDeclarationSyntax)?.Name;
     }
 }

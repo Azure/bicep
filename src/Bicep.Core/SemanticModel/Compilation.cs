@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -24,23 +26,46 @@ namespace Bicep.Core.SemanticModel
 
         private SemanticModel GetSemanticModelInternal()
         {
-            var typeCache = new TypeManager();
+            var builtinNamespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()}.ToImmutableArray();
+            var bindings = new Dictionary<SyntaxBase, Symbol>();
+            
+            // create this in locked mode by default
+            // this blocks accidental type queries until binding is done
+            // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
+            var typeCache = new TypeManager(bindings);
 
-            List<Symbol> declarations = new List<Symbol>();
+            // collect declarations
+            var declarations = new List<DeclaredSymbol>();
             var declarationVisitor = new DeclarationVisitor(typeCache, declarations);
             declarationVisitor.Visit(this.ProgramSyntax);
 
-            // TODO: Reparent context to semantic model?
+            // in cases of duplicate declarations we will see multiple declaration symbols in the result list
+            // for simplicitly we will bind to the first one
+            // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
+            var uniqueDeclarations = declarations
+                .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+
+            // bind identifiers to declarations
+            var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtinNamespaces);
+            binder.Visit(this.ProgramSyntax);
+
+            // name binding is done
+            // allow type queries now
+            typeCache.Unlock();
+
             // TODO: Avoid looping 4 times?
-            var file = new FileSymbol(
-                typeCache,
-                "main",
+            var file = new FileSymbol("main",
                 this.ProgramSyntax,
+                builtinNamespaces,
                 declarations.OfType<ParameterSymbol>(),
                 declarations.OfType<VariableSymbol>(),
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
-            return new SemanticModel(file, typeCache);
+
+            var symbolGraph = SymbolGraphVisitor.Build(file, uniqueDeclarations, bindings);
+
+            return new SemanticModel(file, typeCache, bindings, symbolGraph);
         }
     }
 }

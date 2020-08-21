@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -38,10 +36,10 @@ namespace Bicep.LanguageServer
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[uri] = context;
 
-                // convert all the errors to LSP diagnostics
+                // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
-                // publish all the errors
+                // publish all the diagnostics
                 this.PublishDocumentDiagnostics(uri, version, diagnostics);
 
                 return context;

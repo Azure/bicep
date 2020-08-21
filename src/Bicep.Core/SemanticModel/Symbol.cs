@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 
@@ -29,12 +28,12 @@ namespace Bicep.Core.SemanticModel
 
         public abstract SymbolKind Kind { get; }
 
-        public virtual IEnumerable<Diagnostic> GetDiagnostics()
+        public virtual IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             yield break;
         }
 
-        protected Diagnostic CreateError(IPositionable positionable, DiagnosticBuilder.BuildDelegate errorFunc)
+        protected ErrorDiagnostic CreateError(IPositionable positionable, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => errorFunc(DiagnosticBuilder.ForPosition(positionable));
     }
 }

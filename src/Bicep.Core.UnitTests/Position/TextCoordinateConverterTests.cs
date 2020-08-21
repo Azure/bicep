@@ -116,7 +116,7 @@ namespace Bicep.Core.UnitTests.Position
             IReadOnlyList<int> lineStarts = new List<int> { 0, 24 }.AsReadOnly();
             Action sut = () => TextCoordinateConverter.GetPosition(lineStarts, -9);
 
-            sut.Should().Throw<ArgumentOutOfRangeException>().WithMessage("*must not be a negative number*");
+            sut.Should().Throw<ArgumentException>().WithMessage("*must not be a negative number*");
         }
 
         [DataTestMethod]
@@ -124,8 +124,15 @@ namespace Bicep.Core.UnitTests.Position
         public void GetPosition_ValidLineStartsAndOffset_ReturnsConvertedPosition(ImmutableArray<int> lineStarts, int offset, (int line, int character) expectedPosition)
         {
             var position = TextCoordinateConverter.GetPosition(lineStarts, offset);
-
             position.Should().Be(expectedPosition);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetTestDataForGetPosition), DynamicDataSourceType.Method)]
+        public void GetOffset_ValidLineStartsAndOffset_ReturnsConvertedOffset(ImmutableArray<int> lineStarts, int expectedOffset, (int line, int character) position)
+        {
+            var offset = TextCoordinateConverter.GetOffset(lineStarts, position.line, position.character);
+            offset.Should().Be(expectedOffset);
         }
 
         public static IEnumerable<object[]> GetTestDataForGetPosition()

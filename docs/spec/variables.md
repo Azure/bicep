@@ -14,42 +14,42 @@ The examples below cover variable declaration using hard-coded and calculated va
 
 ### String variable
 ```
-variable myString = 'my string value'
+var myString = 'my string value'
 
-variable location = resourceGroup().location
+var location = resourceGroup().location
 ```
 
 ### Boolean variables
 ```
-variable iAmTrue = true
-variable iAmFalse = false
+var iAmTrue = true
+var iAmFalse = false
 
-variable hasItems = length(myArray) >= 0
+var hasItems = length(myArray) >= 0
 ```
 
 ### Numeric variables
 ```
-variable meaningOfLifeTheUniVerseAndEverything = 42
+var meaningOfLifeTheUniVerseAndEverything = 42
 
-variable lengthOfMyArray = length(myArray)
+var lengthOfMyArray = length(myArray)
 ```
 
 ### Object variables
 ```
-variable myObject = {
+var myObject = {
   first: 1
   second: 2
 }
 
-variable keys = listKeys(myResource.id, myResource.apiVersion)
+var keys = listKeys(myResource.id, myResource.apiVersion)
 ```
 
 ### Array variables
 ```
-variable myArray = [
+var myArray = [
   'item 1'
   'item 2'
 ]
 
-variable myOtherArray = createArray('first', 'second', 'third')
+var myOtherArray = createArray('first', 'second', 'third')
 ```

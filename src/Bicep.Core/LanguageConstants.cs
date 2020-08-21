@@ -14,9 +14,9 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
-        public const string ParameterKeyword = "parameter";
+        public const string ParameterKeyword = "param";
         public const string OutputKeyword = "output";
-        public const string VariableKeyword = "variable";
+        public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
 		
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
@@ -65,7 +65,7 @@ namespace Bicep.Core
             }
 
             // default value is allowed to have expressions
-            yield return new TypeProperty("defaultValue", parameterType);
+            yield return new TypeProperty("default", parameterType);
 
             yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
 

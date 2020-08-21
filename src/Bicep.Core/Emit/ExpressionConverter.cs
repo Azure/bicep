@@ -1,22 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Azure.ResourceManager.Deployments.Expression.Expressions;
+using Arm.Expression.Expressions;
+using Bicep.Core.Resources;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public static class ExpressionConverter
+    public class ExpressionConverter
     {
+        private readonly EmitterContext context;
+
+        public ExpressionConverter(EmitterContext context)
+        {
+            this.context = context;
+        }
+
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
         /// The returned tree may be rooted at either a function expression or jtoken expression.
         /// </summary>
         /// <param name="expression">The expression</param>
-        public static LanguageExpression ToTemplateExpression(this SyntaxBase expression)
+        public LanguageExpression ConvertExpression(SyntaxBase expression)
         {
             switch (expression)
             {
@@ -40,7 +50,7 @@ namespace Bicep.Core.Emit
 
                 case ParenthesizedExpressionSyntax parenthesized:
                     // template expressions do not have operators so parentheses are irrelevant
-                    return parenthesized.Expression.ToTemplateExpression();
+                    return ConvertExpression(parenthesized.Expression);
 
                 case UnaryOperationSyntax unary:
                     return ConvertUnary(unary);
@@ -53,48 +63,175 @@ namespace Bicep.Core.Emit
                         "if",
                         new[]
                         {
-                            ternary.ConditionExpression.ToTemplateExpression(),
-                            ternary.TrueExpression.ToTemplateExpression(),
-                            ternary.FalseExpression.ToTemplateExpression()
+                            ConvertExpression(ternary.ConditionExpression),
+                            ConvertExpression(ternary.TrueExpression),
+                            ConvertExpression(ternary.FalseExpression)
                         },
                         Array.Empty<LanguageExpression>());
 
                 case FunctionCallSyntax function:
                     return ConvertFunction(
-                        function.FunctionName.IdentifierName,
-                        function.Arguments.Select(a => a.Expression.ToTemplateExpression()).ToArray());
+                        function.Name.IdentifierName,
+                        function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
 
                 case ArrayAccessSyntax arrayAccess:
                     return AppendProperty(
-                        arrayAccess.BaseExpression.ToFunctionExpression(),
-                        arrayAccess.IndexExpression.ToTemplateExpression());
+                        ToFunctionExpression(arrayAccess.BaseExpression),
+                        ConvertExpression(arrayAccess.IndexExpression));
 
                 case PropertyAccessSyntax propertyAccess:
+                    if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccess &&
+                        context.SemanticModel.GetSymbolInfo(propVariableAccess) is ResourceSymbol resourceSymbol)
+                    {
+                        // special cases for certain resource property access. if we recurse normally, we'll end up
+                        // generating statements like reference(resourceId(...)).id which are not accepted by ARM
+
+                        var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                        switch (propertyAccess.PropertyName.IdentifierName)
+                        {
+                            case "id":
+                                return GetResourceIdExpression(resourceSymbol.DeclaringResource, typeReference);
+                            case "name":
+                                return GetResourceNameExpression(resourceSymbol.DeclaringResource);
+                            case "type":
+                                return new JTokenExpression(typeReference.FullyQualifiedType);
+                            case "apiVersion":
+                                return new JTokenExpression(typeReference.ApiVersion);
+                            case "properties":
+                                // use the reference() overload without "full" to generate a shorter expression
+                                return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, false);
+                        }
+                    }
+
                     return AppendProperty(
-                        propertyAccess.BaseExpression.ToFunctionExpression(),
+                        ToFunctionExpression(propertyAccess.BaseExpression),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
 
-                case VariableAccessSyntax _:
+                case VariableAccessSyntax variableAccess:
+                    return ConvertVariableAccess(variableAccess);
+
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
         }
 
-        private static LanguageExpression ConvertString(StringSyntax syntax)
+        private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
         {
-            var stringExpression = new JTokenExpression(syntax.GetFormatString());
+            if (!(resourceSyntax.Body is ObjectSyntax objectSyntax))
+            {
+                // this condition should have already been validated by the type checker
+                throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
+            }
 
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.GetKeyText(), "name"));
+            if (namePropertySyntax == null)
+            {
+                // this condition should have already been validated by the type checker
+                throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+            }
+
+            return ConvertExpression(namePropertySyntax.Value);
+        }
+
+        public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        {
+            if (typeReference.Types.Length == 1)
+            {
+                return new FunctionExpression(
+                    "resourceId",
+                    new LanguageExpression[]
+                    {
+                        new JTokenExpression(typeReference.FullyQualifiedType),
+                        GetResourceNameExpression(resourceSyntax),
+                    },
+                    Array.Empty<LanguageExpression>());
+            }
+
+            var nameSegments = typeReference.Types.Select(
+                (type, i) => new FunctionExpression(
+                    "split",
+                    new LanguageExpression[] { GetResourceNameExpression(resourceSyntax), new JTokenExpression("/") },
+                    new LanguageExpression[] { new JTokenExpression(i) }));
+
+            return new FunctionExpression(
+                "resourceId",
+                new LanguageExpression[]
+                {
+                    new JTokenExpression(typeReference.FullyQualifiedType),
+                }.Concat(nameSegments).ToArray(),
+                Array.Empty<LanguageExpression>());
+        }
+
+        public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference, bool full)
+        {
+            // full gives access to top-level resource properties, but generates a longer statement
+            if (full)
+            {
+                return new FunctionExpression(
+                    "reference",
+                    new LanguageExpression[]
+                    {
+                        GetResourceIdExpression(resourceSyntax, typeReference),
+                        new JTokenExpression(typeReference.ApiVersion),
+                        new JTokenExpression("full"),
+                    },
+                    Array.Empty<LanguageExpression>());
+            }
+
+            return new FunctionExpression(
+                "reference",
+                new LanguageExpression[]
+                {
+                    GetResourceIdExpression(resourceSyntax, typeReference),
+                },
+                Array.Empty<LanguageExpression>());
+        }
+
+        private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
+        {
+            string name = variableAccessSyntax.Name.IdentifierName;
+
+            var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
+
+            // TODO: This will change to support inlined functions like reference() or list*()
+            switch (symbol)
+            {
+                case ParameterSymbol _:
+                    return CreateUnaryFunction("parameters", new JTokenExpression(name));
+
+                case VariableSymbol variableSymbol:
+                    if (context.RequiresInlining(variableSymbol))
+                    {
+                        // we've got a runtime dependency, so we have to inline the variable usage
+                        return ConvertExpression(variableSymbol.DeclaringVariable.Value);
+                    }
+                    return CreateUnaryFunction("variables", new JTokenExpression(name));
+
+                case ResourceSymbol resourceSymbol:
+                    var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
+                    return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
+
+                default:
+                    throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
+            }
+        }
+
+        private LanguageExpression ConvertString(StringSyntax syntax)
+        {
             if (!syntax.IsInterpolated())
             {
                 // no need to build a format string
-                return stringExpression;
+                return new JTokenExpression(syntax.GetLiteralValue());;
             }
 
             var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
-            formatArgs[0] = stringExpression;
+
+            var formatString = StringFormatConverter.BuildFormatString(syntax);
+            formatArgs[0] = new JTokenExpression(formatString);
+
             for (var i = 0; i < syntax.Expressions.Length; i++)
             {
-                formatArgs[i + 1] = syntax.Expressions[i].ToTemplateExpression();
+                formatArgs[i + 1] = ConvertExpression(syntax.Expressions[i]);
             }
 
             return new FunctionExpression("format", formatArgs, Array.Empty<LanguageExpression>());
@@ -106,16 +243,16 @@ namespace Bicep.Core.Emit
         /// on literals.
         /// </summary>
         /// <param name="expression">The expression</param>
-        public static FunctionExpression ToFunctionExpression(this SyntaxBase expression)
+        public FunctionExpression ToFunctionExpression(SyntaxBase expression)
         {
-            var converted = expression.ToTemplateExpression();
+            var converted = ConvertExpression(expression);
             switch (converted)
             {
                 case FunctionExpression functionExpression:
                     return functionExpression;
 
                 case JTokenExpression valueExpression:
-                    JToken value = valueExpression.EvaluateExpression(null);
+                    JToken value = valueExpression.Value;
 
                     switch (value.Type)
                     {
@@ -145,7 +282,7 @@ namespace Bicep.Core.Emit
             return new FunctionExpression(functionName, arguments, Array.Empty<LanguageExpression>());
         }
 
-        private static FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
+        private FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
         {
             // the tree node here should not contain any expressions inside
             // if it does, the emitted json expressions will not evaluate as expected due to IL limitations
@@ -153,16 +290,16 @@ namespace Bicep.Core.Emit
             var buffer = new StringBuilder();
             using (var writer = new JsonTextWriter(new StringWriter(buffer)) {Formatting = Formatting.None})
             {
-                ExpressionEmitter.EmitExpression(writer, syntax);
+                new ExpressionEmitter(writer, context).EmitExpression(syntax);
             }
 
             return CreateJsonFunctionCall(JToken.Parse(buffer.ToString()));
         }
 
-        private static LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
+        private LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
         {
-            LanguageExpression operand1 = syntax.LeftExpression.ToTemplateExpression();
-            LanguageExpression operand2 = syntax.RightExpression.ToTemplateExpression();
+            LanguageExpression operand1 = ConvertExpression(syntax.LeftExpression);
+            LanguageExpression operand2 = ConvertExpression(syntax.RightExpression);
 
             switch (syntax.Operator)
             {
@@ -222,9 +359,9 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static LanguageExpression ConvertUnary(UnaryOperationSyntax syntax)
+        private LanguageExpression ConvertUnary(UnaryOperationSyntax syntax)
         {
-            LanguageExpression convertedOperand = syntax.Expression.ToTemplateExpression();
+            LanguageExpression convertedOperand = ConvertExpression(syntax.Expression);
 
             switch (syntax.Operator)
             {
@@ -232,10 +369,10 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("not", convertedOperand);
 
                 case UnaryOperator.Minus:
-                    if (convertedOperand is JTokenExpression literal && literal.EvaluateExpression(null).Type == JTokenType.Integer)
+                    if (convertedOperand is JTokenExpression literal && literal.Value.Type == JTokenType.Integer)
                     {
                         // invert the integer literal
-                        int literalValue = literal.EvaluateExpression(null).Value<int>();
+                        int literalValue = literal.Value.Value<int>();
                         return new JTokenExpression(-literalValue);
                     }
 

@@ -47,7 +47,7 @@ namespace Bicep.Core.Text
 
             if (offset < 0)
             {
-                throw new ArgumentOutOfRangeException($"{nameof(offset)} must not be a negative number.");
+                throw new ArgumentException($"{nameof(offset)} must not be a negative number.");
             }
 
             int line = BinarySearch(lineStarts, offset);
@@ -60,6 +60,16 @@ namespace Bicep.Core.Text
             }
 
             return (line, offset - lineStarts[line]);
+        }
+
+        public static int GetOffset(IReadOnlyList<int> lineStarts, int line, int character)
+        {
+            if (line < 0 || line >= lineStarts.Count)
+            {
+                throw new ArgumentException("The specified line number is not valid.");
+            }
+
+            return lineStarts[line] + character;
         }
 
         private static int BinarySearch(IReadOnlyList<int> values, int target)

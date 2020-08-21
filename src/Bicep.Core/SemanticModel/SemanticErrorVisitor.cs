@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
     public class SemanticErrorVisitor : SymbolVisitor
     {
-        private readonly IList<Diagnostic> diagnostics;
+        private readonly IList<ErrorDiagnostic> diagnostics;
 
-        public SemanticErrorVisitor(IList<Diagnostic> diagnostics)
+        public SemanticErrorVisitor(IList<ErrorDiagnostic> diagnostics)
         {
             this.diagnostics = diagnostics;
         }
@@ -50,9 +49,27 @@ namespace Bicep.Core.SemanticModel
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitErrorSymbol(ErrorSymbol symbol)
+        {
+            base.VisitErrorSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitNamespaceSymbol(NamespaceSymbol symbol)
+        {
+            base.VisitNamespaceSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitFunctionSymbol(FunctionSymbol symbol)
+        {
+            base.VisitFunctionSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         protected void CollectDiagnostics(Symbol symbol)
         {
-            foreach (Diagnostic diagnostic in symbol.GetDiagnostics())
+            foreach (ErrorDiagnostic diagnostic in symbol.GetDiagnostics())
             {
                 this.diagnostics.Add(diagnostic);
             }

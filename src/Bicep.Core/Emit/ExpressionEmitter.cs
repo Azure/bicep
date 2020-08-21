@@ -1,22 +1,35 @@
 ﻿using System;
-using Azure.ResourceManager.Deployments.Expression.Configuration;
-using Azure.ResourceManager.Deployments.Expression.Expressions;
-using Azure.ResourceManager.Deployments.Expression.Serializers;
+using System.Linq;
+using Arm.Expression.Configuration;
+using Arm.Expression.Expressions;
+using Bicep.Core.Resources;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public static class ExpressionEmitter
+    public class ExpressionEmitter
     {
-        private static readonly ExpressionSerializer expressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
+        private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
         {
             IncludeOuterSquareBrackets = true,
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        public static void EmitExpression(JsonTextWriter writer, SyntaxBase syntax)
+        private readonly JsonTextWriter writer;
+        private readonly EmitterContext context;
+        private readonly ExpressionConverter converter;
+
+        public ExpressionEmitter(JsonTextWriter writer, EmitterContext context)
+        {
+            this.writer = writer;
+            this.context = context;
+            this.converter = new ExpressionConverter(context);
+        }
+
+        public void EmitExpression(SyntaxBase syntax)
         {
             switch (syntax)
             {
@@ -35,7 +48,7 @@ namespace Bicep.Core.Emit
 
                 case ObjectSyntax objectSyntax:
                     writer.WriteStartObject();
-                    EmitObjectProperties(writer, objectSyntax);
+                    EmitObjectProperties(objectSyntax);
                     writer.WriteEndObject();
 
                     break;
@@ -45,7 +58,7 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        EmitExpression(writer, itemSyntax.Value);
+                        EmitExpression(itemSyntax.Value);
                     }
 
                     writer.WriteEndArray();
@@ -60,24 +73,39 @@ namespace Bicep.Core.Emit
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
-                    EmitLanguageExpression(writer, syntax);
+                case VariableAccessSyntax _:
+                    EmitLanguageExpression(syntax);
                     
                     break;
 
-                case VariableAccessSyntax _:
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
         }
 
-        public static void EmitLanguageExpression(JsonTextWriter writer, SyntaxBase syntax)
+        public void EmitResourceIdReference(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
         {
-            LanguageExpression converted = syntax.ToTemplateExpression();
+            var resourceIdExpression = converter.GetResourceIdExpression(resourceSyntax, typeReference);
+            var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
+
+            writer.WriteValue(serialized);
+        }
+
+        public void EmitLanguageExpression(SyntaxBase syntax)
+        {
+            var symbol = context.SemanticModel.GetSymbolInfo(syntax);
+            if (symbol is VariableSymbol variableSymbol && context.RequiresInlining(variableSymbol))
+            {
+                EmitExpression(variableSymbol.Value);
+                return;
+            }
+
+            LanguageExpression converted = converter.ConvertExpression(syntax);
 
             if (converted is JTokenExpression valueExpression)
             {
                 // the converted expression is a literal
-                JToken value = valueExpression.EvaluateExpression(null);
+                JToken value = valueExpression.Value;
 
                 // for integer literals the expression will look like "[42]" or "[-12]"
                 // while it's still a valid template expression that works in ARM, it looks weird
@@ -90,36 +118,36 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            var serialized = expressionSerializer.SerializeExpression(converted);
+            var serialized = ExpressionSerializer.SerializeExpression(converted);
 
             writer.WriteValue(serialized);
         }
 
-        public static void EmitObjectProperties(JsonTextWriter writer, ObjectSyntax objectSyntax)
+        public void EmitObjectProperties(ObjectSyntax objectSyntax)
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                EmitPropertyExpression(writer, propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
+                EmitPropertyExpression(propertySyntax.GetKeyText(), propertySyntax.Value);
             }
         }
 
-        public static void EmitPropertyValue(JsonTextWriter writer, string name, string value)
+        public void EmitPropertyValue(string name, string value)
         {
             writer.WritePropertyName(name);
             writer.WriteValue(value);
         }
 
-        public static void EmitPropertyExpression(JsonTextWriter writer, string name, SyntaxBase expression)
+        public void EmitPropertyExpression(string name, SyntaxBase expression)
         {
             writer.WritePropertyName(name);
-            EmitExpression(writer, expression);
+            EmitExpression(expression);
         }
 
-        public static void EmitOptionalPropertyExpression(JsonTextWriter writer, string name, SyntaxBase? expression)
+        public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {
             if (expression != null)
             {
-                EmitPropertyExpression(writer, name, expression);
+                EmitPropertyExpression(name, expression);
             }
         }
     }

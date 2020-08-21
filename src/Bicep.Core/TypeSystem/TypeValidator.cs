@@ -16,9 +16,9 @@ namespace Bicep.Core.TypeSystem
         /// It may return inaccurate results for malformed trees.
         /// </summary>
         /// <param name="expression">the expression to check for compile-time constant violations</param>
-        public static IList<Diagnostic> GetCompileTimeConstantViolation(SyntaxBase expression)
+        public static IList<ErrorDiagnostic> GetCompileTimeConstantViolation(SyntaxBase expression)
         {
-            var errors = new List<Diagnostic>();
+            var errors = new List<ErrorDiagnostic>();
             var visitor = new CompileTimeConstantVisitor(errors);
 
             visitor.Visit(expression);
@@ -86,27 +86,26 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnostics(ISemanticContext context, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic>? typeMismatchErrorFactory = null)
+        public static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic>? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
-            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectdValueTypeMismatch(expectedType.Name, actualType.Name);
+            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
 
-            return GetExpressionAssignmentDiagnosticsInternal(context, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
+            return GetExpressionAssignmentDiagnosticsInternal(typeManager, expression, targetType, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
 
-        private static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnosticsInternal(
-            ISemanticContext context,
+        private static IEnumerable<ErrorDiagnostic> GetExpressionAssignmentDiagnosticsInternal(ITypeManager typeManager,
             SyntaxBase expression,
             TypeSymbol targetType,
-            Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic> typeMismatchErrorFactory,
+            Func<TypeSymbol, TypeSymbol, SyntaxBase, ErrorDiagnostic> typeMismatchErrorFactory,
             bool skipConstantCheck,
             bool skipTypeErrors)
         {
             // TODO: The type of this expression and all subexpressions should be cached
-            TypeSymbol? expressionType = context.GetTypeInfo(expression);
+            TypeSymbol? expressionType = typeManager.GetTypeInfo(expression, new TypeManagerContext());
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
-            var errors = Enumerable.Empty<Diagnostic>();
+            var errors = Enumerable.Empty<ErrorDiagnostic>();
             if (skipTypeErrors == false && expressionType is ErrorTypeSymbol)
             {
                 errors = errors.Concat(expressionType.GetDiagnostics());
@@ -122,30 +121,30 @@ namespace Bicep.Core.TypeSystem
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
-                return errors.Concat(GetObjectAssignmentDiagnostics(context, objectValue, targetObjectType, skipConstantCheck));
+                return errors.Concat(GetObjectAssignmentDiagnostics(typeManager, objectValue, targetObjectType, skipConstantCheck));
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                return errors.Concat(GetArrayAssignmentDiagnostics(context, arrayValue, targetArrayType, skipConstantCheck));
+                return errors.Concat(GetArrayAssignmentDiagnostics(typeManager, arrayValue, targetArrayType, skipConstantCheck));
             }
 
             return errors;
         }
 
-        private static IEnumerable<Diagnostic> GetArrayAssignmentDiagnostics(ISemanticContext context, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetArrayAssignmentDiagnostics(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {
-                return Enumerable.Empty<Diagnostic>();
+                return Enumerable.Empty<ErrorDiagnostic>();
             }
 
             return expression.Items
                 .SelectMany(arrayItemSyntax => GetExpressionAssignmentDiagnosticsInternal(
-                    context,
+                    typeManager,
                     arrayItemSyntax.Value,
                     targetType.ItemType,
                     (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
@@ -153,13 +152,13 @@ namespace Bicep.Core.TypeSystem
                     skipTypeErrors: true)); 
         }
 
-        private static IEnumerable<Diagnostic> GetObjectAssignmentDiagnostics(ISemanticContext context, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
+        private static IEnumerable<ErrorDiagnostic> GetObjectAssignmentDiagnostics(ITypeManager typeManager, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)
         {
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
-            var result = Enumerable.Empty<Diagnostic>();
+            var result = Enumerable.Empty<ErrorDiagnostic>();
             if (expression.HasParseErrors())
             {
                 return result;
@@ -196,7 +195,7 @@ namespace Bicep.Core.TypeSystem
                     // declared property is specified in the value object
                     // validate type
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
-                        context,
+                        typeManager,
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType.Name, actualType.Name),
@@ -209,14 +208,14 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Select(p => p.Identifier.IdentifierName)
+                .Select(p => p.GetKeyText())
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Identifier).DisallowedProperty(extraProperty.Identifier.IdentifierName, targetType.Name)));
+                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
             }
             else
             {
@@ -236,10 +235,10 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
-                        context,
+                        typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType.Name, actualType.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 

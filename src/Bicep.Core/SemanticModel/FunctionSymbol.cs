@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using Bicep.Core.TypeSystem;
+
+namespace Bicep.Core.SemanticModel
+{
+    public class FunctionSymbol : Symbol
+    {
+        public FunctionSymbol(string name, IEnumerable<FunctionOverload> overloads)
+            : base(name)
+        {
+            Overloads = overloads.ToImmutableArray();
+            FunctionFlags = Overloads.First().Flags;
+
+            if (Overloads.Skip(1).Any(fo => fo.Flags != FunctionFlags))
+            {
+                // we should catch this as early as possible
+                throw new ArgumentException("Inconsistent function flags found on overloads");
+            }
+        }
+
+        public override void Accept(SymbolVisitor visitor) => visitor.VisitFunctionSymbol(this);
+
+        public override SymbolKind Kind => SymbolKind.Function;
+
+        public ImmutableArray<FunctionOverload> Overloads { get; }
+
+        public FunctionFlags FunctionFlags { get; }
+    }
+}

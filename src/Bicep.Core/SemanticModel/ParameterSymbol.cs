@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -11,14 +10,15 @@ namespace Bicep.Core.SemanticModel
 {
     public class ParameterSymbol : DeclaredSymbol
     {
-        public ParameterSymbol(ISemanticContext context, string name, ParameterDeclarationSyntax declaringSyntax, TypeSymbol type, SyntaxBase? modifier)
-            : base(context, name, declaringSyntax)
+        public ParameterSymbol(ITypeManager typeManager, string name, ParameterDeclarationSyntax declaringSyntax, SyntaxBase? modifier)
+            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Type = type;
             this.Modifier = modifier;
         }
 
-        public TypeSymbol Type { get; }
+        public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
+
+        public TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringParameter.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringParameter.Type).InvalidParameterType());
 
         public SyntaxBase? Modifier { get; }
 
@@ -37,13 +37,13 @@ namespace Bicep.Core.SemanticModel
             }
         }
 
-        public override IEnumerable<Diagnostic> GetDiagnostics()
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
             switch (this.Modifier)
             {
                 case ParameterDefaultValueSyntax defaultValueSyntax:
                     // figure out type of the default value
-                    TypeSymbol? defaultValueType = this.Context.GetTypeInfo(defaultValueSyntax.DefaultValue);
+                    TypeSymbol? defaultValueType = this.TypeManager.GetTypeInfo(defaultValueSyntax.DefaultValue, new TypeManagerContext());
 
                     // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
                     if (defaultValueType is ErrorTypeSymbol)
@@ -59,12 +59,10 @@ namespace Bicep.Core.SemanticModel
                     break;
 
                 case ObjectSyntax modifierSyntax when this.Type.TypeKind != TypeKind.Error:
-                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
+                    return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type));
             }
 
-            return Enumerable.Empty<Diagnostic>();
+            return Enumerable.Empty<ErrorDiagnostic>();
         }
-
-        public override SyntaxBase? NameSyntax => (this.DeclaringSyntax as ParameterDeclarationSyntax)?.Name;
     }
 }

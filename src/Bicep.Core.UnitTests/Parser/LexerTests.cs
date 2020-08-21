@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Parser
 
             tokens.First().Text.Should().Be(expectedTokenText);
 
-            var errors = lexer.GetErrors().ToImmutableArray();
+            var errors = lexer.GetDiagnostics().ToImmutableArray();
             errors.Should().HaveCount(1);
 
             var error = errors.Single();

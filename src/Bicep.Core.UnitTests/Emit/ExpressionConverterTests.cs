@@ -1,7 +1,7 @@
-﻿using System;
-using Azure.ResourceManager.Deployments.Expression.Configuration;
-using Azure.ResourceManager.Deployments.Expression.Serializers;
+﻿using Arm.Expression.Configuration;
+using Arm.Expression.Expressions;
 using Bicep.Core.Emit;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -49,8 +49,12 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
+            var compilation = new Compilation(ParserHelper.Parse(string.Empty));
+
             var parsed = ParserHelper.ParseExpression(text);
-            var converted = parsed.ToTemplateExpression();
+
+            var converter = new ExpressionConverter(new EmitterContext(compilation.GetSemanticModel()));
+            var converted = converter.ConvertExpression(parsed);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {
