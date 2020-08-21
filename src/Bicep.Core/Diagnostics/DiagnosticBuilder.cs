@@ -165,7 +165,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidResourceType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type.");
+                "The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
 
             public ErrorDiagnostic InvalidOutputType() => new ErrorDiagnostic(
                 TextSpan,
@@ -321,6 +321,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
+
+            public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP067",
+                $"String interpolation in not supported in object keys.");
+
+            public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP068",
+                "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

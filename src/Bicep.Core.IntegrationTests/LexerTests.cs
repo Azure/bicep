@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests
                 return $"{token.Type} |{token.Text}|";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, lexer.GetTokens(), getLoggingString);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainTokens}", sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(

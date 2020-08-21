@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public NullLiteralSyntax(Token nullKeyword)
         {
-            this.AssertTokenType(nullKeyword, nameof(nullKeyword), TokenType.NullKeyword);
+            AssertTokenType(nullKeyword, nameof(nullKeyword), TokenType.NullKeyword);
 
             this.NullKeyword = nullKeyword;
         }

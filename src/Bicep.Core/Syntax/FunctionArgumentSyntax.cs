@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public FunctionArgumentSyntax(SyntaxBase expression, Token? comma)
         {
-            this.AssertTokenType(comma, nameof(comma), TokenType.Comma);
+            AssertTokenType(comma, nameof(comma), TokenType.Comma);
 
             this.Expression = expression;
             this.Comma = comma;

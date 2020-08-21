@@ -46,4 +46,17 @@ var y = {
 var test = utcNow('u')
 //@[4:8) Variable test. Declaration start char: 0, length: 23
 var test2 = newGuid()
-//@[4:9) Variable test2. Declaration start char: 0, length: 21
+//@[4:9) Variable test2. Declaration start char: 0, length: 23
+
+// bad string escape sequence in object key
+var test3 = {
+//@[4:9) Variable test3. Declaration start char: 0, length: 38
+  'bad\escape': true
+}
+
+// duplicate properties
+var testDupe = {
+//@[4:12) Variable testDupe. Declaration start char: 0, length: 56
+  'duplicate': true
+  duplicate: true
+}

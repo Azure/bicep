@@ -97,6 +97,29 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// duplicate property at the top level with string literal syntax
+//@[65:67) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+  'name': true
+//@[2:8) StringComplete |'name'|
+//@[8:9) Colon |:|
+//@[10:14) TrueKeyword |true|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // duplicate property inside
 //@[28:30) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
@@ -126,6 +149,42 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[7:8) Colon |:|
 //@[9:12) StringComplete |'a'|
 //@[12:14) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// duplicate property inside with string literal syntax
+//@[55:57) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    foo: 'a'
+//@[4:7) Identifier |foo|
+//@[7:8) Colon |:|
+//@[9:12) StringComplete |'a'|
+//@[12:14) NewLine |\r\n|
+    'foo': 'a'
+//@[4:9) StringComplete |'foo'|
+//@[9:10) Colon |:|
+//@[11:14) StringComplete |'a'|
+//@[14:16) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|
