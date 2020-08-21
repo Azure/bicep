@@ -54,11 +54,11 @@ var not = !'s'
 //@[10:14) Error Cannot apply operator '!' to operand of type 'string'. |!'s'|
 var not = ![
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'array'. |![\r\n]|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'array'. |![\n]|
 ]
 var not = !{
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'object'. |!{\r\n}|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'object'. |!{\n}|
 }
 
 // unary not chaining will be added in the future
@@ -81,11 +81,11 @@ var minus = -'s'
 //@[12:16) Error Cannot apply operator '-' to operand of type 'string'. |-'s'|
 var minus = -[
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'array'. |-[\r\n]|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'array'. |-[\n]|
 ]
 var minus = -{
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'object'. |-{\r\n}|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'object'. |-{\n}|
 }
 
 // multiplicative
@@ -94,7 +94,7 @@ var mod = 's' % true
 var mul = true * null
 //@[10:21) Error Cannot apply operator '*' to operands of type 'bool' and 'null'. |true * null|
 var div = {
-//@[10:21) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\r\n} / [\r\n]|
+//@[10:19) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\n} / [\n]|
 } / [
 ]
 
@@ -108,7 +108,7 @@ var sub = true - false
 var eq = true =~ null
 //@[9:21) Error Cannot apply operator '=~' to operands of type 'bool' and 'null'. |true =~ null|
 var ne = 15 !~ [
-//@[9:19) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\r\n]|
+//@[9:18) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\n]|
 ]
 
 // relational
@@ -117,10 +117,10 @@ var lt = 4 < 's'
 var lteq = null <= 10
 //@[11:21) Error Cannot apply operator '<=' to operands of type 'null' and 'int'. |null <= 10|
 var gt = false>[
-//@[9:19) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\r\n]|
+//@[9:18) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\n]|
 ]
 var gteq = {
-//@[11:24) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\r\n} >= false|
+//@[11:23) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\n} >= false|
 } >= false
 
 // logical
@@ -212,15 +212,15 @@ var concatNotEnough = concat()
 var padLeftNotEnough = padLeft('s')
 //@[30:35) Error Expected 2 to 3 arguments, but got 1. |('s')|
 var takeTooMany = take([
-//@[22:36) Error Expected 2 arguments, but got 4. |([\r\n],1,2,'s')|
+//@[22:35) Error Expected 2 arguments, but got 4. |([\n],1,2,'s')|
 ],1,2,'s')
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[30:34) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'array'.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\r\n}|
+//@[30:33) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'array'.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[48:52) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\r\n]|
+//@[48:51) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[32:34) Error Argument of type 'int' is not assignable to parameter of type 'string'. |1,|
