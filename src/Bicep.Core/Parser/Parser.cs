@@ -126,7 +126,7 @@ namespace Bicep.Core.Parser
             var name = this.Identifier(b => b.ExpectedResourceIdentifier());
 
             // TODO: Unify StringSyntax with TypeSyntax
-            var type = this.InterpolableString();
+            var type = ThrowIfSkipped(() => this.InterpolableString(), b => b.ExpectedResourceTypeString());
 
             var assignment = this.Assignment();
             var body = this.Object();
@@ -520,18 +520,13 @@ namespace Bicep.Core.Parser
             return this.WithRecovery(() =>
             {
                 var current = this.reader.Peek();
-                var key = current.Type switch {
-                    TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
-                    TokenType.StringComplete => this.InterpolableString(),
-                    TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
-                    _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
-                };
-
-                if (key.IsSkipped)
-                {
-                    // let the outer recovery block handle this
-                    throw new ExpectedTokenException(current, b => b.ExpectedPropertyName());
-                }
+                var key = ThrowIfSkipped(() => 
+                    current.Type switch {
+                        TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                        TokenType.StringComplete => this.InterpolableString(),
+                        TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                    }, b => b.ExpectedPropertyName());
 
                 var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
                 var value = Expression();
@@ -556,6 +551,19 @@ namespace Bicep.Core.Parser
                 var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
                 return new SkippedTokensTriviaSyntax(skippedTokens, exception.Error, exception.UnexpectedToken);
             }
+        }
+
+        private SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            var startToken = reader.Peek();
+            var syntax = syntaxFunc();
+
+            if (syntax.IsSkipped)
+            {
+                throw new ExpectedTokenException(startToken, errorFunc);
+            }
+
+            return syntax;
         }
 
         private void Synchronize(bool consumeTerminator, params TokenType[] expectedTypes)

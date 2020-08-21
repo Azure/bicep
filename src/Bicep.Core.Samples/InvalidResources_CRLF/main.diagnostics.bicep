@@ -7,9 +7,9 @@ bad
 resource 
 //@[9:9) Error Expected a resource identifier at this location. ||
 resource foo
-//@[12:12) Error Expected the '=' character at this location. ||
+//@[12:12) Error Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. ||
 resource fo/o
-//@[13:13) Error Expected the '=' character at this location. ||
+//@[11:12) Error Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |/|
 resource foo 'ddd'
 //@[18:18) Error Expected the '=' character at this location. ||
 resource foo 'ddd'=
@@ -18,7 +18,7 @@ resource foo 'ddd'=
 // wrong resource type
 resource foo 'ddd'={
 //@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
-//@[13:18) Error The resource type is not valid. Specify a valid resource type. |'ddd'|
+//@[13:18) Error The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |'ddd'|
 }
 
 // using string interpolation for the resource type
