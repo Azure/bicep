@@ -83,7 +83,7 @@
         "gulp": "^4.0.2",
         "nerdbank-gitversioning": "^3.2.31",
         "prettier": "^2.0.5",
-        "typescript": "^3.9.7",
+        "typescript": "^4.0.2",
         "vsce": "^1.78.0"
     },
     "dependencies": {
