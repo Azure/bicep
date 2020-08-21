@@ -54,11 +54,11 @@ var not = !'s'
 //@[10:14) Error Cannot apply operator '!' to operand of type 'string'. |!'s'|
 var not = ![
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'array'. |![\r\n]|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'array'. |![\n]|
 ]
 var not = !{
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'object'. |!{\r\n}|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'object'. |!{\n}|
 }
 
 // unary not chaining will be added in the future
@@ -81,11 +81,11 @@ var minus = -'s'
 //@[12:16) Error Cannot apply operator '-' to operand of type 'string'. |-'s'|
 var minus = -[
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'array'. |-[\r\n]|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'array'. |-[\n]|
 ]
 var minus = -{
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'object'. |-{\r\n}|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'object'. |-{\n}|
 }
 
 // multiplicative
@@ -94,7 +94,7 @@ var mod = 's' % true
 var mul = true * null
 //@[10:21) Error Cannot apply operator '*' to operands of type 'bool' and 'null'. |true * null|
 var div = {
-//@[10:21) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\r\n} / [\r\n]|
+//@[10:19) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\n} / [\n]|
 } / [
 ]
 
@@ -108,7 +108,7 @@ var sub = true - false
 var eq = true =~ null
 //@[9:21) Error Cannot apply operator '=~' to operands of type 'bool' and 'null'. |true =~ null|
 var ne = 15 !~ [
-//@[9:19) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\r\n]|
+//@[9:18) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\n]|
 ]
 
 // relational
@@ -117,10 +117,10 @@ var lt = 4 < 's'
 var lteq = null <= 10
 //@[11:21) Error Cannot apply operator '<=' to operands of type 'null' and 'int'. |null <= 10|
 var gt = false>[
-//@[9:19) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\r\n]|
+//@[9:18) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\n]|
 ]
 var gteq = {
-//@[11:24) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\r\n} >= false|
+//@[11:23) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\n} >= false|
 } >= false
 
 // logical
@@ -210,15 +210,15 @@ var concatNotEnough = concat()
 var padLeftNotEnough = padLeft('s')
 //@[23:35) Error Cannot resolve function padLeft(string). |padLeft('s')|
 var takeTooMany = take([
-//@[18:36) Error Cannot resolve function take(array, int, int, string). |take([\r\n],1,2,'s')|
+//@[18:35) Error Cannot resolve function take(array, int, int, string). |take([\n],1,2,'s')|
 ],1,2,'s')
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[23:35) Error Cannot resolve function concat(object). |concat({\r\n})|
+//@[23:34) Error Cannot resolve function concat(object). |concat({\n})|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[36:53) Error Cannot resolve function concat(string, array). |concat('s', [\r\n])|
+//@[36:52) Error Cannot resolve function concat(string, array). |concat('s', [\n])|
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[24:36) Error Cannot resolve function indexOf(int, int). |indexOf(1,1)|
