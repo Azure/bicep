@@ -16,6 +16,9 @@ var curliesInInterp = '{${123}{0}${true}}'
 var myTruth = true
 var myFalsehood = false
 
+var myEmptyObj = { }
+var myEmptyArray = [ ]
+
 // object
 var myObj = {
   a: 'a'

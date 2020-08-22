@@ -1,26 +1,16 @@
 
 param actionGroupName string
 param actionGroupShortName string
-param emailReceivers array = [
-]
-param smsReceivers array = [
-]
-param webhookReceivers array = [
-]
-param itsmReceivers array = [
-]
-param azureAppPushReceivers array = [
-]
-param automationRunbookReceivers array = [
-]
-param voiceReceivers array = [
-]
-param logicAppReceivers array = [
-]
-param azureFunctionReceivers array = [
-]
-param armRoleReceivers array = [
-]
+param emailReceivers array = []
+param smsReceivers array = []
+param webhookReceivers array = []
+param itsmReceivers array = []
+param azureAppPushReceivers array = []
+param automationRunbookReceivers array = []
+param voiceReceivers array = []
+param logicAppReceivers array = []
+param azureFunctionReceivers array = []
+param armRoleReceivers array = []
 
 resource actionGroup 'Microsoft.Insights/actionGroups@2018-03-01' = {
   name: actionGroupName

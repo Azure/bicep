@@ -31,10 +31,6 @@ var bad = (null)[0]
 //@[17:18) Error Cannot use an integer indexer on an expression of type 'null'. An 'array' type is required. |0|
 var bad = ()
 //@[11:12) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
-var bad = {}
-//@[11:12) Error Expected a new line character at this location. |}|
-var bad = []
-//@[11:12) Error Expected a new line character at this location. |]|
 var bad = 
 //@[10:10) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 

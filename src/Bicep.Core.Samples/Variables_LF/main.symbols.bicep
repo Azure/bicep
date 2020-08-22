@@ -27,6 +27,11 @@ var myTruth = true
 var myFalsehood = false
 //@[4:15) Variable myFalsehood. Declaration start char: 0, length: 25
 
+var myEmptyObj = { }
+//@[4:14) Variable myEmptyObj. Declaration start char: 0, length: 21
+var myEmptyArray = [ ]
+//@[4:16) Variable myEmptyArray. Declaration start char: 0, length: 24
+
 // object
 var myObj = {
 //@[4:9) Variable myObj. Declaration start char: 0, length: 206
