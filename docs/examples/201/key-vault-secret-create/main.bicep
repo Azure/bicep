@@ -123,11 +123,7 @@ var firstSecretName = first(secretsObject.secrets).secretName
 var firstSecretValue = first(secretsObject.secrets).secretValue
 
 resource secret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
-  // TODO: uncomment when we have dependsOn
-  //dependsOn: [
-  //  vault
-  //]
-  name: '${keyVaultName}/${firstSecretName}'
+  name: '${vault.name}/${firstSecretName}'
   properties: {
     value: firstSecretValue
   }

@@ -133,7 +133,10 @@
       "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('firstSecretName'))]",
       "properties": {
         "value": "[variables('firstSecretValue')]"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+      ]
     }
   ],
   "outputs": {}
