@@ -45,7 +45,8 @@ $installDir.Attributes += 'Hidden'
 # Add bicep to your PATH
 $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
 if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
-# Verify you can now access the 'bicep' command. Note that on first install, you'll need to open a new PowerShell or CMD window
+if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
+# Verify you can now access the 'bicep' command.
 bicep --help
 ```
 
