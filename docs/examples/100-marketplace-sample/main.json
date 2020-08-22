@@ -1,0 +1,348 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "nix"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPasswordOrKey": {
+      "type": "secureString",
+      "minLength": 12,
+      "metadata": {
+        "description": "test"
+      }
+    },
+    "authenticationType": {
+      "type": "string",
+      "allowedValues": [
+        "sshPublicKey",
+        "password"
+      ],
+      "defaultValue": "password"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A2_v2"
+    },
+    "storageNewOrExisting": {
+      "type": "string",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "defaultValue": "new"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[concat('storage', uniqueString(resourceGroup().id))]"
+    },
+    "storageAccountType": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RA-GRS",
+        "Premium_LRS"
+      ],
+      "defaultValue": "Standard_LRS"
+    },
+    "storageAccountResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "virtualNetworkNewOrExisting": {
+      "type": "string",
+      "allowedValues": [
+        "new",
+        "existing"
+      ],
+      "defaultValue": "new"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork"
+    },
+    "addressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.0.0.0/16"
+      ]
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "default"
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "virtualNetworkResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "publicIpNewOrExisting": {
+      "type": "string",
+      "allowedValues": [
+        "new",
+        "existing",
+        "none"
+      ],
+      "defaultValue": "new"
+    },
+    "publicIpName": {
+      "type": "string",
+      "defaultValue": "publicIp"
+    },
+    "publicIpDns": {
+      "type": "string",
+      "defaultValue": "[format('{0}-{1}', toLower(parameters('vmName')), uniqueString(resourceGroup().id))]"
+    },
+    "publicIpResourceGroupName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "publicIpAllocationMethod": {
+      "type": "string",
+      "allowedValues": [
+        "Dynamic",
+        "Static",
+        ""
+      ],
+      "defaultValue": "Dynamic"
+    },
+    "publicIpSku": {
+      "type": "string",
+      "allowedValues": [
+        "Standard",
+        "Basic",
+        ""
+      ],
+      "defaultValue": "Basic"
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "[deployment().properties.templateLink.uniqueString]"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "secureString",
+      "defaultValue": ""
+    }
+  },
+  "functions": [],
+  "variables": {
+    "nsgName": "[format('{0}-nsg', parameters('virtualNetworkName'))]",
+    "nicName": "[format('{0}-nic', parameters('vmName'))]",
+    "linuxConfiguration": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
+            "keyData": "[parameters('adminPasswordOrKey')]"
+          }
+        ]
+      }
+    },
+    "fileToBeCopied": "FileToBeCopied.txt",
+    "scriptFolder": "scripts",
+    "scriptFileName": "copyfilefromazure.sh",
+    "scriptArgs": "[format(' -a {0} -t \"{1}\" -p {2} -f {3}', uri(parameters('_artifactsLocation'), '.'), parameters('_artifactsLocationSasToken'), variables('scriptFolder'), variables('fileToBeCopied'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-05-01",
+      "name": "pid-00000000-0000-0000-0000-000000000000",
+      "properties": {
+        "mode": "incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "Storage",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      }
+    },
+    {
+      "type": "Microsoft.network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('nsgName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "ssh",
+            "properties": {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": 22,
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 200,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('publicIpName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('publicIpSku')]"
+      },
+      "properties": {
+        "publicIpAllocationMethod": "[parameters('publicIpAllocationMethod')]",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('publicIpDns')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('addressPrefixes')]"
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipConfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('subnetName'))]"
+              },
+              "publicIPAddress": "[if(not(equals(parameters('publicIpNewOrExisting'), 'none')), json(concat('{\"id\":\"', resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName')), '\"}' )), json('null'))]"
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.network/networkSecurityGroups', variables('nsgName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.network/networkSecurityGroups', variables('nsgName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-12-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPasswordOrKey')]",
+          "linuxConfiguration": "[if(equals(toLower(parameters('authenticationType')), toLower('password')), json('null'), variables('linuxConfiguration'))]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "16.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-12-01",
+      "name": "[format('{0}/configScript', parameters('vmName'))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "dependsOnTODO": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+      },
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[format('{0}{1}/{2}{3}', parameters('_artifactsLocation'), variables('scriptFolder'), variables('scriptFileName'), parameters('_artifactsLocationSasToken'))]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "[format('bash {0} {1}', variables('scriptFileName'), variables('scriptArgs'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "sshcommand": {
+      "type": "string",
+      "value": "[if(equals(toLower(parameters('publicIpNewOrExisting')), toLower('none')), 'no public ip, vnet access only', format('ssh {0}@{1}', parameters('adminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))).dnsSettings.fqdn))]"
+    }
+  }
+}

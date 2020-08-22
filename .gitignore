@@ -364,3 +364,10 @@ FodyWeavers.xsd
 
 # Language Server bits
 bicepLanguageServer/
+
+# local template parameters
+**/azuredeploy.parameters.local.json
+**/azuredeploy.parameters.dev.json
+**/azuredeploy.parameters.?.json
+**/prereq.azuredeploy.parameters.?.json
+**/prereq.azuredeploy.parameters.dev.json
