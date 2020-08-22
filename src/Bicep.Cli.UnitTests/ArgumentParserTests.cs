@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using FluentAssertions;
@@ -10,9 +12,40 @@ namespace Bicep.Cli.UnitTests
     public class ArgumentParserTests
     {
         [TestMethod]
+        public void PrintUsage_ShouldPrintUsage()
+        {
+            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintUsage);
+
+            actual.Should().Contain("--help");
+            actual.Should().Contain("--version");
+            actual.Should().Contain("build");
+            actual.Should().Contain("options");
+            actual.Should().Contain("--stdout");
+        }
+
+        [TestMethod]
         public void PrintUsage_ShouldNotThrow()
         {
-            ArgumentParser.PrintUsage();
+            ArgumentParser.PrintUsage(Console.Out);
+        }
+
+        [TestMethod]
+        public void PrintVersion_ShouldPrintVersion()
+        {
+            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintVersion);
+            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+ \([0-9a-f]{10}\)");
+        }
+
+        [TestMethod]
+        public void PrintVersion_ShouldNotThrow()
+        {
+            ArgumentParser.PrintVersion(Console.Out);
+        }
+
+        [TestMethod]
+        public void GetExeName_ShouldReturnExecutableName()
+        {
+            ArgumentParser.GetExeName().Should().Be("bicep");
         }
 
         [TestMethod]
