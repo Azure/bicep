@@ -7,8 +7,9 @@ bad
 resource 
 //@[9:9) Error Expected a resource identifier at this location. ||
 resource foo
+//@[12:12) Error Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. ||
 resource fo/o
-//@[0:8) Error Expected the '=' character at this location. |resource|
+//@[11:12) Error Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |/|
 resource foo 'ddd'
 //@[18:18) Error Expected the '=' character at this location. ||
 resource foo 'ddd'=
@@ -17,7 +18,7 @@ resource foo 'ddd'=
 // wrong resource type
 resource foo 'ddd'={
 //@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
-//@[13:18) Error The resource type is not valid. Specify a valid resource type. |'ddd'|
+//@[13:18) Error The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |'ddd'|
 }
 
 // using string interpolation for the resource type
@@ -41,6 +42,15 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[2:6) Error The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties. |name|
 }
 
+// duplicate property at the top level with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
+  name: 'foo'
+//@[2:6) Error The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties. |name|
+  'name': true
+//@[2:8) Error The property 'name' is declared multiple times in this object. Remove or rename the duplicate properties. |'name'|
+}
+
 // duplicate property inside
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
@@ -50,6 +60,18 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[4:7) Error The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
     foo: 'a'
 //@[4:7) Error The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
+  }
+}
+
+// duplicate property inside with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
+  name: 'foo'
+  properties: {
+    foo: 'a'
+//@[4:7) Error The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
+    'foo': 'a'
+//@[4:9) Error The property 'foo' is declared multiple times in this object. Remove or rename the duplicate properties. |'foo'|
   }
 }
 

@@ -103,7 +103,7 @@ param webSiteName string
 param cosmosDb object
 //@[6:14) Parameter cosmosDb. Declaration start char: 0, length: 23
 resource site 'Microsoft.Web/sites@2019-08-01' = {
-//@[9:13) Resource site. Declaration start char: 0, length: 689
+//@[9:13) Resource site. Declaration start char: 0, length: 693
   name: webSiteName
   location: location
   properties: {
@@ -126,6 +126,21 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
           name: 'CosmosDb:ContainerName'
           value: cosmosDb.containerName
         }
+      ]
+    }
+  }
+}
+
+resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
+//@[9:15) Resource nested. Declaration start char: 0, length: 354
+  name: 'nestedTemplate1'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      // string key value
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: [
       ]
     }
   }

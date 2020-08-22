@@ -31,6 +31,13 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: true
 }
 
+// duplicate property at the top level with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[9:12) Resource foo. Declaration start char: 0, length: 91
+  name: 'foo'
+  'name': true
+}
+
 // duplicate property inside
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) Resource foo. Declaration start char: 0, length: 125
@@ -38,6 +45,16 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   properties: {
     foo: 'a'
     foo: 'a'
+  }
+}
+
+// duplicate property inside with string literal syntax
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[9:12) Resource foo. Declaration start char: 0, length: 127
+  name: 'foo'
+  properties: {
+    foo: 'a'
+    'foo': 'a'
   }
 }
 

@@ -1,0 +1,97 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string",
+      "defaultValue": "site001"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "acrName": {
+      "type": "string",
+      "defaultValue": "myAcr"
+    },
+    "dockerUsername": {
+      "type": "string",
+      "defaultValue": "adminUser"
+    },
+    "dockerImageAndTag": {
+      "type": "string",
+      "defaultValue": "app/frontend:latest"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "containerRegistryId": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
+    "acrApiVersion": "2019-05-01",
+    "websiteName": "[format('{0}-site', parameters('name'))]",
+    "farmName": "[format('{0}-farm', parameters('name'))]"
+  },
+  "resources": [
+    {
+      "type": "microsoft.web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[variables('websiteName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "name": "[variables('websiteName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[format('https://{0}.azurecr.io', parameters('acrName'))]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+              "value": "[parameters('dockerUsername')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+              "value": "[listCredentials(variables('containerRegistryId'), variables('acrApiVersion')).passwords[0].value]"
+            },
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            }
+          ],
+          "linuxFxVersion": "[format('DOCKER|{0}.azurecr.io/{1}', parameters('acrName'), parameters('dockerImageAndTag'))]"
+        },
+        "serverFarmId": "[resourceId('microsoft.web/serverFarms', variables('farmName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.web/serverFarms', variables('farmName'))]"
+      ]
+    },
+    {
+      "type": "microsoft.web/serverFarms",
+      "apiVersion": "2018-11-01",
+      "name": "[variables('farmName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "B1",
+        "tier": "Basic"
+      },
+      "kind": "linux",
+      "properties": {
+        "name": "[variables('farmName')]",
+        "workerSize": "0",
+        "workerSizeId": "0",
+        "numberOfWorkers": "1",
+        "reserved": true
+      }
+    }
+  ],
+  "outputs": {
+    "publicUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('microsoft.web/sites', variables('websiteName'))).defaultHostName]"
+    },
+    "ftpUser": {
+      "type": "string",
+      "value": "[reference(resourceId('microsoft.web/sites', variables('websiteName'))).ftpUsername]"
+    }
+  }
+}

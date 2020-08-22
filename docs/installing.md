@@ -1,7 +1,7 @@
 # Setup your bicep development environment
 
 To get the best bicep authoring experience, you will need two components:
-  
+
 * Bicep CLI (required) - Compiles bicep files into ARM templates. Cross-platform.
 * Bicep VS Code Extension - Authoring support, intellisense, validation. Optional, but recommended.
 
@@ -52,17 +52,27 @@ bicep --help
 ## Install the Bicep VS Code extension
 
 ### Manually
-* Download the [latest version of the extension](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix). **Note**: You cannot install the vscode-bicep.vsix file by double-clicking it.
-* Open VSCode, and in the Extensions tab, select the options (...) menu in the top right corner and select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.	
+* Download the [latest version of the extension](https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix). **NOTE**: You cannot install the vscode-bicep.vsix file by double-clicking it.
+* Open VSCode, and in the Extensions tab, select the options (...) menu in the top right corner and select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
 
+### Via command line (Linux / macOS)
+```sh
+# Fetch the latest Bicep VSCode extension
+curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix
+# Install the extension
+code --install-extension vscode-bicep.vsix
+# Clean up the file
+rm vscode-bicep.vsix
+```
 
-
-### Via command line	
-```sh	
-# Fetch the latest Bicep VSCode extension	
-curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix	
-# Install the extension	
-code --install-extension vscode-bicep.vsix	
+### Via command line (Windows PowerShell)
+```powershell
+# Fetch the latest Bicep VSCode extension
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix", "vscode-bicep.vsix")
+# Install the extension
+code --install-extension "vscode-bicep.vsix"
+# Clean up the file
+Remove-Item "vscode-bicep.vsix"
 ```
 
 ### Verify the Bicep VS Code extension is running

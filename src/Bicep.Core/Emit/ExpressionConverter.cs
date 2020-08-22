@@ -123,7 +123,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
 
-            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.Identifier.IdentifierName, "name"));
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.GetKeyText(), "name"));
             if (namePropertySyntax == null)
             {
                 // this condition should have already been validated by the type checker
