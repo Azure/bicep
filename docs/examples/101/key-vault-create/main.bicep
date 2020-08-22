@@ -67,9 +67,6 @@ param networkAcls object = {
 resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {    
     name: name       
     location: location 
-    tags: {
-
-    }
     properties:{
         tenantId: tenant
         sku: {

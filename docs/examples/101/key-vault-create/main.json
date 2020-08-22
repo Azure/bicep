@@ -108,7 +108,6 @@
       "apiVersion": "2019-09-01",
       "name": "[parameters('name')]",
       "location": "[parameters('location')]",
-      "tags": {},
       "properties": {
         "tenantId": "[parameters('tenant')]",
         "sku": {
