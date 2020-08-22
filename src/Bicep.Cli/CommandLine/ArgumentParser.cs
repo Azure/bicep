@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Bicep.Cli.CommandLine.Arguments;
 
 namespace Bicep.Cli.CommandLine
@@ -40,17 +39,15 @@ namespace Bicep.Cli.CommandLine
             return $"{versionSplit[0]} ({versionSplit[1]})";
         }
 
-        public static void PrintVersion()
+        public static void PrintVersion(TextWriter writer)
         {
-            var output =
-$@"Bicep CLI version {GetVersionString()}
-"; //newline is intentional
+            var output = $@"Bicep CLI version {GetVersionString()}{Environment.NewLine}";
 
-            Console.Out.Write(output);
-            Console.Out.Flush();
+            writer.Write(output);
+            writer.Flush();
         }
 
-        public static void PrintUsage()
+        public static void PrintUsage(TextWriter writer)
         {
             var exeName = GetExeName();
             var output = 
@@ -72,8 +69,8 @@ Usage:
       --help       Shows this usage information
 "; // this newline is intentional
 
-            Console.Out.Write(output);
-            Console.Out.Flush();
+            writer.Write(output);
+            writer.Flush();
         }
 
         private static BuildArguments ParseBuild(string[] files)
