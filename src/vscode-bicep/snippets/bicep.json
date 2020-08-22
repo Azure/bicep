@@ -73,7 +73,6 @@
             "  allowedValues: [",
             "    $4",
             "  ]",
-            "  $0",
             "}"
         ],
         "description": "Parameter with default and allowed values"
@@ -86,6 +85,15 @@
             "}"
         ],
         "description": "Parameter with options"
+    },
+    "ParameterSecureString": {
+        "prefix": "param",
+        "body": [
+            "param ${1:Identifier} string {",
+            "  secure: true",
+            "}"
+        ],
+        "description": "Secure string parameter"
     },
     "Output": {
         "prefix": "output",

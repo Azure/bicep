@@ -91,11 +91,15 @@ namespace Bicep.Core.Samples
             ),
             ["ParameterWithDefaultAndAllowedValues"] = new SnippetValidation(
                 "param",
-                body => ValidateSnippet(body, "myParam", "string", "'myDefault'", "'val1'\n'val2'", "secure: true")
+                body => ValidateSnippet(body, "myParam", "string", "'myDefault'", "'val1'\n'val2'")
             ),
             ["ParameterWithOptions"] = new SnippetValidation(
                 "param",
                 body => ValidateSnippet(body, "myParam", "string", "default: 'myDefault'\nsecure: true")
+            ),
+            ["ParameterSecureString"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam")
             ),
             ["Output"] = new SnippetValidation(
                 "output",
