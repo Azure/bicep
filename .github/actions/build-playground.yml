@@ -1,0 +1,31 @@
+inputs:
+outputs:
+  dist-path: 
+    description: 'Path to the dist folder'
+    value: ./src/playground/dist
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2.1.1
+      with:
+        node-version: 10.x
+    
+    - name: npm ci
+      run: npm ci
+      working-directory: ./src/playground
+
+    - name: Build
+      run: npm run package
+      working-directory: ./src/playground

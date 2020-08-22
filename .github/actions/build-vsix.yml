@@ -1,0 +1,35 @@
+inputs:
+outputs:
+  vsix-path: 
+    description: 'Path to the vsix'
+    value: ./src/vscode-bicep/vscode-bicep.vsix
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2.1.1
+      with:
+        node-version: 10.x
+
+    - name: Install NPM Packages
+      run: npm ci
+      working-directory: ./src/vscode-bicep
+
+    - name: Lint
+      run: npm run lint
+      working-directory: ./src/vscode-bicep
+
+    - name: Package
+      run: npm run package
+      working-directory: ./src/vscode-bicep

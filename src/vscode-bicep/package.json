@@ -69,7 +69,8 @@
         "compile": "tsc -p ./",
         "lint": "eslint src --ext ts",
         "lint:fix": "eslint src --ext ts --fix",
-        "package": "gulp setversion && vsce package --out ./ && gulp resetversion"
+        "build-ls": "dotnet publish --output ./bicepLanguageServer -c Release ../Bicep.LangServer/Bicep.LangServer.csproj",
+        "package": "npm run build-ls && gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },
     "devDependencies": {
         "@types/mocha": "^8.0.3",

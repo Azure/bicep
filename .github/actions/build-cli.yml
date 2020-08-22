@@ -1,0 +1,43 @@
+inputs:
+  configuration:
+    description: 'release / debug'
+    required: true
+
+  rid:
+    description: 'The dotnet target rid'
+    required: true
+
+  exe-suffix:
+    description: 'Suffix for the executable (.exe on windows, blank otherwise)'
+    required: true
+
+outputs:
+  exe-path:
+    description: 'Path to the executable'
+    value: ./src/Bicep.Cli/bin/${{ inputs.configuration }}/netcoreapp3.1/${{ inputs.rid }}/publish/bicep${{ inputs.exe-suffix }}
+
+  publish-path:
+    description: 'Path to the publish folder'
+    value: ./src/Bicep.Cli/bin/${{ inputs.configuration }}/netcoreapp3.1/${{ inputs.rid }}/publish
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    
+    - name: Build
+      run: dotnet build --configuration ${{ inputs.configuration }}
+    
+    - name: Test
+      run: dotnet test --configuration ${{ inputs.configuration }} --collect:"XPlat Code Coverage"
+    
+    - name: Publish
+      run: dotnet publish --configuration ${{ inputs.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ inputs.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj

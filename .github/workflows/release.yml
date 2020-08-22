@@ -1,0 +1,83 @@
+name: Latest release
+on:
+  push:
+    tags:
+      - "latest"
+      - 'v*'
+jobs:
+  create-release:
+    steps:
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: true
+    outputs:
+      upload_url: ${{ steps.create-release.outputs.upload_url }}
+
+  build-bicep:
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # let us get failures from other jobs even if one fails
+      fail-fast: false
+
+      matrix:
+        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
+        include:
+        - os: 'windows-latest'
+          rid: 'win-x64'
+          configuration: 'release'
+          exe-suffix: '.exe'
+        - os: 'ubuntu-latest'
+          rid: 'linux-x64'
+          configuration: 'release'
+          exe-suffix: ''
+        - os: 'macos-latest'
+          rid: 'osx-x64'
+          configuration: 'release'
+          exe-suffix: ''
+
+    steps:
+      - name: Build
+        id: build-cli
+        uses: ./.github/actions/build-cli.yml
+        with:
+          rid: {{ matrix.rid }}
+          configuration: {{ matrix.configuration }}
+          exe-suffix: {{ matrix.exe-suffix }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.build-cli.outputs.exe-path }}
+          asset_name: bicep-${{ matrix.rid }}${{ matrix.exe-suffix }}
+          asset_content_type: application/octet-stream
+
+  build-vsix:
+    needs: create-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build
+        id: build-vsix
+        uses: ./.github/actions/build-vsix.yml
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ steps.build-vsix.outputs.vsix-path }}
+          asset_name: vscode-bicep.vsix
+          asset_content_type: application/octet-stream
