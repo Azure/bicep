@@ -76,17 +76,16 @@ param wrongType fluffyBunny = 'what\'s ${'up
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|
 //@[16:27) Error The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string. |fluffyBunny|
-//@[46:46) Error The string at this location is malformed. ||
+//@[46:46) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 //@[46:46) Error The string at this location is not terminated due to an unexpected new line character. ||
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|
 //@[16:27) Error The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string. |fluffyBunny|
-//@[46:46) Error The string at this location is malformed. ||
+//@[46:46) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 //@[46:46) Error The string at this location is not terminated due to an unexpected new line character. ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|
 //@[16:27) Error The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string. |fluffyBunny|
-//@[49:49) Error The string at this location is malformed. ||
 //@[49:49) Error The string at this location is not terminated due to an unexpected new line character. ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|
@@ -109,6 +108,10 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[34:38) Error Expected a new line character at this location. |this|
 //@[53:54) Error The string at this location is not terminated due to an unexpected new line character. |'|
 //@[54:54) Error The string at this location is not terminated due to an unexpected new line character. ||
+
+// bad interpolated string format
+param badInterpolatedString string = 'hello ${}!'
+//@[46:49) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |}!'|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|

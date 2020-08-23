@@ -73,33 +73,32 @@ namespace Bicep.Core.Parser
         public ImmutableArray<Diagnostic> GetDiagnostics() => diagnostics.ToImmutableArray();
 
         /// <summary>
-        /// Converts a set of string literal tokens into their raw values. May return null if any of the tokens are of the wrong type or malformed.
+        /// Converts a set of string literal tokens into their raw values. Returns null if any of the tokens are of the wrong type or malformed.
         /// </summary>
         /// <param name="stringTokens">the string tokens</param>
         public static IEnumerable<string>? TryGetRawStringSegments(IReadOnlyList<Token> stringTokens)
         {
-            try
-            {
-                var segments = new string[stringTokens.Count];
+            var segments = new string[stringTokens.Count];
 
-                for (var i = 0; i < stringTokens.Count; i++)
+            for (var i = 0; i < stringTokens.Count; i++)
+            {
+                var nextSegment = Lexer.TryGetStringValue(stringTokens[i]);
+                if (nextSegment == null)
                 {
-                    segments[i] = Lexer.GetStringValue(stringTokens[i]);
+                    return null;
                 }
 
-                return segments;
+                segments[i] = nextSegment;
             }
-            catch (ArgumentException)
-            {
-                return null;
-            }
+
+            return segments;
         }
 
         /// <summary>
-        /// Converts string literal text into its value. May throw if the specified string token is malformed due to lexer error recovery.
+        /// Converts string literal text into its value. Returns null if the specified string token is malformed due to lexer error recovery.
         /// </summary>
         /// <param name="stringToken">the string token</param>
-        public static string GetStringValue(Token stringToken)
+        public static string? TryGetStringValue(Token stringToken)
         {
             // This method should only be called once we've verified there are no lexer errors.
             // In an error scenario, the lexer can produce string tokens for unterminated strings,
@@ -110,15 +109,20 @@ namespace Bicep.Core.Parser
                 TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
                 TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
                 TokenType.StringRightPiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringDelimiter),
-                _ => throw new ArgumentException($"Unexpected token of type {stringToken.Type}."),
+                _ => (null, null),
             };
+
+            if (start == null || end == null)
+            {
+                return null;
+            }
 
             if (stringToken.Text.Length < start.Length + end.Length ||
                 stringToken.Text.Substring(0, start.Length) != start ||
                 stringToken.Text.Substring(stringToken.Text.Length - end.Length) != end)
             {
                 // any lexer-generated token should not hit this problem as the start & end are already verified
-                throw new ArgumentException($"Unexpected start or end sequence for token of type {stringToken.Type}. Text = {stringToken.Text}");
+                return null;
             }
 
             var contents = stringToken.Text.Substring(start.Length, stringToken.Text.Length - start.Length - end.Length);
@@ -133,7 +137,7 @@ namespace Bicep.Core.Parser
 
                 if (nextChar == '\'')
                 {
-                    throw new ArgumentException($"Unexpected unescaped single quote. Text = {stringToken.Text}");
+                    return null;
                 }
 
                 if (nextChar == '\\')
@@ -141,7 +145,7 @@ namespace Bicep.Core.Parser
                     // escape sequence begins
                     if (window.IsAtEnd())
                     {
-                        throw new ArgumentException($"Unexpected escape character at end of string. Text = {stringToken.Text}");
+                        return null;
                     }
 
                     char escapeChar = window.Next();
@@ -149,7 +153,7 @@ namespace Bicep.Core.Parser
                     if (CharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
                     {
                         // invalid escape character
-                        throw new ArgumentException($"String token contains an invalid escape character. Text = {stringToken.Text}");
+                        return null;
                     }
 
                     buffer.Append(escapeCharValue);

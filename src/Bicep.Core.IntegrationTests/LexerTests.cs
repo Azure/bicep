@@ -86,8 +86,7 @@ namespace Bicep.Core.IntegrationTests
 
             foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.StringComplete))
             {
-                Action getStringValue = () => Lexer.GetStringValue(stringToken);
-                getStringValue.Should().NotThrow($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
+                Lexer.TryGetStringValue(stringToken).Should().NotBeNull($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
             }
         }
 

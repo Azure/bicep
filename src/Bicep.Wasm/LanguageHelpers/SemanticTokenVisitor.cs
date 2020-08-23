@@ -56,13 +56,11 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
         {
-            AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
             base.VisitBinaryOperationSyntax(syntax);
         }
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
-            AddTokenType(syntax.Literal, SemanticTokenType.Number);
             base.VisitBooleanLiteralSyntax(syntax);
         }
 
@@ -89,13 +87,11 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
-            AddTokenType(syntax.NullKeyword, SemanticTokenType.Number);
             base.VisitNullLiteralSyntax(syntax);
         }
 
         public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
         {
-            AddTokenType(syntax.Literal, SemanticTokenType.Number);
             base.VisitNumericLiteralSyntax(syntax);
         }
 
@@ -148,7 +144,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            AddTokenType(syntax.PropertyName, SemanticTokenType.Member);
+            AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
         }
 
@@ -159,9 +155,9 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitResourceDeclarationSyntax(syntax);
         }
 
-        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            base.VisitSkippedTokensTriviaSyntax(syntax);
+            base.VisitSkippedTriviaSyntax(syntax);
         }
 
         private void AddStringToken(Token token)
@@ -201,22 +197,36 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitStringSyntax(StringSyntax syntax)
         {
-            foreach (var token in syntax.StringTokens)
-            {
-                AddStringToken(token);
-            }
             base.VisitStringSyntax(syntax);
         }
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
-            AddTokenType(syntax.Colon, SemanticTokenType.Operator);
-            AddTokenType(syntax.Question, SemanticTokenType.Operator);
             base.VisitTernaryOperationSyntax(syntax);
         }
 
         protected override void VisitTokenInternal(Token token)
         {
+            switch (token.Type)
+            {
+                case TokenType.StringComplete:
+                case TokenType.StringLeftPiece:
+                case TokenType.StringMiddlePiece:
+                case TokenType.StringRightPiece:
+                    AddStringToken(token);
+                    break;
+                case TokenType.TrueKeyword:
+                case TokenType.FalseKeyword:
+                case TokenType.NullKeyword:
+                    AddTokenType(token, SemanticTokenType.Keyword);
+                    break;
+                case TokenType.Number:
+                    AddTokenType(token, SemanticTokenType.Number);
+                    break;
+                default:
+                    break;
+            }
+
             base.VisitTokenInternal(token);
         }
 
@@ -239,7 +249,6 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
-            AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
             base.VisitUnaryOperationSyntax(syntax);
         }
 

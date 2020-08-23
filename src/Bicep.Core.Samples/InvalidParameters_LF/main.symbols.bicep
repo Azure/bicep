@@ -74,6 +74,10 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 56
 
+// bad interpolated string format
+param badInterpolatedString string = 'hello ${}!'
+//@[6:27) Parameter badInterpolatedString. Declaration start char: 0, length: 51
+
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 49
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
@@ -139,9 +140,26 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.NullKeyword);
         }
 
-        public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public virtual void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            this.VisitTokens(syntax.Tokens);
+            var items = syntax.Tokens
+                .Concat<IPositionable>(syntax.Syntax)
+                .OrderBy(p => p.Span.Position);
+
+            foreach (var item in items)
+            {
+                switch (item)
+                {
+                    case Token itemToken:
+                        this.VisitToken(itemToken);
+                        break;
+                    case SyntaxBase itemSyntax:
+                        this.Visit(itemSyntax);
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid item type");
+                }
+            }
         }
 
         public virtual void VisitObjectSyntax(ObjectSyntax syntax)

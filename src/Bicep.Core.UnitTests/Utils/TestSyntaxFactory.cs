@@ -21,8 +21,9 @@ namespace Bicep.Core.UnitTests.Utils
         public static StringSyntax CreateString(string value)
         {
             var token = CreateToken(TokenType.StringComplete, $"'{value}'");
+            var segment = Lexer.TryGetStringValue(token) ?? throw new ArgumentException($"Unable to parse {value}");
 
-            return new StringSyntax(new [] { token }, Enumerable.Empty<SyntaxBase>(), new [] { Lexer.GetStringValue(token) });
+            return new StringSyntax(new [] { token }, Enumerable.Empty<SyntaxBase>(), new [] { segment });
         }
 
         public static NumericLiteralSyntax CreateInt(int value) => new NumericLiteralSyntax(CreateToken(TokenType.Number), value);
