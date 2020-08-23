@@ -12,6 +12,16 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 
+// verify correct bracket escaping
+var bracketInTheMiddle = 'a[b]'
+var bracketAtBeginning = '[test'
+var enclosingBrackets = '[test]'
+var emptyJsonArray = '[]'
+var interpolatedBrackets = '[${myInt}]'
+var nestedBrackets = '[test[]test2]'
+var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
+var bracketStringInExpression = concat('[', '\'test\'',']')
+
 // booleans
 var myTruth = true
 var myFalsehood = false

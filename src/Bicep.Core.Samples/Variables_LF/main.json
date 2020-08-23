@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {},
@@ -13,6 +13,14 @@
     "interp4": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
     "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, json('true'))]",
+    "bracketInTheMiddle": "a[b]",
+    "bracketAtBeginning": "[[test",
+    "enclosingBrackets": "[[test]",
+    "emptyJsonArray": "[[]",
+    "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
+    "nestedBrackets": "[[test[]test2]",
+    "nestedInterpolatedBrackets": "[format('[{0}]', variables('emptyJsonArray'))]",
+    "bracketStringInExpression": "[concat('[', '''test''', ']')]",
     "myTruth": true,
     "myFalsehood": false,
     "myObj": {
