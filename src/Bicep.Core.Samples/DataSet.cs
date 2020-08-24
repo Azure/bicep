@@ -14,6 +14,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
+        public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainCompiled = "main.json";
 
         private static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
@@ -26,6 +27,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string>? lazyCompiled;
 
+        private readonly Lazy<string> lazySyntax;
+
         private readonly Lazy<string> lazySymbols;
 
         public DataSet(string name)
@@ -37,6 +40,7 @@ namespace Bicep.Core.Samples
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
+            this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
         }
 
         public string Name { get; }
@@ -52,6 +56,8 @@ namespace Bicep.Core.Samples
         public string? Compiled => this.lazyCompiled?.Value;
 
         public string Symbols => this.lazySymbols.Value;
+
+        public string Syntax => this.lazySyntax.Value;
 
         // validity is set by naming convention
 

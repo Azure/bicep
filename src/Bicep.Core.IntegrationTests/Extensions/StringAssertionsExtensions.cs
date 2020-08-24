@@ -42,6 +42,12 @@ Found diffs between actual and expected:
 View this diff with:
 
 git diff --color-words --no-index {1} {2}
+
+Windows copy command:
+copy /y {1} {2}
+
+Unix copy command:
+cp {1} {2}
 ", string.Join('\n', lineLogs), targetLocation, sourceLocation);
 
             return new AndConstraint<StringAssertions>(instance);

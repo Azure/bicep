@@ -506,11 +506,18 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Array()
         {
-            var items = new List<SyntaxBase>();
-            
             var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+
+            if (Check(TokenType.RightSquare))
+            {
+                // allow a close on the same line for an empty array
+                var emptyCloseBracket = reader.Read();
+                return new ArraySyntax(openBracket, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBracket);
+            }
+
             var newLines = this.NewLines();
 
+            var items = new List<SyntaxBase>();
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
             {
                 var item = this.ArrayItem();
@@ -535,11 +542,18 @@ namespace Bicep.Core.Parser
 
         private ObjectSyntax Object()
         {
-            var properties = new List<SyntaxBase>();
-
             var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
+
+            if (Check(TokenType.RightBrace))
+            {
+                // allow a close on the same line for an empty object
+                var emptyCloseBrace = reader.Read();
+                return new ObjectSyntax(openBrace, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBrace);
+            }
+
             var newLines = this.NewLines();
 
+            var properties = new List<SyntaxBase>();
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightBrace)
             {
                 var property = this.ObjectProperty();

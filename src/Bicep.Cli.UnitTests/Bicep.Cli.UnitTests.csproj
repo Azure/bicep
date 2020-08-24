@@ -20,5 +20,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
   </ItemGroup>
-
 </Project>

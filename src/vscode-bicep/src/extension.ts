@@ -2,134 +2,24 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-import * as path from "path";
-import { existsSync } from "fs";
+import * as vscode from "vscode";
+import { isError } from "util";
 
-import { acquireSharedDotnetInstallation } from "./acquisition/acquireSharedDotnetInstallation";
-import {
-  downloadDotnetVersion,
-  bicepOutputLanguageServer,
-  bicepOutputExtension,
-  languageServerFolderName,
-  languageServerName,
-  languageServerDllName,
-  languageServerPath,
-  defaultTraceLevel,
-  workspaceSettings,
-} from "./common/constants";
-import { workspace, ExtensionContext, window } from "vscode";
-import {
-  LanguageClient,
-  LanguageClientOptions,
-  ServerOptions,
-} from "vscode-languageclient/node";
-import { Trace } from "vscode-jsonrpc";
+import { createLogger, getLogger } from "./uitls/logger";
+import { launchLanugageServiceWithProgressReport } from "./language/client";
 
-export async function activate(context: ExtensionContext): Promise<void> {
-  // The server is implemented in .net core
-
-  // Create output channel to show extension debug information
-  // NOTE(jcotillo) debug info should go to a file as telemetry info
-  const info = window.createOutputChannel(bicepOutputExtension);
+export async function activate(
+  context: vscode.ExtensionContext
+): Promise<void> {
+  createLogger(context);
 
   try {
-    const dotNetRuntimePath = await getDotNetRuntimePath();
-
-    if (!dotNetRuntimePath) {
-      throw new Error("Unable to download and install .NET Core.");
-    }
-
-    //Write to output.
-    info.appendLine(`DotNet version installed: '${dotNetRuntimePath}'`);
-    const languageServerPath = getLanguageServerPath(context);
-    //Write to output.
-    info.appendLine(`Bicep language server path: '${languageServerPath}'`);
-    startLanguageServer(context, languageServerPath, dotNetRuntimePath);
+    await launchLanugageServiceWithProgressReport(context);
   } catch (err) {
-    info.appendLine(`Error: ${err}`);
+    getLogger().error(err);
+    vscode.window.showErrorMessage(isError(err) ? err.message : err);
   }
 }
 
-async function getDotNetRuntimePath(): Promise<string | undefined> {
-  return await acquireSharedDotnetInstallation(downloadDotnetVersion);
-}
-
-function getLanguageServerPath(context: ExtensionContext) {
-  const serverFolderPath = context.asAbsolutePath(languageServerFolderName);
-  let fullPath = process.env[languageServerPath];
-  if (!fullPath) {
-    fullPath = path.join(serverFolderPath, languageServerDllName);
-  }
-
-  if (!existsSync(fullPath)) {
-    throw new Error(`Cannot find the ${languageServerName} at ${fullPath}.`);
-  }
-  return fullPath;
-}
-
-function startLanguageServer(
-  context: ExtensionContext,
-  languageServerPath: string,
-  dotNetRuntimePath: string
-) {
-  const trace: string =
-    workspace
-      .getConfiguration(workspaceSettings.prefix)
-      .get<string>(workspaceSettings.traceLevel) ||
-    // tslint:disable-next-line: strict-boolean-expressions
-    defaultTraceLevel;
-
-  const commonArgs = [languageServerPath, "--logLevel", trace];
-
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
-  const serverOptions: ServerOptions = {
-    // run: { command: serverExe, args: ['-lsp', '-d'] },
-    run: {
-      command: dotNetRuntimePath,
-      args: commonArgs,
-    },
-    // debug: { command: serverExe, args: ['-lsp', '-d'] }
-    debug: {
-      command: dotNetRuntimePath,
-      args: commonArgs,
-    },
-  };
-
-  // Options to control the language client
-  const clientOptions: LanguageClientOptions = {
-    // Register the server for plain text documents
-    documentSelector: [
-      {
-        pattern: "**/*.bicep",
-        language: "bicep",
-        scheme: "file",
-      },
-      {
-        language: "bicep",
-        scheme: "untitled",
-      },
-    ],
-    progressOnInitialization: true,
-    synchronize: {
-      // Synchronize the setting section 'bicep' to the server
-      configurationSection: "bicep",
-      fileEvents: workspace.createFileSystemWatcher("**/*.bicep"),
-    },
-  };
-
-  // Create the language client and start the client.
-  const client = new LanguageClient(
-    "bicep",
-    bicepOutputLanguageServer,
-    serverOptions,
-    clientOptions
-  );
-  client.registerProposedFeatures();
-  client.trace = Trace.Off;
-  const disposable = client.start();
-
-  // Push the disposable to the context's subscriptions so that the
-  // client can be deactivated on extension deactivation
-  context.subscriptions.push(disposable);
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function deactivate(): void {}
