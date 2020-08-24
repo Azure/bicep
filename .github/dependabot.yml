@@ -13,6 +13,11 @@ updates:
     directory: "/src/vscode-bicep"
     schedule:
       interval: "daily"
+    ignore:
+      # we're deliberately taking a dependency on an older version of vscode for back-compatibility
+      - dependency-name: "@types/vscode"
+        versions:
+        - ">1.14.0"
   - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
