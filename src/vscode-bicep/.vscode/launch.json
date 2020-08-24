@@ -14,7 +14,10 @@
             "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
-            "preLaunchTask": "npm"
+            "preLaunchTask": "npm",
+            "env": {
+              "LANGUAGE_SEVER_PATH": "../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+            }
         },
         {
             "name": "Launch Tests",
@@ -29,7 +32,10 @@
             "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": ["${workspaceRoot}/out/test/**/*.js"],
-            "preLaunchTask": "npm"
+            "preLaunchTask": "npm",
+            "env": {
+              "LANGUAGE_SEVER_PATH": "../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+            }
         }
     ]
 }
