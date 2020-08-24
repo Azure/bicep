@@ -201,8 +201,8 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[28:29)   Assignment |=|
 //@[30:41)   SkippedTokensTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:42)  NewLine |\n|
 //@[41:41)    StringRightPiece ||
+//@[41:42)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up
 //@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -215,8 +215,8 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[30:43)   SkippedTokensTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:43)    Identifier |up|
-//@[43:44)  NewLine |\n|
 //@[43:43)    StringRightPiece ||
+//@[43:44)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[0:45) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -243,8 +243,8 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[30:44)   SkippedTokensTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:44)    StringComplete |'up|
-//@[44:46)  NewLine |\n\n|
 //@[44:44)    StringRightPiece ||
+//@[44:46)  NewLine |\n\n|
 
 // unterminated nested interpolated string
 //@[42:43) NoOpDeclarationSyntax
@@ -261,8 +261,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[30:46)   SkippedTokensTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:46)    StringLeftPiece |'up${|
-//@[46:47)  NewLine |\n|
 //@[46:46)    StringRightPiece ||
+//@[46:47)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[0:47) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -275,8 +275,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[30:46)   SkippedTokensTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:46)    StringLeftPiece |'up${|
-//@[46:47)  NewLine |\n|
 //@[46:46)    StringRightPiece ||
+//@[46:47)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[0:50) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -290,8 +290,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:46)    StringLeftPiece |'up${|
 //@[46:49)    Identifier |doc|
-//@[49:50)  NewLine |\n|
 //@[49:49)    StringRightPiece ||
+//@[49:50)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[0:51) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -306,8 +306,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[41:46)    StringLeftPiece |'up${|
 //@[46:49)    Identifier |doc|
 //@[49:50)    StringRightPiece |}|
-//@[50:51)  NewLine |\n|
 //@[50:50)    StringRightPiece ||
+//@[50:51)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[0:52) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -322,8 +322,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[41:46)    StringLeftPiece |'up${|
 //@[46:49)    Identifier |doc|
 //@[49:51)    StringRightPiece |}'|
-//@[51:52)  NewLine |\n|
 //@[51:51)    StringRightPiece ||
+//@[51:52)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[0:55) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -364,8 +364,8 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[48:52)    Identifier |work|
 //@[52:53)    RightBrace |}|
 //@[53:54)    StringComplete |'|
-//@[54:56)  NewLine |\n\n|
 //@[54:54)    StringRightPiece ||
+//@[54:56)  NewLine |\n\n|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:49) ParameterDeclarationSyntax
