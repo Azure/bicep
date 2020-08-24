@@ -17,6 +17,7 @@ chmod +x ./bicep
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 bicep --help
+# Done!
 ```
 
 ### macOS
@@ -31,6 +32,7 @@ sudo spctl --add ./bicep
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 bicep --help
+# Done!
 ```
 
 ### Windows
@@ -48,6 +50,7 @@ if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPat
 if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
 # Verify you can now access the 'bicep' command.
 bicep --help
+# Done!
 ```
 
 ## Install the Bicep VS Code extension
@@ -64,16 +67,19 @@ curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/late
 code --install-extension vscode-bicep.vsix
 # Clean up the file
 rm vscode-bicep.vsix
+# Done!
 ```
 
 ### Via command line (Windows PowerShell)
 ```powershell
 # Fetch the latest Bicep VSCode extension
-(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix", "vscode-bicep.vsix")
+$vsixPath = "$env:TEMP\vscode-bicep.vsix"
+(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/download/latest/vscode-bicep.vsix", $vsixPath)
 # Install the extension
-code --install-extension "vscode-bicep.vsix"
+code --install-extension $vsixPath
 # Clean up the file
-Remove-Item "vscode-bicep.vsix"
+Remove-Item $vsixPath
+# Done!
 ```
 
 ### Verify the Bicep VS Code extension is running
