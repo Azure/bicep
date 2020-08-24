@@ -87,7 +87,9 @@
         "vsce": "^1.78.0"
     },
     "dependencies": {
-        "vscode-languageclient": "^7.0.0-next.8"
+        "vscode-languageclient": "^7.0.0-next.8",
+        "winston": "^3.3.3",
+        "winston-transport": "^4.4.0"
     },
     "extensionDependencies": [
         "ms-dotnettools.vscode-dotnet-runtime"
