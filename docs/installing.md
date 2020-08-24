@@ -17,6 +17,7 @@ chmod +x ./bicep
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 bicep --help
+# Done!
   
 ```
 
@@ -32,6 +33,7 @@ sudo spctl --add ./bicep
 sudo mv ./bicep /usr/local/bin/bicep
 # Verify you can now access the 'bicep' command
 bicep --help
+# Done!
   
 ```
 
@@ -50,6 +52,7 @@ if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPat
 if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
 # Verify you can now access the 'bicep' command.
 bicep --help
+# Done!
   
 ```
 
@@ -67,6 +70,7 @@ curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/download/late
 code --install-extension vscode-bicep.vsix
 # Clean up the file
 rm vscode-bicep.vsix
+# Done!
   
 ```
 
@@ -79,6 +83,7 @@ $vsixPath = "$env:TEMP\vscode-bicep.vsix"
 code --install-extension $vsixPath
 # Clean up the file
 Remove-Item $vsixPath
+# Done!
   
 ```
 
