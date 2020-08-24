@@ -17,8 +17,6 @@ var bad = (null) ? !
 var bad = (null)!
 var bad = (null)[0]
 var bad = ()
-var bad = {}
-var bad = []
 var bad = 
 
 // variables not supported

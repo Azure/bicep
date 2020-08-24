@@ -139,22 +139,6 @@ var bad = ()
 //@[10:11)  LeftParen |(|
 //@[11:12)  RightParen |)|
 //@[12:13)  NewLine |\n|
-var bad = {}
-//@[0:13) SkippedTokensTriviaSyntax
-//@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
-//@[8:9)  Assignment |=|
-//@[10:11)  LeftBrace |{|
-//@[11:12)  RightBrace |}|
-//@[12:13)  NewLine |\n|
-var bad = []
-//@[0:13) SkippedTokensTriviaSyntax
-//@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
-//@[8:9)  Assignment |=|
-//@[10:11)  LeftSquare |[|
-//@[11:12)  RightSquare |]|
-//@[12:13)  NewLine |\n|
 var bad = 
 //@[0:12) SkippedTokensTriviaSyntax
 //@[0:3)  Identifier |var|

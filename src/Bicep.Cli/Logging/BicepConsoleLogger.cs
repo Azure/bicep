@@ -26,7 +26,7 @@ namespace Bicep.Cli.Logging
             }
             else
             {
-                LogMessage(logLevel, message);
+                this.LogMessage(logLevel, message);
             }
         }
 
@@ -43,21 +43,14 @@ namespace Bicep.Cli.Logging
             ConsoleColor saved = Console.ForegroundColor;
             Console.ForegroundColor = color;
 
-            LogMessage(logLevel, message);
+            this.LogMessage(logLevel, message);
 
             Console.ForegroundColor = saved;
         }
 
-        private static void LogMessage(LogLevel logLevel, string message)
+        private void LogMessage(LogLevel logLevel, string message)
         {
-            var writer = logLevel switch
-            {
-                LogLevel.Error => Console.Error,
-                LogLevel.Critical => Console.Error,
-                _ => Console.Out
-            };
-
-            writer.WriteLine(message);
+            this.options.Writer.WriteLine(message);
         }
 
         public bool IsEnabled(LogLevel logLevel)

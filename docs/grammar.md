@@ -86,10 +86,10 @@ literalString -> "'" STRINGCHAR* "'"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 
-object -> "{" NL+ ( objectProperty NL+ )* "}" 
+object -> "{" ( NL+ ( objectProperty NL+ )* )? "}"
 objectProperty -> ( IDENTIFIER(name) | literalString ) ":" expression 
 
-array -> "[" NL+ arrayItem* "]"
+array -> "[" ( NL+ arrayItem* )? "]"
 arrayItem -> expression NL+
 
 ```
