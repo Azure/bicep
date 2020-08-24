@@ -133,9 +133,6 @@ resource nInter 'Microsoft.Network/networkInterfaces@2018-11-01' = {
 resource VM 'Microsoft.Compute/virtualMachines@2018-10-01' = {
   name: vmName
   location: location
-  tags: {
-    dependsOn: stg.id
-  }
   properties: {
     hardwareProfile: {
         vmSize: vmSize
@@ -173,10 +170,10 @@ resource VM 'Microsoft.Compute/virtualMachines@2018-10-01' = {
       diagnosticsProfile: {
         bootDiagnostics: {
           enabled: true
-          storageUri: reference(stg.id).primaryEndpoints.blob
+          storageUri: stg.id.primaryEndpoints.blob
         }
       }
   }
 }
 
-output hostname string = reference(publicIPAddressName).dnsSettings.fqdn
+output hostname string = pip.properties.dnsSettings.fqdn

@@ -158,9 +158,6 @@
       "apiVersion": "2018-10-01",
       "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
-      "tags": {
-        "dependsOn": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-      },
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -198,7 +195,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob]"
+            "storageUri": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')).primaryEndpoints.blob]"
           }
         }
       },
@@ -211,7 +208,7 @@
   "outputs": {
     "hostname": {
       "type": "string",
-      "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))).dnsSettings.fqdn]"
     }
   }
 }
