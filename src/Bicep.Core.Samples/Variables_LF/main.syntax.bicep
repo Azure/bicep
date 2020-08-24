@@ -129,6 +129,104 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[39:42)   StringRightPiece |}}'|
 //@[42:44)  NewLine |\n\n|
 
+// verify correct bracket escaping
+//@[34:35) NoOpDeclarationSyntax
+//@[34:35)  NewLine |\n|
+var bracketInTheMiddle = 'a[b]'
+//@[0:32) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |bracketInTheMiddle|
+//@[23:24)  Assignment |=|
+//@[25:31)  StringSyntax
+//@[25:31)   StringComplete |'a[b]'|
+//@[31:32)  NewLine |\n|
+var bracketAtBeginning = '[test'
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |bracketAtBeginning|
+//@[23:24)  Assignment |=|
+//@[25:32)  StringSyntax
+//@[25:32)   StringComplete |'[test'|
+//@[32:33)  NewLine |\n|
+var enclosingBrackets = '[test]'
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |enclosingBrackets|
+//@[22:23)  Assignment |=|
+//@[24:32)  StringSyntax
+//@[24:32)   StringComplete |'[test]'|
+//@[32:33)  NewLine |\n|
+var emptyJsonArray = '[]'
+//@[0:26) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |emptyJsonArray|
+//@[19:20)  Assignment |=|
+//@[21:25)  StringSyntax
+//@[21:25)   StringComplete |'[]'|
+//@[25:26)  NewLine |\n|
+var interpolatedBrackets = '[${myInt}]'
+//@[0:40) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |interpolatedBrackets|
+//@[25:26)  Assignment |=|
+//@[27:39)  StringSyntax
+//@[27:31)   StringLeftPiece |'[${|
+//@[31:36)   VariableAccessSyntax
+//@[31:36)    IdentifierSyntax
+//@[31:36)     Identifier |myInt|
+//@[36:39)   StringRightPiece |}]'|
+//@[39:40)  NewLine |\n|
+var nestedBrackets = '[test[]test2]'
+//@[0:37) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |nestedBrackets|
+//@[19:20)  Assignment |=|
+//@[21:36)  StringSyntax
+//@[21:36)   StringComplete |'[test[]test2]'|
+//@[36:37)  NewLine |\n|
+var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |nestedInterpolatedBrackets|
+//@[31:32)  Assignment |=|
+//@[33:54)  StringSyntax
+//@[33:37)   StringLeftPiece |'[${|
+//@[37:51)   VariableAccessSyntax
+//@[37:51)    IdentifierSyntax
+//@[37:51)     Identifier |emptyJsonArray|
+//@[51:54)   StringRightPiece |}]'|
+//@[54:55)  NewLine |\n|
+var bracketStringInExpression = concat('[', '\'test\'',']')
+//@[0:61) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:29)  IdentifierSyntax
+//@[4:29)   Identifier |bracketStringInExpression|
+//@[30:31)  Assignment |=|
+//@[32:59)  FunctionCallSyntax
+//@[32:38)   IdentifierSyntax
+//@[32:38)    Identifier |concat|
+//@[38:39)   LeftParen |(|
+//@[39:43)   FunctionArgumentSyntax
+//@[39:42)    StringSyntax
+//@[39:42)     StringComplete |'['|
+//@[42:43)    Comma |,|
+//@[44:55)   FunctionArgumentSyntax
+//@[44:54)    StringSyntax
+//@[44:54)     StringComplete |'\'test\''|
+//@[54:55)    Comma |,|
+//@[55:58)   FunctionArgumentSyntax
+//@[55:58)    StringSyntax
+//@[55:58)     StringComplete |']'|
+//@[58:59)   RightParen |)|
+//@[59:61)  NewLine |\n\n|
+
 // booleans
 //@[11:12) NoOpDeclarationSyntax
 //@[11:12)  NewLine |\n|
