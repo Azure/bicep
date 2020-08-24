@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -67,5 +68,8 @@ namespace Bicep.Core.IntegrationTests
 
             return EscapeWhitespace(spanText);
         }
+
+        public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
+            => Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, fileName);
     }
 }

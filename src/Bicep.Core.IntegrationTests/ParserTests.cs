@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Syntax,
-                sourceLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainSyntax),
+                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
                 targetLocation: resultsFile);
         }
 
