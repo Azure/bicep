@@ -21,6 +21,24 @@ var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 //@[4:19) Variable curliesInInterp. Declaration start char: 0, length: 44
 
+// verify correct bracket escaping
+var bracketInTheMiddle = 'a[b]'
+//@[4:22) Variable bracketInTheMiddle. Declaration start char: 0, length: 32
+var bracketAtBeginning = '[test'
+//@[4:22) Variable bracketAtBeginning. Declaration start char: 0, length: 33
+var enclosingBrackets = '[test]'
+//@[4:21) Variable enclosingBrackets. Declaration start char: 0, length: 33
+var emptyJsonArray = '[]'
+//@[4:18) Variable emptyJsonArray. Declaration start char: 0, length: 26
+var interpolatedBrackets = '[${myInt}]'
+//@[4:24) Variable interpolatedBrackets. Declaration start char: 0, length: 40
+var nestedBrackets = '[test[]test2]'
+//@[4:18) Variable nestedBrackets. Declaration start char: 0, length: 37
+var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
+//@[4:30) Variable nestedInterpolatedBrackets. Declaration start char: 0, length: 55
+var bracketStringInExpression = concat('[', '\'test\'',']')
+//@[4:29) Variable bracketStringInExpression. Declaration start char: 0, length: 61
+
 // booleans
 var myTruth = true
 //@[4:11) Variable myTruth. Declaration start char: 0, length: 19
