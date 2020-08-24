@@ -18,8 +18,6 @@ var bad = (null)!
 var bad = (null)[0]
 //@[4:7) Variable bad. Declaration start char: 0, length: 20
 var bad = ()
-var bad = {}
-var bad = []
 var bad = 
 
 // variables not supported

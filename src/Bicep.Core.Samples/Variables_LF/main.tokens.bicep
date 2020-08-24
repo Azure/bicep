@@ -101,6 +101,21 @@ var myFalsehood = false
 //@[18:23) FalseKeyword |false|
 //@[23:25) NewLine |\n\n|
 
+var myEmptyObj = { }
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |myEmptyObj|
+//@[15:16) Assignment |=|
+//@[17:18) LeftBrace |{|
+//@[19:20) RightBrace |}|
+//@[20:21) NewLine |\n|
+var myEmptyArray = [ ]
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |myEmptyArray|
+//@[17:18) Assignment |=|
+//@[19:20) LeftSquare |[|
+//@[21:22) RightSquare |]|
+//@[22:24) NewLine |\n\n|
+
 // object
 //@[9:10) NewLine |\n|
 var myObj = {

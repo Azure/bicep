@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
         public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBrace)
         {
             AssertTokenType(openBrace, nameof(openBrace), TokenType.LeftBrace);
-            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
+            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 0);
             AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
             this.OpenBrace = openBrace;
