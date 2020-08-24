@@ -14,7 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "copy-webpack-plugin": "^6.0.3",
-    "css-loader": "^4.2.1",
+    "css-loader": "^4.2.2",
     "file-loader": "^6.0.0",
     "gulp": "^4.0.2",
     "nerdbank-gitversioning": "^3.2.31",
