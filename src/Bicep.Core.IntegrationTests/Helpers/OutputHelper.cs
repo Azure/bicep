@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -31,8 +32,7 @@ namespace Bicep.Core.IntegrationTests
             var newlineSequence = dataSet.HasCrLfNewlines() ? "\r\n" : "\n";
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
-            var orderedItems = items.OrderBy(t => getSpanFunc(t).Position).ThenBy(t => getSpanFunc(t).Length);
-            var itemsByLine = orderedItems
+            var itemsByLine = items
                 .Select(item => {
                     var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, getSpanFunc(item).Position);
                     return (line, character, item);
@@ -67,5 +67,8 @@ namespace Bicep.Core.IntegrationTests
 
             return EscapeWhitespace(spanText);
         }
+
+        public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
+            => Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, fileName);
     }
 }

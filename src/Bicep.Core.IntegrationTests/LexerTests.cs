@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Tokens,
-                sourceLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainTokens),
+                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
                 targetLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
