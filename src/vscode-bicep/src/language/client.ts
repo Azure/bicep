@@ -17,7 +17,7 @@ export async function launchLanugageServiceWithProgressReport(
   await vscode.window.withProgress(
     {
       title: "Launching Bicep language service...",
-      location: vscode.ProgressLocation.Window,
+      location: vscode.ProgressLocation.Notification,
     },
     async () => await launchLanguageService(context)
   );
