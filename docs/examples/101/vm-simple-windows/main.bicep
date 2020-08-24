@@ -170,7 +170,7 @@ resource VM 'Microsoft.Compute/virtualMachines@2018-10-01' = {
       diagnosticsProfile: {
         bootDiagnostics: {
           enabled: true
-          storageUri: stg.id.primaryEndpoints.blob
+          storageUri: stg.properties.primaryEndpoints.blob
         }
       }
   }
