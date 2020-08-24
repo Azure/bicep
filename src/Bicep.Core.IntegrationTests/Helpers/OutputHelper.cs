@@ -31,7 +31,7 @@ namespace Bicep.Core.IntegrationTests
             var newlineSequence = dataSet.HasCrLfNewlines() ? "\r\n" : "\n";
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
-            var orderedItems = items.OrderBy(t => getSpanFunc(t).Position).ThenBy(t => getSpanFunc(t).Length);
+            var orderedItems = items.OrderBy(t => getSpanFunc(t).Position).ThenByDescending(t => getSpanFunc(t).Length);
             var itemsByLine = orderedItems
                 .Select(item => {
                     var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, getSpanFunc(item).Position);

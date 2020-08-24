@@ -172,11 +172,11 @@ param expressionInModifier string {
   default: 2 + 3
 //@[11:16) Error The property 'default' expected a value of type 'string' but the provided value is of type 'int'. |2 + 3|
   maxLength: a + 2
-//@[13:14) Error The name 'a' does not exist in the current context. |a|
 //@[13:18) Error The value must be a compile-time constant. |a + 2|
+//@[13:14) Error The name 'a' does not exist in the current context. |a|
   minLength: foo()
-//@[13:16) Error The name 'foo' does not exist in the current context. |foo|
 //@[13:18) Error The value must be a compile-time constant. |foo()|
+//@[13:16) Error The name 'foo' does not exist in the current context. |foo|
   allowedValues: [
     i
 //@[4:5) Error The name 'i' does not exist in the current context. |i|

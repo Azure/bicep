@@ -136,8 +136,8 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[16:27) Identifier |fluffyBunny|
 //@[28:29) Assignment |=|
 //@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:41) StringRightPiece ||
 //@[41:42) NewLine |\n|
+//@[41:41) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${up
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -145,8 +145,8 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[28:29) Assignment |=|
 //@[30:41) StringLeftPiece |'what\'s ${|
 //@[41:43) Identifier |up|
-//@[43:43) StringRightPiece ||
 //@[43:44) NewLine |\n|
+//@[43:43) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -163,8 +163,8 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[28:29) Assignment |=|
 //@[30:41) StringLeftPiece |'what\'s ${|
 //@[41:44) StringComplete |'up|
-//@[44:44) StringRightPiece ||
 //@[44:46) NewLine |\n\n|
+//@[44:44) StringRightPiece ||
 
 // unterminated nested interpolated string
 //@[42:43) NewLine |\n|
@@ -175,8 +175,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[28:29) Assignment |=|
 //@[30:41) StringLeftPiece |'what\'s ${|
 //@[41:46) StringLeftPiece |'up${|
-//@[46:46) StringRightPiece ||
 //@[46:47) NewLine |\n|
+//@[46:46) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -184,8 +184,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[28:29) Assignment |=|
 //@[30:41) StringLeftPiece |'what\'s ${|
 //@[41:46) StringLeftPiece |'up${|
-//@[46:46) StringRightPiece ||
 //@[46:47) NewLine |\n|
+//@[46:46) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -194,8 +194,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[30:41) StringLeftPiece |'what\'s ${|
 //@[41:46) StringLeftPiece |'up${|
 //@[46:49) Identifier |doc|
-//@[49:49) StringRightPiece ||
 //@[49:50) NewLine |\n|
+//@[49:49) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -205,8 +205,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[41:46) StringLeftPiece |'up${|
 //@[46:49) Identifier |doc|
 //@[49:50) StringRightPiece |}|
-//@[50:50) StringRightPiece ||
 //@[50:51) NewLine |\n|
+//@[50:50) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -216,8 +216,8 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[41:46) StringLeftPiece |'up${|
 //@[46:49) Identifier |doc|
 //@[49:51) StringRightPiece |}'|
-//@[51:51) StringRightPiece ||
 //@[51:52) NewLine |\n|
+//@[51:51) StringRightPiece ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|
@@ -247,8 +247,8 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[48:52) Identifier |work|
 //@[52:53) RightBrace |}|
 //@[53:54) StringComplete |'|
-//@[54:54) StringRightPiece ||
 //@[54:56) NewLine |\n\n|
+//@[54:54) StringRightPiece ||
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:5) Identifier |param|
