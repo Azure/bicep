@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayItemSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class ArrayItemSyntax : SyntaxBase, IExpressionSyntax
     {
         public ArrayItemSyntax(SyntaxBase value, IEnumerable<Token> newLines)
         {
@@ -22,5 +22,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayItemSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.Value, this.NewLines.Last());
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

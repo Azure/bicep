@@ -127,7 +127,7 @@ namespace Bicep.Core.Emit
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                EmitPropertyExpression(propertySyntax.Identifier.IdentifierName, propertySyntax.Value);
+                EmitPropertyExpression(propertySyntax.GetKeyText(), propertySyntax.Value);
             }
         }
 

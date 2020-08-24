@@ -4,12 +4,12 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArraySyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class ArraySyntax : SyntaxBase, IExpressionSyntax
     {
         public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBracket)
         {
             AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
-            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
+            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 0);
             AssertTokenType(closeBracket, nameof(closeBracket), TokenType.RightSquare);
 
             this.OpenBracket = openBracket;
@@ -34,5 +34,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.OpenBracket, this.CloseBracket);
 
         public IEnumerable<ArrayItemSyntax> Items => this.Children.OfType<ArrayItemSyntax>();
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.ComplexLiteral;
     }
 }

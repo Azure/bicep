@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
     {
         public FunctionArgumentSyntax(SyntaxBase expression, Token? comma)
         {
-            this.AssertTokenType(comma, nameof(comma), TokenType.Comma);
+            AssertTokenType(comma, nameof(comma), TokenType.Comma);
 
             this.Expression = expression;
             this.Comma = comma;
@@ -22,5 +22,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => this.Comma == null 
             ? this.Expression.Span
             : TextSpan.Between(this.Expression, this.Comma);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

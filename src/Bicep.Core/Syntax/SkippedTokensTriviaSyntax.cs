@@ -14,6 +14,8 @@ namespace Bicep.Core.Syntax
             this.ErrorCause = errorCause;
         }
 
+        public override bool IsSkipped => true;
+
         /// <summary>
         /// The tokens that were skipped.
         /// </summary>
