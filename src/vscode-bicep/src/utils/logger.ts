@@ -73,7 +73,10 @@ class outputChannelTransport extends Transport {
   }
 }
 
-export function createLogger(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): void {
+export function createLogger(
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel
+): void {
   // TODO:
   // - make log level configurable
   // - Default log level should be info
