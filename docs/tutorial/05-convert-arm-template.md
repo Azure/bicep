@@ -59,7 +59,7 @@ Bicep:
 ```
 param name string {
   default: 'myName'
-  allowedValues: [
+  allowed: [
     'myName'
     'myOtherName'
   ]
@@ -191,4 +191,4 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
 
 You can take a look at an entire sample template converted to a bicep file here:
 
-[ARM Template](../examples/101/vnet-two-subnets/main.json) -> [Bicep file](../examples/101/vnet-two-subnets/main.bicep)
+[ARM Template](../complete-bicep-files/05.json) -> [Bicep file](../complete-bicep-files/05.bicep)

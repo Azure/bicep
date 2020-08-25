@@ -1,8 +1,8 @@
-# Using "advanced" expressions
+# Using bicep expressions
 
-In the previous tutorial, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs.
+In the first tutorial, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs. These are all different types of **expressions**.
 
-While the bicep language is still in its infancy, there are some more advanced expressions you can already take advantage of in your files.
+While the bicep language is still in its infancy, there are already some more advanced expressions you can  take advantage of in your bicep files.
 
 ## Using a bicep function
 
@@ -18,17 +18,17 @@ var location = resourceGroup().location
 output makeCapital string = toUpper('all lowercase')
 ```
 
-In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name:
+In our `main.bicep` file, instead of forcing users to guess a unique storage account name, let's get rid of our `name` parameter and use the `uniqueString()` and `resourceGroup()` functions to calculate a unique name. We'll also use the `resourceGroup().location` property instead of hardcoding a default location.
 
 ```
-param location string = 'eastus'
+param location string = resourceGroup().location
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: uniqueString(resourceGroup().id) // generates unique name based on resource group ID
     location: location
-    kind: storageSku
+    kind: 'Storage'
     sku: {
         name: storageSku // assign variable
     }
@@ -42,11 +42,11 @@ output storageId string = stg.id
 The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use the variable `storageAccountName` to store this expression, so that our resource declaration is a bit cleaner: 
 
 ```
-param location string = 'eastus'
+param location string = resourceGroup().location
 param namePrefix string = 'stg'
 
 var storageSku = 'Standard_LRS' // declare variable and assign value
-var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+var storageAccountName = '${namePrefix}${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
@@ -64,15 +64,15 @@ If you compile with `bicep build`, you will notice we are compiling this into th
 
 ## Using the ternary operator
 
-You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storage sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator:
+You can conditionally provide a value for a variable, resource, or output using the [ternary operator](https://en.wikipedia.org/wiki/%3F:), which is the equivalent of the `if()` function in ARM Templates. Instead of using a variable for our storage sku, let's conditionally choose a redundancy setting for our storage account by adding a new parameter `globalRedundancy` and combining it with the ternary operator. As part of that, we can get rid of our `storageSku` variable.
 
 ```
-param location string = 'eastus'
+param location string = resourceGroup().location
 param namePrefix string = 'stg'
 
 param globalRedundancy bool = true // defaults to true, but can be overridden
 
-var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
+var storageAccountName = '${namePrefix}${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
@@ -86,35 +86,8 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 output storageId string = stg.id
 ```
 
-## Referencing the symbolic name of a resource
-
-With the resource's symbolic name, it is much easier to retrieve properties of a resource. Instead of using the `reference()` or `resourceId()` function, you can simply use the identifier and retrieve the relevant property. We've already done this with our output `stg.id`.
-
-Let's add another output to retrieve the `primaryEndpoint` of our storage account:
-
-```
-param location string = 'eastus'
-param namePrefix string = 'stg'
-
-param globalRedundancy bool = true // defaults to true, but can be overridden
-
-var storageAccountName = '${namePrefix}-${uniqueString(resourceGroup().id)}'
-
-resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: storageAccountName
-    location: location
-    kind: 'Storage'
-    sku: {
-        name: globalRedundancy ? 'Standard_GRS' : 'Standard_LRS' // if true --> GRS, else --> LRS
-    }
-}
-
-output storageId string = storage.id // replacement for resourceId(...)
-output primaryEndpoint string = storage.primaryEndpoints.blob // replacement for reference(...).*
-```
-
 ## Next steps
 
-In the final tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
+In the next tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
 
-[3 - Convert any ARM template into a Bicep file](./03-convert-arm-template.md)
+[4 - Using the symbolic resource name](./04-using-symbolic-resource-name.md)
