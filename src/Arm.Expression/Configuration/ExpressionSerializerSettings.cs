@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 namespace Arm.Expression.Configuration
 {
     /// <summary>
@@ -19,3 +22,4 @@ namespace Arm.Expression.Configuration
         public ExpressionSerializerSingleStringHandling SingleStringHandling { get; set; } = ExpressionSerializerSingleStringHandling.SerializeAsJTokenExpression;
     }
 }
+

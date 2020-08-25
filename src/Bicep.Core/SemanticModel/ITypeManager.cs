@@ -1,4 +1,7 @@
-﻿using Bicep.Core.Syntax;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
@@ -10,3 +13,4 @@ namespace Bicep.Core.SemanticModel
         public TypeSymbol? GetTypeByName(string? typeName);
     }
 }
+

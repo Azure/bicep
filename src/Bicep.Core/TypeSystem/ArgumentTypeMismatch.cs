@@ -1,4 +1,7 @@
-﻿using Bicep.Core.SemanticModel;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -29,3 +32,4 @@ namespace Bicep.Core.TypeSystem
         }
     }
 }
+

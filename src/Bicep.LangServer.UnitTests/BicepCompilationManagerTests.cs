@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.Linq;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
@@ -370,3 +373,4 @@ namespace Bicep.LangServer.UnitTests
         }
     }
 }
+

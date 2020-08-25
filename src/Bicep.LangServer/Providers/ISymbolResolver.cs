@@ -1,4 +1,7 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
@@ -8,3 +11,4 @@ namespace Bicep.LanguageServer.Providers
         SymbolResolutionResult? ResolveSymbol(DocumentUri uri, Position position);
     }
 }
+

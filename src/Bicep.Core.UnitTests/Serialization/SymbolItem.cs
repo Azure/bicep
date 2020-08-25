@@ -1,4 +1,7 @@
-﻿using Bicep.Core.Parser;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Newtonsoft.Json;
 
@@ -30,3 +33,4 @@ namespace Bicep.Core.UnitTests.Serialization
         public TextSpan? NameSpan { get; }
     }
 }
+

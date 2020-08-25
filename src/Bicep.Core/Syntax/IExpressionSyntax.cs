@@ -1,4 +1,7 @@
-﻿namespace Bicep.Core.Syntax
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Bicep.Core.Syntax
 {
     /// <summary>
     /// This syntax node is involved in expressions.
@@ -11,3 +14,4 @@
         ExpressionKind ExpressionKind { get; }
     }
 }
+

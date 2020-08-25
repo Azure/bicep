@@ -1,4 +1,7 @@
-﻿using Arm.Expression.Configuration;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;

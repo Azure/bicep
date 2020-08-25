@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.IO;
 
 namespace Bicep.Cli.Utils
@@ -52,3 +55,4 @@ namespace Bicep.Cli.Utils
         }
     }
 }
+

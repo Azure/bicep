@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
@@ -151,3 +154,4 @@ namespace Bicep.Core.UnitTests.Parser
         }
     }
 }
+

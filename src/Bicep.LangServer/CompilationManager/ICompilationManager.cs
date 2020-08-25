@@ -1,4 +1,7 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
@@ -11,3 +14,4 @@ namespace Bicep.LanguageServer.CompilationManager
         CompilationContext? GetCompilation(DocumentUri uri);
     }
 }
+

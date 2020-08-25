@@ -1,4 +1,7 @@
-﻿namespace Bicep.Core.Emit
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Bicep.Core.Emit
 {
     public enum EmitStatus
     {

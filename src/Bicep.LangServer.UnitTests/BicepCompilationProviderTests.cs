@@ -1,4 +1,7 @@
-﻿using Bicep.Core.Samples;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Samples;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,3 +25,4 @@ namespace Bicep.LangServer.UnitTests
         }
     }
 }
+

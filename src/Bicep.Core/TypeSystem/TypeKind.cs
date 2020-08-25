@@ -1,4 +1,7 @@
-﻿namespace Bicep.Core.TypeSystem
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Bicep.Core.TypeSystem
 {
     public enum TypeKind
     {

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -12,3 +15,4 @@ namespace Bicep.Core.TypeSystem
         public IEnumerable<SyntaxBase> GetVisitedNodes() => this.visited;
     }
 }
+

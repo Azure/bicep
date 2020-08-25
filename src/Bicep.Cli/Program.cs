@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.CommandLine;
@@ -72,7 +75,7 @@ namespace Bicep.Cli
 
         private ILoggerFactory CreateLoggerFactory()
         {
-            // apparently logging requires a factory factory 🤦‍
+            // apparently logging requires a factory factory ???
             return LoggerFactory.Create(builder =>
             {
                 builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, this.errorWriter)));
@@ -144,3 +147,4 @@ namespace Bicep.Cli
         }
     }
 }
+

@@ -1,4 +1,7 @@
-﻿using Bicep.Core.Parser;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Text;
 using Bicep.LanguageServer.CompilationManager;
@@ -24,3 +27,4 @@ namespace Bicep.LanguageServer.Providers
         }
     }
 }
+

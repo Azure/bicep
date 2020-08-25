@@ -1,4 +1,7 @@
-﻿using System.Collections.Immutable;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Collections.Immutable;
 using Bicep.Core.Text;
 
 namespace Bicep.Wasm.LanguageHelpers
@@ -12,3 +15,4 @@ namespace Bicep.Wasm.LanguageHelpers
         }
     }
 }
+

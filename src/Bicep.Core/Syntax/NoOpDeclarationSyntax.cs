@@ -1,4 +1,7 @@
-﻿using Bicep.Core.Parser;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
@@ -16,3 +19,4 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.NewLine, this.NewLine);
     }
 }
+

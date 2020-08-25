@@ -1,4 +1,7 @@
-﻿using Bicep.Core.SemanticModel;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -7,3 +10,4 @@ namespace Bicep.Core.TypeSystem
         public static ErrorTypeSymbol ToErrorType(this ErrorSymbol errorSymbol) => new ErrorTypeSymbol(errorSymbol.GetDiagnostics());
     }
 }
+

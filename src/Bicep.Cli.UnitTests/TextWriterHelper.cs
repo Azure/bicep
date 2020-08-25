@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.IO;
 using System.Text;
 
@@ -35,3 +38,4 @@ namespace Bicep.Cli.UnitTests
         }
     }
 }
+

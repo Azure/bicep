@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using Bicep.Core.Parser;
 using Newtonsoft.Json;
 
@@ -32,3 +35,4 @@ namespace Bicep.Core.UnitTests.Serialization
         }
     }
 }
+

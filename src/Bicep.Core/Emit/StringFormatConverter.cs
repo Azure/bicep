@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.Text;
 using Bicep.Core.Syntax;
 
@@ -44,3 +47,4 @@ namespace Bicep.Core.Emit
         }
     }
 }
+

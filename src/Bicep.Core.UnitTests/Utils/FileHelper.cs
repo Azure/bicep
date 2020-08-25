@@ -1,4 +1,7 @@
-﻿using System.IO;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,3 +28,4 @@ namespace Bicep.Core.UnitTests.Utils
         }
     }
 }
+
