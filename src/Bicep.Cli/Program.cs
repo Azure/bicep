@@ -74,7 +74,7 @@ namespace Bicep.Cli
 
         private ILoggerFactory CreateLoggerFactory()
         {
-            // apparently logging requires a factory factory ???
+            // apparently logging requires a factory factory 🤦‍
             return LoggerFactory.Create(builder =>
             {
                 builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, this.errorWriter)));
