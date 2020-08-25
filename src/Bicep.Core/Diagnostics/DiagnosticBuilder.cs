@@ -1,8 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
@@ -326,10 +329,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP063",
                 $"The name '{name}' is not a parameter or variable.");
 
-            public ErrorDiagnostic MalformedString() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP064",
-                "The string at this location is malformed.");
+                "Found unexpected tokens in interpolated expression.");
 
             public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
                 TextSpan,
@@ -383,6 +386,11 @@ namespace Bicep.Core.Diagnostics
                     "BCP071",
                     $"Expected {expected}, but got {argumentCount}.");
             }
+
+            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP072",
+                "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

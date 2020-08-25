@@ -5,7 +5,7 @@
 //@[20:22) NoOpDeclarationSyntax
 //@[20:22)  NewLine |\r\n|
 bad
-//@[0:7) SkippedTokensTriviaSyntax
+//@[0:7) SkippedTriviaSyntax
 //@[0:3)  Identifier |bad|
 //@[3:7)  NewLine |\r\n\r\n|
 
@@ -13,29 +13,29 @@ bad
 //@[13:15) NoOpDeclarationSyntax
 //@[13:15)  NewLine |\r\n|
 resource 
-//@[0:11) SkippedTokensTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:11)  NewLine |\r\n|
 resource foo
-//@[0:14) SkippedTokensTriviaSyntax
+//@[0:14) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
 //@[12:14)  NewLine |\r\n|
 resource fo/o
-//@[0:15) SkippedTokensTriviaSyntax
+//@[0:15) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:11)  Identifier |fo|
 //@[11:12)  Slash |/|
 //@[12:13)  Identifier |o|
 //@[13:15)  NewLine |\r\n|
 resource foo 'ddd'
-//@[0:20) SkippedTokensTriviaSyntax
+//@[0:20) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
 //@[13:18)  StringComplete |'ddd'|
 //@[18:20)  NewLine |\r\n|
 resource foo 'ddd'=
-//@[0:23) SkippedTokensTriviaSyntax
+//@[0:23) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
 //@[13:18)  StringComplete |'ddd'|

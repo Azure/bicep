@@ -66,7 +66,7 @@ param secretsPermissions array {
 
 param skuName string {
   default: 'Standard'
-  allowedValues: [
+  allowed: [
     'Standard'
     'Premium'
   ]

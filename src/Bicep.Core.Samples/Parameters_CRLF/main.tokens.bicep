@@ -258,11 +258,11 @@ param storageSku string {
 //@[17:23) Identifier |string|
 //@[24:25) LeftBrace |{|
 //@[25:27) NewLine |\r\n|
-  allowedValues: [
-//@[2:15) Identifier |allowedValues|
-//@[15:16) Colon |:|
-//@[17:18) LeftSquare |[|
-//@[18:20) NewLine |\r\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:14) NewLine |\r\n|
     'Standard_LRS'
 //@[4:18) StringComplete |'Standard_LRS'|
 //@[18:20) NewLine |\r\n|
@@ -449,11 +449,11 @@ param someParameter string {
 //@[9:10) Colon |:|
 //@[11:16) StringComplete |'one'|
 //@[16:18) NewLine |\r\n|
-  allowedValues: [
-//@[2:15) Identifier |allowedValues|
-//@[15:16) Colon |:|
-//@[17:18) LeftSquare |[|
-//@[18:20) NewLine |\r\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:14) NewLine |\r\n|
     'one'
 //@[4:9) StringComplete |'one'|
 //@[9:11) NewLine |\r\n|

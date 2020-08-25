@@ -1,7 +1,7 @@
 param workspaceName string
 param pricingTier string {
   default: 'premium'
-  allowedValues: [
+  allowed: [
     'standard'
     'premium'
   ]

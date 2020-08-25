@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -7,8 +9,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class ResourceSymbol : DeclaredSymbol
     {
-        public ResourceSymbol(ITypeManager typeManager, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
-            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
+        public ResourceSymbol(ISymbolContext context, string name, ResourceDeclarationSyntax declaringSyntax, SyntaxBase body)
+            : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Body = body;
         }
@@ -17,7 +19,7 @@ namespace Bicep.Core.SemanticModel
 
         public TypeSymbol GetVariableType(TypeManagerContext context)
         {
-            return this.TypeManager.GetTypeInfo(this.DeclaringResource.Body, context);
+            return this.Context.TypeManager.GetTypeInfo(this.DeclaringResource.Body, context);
         }
 
         public TypeSymbol Type
@@ -38,7 +40,7 @@ namespace Bicep.Core.SemanticModel
                 else
                 {
                     var stringContent = stringSyntax?.GetLiteralValue();
-                    resourceType = this.TypeManager.GetTypeByName(stringContent);
+                    resourceType = this.Context.TypeManager.GetTypeByName(stringContent);
 
                     // TODO: This check is likely too simplistic
                     if (resourceType?.TypeKind != TypeKind.Resource)
@@ -67,7 +69,8 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            return TypeValidator.GetExpressionAssignmentDiagnostics(this.TypeManager, this.Body, this.Type);
+            return TypeValidator.GetExpressionAssignmentDiagnostics(this.Context.TypeManager, this.Body, this.Type);
         }
     }
 }
+

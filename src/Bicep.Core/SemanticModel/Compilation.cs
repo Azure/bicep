@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -30,13 +32,13 @@ namespace Bicep.Core.SemanticModel
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             
             // create this in locked mode by default
-            // this blocks accidental type queries until binding is done
+            // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var typeCache = new TypeManager(bindings);
+            var symbolContext = new SymbolContext(new TypeManager(bindings), bindings);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
-            var declarationVisitor = new DeclarationVisitor(typeCache, declarations);
+            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations);
             declarationVisitor.Visit(this.ProgramSyntax);
 
             // in cases of duplicate declarations we will see multiple declaration symbols in the result list
@@ -52,7 +54,7 @@ namespace Bicep.Core.SemanticModel
 
             // name binding is done
             // allow type queries now
-            typeCache.Unlock();
+            symbolContext.Unlock();
 
             // TODO: Avoid looping 4 times?
             var file = new FileSymbol("main",
@@ -65,7 +67,7 @@ namespace Bicep.Core.SemanticModel
 
             var symbolGraph = SymbolGraphVisitor.Build(file, uniqueDeclarations, bindings);
 
-            return new SemanticModel(file, typeCache, bindings, symbolGraph);
+            return new SemanticModel(file, symbolContext.TypeManager, bindings, symbolGraph);
         }
     }
 }

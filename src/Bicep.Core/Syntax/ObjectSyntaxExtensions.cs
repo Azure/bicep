@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
@@ -16,3 +18,4 @@ namespace Bicep.Core.Syntax
             syntax.Properties.ToImmutableDictionary(p => p.GetKeyText(), LanguageConstants.IdentifierComparer);
     }
 }
+

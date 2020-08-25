@@ -1,4 +1,6 @@
-﻿using Bicep.Core.Parser;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
@@ -33,3 +35,4 @@ namespace Bicep.Core.Syntax
         public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
+

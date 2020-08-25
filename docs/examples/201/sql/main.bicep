@@ -5,7 +5,7 @@ param sqlAdministratorLoginPassword string {
 
 param transparentDataEncryption string {
   default: 'Enabled'
-  allowedValues: [
+  allowed: [
     'Enabled'
     'Disabled'
   ]

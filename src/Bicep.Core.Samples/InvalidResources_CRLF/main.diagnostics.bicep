@@ -110,6 +110,7 @@ var resrefvar = bar.name
 //@[16:19) Error The referenced declaration with name 'bar' is not valid. |bar|
 
 param resrefpar string = foo.id
+//@[25:28) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
 
 output resrefout bool = bar.id
 //@[24:27) Error The referenced declaration with name 'bar' is not valid. |bar|

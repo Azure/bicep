@@ -95,8 +95,8 @@ param secretObject object {
 
 // enum parameter
 param storageSku string {
-//@[6:16) Parameter storageSku. Declaration start char: 0, length: 90
-  allowedValues: [
+//@[6:16) Parameter storageSku. Declaration start char: 0, length: 84
+  allowed: [
     'Standard_LRS'
     'Standard_GRS'
   ]
@@ -148,12 +148,12 @@ param additionalMetadata string {
 
 // all modifiers together
 param someParameter string {
-//@[6:19) Parameter someParameter. Declaration start char: 0, length: 215
+//@[6:19) Parameter someParameter. Declaration start char: 0, length: 209
   secure: true
   minLength: 3
   maxLength: 24
   default: 'one'
-  allowedValues: [
+  allowed: [
     'one'
     'two'
     'three'

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -27,23 +29,14 @@ namespace Bicep.Core.Parser
             }
         }
 
-        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            if (syntax.ErrorCause == null || syntax.ErrorInfo == null)
+            base.VisitSkippedTriviaSyntax(syntax);
+
+            foreach (var diagnostic in syntax.Diagnostics)
             {
-                return;
+                this.diagnostics.Add(diagnostic);
             }
-
-            // parse errors live on skipped token nodes
-
-            // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
-            // VS code will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
-
-            var errorDiagnostic = syntax.ErrorCause.Type == TokenType.NewLine
-                ? syntax.ErrorInfo.WithSpan(new TextSpan(syntax.ErrorInfo.Span.Position, 0))
-                : syntax.ErrorInfo;
-
-            this.diagnostics.Add(errorDiagnostic);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)

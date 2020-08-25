@@ -1,4 +1,6 @@
-﻿namespace Bicep.Wasm.LanguageHelpers
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Bicep.Wasm.LanguageHelpers
 {
     public class Position
     {
@@ -13,3 +15,4 @@
         public int Character { get; }
     }
 }
+

@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -86,8 +88,7 @@ namespace Bicep.Core.IntegrationTests
 
             foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.StringComplete))
             {
-                Action getStringValue = () => Lexer.GetStringValue(stringToken);
-                getStringValue.Should().NotThrow($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
+                Lexer.TryGetStringValue(stringToken).Should().NotBeNull($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
             }
         }
 
@@ -96,3 +97,4 @@ namespace Bicep.Core.IntegrationTests
         private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();
     }
 }
+

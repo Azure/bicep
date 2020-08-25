@@ -1,4 +1,6 @@
-﻿namespace Bicep.Wasm.LanguageHelpers
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Bicep.Wasm.LanguageHelpers
 {
     public class Range
     {
@@ -18,3 +20,4 @@
         public Position End { get; set; }
     }
 }
+
