@@ -1,8 +1,4 @@
-﻿// ----------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------
-
-using Arm.Expression.Configuration;
+﻿using Arm.Expression.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
