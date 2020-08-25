@@ -15,17 +15,4 @@
     <DefineConstants Condition=" $(IsOSXBuild) == 'true' ">$(DefineConstants);OSX_BUILD</DefineConstants>
     <DefineConstants Condition=" $(IsWindowsBuild) == 'true' ">$(DefineConstants);WINDOWS_BUILD</DefineConstants>
   </PropertyGroup>
-
-  <!-- Confiugration settings fo the Roslyn FXCop analyzer  -->
-  <PropertyGroup>
-    <!-- using security rules for now -->
-    <CodeAnalysisRuleSet>$(PkgMicrosoft_CodeAnalysis_FxCopAnalyzers)\rulesets\SecurityRulesEnabled.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <!-- Import the new Roslyn FxCop Analyzer for csproj files -->
-  <ItemGroup Condition="'$(MSBuildProjectExtension)' == '.csproj'">
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>

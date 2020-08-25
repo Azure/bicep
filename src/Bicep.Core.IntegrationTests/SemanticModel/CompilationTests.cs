@@ -1,4 +1,6 @@
-﻿using Bicep.Core.Samples;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using FluentAssertions;
@@ -20,3 +22,4 @@ namespace Bicep.Core.IntegrationTests
         }
     }
 }
+

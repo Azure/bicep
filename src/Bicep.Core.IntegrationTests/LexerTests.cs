@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -95,3 +97,4 @@ namespace Bicep.Core.IntegrationTests
         private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();
     }
 }
+

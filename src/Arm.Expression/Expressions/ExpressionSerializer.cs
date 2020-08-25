@@ -1,7 +1,5 @@
-﻿// ----------------------------------------------------------------------------
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// ----------------------------------------------------------------------------
-
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Arm.Expression.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
@@ -335,3 +333,4 @@ namespace Arm.Expression.Expressions
         }
     }
 }
+

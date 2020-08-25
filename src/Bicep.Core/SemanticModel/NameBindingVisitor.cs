@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -141,3 +143,4 @@ namespace Bicep.Core.SemanticModel
         }
     }
 }
+

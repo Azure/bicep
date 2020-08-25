@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -26,3 +28,4 @@ namespace Bicep.Cli.CommandLine.Arguments
         public bool OutputToStdOut {private set; get;}
     }
 }
+

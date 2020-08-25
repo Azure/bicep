@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -40,3 +42,4 @@ namespace Bicep.Core.TypeSystem
         }
     }
 }
+

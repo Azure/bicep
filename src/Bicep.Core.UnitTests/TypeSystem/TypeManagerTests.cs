@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -27,3 +29,4 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
+
