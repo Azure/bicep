@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { isError } from "util";
 
-import { createLogger, getLogger } from "./uitls/logger";
+import { createLogger, getLogger } from "./utils/logger";
 import { launchLanugageServiceWithProgressReport } from "./language/client";
 
 export async function activate(

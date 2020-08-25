@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { existsSync } from "fs";
 
-import { getLogger } from "../uitls/logger";
+import { getLogger } from "../utils/logger";
 
 const dotnetRuntimeVersion = "3.1";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
