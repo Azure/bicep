@@ -1,24 +1,20 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-import * as vscode from "vscode";
-import { isError } from "util";
-
-import { createLogger, getLogger } from "./uitls/logger";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import * as vscode from "vscode"
+import { createLogger } from "./utils/logger";
 import { launchLanugageServiceWithProgressReport } from "./language/client";
+import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 
 export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  createLogger(context);
+  const outputChannel = vscode.window.createOutputChannel("Bicep");
 
-  try {
+  await activateWithTelemetryAndErrorHandling(context, outputChannel, async () => {
+    createLogger(context, outputChannel);
+  
     await launchLanugageServiceWithProgressReport(context);
-  } catch (err) {
-    getLogger().error(err);
-    vscode.window.showErrorMessage(isError(err) ? err.message : err);
-  }
+  });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

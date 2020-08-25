@@ -1,7 +1,5 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import * as vscode from "vscode";
 import * as winston from "winston";
 import * as Transport from "winston-transport";
@@ -75,8 +73,7 @@ class outputChannelTransport extends Transport {
   }
 }
 
-export function createLogger(context: vscode.ExtensionContext): void {
-  const outputChannel = vscode.window.createOutputChannel("Bicep");
+export function createLogger(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): void {
   // TODO:
   // - make log level configurable
   // - Default log level should be info
