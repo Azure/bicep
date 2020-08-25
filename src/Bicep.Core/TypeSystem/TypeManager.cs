@@ -21,8 +21,6 @@ namespace Bicep.Core.TypeSystem
         // stores results of type checks
         private readonly ConcurrentDictionary<SyntaxBase, TypeSymbol> typeCheckCache = new ConcurrentDictionary<SyntaxBase, TypeSymbol>();
 
-        private bool unlocked;
-
         public TypeManager(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             // bindings will be modified by name binding after this object is created
@@ -31,16 +29,7 @@ namespace Bicep.Core.TypeSystem
             this.bindings = bindings; 
         }
 
-        public void Unlock()
-        {
-            this.unlocked = true;
-        }
-
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context)
-        {
-            this.CheckLock();
-            return GetTypeInfoInternal(context, syntax);
-        }
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context) => GetTypeInfoInternal(context, syntax);
 
         // TODO: This does not recognize non-resource named objects yet
         public TypeSymbol? GetTypeByName(string? typeName)
@@ -49,8 +38,6 @@ namespace Bicep.Core.TypeSystem
              * Obtaining the type by name currently does not involve processing outgoing edges in the expression graph (function or variable refs)
              * This means that we do not need to check for cycles. However, if that ever changes, ensure that proper cycle detection is added here.
              */
-
-            this.CheckLock();
 
             if (typeName == null)
             {
@@ -650,14 +637,6 @@ namespace Bicep.Core.TypeSystem
         private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
-        }
-
-        private void CheckLock()
-        {
-            if (this.unlocked == false)
-            {
-                throw new InvalidOperationException("Type checks are blocked until name binding is completed.");
-            }
         }
 
         private TypeSymbol HandleSymbolType(string symbolName, TextSpan symbolNameSpan, TypeSymbol symbolType)

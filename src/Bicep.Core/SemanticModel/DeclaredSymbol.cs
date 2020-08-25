@@ -7,15 +7,15 @@ namespace Bicep.Core.SemanticModel
 {
     public abstract class DeclaredSymbol : Symbol
     {
-        protected DeclaredSymbol(ITypeManager typeManager, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
+        protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)
         {
-            this.TypeManager = typeManager;
+            this.Context = context;
             this.DeclaringSyntax = declaringSyntax;
             this.NameSyntax = nameSyntax;
         }
 
-        public ITypeManager TypeManager { get; }
+        public ISymbolContext Context { get; }
 
         /// <summary>
         /// Gets the syntax node that declared this symbol.
@@ -29,7 +29,7 @@ namespace Bicep.Core.SemanticModel
 
         protected TypeSymbol? GetPrimitiveTypeByName(string typeName)
         {
-            var type = this.TypeManager.GetTypeByName(typeName);
+            var type = this.Context.TypeManager.GetTypeByName(typeName);
             if (type?.TypeKind == TypeKind.Primitive)
             {
                 return type;

@@ -692,13 +692,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(type, LanguageConstants.TopLevelResourceProperties, null, typeReference);
         }
 
-        private TypeManager CreateTypeManager()
-        {
-            var tm = new TypeManager(new Dictionary<SyntaxBase, Symbol>());
-            tm.Unlock();
-
-            return tm;
-        }
+        private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>());
     }
 }
 

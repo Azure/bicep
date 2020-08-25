@@ -181,5 +181,36 @@ param paramMixedTwoCycle2 string {
   default: paramMixedTwoCycle1
 }
 
+// wrong types of "variable"/identifier access
+var sampleVar = 'sample'
+//@[4:13) Variable sampleVar. Declaration start char: 0, length: 25
+resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+//@[9:23) Resource sampleResource. Declaration start char: 0, length: 76
+  name: 'foo'
+}
+output sampleOutput string = 'hello'
+//@[7:19) Output sampleOutput. Declaration start char: 0, length: 38
+
+param paramAccessingVar string = concat(sampleVar, 's')
+//@[6:23) Parameter paramAccessingVar. Declaration start char: 0, length: 56
+param paramAccessingVar2 string {
+//@[6:24) Parameter paramAccessingVar2. Declaration start char: 0, length: 71
+  default: 'foo ${sampleVar} foo'
+}
+
+param paramAccessingResource string = sampleResource
+//@[6:28) Parameter paramAccessingResource. Declaration start char: 0, length: 53
+param paramAccessingResource2 string {
+//@[6:29) Parameter paramAccessingResource2. Declaration start char: 0, length: 91
+  default: base64(sampleResource.properties.foo)
+}
+
+param paramAccessingOutput string = sampleOutput
+//@[6:26) Parameter paramAccessingOutput. Declaration start char: 0, length: 49
+param paramAccessingOutput2 string {
+//@[6:27) Parameter paramAccessingOutput2. Declaration start char: 0, length: 64
+  default: sampleOutput
+}
+
 // unterminated multi-line comment
 /*    
