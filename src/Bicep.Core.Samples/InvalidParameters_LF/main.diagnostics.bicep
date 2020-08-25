@@ -148,7 +148,7 @@ param secureInt int {
 param wrongIntModifier int {
   default: true
 //@[11:15) Error The property 'default' expected a value of type 'int' but the provided value is of type 'bool'. |true|
-  allowedValues: [
+  allowed: [
     'test'
 //@[4:10) Error The enclosing array expected an item of type 'int', but the provided item was of type 'string'. |'test'|
     true
@@ -182,7 +182,7 @@ param expressionInModifier string {
   minLength: foo()
 //@[13:16) Error The name 'foo' does not exist in the current context. |foo|
 //@[13:18) Error The value must be a compile-time constant. |foo()|
-  allowedValues: [
+  allowed: [
     i
 //@[4:5) Error The name 'i' does not exist in the current context. |i|
 //@[4:5) Error The value must be a compile-time constant. |i|
@@ -207,7 +207,7 @@ param paramModifierOneCycle string {
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
-  allowedValues: [
+  allowed: [
     paramModifierSelfCycle
 //@[4:26) Error The expression is involved in a cycle. |paramModifierSelfCycle|
 //@[4:26) Error The value must be a compile-time constant. |paramModifierSelfCycle|

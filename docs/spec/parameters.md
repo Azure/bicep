@@ -31,10 +31,10 @@ param mySuperSecretObject object {
 }
 ```
 ## Allowed Values
-You can constrain which values are allowed using the `allowedValues` modifier:
+You can constrain which values are allowed using the `allowed` modifier:
 ```
 param myEnum string {
-  allowedValues: [
+  allowed: [
     'one'
     'two'
   ]

@@ -80,7 +80,7 @@ param secureInt int {
 // wrong modifier value types
 param wrongIntModifier int {
   default: true
-  allowedValues: [
+  allowed: [
     'test'
     true
   ]
@@ -103,7 +103,7 @@ param expressionInModifier string {
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
-  allowedValues: [
+  allowed: [
     i
   ]
 }
@@ -122,7 +122,7 @@ param paramModifierOneCycle string {
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
-  allowedValues: [
+  allowed: [
     paramModifierSelfCycle
   ]
 }

@@ -70,7 +70,7 @@
         "body": [
             "param ${1:Identifier} ${2:Type} {",
             "  default: $3",
-            "  allowedValues: [",
+            "  allowed: [",
             "    $4",
             "  ]",
             "}"

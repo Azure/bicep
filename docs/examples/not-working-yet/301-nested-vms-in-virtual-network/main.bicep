@@ -28,7 +28,7 @@ param HostVirtualMachineName string {
 }
 param HostVirtualMachineSize string {
   default: 'Standard_D4s_v3'
-  allowedValues: [
+  allowed: [
     'Standard_D2_v3'
     'Standard_D4_v3'
     'Standard_D8_v3'

@@ -364,11 +364,11 @@ param wrongIntModifier int {
 //@[9:10) Colon |:|
 //@[11:15) TrueKeyword |true|
 //@[15:16) NewLine |\n|
-  allowedValues: [
-//@[2:15) Identifier |allowedValues|
-//@[15:16) Colon |:|
-//@[17:18) LeftSquare |[|
-//@[18:19) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
     'test'
 //@[4:10) StringComplete |'test'|
 //@[10:11) NewLine |\n|
@@ -457,11 +457,11 @@ param expressionInModifier string {
 //@[16:17) LeftParen |(|
 //@[17:18) RightParen |)|
 //@[18:19) NewLine |\n|
-  allowedValues: [
-//@[2:15) Identifier |allowedValues|
-//@[15:16) Colon |:|
-//@[17:18) LeftSquare |[|
-//@[18:19) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
     i
 //@[4:5) Identifier |i|
 //@[5:6) NewLine |\n|
@@ -524,11 +524,11 @@ param paramModifierSelfCycle string {
 //@[29:35) Identifier |string|
 //@[36:37) LeftBrace |{|
 //@[37:38) NewLine |\n|
-  allowedValues: [
-//@[2:15) Identifier |allowedValues|
-//@[15:16) Colon |:|
-//@[17:18) LeftSquare |[|
-//@[18:19) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
     paramModifierSelfCycle
 //@[4:26) Identifier |paramModifierSelfCycle|
 //@[26:27) NewLine |\n|

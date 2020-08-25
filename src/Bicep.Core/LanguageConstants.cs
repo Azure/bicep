@@ -69,7 +69,7 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty("default", parameterType);
 
-            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
+            yield return new TypeProperty("allowed", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
 
             if (ReferenceEquals(parameterType, Int))
             {

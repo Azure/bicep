@@ -470,23 +470,23 @@ param secretObject object {
 //@[17:18) NoOpDeclarationSyntax
 //@[17:18)  NewLine |\n|
 param storageSku string {
-//@[0:90) ParameterDeclarationSyntax
+//@[0:84) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |storageSku|
 //@[17:23)  TypeSyntax
 //@[17:23)   Identifier |string|
-//@[24:88)  ObjectSyntax
+//@[24:82)  ObjectSyntax
 //@[24:25)   LeftBrace |{|
 //@[25:26)   NewLine |\n|
-  allowedValues: [
-//@[2:61)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:60)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:55)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:54)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     'Standard_LRS'
 //@[4:19)     ArrayItemSyntax
 //@[4:18)      StringSyntax
@@ -720,13 +720,13 @@ param additionalMetadata string {
 //@[25:26) NoOpDeclarationSyntax
 //@[25:26)  NewLine |\n|
 param someParameter string {
-//@[0:215) ParameterDeclarationSyntax
+//@[0:209) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |someParameter|
 //@[20:26)  TypeSyntax
 //@[20:26)   Identifier |string|
-//@[27:213)  ObjectSyntax
+//@[27:207)  ObjectSyntax
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   secure: true
@@ -761,14 +761,14 @@ param someParameter string {
 //@[11:16)    StringSyntax
 //@[11:16)     StringComplete |'one'|
 //@[16:17)    NewLine |\n|
-  allowedValues: [
-//@[2:55)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:54)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:49)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:48)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     'one'
 //@[4:10)     ArrayItemSyntax
 //@[4:9)      StringSyntax

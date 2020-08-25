@@ -19,7 +19,6 @@ namespace Bicep.Core.Emit
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
         {
-            "allowedValues",
             "minValue",
             "maxValue",
             "minLength",
@@ -112,6 +111,7 @@ namespace Bicep.Core.Emit
                     }
 
                     this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
+                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue("allowed"));
                     
                     break;
             }

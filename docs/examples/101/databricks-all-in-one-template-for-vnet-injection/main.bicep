@@ -5,7 +5,7 @@ param privateSubnetName string = 'private-subnet'
 param publicSubnetName string = 'public-subnet'
 param pricingTier string {
   default: 'premium'
-  allowedValues: [
+  allowed: [
     'standard'
     'premium'
   ]

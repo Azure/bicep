@@ -6,7 +6,7 @@ param location string = resourceGroup().location
 
 param appServicePlanTier string {
     default: 'F1'
-    allowedValues: [
+    allowed: [
       'F1'
       'D1'
       'B1'
