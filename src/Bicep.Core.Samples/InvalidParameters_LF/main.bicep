@@ -141,5 +141,27 @@ param paramMixedTwoCycle2 string {
   default: paramMixedTwoCycle1
 }
 
+// wrong types of "variable"/identifier access
+var sampleVar = 'sample'
+resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+  name: 'foo'
+}
+output sampleOutput string = 'hello'
+
+param paramAccessingVar string = concat(sampleVar, 's')
+param paramAccessingVar2 string {
+  default: 'foo ${sampleVar} foo'
+}
+
+param paramAccessingResource string = sampleResource
+param paramAccessingResource2 string {
+  default: base64(sampleResource.properties.foo)
+}
+
+param paramAccessingOutput string = sampleOutput
+param paramAccessingOutput2 string {
+  default: sampleOutput
+}
+
 // unterminated multi-line comment
 /*    
