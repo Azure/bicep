@@ -1,4 +1,6 @@
-﻿namespace Bicep.Core.Syntax
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Bicep.Core.Syntax
 {
     /// <summary>
     /// Represents a non-recursive kind of expression syntax node.

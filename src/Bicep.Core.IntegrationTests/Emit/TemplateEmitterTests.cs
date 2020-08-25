@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Emit;
@@ -103,3 +105,4 @@ namespace Bicep.Core.IntegrationTests.Emit
             .ToDynamicTestData();
     }
 }
+
