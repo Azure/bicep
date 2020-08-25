@@ -388,8 +388,7 @@ namespace Bicep.Core.Parser
         private SyntaxBase InterpolableString()
         {
             var startToken = reader.Peek();
-            var tokens = new List<Token>();
-            var expressions = new List<SyntaxBase>();
+            var tokensOrSyntax = new List<TokenOrSyntax>();
 
             SyntaxBase? processStringSegment(bool isFirstSegment)
             {
@@ -409,19 +408,29 @@ namespace Bicep.Core.Parser
                 if (currentType == tokenStringEnd)
                 {
                     // We're done - exit the loop.
-                    tokens.Add(reader.Read());
+                    tokensOrSyntax.Add(new TokenOrSyntax(reader.Read()));
                     isComplete = true;
                 }
                 else if (currentType == tokenStringContinue)
                 {
-                    tokens.Add(reader.Read());
+                    tokensOrSyntax.Add(new TokenOrSyntax(reader.Read()));
 
                     // Look for an expression syntax inside the interpolation 'hole' (between "${" and "}").
                     // The lexer doesn't allow an expression contained inside an interpolation to span multiple lines, so we can safely use recovery to look for a NewLine character.
                     var interpExpression = WithRecovery(() => Expression(), false, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
-                    expressions.Add(interpExpression);
+                    if (!Check(TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine))
+                    {
+                        // We may have successfully parsed the expression, but have not reached the end of the expression hole. Skip to the end of the hole.
+                        var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
 
-                    // Only error out if we're in a totally unrecoverable situation. The next iteration of this loop will handle the rest.
+                        // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
+                        // Rather than trying to add two expression nodes, combine them.
+                        var combined = new [] { interpExpression, skippedSyntax };
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined.Select(x => new TokenOrSyntax(x)), Enumerable.Empty<Diagnostic>());
+                    }
+
+                    tokensOrSyntax.Add(new TokenOrSyntax(interpExpression));
+
                     if (Check(TokenType.NewLine) || IsAtEnd())
                     {
                         // Terminate the loop with errors.
@@ -431,8 +440,8 @@ namespace Bicep.Core.Parser
                 else
                 {
                     // Don't consume any tokens that aren't part of this syntax - allow synchronize to handle that safely.
-                    var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.MalformedString(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
-                    expressions.Add(skippedSyntax);
+                    var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    tokensOrSyntax.Add(new TokenOrSyntax(skippedSyntax));
 
                     // If we're able to match a continuation, we should keep going, even if the expression parsing fails.
                     // A bad expression will simply be added as a SkippedTriviaSyntax node.
@@ -446,6 +455,13 @@ namespace Bicep.Core.Parser
 
                 if (isComplete)
                 {
+                    var tokens = new List<Token>();
+                    var expressions = new List<SyntaxBase>();
+                    foreach (var element in tokensOrSyntax)
+                    {
+                        element.Visit(expressions.Add, tokens.Add);
+                    }
+
                     // The lexer may return unterminated string tokens to allow lexing to continue over an interpolated string.
                     // We should catch that here and prevent parsing from succeeding.
                     var segments = Lexer.TryGetRawStringSegments(tokens);
@@ -462,7 +478,7 @@ namespace Bicep.Core.Parser
                 {
                     // This error-handling is just for cases where we were completely unable to interpret the string.
                     var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
-                    return new SkippedTriviaSyntax(span, tokens, expressions, Enumerable.Empty<Diagnostic>());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<Diagnostic>());
                 }
 
                 return null;
@@ -647,7 +663,7 @@ namespace Bicep.Core.Parser
 
             var error = errorFunc(DiagnosticBuilder.ForPosition(errorSpan));
 
-            return new SkippedTriviaSyntax(skippedSpan, skippedTokens, Enumerable.Empty<SyntaxBase>(), new [] { error });
+            return new SkippedTriviaSyntax(skippedSpan, skippedTokens.Select(x => new TokenOrSyntax(x)), new [] { error });
         }
 
         private bool IsAtEnd()

@@ -54,6 +54,7 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 
 // bad interpolated string format
 param badInterpolatedString string = 'hello ${}!'
+param badInterpolatedString2 string = 'hello ${a b c}!'
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 

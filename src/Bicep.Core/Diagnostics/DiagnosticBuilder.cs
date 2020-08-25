@@ -326,10 +326,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP063",
                 $"The name '{name}' is not a parameter or variable.");
 
-            public ErrorDiagnostic MalformedString() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP064",
-                "The string at this location is malformed.");
+                "Found unexpected tokens in interpolated expression.");
 
             public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
                 TextSpan,

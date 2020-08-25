@@ -112,6 +112,8 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 // bad interpolated string format
 param badInterpolatedString string = 'hello ${}!'
 //@[46:49) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |}!'|
+param badInterpolatedString2 string = 'hello ${a b c}!'
+//@[49:52) Error Found unexpected tokens in interpolated expression. |b c|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[6:15) Error Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|

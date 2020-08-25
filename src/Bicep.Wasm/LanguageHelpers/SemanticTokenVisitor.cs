@@ -56,11 +56,13 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
         {
+            AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
             base.VisitBinaryOperationSyntax(syntax);
         }
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
+            AddTokenType(syntax.Literal, SemanticTokenType.Number);
             base.VisitBooleanLiteralSyntax(syntax);
         }
 
@@ -87,11 +89,13 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
+            AddTokenType(syntax.NullKeyword, SemanticTokenType.Number);
             base.VisitNullLiteralSyntax(syntax);
         }
 
         public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
         {
+            AddTokenType(syntax.Literal, SemanticTokenType.Number);
             base.VisitNumericLiteralSyntax(syntax);
         }
 
@@ -202,6 +206,8 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
+            AddTokenType(syntax.Colon, SemanticTokenType.Operator);
+            AddTokenType(syntax.Question, SemanticTokenType.Operator);
             base.VisitTernaryOperationSyntax(syntax);
         }
 
@@ -214,14 +220,6 @@ namespace Bicep.Wasm.LanguageHelpers
                 case TokenType.StringMiddlePiece:
                 case TokenType.StringRightPiece:
                     AddStringToken(token);
-                    break;
-                case TokenType.TrueKeyword:
-                case TokenType.FalseKeyword:
-                case TokenType.NullKeyword:
-                    AddTokenType(token, SemanticTokenType.Keyword);
-                    break;
-                case TokenType.Number:
-                    AddTokenType(token, SemanticTokenType.Number);
                     break;
                 default:
                     break;
@@ -249,6 +247,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
+            AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
             base.VisitUnaryOperationSyntax(syntax);
         }
 

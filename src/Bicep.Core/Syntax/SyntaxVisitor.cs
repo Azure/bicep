@@ -142,23 +142,9 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            var items = syntax.Tokens
-                .Concat<IPositionable>(syntax.Syntax)
-                .OrderBy(p => p.Span.Position);
-
-            foreach (var item in items)
+            foreach (var element in syntax.Elements)
             {
-                switch (item)
-                {
-                    case Token itemToken:
-                        this.VisitToken(itemToken);
-                        break;
-                    case SyntaxBase itemSyntax:
-                        this.Visit(itemSyntax);
-                        break;
-                    default:
-                        throw new ArgumentException("Invalid item type");
-                }
+                element.Visit(this.Visit, this.VisitToken);
             }
         }
 

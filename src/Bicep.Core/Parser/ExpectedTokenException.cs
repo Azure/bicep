@@ -9,8 +9,7 @@ namespace Bicep.Core.Parser
         public ExpectedTokenException(Token unexpectedToken, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             : base()
         {
-            // for errors caused by newlines, shorten the span to 1 character to avoid spilling the error over multiple lines
-            // VSCode will put squiggles on the entire word at that location even for a 0-length span (coordinates in the problems view will be accurate though)
+            // To avoid the squiggly spanning multiple lines, return a 0-length span at the end of the line for a newline token.
             var errorSpan = unexpectedToken.Type == TokenType.NewLine ?
                 unexpectedToken.ToZeroLengthSpan() :
                 unexpectedToken.Span;

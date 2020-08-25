@@ -100,10 +100,6 @@ namespace Bicep.Core.Parser
         /// <param name="stringToken">the string token</param>
         public static string? TryGetStringValue(Token stringToken)
         {
-            // This method should only be called once we've verified there are no lexer errors.
-            // In an error scenario, the lexer can produce string tokens for unterminated strings,
-            // whereas this method assumes the string token is correctly formed.
-
             var (start, end) = stringToken.Type switch {
                 TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
                 TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),

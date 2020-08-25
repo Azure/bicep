@@ -259,7 +259,18 @@ param badInterpolatedString string = 'hello ${}!'
 //@[35:36) Assignment |=|
 //@[37:46) StringLeftPiece |'hello ${|
 //@[46:49) StringRightPiece |}!'|
-//@[49:51) NewLine |\n\n|
+//@[49:50) NewLine |\n|
+param badInterpolatedString2 string = 'hello ${a b c}!'
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |badInterpolatedString2|
+//@[29:35) Identifier |string|
+//@[36:37) Assignment |=|
+//@[38:47) StringLeftPiece |'hello ${|
+//@[47:48) Identifier |a|
+//@[49:50) Identifier |b|
+//@[51:52) Identifier |c|
+//@[52:55) StringRightPiece |}!'|
+//@[55:57) NewLine |\n\n|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:5) Identifier |param|
