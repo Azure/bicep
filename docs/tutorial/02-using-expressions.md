@@ -109,8 +109,8 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     }
 }
 
-output storageId string = storage.id // replacement for resourceId(...)
-output primaryEndpoint string = storage.primaryEndpoints.blob // replacement for reference(...).*
+output storageId string = stg.id // replacement for resourceId(...)
+output primaryEndpoint string = stg.primaryEndpoints.blob // replacement for reference(...).*
 ```
 
 ## Next steps
