@@ -8,7 +8,7 @@
 //@[18:19) NoOpDeclarationSyntax
 //@[18:19)  NewLine |\n|
 var bad = a+
-//@[0:13) SkippedTokensTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -16,28 +16,28 @@ var bad = a+
 //@[11:12)  Plus |+|
 //@[12:13)  NewLine |\n|
 var bad = *
-//@[0:12) SkippedTokensTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Asterisk |*|
 //@[11:12)  NewLine |\n|
 var bad = /
-//@[0:12) SkippedTokensTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Slash |/|
 //@[11:12)  NewLine |\n|
 var bad = %
-//@[0:12) SkippedTokensTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Modulo |%|
 //@[11:12)  NewLine |\n|
 var bad = 33-
-//@[0:14) SkippedTokensTriviaSyntax
+//@[0:14) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -45,7 +45,7 @@ var bad = 33-
 //@[12:13)  Minus |-|
 //@[13:14)  NewLine |\n|
 var bad = --33
-//@[0:15) SkippedTokensTriviaSyntax
+//@[0:15) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -54,7 +54,7 @@ var bad = --33
 //@[12:14)  Number |33|
 //@[14:15)  NewLine |\n|
 var bad = 3 * 4 /
-//@[0:18) SkippedTokensTriviaSyntax
+//@[0:18) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -64,7 +64,7 @@ var bad = 3 * 4 /
 //@[16:17)  Slash |/|
 //@[17:18)  NewLine |\n|
 var bad = 222222222222222222222222222222222222222222 * 4
-//@[0:57) SkippedTokensTriviaSyntax
+//@[0:57) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -73,7 +73,7 @@ var bad = 222222222222222222222222222222222222222222 * 4
 //@[55:56)  Number |4|
 //@[56:57)  NewLine |\n|
 var bad = (null) ?
-//@[0:19) SkippedTokensTriviaSyntax
+//@[0:19) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -83,7 +83,7 @@ var bad = (null) ?
 //@[17:18)  Question |?|
 //@[18:19)  NewLine |\n|
 var bad = (null) ? :
-//@[0:21) SkippedTokensTriviaSyntax
+//@[0:21) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -94,7 +94,7 @@ var bad = (null) ? :
 //@[19:20)  Colon |:|
 //@[20:21)  NewLine |\n|
 var bad = (null) ? !
-//@[0:21) SkippedTokensTriviaSyntax
+//@[0:21) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -105,7 +105,7 @@ var bad = (null) ? !
 //@[19:20)  Exclamation |!|
 //@[20:21)  NewLine |\n|
 var bad = (null)!
-//@[0:18) SkippedTokensTriviaSyntax
+//@[0:18) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -132,7 +132,7 @@ var bad = (null)[0]
 //@[18:19)   RightSquare |]|
 //@[19:20)  NewLine |\n|
 var bad = ()
-//@[0:13) SkippedTokensTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -140,7 +140,7 @@ var bad = ()
 //@[11:12)  RightParen |)|
 //@[12:13)  NewLine |\n|
 var bad = 
-//@[0:12) SkippedTokensTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -233,7 +233,7 @@ var not = !{
 //@[49:50) NoOpDeclarationSyntax
 //@[49:50)  NewLine |\n|
 var not = !!!!!!!true
-//@[0:23) SkippedTokensTriviaSyntax
+//@[0:23) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |not|
 //@[8:9)  Assignment |=|
@@ -251,7 +251,7 @@ var not = !!!!!!!true
 //@[80:81) NoOpDeclarationSyntax
 //@[80:81)  NewLine |\n|
 var minus = ------12
-//@[0:22) SkippedTokensTriviaSyntax
+//@[0:22) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  Identifier |minus|
 //@[10:11)  Assignment |=|
@@ -848,7 +848,7 @@ var malformedStringIndex = {
 }['test\e']
 //@[0:1)    RightBrace |}|
 //@[1:2)   LeftSquare |[|
-//@[2:10)   SkippedTokensTriviaSyntax
+//@[2:10)   SkippedTriviaSyntax
 //@[2:10)    StringComplete |'test\e'|
 //@[10:11)   RightSquare |]|
 //@[11:13)  NewLine |\n\n|

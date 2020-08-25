@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as vscode from "vscode";
+
 import { createLogger } from "./utils/logger";
 import { launchLanugageServiceWithProgressReport } from "./language/client";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";

@@ -5,7 +5,7 @@
 //@[20:22) NoOpDeclarationSyntax
 //@[20:22)  NewLine |\r\n|
 bad
-//@[0:7) SkippedTokensTriviaSyntax
+//@[0:7) SkippedTriviaSyntax
 //@[0:3)  Identifier |bad|
 //@[3:7)  NewLine |\r\n\r\n|
 
@@ -13,7 +13,7 @@ bad
 //@[13:15) NoOpDeclarationSyntax
 //@[13:15)  NewLine |\r\n|
 output 
-//@[0:11) SkippedTokensTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:11)  NewLine |\r\n\r\n|
 
@@ -21,7 +21,7 @@ output
 //@[15:17) NoOpDeclarationSyntax
 //@[15:17)  NewLine |\r\n|
 output foo
-//@[0:14) SkippedTokensTriviaSyntax
+//@[0:14) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  Identifier |foo|
 //@[10:14)  NewLine |\r\n\r\n|
@@ -30,7 +30,7 @@ output foo
 //@[29:31) NoOpDeclarationSyntax
 //@[29:31)  NewLine |\r\n|
 output foo fluffy
-//@[0:21) SkippedTokensTriviaSyntax
+//@[0:21) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  Identifier |foo|
 //@[11:17)  Identifier |fluffy|
@@ -40,7 +40,7 @@ output foo fluffy
 //@[16:18) NoOpDeclarationSyntax
 //@[16:18)  NewLine |\r\n|
 output foo string
-//@[0:21) SkippedTokensTriviaSyntax
+//@[0:21) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  Identifier |foo|
 //@[11:17)  Identifier |string|
@@ -50,7 +50,7 @@ output foo string
 //@[16:18) NoOpDeclarationSyntax
 //@[16:18)  NewLine |\r\n|
 output foo string =
-//@[0:23) SkippedTokensTriviaSyntax
+//@[0:23) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  Identifier |foo|
 //@[11:17)  Identifier |string|
@@ -162,7 +162,7 @@ output i int = [
 //@[0:1)   RightSquare |]|
 //@[1:3)  NewLine |\r\n|
 output i int = }
-//@[0:18) SkippedTokensTriviaSyntax
+//@[0:18) SkippedTriviaSyntax
 //@[0:6)  Identifier |output|
 //@[7:8)  Identifier |i|
 //@[9:12)  Identifier |int|
@@ -170,7 +170,7 @@ output i int = }
 //@[15:16)  RightBrace |}|
 //@[16:18)  NewLine |\r\n|
 }
-//@[0:3) SkippedTokensTriviaSyntax
+//@[0:3) SkippedTriviaSyntax
 //@[0:1)  RightBrace |}|
 //@[1:3)  NewLine |\r\n|
 output i int = 'test'

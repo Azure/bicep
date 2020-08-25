@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 
@@ -29,3 +31,4 @@ namespace Bicep.Core.TypeSystem
         public override TypeKind TypeKind => TypeKind.Error;
     }
 }
+

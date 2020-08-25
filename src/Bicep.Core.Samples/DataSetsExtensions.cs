@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.Samples
@@ -14,3 +16,4 @@ namespace Bicep.Core.Samples
             => dataSet.Name.EndsWith("_CRLF");
     }
 }
+

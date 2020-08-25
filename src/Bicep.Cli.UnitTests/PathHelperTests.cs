@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -125,3 +127,4 @@ namespace Bicep.Cli.UnitTests
         private static object[] CreateRow(string input, string expectedOutput) => new object[] {input, expectedOutput};
     }
 }
+

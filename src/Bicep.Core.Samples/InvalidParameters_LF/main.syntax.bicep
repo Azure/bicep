@@ -13,7 +13,7 @@ param myString string
 //@[15:21)   Identifier |string|
 //@[21:22)  NewLine |\n|
 wrong
-//@[0:7) SkippedTokensTriviaSyntax
+//@[0:7) SkippedTriviaSyntax
 //@[0:5)  Identifier |wrong|
 //@[5:7)  NewLine |\n\n|
 
@@ -26,7 +26,7 @@ param myInt int
 //@[12:15)   Identifier |int|
 //@[15:16)  NewLine |\n|
 param
-//@[0:7) SkippedTokensTriviaSyntax
+//@[0:7) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[5:7)  NewLine |\n\n|
 
@@ -40,7 +40,7 @@ param myBool bool
 //@[17:19)  NewLine |\n\n|
 
 param missingType
-//@[0:19) SkippedTokensTriviaSyntax
+//@[0:19) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  Identifier |missingType|
 //@[17:19)  NewLine |\n\n|
@@ -84,7 +84,7 @@ param myInt2 int = 42
 //@[19:21)    Number |42|
 //@[21:22)  NewLine |\n|
 param noValueAfterColon int =   
-//@[0:34) SkippedTokensTriviaSyntax
+//@[0:34) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  Identifier |noValueAfterColon|
 //@[24:27)  Identifier |int|
@@ -117,7 +117,7 @@ param myFalsehood bool = 'false'
 //@[32:34)  NewLine |\n\n|
 
 param wrongAssignmentToken string: 'hello'
-//@[0:44) SkippedTokensTriviaSyntax
+//@[0:44) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  Identifier |wrongAssignmentToken|
 //@[27:33)  Identifier |string|
@@ -142,7 +142,7 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[23:24) NoOpDeclarationSyntax
 //@[23:24)  NewLine |\n|
 param wrongType fluffyBunny = 'what's up doc?'
-//@[0:48) SkippedTokensTriviaSyntax
+//@[0:48) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  Identifier |wrongType|
 //@[16:27)  Identifier |fluffyBunny|
@@ -167,7 +167,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:46)   SkippedTokensTriviaSyntax
+//@[30:46)   SkippedTriviaSyntax
 //@[30:46)    StringComplete |'what\s up doc?'|
 //@[46:48)  NewLine |\n\n|
 
@@ -183,7 +183,7 @@ param wrongType fluffyBunny = 'what\'s up doc?
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:46)   SkippedTokensTriviaSyntax
+//@[30:46)   SkippedTriviaSyntax
 //@[30:46)    StringComplete |'what\'s up doc?|
 //@[46:48)  NewLine |\n\n|
 
@@ -199,8 +199,9 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:41)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:41)   SkippedTokensTriviaSyntax
+//@[30:41)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
+//@[41:41)    SkippedTriviaSyntax
 //@[41:41)    StringRightPiece ||
 //@[41:42)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up
@@ -212,9 +213,11 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:43)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:43)   SkippedTokensTriviaSyntax
+//@[30:43)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:43)    Identifier |up|
+//@[41:43)    VariableAccessSyntax
+//@[41:43)     IdentifierSyntax
+//@[41:43)      Identifier |up|
 //@[43:43)    StringRightPiece ||
 //@[43:44)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up}
@@ -226,9 +229,11 @@ param wrongType fluffyBunny = 'what\'s ${up}
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:44)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:44)   SkippedTokensTriviaSyntax
+//@[30:44)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:43)    Identifier |up|
+//@[41:43)    VariableAccessSyntax
+//@[41:43)     IdentifierSyntax
+//@[41:43)      Identifier |up|
 //@[43:44)    StringRightPiece |}|
 //@[44:45)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up
@@ -240,9 +245,10 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:44)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:44)   SkippedTokensTriviaSyntax
+//@[30:44)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:44)    StringComplete |'up|
+//@[41:44)    SkippedTriviaSyntax
+//@[41:44)     StringComplete |'up|
 //@[44:44)    StringRightPiece ||
 //@[44:46)  NewLine |\n\n|
 
@@ -258,10 +264,12 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:46)   SkippedTokensTriviaSyntax
+//@[30:46)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:46)    StringRightPiece ||
+//@[41:46)    SkippedTriviaSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:46)     SkippedTriviaSyntax
+//@[46:46)     StringRightPiece ||
 //@[46:47)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[0:47) ParameterDeclarationSyntax
@@ -272,10 +280,12 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:46)   SkippedTokensTriviaSyntax
+//@[30:46)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:46)    StringRightPiece ||
+//@[41:46)    SkippedTriviaSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:46)     SkippedTriviaSyntax
+//@[46:46)     StringRightPiece ||
 //@[46:47)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[0:50) ParameterDeclarationSyntax
@@ -286,11 +296,14 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:49)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:49)   SkippedTokensTriviaSyntax
+//@[30:49)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:49)    Identifier |doc|
-//@[49:49)    StringRightPiece ||
+//@[41:49)    SkippedTriviaSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:49)     VariableAccessSyntax
+//@[46:49)      IdentifierSyntax
+//@[46:49)       Identifier |doc|
+//@[49:49)     StringRightPiece ||
 //@[49:50)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[0:51) ParameterDeclarationSyntax
@@ -301,11 +314,14 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:50)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:50)   SkippedTokensTriviaSyntax
+//@[30:50)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:49)    Identifier |doc|
-//@[49:50)    StringRightPiece |}|
+//@[41:50)    SkippedTriviaSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:49)     VariableAccessSyntax
+//@[46:49)      IdentifierSyntax
+//@[46:49)       Identifier |doc|
+//@[49:50)     StringRightPiece |}|
 //@[50:50)    StringRightPiece ||
 //@[50:51)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
@@ -317,11 +333,14 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:51)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:51)   SkippedTokensTriviaSyntax
+//@[30:51)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:49)    Identifier |doc|
-//@[49:51)    StringRightPiece |}'|
+//@[41:51)    StringSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:49)     VariableAccessSyntax
+//@[46:49)      IdentifierSyntax
+//@[46:49)       Identifier |doc|
+//@[49:51)     StringRightPiece |}'|
 //@[51:51)    StringRightPiece ||
 //@[51:52)  NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
@@ -333,11 +352,14 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:53)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:53)   SkippedTokensTriviaSyntax
+//@[30:53)   SkippedTriviaSyntax
 //@[30:41)    StringLeftPiece |'what\'s ${|
-//@[41:46)    StringLeftPiece |'up${|
-//@[46:49)    Identifier |doc|
-//@[49:51)    StringRightPiece |}'|
+//@[41:51)    StringSyntax
+//@[41:46)     StringLeftPiece |'up${|
+//@[46:49)     VariableAccessSyntax
+//@[46:49)      IdentifierSyntax
+//@[46:49)       Identifier |doc|
+//@[49:51)     StringRightPiece |}'|
 //@[51:53)    StringRightPiece |}?|
 //@[53:55)  NewLine |\n\n|
 
@@ -353,19 +375,58 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:54)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
-//@[30:54)   SkippedTokensTriviaSyntax
+//@[30:54)   SkippedTriviaSyntax
 //@[30:33)    StringLeftPiece |'${|
-//@[33:34)    LeftBrace |{|
-//@[34:38)    Identifier |this|
-//@[38:39)    Colon |:|
-//@[40:46)    Identifier |doesnt|
-//@[46:47)    RightBrace |}|
-//@[47:48)    Dot |.|
-//@[48:52)    Identifier |work|
-//@[52:53)    RightBrace |}|
-//@[53:54)    StringComplete |'|
+//@[33:54)    SkippedTriviaSyntax
+//@[33:34)     LeftBrace |{|
+//@[34:38)     Identifier |this|
+//@[38:39)     Colon |:|
+//@[40:46)     Identifier |doesnt|
+//@[46:47)     RightBrace |}|
+//@[47:48)     Dot |.|
+//@[48:52)     Identifier |work|
+//@[52:53)     RightBrace |}|
+//@[53:54)     StringComplete |'|
 //@[54:54)    StringRightPiece ||
 //@[54:56)  NewLine |\n\n|
+
+// bad interpolated string format
+//@[33:34) NoOpDeclarationSyntax
+//@[33:34)  NewLine |\n|
+param badInterpolatedString string = 'hello ${}!'
+//@[0:50) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:27)  IdentifierSyntax
+//@[6:27)   Identifier |badInterpolatedString|
+//@[28:34)  TypeSyntax
+//@[28:34)   Identifier |string|
+//@[35:49)  ParameterDefaultValueSyntax
+//@[35:36)   Assignment |=|
+//@[37:49)   StringSyntax
+//@[37:46)    StringLeftPiece |'hello ${|
+//@[46:46)    SkippedTriviaSyntax
+//@[46:49)    StringRightPiece |}!'|
+//@[49:50)  NewLine |\n|
+param badInterpolatedString2 string = 'hello ${a b c}!'
+//@[0:57) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |badInterpolatedString2|
+//@[29:35)  TypeSyntax
+//@[29:35)   Identifier |string|
+//@[36:55)  ParameterDefaultValueSyntax
+//@[36:37)   Assignment |=|
+//@[38:55)   StringSyntax
+//@[38:47)    StringLeftPiece |'hello ${|
+//@[47:52)    SkippedTriviaSyntax
+//@[47:48)     VariableAccessSyntax
+//@[47:48)      IdentifierSyntax
+//@[47:48)       Identifier |a|
+//@[49:52)     SkippedTriviaSyntax
+//@[49:50)      Identifier |b|
+//@[51:52)      Identifier |c|
+//@[52:55)    StringRightPiece |}!'|
+//@[55:57)  NewLine |\n\n|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:49) ParameterDeclarationSyntax

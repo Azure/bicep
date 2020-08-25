@@ -5,11 +5,17 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
+  "plugins": [
+    "header"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
-  "ignorePatterns": ["gulpfile.js"]
+  "ignorePatterns": ["gulpfile.js"],
+  "rules": {
+    "header/header": [2, "line", [" Copyright (c) Microsoft Corporation.", " Licensed under the MIT License."]]
+  }
 }

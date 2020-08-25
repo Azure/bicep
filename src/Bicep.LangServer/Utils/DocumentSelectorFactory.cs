@@ -1,4 +1,6 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Utils
 {
@@ -7,3 +9,4 @@ namespace Bicep.LanguageServer.Utils
         public static DocumentSelector Create() => DocumentSelector.ForLanguage(LanguageServerConstants.LanguageId);
     }
 }
+

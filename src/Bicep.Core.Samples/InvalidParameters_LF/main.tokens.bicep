@@ -250,6 +250,28 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[54:54) StringRightPiece ||
 //@[54:56) NewLine |\n\n|
 
+// bad interpolated string format
+//@[33:34) NewLine |\n|
+param badInterpolatedString string = 'hello ${}!'
+//@[0:5) Identifier |param|
+//@[6:27) Identifier |badInterpolatedString|
+//@[28:34) Identifier |string|
+//@[35:36) Assignment |=|
+//@[37:46) StringLeftPiece |'hello ${|
+//@[46:49) StringRightPiece |}!'|
+//@[49:50) NewLine |\n|
+param badInterpolatedString2 string = 'hello ${a b c}!'
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |badInterpolatedString2|
+//@[29:35) Identifier |string|
+//@[36:37) Assignment |=|
+//@[38:47) StringLeftPiece |'hello ${|
+//@[47:48) Identifier |a|
+//@[49:50) Identifier |b|
+//@[51:52) Identifier |c|
+//@[52:55) StringRightPiece |}!'|
+//@[55:57) NewLine |\n\n|
+
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:5) Identifier |param|
 //@[6:15) Identifier |wrongType|

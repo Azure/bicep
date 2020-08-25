@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem
 {

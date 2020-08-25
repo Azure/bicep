@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
@@ -153,3 +155,4 @@ namespace Bicep.Core.Emit
         }
     }
 }
+

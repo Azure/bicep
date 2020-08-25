@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Parser;
@@ -139,9 +142,12 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.NullKeyword);
         }
 
-        public virtual void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public virtual void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            this.VisitTokens(syntax.Tokens);
+            foreach (var element in syntax.Elements)
+            {
+                element.Visit(this.Visit, this.VisitToken);
+            }
         }
 
         public virtual void VisitObjectSyntax(ObjectSyntax syntax)

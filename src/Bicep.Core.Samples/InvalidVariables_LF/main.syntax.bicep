@@ -5,7 +5,7 @@
 //@[22:23) NoOpDeclarationSyntax
 //@[22:23)  NewLine |\n|
 bad
-//@[0:5) SkippedTokensTriviaSyntax
+//@[0:5) SkippedTriviaSyntax
 //@[0:3)  Identifier |bad|
 //@[3:5)  NewLine |\n\n|
 
@@ -13,7 +13,7 @@ bad
 //@[34:35) NoOpDeclarationSyntax
 //@[34:35)  NewLine |\n|
 var
-//@[0:5) SkippedTokensTriviaSyntax
+//@[0:5) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[3:5)  NewLine |\n\n|
 
@@ -21,7 +21,7 @@ var
 //@[22:23) NoOpDeclarationSyntax
 //@[22:23)  NewLine |\n|
 var foo
-//@[0:9) SkippedTokensTriviaSyntax
+//@[0:9) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[7:9)  NewLine |\n\n|
@@ -30,7 +30,7 @@ var foo
 //@[20:21) NoOpDeclarationSyntax
 //@[20:21)  NewLine |\n|
 var foo =
-//@[0:11) SkippedTokensTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[8:9)  Assignment |=|
@@ -40,7 +40,7 @@ var foo =
 //@[18:19) NoOpDeclarationSyntax
 //@[18:19)  NewLine |\n|
 var foo = &
-//@[0:13) SkippedTokensTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[8:9)  Assignment |=|
@@ -51,7 +51,7 @@ var foo = &
 //@[12:13) NoOpDeclarationSyntax
 //@[12:13)  NewLine |\n|
 var foo = *
-//@[0:13) SkippedTokensTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[8:9)  Assignment |=|
@@ -143,7 +143,7 @@ var x = [
 //@[6:7)      Number |4|
 //@[7:8)    NewLine |\n|
   =
-//@[2:4)   SkippedTokensTriviaSyntax
+//@[2:4)   SkippedTriviaSyntax
 //@[2:3)    Assignment |=|
 //@[3:4)    NewLine |\n|
   !null
@@ -170,7 +170,7 @@ var y = {
 //@[8:9)   LeftBrace |{|
 //@[9:10)   NewLine |\n|
   =
-//@[2:4)   SkippedTokensTriviaSyntax
+//@[2:4)   SkippedTriviaSyntax
 //@[2:3)    Assignment |=|
 //@[3:4)    NewLine |\n|
   foo: !2
@@ -231,7 +231,7 @@ var test3 = {
 //@[12:13)   LeftBrace |{|
 //@[13:14)   NewLine |\n|
   'bad\escape': true
-//@[2:21)   SkippedTokensTriviaSyntax
+//@[2:21)   SkippedTriviaSyntax
 //@[2:14)    StringComplete |'bad\escape'|
 //@[14:15)    Colon |:|
 //@[16:20)    TrueKeyword |true|
