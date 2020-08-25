@@ -91,7 +91,7 @@ namespace Bicep.Core.SemanticModel
                             symbol.Kind != SymbolKind.Function &&
                             symbol.Kind != SymbolKind.Output)
                         {
-                            accumulated.Add(DiagnosticBuilder.ForPosition(current).ParameterReferencesInvalidSymbolKind(symbol.Kind));
+                            accumulated.Add(DiagnosticBuilder.ForPosition(current).CannotReferenceSymbolInParamDefaultValue());
                         }
                     }
 

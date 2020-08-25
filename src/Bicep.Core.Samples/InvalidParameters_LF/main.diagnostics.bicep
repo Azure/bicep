@@ -240,18 +240,18 @@ resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
 output sampleOutput string = 'hello'
 
 param paramAccessingVar string = concat(sampleVar, 's')
-//@[40:49) Error Parameters default values cannot reference symbols of type 'Variable'. Only other parameters can be referenced in parameter default values. |sampleVar|
+//@[40:49) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
 param paramAccessingVar2 string {
   default: 'foo ${sampleVar} foo'
-//@[18:27) Error Parameters default values cannot reference symbols of type 'Variable'. Only other parameters can be referenced in parameter default values. |sampleVar|
+//@[18:27) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
 }
 
 param paramAccessingResource string = sampleResource
-//@[38:52) Error Parameters default values cannot reference symbols of type 'Resource'. Only other parameters can be referenced in parameter default values. |sampleResource|
+//@[38:52) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 //@[38:52) Error The parameter expects a default value of type 'string' but provided value is of type 'object'. |sampleResource|
 param paramAccessingResource2 string {
   default: base64(sampleResource.properties.foo)
-//@[18:32) Error Parameters default values cannot reference symbols of type 'Resource'. Only other parameters can be referenced in parameter default values. |sampleResource|
+//@[18:32) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
 }
 
 param paramAccessingOutput string = sampleOutput

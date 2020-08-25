@@ -387,10 +387,10 @@ namespace Bicep.Core.Diagnostics
                     $"Expected {expected}, but got {argumentCount}.");
             }
 
-            public ErrorDiagnostic ParameterReferencesInvalidSymbolKind(SymbolKind wrongKind) => new ErrorDiagnostic(
+            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP072",
-                $"Parameters default values cannot reference symbols of type '{wrongKind}'. Only other parameters can be referenced in parameter default values.");
+                "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
