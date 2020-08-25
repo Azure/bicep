@@ -141,7 +141,7 @@ namespace Bicep.Core.TypeSystem
                     case VariableAccessSyntax variableAccess:
                         return GetVariableAccessType(context, variableAccess);
 
-                    case SkippedTokensTriviaSyntax _:
+                    case SkippedTriviaSyntax _:
                         // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
                         return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
 

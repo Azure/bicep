@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -53,6 +54,16 @@ namespace Bicep.Core.Parser
 
             // the spans are in reverse order - flip them
             return TextSpan.Between(b, a);
+        }
+
+        /// <summary>
+        /// Calculates the span for a sequence of positionables, returning a 0-length span at a fallback position if the sequence is empty.
+        /// </summary>
+        public static TextSpan SafeBetween(IEnumerable<IPositionable> positionables, int fallbackPosition)
+        {
+            return positionables.Any() ?
+                TextSpan.Between(positionables.First(), positionables.Last()) :
+                new TextSpan(fallbackPosition, 0);
         }
 
         /// <summary>

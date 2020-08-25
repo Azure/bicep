@@ -52,6 +52,10 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
 
+// bad interpolated string format
+param badInterpolatedString string = 'hello ${}!'
+param badInterpolatedString2 string = 'hello ${a b c}!'
+
 param wrongType fluffyBunny = 'what\'s up doc?'
 
 // modifier on an invalid type

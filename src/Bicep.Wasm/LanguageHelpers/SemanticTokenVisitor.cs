@@ -150,7 +150,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            AddTokenType(syntax.PropertyName, SemanticTokenType.Member);
+            AddTokenType(syntax.PropertyName, SemanticTokenType.Property);
             base.VisitPropertyAccessSyntax(syntax);
         }
 
@@ -161,9 +161,9 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitResourceDeclarationSyntax(syntax);
         }
 
-        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            base.VisitSkippedTokensTriviaSyntax(syntax);
+            base.VisitSkippedTriviaSyntax(syntax);
         }
 
         private void AddStringToken(Token token)
@@ -203,10 +203,6 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitStringSyntax(StringSyntax syntax)
         {
-            foreach (var token in syntax.StringTokens)
-            {
-                AddStringToken(token);
-            }
             base.VisitStringSyntax(syntax);
         }
 
@@ -219,6 +215,18 @@ namespace Bicep.Wasm.LanguageHelpers
 
         protected override void VisitTokenInternal(Token token)
         {
+            switch (token.Type)
+            {
+                case TokenType.StringComplete:
+                case TokenType.StringLeftPiece:
+                case TokenType.StringMiddlePiece:
+                case TokenType.StringRightPiece:
+                    AddStringToken(token);
+                    break;
+                default:
+                    break;
+            }
+
             base.VisitTokenInternal(token);
         }
 
