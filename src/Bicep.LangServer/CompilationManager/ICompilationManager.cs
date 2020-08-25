@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.CompilationManager

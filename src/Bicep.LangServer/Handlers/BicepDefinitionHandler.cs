@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;

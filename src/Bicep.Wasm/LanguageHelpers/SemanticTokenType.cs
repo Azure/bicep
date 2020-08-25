@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 namespace Bicep.Wasm.LanguageHelpers
 {
     public enum SemanticTokenType

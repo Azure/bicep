@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
