@@ -1,6 +1,6 @@
 param storageAccountType string {
     default: 'Standard_LRS'
-    allowedValues: [
+    allowed: [
       'Standard_LRS'
       'Standard_GRS'
       'Standard_ZRS'

@@ -107,9 +107,9 @@ param secureInt int {
 
 // wrong modifier value types
 param wrongIntModifier int {
-//@[6:22) Parameter wrongIntModifier. Declaration start char: 0, length: 147
+//@[6:22) Parameter wrongIntModifier. Declaration start char: 0, length: 141
   default: true
-  allowedValues: [
+  allowed: [
     'test'
     true
   ]
@@ -130,11 +130,11 @@ param wrongMetadataSchema string {
 
 // expression in modifier
 param expressionInModifier string {
-//@[6:26) Parameter expressionInModifier. Declaration start char: 0, length: 123
+//@[6:26) Parameter expressionInModifier. Declaration start char: 0, length: 117
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
-  allowedValues: [
+  allowed: [
     i
   ]
 }
@@ -157,8 +157,8 @@ param paramModifierOneCycle string {
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
-//@[6:28) Parameter paramModifierSelfCycle. Declaration start char: 0, length: 91
-  allowedValues: [
+//@[6:28) Parameter paramModifierSelfCycle. Declaration start char: 0, length: 85
+  allowed: [
     paramModifierSelfCycle
   ]
 }

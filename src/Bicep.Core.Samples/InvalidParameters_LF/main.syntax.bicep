@@ -552,13 +552,13 @@ param secureInt int {
 //@[29:30) NoOpDeclarationSyntax
 //@[29:30)  NewLine |\n|
 param wrongIntModifier int {
-//@[0:147) ParameterDeclarationSyntax
+//@[0:141) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |wrongIntModifier|
 //@[23:26)  TypeSyntax
 //@[23:26)   Identifier |int|
-//@[27:145)  ObjectSyntax
+//@[27:139)  ObjectSyntax
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   default: true
@@ -569,14 +569,14 @@ param wrongIntModifier int {
 //@[11:15)    BooleanLiteralSyntax
 //@[11:15)     TrueKeyword |true|
 //@[15:16)    NewLine |\n|
-  allowedValues: [
-//@[2:43)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:42)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:37)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:36)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     'test'
 //@[4:11)     ArrayItemSyntax
 //@[4:10)      StringSyntax
@@ -664,13 +664,13 @@ param wrongMetadataSchema string {
 //@[25:26) NoOpDeclarationSyntax
 //@[25:26)  NewLine |\n|
 param expressionInModifier string {
-//@[0:123) ParameterDeclarationSyntax
+//@[0:117) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
 //@[27:33)  TypeSyntax
 //@[27:33)   Identifier |string|
-//@[34:121)  ObjectSyntax
+//@[34:115)  ObjectSyntax
 //@[34:35)   LeftBrace |{|
 //@[35:36)   NewLine |\n|
   default: 2 + 3
@@ -709,14 +709,14 @@ param expressionInModifier string {
 //@[16:17)     LeftParen |(|
 //@[17:18)     RightParen |)|
 //@[18:19)    NewLine |\n|
-  allowedValues: [
-//@[2:29)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:28)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:23)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:22)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     i
 //@[4:6)     ArrayItemSyntax
 //@[4:5)      VariableAccessSyntax
@@ -807,23 +807,23 @@ param paramModifierOneCycle string {
 //@[48:49) NoOpDeclarationSyntax
 //@[48:49)  NewLine |\n|
 param paramModifierSelfCycle string {
-//@[0:91) ParameterDeclarationSyntax
+//@[0:85) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierSelfCycle|
 //@[29:35)  TypeSyntax
 //@[29:35)   Identifier |string|
-//@[36:89)  ObjectSyntax
+//@[36:83)  ObjectSyntax
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
-  allowedValues: [
-//@[2:50)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:49)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:44)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:43)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     paramModifierSelfCycle
 //@[4:27)     ArrayItemSyntax
 //@[4:26)      VariableAccessSyntax

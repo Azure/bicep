@@ -71,7 +71,7 @@ param secretObject object {
 
 // enum parameter
 param storageSku string {
-  allowedValues: [
+  allowed: [
     'Standard_LRS'
     'Standard_GRS'
   ]
@@ -122,7 +122,7 @@ param someParameter string {
   minLength: 3
   maxLength: 24
   default: 'one'
-  allowedValues: [
+  allowed: [
     'one'
     'two'
     'three'
