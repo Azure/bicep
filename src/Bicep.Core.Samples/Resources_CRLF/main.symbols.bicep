@@ -132,7 +132,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
-//@[9:15) Resource nested. Declaration start char: 0, length: 354
+//@[9:15) Resource nested. Declaration start char: 0, length: 358
   name: 'nestedTemplate1'
   properties: {
     mode: 'Incremental'
@@ -145,3 +145,18 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
     }
   }
 }
+
+// should be able to access the read only properties
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+//@[9:36) Resource accessingReadOnlyProperties. Declaration start char: 0, length: 286
+  name: 'nestedTemplate1'
+  properties: {
+    otherId: nested.id
+    otherName: nested.name
+    otherVersion: nested.apiVersion
+    otherType: nested.type
+
+    otherThings: nested.properties.mode
+  }
+}
+

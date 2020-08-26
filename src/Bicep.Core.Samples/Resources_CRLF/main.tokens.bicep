@@ -586,4 +586,70 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+// should be able to access the read only properties
+//@[52:54) NewLine |\r\n|
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:36) Identifier |accessingReadOnlyProperties|
+//@[37:68) StringComplete |'Microsoft.Foo/foos@2019-10-01'|
+//@[69:70) Assignment |=|
+//@[71:72) LeftBrace |{|
+//@[72:74) NewLine |\r\n|
+  name: 'nestedTemplate1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:25) StringComplete |'nestedTemplate1'|
+//@[25:27) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    otherId: nested.id
+//@[4:11) Identifier |otherId|
+//@[11:12) Colon |:|
+//@[13:19) Identifier |nested|
+//@[19:20) Dot |.|
+//@[20:22) Identifier |id|
+//@[22:24) NewLine |\r\n|
+    otherName: nested.name
+//@[4:13) Identifier |otherName|
+//@[13:14) Colon |:|
+//@[15:21) Identifier |nested|
+//@[21:22) Dot |.|
+//@[22:26) Identifier |name|
+//@[26:28) NewLine |\r\n|
+    otherVersion: nested.apiVersion
+//@[4:16) Identifier |otherVersion|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |nested|
+//@[24:25) Dot |.|
+//@[25:35) Identifier |apiVersion|
+//@[35:37) NewLine |\r\n|
+    otherType: nested.type
+//@[4:13) Identifier |otherType|
+//@[13:14) Colon |:|
+//@[15:21) Identifier |nested|
+//@[21:22) Dot |.|
+//@[22:26) Identifier |type|
+//@[26:30) NewLine |\r\n\r\n|
+
+    otherThings: nested.properties.mode
+//@[4:15) Identifier |otherThings|
+//@[15:16) Colon |:|
+//@[17:23) Identifier |nested|
+//@[23:24) Dot |.|
+//@[24:34) Identifier |properties|
+//@[34:35) Dot |.|
+//@[35:39) Identifier |mode|
+//@[39:41) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||
