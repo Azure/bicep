@@ -57,6 +57,7 @@ az deployment group create -f ./main.json -g my-rg
   * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
   * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
+* Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resouce declaration.
 
 ## Known limitations
 
@@ -67,6 +68,7 @@ az deployment group create -f ./main.json -g my-rg
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 * No IntelliSense whatsoever [[#269]](https://github.com/Azure/bicep/issues/269)
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
+* No support for explicit dependsOn [[#333]](https://github.com/Azure/bicep/issues/333)
 
 ## Reference
 
