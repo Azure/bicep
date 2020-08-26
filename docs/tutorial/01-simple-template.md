@@ -2,6 +2,8 @@
 
 In this tutorial we'll start from a blank file and build up to a file with the basic bicep primitives.
 
+If you haven't already, follow [these instructions](../installing.md) to install the bicep CLI and VS Code extension.
+
 ## Compile an empty bicep file
 
 Let's start by creating a blank file `main.bicep` and compiling it by running:

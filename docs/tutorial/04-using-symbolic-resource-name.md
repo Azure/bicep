@@ -62,8 +62,8 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 output storageId string = stg.id
-output computedStorageName = stg.name
-output blobEndpoint string = stg.primaryEndpoints.blob // replacement for reference(...).*
+output computedStorageName string = stg.name
+output blobEndpoint string = stg.properties.primaryEndpoints.blob // replacement for reference(...).*
 ```
 
 When we compile, we see the ARM template is correctly using the `reference()` function:

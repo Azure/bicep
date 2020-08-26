@@ -4,7 +4,7 @@ Bicep files **cannot** yet be directly deployed via the Az CLI or PowerShell Az 
 
 ## Compile your bicep file and deploy the template to a resource group
 
-Let's start by compiling and deploying the `main.bicep` file that we've been working with. I can do this via Azure PowerShell or Az CLI. 
+Let's start by compiling and deploying the `main.bicep` file that we've been working with. I can do this via Azure PowerShell or Az CLI.
 
 **Note:** make sure you update your storage account `name` to be globally unique.
 
@@ -12,6 +12,7 @@ Via **Azure PowerShell**:
 
 ```powershell
 bicep build ./main.bicep # generates main.json
+New-AzResourceGroup -Name my-rg -Location eastus # optional - create resource group 'my-rg'
 New-AzResourceGroupDeployment -TemplateFile ./main.json -ResourceGroupName my-rg
 ```
 
@@ -19,14 +20,17 @@ Via **Az CLI**:
 
 ```bash
 bicep build ./main.bicep # generates main.json
+az group create -n my-rg -l eastus # optional - create resource group 'my-rg'
 az deployment group create -f ./main.json -g my-rg
 ```
 
 ## Deploy with parameters
 
-In our 0.1 release, there is **no** new "bicep-style" of authoring a parameters file. Since the compiled bicep file is a standard JSON ARM Template, parameters can be passed to the template in the same ways you are likely already used to. 
+In our 0.1 release, there is **no** new "bicep-style" of authoring a parameters file. Since the compiled bicep file is a standard JSON ARM Template, parameters can be passed to the template in the same ways you are likely already used to.
 
 Our bicep file exposed two parameters that we can override (`location` and `name`)
+
+**Note:** make sure you update your storage account `name` to be globally unique.
 
 ### Pass parameters on the command line
 
@@ -44,6 +48,8 @@ New-AzResourceGroupDeployment -TemplateFile ./main.json -ResourceGroupName my-rg
 
 ### Use a local parameters JSON file
 
+ARM Templates support providing all of the parameters for a template via a JSON file. You can take a look at [this parameters tutorial](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell) to learn how the parameters file is structured. Once you have your parameters file, you can pass it to the deployment command-line tools:
+
 CLI:
 
 ```bash
@@ -56,25 +62,10 @@ PowerShell:
 New-AzResourceGroupDeployment -TemplateFile ./main.json -ResourceGroupName my-rg -TemplateParameterFile ./parameters.main.json
 ```
 
-### Use a remote parameters JSON file
-
-CLI:
-
-```bash
-az deployment group create -f ./main.json -g my-rg --parameters https://mysite/params.json
-```
-
-PowerShell:
-
-```powershell
-New-AzResourceGroupDeployment -TemplateFile ./main.json -ResourceGroupName my-rg -TemplateParameterUri "https://mysite/params.json"
-```
-
-You can take a look at an [example parameters file](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-tutorial-use-parameter-file?tabs=azure-powershell#add-parameter-files) to see a complete end-to-end using a parameters file.
-
 ## Deploy to non-resource group scopes
 
 Bicep will compile a template that uses the resource group `$schema` by default:
+
 ```json
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
@@ -82,7 +73,7 @@ Bicep will compile a template that uses the resource group `$schema` by default:
 }
 ```
 
-However, you can deploy this template to any scope with the [correct command](https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-subscription).
+However, you can deploy this template to any scope with the [correct command](https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-subscription). Note that this is a temporary workaround until Bicep has better support for deploying resources to any scope in Azure.
 
 ## Next steps
 

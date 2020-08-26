@@ -192,3 +192,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
 You can take a look at an entire sample template converted to a bicep file here:
 
 [ARM Template](../complete-bicep-files/05.json) -> [Bicep file](../complete-bicep-files/05.bicep)
+
+We also have a growing set of [examples](../examples) of fully converted [Azure QuickStart templates](https://github.com/Azure/azure-quickstart-templates)

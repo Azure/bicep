@@ -1,8 +1,8 @@
-# Using bicep expressions
+# Using Bicep expressions
 
-In the first tutorial, we declared a basic storage account resource and augmented that declaration with parameters, variables, and outputs. These are all different types of **expressions**.
+In the first tutorial, we declared a basic storage account resource and augmented that declaration with references to declared parameters and variables. These references are forms of **expressions**.
 
-While the bicep language is still in its infancy, there are already some more advanced expressions you can  take advantage of in your bicep files.
+Even though the bicep language is still in its infancy, you can already write some powerful expressions to take advantage of in your bicep files.
 
 ## Using a bicep function
 
@@ -39,7 +39,27 @@ output storageId string = stg.id
 
 ## Using string interpolation
 
-The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#:~:text=In%20computer%20programming%2C%20string%20interpolation,replaced%20with%20their%20corresponding%20values.) syntax. Let's add a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use the variable `storageAccountName` to store this expression, so that our resource declaration is a bit cleaner: 
+The `concat()` function is one of the most commonly used ARM Template functions and can add a lot of verbosity to a template. To simplify this, we now support a [string interpolation](https://en.wikipedia.org/wiki/String_interpolation#) syntax.
+
+For example, I could combine a `namePrefix` parameter with a hardcoded suffix:
+
+```
+param namePrefix string = 'unique'
+
+var storageAccountName = '${namePrefix}storage001'
+```
+
+Which is equivalent to the following ARM Template `concat()` function:
+
+```json
+{
+  "variables": {
+    "storageAccountName": "[concat(parameters('namePrefix'), 'storage001')]"
+  }
+}
+```
+
+Let's use a `namePrefix` parameter and concatenate that with our `uniqueString()` using string interpolation. We'll also use the variable `storageAccountName` to store this expression, so that our resource declaration is a bit cleaner:
 
 ```
 param location string = resourceGroup().location
@@ -88,6 +108,6 @@ output storageId string = stg.id
 
 ## Next steps
 
-In the next tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
+In the next tutorial, we will learn how use the resource's **symbolic name** for simple property references and calculating dependencies:
 
 [4 - Using the symbolic resource name](./04-using-symbolic-resource-name.md)
