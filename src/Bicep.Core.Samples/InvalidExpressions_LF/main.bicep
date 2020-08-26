@@ -199,4 +199,5 @@ var badInnerProperty = sampleObject.myInner.fake
 var badInnerType = sampleObject.myInner.anotherStr + 2
 var badArrayIndexer = sampleObject.myArr['s']
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']

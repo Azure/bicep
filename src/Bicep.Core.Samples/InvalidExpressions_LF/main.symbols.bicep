@@ -263,5 +263,7 @@ var badArrayIndexer = sampleObject.myArr['s']
 //@[4:19) Variable badArrayIndexer. Declaration start char: 0, length: 46
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[4:24) Variable badInnerArrayIndexer. Declaration start char: 0, length: 62
+var badIndexer = sampleObject.myStr['s']
+//@[4:14) Variable badIndexer. Declaration start char: 0, length: 41
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[4:17) Variable badInnerArray. Declaration start char: 0, length: 53

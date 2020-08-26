@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -272,7 +274,9 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ObjectRequiredForStringIndexer(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP051",
-                $"Cannot use a string indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
+                wrongType is ArrayType
+                    ? $"Cannot use a string indexer on an expression of type '{wrongType}'. Use an integer indexer instead or apply the string indexer to an expression of type '{LanguageConstants.Object}'."
+                    : $"Cannot use a string indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
 
             public ErrorDiagnostic MalformedPropertyNameString() => new ErrorDiagnostic(
                 TextSpan,

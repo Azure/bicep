@@ -1120,6 +1120,17 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[57:60) StringComplete |'s'|
 //@[60:61) RightSquare |]|
 //@[61:62) NewLine |\n|
+var badIndexer = sampleObject.myStr['s']
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |badIndexer|
+//@[15:16) Assignment |=|
+//@[17:29) Identifier |sampleObject|
+//@[29:30) Dot |.|
+//@[30:35) Identifier |myStr|
+//@[35:36) LeftSquare |[|
+//@[36:39) StringComplete |'s'|
+//@[39:40) RightSquare |]|
+//@[40:41) NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[0:3) Identifier |var|
 //@[4:17) Identifier |badInnerArray|

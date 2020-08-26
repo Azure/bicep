@@ -1717,6 +1717,25 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[57:60)    StringComplete |'s'|
 //@[60:61)   RightSquare |]|
 //@[61:62)  NewLine |\n|
+var badIndexer = sampleObject.myStr['s']
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:14)  IdentifierSyntax
+//@[4:14)   Identifier |badIndexer|
+//@[15:16)  Assignment |=|
+//@[17:40)  ArrayAccessSyntax
+//@[17:35)   PropertyAccessSyntax
+//@[17:29)    VariableAccessSyntax
+//@[17:29)     IdentifierSyntax
+//@[17:29)      Identifier |sampleObject|
+//@[29:30)    Dot |.|
+//@[30:35)    IdentifierSyntax
+//@[30:35)     Identifier |myStr|
+//@[35:36)   LeftSquare |[|
+//@[36:39)   StringSyntax
+//@[36:39)    StringComplete |'s'|
+//@[39:40)   RightSquare |]|
+//@[40:41)  NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[0:53) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

@@ -304,8 +304,10 @@ var badInnerProperty = sampleObject.myInner.fake
 var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[19:54) Error Cannot apply operator '+' to operands of type 'string' and 'int'. |sampleObject.myInner.anotherStr + 2|
 var badArrayIndexer = sampleObject.myArr['s']
-//@[41:44) Error Cannot use a string indexer on an expression of type 'int[]'. An 'object' type is required. |'s'|
+//@[41:44) Error Cannot use a string indexer on an expression of type 'int[]'. Use an integer indexer instead or apply the string indexer to an expression of type 'object'. |'s'|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
-//@[57:60) Error Cannot use a string indexer on an expression of type 'string[]'. An 'object' type is required. |'s'|
+//@[57:60) Error Cannot use a string indexer on an expression of type 'string[]'. Use an integer indexer instead or apply the string indexer to an expression of type 'object'. |'s'|
+var badIndexer = sampleObject.myStr['s']
+//@[36:39) Error Cannot use a string indexer on an expression of type 'string'. An 'object' type is required. |'s'|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|
