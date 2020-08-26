@@ -31,7 +31,7 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
 }
 
 resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, so dependsOn was not automatically added
+  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, but dependsOn was not automatically added
   location: location
   properties: {
     edition: databaseEdition
