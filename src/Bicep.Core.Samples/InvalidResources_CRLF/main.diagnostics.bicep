@@ -107,10 +107,10 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 // unsupported resource ref
 var resrefvar = bar.name
-//@[16:19) Error The referenced declaration with name 'bar' is not valid. |bar|
 
 param resrefpar string = foo.id
 //@[25:28) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
+//@[25:28) Error The referenced declaration with name 'foo' is not valid. |foo|
 
 output resrefout bool = bar.id
-//@[24:27) Error The referenced declaration with name 'bar' is not valid. |bar|
+//@[24:30) Error The output expects a value of type 'bool' but the provided value is of type 'string'. |bar.id|

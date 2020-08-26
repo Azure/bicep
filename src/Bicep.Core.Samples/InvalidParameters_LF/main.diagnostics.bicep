@@ -248,7 +248,7 @@ param paramAccessingVar2 string {
 
 param paramAccessingResource string = sampleResource
 //@[38:52) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
-//@[38:52) Error The parameter expects a default value of type 'string' but provided value is of type 'object'. |sampleResource|
+//@[38:52) Error The parameter expects a default value of type 'string' but provided value is of type 'Microsoft.Foo/foos@2020-02-02'. |sampleResource|
 param paramAccessingResource2 string {
   default: base64(sampleResource.properties.foo)
 //@[18:32) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|

@@ -201,7 +201,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP035",
                 $"The specified object is missing the following required properties: {properties}.");
 
-            public ErrorDiagnostic PropertyTypeMismatch(object property, object expectedType, object actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic PropertyTypeMismatch(string property, TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP036",
                 $"The property '{property}' expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
@@ -391,6 +391,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP072",
                 "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
+
+            public ErrorDiagnostic CannotAssignToReadOnlyProperty(string property) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP073",
+                $"The property '{property}' is read-only. Expressions cannot be assigned to read-only properties.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

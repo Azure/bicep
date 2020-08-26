@@ -404,7 +404,7 @@ namespace Bicep.Core.TypeSystem
                     return errorSymbol.ToErrorType();
 
                 case ResourceSymbol resource:
-                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.GetVariableType(context));
+                    return GetResourceType(context, syntax, resource);
 
                 case ParameterSymbol parameter:
                     return GetParameterType(context, syntax, parameter);
@@ -418,6 +418,18 @@ namespace Bicep.Core.TypeSystem
                 default:
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
             }
+        }
+
+        private TypeSymbol GetResourceType(TypeManagerContext context, VariableAccessSyntax syntax, ResourceSymbol resource)
+        {
+            // resource bodies can participate in cycles
+            // need to explicitly force a type check on the body
+            if (ContainsCyclicExpressionError(this.GetTypeInfoInternal(context, resource.Body)))
+            {
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).CyclicExpression());
+            }
+
+            return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.Type);
         }
 
         private TypeSymbol GetParameterType(TypeManagerContext context, VariableAccessSyntax syntax, ParameterSymbol parameter)
