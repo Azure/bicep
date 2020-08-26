@@ -76,6 +76,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var namedPropertyIndexer = {
+  foo: 's'
 }['foo']
 
 var intIndexer = [

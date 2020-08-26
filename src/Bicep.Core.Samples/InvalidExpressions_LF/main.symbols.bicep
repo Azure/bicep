@@ -218,7 +218,7 @@ var emitLimit = [
 
 // cannot compile an expression like this
 var emitLimit2 = {
-//@[4:14) Variable emitLimit2. Declaration start char: 0, length: 115
+//@[4:14) Variable emitLimit2. Declaration start char: 0, length: 117
   a: {
     b: {
       a: resourceGroup().location
@@ -228,3 +228,40 @@ var emitLimit2 = {
     ], true)
   }
 }
+
+var sampleObject = {
+//@[4:16) Variable sampleObject. Declaration start char: 0, length: 192
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+//@[4:15) Variable badProperty. Declaration start char: 0, length: 38
+var badPropertyIndexer = sampleObject['fake']
+//@[4:22) Variable badPropertyIndexer. Declaration start char: 0, length: 46
+var badType = sampleObject.myStr / 32
+//@[4:11) Variable badType. Declaration start char: 0, length: 38
+var badInnerProperty = sampleObject.myInner.fake
+//@[4:20) Variable badInnerProperty. Declaration start char: 0, length: 49
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[4:16) Variable badInnerType. Declaration start char: 0, length: 55
+var badArrayIndexer = sampleObject.myArr['s']
+//@[4:19) Variable badArrayIndexer. Declaration start char: 0, length: 46
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[4:24) Variable badInnerArrayIndexer. Declaration start char: 0, length: 62
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[4:17) Variable badInnerArray. Declaration start char: 0, length: 53

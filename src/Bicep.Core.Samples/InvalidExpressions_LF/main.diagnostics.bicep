@@ -273,3 +273,39 @@ var emitLimit2 = {
 //@[7:11) Error Argument of type 'bool' is not assignable to parameter of type 'array'. |true|
   }
 }
+
+var sampleObject = {
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+//@[31:37) Error The type 'object' does not contain property 'myFake'. |myFake|
+var badPropertyIndexer = sampleObject['fake']
+//@[38:44) Error The type 'object' does not contain property 'fake'. |'fake'|
+var badType = sampleObject.myStr / 32
+//@[14:37) Error Cannot apply operator '/' to operands of type 'string' and 'int'. |sampleObject.myStr / 32|
+var badInnerProperty = sampleObject.myInner.fake
+//@[44:48) Error The type 'object' does not contain property 'fake'. |fake|
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[19:54) Error Cannot apply operator '+' to operands of type 'string' and 'int'. |sampleObject.myInner.anotherStr + 2|
+var badArrayIndexer = sampleObject.myArr['s']
+//@[41:44) Error Cannot use a string indexer on an expression of type 'int[]'. An 'object' type is required. |'s'|
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[57:60) Error Cannot use a string indexer on an expression of type 'string[]'. An 'object' type is required. |'s'|
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|

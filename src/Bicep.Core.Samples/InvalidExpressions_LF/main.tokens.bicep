@@ -971,4 +971,165 @@ var emitLimit2 = {
 //@[3:4) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+var sampleObject = {
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |sampleObject|
+//@[17:18) Assignment |=|
+//@[19:20) LeftBrace |{|
+//@[20:21) NewLine |\n|
+  myInt: 42
+//@[2:7) Identifier |myInt|
+//@[7:8) Colon |:|
+//@[9:11) Number |42|
+//@[11:12) NewLine |\n|
+  myStr: 's'
+//@[2:7) Identifier |myStr|
+//@[7:8) Colon |:|
+//@[9:12) StringComplete |'s'|
+//@[12:13) NewLine |\n|
+  myBool: false
+//@[2:8) Identifier |myBool|
+//@[8:9) Colon |:|
+//@[10:15) FalseKeyword |false|
+//@[15:16) NewLine |\n|
+  myNull: null
+//@[2:8) Identifier |myNull|
+//@[8:9) Colon |:|
+//@[10:14) NullKeyword |null|
+//@[14:15) NewLine |\n|
+  myInner: {
+//@[2:9) Identifier |myInner|
+//@[9:10) Colon |:|
+//@[11:12) LeftBrace |{|
+//@[12:13) NewLine |\n|
+    anotherStr: 'a'
+//@[4:14) Identifier |anotherStr|
+//@[14:15) Colon |:|
+//@[16:19) StringComplete |'a'|
+//@[19:20) NewLine |\n|
+    otherArr: [
+//@[4:12) Identifier |otherArr|
+//@[12:13) Colon |:|
+//@[14:15) LeftSquare |[|
+//@[15:16) NewLine |\n|
+      's'
+//@[6:9) StringComplete |'s'|
+//@[9:10) NewLine |\n|
+      'a'
+//@[6:9) StringComplete |'a'|
+//@[9:10) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+  myArr: [
+//@[2:7) Identifier |myArr|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+    1
+//@[4:5) Number |1|
+//@[5:6) NewLine |\n|
+    2
+//@[4:5) Number |2|
+//@[5:6) NewLine |\n|
+    3
+//@[4:5) Number |3|
+//@[5:6) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var badProperty = sampleObject.myFake
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |badProperty|
+//@[16:17) Assignment |=|
+//@[18:30) Identifier |sampleObject|
+//@[30:31) Dot |.|
+//@[31:37) Identifier |myFake|
+//@[37:38) NewLine |\n|
+var badPropertyIndexer = sampleObject['fake']
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |badPropertyIndexer|
+//@[23:24) Assignment |=|
+//@[25:37) Identifier |sampleObject|
+//@[37:38) LeftSquare |[|
+//@[38:44) StringComplete |'fake'|
+//@[44:45) RightSquare |]|
+//@[45:46) NewLine |\n|
+var badType = sampleObject.myStr / 32
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |badType|
+//@[12:13) Assignment |=|
+//@[14:26) Identifier |sampleObject|
+//@[26:27) Dot |.|
+//@[27:32) Identifier |myStr|
+//@[33:34) Slash |/|
+//@[35:37) Number |32|
+//@[37:38) NewLine |\n|
+var badInnerProperty = sampleObject.myInner.fake
+//@[0:3) Identifier |var|
+//@[4:20) Identifier |badInnerProperty|
+//@[21:22) Assignment |=|
+//@[23:35) Identifier |sampleObject|
+//@[35:36) Dot |.|
+//@[36:43) Identifier |myInner|
+//@[43:44) Dot |.|
+//@[44:48) Identifier |fake|
+//@[48:49) NewLine |\n|
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |badInnerType|
+//@[17:18) Assignment |=|
+//@[19:31) Identifier |sampleObject|
+//@[31:32) Dot |.|
+//@[32:39) Identifier |myInner|
+//@[39:40) Dot |.|
+//@[40:50) Identifier |anotherStr|
+//@[51:52) Plus |+|
+//@[53:54) Number |2|
+//@[54:55) NewLine |\n|
+var badArrayIndexer = sampleObject.myArr['s']
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |badArrayIndexer|
+//@[20:21) Assignment |=|
+//@[22:34) Identifier |sampleObject|
+//@[34:35) Dot |.|
+//@[35:40) Identifier |myArr|
+//@[40:41) LeftSquare |[|
+//@[41:44) StringComplete |'s'|
+//@[44:45) RightSquare |]|
+//@[45:46) NewLine |\n|
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[0:3) Identifier |var|
+//@[4:24) Identifier |badInnerArrayIndexer|
+//@[25:26) Assignment |=|
+//@[27:39) Identifier |sampleObject|
+//@[39:40) Dot |.|
+//@[40:47) Identifier |myInner|
+//@[47:48) Dot |.|
+//@[48:56) Identifier |otherArr|
+//@[56:57) LeftSquare |[|
+//@[57:60) StringComplete |'s'|
+//@[60:61) RightSquare |]|
+//@[61:62) NewLine |\n|
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |badInnerArray|
+//@[18:19) Assignment |=|
+//@[20:32) Identifier |sampleObject|
+//@[32:33) Dot |.|
+//@[33:40) Identifier |myInner|
+//@[40:41) Dot |.|
+//@[41:48) Identifier |fakeArr|
+//@[48:49) LeftSquare |[|
+//@[49:52) StringComplete |'s'|
+//@[52:53) RightSquare |]|
+//@[53:53) EndOfFile ||

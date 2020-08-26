@@ -102,7 +102,8 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[4:17) Variable anyIndexOnAny. Declaration start char: 0, length: 43
 
 var namedPropertyIndexer = {
-//@[4:24) Variable namedPropertyIndexer. Declaration start char: 0, length: 39
+//@[4:24) Variable namedPropertyIndexer. Declaration start char: 0, length: 50
+  foo: 's'
 }['foo']
 
 var intIndexer = [

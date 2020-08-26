@@ -586,15 +586,23 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[41:43)  NewLine |\n\n|
 
 var namedPropertyIndexer = {
-//@[0:39) VariableDeclarationSyntax
+//@[0:50) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |namedPropertyIndexer|
 //@[25:26)  Assignment |=|
-//@[27:37)  ArrayAccessSyntax
-//@[27:30)   ObjectSyntax
+//@[27:48)  ArrayAccessSyntax
+//@[27:41)   ObjectSyntax
 //@[27:28)    LeftBrace |{|
 //@[28:29)    NewLine |\n|
+  foo: 's'
+//@[2:11)    ObjectPropertySyntax
+//@[2:5)     IdentifierSyntax
+//@[2:5)      Identifier |foo|
+//@[5:6)     Colon |:|
+//@[7:10)     StringSyntax
+//@[7:10)      StringComplete |'s'|
+//@[10:11)     NewLine |\n|
 }['foo']
 //@[0:1)    RightBrace |}|
 //@[1:2)   LeftSquare |[|

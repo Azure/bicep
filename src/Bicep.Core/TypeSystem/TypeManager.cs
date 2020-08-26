@@ -190,8 +190,13 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            // TODO: Narrow down the object type
-            return LanguageConstants.Object;
+            // type results are cached
+            var properties = @object.Properties
+                .GroupBy(p => p.GetKeyText(), LanguageConstants.IdentifierComparer)
+                .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => this.GetTypeInfoInternal(context, p.Value)))));
+
+            // TODO: Add structural naming?
+            return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
         }
 
         private TypeSymbol GetArrayType(TypeManagerContext context, ArraySyntax array)
