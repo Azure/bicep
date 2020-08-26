@@ -69,7 +69,7 @@
         "compile": "tsc -p ./",
         "lint": "eslint src --ext ts",
         "lint:fix": "eslint src --ext ts --fix",
-        "package": "gulp setversion && vsce package --out ./ && gulp resetversion"
+        "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },
     "devDependencies": {
         "@types/mocha": "^8.0.3",
