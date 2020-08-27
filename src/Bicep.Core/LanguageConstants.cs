@@ -29,6 +29,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
+        public static readonly TypeSymbol ResourceRef = new ResourceRefType();
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int");
@@ -140,7 +141,8 @@ namespace Bicep.Core
             yield return new TypeProperty("identity", Object);
 
             yield return new TypeProperty("properties", Object);
+
+            yield return new TypeProperty("dependsOn", new TypedArrayType(ResourceRef), TypePropertyFlags.WriteOnly);
         }
     }
 }
-

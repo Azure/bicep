@@ -93,9 +93,45 @@ output resrefout bool = bar.id
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[9:12) Resource baz. Declaration start char: 0, length: 119
+//@[9:12) Resource baz. Declaration start char: 0, length: 123
   name: 'test'
   id: 2
   type: 'hello'
   apiVersion: true
+}
+
+resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:19) Resource badDepends. Declaration start char: 0, length: 117
+  name: 'test'
+  dependsOn: [
+    baz.id
+  ]
+}
+
+resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:20) Resource badDepends2. Declaration start char: 0, length: 129
+  name: 'test'
+  dependsOn: [
+    'hello'
+    true
+  ]
+}
+
+resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:20) Resource badDepends3. Declaration start char: 0, length: 85
+  name: 'test'
+}
+
+resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:20) Resource badDepends4. Declaration start char: 0, length: 123
+  name: 'test'
+  dependsOn: [
+    badDepends3
+  ]
+}
+
+resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:20) Resource badDepends5. Declaration start char: 0, length: 117
+  name: 'test'
+  dependsOn: badDepends3.dependsOn
 }

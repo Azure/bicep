@@ -395,6 +395,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP076",
                 $"Cannot index over expression of type '{wrongType}'. Arrays or objects are required.");
+
+            public ErrorDiagnostic WriteOnlyProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP077",
+                $"The property '{badProperty}' on type '{type}' is write-only. Write-only properties cannot be accessed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

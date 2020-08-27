@@ -217,14 +217,14 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[1:5)  NewLine |\r\n\r\n|
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[0:499) ResourceDeclarationSyntax
+//@[0:542) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:24)  IdentifierSyntax
 //@[9:24)   Identifier |withExpressions|
 //@[25:71)  StringSyntax
 //@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2017-10-01'|
 //@[72:73)  Assignment |=|
-//@[74:495)  ObjectSyntax
+//@[74:538)  ObjectSyntax
 //@[74:75)   LeftBrace |{|
 //@[75:77)   NewLine |\r\n|
   name: 'myencryptedone'
@@ -377,6 +377,23 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[24:26)      NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  dependsOn: [
+//@[2:43)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:41)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    myStorageAccount
+//@[4:22)     ArrayItemSyntax
+//@[4:20)      VariableAccessSyntax
+//@[4:20)       IdentifierSyntax
+//@[4:20)        Identifier |myStorageAccount|
+//@[20:22)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|

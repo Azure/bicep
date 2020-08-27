@@ -26,5 +26,10 @@ namespace Bicep.Core.TypeSystem
         /// The property is read-only.
         /// </summary>
         ReadOnly = 1 << 2,
+
+        /// <summary>
+        /// The property is write-only.
+        /// </summary>
+        WriteOnly = 1 << 3,
     }
 }

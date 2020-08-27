@@ -37,7 +37,7 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[9:24) Resource withExpressions. Declaration start char: 0, length: 499
+//@[9:24) Resource withExpressions. Declaration start char: 0, length: 542
   name: 'myencryptedone'
   location: 'eastus2'
   properties: {
@@ -59,6 +59,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   sku: {
     name: 'Standard_LRS'
   }
+  dependsOn: [
+    myStorageAccount
+  ]
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'

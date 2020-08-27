@@ -26,6 +26,10 @@ namespace Bicep.Core.Emit
             "metadata"
         }.ToImmutableArray();
 
+        private static ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
+            "dependsOn"
+        }.ToImmutableHashSet();
+
         private readonly JsonTextWriter writer;
         private readonly EmitterContext context;
         private readonly ExpressionEmitter emitter;
@@ -161,7 +165,7 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
-            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
+            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it

@@ -253,6 +253,17 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    myStorageAccount
+//@[4:20) Identifier |myStorageAccount|
+//@[20:22) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
