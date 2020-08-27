@@ -69,8 +69,8 @@ Usage:
 
   {exeName} [options]
     Options:
-      --version    Shows bicep version information
-      --help       Shows this usage information
+      --version  -v   Shows bicep version information
+      --help     -h   Shows this usage information
 "; // this newline is intentional
 
             writer.Write(output);
