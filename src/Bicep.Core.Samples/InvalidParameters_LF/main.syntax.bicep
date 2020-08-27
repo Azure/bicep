@@ -552,13 +552,13 @@ param secureInt int {
 //@[29:30) NoOpDeclarationSyntax
 //@[29:30)  NewLine |\n|
 param wrongIntModifier int {
-//@[0:147) ParameterDeclarationSyntax
+//@[0:141) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |wrongIntModifier|
 //@[23:26)  TypeSyntax
 //@[23:26)   Identifier |int|
-//@[27:145)  ObjectSyntax
+//@[27:139)  ObjectSyntax
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   default: true
@@ -569,14 +569,14 @@ param wrongIntModifier int {
 //@[11:15)    BooleanLiteralSyntax
 //@[11:15)     TrueKeyword |true|
 //@[15:16)    NewLine |\n|
-  allowedValues: [
-//@[2:43)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:42)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:37)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:36)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     'test'
 //@[4:11)     ArrayItemSyntax
 //@[4:10)      StringSyntax
@@ -664,13 +664,13 @@ param wrongMetadataSchema string {
 //@[25:26) NoOpDeclarationSyntax
 //@[25:26)  NewLine |\n|
 param expressionInModifier string {
-//@[0:123) ParameterDeclarationSyntax
+//@[0:117) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
 //@[27:33)  TypeSyntax
 //@[27:33)   Identifier |string|
-//@[34:121)  ObjectSyntax
+//@[34:115)  ObjectSyntax
 //@[34:35)   LeftBrace |{|
 //@[35:36)   NewLine |\n|
   default: 2 + 3
@@ -709,14 +709,14 @@ param expressionInModifier string {
 //@[16:17)     LeftParen |(|
 //@[17:18)     RightParen |)|
 //@[18:19)    NewLine |\n|
-  allowedValues: [
-//@[2:29)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:28)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:23)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:22)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     i
 //@[4:6)     ArrayItemSyntax
 //@[4:5)      VariableAccessSyntax
@@ -807,23 +807,23 @@ param paramModifierOneCycle string {
 //@[48:49) NoOpDeclarationSyntax
 //@[48:49)  NewLine |\n|
 param paramModifierSelfCycle string {
-//@[0:91) ParameterDeclarationSyntax
+//@[0:85) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierSelfCycle|
 //@[29:35)  TypeSyntax
 //@[29:35)   Identifier |string|
-//@[36:89)  ObjectSyntax
+//@[36:83)  ObjectSyntax
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
-  allowedValues: [
-//@[2:50)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:49)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+  allowed: [
+//@[2:44)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:43)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
     paramModifierSelfCycle
 //@[4:27)     ArrayItemSyntax
 //@[4:26)      VariableAccessSyntax
@@ -920,6 +920,187 @@ param paramMixedTwoCycle2 string {
 //@[11:30)     IdentifierSyntax
 //@[11:30)      Identifier |paramMixedTwoCycle1|
 //@[30:31)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\n\n|
+
+// wrong types of "variable"/identifier access
+//@[46:47) NoOpDeclarationSyntax
+//@[46:47)  NewLine |\n|
+var sampleVar = 'sample'
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |sampleVar|
+//@[14:15)  Assignment |=|
+//@[16:24)  StringSyntax
+//@[16:24)   StringComplete |'sample'|
+//@[24:25)  NewLine |\n|
+resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+//@[0:76) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:23)  IdentifierSyntax
+//@[9:23)   Identifier |sampleResource|
+//@[24:55)  StringSyntax
+//@[24:55)   StringComplete |'Microsoft.Foo/foos@2020-02-02'|
+//@[56:57)  Assignment |=|
+//@[58:75)  ObjectSyntax
+//@[58:59)   LeftBrace |{|
+//@[59:60)   NewLine |\n|
+  name: 'foo'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:13)    StringSyntax
+//@[8:13)     StringComplete |'foo'|
+//@[13:14)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:2)  NewLine |\n|
+output sampleOutput string = 'hello'
+//@[0:38) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |sampleOutput|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[27:28)  Assignment |=|
+//@[29:36)  StringSyntax
+//@[29:36)   StringComplete |'hello'|
+//@[36:38)  NewLine |\n\n|
+
+param paramAccessingVar string = concat(sampleVar, 's')
+//@[0:56) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |paramAccessingVar|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[31:55)  ParameterDefaultValueSyntax
+//@[31:32)   Assignment |=|
+//@[33:55)   FunctionCallSyntax
+//@[33:39)    IdentifierSyntax
+//@[33:39)     Identifier |concat|
+//@[39:40)    LeftParen |(|
+//@[40:50)    FunctionArgumentSyntax
+//@[40:49)     VariableAccessSyntax
+//@[40:49)      IdentifierSyntax
+//@[40:49)       Identifier |sampleVar|
+//@[49:50)     Comma |,|
+//@[51:54)    FunctionArgumentSyntax
+//@[51:54)     StringSyntax
+//@[51:54)      StringComplete |'s'|
+//@[54:55)    RightParen |)|
+//@[55:56)  NewLine |\n|
+param paramAccessingVar2 string {
+//@[0:71) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:24)  IdentifierSyntax
+//@[6:24)   Identifier |paramAccessingVar2|
+//@[25:31)  TypeSyntax
+//@[25:31)   Identifier |string|
+//@[32:69)  ObjectSyntax
+//@[32:33)   LeftBrace |{|
+//@[33:34)   NewLine |\n|
+  default: 'foo ${sampleVar} foo'
+//@[2:34)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |default|
+//@[9:10)    Colon |:|
+//@[11:33)    StringSyntax
+//@[11:18)     StringLeftPiece |'foo ${|
+//@[18:27)     VariableAccessSyntax
+//@[18:27)      IdentifierSyntax
+//@[18:27)       Identifier |sampleVar|
+//@[27:33)     StringRightPiece |} foo'|
+//@[33:34)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\n\n|
+
+param paramAccessingResource string = sampleResource
+//@[0:53) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |paramAccessingResource|
+//@[29:35)  TypeSyntax
+//@[29:35)   Identifier |string|
+//@[36:52)  ParameterDefaultValueSyntax
+//@[36:37)   Assignment |=|
+//@[38:52)   VariableAccessSyntax
+//@[38:52)    IdentifierSyntax
+//@[38:52)     Identifier |sampleResource|
+//@[52:53)  NewLine |\n|
+param paramAccessingResource2 string {
+//@[0:91) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:29)  IdentifierSyntax
+//@[6:29)   Identifier |paramAccessingResource2|
+//@[30:36)  TypeSyntax
+//@[30:36)   Identifier |string|
+//@[37:89)  ObjectSyntax
+//@[37:38)   LeftBrace |{|
+//@[38:39)   NewLine |\n|
+  default: base64(sampleResource.properties.foo)
+//@[2:49)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |default|
+//@[9:10)    Colon |:|
+//@[11:48)    FunctionCallSyntax
+//@[11:17)     IdentifierSyntax
+//@[11:17)      Identifier |base64|
+//@[17:18)     LeftParen |(|
+//@[18:47)     FunctionArgumentSyntax
+//@[18:47)      PropertyAccessSyntax
+//@[18:43)       PropertyAccessSyntax
+//@[18:32)        VariableAccessSyntax
+//@[18:32)         IdentifierSyntax
+//@[18:32)          Identifier |sampleResource|
+//@[32:33)        Dot |.|
+//@[33:43)        IdentifierSyntax
+//@[33:43)         Identifier |properties|
+//@[43:44)       Dot |.|
+//@[44:47)       IdentifierSyntax
+//@[44:47)        Identifier |foo|
+//@[47:48)     RightParen |)|
+//@[48:49)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\n\n|
+
+param paramAccessingOutput string = sampleOutput
+//@[0:49) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:26)  IdentifierSyntax
+//@[6:26)   Identifier |paramAccessingOutput|
+//@[27:33)  TypeSyntax
+//@[27:33)   Identifier |string|
+//@[34:48)  ParameterDefaultValueSyntax
+//@[34:35)   Assignment |=|
+//@[36:48)   VariableAccessSyntax
+//@[36:48)    IdentifierSyntax
+//@[36:48)     Identifier |sampleOutput|
+//@[48:49)  NewLine |\n|
+param paramAccessingOutput2 string {
+//@[0:64) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:27)  IdentifierSyntax
+//@[6:27)   Identifier |paramAccessingOutput2|
+//@[28:34)  TypeSyntax
+//@[28:34)   Identifier |string|
+//@[35:62)  ObjectSyntax
+//@[35:36)   LeftBrace |{|
+//@[36:37)   NewLine |\n|
+  default: sampleOutput
+//@[2:24)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |default|
+//@[9:10)    Colon |:|
+//@[11:23)    VariableAccessSyntax
+//@[11:23)     IdentifierSyntax
+//@[11:23)      Identifier |sampleOutput|
+//@[23:24)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3)  NewLine |\n\n|

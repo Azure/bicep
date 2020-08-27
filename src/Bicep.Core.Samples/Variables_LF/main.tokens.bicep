@@ -387,6 +387,11 @@ var namedPropertyIndexer = {
 //@[25:26) Assignment |=|
 //@[27:28) LeftBrace |{|
 //@[28:29) NewLine |\n|
+  foo: 's'
+//@[2:5) Identifier |foo|
+//@[5:6) Colon |:|
+//@[7:10) StringComplete |'s'|
+//@[10:11) NewLine |\n|
 }['foo']
 //@[0:1) RightBrace |}|
 //@[1:2) LeftSquare |[|

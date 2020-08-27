@@ -5,7 +5,7 @@ param adminPassword string {
 param dnsLabelPrefix string
 param windowsOSVersion string {
     default :'2016-Datacenter'
-    allowedValues : [
+    allowed : [
         '2008-R2-SP1'
         '2012-Datacenter'
         '2012-R2-Datacenter'

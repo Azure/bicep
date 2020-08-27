@@ -148,7 +148,7 @@ param secureInt int {
 param wrongIntModifier int {
   default: true
 //@[11:15) Error The property 'default' expected a value of type 'int' but the provided value is of type 'bool'. |true|
-  allowedValues: [
+  allowed: [
     'test'
 //@[4:10) Error The enclosing array expected an item of type 'int', but the provided item was of type 'string'. |'test'|
     true
@@ -182,7 +182,7 @@ param expressionInModifier string {
   minLength: foo()
 //@[13:16) Error The name 'foo' does not exist in the current context. |foo|
 //@[13:18) Error The value must be a compile-time constant. |foo()|
-  allowedValues: [
+  allowed: [
     i
 //@[4:5) Error The name 'i' does not exist in the current context. |i|
 //@[4:5) Error The value must be a compile-time constant. |i|
@@ -207,7 +207,7 @@ param paramModifierOneCycle string {
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
-  allowedValues: [
+  allowed: [
     paramModifierSelfCycle
 //@[4:26) Error The expression is involved in a cycle. |paramModifierSelfCycle|
 //@[4:26) Error The value must be a compile-time constant. |paramModifierSelfCycle|
@@ -230,6 +230,35 @@ param paramMixedTwoCycle1 string = paramMixedTwoCycle2
 param paramMixedTwoCycle2 string {
   default: paramMixedTwoCycle1
 //@[11:30) Error The expression is involved in a cycle. |paramMixedTwoCycle1|
+}
+
+// wrong types of "variable"/identifier access
+var sampleVar = 'sample'
+resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+  name: 'foo'
+}
+output sampleOutput string = 'hello'
+
+param paramAccessingVar string = concat(sampleVar, 's')
+//@[40:49) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
+param paramAccessingVar2 string {
+  default: 'foo ${sampleVar} foo'
+//@[18:27) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleVar|
+}
+
+param paramAccessingResource string = sampleResource
+//@[38:52) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
+//@[38:52) Error The parameter expects a default value of type 'string' but provided value is of type 'Microsoft.Foo/foos@2020-02-02'. |sampleResource|
+param paramAccessingResource2 string {
+  default: base64(sampleResource.properties.foo)
+//@[18:32) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
+}
+
+param paramAccessingOutput string = sampleOutput
+//@[36:48) Error The name 'sampleOutput' is an output. Outputs cannot be referenced in expressions. |sampleOutput|
+param paramAccessingOutput2 string {
+  default: sampleOutput
+//@[11:23) Error The name 'sampleOutput' is an output. Outputs cannot be referenced in expressions. |sampleOutput|
 }
 
 // unterminated multi-line comment

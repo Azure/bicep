@@ -194,13 +194,20 @@ namespace Bicep.Core.TypeSystem
                         skipConstantCheckForProperty = true;
                     }
 
+                    if (declaredProperty.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+                    {
+                        // the declared property is read-only
+                        // value cannot be assigned to a read-only property
+                        result = result.Append(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(declaredProperty.Name));
+                    }
+
                     // declared property is specified in the value object
                     // validate type
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 
@@ -240,7 +247,7 @@ namespace Bicep.Core.TypeSystem
                         typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 

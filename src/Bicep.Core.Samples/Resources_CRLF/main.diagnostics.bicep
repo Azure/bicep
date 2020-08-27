@@ -128,3 +128,17 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
     }
   }
 }
+
+// should be able to access the read only properties
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+  name: 'nestedTemplate1'
+  properties: {
+    otherId: nested.id
+    otherName: nested.name
+    otherVersion: nested.apiVersion
+    otherType: nested.type
+
+    otherThings: nested.properties.mode
+  }
+}
+

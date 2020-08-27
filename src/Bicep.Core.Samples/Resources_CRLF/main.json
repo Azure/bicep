@@ -141,6 +141,21 @@
           "resources": []
         }
       }
+    },
+    {
+      "type": "Microsoft.Foo/foos",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "otherId": "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]",
+        "otherName": "nestedTemplate1",
+        "otherVersion": "2019-10-01",
+        "otherType": "Microsoft.Resources/deployments",
+        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')).mode]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]"
+      ]
     }
   ],
   "outputs": {}

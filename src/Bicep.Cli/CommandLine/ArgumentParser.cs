@@ -22,8 +22,10 @@ namespace Bicep.Cli.CommandLine
                 case CliConstants.CommandBuild:
                     return ParseBuild(args[1..]);
                 case CliConstants.ArgumentHelp:
+                case CliConstants.ArgumentHelpShort:
                     return new HelpArguments();
                 case CliConstants.ArgumentVersion:
+                case CliConstants.ArgumentVersionShort:
                     return new VersionArguments();
                 default:
                     return new UnrecognizedArguments(string.Join(' ', args));
@@ -67,8 +69,8 @@ Usage:
 
   {exeName} [options]
     Options:
-      --version    Shows bicep version information
-      --help       Shows this usage information
+      --version  -v   Shows bicep version information
+      --help     -h   Shows this usage information
 "; // this newline is intentional
 
             writer.Write(output);

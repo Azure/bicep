@@ -87,7 +87,7 @@ resource nic 'microsoft.network/networkInterfaces@2019-06-01' = {
             id: pip.id
           }
           subnet: {
-            id: '${vnet.id}/subnets/${subnet1Name}' // resourceId() would not gen dependsOn correctly
+            id: '${vnet.id}/subnets/${subnet1Name}' // resourceId() would not generate dependsOn correctly
           }
         }
       }

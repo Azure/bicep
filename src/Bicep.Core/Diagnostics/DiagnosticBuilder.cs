@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
@@ -200,7 +200,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP035",
                 $"The specified object is missing the following required properties: {properties}.");
 
-            public ErrorDiagnostic PropertyTypeMismatch(object property, object expectedType, object actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic PropertyTypeMismatch(string property, TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP036",
                 $"The property '{property}' expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
@@ -262,21 +262,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP049",
                 $"The array index must be of type '{LanguageConstants.String}' or '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
-
-            public ErrorDiagnostic ArrayRequiredForIntegerIndexer(TypeSymbol wrongType) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP050",
-                $"Cannot use an integer indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Array}' type is required.");
-
-            public ErrorDiagnostic ObjectRequiredForStringIndexer(TypeSymbol wrongType) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP051",
-                $"Cannot use a string indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
-
-            public ErrorDiagnostic MalformedPropertyNameString() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP052",
-                "The property name in a string indexer is malformed.");
 
             public ErrorDiagnostic UnknownProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
                 TextSpan,
@@ -346,7 +331,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP067",
-                $"String interpolation in not supported in object keys.");
+                "String interpolation in not supported in object keys.");
 
             public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
                 TextSpan,
@@ -385,6 +370,31 @@ namespace Bicep.Core.Diagnostics
                     "BCP071",
                     $"Expected {expected}, but got {argumentCount}.");
             }
+
+            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP072",
+                "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
+
+            public ErrorDiagnostic CannotAssignToReadOnlyProperty(string property) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP073",
+                $"The property '{property}' is read-only. Expressions cannot be assigned to read-only properties.");
+
+            public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP074",
+                $"Indexing over arrays requires an index of type '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
+
+            public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP075",
+                $"Indexing over objects requires an index of type '{LanguageConstants.String}' but the provided index was of type '{wrongType}'.");
+
+            public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP076",
+                $"Cannot index over expression of type '{wrongType}'. Arrays or objects are required.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

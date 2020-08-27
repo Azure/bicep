@@ -385,23 +385,23 @@ param secretObject object {
 //@[17:19) NoOpDeclarationSyntax
 //@[17:19)  NewLine |\r\n|
 param storageSku string {
-//@[0:97) ParameterDeclarationSyntax
+//@[0:91) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |storageSku|
 //@[17:23)  TypeSyntax
 //@[17:23)   Identifier |string|
-//@[24:93)  ObjectSyntax
+//@[24:87)  ObjectSyntax
 //@[24:25)   LeftBrace |{|
 //@[25:27)   NewLine |\r\n|
-  allowedValues: [
-//@[2:65)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:63)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:20)     NewLine |\r\n|
+  allowed: [
+//@[2:59)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:57)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:14)     NewLine |\r\n|
     'Standard_LRS'
 //@[4:20)     ArrayItemSyntax
 //@[4:18)      StringSyntax
@@ -635,13 +635,13 @@ param additionalMetadata string {
 //@[25:27) NoOpDeclarationSyntax
 //@[25:27)  NewLine |\r\n|
 param someParameter string {
-//@[0:230) ParameterDeclarationSyntax
+//@[0:224) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |someParameter|
 //@[20:26)  TypeSyntax
 //@[20:26)   Identifier |string|
-//@[27:226)  ObjectSyntax
+//@[27:220)  ObjectSyntax
 //@[27:28)   LeftBrace |{|
 //@[28:30)   NewLine |\r\n|
   secure: true
@@ -676,14 +676,14 @@ param someParameter string {
 //@[11:16)    StringSyntax
 //@[11:16)     StringComplete |'one'|
 //@[16:18)    NewLine |\r\n|
-  allowedValues: [
-//@[2:60)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |allowedValues|
-//@[15:16)    Colon |:|
-//@[17:58)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:20)     NewLine |\r\n|
+  allowed: [
+//@[2:54)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:52)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:14)     NewLine |\r\n|
     'one'
 //@[4:11)     ArrayItemSyntax
 //@[4:9)      StringSyntax

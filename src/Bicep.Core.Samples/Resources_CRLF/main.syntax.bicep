@@ -822,7 +822,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[1:5)  NewLine |\r\n\r\n|
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
-//@[0:354) ResourceDeclarationSyntax
+//@[0:358) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:15)  IdentifierSyntax
 //@[9:15)   Identifier |nested|
@@ -901,4 +901,113 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5)  NewLine |\r\n\r\n|
+
+// should be able to access the read only properties
+//@[52:54) NoOpDeclarationSyntax
+//@[52:54)  NewLine |\r\n|
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+//@[0:286) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |accessingReadOnlyProperties|
+//@[37:68)  StringSyntax
+//@[37:68)   StringComplete |'Microsoft.Foo/foos@2019-10-01'|
+//@[69:70)  Assignment |=|
+//@[71:284)  ObjectSyntax
+//@[71:72)   LeftBrace |{|
+//@[72:74)   NewLine |\r\n|
+  name: 'nestedTemplate1'
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:25)    StringSyntax
+//@[8:25)     StringComplete |'nestedTemplate1'|
+//@[25:27)    NewLine |\r\n|
+  properties: {
+//@[2:182)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:180)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    otherId: nested.id
+//@[4:24)     ObjectPropertySyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |otherId|
+//@[11:12)      Colon |:|
+//@[13:22)      PropertyAccessSyntax
+//@[13:19)       VariableAccessSyntax
+//@[13:19)        IdentifierSyntax
+//@[13:19)         Identifier |nested|
+//@[19:20)       Dot |.|
+//@[20:22)       IdentifierSyntax
+//@[20:22)        Identifier |id|
+//@[22:24)      NewLine |\r\n|
+    otherName: nested.name
+//@[4:28)     ObjectPropertySyntax
+//@[4:13)      IdentifierSyntax
+//@[4:13)       Identifier |otherName|
+//@[13:14)      Colon |:|
+//@[15:26)      PropertyAccessSyntax
+//@[15:21)       VariableAccessSyntax
+//@[15:21)        IdentifierSyntax
+//@[15:21)         Identifier |nested|
+//@[21:22)       Dot |.|
+//@[22:26)       IdentifierSyntax
+//@[22:26)        Identifier |name|
+//@[26:28)      NewLine |\r\n|
+    otherVersion: nested.apiVersion
+//@[4:37)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |otherVersion|
+//@[16:17)      Colon |:|
+//@[18:35)      PropertyAccessSyntax
+//@[18:24)       VariableAccessSyntax
+//@[18:24)        IdentifierSyntax
+//@[18:24)         Identifier |nested|
+//@[24:25)       Dot |.|
+//@[25:35)       IdentifierSyntax
+//@[25:35)        Identifier |apiVersion|
+//@[35:37)      NewLine |\r\n|
+    otherType: nested.type
+//@[4:30)     ObjectPropertySyntax
+//@[4:13)      IdentifierSyntax
+//@[4:13)       Identifier |otherType|
+//@[13:14)      Colon |:|
+//@[15:26)      PropertyAccessSyntax
+//@[15:21)       VariableAccessSyntax
+//@[15:21)        IdentifierSyntax
+//@[15:21)         Identifier |nested|
+//@[21:22)       Dot |.|
+//@[22:26)       IdentifierSyntax
+//@[22:26)        Identifier |type|
+//@[26:30)      NewLine |\r\n\r\n|
+
+    otherThings: nested.properties.mode
+//@[4:41)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |otherThings|
+//@[15:16)      Colon |:|
+//@[17:39)      PropertyAccessSyntax
+//@[17:34)       PropertyAccessSyntax
+//@[17:23)        VariableAccessSyntax
+//@[17:23)         IdentifierSyntax
+//@[17:23)          Identifier |nested|
+//@[23:24)        Dot |.|
+//@[24:34)        IdentifierSyntax
+//@[24:34)         Identifier |properties|
+//@[34:35)       Dot |.|
+//@[35:39)       IdentifierSyntax
+//@[35:39)        Identifier |mode|
+//@[39:41)      NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
+
+//@[0:0) EndOfFile ||
