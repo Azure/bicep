@@ -17,11 +17,6 @@ namespace Bicep.Core.SemanticModel
 
         public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax) this.DeclaringSyntax;
 
-        public TypeSymbol GetVariableType(TypeManagerContext context)
-        {
-            return this.Context.TypeManager.GetTypeInfo(this.DeclaringResource.Body, context);
-        }
-
         public TypeSymbol Type
         {
             get

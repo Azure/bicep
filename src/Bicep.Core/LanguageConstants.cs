@@ -103,7 +103,13 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
+            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly);
+
             yield return new TypeProperty("name", String, TypePropertyFlags.Required);
+
+            yield return new TypeProperty("type", String, TypePropertyFlags.ReadOnly);
+
+            yield return new TypeProperty("apiVersion", String, TypePropertyFlags.ReadOnly);
 
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);

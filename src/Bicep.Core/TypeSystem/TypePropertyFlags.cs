@@ -15,11 +15,16 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The property is required.
         /// </summary>
-        Required = 1,
+        Required = 1 << 0,
 
         /// <summary>
         /// The property only accepts compile-time constants.
         /// </summary>
-        Constant = 2
+        Constant = 1 << 1,
+
+        /// <summary>
+        /// The property is read-only.
+        /// </summary>
+        ReadOnly = 1 << 2,
     }
 }

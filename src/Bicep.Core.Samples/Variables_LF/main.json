@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {},
@@ -62,7 +62,7 @@
     ],
     "expressionIndexOnAny": "[json('{}')[resourceGroup().location]]",
     "anyIndexOnAny": "[json('true')[json('false')]]",
-    "namedPropertyIndexer": "[json('{}').foo]",
+    "namedPropertyIndexer": "[json('{\"foo\":\"s\"}').foo]",
     "intIndexer": "[json('[\"s\"]')[0]]",
     "functionOnIndexer1": "[concat(json('[\"s\"]')[0], 's')]",
     "functionOnIndexer2": "[concat(json('[]')[0], 's')]",

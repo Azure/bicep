@@ -107,10 +107,23 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 // unsupported resource ref
 var resrefvar = bar.name
-//@[16:19) Error The referenced declaration with name 'bar' is not valid. |bar|
 
 param resrefpar string = foo.id
 //@[25:28) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |foo|
+//@[25:28) Error The referenced declaration with name 'foo' is not valid. |foo|
 
 output resrefout bool = bar.id
-//@[24:27) Error The referenced declaration with name 'bar' is not valid. |bar|
+//@[24:30) Error The output expects a value of type 'bool' but the provided value is of type 'string'. |bar.id|
+
+// attempting to set read-only properties
+resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  id: 2
+//@[2:4) Error The property 'id' is read-only. Expressions cannot be assigned to read-only properties. |id|
+//@[6:7) Error The property 'id' expected a value of type 'string' but the provided value is of type 'int'. |2|
+  type: 'hello'
+//@[2:6) Error The property 'type' is read-only. Expressions cannot be assigned to read-only properties. |type|
+  apiVersion: true
+//@[2:12) Error The property 'apiVersion' is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
+//@[14:18) Error The property 'apiVersion' expected a value of type 'string' but the provided value is of type 'bool'. |true|
+}
