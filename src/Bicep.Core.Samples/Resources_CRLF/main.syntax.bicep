@@ -907,7 +907,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[52:54) NoOpDeclarationSyntax
 //@[52:54)  NewLine |\r\n|
 resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
-//@[0:286) ResourceDeclarationSyntax
+//@[0:288) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:36)  IdentifierSyntax
 //@[9:36)   Identifier |accessingReadOnlyProperties|
@@ -1008,6 +1008,359 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\r\n|
+//@[1:5)  NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource resourceA 'My.Rp/typeA@2020-01-01' = {
+//@[0:75) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |resourceA|
+//@[19:43)  StringSyntax
+//@[19:43)   StringComplete |'My.Rp/typeA@2020-01-01'|
+//@[44:45)  Assignment |=|
+//@[46:71)  ObjectSyntax
+//@[46:47)   LeftBrace |{|
+//@[47:49)   NewLine |\r\n|
+  name: 'resourceA'
+//@[2:21)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'resourceA'|
+//@[19:21)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[0:96) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |resourceB|
+//@[19:49)  StringSyntax
+//@[19:49)   StringComplete |'My.Rp/typeA/typeB@2020-01-01'|
+//@[50:51)  Assignment |=|
+//@[52:92)  ObjectSyntax
+//@[52:53)   LeftBrace |{|
+//@[53:55)   NewLine |\r\n|
+  name: '${resourceA.name}/myName'
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:34)    StringSyntax
+//@[8:11)     StringLeftPiece |'${|
+//@[11:25)     PropertyAccessSyntax
+//@[11:20)      VariableAccessSyntax
+//@[11:20)       IdentifierSyntax
+//@[11:20)        Identifier |resourceA|
+//@[20:21)      Dot |.|
+//@[21:25)      IdentifierSyntax
+//@[21:25)       Identifier |name|
+//@[25:34)     StringRightPiece |}/myName'|
+//@[34:36)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[0:273) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |resourceC|
+//@[19:49)  StringSyntax
+//@[19:49)   StringComplete |'My.Rp/typeA/typeB@2020-01-01'|
+//@[50:51)  Assignment |=|
+//@[52:269)  ObjectSyntax
+//@[52:53)   LeftBrace |{|
+//@[53:55)   NewLine |\r\n|
+  name: '${resourceA.name}/myName'
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:34)    StringSyntax
+//@[8:11)     StringLeftPiece |'${|
+//@[11:25)     PropertyAccessSyntax
+//@[11:20)      VariableAccessSyntax
+//@[11:20)       IdentifierSyntax
+//@[11:20)        Identifier |resourceA|
+//@[20:21)      Dot |.|
+//@[21:25)      IdentifierSyntax
+//@[21:25)       Identifier |name|
+//@[25:34)     StringRightPiece |}/myName'|
+//@[34:36)    NewLine |\r\n|
+  properties: {
+//@[2:177)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:175)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    aId: resourceA.id
+//@[4:23)     ObjectPropertySyntax
+//@[4:7)      IdentifierSyntax
+//@[4:7)       Identifier |aId|
+//@[7:8)      Colon |:|
+//@[9:21)      PropertyAccessSyntax
+//@[9:18)       VariableAccessSyntax
+//@[9:18)        IdentifierSyntax
+//@[9:18)         Identifier |resourceA|
+//@[18:19)       Dot |.|
+//@[19:21)       IdentifierSyntax
+//@[19:21)        Identifier |id|
+//@[21:23)      NewLine |\r\n|
+    aType: resourceA.type
+//@[4:27)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |aType|
+//@[9:10)      Colon |:|
+//@[11:25)      PropertyAccessSyntax
+//@[11:20)       VariableAccessSyntax
+//@[11:20)        IdentifierSyntax
+//@[11:20)         Identifier |resourceA|
+//@[20:21)       Dot |.|
+//@[21:25)       IdentifierSyntax
+//@[21:25)        Identifier |type|
+//@[25:27)      NewLine |\r\n|
+    aName: resourceA.name
+//@[4:27)     ObjectPropertySyntax
+//@[4:9)      IdentifierSyntax
+//@[4:9)       Identifier |aName|
+//@[9:10)      Colon |:|
+//@[11:25)      PropertyAccessSyntax
+//@[11:20)       VariableAccessSyntax
+//@[11:20)        IdentifierSyntax
+//@[11:20)         Identifier |resourceA|
+//@[20:21)       Dot |.|
+//@[21:25)       IdentifierSyntax
+//@[21:25)        Identifier |name|
+//@[25:27)      NewLine |\r\n|
+    aApiVersion: resourceA.apiVersion
+//@[4:39)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |aApiVersion|
+//@[15:16)      Colon |:|
+//@[17:37)      PropertyAccessSyntax
+//@[17:26)       VariableAccessSyntax
+//@[17:26)        IdentifierSyntax
+//@[17:26)         Identifier |resourceA|
+//@[26:27)       Dot |.|
+//@[27:37)       IdentifierSyntax
+//@[27:37)        Identifier |apiVersion|
+//@[37:39)      NewLine |\r\n|
+    bProperties: resourceB.properties
+//@[4:39)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |bProperties|
+//@[15:16)      Colon |:|
+//@[17:37)      PropertyAccessSyntax
+//@[17:26)       VariableAccessSyntax
+//@[17:26)        IdentifierSyntax
+//@[17:26)         Identifier |resourceB|
+//@[26:27)       Dot |.|
+//@[27:37)       IdentifierSyntax
+//@[27:37)        Identifier |properties|
+//@[37:39)      NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+var varARuntime = {
+//@[0:159) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |varARuntime|
+//@[16:17)  Assignment |=|
+//@[18:155)  ObjectSyntax
+//@[18:19)   LeftBrace |{|
+//@[19:21)   NewLine |\r\n|
+  bId: resourceB.id
+//@[2:21)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |bId|
+//@[5:6)    Colon |:|
+//@[7:19)    PropertyAccessSyntax
+//@[7:16)     VariableAccessSyntax
+//@[7:16)      IdentifierSyntax
+//@[7:16)       Identifier |resourceB|
+//@[16:17)     Dot |.|
+//@[17:19)     IdentifierSyntax
+//@[17:19)      Identifier |id|
+//@[19:21)    NewLine |\r\n|
+  bType: resourceB.type
+//@[2:25)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |bType|
+//@[7:8)    Colon |:|
+//@[9:23)    PropertyAccessSyntax
+//@[9:18)     VariableAccessSyntax
+//@[9:18)      IdentifierSyntax
+//@[9:18)       Identifier |resourceB|
+//@[18:19)     Dot |.|
+//@[19:23)     IdentifierSyntax
+//@[19:23)      Identifier |type|
+//@[23:25)    NewLine |\r\n|
+  bName: resourceB.name
+//@[2:25)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |bName|
+//@[7:8)    Colon |:|
+//@[9:23)    PropertyAccessSyntax
+//@[9:18)     VariableAccessSyntax
+//@[9:18)      IdentifierSyntax
+//@[9:18)       Identifier |resourceB|
+//@[18:19)     Dot |.|
+//@[19:23)     IdentifierSyntax
+//@[19:23)      Identifier |name|
+//@[23:25)    NewLine |\r\n|
+  bApiVersion: resourceB.apiVersion
+//@[2:37)   ObjectPropertySyntax
+//@[2:13)    IdentifierSyntax
+//@[2:13)     Identifier |bApiVersion|
+//@[13:14)    Colon |:|
+//@[15:35)    PropertyAccessSyntax
+//@[15:24)     VariableAccessSyntax
+//@[15:24)      IdentifierSyntax
+//@[15:24)       Identifier |resourceB|
+//@[24:25)     Dot |.|
+//@[25:35)     IdentifierSyntax
+//@[25:35)      Identifier |apiVersion|
+//@[35:37)    NewLine |\r\n|
+  aKind: resourceA.kind
+//@[2:25)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |aKind|
+//@[7:8)    Colon |:|
+//@[9:23)    PropertyAccessSyntax
+//@[9:18)     VariableAccessSyntax
+//@[9:18)      IdentifierSyntax
+//@[9:18)       Identifier |resourceA|
+//@[18:19)     Dot |.|
+//@[19:23)     IdentifierSyntax
+//@[19:23)      Identifier |kind|
+//@[23:25)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+var varBRuntime = [
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |varBRuntime|
+//@[16:17)  Assignment |=|
+//@[18:37)  ArraySyntax
+//@[18:19)   LeftSquare |[|
+//@[19:21)   NewLine |\r\n|
+  varARuntime
+//@[2:15)   ArrayItemSyntax
+//@[2:13)    VariableAccessSyntax
+//@[2:13)     IdentifierSyntax
+//@[2:13)      Identifier |varARuntime|
+//@[13:15)    NewLine |\r\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:5)  NewLine |\r\n\r\n|
+
+var resourceCRef = {
+//@[0:45) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |resourceCRef|
+//@[17:18)  Assignment |=|
+//@[19:43)  ObjectSyntax
+//@[19:20)   LeftBrace |{|
+//@[20:22)   NewLine |\r\n|
+  id: resourceC.id
+//@[2:20)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |id|
+//@[4:5)    Colon |:|
+//@[6:18)    PropertyAccessSyntax
+//@[6:15)     VariableAccessSyntax
+//@[6:15)      IdentifierSyntax
+//@[6:15)       Identifier |resourceC|
+//@[15:16)     Dot |.|
+//@[16:18)     IdentifierSyntax
+//@[16:18)      Identifier |id|
+//@[18:20)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
+var setResourceCRef = true
+//@[0:30) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |setResourceCRef|
+//@[20:21)  Assignment |=|
+//@[22:26)  BooleanLiteralSyntax
+//@[22:26)   TrueKeyword |true|
+//@[26:30)  NewLine |\r\n\r\n|
+
+resource resourceD 'My.Rp/typeD@2020-01-01' = {
+//@[0:231) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |resourceD|
+//@[19:43)  StringSyntax
+//@[19:43)   StringComplete |'My.Rp/typeD@2020-01-01'|
+//@[44:45)  Assignment |=|
+//@[46:231)  ObjectSyntax
+//@[46:47)   LeftBrace |{|
+//@[47:49)   NewLine |\r\n|
+  name: 'constant'
+//@[2:20)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:18)    StringSyntax
+//@[8:18)     StringComplete |'constant'|
+//@[18:20)    NewLine |\r\n|
+  properties: {
+//@[2:161)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:159)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    runtime: varBRuntime
+//@[4:86)     ObjectPropertySyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |runtime|
+//@[11:12)      Colon |:|
+//@[13:24)      VariableAccessSyntax
+//@[13:24)       IdentifierSyntax
+//@[13:24)        Identifier |varBRuntime|
+//@[24:26)      NewLine |\r\n|
+    // repro for https://github.com/Azure/bicep/issues/316
+//@[58:60)      NewLine |\r\n|
+    repro316: setResourceCRef ? resourceCRef : null
+//@[4:53)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |repro316|
+//@[12:13)      Colon |:|
+//@[14:51)      TernaryOperationSyntax
+//@[14:29)       VariableAccessSyntax
+//@[14:29)        IdentifierSyntax
+//@[14:29)         Identifier |setResourceCRef|
+//@[30:31)       Question |?|
+//@[32:44)       VariableAccessSyntax
+//@[32:44)        IdentifierSyntax
+//@[32:44)         Identifier |resourceCRef|
+//@[45:46)       Colon |:|
+//@[47:51)       NullLiteralSyntax
+//@[47:51)        NullKeyword |null|
+//@[51:53)      NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

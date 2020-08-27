@@ -202,7 +202,7 @@ namespace Bicep.Core.Emit
                     return CreateUnaryFunction("parameters", new JTokenExpression(name));
 
                 case VariableSymbol variableSymbol:
-                    if (context.RequiresInlining(variableSymbol))
+                    if (context.VariablesToInline.Contains(variableSymbol))
                     {
                         // we've got a runtime dependency, so we have to inline the variable usage
                         return ConvertExpression(variableSymbol.DeclaringVariable.Value);

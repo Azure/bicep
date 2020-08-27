@@ -10,6 +10,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -101,7 +102,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            string bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Bicep.bicep", dataSet.Bicep);
+            var bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMain), dataSet.Bicep);
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
@@ -112,23 +113,22 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().BeEmpty();
             error.Should().BeEmpty();
 
-            string compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, $"{dataSet.Name}_Bicep.json");
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
             File.Exists(compiledFilePath).Should().BeTrue();
 
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Actual.json", File.ReadAllText(compiledFilePath));
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Expected.json", dataSet.Compiled!);
-
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
-            var expected = JToken.Parse(dataSet.Compiled!);
 
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Compiled_Delta.json");
+            actual.Should().EqualWithJsonDiffOutput(
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileToStdOutShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            string bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Bicep.bicep", dataSet.Bicep);
+            var bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMain), dataSet.Bicep);
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
@@ -137,16 +137,17 @@ namespace Bicep.Cli.IntegrationTests
             });
 
             error.Should().BeEmpty();
-            
             output.Should().NotBeEmpty();
 
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Actual.json", output);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Expected.json", dataSet.Compiled!);
+            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), output);
+            File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
-            var expected = JToken.Parse(dataSet.Compiled!);
 
-            JsonAssert.AreEqual(expected,actual,this.TestContext!, $"{dataSet.Name}_Compiled_Delta.json");
+            actual.Should().EqualWithJsonDiffOutput(
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
         }
 
         [TestMethod]
@@ -155,7 +156,7 @@ namespace Bicep.Cli.IntegrationTests
             var validDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid).ToList();
 
             var bicepFiles = validDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, $"{ds.Name}_Bicep.bicep", ds.Bicep))
+                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, Path.Combine(ds.Name, DataSet.TestFileMain), ds.Bicep))
                 .ToList();
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
@@ -169,18 +170,17 @@ namespace Bicep.Cli.IntegrationTests
             output.Should().BeEmpty();
             error.Should().BeEmpty();
 
-            var compiledFiles = bicepFiles.Select(file => Path.ChangeExtension(file, ".json")).ToList();
-
-            validDataSets.Should().HaveCount(compiledFiles.Count);
-            foreach (var (dataSet, compiledFilePath) in validDataSets.Zip(compiledFiles))
+            foreach (var dataSet in validDataSets)
             {
-                FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Actual.json", File.ReadAllText(compiledFilePath));
-                FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Expected.json", dataSet.Compiled!);
+                var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+                File.Exists(compiledFilePath).Should().BeTrue();
 
                 var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
-                var expected = JToken.Parse(dataSet.Compiled!);
 
-                JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Compiled_Delta.json");
+                actual.Should().EqualWithJsonDiffOutput(
+                    JToken.Parse(dataSet.Compiled!),
+                    expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                    actualLocation: compiledFilePath);
             }
         }
 
@@ -190,7 +190,7 @@ namespace Bicep.Cli.IntegrationTests
             var validDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid).ToList();
 
             var bicepFiles = validDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, $"{ds.Name}_Bicep.bicep", ds.Bicep))
+                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, Path.Combine(ds.Name, DataSet.TestFileMain), ds.Bicep))
                 .ToList();
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>

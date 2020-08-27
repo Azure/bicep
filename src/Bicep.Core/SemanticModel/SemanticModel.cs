@@ -16,14 +16,11 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        public SymbolGraph SymbolGraph { get; }
-
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, SymbolGraph symbolGraph)
+        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings)
         {
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
-            this.SymbolGraph = symbolGraph;
         }
 
         /// <summary>

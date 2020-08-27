@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions.Primitives;
 using JsonDiffPatchDotNet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -43,4 +44,3 @@ namespace Bicep.Core.UnitTests.Json
         public static JToken Diff(JToken one, JToken two) => new JsonDiffPatch(new Options { TextDiff = TextDiffMode.Simple }).Diff(one, two);
     }
 }
-
