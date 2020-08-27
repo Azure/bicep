@@ -131,7 +131,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
       count: number | undefined
     ): ErrorAction {
       callWithTelemetryAndErrorHandlingSync(
-        "Language Server Error",
+        "bicep.lsp-error",
         (context: IActionContext) => {
           context.telemetry.properties.jsonrpcMessage = message
             ? message.jsonrpc
@@ -146,7 +146,7 @@ function configureTelemetry(client: lsp.LanguageClient) {
     },
     closed(): CloseAction {
       callWithTelemetryAndErrorHandlingSync(
-        "Language Server Error",
+        "bicep.lsp-error",
         (context: IActionContext) => {
           context.telemetry.measurements.secondsSinceStart =
             (Date.now() - startTime) / 1000;
