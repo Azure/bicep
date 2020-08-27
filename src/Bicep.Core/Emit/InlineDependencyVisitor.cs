@@ -124,7 +124,7 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resourceSymbol:
                     if (!(resourceSymbol.Type is ResourceType resourceType))
                     {
-                        // is this even possible?
+                        // Type could be an ErrorType here
                         return;
                     }
 
