@@ -125,7 +125,7 @@ namespace Bicep.Core.Emit
 
             foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
             {
-                if (!this.context.RequiresInlining(variableSymbol))
+                if (!this.context.VariablesToInline.Contains(variableSymbol))
                 {
                     writer.WritePropertyName(variableSymbol.Name);
                     this.EmitVariable(variableSymbol);
@@ -172,7 +172,7 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(ResourceSymbol resourceSymbol)
         {
-            var dependencies = this.context.SemanticModel.SymbolGraph.GetResourceDependencies(resourceSymbol);
+            var dependencies = context.ResourceDependencies[resourceSymbol];
             if (!dependencies.Any())
             {
                 return;

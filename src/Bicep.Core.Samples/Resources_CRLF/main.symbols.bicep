@@ -148,7 +148,7 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 
 // should be able to access the read only properties
 resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
-//@[9:36) Resource accessingReadOnlyProperties. Declaration start char: 0, length: 286
+//@[9:36) Resource accessingReadOnlyProperties. Declaration start char: 0, length: 288
   name: 'nestedTemplate1'
   properties: {
     otherId: nested.id
@@ -160,3 +160,55 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
   }
 }
 
+resource resourceA 'My.Rp/typeA@2020-01-01' = {
+//@[9:18) Resource resourceA. Declaration start char: 0, length: 75
+  name: 'resourceA'
+}
+
+resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[9:18) Resource resourceB. Declaration start char: 0, length: 96
+  name: '${resourceA.name}/myName'
+}
+
+resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[9:18) Resource resourceC. Declaration start char: 0, length: 273
+  name: '${resourceA.name}/myName'
+  properties: {
+    aId: resourceA.id
+    aType: resourceA.type
+    aName: resourceA.name
+    aApiVersion: resourceA.apiVersion
+    bProperties: resourceB.properties
+  }
+}
+
+var varARuntime = {
+//@[4:15) Variable varARuntime. Declaration start char: 0, length: 159
+  bId: resourceB.id
+  bType: resourceB.type
+  bName: resourceB.name
+  bApiVersion: resourceB.apiVersion
+  aKind: resourceA.kind
+}
+
+var varBRuntime = [
+//@[4:15) Variable varBRuntime. Declaration start char: 0, length: 41
+  varARuntime
+]
+
+var resourceCRef = {
+//@[4:16) Variable resourceCRef. Declaration start char: 0, length: 45
+  id: resourceC.id
+}
+var setResourceCRef = true
+//@[4:19) Variable setResourceCRef. Declaration start char: 0, length: 30
+
+resource resourceD 'My.Rp/typeD@2020-01-01' = {
+//@[9:18) Resource resourceD. Declaration start char: 0, length: 231
+  name: 'constant'
+  properties: {
+    runtime: varBRuntime
+    // repro for https://github.com/Azure/bicep/issues/316
+    repro316: setResourceCRef ? resourceCRef : null
+  }
+}

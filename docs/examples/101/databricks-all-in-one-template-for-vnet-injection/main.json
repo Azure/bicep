@@ -23,11 +23,11 @@
     },
     "pricingTier": {
       "type": "string",
+      "defaultValue": "premium",
       "allowedValues": [
         "standard",
         "premium"
-      ],
-      "defaultValue": "premium"
+      ]
     },
     "location": {
       "type": "string",
@@ -49,7 +49,41 @@
   "functions": [],
   "variables": {
     "managedResourceGroupName": "[format('databricks-rg-{0}-{1}', parameters('workspaceName'), uniqueString(parameters('workspaceName'), resourceGroup().id))]",
-    "managedResourceGroupId": "[format('{0}/resourceGroups/{1}', subscription().id, variables('managedResourceGroupName'))]"
+    "managedResourceGroupId": "[format('{0}/resourceGroups/{1}', subscription().id, variables('managedResourceGroupName'))]",
+    "publicSubnet": {
+      "name": "[parameters('publicSubnetName')]",
+      "properties": {
+        "addressPrefix": "[parameters('publicSubnetCidr')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-public",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      }
+    },
+    "privateSubnet": {
+      "name": "[parameters('privateSubnetName')]",
+      "properties": {
+        "addressPrefix": "[parameters('privateSubnetCidr')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+        },
+        "delegations": [
+          {
+            "name": "databricks-del-private",
+            "properties": {
+              "serviceName": "Microsoft.Databricks/workspaces"
+            }
+          }
+        ]
+      }
+    }
   },
   "resources": [
     {
@@ -70,40 +104,8 @@
           ]
         },
         "subnets": [
-          {
-            "name": "[parameters('publicSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('publicSubnetCidr')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
-              },
-              "delegations": [
-                {
-                  "name": "databricks-del-public",
-                  "properties": {
-                    "serviceName": "Microsoft.Databricks/workspaces"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "name": "[parameters('privateSubnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('privateSubnetCidr')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
-              },
-              "delegations": [
-                {
-                  "name": "databricks-del-private",
-                  "properties": {
-                    "serviceName": "Microsoft.Databricks/workspaces"
-                  }
-                }
-              ]
-            }
-          }
+          "[variables('publicSubnet')]",
+          "[variables('privateSubnet')]"
         ]
       },
       "dependsOn": [
