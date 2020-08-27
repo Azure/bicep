@@ -11,7 +11,7 @@
                 "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
             ],
             "env": {
-                "bicepLanguageServerPath": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+                "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
             },
             "stopOnEntry": false,
             "sourceMaps": true,
