@@ -22,8 +22,10 @@ namespace Bicep.Cli.CommandLine
                 case CliConstants.CommandBuild:
                     return ParseBuild(args[1..]);
                 case CliConstants.ArgumentHelp:
+                case CliConstants.ArgumentHelpShort:
                     return new HelpArguments();
                 case CliConstants.ArgumentVersion:
+                case CliConstants.ArgumentVersionShort:
                     return new VersionArguments();
                 default:
                     return new UnrecognizedArguments(string.Join(' ', args));
