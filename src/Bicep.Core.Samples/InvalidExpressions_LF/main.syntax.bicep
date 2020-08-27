@@ -836,7 +836,7 @@ var stringIndexOnNonObject = 'test'['test']
 //@[42:43)   RightSquare |]|
 //@[43:44)  NewLine |\n|
 var malformedStringIndex = {
-//@[0:42) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |malformedStringIndex|
@@ -851,7 +851,108 @@ var malformedStringIndex = {
 //@[2:10)   SkippedTriviaSyntax
 //@[2:10)    StringComplete |'test\e'|
 //@[10:11)   RightSquare |]|
-//@[11:13)  NewLine |\n\n|
+//@[11:12)  NewLine |\n|
+var invalidIndexTypeOverAny = any(true)[true]
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:27)  IdentifierSyntax
+//@[4:27)   Identifier |invalidIndexTypeOverAny|
+//@[28:29)  Assignment |=|
+//@[30:45)  ArrayAccessSyntax
+//@[30:39)   FunctionCallSyntax
+//@[30:33)    IdentifierSyntax
+//@[30:33)     Identifier |any|
+//@[33:34)    LeftParen |(|
+//@[34:38)    FunctionArgumentSyntax
+//@[34:38)     BooleanLiteralSyntax
+//@[34:38)      TrueKeyword |true|
+//@[38:39)    RightParen |)|
+//@[39:40)   LeftSquare |[|
+//@[40:44)   BooleanLiteralSyntax
+//@[40:44)    TrueKeyword |true|
+//@[44:45)   RightSquare |]|
+//@[45:46)  NewLine |\n|
+var badIndexOverArray = [][null]
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |badIndexOverArray|
+//@[22:23)  Assignment |=|
+//@[24:32)  ArrayAccessSyntax
+//@[24:26)   ArraySyntax
+//@[24:25)    LeftSquare |[|
+//@[25:26)    RightSquare |]|
+//@[26:27)   LeftSquare |[|
+//@[27:31)   NullLiteralSyntax
+//@[27:31)    NullKeyword |null|
+//@[31:32)   RightSquare |]|
+//@[32:33)  NewLine |\n|
+var badIndexOverArray2 = []['s']
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |badIndexOverArray2|
+//@[23:24)  Assignment |=|
+//@[25:32)  ArrayAccessSyntax
+//@[25:27)   ArraySyntax
+//@[25:26)    LeftSquare |[|
+//@[26:27)    RightSquare |]|
+//@[27:28)   LeftSquare |[|
+//@[28:31)   StringSyntax
+//@[28:31)    StringComplete |'s'|
+//@[31:32)   RightSquare |]|
+//@[32:33)  NewLine |\n|
+var badIndexOverObj = {}[true]
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |badIndexOverObj|
+//@[20:21)  Assignment |=|
+//@[22:30)  ArrayAccessSyntax
+//@[22:24)   ObjectSyntax
+//@[22:23)    LeftBrace |{|
+//@[23:24)    RightBrace |}|
+//@[24:25)   LeftSquare |[|
+//@[25:29)   BooleanLiteralSyntax
+//@[25:29)    TrueKeyword |true|
+//@[29:30)   RightSquare |]|
+//@[30:31)  NewLine |\n|
+var badIndexOverObj2 = {}[0]
+//@[0:29) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:20)  IdentifierSyntax
+//@[4:20)   Identifier |badIndexOverObj2|
+//@[21:22)  Assignment |=|
+//@[23:28)  ArrayAccessSyntax
+//@[23:25)   ObjectSyntax
+//@[23:24)    LeftBrace |{|
+//@[24:25)    RightBrace |}|
+//@[25:26)   LeftSquare |[|
+//@[26:27)   NumericLiteralSyntax
+//@[26:27)    Number |0|
+//@[27:28)   RightSquare |]|
+//@[28:29)  NewLine |\n|
+var badExpressionIndexer = {}[base64('a')]
+//@[0:44) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |badExpressionIndexer|
+//@[25:26)  Assignment |=|
+//@[27:42)  ArrayAccessSyntax
+//@[27:29)   ObjectSyntax
+//@[27:28)    LeftBrace |{|
+//@[28:29)    RightBrace |}|
+//@[29:30)   LeftSquare |[|
+//@[30:41)   FunctionCallSyntax
+//@[30:36)    IdentifierSyntax
+//@[30:36)     Identifier |base64|
+//@[36:37)    LeftParen |(|
+//@[37:40)    FunctionArgumentSyntax
+//@[37:40)     StringSyntax
+//@[37:40)      StringComplete |'a'|
+//@[40:41)    RightParen |)|
+//@[41:42)   RightSquare |]|
+//@[42:44)  NewLine |\n\n|
 
 // bad propertyAccess
 //@[21:22) NoOpDeclarationSyntax

@@ -128,8 +128,20 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 //@[4:26) Variable stringIndexOnNonObject. Declaration start char: 0, length: 44
 var malformedStringIndex = {
-//@[4:24) Variable malformedStringIndex. Declaration start char: 0, length: 42
+//@[4:24) Variable malformedStringIndex. Declaration start char: 0, length: 41
 }['test\e']
+var invalidIndexTypeOverAny = any(true)[true]
+//@[4:27) Variable invalidIndexTypeOverAny. Declaration start char: 0, length: 46
+var badIndexOverArray = [][null]
+//@[4:21) Variable badIndexOverArray. Declaration start char: 0, length: 33
+var badIndexOverArray2 = []['s']
+//@[4:22) Variable badIndexOverArray2. Declaration start char: 0, length: 33
+var badIndexOverObj = {}[true]
+//@[4:19) Variable badIndexOverObj. Declaration start char: 0, length: 31
+var badIndexOverObj2 = {}[0]
+//@[4:20) Variable badIndexOverObj2. Declaration start char: 0, length: 29
+var badExpressionIndexer = {}[base64('a')]
+//@[4:24) Variable badExpressionIndexer. Declaration start char: 0, length: 44
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo

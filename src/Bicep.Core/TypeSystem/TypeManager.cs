@@ -323,79 +323,68 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            if (indexType.TypeKind == TypeKind.Any)
+            if (baseType.TypeKind == TypeKind.Any)
             {
-                // index type is "any"
-                switch (baseType)
+                // base expression is of type any
+                if (indexType.TypeKind == TypeKind.Any)
                 {
-                    case AnyType _:
-                        return LanguageConstants.Any;
-
-                    case ArrayType arrayType:
-                        return arrayType.ItemType;
-
-                    case ObjectType objectType:
-                        return GetExpressionedPropertyType(objectType, syntax.IndexExpression);
-                }
-            }
-
-            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
-            {
-                // int indexer
-
-                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Array) != true)
-                {
-                    // can only index over arrays
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArrayRequiredForIntegerIndexer(baseType));
-                }
-
-                switch (baseType)
-                {
-                    case AnyType _:
-                        return LanguageConstants.Any;
-
-                    case ArrayType arrayType:
-                        return arrayType.ItemType;
-
-                    default:
-                        throw new NotImplementedException($"Unexpected array access base expression type '{baseType}'.");
-                }
-            }
-
-            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
-            {
-                // string indexer
-
-                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
-                {
-                    // string indexers only work on objects
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectRequiredForStringIndexer(baseType));
-                }
-
-                if (baseType.TypeKind == TypeKind.Any || !(baseType is ObjectType objectType))
-                {
+                    // index is also of type any
                     return LanguageConstants.Any;
                 }
 
-                switch (syntax.IndexExpression)
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true ||
+                    TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
                 {
-                    case StringSyntax @string when @string.IsInterpolated() == false:
-                        var propertyName = @string.GetLiteralValue();
-                        if (propertyName == null)
-                        {
-                            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(@string).MalformedPropertyNameString());
-                        }
-
-                        return this.GetNamedPropertyType(objectType, syntax.IndexExpression, propertyName);
-
-                    default:
-                        // the property name is itself an expression
-                        return this.GetExpressionedPropertyType(objectType, syntax.IndexExpression);
+                    // index expression is string | int but base is any
+                    return LanguageConstants.Any;
                 }
+
+                // index was of the wrong type
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+            }
+
+            if (baseType is ArrayType baseArray)
+            {
+                // we are indexing over an array
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
+                {
+                    // the index is of "any" type or integer type
+                    // return the item type
+                    return baseArray.ItemType;
+                }
+
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
+            }
+
+            if (baseType is ObjectType baseObject)
+            {
+                // we are indexing over an object
+                if (indexType.TypeKind == TypeKind.Any)
+                {
+                    // index is of type "any"
+                    return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                }
+
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
+                {
+                    switch (syntax.IndexExpression)
+                    {
+                        case StringSyntax @string when @string.IsInterpolated() == false:
+                            var propertyName = @string.GetLiteralValue();
+                            
+                            return this.GetNamedPropertyType(baseObject, syntax.IndexExpression, propertyName);
+
+                        default:
+                            // the property name is itself an expression
+                            return this.GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                    }
+                }
+
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
             }
 
             // index was of the wrong type
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
         }
 
         private TypeSymbol GetVariableAccessType(TypeManagerContext context, VariableAccessSyntax syntax)

@@ -94,6 +94,12 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
 }['test\e']
+var invalidIndexTypeOverAny = any(true)[true]
+var badIndexOverArray = [][null]
+var badIndexOverArray2 = []['s']
+var badIndexOverObj = {}[true]
+var badIndexOverObj2 = {}[0]
+var badExpressionIndexer = {}[base64('a')]
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
