@@ -5,20 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Json;
-using Bicep.Core.UnitTests.Serialization;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.SemanticModel
 {
@@ -46,8 +42,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Diagnostics,
-                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -81,8 +77,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Symbols,
-                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                actualLocation: resultsFile);
         }
 
         [DataTestMethod]

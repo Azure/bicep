@@ -7,7 +7,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Json;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,22 +25,19 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            string filePath = FileHelper.GetResultFilePath(this.TestContext!, $"{dataSet.Name}_Compiled_Original.json");
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(dataSet.Bicep, filePath);
+            var result = this.EmitTemplate(dataSet.Bicep, compiledFilePath);
             result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
 
-            // normalizing the formatting in case there are differences in indentation
-            // this way the diff between actual and expected will be clean
-            var actual = JToken.Parse(File.ReadAllText(filePath));
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Actual.json", actual.ToString(Formatting.Indented));
+            var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
-            var expected = JToken.Parse(dataSet.Compiled!);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Expected.json", expected.ToString(Formatting.Indented));
-
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Compiled_Delta.json");
+            actual.Should().EqualWithJsonDiffOutput(
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
         }
 
         [DataTestMethod]
@@ -57,12 +54,12 @@ namespace Bicep.Core.IntegrationTests.Emit
             // normalizing the formatting in case there are differences in indentation
             // this way the diff between actual and expected will be clean
             var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Actual.json", actual.ToString(Formatting.Indented));
+            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
-            var expected = JToken.Parse(dataSet.Compiled!);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Compiled_Expected.json", expected.ToString(Formatting.Indented));
-
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Compiled_Delta.json");
+            actual.Should().EqualWithJsonDiffOutput(
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
         }
 
         [DataTestMethod]

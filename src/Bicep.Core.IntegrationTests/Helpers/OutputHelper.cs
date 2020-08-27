@@ -4,20 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Json;
-using Bicep.Core.UnitTests.Serialization;
-using Bicep.Core.UnitTests.Utils;
-using DiffPlex.DiffBuilder;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
