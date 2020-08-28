@@ -35,7 +35,7 @@ namespace Bicep.Cli.UnitTests
         public void PrintVersion_ShouldPrintVersion()
         {
             var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintVersion);
-            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+ \([0-9a-f]{10}\)");
+            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+(|-alpha) \([0-9a-f]{10}\)");
         }
 
         [TestMethod]
