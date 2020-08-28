@@ -37,6 +37,6 @@ namespace Bicep.Core.Syntax
 
         public IEnumerable<ArrayItemSyntax> Items => this.Children.OfType<ArrayItemSyntax>();
         
-        public ExpressionKind ExpressionKind => ExpressionKind.ComplexLiteral;
+        public ExpressionKind ExpressionKind => ExpressionKind.ArrayLiteral;
     }
 }

@@ -1327,12 +1327,12 @@ var test3 = list('abcd', '2020-01-01')
 //@[41:42) NoOpDeclarationSyntax
 //@[41:42)  NewLine |\n|
 var emitLimit = [
-//@[0:290) VariableDeclarationSyntax
+//@[0:317) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |emitLimit|
 //@[14:15)  Assignment |=|
-//@[16:288)  ArraySyntax
+//@[16:315)  ArraySyntax
 //@[16:17)   LeftSquare |[|
 //@[17:18)   NewLine |\n|
   concat('s')
@@ -1355,16 +1355,16 @@ var emitLimit = [
 //@[6:8)     StringRightPiece |}'|
 //@[8:9)    NewLine |\n|
   {
-//@[2:246)   ArrayItemSyntax
-//@[2:245)    ObjectSyntax
+//@[2:273)   ArrayItemSyntax
+//@[2:272)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     a: {
-//@[4:238)     ObjectPropertySyntax
+//@[4:265)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
-//@[7:237)      ObjectSyntax
+//@[7:264)      ObjectSyntax
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       b: base64('s')
@@ -1381,49 +1381,58 @@ var emitLimit = [
 //@[16:19)           StringComplete |'s'|
 //@[19:20)         RightParen |)|
 //@[20:21)        NewLine |\n|
-      c: concat([
-//@[6:83)       ObjectPropertySyntax
+      c: union({
+//@[6:91)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |c|
 //@[7:8)        Colon |:|
-//@[9:82)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:41)         FunctionArgumentSyntax
-//@[16:40)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        12 + 3
-//@[8:15)           ArrayItemSyntax
-//@[8:14)            BinaryOperationSyntax
-//@[8:10)             NumericLiteralSyntax
-//@[8:10)              Number |12|
-//@[11:12)             Plus |+|
-//@[13:14)             NumericLiteralSyntax
-//@[13:14)              Number |3|
-//@[14:15)            NewLine |\n|
-      ], [
-//@[6:7)           RightSquare |]|
+//@[9:90)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:43)         FunctionArgumentSyntax
+//@[15:42)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        a: 12 + 3
+//@[8:18)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |a|
+//@[9:10)            Colon |:|
+//@[11:17)            BinaryOperationSyntax
+//@[11:13)             NumericLiteralSyntax
+//@[11:13)              Number |12|
+//@[14:15)             Plus |+|
+//@[16:17)             NumericLiteralSyntax
+//@[16:17)              Number |3|
+//@[17:18)            NewLine |\n|
+      }, {
+//@[6:7)           RightBrace |}|
 //@[7:8)          Comma |,|
-//@[9:48)         FunctionArgumentSyntax
-//@[9:48)          ArraySyntax
-//@[9:10)           LeftSquare |[|
+//@[9:54)         FunctionArgumentSyntax
+//@[9:54)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
 //@[10:11)           NewLine |\n|
-        !true
-//@[8:14)           ArrayItemSyntax
-//@[8:13)            UnaryOperationSyntax
-//@[8:9)             Exclamation |!|
-//@[9:13)             BooleanLiteralSyntax
-//@[9:13)              TrueKeyword |true|
-//@[13:14)            NewLine |\n|
-        'hello'
-//@[8:16)           ArrayItemSyntax
-//@[8:15)            StringSyntax
-//@[8:15)             StringComplete |'hello'|
-//@[15:16)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
+        b: !true
+//@[8:17)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |b|
+//@[9:10)            Colon |:|
+//@[11:16)            UnaryOperationSyntax
+//@[11:12)             Exclamation |!|
+//@[12:16)             BooleanLiteralSyntax
+//@[12:16)              TrueKeyword |true|
+//@[16:17)            NewLine |\n|
+        c: 'hello'
+//@[8:19)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |c|
+//@[9:10)            Colon |:|
+//@[11:18)            StringSyntax
+//@[11:18)             StringComplete |'hello'|
+//@[18:19)            NewLine |\n|
+      })
+//@[6:7)           RightBrace |}|
 //@[7:8)         RightParen |)|
 //@[8:9)        NewLine |\n|
       d: resourceGroup().location
@@ -1441,54 +1450,70 @@ var emitLimit = [
 //@[25:33)         IdentifierSyntax
 //@[25:33)          Identifier |location|
 //@[33:34)        NewLine |\n|
-      e: concat([
-//@[6:40)       ObjectPropertySyntax
+      e: union({
+//@[6:46)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |e|
 //@[7:8)        Colon |:|
-//@[9:39)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:38)         FunctionArgumentSyntax
-//@[16:38)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        true
-//@[8:13)           ArrayItemSyntax
-//@[8:12)            BooleanLiteralSyntax
-//@[8:12)             TrueKeyword |true|
-//@[12:13)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
-//@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
-      f: concat([
-//@[6:45)       ObjectPropertySyntax
+//@[9:45)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:41)         FunctionArgumentSyntax
+//@[15:40)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        x: true
+//@[8:16)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |x|
+//@[9:10)            Colon |:|
+//@[11:15)            BooleanLiteralSyntax
+//@[11:15)             TrueKeyword |true|
+//@[15:16)            NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)        NewLine |\n|
+      f: intersection({
+//@[6:58)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |f|
 //@[7:8)        Colon |:|
-//@[9:44)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:43)         FunctionArgumentSyntax
-//@[16:43)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        's' == 12
-//@[8:18)           ArrayItemSyntax
-//@[8:17)            BinaryOperationSyntax
-//@[8:11)             StringSyntax
-//@[8:11)              StringComplete |'s'|
-//@[12:14)             Equals |==|
-//@[15:17)             NumericLiteralSyntax
-//@[15:17)              Number |12|
-//@[17:18)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
-//@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[9:57)        FunctionCallSyntax
+//@[9:21)         IdentifierSyntax
+//@[9:21)          Identifier |intersection|
+//@[21:22)         LeftParen |(|
+//@[22:53)         FunctionArgumentSyntax
+//@[22:52)          ObjectSyntax
+//@[22:23)           LeftBrace |{|
+//@[23:24)           NewLine |\n|
+        q: 's' == 12
+//@[8:21)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |q|
+//@[9:10)            Colon |:|
+//@[11:20)            BinaryOperationSyntax
+//@[11:14)             StringSyntax
+//@[11:14)              StringComplete |'s'|
+//@[15:17)             Equals |==|
+//@[18:20)             NumericLiteralSyntax
+//@[18:20)              Number |12|
+//@[20:21)            NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)        NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
 //@[5:6)      NewLine |\n|

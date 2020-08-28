@@ -150,19 +150,19 @@ var emitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([
-        12 + 3
-      ], [
-        !true
-        'hello'
-      ])
+      c: union({
+        a: 12 + 3
+      }, {
+        b: !true
+        c: 'hello'
+      })
       d: resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-      ])
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+      }, {})
     }
   }
 ]

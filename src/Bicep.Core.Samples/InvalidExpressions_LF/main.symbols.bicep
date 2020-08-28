@@ -205,25 +205,25 @@ var test3 = list('abcd', '2020-01-01')
 
 // cannot compile an expression like this
 var emitLimit = [
-//@[4:13) Variable emitLimit. Declaration start char: 0, length: 290
+//@[4:13) Variable emitLimit. Declaration start char: 0, length: 317
   concat('s')
   '${4}'
   {
     a: {
       b: base64('s')
-      c: concat([
-        12 + 3
-      ], [
-        !true
-        'hello'
-      ])
+      c: union({
+        a: 12 + 3
+      }, {
+        b: !true
+        c: 'hello'
+      })
       d: resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-      ])
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+      }, {})
     }
   }
 ]
