@@ -1,4 +1,6 @@
-﻿using Bicep.Core.Diagnostics;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -192,13 +194,20 @@ namespace Bicep.Core.TypeSystem
                         skipConstantCheckForProperty = true;
                     }
 
+                    if (declaredProperty.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+                    {
+                        // the declared property is read-only
+                        // value cannot be assigned to a read-only property
+                        result = result.Append(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(declaredProperty.Name));
+                    }
+
                     // declared property is specified in the value object
                     // validate type
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         declaredPropertySyntax.Value,
                         declaredProperty.Type,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 
@@ -208,14 +217,14 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Select(p => p.Identifier.IdentifierName)
+                .Select(p => p.GetKeyText())
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Identifier).DisallowedProperty(extraProperty.Identifier.IdentifierName, targetType.Name)));
+                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
             }
             else
             {
@@ -238,7 +247,7 @@ namespace Bicep.Core.TypeSystem
                         typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.Identifier.IdentifierName, expectedType.Name, actualType.Name),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
 
@@ -250,3 +259,4 @@ namespace Bicep.Core.TypeSystem
         }
     }
 }
+

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -19,7 +18,22 @@ namespace Bicep.Cli
 {
     public class Program
     {
+        private readonly TextWriter outputWriter;
+        private readonly TextWriter errorWriter;
+
+        public Program(TextWriter outputWriter, TextWriter errorWriter)
+        {
+            this.outputWriter = outputWriter;
+            this.errorWriter = errorWriter;
+        }
+
         public static int Main(string[] args)
+        {
+            var program = new Program(Console.Out, Console.Error);
+            return program.Run(args);
+        }
+
+        public int Run(string[] args)
         {
             // ReSharper disable once ConvertToUsingDeclaration
             using (var loggerFactory = CreateLoggerFactory())
@@ -36,14 +50,14 @@ namespace Bicep.Cli
                             Build(logger, buildArguments);
                             break;
                         case VersionArguments _: // --version
-                            ArgumentParser.PrintVersion();
+                            ArgumentParser.PrintVersion(this.outputWriter);
                             break;
                         case HelpArguments _: // --help
-                            ArgumentParser.PrintUsage();
+                            ArgumentParser.PrintUsage(this.outputWriter);
                             break;
                         case UnrecognizedArguments unrecognizedArguments: // everything else
                             var exeName = ArgumentParser.GetExeName();
-                            Console.Error.WriteLine($"Unrecognized arguments '{unrecognizedArguments.SuppliedArguments}' specified. Use '{exeName} --help' to view available options.");
+                            this.errorWriter.WriteLine($"Unrecognized arguments '{unrecognizedArguments.SuppliedArguments}' specified. Use '{exeName} --help' to view available options.");
                             return 1;
                     }
 
@@ -52,24 +66,24 @@ namespace Bicep.Cli
                 }
                 catch (CommandLineException cliException)
                 {
-                    Console.Error.WriteLine(cliException.Message);
+                    this.errorWriter.WriteLine(cliException.Message);
                     return 1;
                 }
             }
         }
 
-        private static ILoggerFactory CreateLoggerFactory()
+        private ILoggerFactory CreateLoggerFactory()
         {
-            // apparently logging requires a factory factory 🤦‍♀️
+            // apparently logging requires a factory factory 🤦‍
             return LoggerFactory.Create(builder =>
             {
-                builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow)));
+                builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, this.errorWriter)));
             });
         }
 
-        private static void Build(IDiagnosticLogger logger, BuildArguments arguments)
+        private void Build(IDiagnosticLogger logger, BuildArguments arguments)
         {
-            var bicepPaths = arguments.Files.Select(file => PathHelper.ResolvePath(file)).ToArray();
+            var bicepPaths = arguments.Files.Select(PathHelper.ResolvePath).ToArray();
             if (arguments.OutputToStdOut)
             {
                 BuildManyFilesToStdOut(logger, bicepPaths);
@@ -94,15 +108,15 @@ namespace Bicep.Cli
 
             var result = emitter.Emit(outputPath);
 
-            foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
+            foreach (var diagnostic in result.Diagnostics)
             {
                 logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
             }
         }
 
-        private static void BuildManyFilesToStdOut(IDiagnosticLogger logger, string[] bicepPaths)
+        private void BuildManyFilesToStdOut(IDiagnosticLogger logger, string[] bicepPaths)
         {
-            using var writer = new JsonTextWriter(Console.Out)
+            using var writer = new JsonTextWriter(this.outputWriter)
             {
                 Formatting = Formatting.Indented
             };
@@ -121,7 +135,7 @@ namespace Bicep.Cli
 
                 var result = emitter.Emit(writer);
 
-                foreach (ErrorDiagnostic diagnostic in result.Diagnostics)
+                foreach (var diagnostic in result.Diagnostics)
                 {
                     logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
                 }
@@ -132,3 +146,4 @@ namespace Bicep.Cli
         }
     }
 }
+

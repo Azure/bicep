@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Navigation;
@@ -9,8 +11,8 @@ namespace Bicep.Core.Syntax
     {
         public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
-            this.AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
-            this.AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
+            AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
 
             this.Name = name;
             this.OpenParen = openParen;
@@ -29,5 +31,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Name, CloseParen);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

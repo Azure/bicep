@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
@@ -10,9 +12,10 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
         public static ImmutableDictionary<string, SyntaxBase> ToPropertyValueDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, p => p.Value, LanguageConstants.IdentifierComparer);
+            syntax.Properties.ToImmutableDictionary(p => p.GetKeyText(), p => p.Value, LanguageConstants.IdentifierComparer);
 
         public static ImmutableDictionary<string, ObjectPropertySyntax> ToPropertyDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties.ToImmutableDictionary(p => p.Identifier.IdentifierName, LanguageConstants.IdentifierComparer);
+            syntax.Properties.ToImmutableDictionary(p => p.GetKeyText(), LanguageConstants.IdentifierComparer);
     }
 }
+

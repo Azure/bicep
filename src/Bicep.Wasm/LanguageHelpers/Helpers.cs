@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 namespace Bicep.Wasm.LanguageHelpers
 {
     public class SemanticToken
@@ -19,3 +21,4 @@ namespace Bicep.Wasm.LanguageHelpers
         public SemanticTokenType TokenType { get; set; }
     }
 }
+

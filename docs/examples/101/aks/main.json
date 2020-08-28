@@ -27,15 +27,15 @@
     },
     "osDiskSizeGB": {
       "type": "int",
-      "defaultValue": 0,
       "minValue": 0,
-      "maxValue": 1023
+      "maxValue": 1023,
+      "defaultValue": 0
     },
     "agentCount": {
       "type": "int",
-      "defaultValue": 3,
       "minValue": 1,
-      "maxValue": 50
+      "maxValue": 50,
+      "defaultValue": 3
     },
     "agentVMSize": {
       "type": "string",

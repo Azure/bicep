@@ -1,6 +1,9 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -18,8 +21,6 @@ namespace Bicep.Core.TypeSystem
         // stores results of type checks
         private readonly ConcurrentDictionary<SyntaxBase, TypeSymbol> typeCheckCache = new ConcurrentDictionary<SyntaxBase, TypeSymbol>();
 
-        private bool unlocked;
-
         public TypeManager(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             // bindings will be modified by name binding after this object is created
@@ -28,16 +29,7 @@ namespace Bicep.Core.TypeSystem
             this.bindings = bindings; 
         }
 
-        public void Unlock()
-        {
-            this.unlocked = true;
-        }
-
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context)
-        {
-            this.CheckLock();
-            return GetTypeInfoInternal(context, syntax);
-        }
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax, TypeManagerContext context) => GetTypeInfoInternal(context, syntax);
 
         // TODO: This does not recognize non-resource named objects yet
         public TypeSymbol? GetTypeByName(string? typeName)
@@ -46,8 +38,6 @@ namespace Bicep.Core.TypeSystem
              * Obtaining the type by name currently does not involve processing outgoing edges in the expression graph (function or variable refs)
              * This means that we do not need to check for cycles. However, if that ever changes, ensure that proper cycle detection is added here.
              */
-
-            this.CheckLock();
 
             if (typeName == null)
             {
@@ -138,7 +128,7 @@ namespace Bicep.Core.TypeSystem
                     case VariableAccessSyntax variableAccess:
                         return GetVariableAccessType(context, variableAccess);
 
-                    case SkippedTokensTriviaSyntax _:
+                    case SkippedTriviaSyntax _:
                         // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
                         return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
 
@@ -200,8 +190,13 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            // TODO: Narrow down the object type
-            return LanguageConstants.Object;
+            // type results are cached
+            var properties = @object.Properties
+                .GroupBy(p => p.GetKeyText(), LanguageConstants.IdentifierComparer)
+                .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => this.GetTypeInfoInternal(context, p.Value)))));
+
+            // TODO: Add structural naming?
+            return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
         }
 
         private TypeSymbol GetArrayType(TypeManagerContext context, ArraySyntax array)
@@ -328,79 +323,68 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            if (indexType.TypeKind == TypeKind.Any)
+            if (baseType.TypeKind == TypeKind.Any)
             {
-                // index type is "any"
-                switch (baseType)
+                // base expression is of type any
+                if (indexType.TypeKind == TypeKind.Any)
                 {
-                    case AnyType _:
-                        return LanguageConstants.Any;
-
-                    case ArrayType arrayType:
-                        return arrayType.ItemType;
-
-                    case ObjectType objectType:
-                        return GetExpressionedPropertyType(objectType, syntax.IndexExpression);
-                }
-            }
-
-            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
-            {
-                // int indexer
-
-                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Array) != true)
-                {
-                    // can only index over arrays
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArrayRequiredForIntegerIndexer(baseType));
-                }
-
-                switch (baseType)
-                {
-                    case AnyType _:
-                        return LanguageConstants.Any;
-
-                    case ArrayType arrayType:
-                        return arrayType.ItemType;
-
-                    default:
-                        throw new NotImplementedException($"Unexpected array access base expression type '{baseType}'.");
-                }
-            }
-
-            if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
-            {
-                // string indexer
-
-                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
-                {
-                    // string indexers only work on objects
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectRequiredForStringIndexer(baseType));
-                }
-
-                if (baseType.TypeKind == TypeKind.Any || !(baseType is ObjectType objectType))
-                {
+                    // index is also of type any
                     return LanguageConstants.Any;
                 }
 
-                switch (syntax.IndexExpression)
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true ||
+                    TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
                 {
-                    case StringSyntax @string when @string.IsInterpolated() == false:
-                        var propertyName = @string.GetLiteralValue();
-                        if (propertyName == null)
-                        {
-                            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(@string).MalformedPropertyNameString());
-                        }
-
-                        return this.GetNamedPropertyType(objectType, syntax.IndexExpression, propertyName);
-
-                    default:
-                        // the property name is itself an expression
-                        return this.GetExpressionedPropertyType(objectType, syntax.IndexExpression);
+                    // index expression is string | int but base is any
+                    return LanguageConstants.Any;
                 }
+
+                // index was of the wrong type
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+            }
+
+            if (baseType is ArrayType baseArray)
+            {
+                // we are indexing over an array
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
+                {
+                    // the index is of "any" type or integer type
+                    // return the item type
+                    return baseArray.ItemType;
+                }
+
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
+            }
+
+            if (baseType is ObjectType baseObject)
+            {
+                // we are indexing over an object
+                if (indexType.TypeKind == TypeKind.Any)
+                {
+                    // index is of type "any"
+                    return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                }
+
+                if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
+                {
+                    switch (syntax.IndexExpression)
+                    {
+                        case StringSyntax @string when @string.IsInterpolated() == false:
+                            var propertyName = @string.GetLiteralValue();
+                            
+                            return this.GetNamedPropertyType(baseObject, syntax.IndexExpression, propertyName);
+
+                        default:
+                            // the property name is itself an expression
+                            return this.GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
+                    }
+                }
+
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
             }
 
             // index was of the wrong type
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType));
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.BaseExpression).IndexerRequiresObjectOrArray(baseType));
         }
 
         private TypeSymbol GetVariableAccessType(TypeManagerContext context, VariableAccessSyntax syntax)
@@ -414,11 +398,10 @@ namespace Bicep.Core.TypeSystem
                     return errorSymbol.ToErrorType();
 
                 case ResourceSymbol resource:
-                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.GetVariableType(context));
+                    return GetResourceType(context, syntax, resource);
 
                 case ParameterSymbol parameter:
-                    // TODO: This can cause a cycle
-                    return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, parameter.Type);
+                    return GetParameterType(context, syntax, parameter);
 
                 case VariableSymbol variable:
                     return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, variable.GetVariableType(context));
@@ -431,14 +414,124 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private TypeSymbol GetResourceType(TypeManagerContext context, VariableAccessSyntax syntax, ResourceSymbol resource)
+        {
+            // resource bodies can participate in cycles
+            // need to explicitly force a type check on the body
+            if (ContainsCyclicExpressionError(this.GetTypeInfoInternal(context, resource.Body)))
+            {
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).CyclicExpression());
+            }
+
+            return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, resource.Type);
+        }
+
+        private TypeSymbol GetParameterType(TypeManagerContext context, VariableAccessSyntax syntax, ParameterSymbol parameter)
+        {
+            // parameter default values can participate in cycles with their own parameters or other symbols
+            // need to explicitly force a type check to detect that
+            SyntaxBase? expressionToTypeCheck;
+            switch (parameter.Modifier)
+            {
+                case ParameterDefaultValueSyntax defaultValueSyntax:
+                    expressionToTypeCheck = defaultValueSyntax.DefaultValue;
+                    break;
+
+                case ObjectSyntax modifierSyntax:
+                    // technically it's redundant to type check the entire object because we have existing
+                    // compile-time constant checks, but it shouldn't harm anything
+                    expressionToTypeCheck = modifierSyntax;
+                    break;
+
+                case null:
+                    // there's no default value or modifier - this parameter cannot participate in a cycle
+                    expressionToTypeCheck = null;
+                    break;
+
+                default:
+                    throw new NotImplementedException($"Unexpected parameter modifier type '{parameter.Modifier.GetType()}");
+            }
+
+            if (expressionToTypeCheck != null && ContainsCyclicExpressionError(this.GetTypeInfoInternal(context, expressionToTypeCheck)))
+            {
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).CyclicExpression());
+            }
+
+            return HandleSymbolType(syntax.Name.IdentifierName, syntax.Name.Span, parameter.Type);
+        }
+        
         private TypeSymbol GetFunctionCallType(TypeManagerContext context, FunctionCallSyntax syntax)
         {
             var errors = new List<ErrorDiagnostic>();
-
             var argumentTypes = syntax.Arguments.Select(syntax1 => GetTypeInfoInternal(context, syntax1)).ToList();
+
             foreach (TypeSymbol argumentType in argumentTypes)
             {
                 CollectErrors(errors, argumentType);
+            }
+
+            switch (this.ResolveSymbol(syntax))
+            {
+                case ErrorSymbol errorSymbol:
+                    // function bind failure - pass the error along
+                    return new ErrorTypeSymbol(errors.Concat(errorSymbol.GetDiagnostics()));
+
+                case FunctionSymbol function:
+                    return GetFunctionSymbolType(syntax, function, syntax.Arguments, argumentTypes, errors);
+
+                default:
+                    return new ErrorTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
+            }
+        }
+
+        private TypeSymbol GetFunctionSymbolType(
+            FunctionCallSyntax syntax,
+            FunctionSymbol function,
+            ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes,
+            IList<TypeSymbol> argumentTypes,
+            IList<ErrorDiagnostic> errors)
+        {
+            // Recover argument type errors so we can continue type checking for the parent function call.
+            var recoveredArgumentTypes = argumentTypes
+                .Select(t => t.TypeKind == TypeKind.Error ? LanguageConstants.Any : t)
+                .ToList();
+
+            var matches = FunctionResolver.GetMatches(
+                function,
+                recoveredArgumentTypes,
+                out IList<ArgumentCountMismatch> countMismatches,
+                out IList<ArgumentTypeMismatch> typeMismatches).ToList();
+            
+            if (matches.Count == 0)
+            {
+                if (typeMismatches.Any())
+                {
+                    if (typeMismatches.Count > 1 && typeMismatches.Skip(1).All(tm => tm.ArgumentIndex == typeMismatches[0].ArgumentIndex))
+                    {
+                        // All type mismatches are equally good (or bad).
+                        var parameterTypes = typeMismatches.Select(tm => tm.ParameterType).ToList();
+                        var argumentType = typeMismatches[0].ArgumentType;
+                        var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
+                        var argumentSyntax = argumentSyntaxes[typeMismatches[0].ArgumentIndex];
+
+                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
+                    }
+                    else
+                    {
+                        // Choose the type mismatch that has the largest index as the best one.
+                        var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
+
+                        errors.Add(DiagnosticBuilder.ForPosition(argumentSyntaxes[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
+                    }
+                }
+                else
+                {
+                    // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
+                    var (actualCount, mininumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
+                    var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
+
+                    errors.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, mininumArgumentCount, maximumArgumentCount));
+                }
             }
 
             if (errors.Any())
@@ -446,44 +539,19 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(errors);
             }
 
-            var symbol = this.ResolveSymbol(syntax);
-            switch (symbol)
+            if (matches.Count == 1)
             {
-                case ErrorSymbol errorSymbol:
-                    // function bind failure - pass the error along
-                    return errorSymbol.ToErrorType();
-
-                case FunctionSymbol function:
-                    return GetFunctionSymbolType(syntax, function, argumentTypes);
-
-                default:
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName));
+                // we have an exact match or a single ambiguous match
+                // return its type
+                return matches.Single().ReturnType;
             }
-        }
 
-        private TypeSymbol GetFunctionSymbolType(FunctionCallSyntax syntax, FunctionSymbol function, List<TypeSymbol> argumentTypes)
-        {
-            var matches = FunctionResolver.GetMatches(function, argumentTypes).ToList();
-
-            switch (matches.Count)
-            {
-                case 0:
-                    // cannot find a function matching the types and number of arguments
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).CannotResolveFunction(syntax.Name.IdentifierName, argumentTypes));
-
-                case 1:
-                    // we have an exact match or a single ambiguous match
-                    // return its type
-                    return matches.Single().ReturnType;
-
-                default:
-                    // function arguments are ambiguous (due to "any" type)
-                    // technically, the correct behavior would be to return a union of all possible types
-                    // unfortunately our language lacks a good type checking construct
-                    // and we also don't want users to have to use the converter functions to work around it
-                    // instead, we will return the "any" type to short circuit the type checking for those cases
-                    return LanguageConstants.Any;
-            }
+            // function arguments are ambiguous (due to "any" type)
+            // technically, the correct behavior would be to return a union of all possible types
+            // unfortunately our language lacks a good type checking construct
+            // and we also don't want users to have to use the converter functions to work around it
+            // instead, we will return the "any" type to short circuit the type checking for those cases
+            return LanguageConstants.Any;
         }
 
         private TypeSymbol GetUnaryOperationType(TypeManagerContext context, UnaryOperationSyntax syntax)
@@ -577,14 +645,6 @@ namespace Bicep.Core.TypeSystem
             errors.AddRange(type.GetDiagnostics());
         }
 
-        private void CheckLock()
-        {
-            if (this.unlocked == false)
-            {
-                throw new InvalidOperationException("Type checks are blocked until name binding is completed.");
-            }
-        }
-
         private TypeSymbol HandleSymbolType(string symbolName, TextSpan symbolNameSpan, TypeSymbol symbolType)
         {
             // symbols are responsible for doing their own type checking
@@ -592,7 +652,7 @@ namespace Bicep.Core.TypeSystem
             // unless we're dealing with a cyclic expression error, then propagate away!
             if (symbolType is ErrorTypeSymbol errorType)
             {
-                if (errorType.GetDiagnostics().Any(ErrorDiagnostic.IsCyclicExpressionError))
+                if (ContainsCyclicExpressionError(errorType))
                 {
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(symbolNameSpan).CyclicExpression());
                 }
@@ -605,6 +665,8 @@ namespace Bicep.Core.TypeSystem
             return symbolType;
         }
 
+        private static bool ContainsCyclicExpressionError(Symbol errorType) => errorType.GetDiagnostics().Any(ErrorDiagnostic.IsCyclicExpressionError);
+
         private Symbol ResolveSymbol(SyntaxBase syntax)
         {
             // the binder guarantees that all bindable syntax nodes have a symbol attached to them even if it's the error symbol
@@ -613,3 +675,4 @@ namespace Bicep.Core.TypeSystem
         }
     }
 }
+

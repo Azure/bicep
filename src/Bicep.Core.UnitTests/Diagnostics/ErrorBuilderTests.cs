@@ -1,9 +1,12 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -78,6 +81,26 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(IEnumerable<string>))
             {
                 return new List<string> {$"<value_{index}"};
+            }
+
+            if (parameter.ParameterType == typeof(IList<string>))
+            {
+                return new List<string> {$"<value_{index}"};
+            }
+
+            if (parameter.ParameterType == typeof(int))
+            {
+                return 0;
+            }
+
+            if (parameter.ParameterType == typeof(int?))
+            {
+                return 0;
+            }
+
+            if (parameter.ParameterType == typeof(SymbolKind))
+            {
+                return SymbolKind.Variable;
             }
 
             return $"<param_{index}>";

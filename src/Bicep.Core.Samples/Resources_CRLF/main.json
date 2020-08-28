@@ -1,0 +1,217 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appServicePlanTier": {
+      "type": "string"
+    },
+    "appServicePlanInstances": {
+      "type": "int"
+    },
+    "webSiteName": {
+      "type": "string"
+    },
+    "cosmosDb": {
+      "type": "object"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "hostingPlanName": "[parameters('applicationName')]",
+    "location": "[resourceGroup().location]",
+    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "resourceCRef": {
+      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+    },
+    "setResourceCRef": true
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "basicblobs",
+      "location": "westus"
+    },
+    {
+      "type": "Microsoft.Network/dnszones",
+      "apiVersion": "2018-05-01",
+      "name": "myZone",
+      "location": "global"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": "[not(json('false'))]",
+        "accessTier": "[if(json('true'), 'Hot', 'Cold')]",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[or(json('true'), json('false'))]"
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverFarms",
+      "apiVersion": "2019-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[parameters('appServicePlanTier')]",
+        "capacity": "[parameters('appServicePlanInstances')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('webSiteName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "CosmosDb:Account",
+              "value": "[reference(variables('cosmosDbResourceId')).documentEndpoint]"
+            },
+            {
+              "name": "CosmosDb:Key",
+              "value": "[listKeys(variables('cosmosDbResourceId'), '2020-04-01').primaryMasterKey]"
+            },
+            {
+              "name": "CosmosDb:DatabaseName",
+              "value": "[parameters('cosmosDb').databaseName]"
+            },
+            {
+              "name": "CosmosDb:ContainerName",
+              "value": "[parameters('cosmosDb').containerName]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Foo/foos",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "otherId": "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]",
+        "otherName": "nestedTemplate1",
+        "otherVersion": "2019-10-01",
+        "otherType": "Microsoft.Resources/deployments",
+        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')).mode]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA",
+      "apiVersion": "2020-01-01",
+      "name": "resourceA"
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', 'resourceA')]",
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', 'resourceA')]",
+      "properties": {
+        "aId": "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "aType": "My.Rp/typeA",
+        "aName": "resourceA",
+        "aApiVersion": "2020-01-01",
+        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]))]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeD",
+      "apiVersion": "2020-01-01",
+      "name": "constant",
+      "properties": {
+        "runtime": [
+          {
+            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+            "bType": "My.Rp/typeA/typeB",
+            "bName": "[format('{0}/myName', 'resourceA')]",
+            "bApiVersion": "2020-01-01",
+            "aKind": "[reference(resourceId('My.Rp/typeA', 'resourceA'), '2020-01-01', 'full').kind]"
+          }
+        ],
+        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), json('null'))]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

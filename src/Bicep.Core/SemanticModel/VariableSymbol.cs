@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -6,8 +8,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class VariableSymbol : DeclaredSymbol
     {
-        public VariableSymbol(ITypeManager typeManager, string name, VariableDeclarationSyntax declaringSyntax, SyntaxBase value) 
-            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
+        public VariableSymbol(ISymbolContext context, string name, VariableDeclarationSyntax declaringSyntax, SyntaxBase value) 
+            : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Value = value;
         }
@@ -20,7 +22,7 @@ namespace Bicep.Core.SemanticModel
 
         public TypeSymbol GetVariableType(TypeManagerContext context)
         {
-            return this.TypeManager.GetTypeInfo(this.DeclaringVariable.Value, context);
+            return this.Context.TypeManager.GetTypeInfo(this.DeclaringVariable.Value, context);
         }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitVariableSymbol(this);
@@ -36,3 +38,4 @@ namespace Bicep.Core.SemanticModel
         }
     }
 }
+

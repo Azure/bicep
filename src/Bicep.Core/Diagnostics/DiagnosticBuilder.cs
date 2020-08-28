@@ -1,5 +1,8 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
@@ -165,7 +168,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidResourceType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type.");
+                "The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
 
             public ErrorDiagnostic InvalidOutputType() => new ErrorDiagnostic(
                 TextSpan,
@@ -197,7 +200,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP035",
                 $"The specified object is missing the following required properties: {properties}.");
 
-            public ErrorDiagnostic PropertyTypeMismatch(object property, object expectedType, object actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic PropertyTypeMismatch(string property, TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP036",
                 $"The property '{property}' expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
@@ -232,30 +235,33 @@ namespace Bicep.Core.Diagnostics
                 "BCP047",
                 "String interpolation is unsupported for specifying the resource type.");
 
-            public ErrorDiagnostic CannotResolveFunction(string functionName, IList<TypeSymbol> argumentTypes) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP048",
-                $"Cannot resolve function {functionName}({argumentTypes.Select(t => t.Name).ConcatString(", ")}).");
+            public ErrorDiagnostic CannotResolveFunctionOverload(IList<string> overloadSignatures, TypeSymbol argumentType, IList<TypeSymbol> parameterTypes)
+            {
+                var messageBuilder = new StringBuilder();
+                var overloadCount = overloadSignatures.Count;
+
+                messageBuilder.Append("Cannot resolve function overload.");
+
+                for (int i = 0; i < overloadCount; i++)
+                {
+                    messageBuilder
+                        .Append("\n")
+                        .Append($"  Overload {i + 1} of {overloadCount}, '{overloadSignatures[i]}', gave the following error:\n")
+                        .Append($"    Argument of type '{argumentType}' is not assignable to parameter of type '{parameterTypes[i]}'.");
+                }
+
+                var message = messageBuilder.ToString();
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP048",
+                    message);
+            }
 
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP049",
                 $"The array index must be of type '{LanguageConstants.String}' or '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
-
-            public ErrorDiagnostic ArrayRequiredForIntegerIndexer(TypeSymbol wrongType) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP050",
-                $"Cannot use an integer indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Array}' type is required.");
-
-            public ErrorDiagnostic ObjectRequiredForStringIndexer(TypeSymbol wrongType) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP051",
-                $"Cannot use a string indexer on an expression of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
-
-            public ErrorDiagnostic MalformedPropertyNameString() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP052",
-                "The property name in a string indexer is malformed.");
 
             public ErrorDiagnostic UnknownProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
                 TextSpan,
@@ -307,10 +313,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP063",
                 $"The name '{name}' is not a parameter or variable.");
 
-            public ErrorDiagnostic MalformedString() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP064",
-                "The string at this location is malformed.");
+                "Found unexpected tokens in interpolated expression.");
 
             public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
                 TextSpan,
@@ -321,6 +327,74 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
+
+            public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP067",
+                "String interpolation in not supported in object keys.");
+
+            public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP068",
+                "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
+
+            public ErrorDiagnostic ExpressionContainsObjectLiteralContainingOtherExpressions() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP069",
+                "The expression is inside an object literal that is itself part of another expression. This is not currently supported.");
+
+            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP070",
+                $"Argument of type '{argumentType}' is not assignable to parameter of type '{parameterType}'.");
+
+            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
+            {
+                string expected;
+
+                if (!maximumArgumentCount.HasValue)
+                {
+                    expected = $"as least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                }
+                else if (mininumArgumentCount == maximumArgumentCount.Value)
+                {
+                    expected = $"{mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                }
+                else
+                {
+                    expected = $"{mininumArgumentCount} to {maximumArgumentCount} arguments";
+                }
+
+                return new ErrorDiagnostic(
+                    TextSpan,
+                    "BCP071",
+                    $"Expected {expected}, but got {argumentCount}.");
+            }
+
+            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP072",
+                "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
+
+            public ErrorDiagnostic CannotAssignToReadOnlyProperty(string property) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP073",
+                $"The property '{property}' is read-only. Expressions cannot be assigned to read-only properties.");
+
+            public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP074",
+                $"Indexing over arrays requires an index of type '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
+
+            public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP075",
+                $"Indexing over objects requires an index of type '{LanguageConstants.String}' but the provided index was of type '{wrongType}'.");
+
+            public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP076",
+                $"Cannot index over expression of type '{wrongType}'. Arrays or objects are required.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

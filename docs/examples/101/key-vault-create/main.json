@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string",
+      "defaultValue": "bicepKeyVaultTutorial"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "westuS"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Standard"
+    },
+    "tenant": {
+      "type": "string",
+      "defaultValue": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+    },
+    "accessPolicies": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "tenantId": "[parameters('tenant')]",
+          "objectId": "414d10da-615f-49a7-90a0-a7008fb31cd3",
+          "permissions": {
+            "keys": [
+              "Get",
+              "List",
+              "Update",
+              "Create",
+              "Import",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore"
+            ],
+            "secrets": [
+              "Get",
+              "List",
+              "Set",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore"
+            ],
+            "certificates": [
+              "Get",
+              "List",
+              "Update",
+              "Create",
+              "Import",
+              "Delete",
+              "Recover",
+              "Backup",
+              "Restore",
+              "ManageContacts",
+              "ManageIssuers",
+              "GetIssuers",
+              "ListIssuers",
+              "SetIssuers",
+              "DeleteIssuers"
+            ]
+          }
+        }
+      ]
+    },
+    "enabledForDeployment": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enabledForTemplateDeployment": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enabledForDiskEncryption": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "enableRbacAuthorization": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "enableSoftDelete": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "softDeleteRetentionInDays": {
+      "type": "int",
+      "defaultValue": 90
+    },
+    "networkAcls": {
+      "type": "object",
+      "defaultValue": {
+        "bypass": "AzureServices",
+        "defaultAction": "allow",
+        "ipRules": [],
+        "virtualNetworkRules": []
+      }
+    }
+  },
+  "functions": [],
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "tenantId": "[parameters('tenant')]",
+        "sku": {
+          "family": "A",
+          "name": "[parameters('sku')]"
+        },
+        "accessPolicies": "[parameters('accessPolicies')]",
+        "enabledForDeployment": "[parameters('enabledForDeployment')]",
+        "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
+        "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+        "enableSoftDelete": "[parameters('enableSoftDelete')]",
+        "softDeleteRetentionInDays": "[parameters('softDeleteRetentionInDays')]",
+        "enableRbacAuthorization": "[parameters('enableRbacAuthorization')]",
+        "networkAcls": "[parameters('networkAcls')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

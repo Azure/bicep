@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -9,8 +11,8 @@ namespace Bicep.Core.SemanticModel
 {
     public class OutputSymbol : DeclaredSymbol
     {
-        public OutputSymbol(ITypeManager typeManager, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
-            : base(typeManager, name, declaringSyntax, declaringSyntax.Name)
+        public OutputSymbol(ISymbolContext context, string name, OutputDeclarationSyntax declaringSyntax, SyntaxBase value)
+            : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
             this.Value = value;
         }
@@ -38,7 +40,7 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            TypeSymbol valueType = this.TypeManager.GetTypeInfo(this.Value, new TypeManagerContext());
+            TypeSymbol valueType = this.Context.TypeManager.GetTypeInfo(this.Value, new TypeManagerContext());
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorTypeSymbol)
@@ -55,3 +57,4 @@ namespace Bicep.Core.SemanticModel
         }
     }
 }
+

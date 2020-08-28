@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,37 +18,118 @@ namespace Bicep.Core.Samples
     {
         public class SnippetModel
         {
-            public string? Prefix { get; set; }
+            [JsonConstructor]
+            public SnippetModel(string prefix, IEnumerable<string> body, string description)
+            {
+                Prefix = prefix;
+                Body = body;
+                Description = description;
+            }
 
-            public IEnumerable<string>? Body { get; set; }
+            public string Prefix { get; }
 
-            public static string GetDisplayName(MethodInfo info, object[] data) => ((SnippetModel)data[0]).Prefix!;
+            public IEnumerable<string> Body { get; }
+
+            public string Description { get; }
         }
 
-        private static IDictionary<string, Action<string>> SnippetValidations = new Dictionary<string, Action<string>>
+        public class NamedSnippetModel
         {
-            ["resource"] = body => ValidateSnippet(body, "myResource", "myProvider", "myType", "2020-01-01", "name: 'myResource'"),
-            ["var"] = body => ValidateSnippet(body, "myVariable", "'stringVal'"),
-            ["param"] = body => ValidateSnippet(body, "myParam", "string"),
-            ["output"] = body => ValidateSnippet(body, "myOutput", "string", "'stringVal'"),
+            public NamedSnippetModel(string name, SnippetModel model)
+            {
+                Name = name;
+                Model = model;
+            }
+
+            public string Name { get; }
+
+            public SnippetModel Model { get; }
+
+            public static string GetDisplayName(MethodInfo info, object[] data) => ((NamedSnippetModel)data[0]).Name;
+        }
+
+        public class SnippetValidation
+        {
+            public SnippetValidation(string expectedPrefix, Action<string> validateAction)
+            {
+                ExpectedPrefix = expectedPrefix;
+                ValidateAction = validateAction;
+            }
+
+            public string ExpectedPrefix { get; }
+
+            public Action<string> ValidateAction { get; }
+        }
+
+        private static IDictionary<string, SnippetValidation> SnippetValidations = new Dictionary<string, SnippetValidation>
+        {
+            ["ResourceWithDefaults"] = new SnippetValidation(
+                "resource",
+                body => ValidateSnippet(body, "myResource", "myProvider", "myType", "2020-01-01", "'parent'", "'West US'", "prop1: 'val1'")
+            ),
+            ["ResourceChildWithDefaults"] = new SnippetValidation(
+                "resource",
+                body => ValidateSnippet(body, "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'", "prop1: 'val1'")
+            ),
+            ["ResourceWithoutDefaults"] = new SnippetValidation(
+                "resource",
+                body => ValidateSnippet(body, "myResource", "myProvider", "myType", "2020-01-01", "'parent'", "properties: {\nprop1: 'val1'\n}")
+            ),
+            ["ResourceChildWithoutDefaults"] = new SnippetValidation(
+                "resource",
+                body => ValidateSnippet(body, "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'", "properties: {\nprop1: 'val1'\n}")
+            ),
+            ["Variable"] = new SnippetValidation(
+                "var",
+                body => ValidateSnippet(body, "myVariable", "'stringVal'")
+            ),
+            ["Parameter"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam", "string")
+            ),
+            ["ParameterWithInlineDefault"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam", "string", "'myDefault'")
+            ),
+            ["ParameterWithDefaultAndAllowedValues"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam", "string", "'myDefault'", "'val1'\n'val2'")
+            ),
+            ["ParameterWithOptions"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam", "string", "default: 'myDefault'\nsecure: true")
+            ),
+            ["ParameterSecureString"] = new SnippetValidation(
+                "param",
+                body => ValidateSnippet(body, "myParam")
+            ),
+            ["Output"] = new SnippetValidation(
+                "output",
+                body => ValidateSnippet(body, "myOutput", "string", "'stringVal'")
+            ),
         };
 
         private static IEnumerable<object[]> GetSnippets()
         {
-            var data = JsonConvert.DeserializeObject<Dictionary<string, SnippetModel>>(DataSet.ReadFile("vscode-bicep.snippets.bicep.json"));
+            var snippetFileContents = JsonConvert.DeserializeObject<Dictionary<string, SnippetModel>>(DataSet.ReadFile("vscode-bicep.snippets.bicep.json"));
+            var testData = snippetFileContents.Select(x => new NamedSnippetModel(x.Key, x.Value));
             
-            return data.Values.Select(snippet => new object[] { snippet });
+            return testData.Select(model => new object[] { model });
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetSnippets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(SnippetModel), DynamicDataDisplayName = nameof(SnippetModel.GetDisplayName))]
-        public void SnippetIsValid(SnippetModel snippet)
+        [DynamicData(nameof(GetSnippets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(NamedSnippetModel), DynamicDataDisplayName = nameof(NamedSnippetModel.GetDisplayName))]
+        public void SnippetIsValid(NamedSnippetModel snippet)
         {
-            var snippetBody = string.Join('\n', snippet.Body!);
-            var prefix = snippet.Prefix!;
+            snippet.Model.Prefix.Should().NotBeEmpty();
+            snippet.Model.Description.Should().NotBeEmpty();
+            var snippetBody = string.Join('\n', snippet.Model.Body);
 
-            SnippetValidations.Should().ContainKey(prefix, "validation has not been defined for this snippet");
-            SnippetValidations[prefix].Invoke(snippetBody);
+            SnippetValidations.Should().ContainKey(snippet.Name, "validation has not been defined for this snippet");
+            var validation = SnippetValidations[snippet.Name];
+
+            snippet.Model.Prefix.Should().Be(validation.ExpectedPrefix);
+            validation.ValidateAction(snippetBody);
         }
         
         private static void ValidateSnippet(string body, params string[] replacements)
@@ -89,3 +172,4 @@ namespace Bicep.Core.Samples
         }
     }
 }
+

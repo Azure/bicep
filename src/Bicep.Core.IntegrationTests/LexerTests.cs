@@ -1,12 +1,18 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
-using Bicep.Core.UnitTests.Json;
+using Bicep.Core.Text;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
+using DiffPlex.DiffBuilder;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -55,13 +61,18 @@ namespace Bicep.Core.IntegrationTests
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
             lexer.Lex();
 
-            var actual = JToken.FromObject(lexer.GetTokens().Select(token => new TokenItem(token)), DataSetSerialization.CreateSerializer());
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Tokens_Actual.json", actual.ToString(Formatting.Indented));
+            string getLoggingString(Token token)
+            {
+                return $"{token.Type} |{token.Text}|";
+            }
 
-            var expected = JToken.Parse(dataSet.Tokens);
-            FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Tokens_Expected.json", expected.ToString(Formatting.Indented));
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{dataSet.Name}_Tokens_Delta.json");
+            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                dataSet.Tokens,
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
+                actualLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
@@ -76,8 +87,7 @@ namespace Bicep.Core.IntegrationTests
 
             foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.StringComplete))
             {
-                Action getStringValue = () => Lexer.GetStringValue(stringToken);
-                getStringValue.Should().NotThrow($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
+                Lexer.TryGetStringValue(stringToken).Should().NotBeNull($"because string token at span {stringToken.Span} should have a string value. Token Text = {stringToken.Text}");
             }
         }
 
@@ -86,3 +96,4 @@ namespace Bicep.Core.IntegrationTests
         private static IEnumerable<object[]> GetValidData() => DataSets.AllDataSets.Where(ds => ds.IsValid).ToDynamicTestData();
     }
 }
+

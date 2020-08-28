@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Arm.Expression.Expressions;
@@ -17,7 +19,6 @@ namespace Bicep.Core.Emit
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
         {
-            "allowedValues",
             "minValue",
             "maxValue",
             "minLength",
@@ -110,6 +111,7 @@ namespace Bicep.Core.Emit
                     }
 
                     this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
+                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue("allowed"));
                     
                     break;
             }
@@ -123,7 +125,7 @@ namespace Bicep.Core.Emit
 
             foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
             {
-                if (!this.context.RequiresInlining(variableSymbol))
+                if (!this.context.VariablesToInline.Contains(variableSymbol))
                 {
                     writer.WritePropertyName(variableSymbol.Name);
                     this.EmitVariable(variableSymbol);
@@ -170,7 +172,7 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(ResourceSymbol resourceSymbol)
         {
-            var dependencies = this.context.SemanticModel.SymbolGraph.GetResourceDependencies(resourceSymbol);
+            var dependencies = context.ResourceDependencies[resourceSymbol];
             if (!dependencies.Any())
             {
                 return;
@@ -229,3 +231,4 @@ namespace Bicep.Core.Emit
         }
     }
 }
+

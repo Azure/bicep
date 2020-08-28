@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -57,7 +59,7 @@ namespace Bicep.Core.Parser
                     // TODO: Update when adding other statement types
                     _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                 };
-            }, TokenType.NewLine);
+            }, true, TokenType.NewLine);
         }
 
         private SyntaxBase ParameterDeclaration()
@@ -126,7 +128,7 @@ namespace Bicep.Core.Parser
             var name = this.Identifier(b => b.ExpectedResourceIdentifier());
 
             // TODO: Unify StringSyntax with TypeSyntax
-            var type = this.InterpolableString();
+            var type = ThrowIfSkipped(() => this.InterpolableString(), b => b.ExpectedResourceTypeString());
 
             var assignment = this.Assignment();
             var body = this.Object();
@@ -387,63 +389,115 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase InterpolableString()
         {
-            var startPosition = reader.Position;
-            SyntaxBase TerminateString(IReadOnlyList<Token> stringTokens, IEnumerable<SyntaxBase> syntaxExpressions)
+            var startToken = reader.Peek();
+            var tokensOrSyntax = new List<TokenOrSyntax>();
+
+            SyntaxBase? processStringSegment(bool isFirstSegment)
             {
-                // the lexer may return unterminated string tokens to allow lexing to continue over an interpolated string.
-                // we should catch that here and prevent parsing from succeeding.
-                var segments = Lexer.TryGetRawStringSegments(stringTokens);
-                if (segments == null)
-                {
-                    // We've got a string terminator, so we can do better than throwing an ExpectedTokenException,
-                    // which would force the Parser to skip to the end of the line.
-                    var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition).ToArray();
-                    var tokensSpan = TextSpan.Between(skippedTokens.First(), skippedTokens.Last());
-                    return new SkippedTokensTriviaSyntax(skippedTokens, null, null);
-                }
-                return new StringSyntax(stringTokens, syntaxExpressions, segments);
-            }
+                // This local function will be called in a loop to consume string segments and expressions in interpolation holes.
+                // Returning a non-null result will result in the caller terminating the loop and returning the given syntax tree for the string.
 
-            return this.WithRecovery(() => {
-                var stringTokens = new List<Token>();
-                var syntaxExpressions = new List<SyntaxBase>();
+                var hadErrors = false;
+                var isComplete = false;
+                var currentType = reader.Peek().Type;
 
-                var nextToken = reader.Read();
-                switch (nextToken.Type)
+                // Depending on where we are in the loop, we need to look for different string tokens to orientate ourselves.
+                // If we're handling the first segment, the final (only) segment will look like "'...'" and continuation will look like "'...${".
+                // If we're handling later segments, the final segment will look like "}...'" and continuation will look like "}...${".
+                var tokenStringEnd = isFirstSegment ? TokenType.StringComplete : TokenType.StringRightPiece;
+                var tokenStringContinue = isFirstSegment ? TokenType.StringLeftPiece : TokenType.StringMiddlePiece;
+
+                if (currentType == tokenStringEnd)
                 {
-                    case TokenType.StringComplete:
-                        stringTokens.Add(nextToken);
-                        return TerminateString(stringTokens, syntaxExpressions);
-                    case TokenType.StringLeftPiece:
-                        stringTokens.Add(nextToken);
-                        syntaxExpressions.Add(Expression());
-                        break;
-                    default:
-                        // don't actually consume the next token - leave this up to recovery
-                        reader.StepBack();
-                        throw new ExpectedTokenException(nextToken, b => b.MalformedString());
+                    // We're done - exit the loop.
+                    tokensOrSyntax.Add(new TokenOrSyntax(reader.Read()));
+                    isComplete = true;
                 }
-                
-                // we're handling an interpolated string
-                while (true)
+                else if (currentType == tokenStringContinue)
                 {
-                    nextToken = reader.Read();
-                    switch (nextToken.Type)
+                    tokensOrSyntax.Add(new TokenOrSyntax(reader.Read()));
+
+                    // Look for an expression syntax inside the interpolation 'hole' (between "${" and "}").
+                    // The lexer doesn't allow an expression contained inside an interpolation to span multiple lines, so we can safely use recovery to look for a NewLine character.
+                    var interpExpression = WithRecovery(() => Expression(), false, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    if (!Check(TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine))
                     {
-                        case TokenType.StringRightPiece:
-                            stringTokens.Add(nextToken);
-                            return TerminateString(stringTokens, syntaxExpressions);
-                        case TokenType.StringMiddlePiece:
-                            stringTokens.Add(nextToken);
-                            syntaxExpressions.Add(Expression());
-                            break;
-                        default:
-                            // don't actually consume the next token - leave this up to recovery
-                            reader.StepBack();
-                            throw new ExpectedTokenException(nextToken, b => b.MalformedString());
+                        // We may have successfully parsed the expression, but have not reached the end of the expression hole. Skip to the end of the hole.
+                        var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+
+                        // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
+                        // Rather than trying to add two expression nodes, combine them.
+                        var combined = new [] { interpExpression, skippedSyntax };
+                        interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined.Select(x => new TokenOrSyntax(x)), Enumerable.Empty<Diagnostic>());
+                    }
+
+                    tokensOrSyntax.Add(new TokenOrSyntax(interpExpression));
+
+                    if (Check(TokenType.NewLine) || IsAtEnd())
+                    {
+                        // Terminate the loop with errors.
+                        hadErrors = true;
                     }
                 }
-            }, TokenType.NewLine);
+                else
+                {
+                    // Don't consume any tokens that aren't part of this syntax - allow synchronize to handle that safely.
+                    var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    tokensOrSyntax.Add(new TokenOrSyntax(skippedSyntax));
+
+                    // If we're able to match a continuation, we should keep going, even if the expression parsing fails.
+                    // A bad expression will simply be added as a SkippedTriviaSyntax node.
+                    //if (reader.Peek().Type == TokenType.NewLine || IsAtEnd())
+                    if (!Check(TokenType.StringMiddlePiece, TokenType.StringRightPiece))
+                    {
+                        // Terminate the loop with errors.
+                        hadErrors = true;
+                    }
+                }
+
+                if (isComplete)
+                {
+                    var tokens = new List<Token>();
+                    var expressions = new List<SyntaxBase>();
+                    foreach (var element in tokensOrSyntax)
+                    {
+                        element.Visit(expressions.Add, tokens.Add);
+                    }
+
+                    // The lexer may return unterminated string tokens to allow lexing to continue over an interpolated string.
+                    // We should catch that here and prevent parsing from succeeding.
+                    var segments = Lexer.TryGetRawStringSegments(tokens);
+                    if (segments != null)
+                    {
+                        return new StringSyntax(tokens, expressions, segments);
+                    }
+
+                    // Fall back to main error-handling, we can't safely return a string.
+                    hadErrors = true;
+                }
+
+                if (hadErrors)
+                {
+                    // This error-handling is just for cases where we were completely unable to interpret the string.
+                    var span = TextSpan.BetweenInclusiveAndExclusive(startToken, reader.Peek());
+                    return new SkippedTriviaSyntax(span, tokensOrSyntax, Enumerable.Empty<Diagnostic>());
+                }
+
+                return null;
+            }
+
+            var isFirstSegment = true;
+            while (true)
+            {
+                // Here we're actually parsing and returning the completed string
+                var output = processStringSegment(isFirstSegment);
+                if (output != null)
+                {
+                    return output;
+                }
+
+                isFirstSegment = false;
+            }
         }
 
         private SyntaxBase LiteralValue()
@@ -470,11 +524,18 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase Array()
         {
-            var items = new List<SyntaxBase>();
-            
             var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+
+            if (Check(TokenType.RightSquare))
+            {
+                // allow a close on the same line for an empty array
+                var emptyCloseBracket = reader.Read();
+                return new ArraySyntax(openBracket, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBracket);
+            }
+
             var newLines = this.NewLines();
 
+            var items = new List<SyntaxBase>();
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
             {
                 var item = this.ArrayItem();
@@ -494,16 +555,23 @@ namespace Bicep.Core.Parser
                 var newLines = this.NewLines();
 
                 return new ArrayItemSyntax(value, newLines);
-            }, TokenType.NewLine);
+            }, true, TokenType.NewLine);
         }
 
         private ObjectSyntax Object()
         {
-            var properties = new List<SyntaxBase>();
-
             var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
+
+            if (Check(TokenType.RightBrace))
+            {
+                // allow a close on the same line for an empty object
+                var emptyCloseBrace = reader.Read();
+                return new ObjectSyntax(openBrace, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBrace);
+            }
+
             var newLines = this.NewLines();
 
+            var properties = new List<SyntaxBase>();
             while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightBrace)
             {
                 var property = this.ObjectProperty();
@@ -519,43 +587,85 @@ namespace Bicep.Core.Parser
         {
             return this.WithRecovery(() =>
             {
-                var identifier = this.Identifier(b => b.ExpectedPropertyName());
+                var current = this.reader.Peek();
+                var key = ThrowIfSkipped(() => 
+                    current.Type switch {
+                        TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                        TokenType.StringComplete => this.InterpolableString(),
+                        TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                    }, b => b.ExpectedPropertyName());
+
                 var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
                 var value = Expression();
                 var newLines = this.NewLines();
 
-                return new ObjectPropertySyntax(identifier, colon, value, newLines);
-            }, TokenType.NewLine);
+                return new ObjectPropertySyntax(key, colon, value, newLines);
+            }, true, TokenType.NewLine);
         }
 
-        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, params TokenType[] terminatingTypes)
+        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase
         {
-            var startPosition = reader.Position;
+            var startReaderPosition = reader.Position;
             try
             {
                 return syntaxFunc();
             }
             catch (ExpectedTokenException exception)
             {
-                this.Synchronize(terminatingTypes);
-                
-                var skippedTokens = reader.Slice(startPosition, reader.Position - startPosition);
-                return new SkippedTokensTriviaSyntax(skippedTokens, exception.Error, exception.UnexpectedToken);
+                return SynchronizeAndReturnTrivia(startReaderPosition, consumeTerminator, _ => exception.Error, terminatingTypes);
             }
         }
 
-        private void Synchronize(params TokenType[] expectedTypes)
+        private SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            var startToken = reader.Peek();
+            var syntax = syntaxFunc();
+
+            if (syntax.IsSkipped)
+            {
+                throw new ExpectedTokenException(startToken, errorFunc);
+            }
+
+            return syntax;
+        }
+
+        private void Synchronize(bool consumeTerminator, params TokenType[] expectedTypes)
         {
             while (!IsAtEnd())
             {
-                if (Match(expectedTypes))
+                if (consumeTerminator ? Match(expectedTypes) : Check(expectedTypes))
                 {
                     return;
                 }
 
                 reader.Read();
             }
+        }
+
+        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, bool consumeTerminator, DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] expectedTypes)
+        {
+            var startToken = reader.AtPosition(startReaderPosition);
+
+            // Generally we don't want the error span to include the terminating token, so synchronize with and without if required.
+            // The skipped trivia returned should always include the full span
+            Synchronize(false, expectedTypes);
+            var skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition);
+            var skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
+            var errorSpan = skippedSpan;
+
+            if (consumeTerminator)
+            {
+                Synchronize(true, expectedTypes);
+
+                skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition);
+                skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
+            }
+
+            var error = errorFunc(DiagnosticBuilder.ForPosition(errorSpan));
+
+            return new SkippedTriviaSyntax(skippedSpan, skippedTokens.Select(x => new TokenOrSyntax(x)), new [] { error });
         }
 
         private bool IsAtEnd()
