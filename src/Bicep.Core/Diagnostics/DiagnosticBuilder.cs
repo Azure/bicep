@@ -338,7 +338,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'.");
 
-            public ErrorDiagnostic EmitLimitationDetected() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpressionContainsObjectLiteralContainingOtherExpressions() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP069",
                 "The expression is inside an object literal that is itself part of another expression. This is not currently supported.");

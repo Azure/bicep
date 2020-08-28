@@ -28,7 +28,7 @@ namespace Bicep.Core.Emit
 
             if (newState == VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain)
             {
-                this.diagnostics.Add(DiagnosticBuilder.ForPosition(node.Span).EmitLimitationDetected());
+                this.diagnostics.Add(DiagnosticBuilder.ForPosition(node.Span).ExpressionContainsObjectLiteralContainingOtherExpressions());
                 
                 // we won't suddenly regain the ability to compile the expression by visiting children,
                 // so let's not continue deeper into the tree
