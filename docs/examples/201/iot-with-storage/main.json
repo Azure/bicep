@@ -1,0 +1,133 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11,
+      "defaultValue": "contoso"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "S1"
+    },
+    "skuUnits": {
+      "type": "string",
+      "defaultValue": "1"
+    },
+    "d2cPartitions": {
+      "type": "string",
+      "defaultValue": "4"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "unique": "[uniqueString(resourceGroup().id)]",
+    "iotHubName": "[format('{0}Hub{1}', parameters('projectName'), variables('unique'))]",
+    "storageAccountName": "[format('{0}{1}', toLower(parameters('projectName')), variables('unique'))]",
+    "storageEndpoint": "[format('{0}StorageEndpoint', parameters('projectName'))]",
+    "storageContainerName": "[format('{0}results', toLower(parameters('projectName')))]"
+  },
+  "resources": [
+    {
+      "type": "microsoft.storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "Storage"
+    },
+    {
+      "type": "microsoft.storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('storageContainerName'))]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "microsoft.devices/iotHubs",
+      "apiVersion": "2020-03-01",
+      "name": "[variables('iotHubName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuUnits')]"
+      },
+      "properties": {
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": 1,
+            "partitionCount": "[parameters('d2cPartitions')]"
+          }
+        },
+        "routing": {
+          "endpoints": {
+            "storageContainers": [
+              {
+                "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('microsoft.storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]",
+                "containerName": "[variables('storageContainerName')]",
+                "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
+                "batchFrequencyInSeconds": 100,
+                "maxChunkSizeInBytes": 104857600,
+                "encoding": "json",
+                "name": "[variables('storageEndpoint')]"
+              }
+            ]
+          },
+          "routes": [
+            {
+              "name": "ContosoStorageRoute",
+              "source": "DeviceMessages",
+              "condition": "level=\"storage\"",
+              "endpointNames": [
+                "[variables('storageEndpoint')]"
+              ],
+              "isEnabled": true
+            }
+          ],
+          "fallbackRoute": {
+            "name": "$fallback",
+            "source": "DeviceMessages",
+            "condition": "true",
+            "endpointNames": [
+              "events"
+            ],
+            "isEnabled": true
+          }
+        },
+        "messagingEndpoints": {
+          "fileNotifications": {
+            "lockDurationAsIso8601": "PT1M",
+            "ttlAsIso8601": "PT1H",
+            "maxDeliveryCount": 10
+          }
+        },
+        "enableFileUploadNotifications": false,
+        "cloudToDevice": {
+          "maxDeliveryCount": 10,
+          "defaultTtlAsIso8601": "PT1H",
+          "feedback": {
+            "lockDurationAsIso8601": "PT1M",
+            "ttlAsIso8601": "PT1H",
+            "maxDeliveryCount": 10
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}
