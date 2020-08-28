@@ -55,6 +55,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   sku: {
     name: 'Standard_LRS'
   }
+  dependsOn: [
+    myStorageAccount
+  ]
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
