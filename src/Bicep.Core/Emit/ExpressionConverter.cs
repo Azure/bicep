@@ -47,8 +47,10 @@ namespace Bicep.Core.Emit
                     return CreateJsonFunctionCall(JValue.CreateNull());
 
                 case ObjectSyntax _:
-                case ArraySyntax _:
                     return ConvertComplexLiteral(expression);
+
+                case ArraySyntax array:
+                    return ConvertArray(array);
 
                 case ParenthesizedExpressionSyntax parenthesized:
                     // template expressions do not have operators so parentheses are irrelevant
@@ -282,6 +284,19 @@ namespace Bicep.Core.Emit
             }
 
             return new FunctionExpression(functionName, arguments, Array.Empty<LanguageExpression>());
+        }
+
+        private FunctionExpression ConvertArray(ArraySyntax syntax)
+        {
+            // we are using the createArray() function as a proxy for an array literal
+            // unfortunately the function requires at least one argument to be passed in
+            // we will use json('[]') to represent an empty array as a workaround
+            return syntax.Items.Any()
+                ? new FunctionExpression(
+                    "createArray",
+                    syntax.Items.Select(item => ConvertExpression(item.Value)).ToArray(),
+                    Array.Empty<LanguageExpression>())
+                : CreateJsonFunctionCall(new JArray());
         }
 
         private FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
