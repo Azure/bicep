@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
@@ -126,11 +127,17 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitObjectProperties(ObjectSyntax objectSyntax)
+        public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                EmitPropertyExpression(propertySyntax.GetKeyText(), propertySyntax.Value);
+                var keyText = propertySyntax.GetKeyText();
+                if (propertiesToOmit?.Contains(keyText) == true)
+                {
+                    continue;
+                }
+
+                EmitPropertyExpression(keyText, propertySyntax.Value);
             }
         }
 

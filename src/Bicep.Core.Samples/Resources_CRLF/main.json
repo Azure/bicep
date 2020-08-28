@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -90,7 +90,10 @@
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', 'myencryptedone')]"
+      ]
     },
     {
       "type": "Microsoft.Web/serverFarms",

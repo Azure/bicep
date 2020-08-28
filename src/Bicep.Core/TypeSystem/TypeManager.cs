@@ -293,6 +293,11 @@ namespace Bicep.Core.TypeSystem
             var declaredProperty = baseType.Properties.TryGetValue(propertyName);
             if (declaredProperty != null)
             {
+                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                {
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(baseType, propertyName));
+                }
+
                 // there is - return its type
                 return declaredProperty.Type;
             }

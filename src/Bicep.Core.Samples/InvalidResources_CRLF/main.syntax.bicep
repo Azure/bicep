@@ -500,7 +500,7 @@ output resrefout bool = bar.id
 //@[41:43) NoOpDeclarationSyntax
 //@[41:43)  NewLine |\r\n|
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:119) ResourceDeclarationSyntax
+//@[0:123) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |baz|
@@ -542,6 +542,193 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[14:18)    BooleanLiteralSyntax
 //@[14:18)     TrueKeyword |true|
 //@[18:20)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:117) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:19)  IdentifierSyntax
+//@[9:19)   Identifier |badDepends|
+//@[20:57)  StringSyntax
+//@[20:57)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[58:59)  Assignment |=|
+//@[60:113)  ObjectSyntax
+//@[60:61)   LeftBrace |{|
+//@[61:63)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  dependsOn: [
+//@[2:33)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:31)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    baz.id
+//@[4:12)     ArrayItemSyntax
+//@[4:10)      PropertyAccessSyntax
+//@[4:7)       VariableAccessSyntax
+//@[4:7)        IdentifierSyntax
+//@[4:7)         Identifier |baz|
+//@[7:8)       Dot |.|
+//@[8:10)       IdentifierSyntax
+//@[8:10)        Identifier |id|
+//@[10:12)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:129) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:20)  IdentifierSyntax
+//@[9:20)   Identifier |badDepends2|
+//@[21:58)  StringSyntax
+//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60)  Assignment |=|
+//@[61:125)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  dependsOn: [
+//@[2:44)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:42)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    'hello'
+//@[4:13)     ArrayItemSyntax
+//@[4:11)      StringSyntax
+//@[4:11)       StringComplete |'hello'|
+//@[11:13)      NewLine |\r\n|
+    true
+//@[4:10)     ArrayItemSyntax
+//@[4:8)      BooleanLiteralSyntax
+//@[4:8)       TrueKeyword |true|
+//@[8:10)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:85) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:20)  IdentifierSyntax
+//@[9:20)   Identifier |badDepends3|
+//@[21:58)  StringSyntax
+//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60)  Assignment |=|
+//@[61:81)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:123) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:20)  IdentifierSyntax
+//@[9:20)   Identifier |badDepends4|
+//@[21:58)  StringSyntax
+//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60)  Assignment |=|
+//@[61:119)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  dependsOn: [
+//@[2:38)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:36)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    badDepends3
+//@[4:17)     ArrayItemSyntax
+//@[4:15)      VariableAccessSyntax
+//@[4:15)       IdentifierSyntax
+//@[4:15)        Identifier |badDepends3|
+//@[15:17)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:117) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:20)  IdentifierSyntax
+//@[9:20)   Identifier |badDepends5|
+//@[21:58)  StringSyntax
+//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60)  Assignment |=|
+//@[61:117)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  dependsOn: badDepends3.dependsOn
+//@[2:36)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:34)    PropertyAccessSyntax
+//@[13:24)     VariableAccessSyntax
+//@[13:24)      IdentifierSyntax
+//@[13:24)       Identifier |badDepends3|
+//@[24:25)     Dot |.|
+//@[25:34)     IdentifierSyntax
+//@[25:34)      Identifier |dependsOn|
+//@[34:36)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

@@ -86,3 +86,34 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   type: 'hello'
   apiVersion: true
 }
+
+resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    baz.id
+  ]
+}
+
+resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    'hello'
+    true
+  ]
+}
+
+resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+}
+
+resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    badDepends3
+  ]
+}
+
+resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: badDepends3.dependsOn
+}

@@ -28,8 +28,13 @@ namespace Bicep.Core.TypeSystem
         ReadOnly = 1 << 2,
 
         /// <summary>
+        /// The property is write-only.
+        /// </summary>
+        WriteOnly = 1 << 3,
+
+        /// <summary>
         /// The property does not require inlining.
         /// </summary>
-        SkipInlining = 1 << 3,
+        SkipInlining = 1 << 4,
     }
 }

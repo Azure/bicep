@@ -53,6 +53,9 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
+                case ResourceRefType _:
+                    return sourceType.TypeKind == TypeKind.Resource;
+
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
                     // compare by type name

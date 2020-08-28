@@ -127,3 +127,38 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[2:12) Error The property 'apiVersion' is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
 //@[14:18) Error The property 'apiVersion' expected a value of type 'string' but the provided value is of type 'bool'. |true|
 }
+
+resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    baz.id
+//@[4:10) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'string'. |baz.id|
+  ]
+}
+
+resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    'hello'
+//@[4:11) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'string'. |'hello'|
+    true
+//@[4:8) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'bool'. |true|
+  ]
+}
+
+resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+}
+
+resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: [
+    badDepends3
+  ]
+}
+
+resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  dependsOn: badDepends3.dependsOn
+//@[25:34) Error The property 'dependsOn' on type 'Microsoft.Foo/foos@2020-02-02-alpha' is write-only. Write-only properties cannot be accessed. |dependsOn|
+}
