@@ -45,7 +45,7 @@ param secondaryRegion string {
 
 param defaultConsistencyLevel string {
     defaultValue: 'Session',
-    allowedValues: [
+    allowed: [
         'Eventual',
         'ConsistentPrefix',
         'Session',
@@ -71,7 +71,7 @@ param maxIntervalInSeconds int {
 
 param automaticFailover bool {
     defaultValue: true,
-    allowedValues: [
+    allowed: [
         true,
         false
     ],

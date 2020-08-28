@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -24,9 +26,9 @@ namespace Bicep.Core.Emit
             var kind = (node as IExpressionSyntax)?.ExpressionKind ?? ExpressionKind.None;
             var newState = GetNewState(kind);
 
-            if (newState == VisitorState.SecondOperatorChainInsideComplexLiteralInsideFirstOperatorChain)
+            if (newState == VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain)
             {
-                this.diagnostics.Add(DiagnosticBuilder.ForPosition(node.Span).EmitLimitationDetected());
+                this.diagnostics.Add(DiagnosticBuilder.ForPosition(node.Span).ExpressionContainsObjectLiteralContainingOtherExpressions());
                 
                 // we won't suddenly regain the ability to compile the expression by visiting children,
                 // so let's not continue deeper into the tree
@@ -51,7 +53,8 @@ namespace Bicep.Core.Emit
                     {
                         case ExpressionKind.None:
                         case ExpressionKind.SimpleLiteral:
-                        case ExpressionKind.ComplexLiteral:
+                        case ExpressionKind.ArrayLiteral:
+                        case ExpressionKind.ObjectLiteral:
                             // simple literals are not interesting for this
                             // outer complex literals are also fine
                             return VisitorState.None;
@@ -68,36 +71,39 @@ namespace Bicep.Core.Emit
                         case ExpressionKind.None:
                         case ExpressionKind.Operator:
                         case ExpressionKind.SimpleLiteral:
+                        case ExpressionKind.ArrayLiteral:
                             // operator doesn't change the state since we're already in the operator chain
                             // simple literal also doesn't change anything
+                            // arrays also don't change anything
                             return VisitorState.FirstOperatorChain;
 
-                        case ExpressionKind.ComplexLiteral:
+                        case ExpressionKind.ObjectLiteral:
                             // update state
-                            return VisitorState.ComplexLiteralInsideFirstOperatorChain;
+                            return VisitorState.ObjectLiteralInsideFirstOperatorChain;
                     }
 
                     break;
 
-                case VisitorState.ComplexLiteralInsideFirstOperatorChain:
+                case VisitorState.ObjectLiteralInsideFirstOperatorChain:
                     switch (kind)
                     {
                         case ExpressionKind.None:
-                        case ExpressionKind.ComplexLiteral:
+                        case ExpressionKind.ArrayLiteral:
+                        case ExpressionKind.ObjectLiteral:
                         case ExpressionKind.SimpleLiteral:
                             // literals don't change the state
-                            return VisitorState.ComplexLiteralInsideFirstOperatorChain;
+                            return VisitorState.ObjectLiteralInsideFirstOperatorChain;
 
                         case ExpressionKind.Operator:
                             // update state
-                            return VisitorState.SecondOperatorChainInsideComplexLiteralInsideFirstOperatorChain;
+                            return VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain;
                     }
 
                     break;
 
-                case VisitorState.SecondOperatorChainInsideComplexLiteralInsideFirstOperatorChain:
+                case VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain:
                     // once we enter this state, we cannot leave it
-                    return VisitorState.SecondOperatorChainInsideComplexLiteralInsideFirstOperatorChain;
+                    return VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain;
             }
 
             throw new NotImplementedException($"Unexpected current state '{current}' and/or expression kind '{kind}'.");
@@ -116,14 +122,15 @@ namespace Bicep.Core.Emit
             FirstOperatorChain,
 
             /// <summary>
-            /// A complex literal (array or object) was detected inside the first operator chain.
+            /// An object literal was detected inside the first operator chain.
             /// </summary>
-            ComplexLiteralInsideFirstOperatorChain,
+            ObjectLiteralInsideFirstOperatorChain,
 
             /// <summary>
-            /// A second operator chain was detected inside a literal that is also inside the first operator chain.
+            /// A second operator chain was detected inside an object literal that is also inside the first operator chain.
             /// </summary>
-            SecondOperatorChainInsideComplexLiteralInsideFirstOperatorChain
+            SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain
         }
     }
 }
+

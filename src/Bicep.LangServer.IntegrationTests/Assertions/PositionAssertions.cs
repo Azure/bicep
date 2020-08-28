@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;

@@ -78,3 +78,11 @@ var resrefvar = bar.name
 param resrefpar string = foo.id
 
 output resrefout bool = bar.id
+
+// attempting to set read-only properties
+resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+  name: 'test'
+  id: 2
+  type: 'hello'
+  apiVersion: true
+}

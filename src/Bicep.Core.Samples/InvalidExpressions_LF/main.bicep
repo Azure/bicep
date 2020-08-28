@@ -17,8 +17,6 @@ var bad = (null) ? !
 var bad = (null)!
 var bad = (null)[0]
 var bad = ()
-var bad = {}
-var bad = []
 var bad = 
 
 // variables not supported
@@ -96,6 +94,12 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
 }['test\e']
+var invalidIndexTypeOverAny = any(true)[true]
+var badIndexOverArray = [][null]
+var badIndexOverArray2 = []['s']
+var badIndexOverObj = {}[true]
+var badIndexOverObj2 = {}[0]
+var badExpressionIndexer = {}[base64('a')]
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
@@ -146,19 +150,19 @@ var emitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([
-        12 + 3
-      ], [
-        !true
-        'hello'
-      ])
+      c: union({
+        a: 12 + 3
+      }, {
+        b: !true
+        c: 'hello'
+      })
       d: resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-      ])
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+      }, {})
     }
   }
 ]
@@ -174,3 +178,32 @@ var emitLimit2 = {
     ], true)
   }
 }
+
+var sampleObject = {
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+var badPropertyIndexer = sampleObject['fake']
+var badType = sampleObject.myStr / 32
+var badInnerProperty = sampleObject.myInner.fake
+var badInnerType = sampleObject.myInner.anotherStr + 2
+var badArrayIndexer = sampleObject.myArr['s']
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+var badIndexer = sampleObject.myStr['s']
+var badInnerArray = sampleObject.myInner.fakeArr['s']

@@ -1,4 +1,6 @@
-﻿using System.Text;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -51,3 +53,4 @@ namespace Bicep.Core.UnitTests.Parser
         }
     }
 }
+

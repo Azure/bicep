@@ -12,9 +12,22 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 
+// verify correct bracket escaping
+var bracketInTheMiddle = 'a[b]'
+var bracketAtBeginning = '[test'
+var enclosingBrackets = '[test]'
+var emptyJsonArray = '[]'
+var interpolatedBrackets = '[${myInt}]'
+var nestedBrackets = '[test[]test2]'
+var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
+var bracketStringInExpression = concat('[', '\'test\'',']')
+
 // booleans
 var myTruth = true
 var myFalsehood = false
+
+var myEmptyObj = { }
+var myEmptyArray = [ ]
 
 // object
 var myObj = {
@@ -63,6 +76,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var namedPropertyIndexer = {
+  foo: 's'
 }['foo']
 
 var intIndexer = [
@@ -84,3 +98,27 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
+
+// previously this was not possible to emit correctly
+var previousEmitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+      ], [
+        !true
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
+    }
+  }
+]

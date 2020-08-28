@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
@@ -70,7 +72,25 @@ namespace Bicep.Core.UnitTests.Parser
         // [DataRow("'abc${{}}def'", "'abc${{}}def'")] - currently unsupported because we force a newline between { and }
         public void StringInterpolationShouldParseCorrectly(string text, string expected)
         {
-            var expression = (StringSyntax)RunExpressionTest(text, expected, typeof(StringSyntax));
+            RunExpressionTest(text, expected, typeof(StringSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("'${>}def'")]
+        [DataRow("'${b+}def'")]
+        [DataRow("'${concat(}def'")]
+        [DataRow("'${concat)}def'")]
+        [DataRow("'${'nest\\ed'}def'")]
+        [DataRow("'${a b c}def'")]
+        [DataRow("'abc${}'")]
+        [DataRow("'def${>}'")]
+        [DataRow("'abc${>}def${=}'")]
+        [DataRow("'${>}def${=}abc'")]
+        [DataRow("'${>}def${=}'")]
+        public void Interpolation_with_bad_expressions_should_parse_successfully(string text)
+        {
+            var expression = ParseAndVerifyType<StringSyntax>(text);
+            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax);
         }
 
         [DataTestMethod]
@@ -232,6 +252,15 @@ namespace Bicep.Core.UnitTests.Parser
             return expression;
         }
 
+        public static TSyntax ParseAndVerifyType<TSyntax>(string text)
+            where TSyntax : SyntaxBase
+        {
+            var expression = ParserHelper.ParseExpression(text);
+            expression.Should().BeOfType<TSyntax>();
+
+            return (TSyntax)expression;
+        }
+
         private static string SerializeExpressionWithExtraParentheses(SyntaxBase expression)
         {
             var buffer = new StringBuilder();
@@ -243,3 +272,4 @@ namespace Bicep.Core.UnitTests.Parser
         }
     }
 }
+

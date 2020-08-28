@@ -12,6 +12,7 @@
     <None Remove="**\main.symbols.bicep" />
     <None Remove="**\main.diagnostics.bicep" />
     <None Remove="**\main.tokens.bicep" />
+    <None Remove="**\main.syntax.bicep" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +21,7 @@
     <EmbeddedResource Include="**\main.symbols.bicep" />
     <EmbeddedResource Include="**\main.diagnostics.bicep" />
     <EmbeddedResource Include="**\main.tokens.bicep" />
+    <EmbeddedResource Include="**\main.syntax.bicep" />
     <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
@@ -27,7 +29,6 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="DiffPlex" Version="1.6.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />

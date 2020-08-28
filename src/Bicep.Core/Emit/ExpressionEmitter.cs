@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
@@ -15,6 +17,8 @@ namespace Bicep.Core.Emit
         private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
         {
             IncludeOuterSquareBrackets = true,
+
+            // this setting will ensure that we emit strings instead of a string literal expressions
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
@@ -94,7 +98,7 @@ namespace Bicep.Core.Emit
         public void EmitLanguageExpression(SyntaxBase syntax)
         {
             var symbol = context.SemanticModel.GetSymbolInfo(syntax);
-            if (symbol is VariableSymbol variableSymbol && context.RequiresInlining(variableSymbol))
+            if (symbol is VariableSymbol variableSymbol && context.VariablesToInline.Contains(variableSymbol))
             {
                 EmitExpression(variableSymbol.Value);
                 return;
@@ -102,22 +106,21 @@ namespace Bicep.Core.Emit
 
             LanguageExpression converted = converter.ConvertExpression(syntax);
 
-            if (converted is JTokenExpression valueExpression)
+            if (converted is JTokenExpression valueExpression && valueExpression.Value.Type == JTokenType.Integer)
             {
-                // the converted expression is a literal
+                // the converted expression is an integer literal
                 JToken value = valueExpression.Value;
 
                 // for integer literals the expression will look like "[42]" or "[-12]"
                 // while it's still a valid template expression that works in ARM, it looks weird
                 // and is also not recognized by the template language service in VS code
                 // let's serialize it as a proper integer instead
-                // string literals are actually handled by the expression serializer already, but
-                // we can take care of them here as well
                 writer.WriteValue(value);
 
                 return;
             }
 
+            // strings literals and other expressions must be processed with the serializer to ensure correct conversion and escaping
             var serialized = ExpressionSerializer.SerializeExpression(converted);
 
             writer.WriteValue(serialized);
@@ -152,3 +155,4 @@ namespace Bicep.Core.Emit
         }
     }
 }
+
