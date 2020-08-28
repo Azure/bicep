@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -13,6 +13,7 @@
     },
     "appServicePlanTier": {
       "type": "string",
+      "defaultValue": "F1",
       "allowedValues": [
         "F1",
         "D1",
@@ -26,8 +27,7 @@
         "P2",
         "P3",
         "P4"
-      ],
-      "defaultValue": "F1"
+      ]
     },
     "appServicePlanInstances": {
       "type": "int",

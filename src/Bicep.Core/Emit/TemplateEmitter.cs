@@ -13,6 +13,11 @@ namespace Bicep.Core.Emit
     {
         private readonly SemanticModel.SemanticModel model;
 
+        /// <summary>
+        /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
+        /// </summary>
+        private Encoding UTF8EncodingWithoutBom => new UTF8Encoding(false);
+
         public TemplateEmitter(SemanticModel.SemanticModel model)
         {
             this.model = model;
@@ -24,16 +29,9 @@ namespace Bicep.Core.Emit
         /// <param name="fileName">The path to the file.</param>
         public EmitResult Emit(string fileName)
         {
-            return EmitOrFail(() =>
-            {
-                using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-                using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096))
-                {
-                    Formatting = Formatting.Indented
-                };
+            using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 
-                new TemplateWriter(writer, this.model).Write();
-            });
+            return Emit(stream);
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult Emit(Stream stream) => EmitOrFail(() =>
         {
-            using var writer = new JsonTextWriter(new StreamWriter(stream, Encoding.UTF8, 4096, true))
+            using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, true))
             {
                 Formatting = Formatting.Indented
             };

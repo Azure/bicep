@@ -121,17 +121,17 @@
     },
     "someParameter": {
       "type": "secureString",
+      "minLength": 3,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Name of the storage account"
+      },
       "defaultValue": "one",
       "allowedValues": [
         "one",
         "two",
         "three"
-      ],
-      "minLength": 3,
-      "maxLength": 24,
-      "metadata": {
-        "description": "Name of the storage account"
-      }
+      ]
     },
     "defaultValueExpression": {
       "type": "int",
