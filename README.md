@@ -2,6 +2,8 @@
 
 # Project Bicep - an ARM DSL
 
+***Note:** Bicep is currently an **experimental language** and we expect to ship breaking changes in future releases. It is not yet recommended for production usage. Please take a look at the [known limitations](#known-limitations) prior to opening any issues.*
+
 ## What is Bicep?
 
 Bicep is a Domain Specific Language (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax and better support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, which means anything that can be done in an ARM Template can be done in bicep (outside of temporary [known limitations](#known-limitations)). All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep on day one.
@@ -26,7 +28,7 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 
 To get going with bicep, start by [installing the tooling](./docs/installing.md).
 
-Once the tooling is installed, you can start the [bicep tutorial](./docs/tutorial/01-simple-template.md), which walks you through setting up the bicep tooling, the basic structure of bicep files, and converting an ARM template into the equivalent bicep file.
+Once the tooling is installed, you can start the [bicep tutorial](./docs/tutorial/01-simple-template.md), which walks you through the structure and capabilities of bicep, deploying bicep files, and converting an ARM template into the equivalent bicep file.
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
@@ -62,24 +64,26 @@ az deployment group create -f ./main.json -g my-rg
 ## Known limitations
 
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
-* No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187]](https://github.com/Azure/bicep/issues/187)]
+* No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187]](https://github.com/Azure/bicep/issues/187)
   * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
-* Single line object and arrays (e.g. `['a', 'b', 'c']`) are not yet supported
+* Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 * No IntelliSense whatsoever [[#269]](https://github.com/Azure/bicep/issues/269)
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
-* No support for explicit dependsOn [[#333]](https://github.com/Azure/bicep/issues/333)
+* No support for string interpolation in property names [[#267]](https://github.com/Azure/bicep/issues/267)
+  * From what we know, this only affects using managed identities for resources. You can still include a hardcoded managed identity resource ID (i.e. `'/subscriptions/.../resourceGroups/.../providers/Microsoft.ManagedIdentity/...': {}`)
 
 ## Reference
 
 * [Complete language spec](./docs/spec/bicep.md)
 * [@BicepLang](https://twitter.com/BicepLang)
+* [ARM Template Reference](https://docs.microsoft.com/azure/templates/)
 
 ## Alternatives
 
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may better fit your use case.
 
-* [Farmer](https://compositionalit.github.io/farmer/) - Generate and deploy ARM Templates on .NET
+* [Farmer (@isaacabraham)](https://compositionalit.github.io/farmer/) - Generate and deploy ARM Templates on .NET
 
 ## Contributing
 
