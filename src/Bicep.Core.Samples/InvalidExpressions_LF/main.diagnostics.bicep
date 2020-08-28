@@ -157,7 +157,6 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 // bad array access
 var errorInsideArrayAccess = [
   !null
-//@[2:7) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!null|
 //@[2:7) Error Cannot apply operator '!' to operand of type 'null'. |!null|
 ][!0]
 //@[2:4) Error Cannot apply operator '!' to operand of type 'int'. |!0|
@@ -252,22 +251,22 @@ var emitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([
-        12 + 3
-//@[8:14) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |12 + 3|
-      ], [
-        !true
-//@[8:13) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |!true|
-        'hello'
-      ])
+      c: union({
+        a: 12 + 3
+//@[11:17) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |12 + 3|
+      }, {
+        b: !true
+//@[11:16) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |!true|
+        c: 'hello'
+      })
       d: resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-//@[8:17) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |'s' == 12|
-      ])
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+//@[11:20) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |'s' == 12|
+      }, {})
     }
   }
 ]
@@ -277,7 +276,7 @@ var emitLimit2 = {
   a: {
     b: {
       a: resourceGroup().location
-//@[9:33) Error The expression is inside an object or array literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
+//@[9:33) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
     } == 2
     c: concat([
 

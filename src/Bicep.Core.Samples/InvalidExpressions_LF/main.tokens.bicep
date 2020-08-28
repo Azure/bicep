@@ -908,32 +908,38 @@ var emitLimit = [
 //@[16:19) StringComplete |'s'|
 //@[19:20) RightParen |)|
 //@[20:21) NewLine |\n|
-      c: concat([
+      c: union({
 //@[6:7) Identifier |c|
 //@[7:8) Colon |:|
-//@[9:15) Identifier |concat|
-//@[15:16) LeftParen |(|
-//@[16:17) LeftSquare |[|
+//@[9:14) Identifier |union|
+//@[14:15) LeftParen |(|
+//@[15:16) LeftBrace |{|
+//@[16:17) NewLine |\n|
+        a: 12 + 3
+//@[8:9) Identifier |a|
+//@[9:10) Colon |:|
+//@[11:13) Number |12|
+//@[14:15) Plus |+|
+//@[16:17) Number |3|
 //@[17:18) NewLine |\n|
-        12 + 3
-//@[8:10) Number |12|
-//@[11:12) Plus |+|
-//@[13:14) Number |3|
-//@[14:15) NewLine |\n|
-      ], [
-//@[6:7) RightSquare |]|
+      }, {
+//@[6:7) RightBrace |}|
 //@[7:8) Comma |,|
-//@[9:10) LeftSquare |[|
+//@[9:10) LeftBrace |{|
 //@[10:11) NewLine |\n|
-        !true
-//@[8:9) Exclamation |!|
-//@[9:13) TrueKeyword |true|
-//@[13:14) NewLine |\n|
-        'hello'
-//@[8:15) StringComplete |'hello'|
-//@[15:16) NewLine |\n|
-      ])
-//@[6:7) RightSquare |]|
+        b: !true
+//@[8:9) Identifier |b|
+//@[9:10) Colon |:|
+//@[11:12) Exclamation |!|
+//@[12:16) TrueKeyword |true|
+//@[16:17) NewLine |\n|
+        c: 'hello'
+//@[8:9) Identifier |c|
+//@[9:10) Colon |:|
+//@[11:18) StringComplete |'hello'|
+//@[18:19) NewLine |\n|
+      })
+//@[6:7) RightBrace |}|
 //@[7:8) RightParen |)|
 //@[8:9) NewLine |\n|
       d: resourceGroup().location
@@ -945,36 +951,46 @@ var emitLimit = [
 //@[24:25) Dot |.|
 //@[25:33) Identifier |location|
 //@[33:34) NewLine |\n|
-      e: concat([
+      e: union({
 //@[6:7) Identifier |e|
 //@[7:8) Colon |:|
-//@[9:15) Identifier |concat|
-//@[15:16) LeftParen |(|
-//@[16:17) LeftSquare |[|
-//@[17:18) NewLine |\n|
-        true
-//@[8:12) TrueKeyword |true|
+//@[9:14) Identifier |union|
+//@[14:15) LeftParen |(|
+//@[15:16) LeftBrace |{|
+//@[16:17) NewLine |\n|
+        x: true
+//@[8:9) Identifier |x|
+//@[9:10) Colon |:|
+//@[11:15) TrueKeyword |true|
+//@[15:16) NewLine |\n|
+      }, {})
+//@[6:7) RightBrace |}|
+//@[7:8) Comma |,|
+//@[9:10) LeftBrace |{|
+//@[10:11) RightBrace |}|
+//@[11:12) RightParen |)|
 //@[12:13) NewLine |\n|
-      ])
-//@[6:7) RightSquare |]|
-//@[7:8) RightParen |)|
-//@[8:9) NewLine |\n|
-      f: concat([
+      f: intersection({
 //@[6:7) Identifier |f|
 //@[7:8) Colon |:|
-//@[9:15) Identifier |concat|
-//@[15:16) LeftParen |(|
-//@[16:17) LeftSquare |[|
-//@[17:18) NewLine |\n|
-        's' == 12
-//@[8:11) StringComplete |'s'|
-//@[12:14) Equals |==|
-//@[15:17) Number |12|
-//@[17:18) NewLine |\n|
-      ])
-//@[6:7) RightSquare |]|
-//@[7:8) RightParen |)|
-//@[8:9) NewLine |\n|
+//@[9:21) Identifier |intersection|
+//@[21:22) LeftParen |(|
+//@[22:23) LeftBrace |{|
+//@[23:24) NewLine |\n|
+        q: 's' == 12
+//@[8:9) Identifier |q|
+//@[9:10) Colon |:|
+//@[11:14) StringComplete |'s'|
+//@[15:17) Equals |==|
+//@[18:20) Number |12|
+//@[20:21) NewLine |\n|
+      }, {})
+//@[6:7) RightBrace |}|
+//@[7:8) Comma |,|
+//@[9:10) LeftBrace |{|
+//@[10:11) RightBrace |}|
+//@[11:12) RightParen |)|
+//@[12:13) NewLine |\n|
     }
 //@[4:5) RightBrace |}|
 //@[5:6) NewLine |\n|

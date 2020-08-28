@@ -18,9 +18,14 @@ namespace Bicep.Core.Syntax
         SimpleLiteral,
 
         /// <summary>
-        /// Represents a complex literal like an object or array. Operators may appear in child nodes of complex literals.
+        /// Represents an object literal. Operators may appear in child nodes of object literals.
         /// </summary>
-        ComplexLiteral,
+        ObjectLiteral,
+
+        /// <summary>
+        /// Represents an array literal. Operators may appear in child nodes of array literals.
+        /// </summary>
+        ArrayLiteral,
 
         /// <summary>
         /// Represents an operator.

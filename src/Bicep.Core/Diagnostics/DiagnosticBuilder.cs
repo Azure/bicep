@@ -341,7 +341,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic EmitLimitationDetected() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP069",
-                "The expression is inside an object or array literal that is itself part of another expression. This is not currently supported.");
+                "The expression is inside an object literal that is itself part of another expression. This is not currently supported.");
 
             public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
                 TextSpan,
