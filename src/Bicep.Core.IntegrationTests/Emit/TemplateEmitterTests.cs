@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -38,6 +39,23 @@ namespace Bicep.Core.IntegrationTests.Emit
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
+        }
+
+        [TestMethod]
+        public void TemplateEmitter_output_should_not_include_UTF8_BOM()
+        {
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, "main.json");
+
+            // emitting the template should be successful
+            var result = this.EmitTemplate("", compiledFilePath);
+            result.Status.Should().Be(EmitStatus.Succeeded);
+            result.Diagnostics.Should().BeEmpty();
+
+            var bytes = File.ReadAllBytes(compiledFilePath);
+            // No BOM at the start of the file
+            bytes.Take(3).Should().NotBeEquivalentTo(new [] { 0xEF, 0xBB, 0xBF }, "BOM should not be present");
+            bytes.First().Should().Be(0x7B, "template should always begin with a UTF-8 encoded open curly");
+            bytes.Last().Should().Be(0x7D, "template should always end with a UTF-8 encoded close curly");
         }
 
         [DataTestMethod]
