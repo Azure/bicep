@@ -49,7 +49,7 @@ Try {
     Write-Output "# No Azure context found! Please make sure azlogin has run before."
     exit
   }
-  New-AzResourceGroup -Name $rg -Location $location
+  New-AzResourceGroup -Name $rg -Location $location -Force
   New-AzResourceGroupDeployment -TemplateFile ./main.json -ResourceGroupName $rg
 }
 Catch {
