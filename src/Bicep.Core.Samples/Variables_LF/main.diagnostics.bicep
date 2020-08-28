@@ -76,6 +76,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var namedPropertyIndexer = {
+  foo: 's'
 }['foo']
 
 var intIndexer = [
@@ -97,3 +98,27 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
+
+// previously this was not possible to emit correctly
+var previousEmitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+      ], [
+        !true
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
+    }
+  }
+]

@@ -1,22 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as vscode from "vscode";
-import { isError } from "util";
 
-import { createLogger, getLogger } from "./utils/logger";
+import { createLogger } from "./utils/logger";
 import { launchLanugageServiceWithProgressReport } from "./language/client";
+import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 
 export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  createLogger(context);
+  const outputChannel = vscode.window.createOutputChannel("Bicep");
 
-  try {
-    await launchLanugageServiceWithProgressReport(context);
-  } catch (err) {
-    getLogger().error(err);
-    vscode.window.showErrorMessage(isError(err) ? err.message : err);
-  }
+  await activateWithTelemetryAndErrorHandling(
+    context,
+    outputChannel,
+    async () => {
+      createLogger(context, outputChannel);
+
+      await launchLanugageServiceWithProgressReport(context);
+    }
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

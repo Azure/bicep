@@ -35,7 +35,7 @@ namespace Bicep.Cli.UnitTests
         public void PrintVersion_ShouldPrintVersion()
         {
             var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintVersion);
-            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+ \([0-9a-f]{10}\)");
+            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+(|-alpha) \([0-9a-f]{10}\)");
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"--version"});
+            var arguments = ArgumentParser.Parse(new[] { "--version" });
 
             arguments.Should().BeOfType<VersionArguments>();
         }
@@ -154,7 +154,23 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"--help"});
+            var arguments = ArgumentParser.Parse(new[] { "--help" });
+
+            arguments.Should().BeOfType<HelpArguments>();
+        }
+
+        [TestMethod]
+        public void Version_argument_should_return_VersionShortArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"-v"});
+
+            arguments.Should().BeOfType<VersionArguments>();
+        }
+
+        [TestMethod]
+        public void Help_argument_should_return_HelpShortArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"-h"});
 
             arguments.Should().BeOfType<HelpArguments>();
         }

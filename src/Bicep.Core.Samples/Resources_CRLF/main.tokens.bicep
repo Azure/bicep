@@ -586,4 +586,288 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// should be able to access the read only properties
+//@[52:54) NewLine |\r\n|
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:36) Identifier |accessingReadOnlyProperties|
+//@[37:68) StringComplete |'Microsoft.Foo/foos@2019-10-01'|
+//@[69:70) Assignment |=|
+//@[71:72) LeftBrace |{|
+//@[72:74) NewLine |\r\n|
+  name: 'nestedTemplate1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:25) StringComplete |'nestedTemplate1'|
+//@[25:27) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    otherId: nested.id
+//@[4:11) Identifier |otherId|
+//@[11:12) Colon |:|
+//@[13:19) Identifier |nested|
+//@[19:20) Dot |.|
+//@[20:22) Identifier |id|
+//@[22:24) NewLine |\r\n|
+    otherName: nested.name
+//@[4:13) Identifier |otherName|
+//@[13:14) Colon |:|
+//@[15:21) Identifier |nested|
+//@[21:22) Dot |.|
+//@[22:26) Identifier |name|
+//@[26:28) NewLine |\r\n|
+    otherVersion: nested.apiVersion
+//@[4:16) Identifier |otherVersion|
+//@[16:17) Colon |:|
+//@[18:24) Identifier |nested|
+//@[24:25) Dot |.|
+//@[25:35) Identifier |apiVersion|
+//@[35:37) NewLine |\r\n|
+    otherType: nested.type
+//@[4:13) Identifier |otherType|
+//@[13:14) Colon |:|
+//@[15:21) Identifier |nested|
+//@[21:22) Dot |.|
+//@[22:26) Identifier |type|
+//@[26:30) NewLine |\r\n\r\n|
+
+    otherThings: nested.properties.mode
+//@[4:15) Identifier |otherThings|
+//@[15:16) Colon |:|
+//@[17:23) Identifier |nested|
+//@[23:24) Dot |.|
+//@[24:34) Identifier |properties|
+//@[34:35) Dot |.|
+//@[35:39) Identifier |mode|
+//@[39:41) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource resourceA 'My.Rp/typeA@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |resourceA|
+//@[19:43) StringComplete |'My.Rp/typeA@2020-01-01'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftBrace |{|
+//@[47:49) NewLine |\r\n|
+  name: 'resourceA'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'resourceA'|
+//@[19:21) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |resourceB|
+//@[19:49) StringComplete |'My.Rp/typeA/typeB@2020-01-01'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: '${resourceA.name}/myName'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:20) Identifier |resourceA|
+//@[20:21) Dot |.|
+//@[21:25) Identifier |name|
+//@[25:34) StringRightPiece |}/myName'|
+//@[34:36) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |resourceC|
+//@[19:49) StringComplete |'My.Rp/typeA/typeB@2020-01-01'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: '${resourceA.name}/myName'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:20) Identifier |resourceA|
+//@[20:21) Dot |.|
+//@[21:25) Identifier |name|
+//@[25:34) StringRightPiece |}/myName'|
+//@[34:36) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    aId: resourceA.id
+//@[4:7) Identifier |aId|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |resourceA|
+//@[18:19) Dot |.|
+//@[19:21) Identifier |id|
+//@[21:23) NewLine |\r\n|
+    aType: resourceA.type
+//@[4:9) Identifier |aType|
+//@[9:10) Colon |:|
+//@[11:20) Identifier |resourceA|
+//@[20:21) Dot |.|
+//@[21:25) Identifier |type|
+//@[25:27) NewLine |\r\n|
+    aName: resourceA.name
+//@[4:9) Identifier |aName|
+//@[9:10) Colon |:|
+//@[11:20) Identifier |resourceA|
+//@[20:21) Dot |.|
+//@[21:25) Identifier |name|
+//@[25:27) NewLine |\r\n|
+    aApiVersion: resourceA.apiVersion
+//@[4:15) Identifier |aApiVersion|
+//@[15:16) Colon |:|
+//@[17:26) Identifier |resourceA|
+//@[26:27) Dot |.|
+//@[27:37) Identifier |apiVersion|
+//@[37:39) NewLine |\r\n|
+    bProperties: resourceB.properties
+//@[4:15) Identifier |bProperties|
+//@[15:16) Colon |:|
+//@[17:26) Identifier |resourceB|
+//@[26:27) Dot |.|
+//@[27:37) Identifier |properties|
+//@[37:39) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var varARuntime = {
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |varARuntime|
+//@[16:17) Assignment |=|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
+  bId: resourceB.id
+//@[2:5) Identifier |bId|
+//@[5:6) Colon |:|
+//@[7:16) Identifier |resourceB|
+//@[16:17) Dot |.|
+//@[17:19) Identifier |id|
+//@[19:21) NewLine |\r\n|
+  bType: resourceB.type
+//@[2:7) Identifier |bType|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |resourceB|
+//@[18:19) Dot |.|
+//@[19:23) Identifier |type|
+//@[23:25) NewLine |\r\n|
+  bName: resourceB.name
+//@[2:7) Identifier |bName|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |resourceB|
+//@[18:19) Dot |.|
+//@[19:23) Identifier |name|
+//@[23:25) NewLine |\r\n|
+  bApiVersion: resourceB.apiVersion
+//@[2:13) Identifier |bApiVersion|
+//@[13:14) Colon |:|
+//@[15:24) Identifier |resourceB|
+//@[24:25) Dot |.|
+//@[25:35) Identifier |apiVersion|
+//@[35:37) NewLine |\r\n|
+  aKind: resourceA.kind
+//@[2:7) Identifier |aKind|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |resourceA|
+//@[18:19) Dot |.|
+//@[19:23) Identifier |kind|
+//@[23:25) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var varBRuntime = [
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |varBRuntime|
+//@[16:17) Assignment |=|
+//@[18:19) LeftSquare |[|
+//@[19:21) NewLine |\r\n|
+  varARuntime
+//@[2:13) Identifier |varARuntime|
+//@[13:15) NewLine |\r\n|
+]
+//@[0:1) RightSquare |]|
+//@[1:5) NewLine |\r\n\r\n|
+
+var resourceCRef = {
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |resourceCRef|
+//@[17:18) Assignment |=|
+//@[19:20) LeftBrace |{|
+//@[20:22) NewLine |\r\n|
+  id: resourceC.id
+//@[2:4) Identifier |id|
+//@[4:5) Colon |:|
+//@[6:15) Identifier |resourceC|
+//@[15:16) Dot |.|
+//@[16:18) Identifier |id|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+var setResourceCRef = true
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |setResourceCRef|
+//@[20:21) Assignment |=|
+//@[22:26) TrueKeyword |true|
+//@[26:30) NewLine |\r\n\r\n|
+
+resource resourceD 'My.Rp/typeD@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |resourceD|
+//@[19:43) StringComplete |'My.Rp/typeD@2020-01-01'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftBrace |{|
+//@[47:49) NewLine |\r\n|
+  name: 'constant'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:18) StringComplete |'constant'|
+//@[18:20) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    runtime: varBRuntime
+//@[4:11) Identifier |runtime|
+//@[11:12) Colon |:|
+//@[13:24) Identifier |varBRuntime|
+//@[24:26) NewLine |\r\n|
+    // repro for https://github.com/Azure/bicep/issues/316
+//@[58:60) NewLine |\r\n|
+    repro316: setResourceCRef ? resourceCRef : null
+//@[4:12) Identifier |repro316|
+//@[12:13) Colon |:|
+//@[14:29) Identifier |setResourceCRef|
+//@[30:31) Question |?|
+//@[32:44) Identifier |resourceCRef|
+//@[45:46) Colon |:|
+//@[47:51) NullKeyword |null|
+//@[51:53) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

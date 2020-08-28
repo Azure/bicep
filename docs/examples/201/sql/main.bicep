@@ -42,7 +42,7 @@ resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
 
 // very long type...
 resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01-preview' = {
-  name: '${sqlServer.name}/${db.name}/current' // had to change databaseName => db.name to get dependsOn working
+  name: '${db.name}/current' // had to change databaseName => db.name to get dependsOn working
   properties: {
     status: transparentDataEncryption
   }

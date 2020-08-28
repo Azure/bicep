@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {},
@@ -62,13 +62,26 @@
     ],
     "expressionIndexOnAny": "[json('{}')[resourceGroup().location]]",
     "anyIndexOnAny": "[json('true')[json('false')]]",
-    "namedPropertyIndexer": "[json('{}').foo]",
-    "intIndexer": "[json('[\"s\"]')[0]]",
-    "functionOnIndexer1": "[concat(json('[\"s\"]')[0], 's')]",
+    "namedPropertyIndexer": "[json('{\"foo\":\"s\"}').foo]",
+    "intIndexer": "[createArray('s')[0]]",
+    "functionOnIndexer1": "[concat(createArray('s')[0], 's')]",
     "functionOnIndexer2": "[concat(json('[]')[0], 's')]",
     "functionOnIndexer3": "[concat(json('[]')[0], 's')]",
     "singleQuote": "'",
-    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]"
+    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
+    "previousEmitLimit": [
+      "[concat('s')]",
+      "[format('{0}', 4)]",
+      {
+        "a": {
+          "b": "[base64('s')]",
+          "c": "[concat(createArray(add(12, 3)), createArray(not(json('true')), 'hello'))]",
+          "d": "[resourceGroup().location]",
+          "e": "[concat(createArray(json('true')))]",
+          "f": "[concat(createArray(equals('s', 12)))]"
+        }
+      }
+    ]
   },
   "resources": [],
   "outputs": {}

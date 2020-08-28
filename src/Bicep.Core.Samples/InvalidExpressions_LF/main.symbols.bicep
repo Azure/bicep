@@ -128,8 +128,20 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 //@[4:26) Variable stringIndexOnNonObject. Declaration start char: 0, length: 44
 var malformedStringIndex = {
-//@[4:24) Variable malformedStringIndex. Declaration start char: 0, length: 42
+//@[4:24) Variable malformedStringIndex. Declaration start char: 0, length: 41
 }['test\e']
+var invalidIndexTypeOverAny = any(true)[true]
+//@[4:27) Variable invalidIndexTypeOverAny. Declaration start char: 0, length: 46
+var badIndexOverArray = [][null]
+//@[4:21) Variable badIndexOverArray. Declaration start char: 0, length: 33
+var badIndexOverArray2 = []['s']
+//@[4:22) Variable badIndexOverArray2. Declaration start char: 0, length: 33
+var badIndexOverObj = {}[true]
+//@[4:19) Variable badIndexOverObj. Declaration start char: 0, length: 31
+var badIndexOverObj2 = {}[0]
+//@[4:20) Variable badIndexOverObj2. Declaration start char: 0, length: 29
+var badExpressionIndexer = {}[base64('a')]
+//@[4:24) Variable badExpressionIndexer. Declaration start char: 0, length: 44
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
@@ -193,32 +205,32 @@ var test3 = list('abcd', '2020-01-01')
 
 // cannot compile an expression like this
 var emitLimit = [
-//@[4:13) Variable emitLimit. Declaration start char: 0, length: 290
+//@[4:13) Variable emitLimit. Declaration start char: 0, length: 317
   concat('s')
   '${4}'
   {
     a: {
       b: base64('s')
-      c: concat([
-        12 + 3
-      ], [
-        !true
-        'hello'
-      ])
+      c: union({
+        a: 12 + 3
+      }, {
+        b: !true
+        c: 'hello'
+      })
       d: resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-      ])
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+      }, {})
     }
   }
 ]
 
 // cannot compile an expression like this
 var emitLimit2 = {
-//@[4:14) Variable emitLimit2. Declaration start char: 0, length: 115
+//@[4:14) Variable emitLimit2. Declaration start char: 0, length: 117
   a: {
     b: {
       a: resourceGroup().location
@@ -228,3 +240,42 @@ var emitLimit2 = {
     ], true)
   }
 }
+
+var sampleObject = {
+//@[4:16) Variable sampleObject. Declaration start char: 0, length: 192
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+//@[4:15) Variable badProperty. Declaration start char: 0, length: 38
+var badPropertyIndexer = sampleObject['fake']
+//@[4:22) Variable badPropertyIndexer. Declaration start char: 0, length: 46
+var badType = sampleObject.myStr / 32
+//@[4:11) Variable badType. Declaration start char: 0, length: 38
+var badInnerProperty = sampleObject.myInner.fake
+//@[4:20) Variable badInnerProperty. Declaration start char: 0, length: 49
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[4:16) Variable badInnerType. Declaration start char: 0, length: 55
+var badArrayIndexer = sampleObject.myArr['s']
+//@[4:19) Variable badArrayIndexer. Declaration start char: 0, length: 46
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[4:24) Variable badInnerArrayIndexer. Declaration start char: 0, length: 62
+var badIndexer = sampleObject.myStr['s']
+//@[4:14) Variable badIndexer. Declaration start char: 0, length: 41
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[4:17) Variable badInnerArray. Declaration start char: 0, length: 53

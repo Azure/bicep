@@ -586,15 +586,23 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[41:43)  NewLine |\n\n|
 
 var namedPropertyIndexer = {
-//@[0:39) VariableDeclarationSyntax
+//@[0:50) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |namedPropertyIndexer|
 //@[25:26)  Assignment |=|
-//@[27:37)  ArrayAccessSyntax
-//@[27:30)   ObjectSyntax
+//@[27:48)  ArrayAccessSyntax
+//@[27:41)   ObjectSyntax
 //@[27:28)    LeftBrace |{|
 //@[28:29)    NewLine |\n|
+  foo: 's'
+//@[2:11)    ObjectPropertySyntax
+//@[2:5)     IdentifierSyntax
+//@[2:5)      Identifier |foo|
+//@[5:6)     Colon |:|
+//@[7:10)     StringSyntax
+//@[7:10)      StringComplete |'s'|
+//@[10:11)     NewLine |\n|
 }['foo']
 //@[0:1)    RightBrace |}|
 //@[1:2)   LeftSquare |[|
@@ -778,7 +786,7 @@ var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-
 //@[83:84)   RightParen |)|
 //@[84:85)  NewLine |\n|
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
-//@[0:59) VariableDeclarationSyntax
+//@[0:61) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:25)  IdentifierSyntax
 //@[4:25)   Identifier |unusedIntermediateRef|
@@ -790,4 +798,180 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 //@[46:47)   Dot |.|
 //@[47:59)   IdentifierSyntax
 //@[47:59)    Identifier |secondaryKey|
-//@[59:59) EndOfFile ||
+//@[59:61)  NewLine |\n\n|
+
+// previously this was not possible to emit correctly
+//@[53:54) NoOpDeclarationSyntax
+//@[53:54)  NewLine |\n|
+var previousEmitLimit = [
+//@[0:296) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |previousEmitLimit|
+//@[22:23)  Assignment |=|
+//@[24:296)  ArraySyntax
+//@[24:25)   LeftSquare |[|
+//@[25:26)   NewLine |\n|
+  concat('s')
+//@[2:14)   ArrayItemSyntax
+//@[2:13)    FunctionCallSyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |concat|
+//@[8:9)     LeftParen |(|
+//@[9:12)     FunctionArgumentSyntax
+//@[9:12)      StringSyntax
+//@[9:12)       StringComplete |'s'|
+//@[12:13)     RightParen |)|
+//@[13:14)    NewLine |\n|
+  '${4}'
+//@[2:9)   ArrayItemSyntax
+//@[2:8)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:6)     NumericLiteralSyntax
+//@[5:6)      Number |4|
+//@[6:8)     StringRightPiece |}'|
+//@[8:9)    NewLine |\n|
+  {
+//@[2:246)   ArrayItemSyntax
+//@[2:245)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    a: {
+//@[4:238)     ObjectPropertySyntax
+//@[4:5)      IdentifierSyntax
+//@[4:5)       Identifier |a|
+//@[5:6)      Colon |:|
+//@[7:237)      ObjectSyntax
+//@[7:8)       LeftBrace |{|
+//@[8:9)       NewLine |\n|
+      b: base64('s')
+//@[6:21)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |b|
+//@[7:8)        Colon |:|
+//@[9:20)        FunctionCallSyntax
+//@[9:15)         IdentifierSyntax
+//@[9:15)          Identifier |base64|
+//@[15:16)         LeftParen |(|
+//@[16:19)         FunctionArgumentSyntax
+//@[16:19)          StringSyntax
+//@[16:19)           StringComplete |'s'|
+//@[19:20)         RightParen |)|
+//@[20:21)        NewLine |\n|
+      c: concat([
+//@[6:83)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |c|
+//@[7:8)        Colon |:|
+//@[9:82)        FunctionCallSyntax
+//@[9:15)         IdentifierSyntax
+//@[9:15)          Identifier |concat|
+//@[15:16)         LeftParen |(|
+//@[16:41)         FunctionArgumentSyntax
+//@[16:40)          ArraySyntax
+//@[16:17)           LeftSquare |[|
+//@[17:18)           NewLine |\n|
+        12 + 3
+//@[8:15)           ArrayItemSyntax
+//@[8:14)            BinaryOperationSyntax
+//@[8:10)             NumericLiteralSyntax
+//@[8:10)              Number |12|
+//@[11:12)             Plus |+|
+//@[13:14)             NumericLiteralSyntax
+//@[13:14)              Number |3|
+//@[14:15)            NewLine |\n|
+      ], [
+//@[6:7)           RightSquare |]|
+//@[7:8)          Comma |,|
+//@[9:48)         FunctionArgumentSyntax
+//@[9:48)          ArraySyntax
+//@[9:10)           LeftSquare |[|
+//@[10:11)           NewLine |\n|
+        !true
+//@[8:14)           ArrayItemSyntax
+//@[8:13)            UnaryOperationSyntax
+//@[8:9)             Exclamation |!|
+//@[9:13)             BooleanLiteralSyntax
+//@[9:13)              TrueKeyword |true|
+//@[13:14)            NewLine |\n|
+        'hello'
+//@[8:16)           ArrayItemSyntax
+//@[8:15)            StringSyntax
+//@[8:15)             StringComplete |'hello'|
+//@[15:16)            NewLine |\n|
+      ])
+//@[6:7)           RightSquare |]|
+//@[7:8)         RightParen |)|
+//@[8:9)        NewLine |\n|
+      d: resourceGroup().location
+//@[6:34)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |d|
+//@[7:8)        Colon |:|
+//@[9:33)        PropertyAccessSyntax
+//@[9:24)         FunctionCallSyntax
+//@[9:22)          IdentifierSyntax
+//@[9:22)           Identifier |resourceGroup|
+//@[22:23)          LeftParen |(|
+//@[23:24)          RightParen |)|
+//@[24:25)         Dot |.|
+//@[25:33)         IdentifierSyntax
+//@[25:33)          Identifier |location|
+//@[33:34)        NewLine |\n|
+      e: concat([
+//@[6:40)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |e|
+//@[7:8)        Colon |:|
+//@[9:39)        FunctionCallSyntax
+//@[9:15)         IdentifierSyntax
+//@[9:15)          Identifier |concat|
+//@[15:16)         LeftParen |(|
+//@[16:38)         FunctionArgumentSyntax
+//@[16:38)          ArraySyntax
+//@[16:17)           LeftSquare |[|
+//@[17:18)           NewLine |\n|
+        true
+//@[8:13)           ArrayItemSyntax
+//@[8:12)            BooleanLiteralSyntax
+//@[8:12)             TrueKeyword |true|
+//@[12:13)            NewLine |\n|
+      ])
+//@[6:7)           RightSquare |]|
+//@[7:8)         RightParen |)|
+//@[8:9)        NewLine |\n|
+      f: concat([
+//@[6:45)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |f|
+//@[7:8)        Colon |:|
+//@[9:44)        FunctionCallSyntax
+//@[9:15)         IdentifierSyntax
+//@[9:15)          Identifier |concat|
+//@[15:16)         LeftParen |(|
+//@[16:43)         FunctionArgumentSyntax
+//@[16:43)          ArraySyntax
+//@[16:17)           LeftSquare |[|
+//@[17:18)           NewLine |\n|
+        's' == 12
+//@[8:18)           ArrayItemSyntax
+//@[8:17)            BinaryOperationSyntax
+//@[8:11)             StringSyntax
+//@[8:11)              StringComplete |'s'|
+//@[12:14)             Equals |==|
+//@[15:17)             NumericLiteralSyntax
+//@[15:17)              Number |12|
+//@[17:18)            NewLine |\n|
+      ])
+//@[6:7)           RightSquare |]|
+//@[7:8)         RightParen |)|
+//@[8:9)        NewLine |\n|
+    }
+//@[4:5)       RightBrace |}|
+//@[5:6)      NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)    NewLine |\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:1) EndOfFile ||

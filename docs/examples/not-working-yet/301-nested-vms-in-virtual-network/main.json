@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -73,6 +73,7 @@
     },
     "HostVirtualMachineSize": {
       "type": "string",
+      "defaultValue": "Standard_D4s_v3",
       "allowedValues": [
         "Standard_D2_v3",
         "Standard_D4_v3",
@@ -104,8 +105,7 @@
         "Standard_E32s_v3",
         "Standard_E48s_v3",
         "Standard_E64s_v3"
-      ],
-      "defaultValue": "Standard_D4s_v3"
+      ]
     },
     "HostAdminUsername": {
       "type": "string"

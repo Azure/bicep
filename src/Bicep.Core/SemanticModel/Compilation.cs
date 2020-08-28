@@ -65,9 +65,7 @@ namespace Bicep.Core.SemanticModel
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
 
-            var symbolGraph = SymbolGraphVisitor.Build(file, uniqueDeclarations, bindings);
-
-            return new SemanticModel(file, symbolContext.TypeManager, bindings, symbolGraph);
+            return new SemanticModel(file, symbolContext.TypeManager, bindings);
         }
     }
 }

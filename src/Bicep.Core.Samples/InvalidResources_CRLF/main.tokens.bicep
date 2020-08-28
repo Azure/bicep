@@ -328,4 +328,37 @@ output resrefout bool = bar.id
 //@[24:27) Identifier |bar|
 //@[27:28) Dot |.|
 //@[28:30) Identifier |id|
-//@[30:30) EndOfFile ||
+//@[30:34) NewLine |\r\n\r\n|
+
+// attempting to set read-only properties
+//@[41:43) NewLine |\r\n|
+resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |baz|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftBrace |{|
+//@[54:56) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  id: 2
+//@[2:4) Identifier |id|
+//@[4:5) Colon |:|
+//@[6:7) Number |2|
+//@[7:9) NewLine |\r\n|
+  type: 'hello'
+//@[2:6) Identifier |type|
+//@[6:7) Colon |:|
+//@[8:15) StringComplete |'hello'|
+//@[15:17) NewLine |\r\n|
+  apiVersion: true
+//@[2:12) Identifier |apiVersion|
+//@[12:13) Colon |:|
+//@[14:18) TrueKeyword |true|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

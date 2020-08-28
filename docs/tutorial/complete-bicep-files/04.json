@@ -1,10 +1,10 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "eastus"
+      "defaultValue": "[resourceGroup().location]"
     },
     "namePrefix": {
       "type": "string",
@@ -43,6 +43,10 @@
     "storageId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+    },
+    "computedStorageName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
     },
     "primaryEndpoint": {
       "type": "string",

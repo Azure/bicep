@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Bicep.Core.IntegrationTests.Extensons;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
@@ -134,8 +134,8 @@ namespace Bicep.Core.IntegrationTests
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Syntax,
-                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                actualLocation: resultsFile);
         }
 
         private static IEnumerable<object[]> GetData()

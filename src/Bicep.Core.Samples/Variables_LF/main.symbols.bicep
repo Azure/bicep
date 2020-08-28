@@ -102,7 +102,8 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[4:17) Variable anyIndexOnAny. Declaration start char: 0, length: 43
 
 var namedPropertyIndexer = {
-//@[4:24) Variable namedPropertyIndexer. Declaration start char: 0, length: 39
+//@[4:24) Variable namedPropertyIndexer. Declaration start char: 0, length: 50
+  foo: 's'
 }['foo']
 
 var intIndexer = [
@@ -131,4 +132,29 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 //@[4:22) Variable unusedIntermediate. Declaration start char: 0, length: 85
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
-//@[4:25) Variable unusedIntermediateRef. Declaration start char: 0, length: 59
+//@[4:25) Variable unusedIntermediateRef. Declaration start char: 0, length: 61
+
+// previously this was not possible to emit correctly
+var previousEmitLimit = [
+//@[4:21) Variable previousEmitLimit. Declaration start char: 0, length: 296
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+      ], [
+        !true
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
+    }
+  }
+]

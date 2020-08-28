@@ -836,7 +836,7 @@ var stringIndexOnNonObject = 'test'['test']
 //@[42:43)   RightSquare |]|
 //@[43:44)  NewLine |\n|
 var malformedStringIndex = {
-//@[0:42) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |malformedStringIndex|
@@ -851,7 +851,108 @@ var malformedStringIndex = {
 //@[2:10)   SkippedTriviaSyntax
 //@[2:10)    StringComplete |'test\e'|
 //@[10:11)   RightSquare |]|
-//@[11:13)  NewLine |\n\n|
+//@[11:12)  NewLine |\n|
+var invalidIndexTypeOverAny = any(true)[true]
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:27)  IdentifierSyntax
+//@[4:27)   Identifier |invalidIndexTypeOverAny|
+//@[28:29)  Assignment |=|
+//@[30:45)  ArrayAccessSyntax
+//@[30:39)   FunctionCallSyntax
+//@[30:33)    IdentifierSyntax
+//@[30:33)     Identifier |any|
+//@[33:34)    LeftParen |(|
+//@[34:38)    FunctionArgumentSyntax
+//@[34:38)     BooleanLiteralSyntax
+//@[34:38)      TrueKeyword |true|
+//@[38:39)    RightParen |)|
+//@[39:40)   LeftSquare |[|
+//@[40:44)   BooleanLiteralSyntax
+//@[40:44)    TrueKeyword |true|
+//@[44:45)   RightSquare |]|
+//@[45:46)  NewLine |\n|
+var badIndexOverArray = [][null]
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |badIndexOverArray|
+//@[22:23)  Assignment |=|
+//@[24:32)  ArrayAccessSyntax
+//@[24:26)   ArraySyntax
+//@[24:25)    LeftSquare |[|
+//@[25:26)    RightSquare |]|
+//@[26:27)   LeftSquare |[|
+//@[27:31)   NullLiteralSyntax
+//@[27:31)    NullKeyword |null|
+//@[31:32)   RightSquare |]|
+//@[32:33)  NewLine |\n|
+var badIndexOverArray2 = []['s']
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |badIndexOverArray2|
+//@[23:24)  Assignment |=|
+//@[25:32)  ArrayAccessSyntax
+//@[25:27)   ArraySyntax
+//@[25:26)    LeftSquare |[|
+//@[26:27)    RightSquare |]|
+//@[27:28)   LeftSquare |[|
+//@[28:31)   StringSyntax
+//@[28:31)    StringComplete |'s'|
+//@[31:32)   RightSquare |]|
+//@[32:33)  NewLine |\n|
+var badIndexOverObj = {}[true]
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |badIndexOverObj|
+//@[20:21)  Assignment |=|
+//@[22:30)  ArrayAccessSyntax
+//@[22:24)   ObjectSyntax
+//@[22:23)    LeftBrace |{|
+//@[23:24)    RightBrace |}|
+//@[24:25)   LeftSquare |[|
+//@[25:29)   BooleanLiteralSyntax
+//@[25:29)    TrueKeyword |true|
+//@[29:30)   RightSquare |]|
+//@[30:31)  NewLine |\n|
+var badIndexOverObj2 = {}[0]
+//@[0:29) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:20)  IdentifierSyntax
+//@[4:20)   Identifier |badIndexOverObj2|
+//@[21:22)  Assignment |=|
+//@[23:28)  ArrayAccessSyntax
+//@[23:25)   ObjectSyntax
+//@[23:24)    LeftBrace |{|
+//@[24:25)    RightBrace |}|
+//@[25:26)   LeftSquare |[|
+//@[26:27)   NumericLiteralSyntax
+//@[26:27)    Number |0|
+//@[27:28)   RightSquare |]|
+//@[28:29)  NewLine |\n|
+var badExpressionIndexer = {}[base64('a')]
+//@[0:44) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |badExpressionIndexer|
+//@[25:26)  Assignment |=|
+//@[27:42)  ArrayAccessSyntax
+//@[27:29)   ObjectSyntax
+//@[27:28)    LeftBrace |{|
+//@[28:29)    RightBrace |}|
+//@[29:30)   LeftSquare |[|
+//@[30:41)   FunctionCallSyntax
+//@[30:36)    IdentifierSyntax
+//@[30:36)     Identifier |base64|
+//@[36:37)    LeftParen |(|
+//@[37:40)    FunctionArgumentSyntax
+//@[37:40)     StringSyntax
+//@[37:40)      StringComplete |'a'|
+//@[40:41)    RightParen |)|
+//@[41:42)   RightSquare |]|
+//@[42:44)  NewLine |\n\n|
 
 // bad propertyAccess
 //@[21:22) NoOpDeclarationSyntax
@@ -1226,12 +1327,12 @@ var test3 = list('abcd', '2020-01-01')
 //@[41:42) NoOpDeclarationSyntax
 //@[41:42)  NewLine |\n|
 var emitLimit = [
-//@[0:290) VariableDeclarationSyntax
+//@[0:317) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |emitLimit|
 //@[14:15)  Assignment |=|
-//@[16:288)  ArraySyntax
+//@[16:315)  ArraySyntax
 //@[16:17)   LeftSquare |[|
 //@[17:18)   NewLine |\n|
   concat('s')
@@ -1254,16 +1355,16 @@ var emitLimit = [
 //@[6:8)     StringRightPiece |}'|
 //@[8:9)    NewLine |\n|
   {
-//@[2:246)   ArrayItemSyntax
-//@[2:245)    ObjectSyntax
+//@[2:273)   ArrayItemSyntax
+//@[2:272)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     a: {
-//@[4:238)     ObjectPropertySyntax
+//@[4:265)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
-//@[7:237)      ObjectSyntax
+//@[7:264)      ObjectSyntax
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       b: base64('s')
@@ -1280,49 +1381,58 @@ var emitLimit = [
 //@[16:19)           StringComplete |'s'|
 //@[19:20)         RightParen |)|
 //@[20:21)        NewLine |\n|
-      c: concat([
-//@[6:83)       ObjectPropertySyntax
+      c: union({
+//@[6:91)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |c|
 //@[7:8)        Colon |:|
-//@[9:82)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:41)         FunctionArgumentSyntax
-//@[16:40)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        12 + 3
-//@[8:15)           ArrayItemSyntax
-//@[8:14)            BinaryOperationSyntax
-//@[8:10)             NumericLiteralSyntax
-//@[8:10)              Number |12|
-//@[11:12)             Plus |+|
-//@[13:14)             NumericLiteralSyntax
-//@[13:14)              Number |3|
-//@[14:15)            NewLine |\n|
-      ], [
-//@[6:7)           RightSquare |]|
+//@[9:90)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:43)         FunctionArgumentSyntax
+//@[15:42)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        a: 12 + 3
+//@[8:18)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |a|
+//@[9:10)            Colon |:|
+//@[11:17)            BinaryOperationSyntax
+//@[11:13)             NumericLiteralSyntax
+//@[11:13)              Number |12|
+//@[14:15)             Plus |+|
+//@[16:17)             NumericLiteralSyntax
+//@[16:17)              Number |3|
+//@[17:18)            NewLine |\n|
+      }, {
+//@[6:7)           RightBrace |}|
 //@[7:8)          Comma |,|
-//@[9:48)         FunctionArgumentSyntax
-//@[9:48)          ArraySyntax
-//@[9:10)           LeftSquare |[|
+//@[9:54)         FunctionArgumentSyntax
+//@[9:54)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
 //@[10:11)           NewLine |\n|
-        !true
-//@[8:14)           ArrayItemSyntax
-//@[8:13)            UnaryOperationSyntax
-//@[8:9)             Exclamation |!|
-//@[9:13)             BooleanLiteralSyntax
-//@[9:13)              TrueKeyword |true|
-//@[13:14)            NewLine |\n|
-        'hello'
-//@[8:16)           ArrayItemSyntax
-//@[8:15)            StringSyntax
-//@[8:15)             StringComplete |'hello'|
-//@[15:16)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
+        b: !true
+//@[8:17)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |b|
+//@[9:10)            Colon |:|
+//@[11:16)            UnaryOperationSyntax
+//@[11:12)             Exclamation |!|
+//@[12:16)             BooleanLiteralSyntax
+//@[12:16)              TrueKeyword |true|
+//@[16:17)            NewLine |\n|
+        c: 'hello'
+//@[8:19)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |c|
+//@[9:10)            Colon |:|
+//@[11:18)            StringSyntax
+//@[11:18)             StringComplete |'hello'|
+//@[18:19)            NewLine |\n|
+      })
+//@[6:7)           RightBrace |}|
 //@[7:8)         RightParen |)|
 //@[8:9)        NewLine |\n|
       d: resourceGroup().location
@@ -1340,54 +1450,70 @@ var emitLimit = [
 //@[25:33)         IdentifierSyntax
 //@[25:33)          Identifier |location|
 //@[33:34)        NewLine |\n|
-      e: concat([
-//@[6:40)       ObjectPropertySyntax
+      e: union({
+//@[6:46)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |e|
 //@[7:8)        Colon |:|
-//@[9:39)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:38)         FunctionArgumentSyntax
-//@[16:38)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        true
-//@[8:13)           ArrayItemSyntax
-//@[8:12)            BooleanLiteralSyntax
-//@[8:12)             TrueKeyword |true|
-//@[12:13)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
-//@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
-      f: concat([
-//@[6:45)       ObjectPropertySyntax
+//@[9:45)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:41)         FunctionArgumentSyntax
+//@[15:40)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        x: true
+//@[8:16)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |x|
+//@[9:10)            Colon |:|
+//@[11:15)            BooleanLiteralSyntax
+//@[11:15)             TrueKeyword |true|
+//@[15:16)            NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)        NewLine |\n|
+      f: intersection({
+//@[6:58)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |f|
 //@[7:8)        Colon |:|
-//@[9:44)        FunctionCallSyntax
-//@[9:15)         IdentifierSyntax
-//@[9:15)          Identifier |concat|
-//@[15:16)         LeftParen |(|
-//@[16:43)         FunctionArgumentSyntax
-//@[16:43)          ArraySyntax
-//@[16:17)           LeftSquare |[|
-//@[17:18)           NewLine |\n|
-        's' == 12
-//@[8:18)           ArrayItemSyntax
-//@[8:17)            BinaryOperationSyntax
-//@[8:11)             StringSyntax
-//@[8:11)              StringComplete |'s'|
-//@[12:14)             Equals |==|
-//@[15:17)             NumericLiteralSyntax
-//@[15:17)              Number |12|
-//@[17:18)            NewLine |\n|
-      ])
-//@[6:7)           RightSquare |]|
-//@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[9:57)        FunctionCallSyntax
+//@[9:21)         IdentifierSyntax
+//@[9:21)          Identifier |intersection|
+//@[21:22)         LeftParen |(|
+//@[22:53)         FunctionArgumentSyntax
+//@[22:52)          ObjectSyntax
+//@[22:23)           LeftBrace |{|
+//@[23:24)           NewLine |\n|
+        q: 's' == 12
+//@[8:21)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |q|
+//@[9:10)            Colon |:|
+//@[11:20)            BinaryOperationSyntax
+//@[11:14)             StringSyntax
+//@[11:14)              StringComplete |'s'|
+//@[15:17)             Equals |==|
+//@[18:20)             NumericLiteralSyntax
+//@[18:20)              Number |12|
+//@[20:21)            NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)        NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
 //@[5:6)      NewLine |\n|
@@ -1402,7 +1528,7 @@ var emitLimit = [
 //@[41:42) NoOpDeclarationSyntax
 //@[41:42)  NewLine |\n|
 var emitLimit2 = {
-//@[0:115) VariableDeclarationSyntax
+//@[0:117) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |emitLimit2|
@@ -1475,4 +1601,287 @@ var emitLimit2 = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3)  NewLine |\n\n|
+
+var sampleObject = {
+//@[0:192) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |sampleObject|
+//@[17:18)  Assignment |=|
+//@[19:190)  ObjectSyntax
+//@[19:20)   LeftBrace |{|
+//@[20:21)   NewLine |\n|
+  myInt: 42
+//@[2:12)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |myInt|
+//@[7:8)    Colon |:|
+//@[9:11)    NumericLiteralSyntax
+//@[9:11)     Number |42|
+//@[11:12)    NewLine |\n|
+  myStr: 's'
+//@[2:13)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |myStr|
+//@[7:8)    Colon |:|
+//@[9:12)    StringSyntax
+//@[9:12)     StringComplete |'s'|
+//@[12:13)    NewLine |\n|
+  myBool: false
+//@[2:16)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |myBool|
+//@[8:9)    Colon |:|
+//@[10:15)    BooleanLiteralSyntax
+//@[10:15)     FalseKeyword |false|
+//@[15:16)    NewLine |\n|
+  myNull: null
+//@[2:15)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |myNull|
+//@[8:9)    Colon |:|
+//@[10:14)    NullLiteralSyntax
+//@[10:14)     NullKeyword |null|
+//@[14:15)    NewLine |\n|
+  myInner: {
+//@[2:79)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |myInner|
+//@[9:10)    Colon |:|
+//@[11:78)    ObjectSyntax
+//@[11:12)     LeftBrace |{|
+//@[12:13)     NewLine |\n|
+    anotherStr: 'a'
+//@[4:20)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |anotherStr|
+//@[14:15)      Colon |:|
+//@[16:19)      StringSyntax
+//@[16:19)       StringComplete |'a'|
+//@[19:20)      NewLine |\n|
+    otherArr: [
+//@[4:42)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |otherArr|
+//@[12:13)      Colon |:|
+//@[14:41)      ArraySyntax
+//@[14:15)       LeftSquare |[|
+//@[15:16)       NewLine |\n|
+      's'
+//@[6:10)       ArrayItemSyntax
+//@[6:9)        StringSyntax
+//@[6:9)         StringComplete |'s'|
+//@[9:10)        NewLine |\n|
+      'a'
+//@[6:10)       ArrayItemSyntax
+//@[6:9)        StringSyntax
+//@[6:9)         StringComplete |'a'|
+//@[9:10)        NewLine |\n|
+    ]
+//@[4:5)       RightSquare |]|
+//@[5:6)      NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)    NewLine |\n|
+  myArr: [
+//@[2:33)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |myArr|
+//@[7:8)    Colon |:|
+//@[9:32)    ArraySyntax
+//@[9:10)     LeftSquare |[|
+//@[10:11)     NewLine |\n|
+    1
+//@[4:6)     ArrayItemSyntax
+//@[4:5)      NumericLiteralSyntax
+//@[4:5)       Number |1|
+//@[5:6)      NewLine |\n|
+    2
+//@[4:6)     ArrayItemSyntax
+//@[4:5)      NumericLiteralSyntax
+//@[4:5)       Number |2|
+//@[5:6)      NewLine |\n|
+    3
+//@[4:6)     ArrayItemSyntax
+//@[4:5)      NumericLiteralSyntax
+//@[4:5)       Number |3|
+//@[5:6)      NewLine |\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:4)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\n\n|
+
+var badProperty = sampleObject.myFake
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |badProperty|
+//@[16:17)  Assignment |=|
+//@[18:37)  PropertyAccessSyntax
+//@[18:30)   VariableAccessSyntax
+//@[18:30)    IdentifierSyntax
+//@[18:30)     Identifier |sampleObject|
+//@[30:31)   Dot |.|
+//@[31:37)   IdentifierSyntax
+//@[31:37)    Identifier |myFake|
+//@[37:38)  NewLine |\n|
+var badPropertyIndexer = sampleObject['fake']
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |badPropertyIndexer|
+//@[23:24)  Assignment |=|
+//@[25:45)  ArrayAccessSyntax
+//@[25:37)   VariableAccessSyntax
+//@[25:37)    IdentifierSyntax
+//@[25:37)     Identifier |sampleObject|
+//@[37:38)   LeftSquare |[|
+//@[38:44)   StringSyntax
+//@[38:44)    StringComplete |'fake'|
+//@[44:45)   RightSquare |]|
+//@[45:46)  NewLine |\n|
+var badType = sampleObject.myStr / 32
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:11)  IdentifierSyntax
+//@[4:11)   Identifier |badType|
+//@[12:13)  Assignment |=|
+//@[14:37)  BinaryOperationSyntax
+//@[14:32)   PropertyAccessSyntax
+//@[14:26)    VariableAccessSyntax
+//@[14:26)     IdentifierSyntax
+//@[14:26)      Identifier |sampleObject|
+//@[26:27)    Dot |.|
+//@[27:32)    IdentifierSyntax
+//@[27:32)     Identifier |myStr|
+//@[33:34)   Slash |/|
+//@[35:37)   NumericLiteralSyntax
+//@[35:37)    Number |32|
+//@[37:38)  NewLine |\n|
+var badInnerProperty = sampleObject.myInner.fake
+//@[0:49) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:20)  IdentifierSyntax
+//@[4:20)   Identifier |badInnerProperty|
+//@[21:22)  Assignment |=|
+//@[23:48)  PropertyAccessSyntax
+//@[23:43)   PropertyAccessSyntax
+//@[23:35)    VariableAccessSyntax
+//@[23:35)     IdentifierSyntax
+//@[23:35)      Identifier |sampleObject|
+//@[35:36)    Dot |.|
+//@[36:43)    IdentifierSyntax
+//@[36:43)     Identifier |myInner|
+//@[43:44)   Dot |.|
+//@[44:48)   IdentifierSyntax
+//@[44:48)    Identifier |fake|
+//@[48:49)  NewLine |\n|
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |badInnerType|
+//@[17:18)  Assignment |=|
+//@[19:54)  BinaryOperationSyntax
+//@[19:50)   PropertyAccessSyntax
+//@[19:39)    PropertyAccessSyntax
+//@[19:31)     VariableAccessSyntax
+//@[19:31)      IdentifierSyntax
+//@[19:31)       Identifier |sampleObject|
+//@[31:32)     Dot |.|
+//@[32:39)     IdentifierSyntax
+//@[32:39)      Identifier |myInner|
+//@[39:40)    Dot |.|
+//@[40:50)    IdentifierSyntax
+//@[40:50)     Identifier |anotherStr|
+//@[51:52)   Plus |+|
+//@[53:54)   NumericLiteralSyntax
+//@[53:54)    Number |2|
+//@[54:55)  NewLine |\n|
+var badArrayIndexer = sampleObject.myArr['s']
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |badArrayIndexer|
+//@[20:21)  Assignment |=|
+//@[22:45)  ArrayAccessSyntax
+//@[22:40)   PropertyAccessSyntax
+//@[22:34)    VariableAccessSyntax
+//@[22:34)     IdentifierSyntax
+//@[22:34)      Identifier |sampleObject|
+//@[34:35)    Dot |.|
+//@[35:40)    IdentifierSyntax
+//@[35:40)     Identifier |myArr|
+//@[40:41)   LeftSquare |[|
+//@[41:44)   StringSyntax
+//@[41:44)    StringComplete |'s'|
+//@[44:45)   RightSquare |]|
+//@[45:46)  NewLine |\n|
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[0:62) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |badInnerArrayIndexer|
+//@[25:26)  Assignment |=|
+//@[27:61)  ArrayAccessSyntax
+//@[27:56)   PropertyAccessSyntax
+//@[27:47)    PropertyAccessSyntax
+//@[27:39)     VariableAccessSyntax
+//@[27:39)      IdentifierSyntax
+//@[27:39)       Identifier |sampleObject|
+//@[39:40)     Dot |.|
+//@[40:47)     IdentifierSyntax
+//@[40:47)      Identifier |myInner|
+//@[47:48)    Dot |.|
+//@[48:56)    IdentifierSyntax
+//@[48:56)     Identifier |otherArr|
+//@[56:57)   LeftSquare |[|
+//@[57:60)   StringSyntax
+//@[57:60)    StringComplete |'s'|
+//@[60:61)   RightSquare |]|
+//@[61:62)  NewLine |\n|
+var badIndexer = sampleObject.myStr['s']
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:14)  IdentifierSyntax
+//@[4:14)   Identifier |badIndexer|
+//@[15:16)  Assignment |=|
+//@[17:40)  ArrayAccessSyntax
+//@[17:35)   PropertyAccessSyntax
+//@[17:29)    VariableAccessSyntax
+//@[17:29)     IdentifierSyntax
+//@[17:29)      Identifier |sampleObject|
+//@[29:30)    Dot |.|
+//@[30:35)    IdentifierSyntax
+//@[30:35)     Identifier |myStr|
+//@[35:36)   LeftSquare |[|
+//@[36:39)   StringSyntax
+//@[36:39)    StringComplete |'s'|
+//@[39:40)   RightSquare |]|
+//@[40:41)  NewLine |\n|
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[0:53) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |badInnerArray|
+//@[18:19)  Assignment |=|
+//@[20:53)  ArrayAccessSyntax
+//@[20:48)   PropertyAccessSyntax
+//@[20:40)    PropertyAccessSyntax
+//@[20:32)     VariableAccessSyntax
+//@[20:32)      IdentifierSyntax
+//@[20:32)       Identifier |sampleObject|
+//@[32:33)     Dot |.|
+//@[33:40)     IdentifierSyntax
+//@[33:40)      Identifier |myInner|
+//@[40:41)    Dot |.|
+//@[41:48)    IdentifierSyntax
+//@[41:48)     Identifier |fakeArr|
+//@[48:49)   LeftSquare |[|
+//@[49:52)   StringSyntax
+//@[49:52)    StringComplete |'s'|
+//@[52:53)   RightSquare |]|
+//@[53:53) EndOfFile ||
