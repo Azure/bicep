@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-cli:
+  build-bicep:
     name: 'Build CLI'
     runs-on: ${{ matrix.os }}
 
@@ -54,9 +54,19 @@ jobs:
       
       - name: Test
         run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage"
+
+      - name: Publish Language Server
+        run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
       
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Upload Language Server
+        uses: actions/upload-artifact@v2
+        if: ${{ matrix.rid == 'linux-x64' }}
+        with:
+          name: Bicep.LangServer
+          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/netcoreapp3.1/publish/*
       
       - name: Upload Bicep
         uses: actions/upload-artifact@v2
@@ -68,16 +78,12 @@ jobs:
   build-vsix:
     name: 'Build VSIX'
     runs-on: 'ubuntu-latest'
+    needs: build-bicep
 
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.301
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.1
@@ -92,8 +98,11 @@ jobs:
         run: npm run lint
         working-directory: ./src/vscode-bicep
 
-      - name: Publish Language Server
-        run: dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj --output ./src/vscode-bicep/bicepLanguageServer
+      - name: Download Language Server
+        uses: actions/download-artifact@v2
+        with:
+          name: Bicep.LangServer
+          path: ./src/vscode-bicep/bicepLanguageServer
 
       - name: Create VSIX
         run: npm run package
@@ -143,8 +152,8 @@ jobs:
   create-release:
     name: 'Create Release'
     runs-on: 'ubuntu-latest'
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    needs: [build-cli, build-vsix, build-playground]
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+    needs: [build-bicep, build-vsix, build-playground]
 
     steps:
       - name: Download Build Artifacts
