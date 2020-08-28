@@ -1,0 +1,22 @@
+name: bicep
+description: 'Action to consume and deploy bice files.'
+inputs:
+  bicepFile:
+    description: 'Specify the bicep file.'
+    required: true
+  location:
+    description: 'Specify the resource group location.'
+    required: true
+  rg:
+    description: 'Specify the resource group name.'
+    required: true
+runs:
+  using: "docker"
+  image: "dockerfile"
+  args:
+    - -bicepFile
+    - ${{ inputs.bicepFile }}
+    - -location
+    - ${{ inputs.location }}
+    - -rg
+    - ${{ inputs.rg }}

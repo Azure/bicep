@@ -1,0 +1,26 @@
+name: bicep
+
+on:
+  push:
+    branches: [ v1 ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  bicep:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      uses: segraef/azlogin@v1
+      with:
+        clientId: "${{ secrets.clientId }}"
+        clientSecret: "${{ secrets.clientSecret }}"
+        tenantId: "${{ secrets.tenantId }}"
+        subscriptionId: "${{ secrets.subscriptionId }}"
+    - name: Bicep build and deploy
+      uses: segraef/bicep@v1
+      with:
+        bicepFile: main.bicep
+        location: eastus
+        rg: bicep-rg
