@@ -6,11 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Json;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
 using DiffPlex.DiffBuilder;
@@ -72,8 +71,8 @@ namespace Bicep.Core.IntegrationTests
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Tokens,
-                sourceLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
+                actualLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");

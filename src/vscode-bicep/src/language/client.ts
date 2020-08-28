@@ -3,8 +3,13 @@
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { existsSync } from "fs";
-
 import { getLogger } from "../utils/logger";
+import {
+  callWithTelemetryAndErrorHandlingSync,
+  IActionContext,
+  parseError,
+} from "vscode-azureextensionui";
+import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 
 const dotnetRuntimeVersion = "3.1";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
@@ -61,9 +66,15 @@ async function launchLanguageService(
   client.trace = lsp.Trace.Off;
   client.registerProposedFeatures();
 
+  configureTelemetry(client);
+
   context.subscriptions.push(client.start());
 
   getLogger().info("Bicep language service started.");
+
+  await client.onReady();
+
+  getLogger().info("Bicep language service ready.");
 }
 
 async function ensureDotnetRuntimeInstalled(): Promise<string> {
@@ -80,9 +91,9 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
 }
 
 function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
-  const languageServerPath = process.env.BICEP_LANGUAGE_SERVER_PATH
-    ? context.asAbsolutePath(process.env.BICEP_LANGUAGE_SERVER_PATH) // Local server for debugging.
-    : context.asAbsolutePath(packagedServerPath); // Packaged server.
+  const languageServerPath =
+    process.env.BICEP_LANGUAGE_SERVER_PATH ?? // Local server for debugging.
+    context.asAbsolutePath(packagedServerPath); // Packaged server.
 
   if (!existsSync(languageServerPath)) {
     throw new Error(
@@ -91,4 +102,59 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
   }
 
   return languageServerPath;
+}
+
+function configureTelemetry(client: lsp.LanguageClient) {
+  const startTime = Date.now();
+  const defaultErrorHandler = client.createDefaultErrorHandler();
+
+  client.onTelemetry(
+    (telemetryData: {
+      eventName: string;
+      properties: { [key: string]: string | undefined };
+    }) => {
+      callWithTelemetryAndErrorHandlingSync(
+        telemetryData.eventName,
+        (telemetryActionContext) => {
+          telemetryActionContext.errorHandling.suppressDisplay = true;
+          telemetryActionContext.telemetry.properties =
+            telemetryData.properties;
+        }
+      );
+    }
+  );
+
+  client.clientOptions.errorHandler = {
+    error(
+      error: Error,
+      message: Message | undefined,
+      count: number | undefined
+    ): ErrorAction {
+      callWithTelemetryAndErrorHandlingSync(
+        "bicep.lsp-error",
+        (context: IActionContext) => {
+          context.telemetry.properties.jsonrpcMessage = message
+            ? message.jsonrpc
+            : "";
+          context.telemetry.measurements.secondsSinceStart =
+            (Date.now() - startTime) / 1000;
+
+          throw new Error(`Error: ${parseError(error).message}`);
+        }
+      );
+      return defaultErrorHandler.error(error, message, count);
+    },
+    closed(): CloseAction {
+      callWithTelemetryAndErrorHandlingSync(
+        "bicep.lsp-error",
+        (context: IActionContext) => {
+          context.telemetry.measurements.secondsSinceStart =
+            (Date.now() - startTime) / 1000;
+
+          throw new Error(`Connection closed`);
+        }
+      );
+      return defaultErrorHandler.closed();
+    },
+  };
 }

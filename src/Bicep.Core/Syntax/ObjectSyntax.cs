@@ -42,6 +42,6 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public IEnumerable<ObjectPropertySyntax> Properties => this.Children.OfType<ObjectPropertySyntax>();
 
-        public ExpressionKind ExpressionKind => ExpressionKind.ComplexLiteral;
+        public ExpressionKind ExpressionKind => ExpressionKind.ObjectLiteral;
     }
 }

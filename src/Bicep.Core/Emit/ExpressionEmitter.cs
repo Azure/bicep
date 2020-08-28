@@ -99,7 +99,7 @@ namespace Bicep.Core.Emit
         public void EmitLanguageExpression(SyntaxBase syntax)
         {
             var symbol = context.SemanticModel.GetSymbolInfo(syntax);
-            if (symbol is VariableSymbol variableSymbol && context.RequiresInlining(variableSymbol))
+            if (symbol is VariableSymbol variableSymbol && context.VariablesToInline.Contains(variableSymbol))
             {
                 EmitExpression(variableSymbol.Value);
                 return;

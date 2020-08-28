@@ -145,3 +145,47 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
   }
 }
 
+resource resourceA 'My.Rp/typeA@2020-01-01' = {
+  name: 'resourceA'
+}
+
+resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+  name: '${resourceA.name}/myName'
+}
+
+resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+  name: '${resourceA.name}/myName'
+  properties: {
+    aId: resourceA.id
+    aType: resourceA.type
+    aName: resourceA.name
+    aApiVersion: resourceA.apiVersion
+    bProperties: resourceB.properties
+  }
+}
+
+var varARuntime = {
+  bId: resourceB.id
+  bType: resourceB.type
+  bName: resourceB.name
+  bApiVersion: resourceB.apiVersion
+  aKind: resourceA.kind
+}
+
+var varBRuntime = [
+  varARuntime
+]
+
+var resourceCRef = {
+  id: resourceC.id
+}
+var setResourceCRef = true
+
+resource resourceD 'My.Rp/typeD@2020-01-01' = {
+  name: 'constant'
+  properties: {
+    runtime: varBRuntime
+    // repro for https://github.com/Azure/bicep/issues/316
+    repro316: setResourceCRef ? resourceCRef : null
+  }
+}

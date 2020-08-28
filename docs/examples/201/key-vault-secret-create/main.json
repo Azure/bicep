@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -69,14 +69,14 @@
     },
     "skuName": {
       "type": "string",
-      "allowedValues": [
-        "Standard",
-        "Premium"
-      ],
       "metadata": {
         "description": "Specifies whether the key vault is a standard vault or a premium vault."
       },
-      "defaultValue": "Standard"
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "Premium"
+      ]
     },
     "secretsObject": {
       "type": "secureObject",
