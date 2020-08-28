@@ -64,13 +64,13 @@ az deployment group create -f ./main.json -g my-rg
 ## Known limitations
 
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
-* No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187]](https://github.com/Azure/bicep/issues/187)
+* No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187](https://github.com/Azure/bicep/issues/187)]
   * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
 * Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
-* No IntelliSense whatsoever [[#269]](https://github.com/Azure/bicep/issues/269)
+* No IntelliSense whatsoever [[#269](https://github.com/Azure/bicep/issues/269)]
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
-* No support for string interpolation in property names [[#267]](https://github.com/Azure/bicep/issues/267)
+* No support for string interpolation in property names [[#267](https://github.com/Azure/bicep/issues/267)]
   * From what we know, this only affects using managed identities for resources. You can still include a hardcoded managed identity resource ID (i.e. `'/subscriptions/.../resourceGroups/.../providers/Microsoft.ManagedIdentity/...': {}`)
 
 ## Reference
