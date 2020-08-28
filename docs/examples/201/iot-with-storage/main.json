@@ -123,7 +123,10 @@
             "maxDeliveryCount": 10
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('microsoft.storage/storageAccounts', variables('storageAccountName'))]"
+      ]
     }
   ],
   "outputs": {}
