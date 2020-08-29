@@ -1,7 +1,7 @@
 # Expressions
 The bicep language supports the following operators in expressions:
 
-## Precedence and Associativity
+## Operator precedence and associativity
 The operators below are listed in descending order of precedence (the higher the position the higher the precedence). Operators listed at the same level have equal precedence.
 
 | Symbol | Type of Operation | Associativity |
@@ -88,7 +88,7 @@ resource myStorageAccount `Microsoft.Storage/storageAccounts@2017-10-01` = {
 ## Parentheses
 Enclosing an expression between `(` and `)` allows you to override the default bicep operator precedence. For example, the expression `x + y / z` would evaluate the division first and then the addition. However, the expression `(x + y) / z` would evaluate the addition first and division second.
 
-## Property Accessors
+## Property accessors
 Property accessors are used to access properties of an object. They are constructed using the `.` operator. Consider the following:
 ```
 var x = {
@@ -104,7 +104,7 @@ Given the above declaration, the expression `x.y.z` would evaluate to the litera
 
 Property accessors can be used with any object. This includes parameters and variables of object types and object literals. Using a property accessor on an expression of non-object type is an error.
 
-## Array Indexers
+## Array indexers
 Array indexers serve two purposes. Most commonly, they are used to access items in an array. However, they can also be used to access properties of objects via expressions or string literals.
 
 Consider the following:
