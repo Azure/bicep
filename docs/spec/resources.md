@@ -32,6 +32,8 @@ Their fully qualified equivalents would be:
 - `az://Microsoft.Network/virtualNetworks/subnets@2018-11-01`
 - `az://Microsoft.Authorization/roleAssignments@2018-09-01-preview`
 
+> **Note**: Provider prefixes such as `az://` are not yet implemented.
+
 A full `resource` declaration with a fully qualified resource type looks like the following:
 ```
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
