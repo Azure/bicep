@@ -1,7 +1,5 @@
 # Parameters
-> **Note**: Parameter modifiers are not implemented.
-
-param declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
+`param` declarations will be compiled into ARM template parameters. See [Template Parameter Syntax Reference](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax#parameters) for more information.
 
 There are no constraints on placement of parameter declarations. They can be mixed with any other valid declarations in any order and they do not have to appear at the top of the file.
 
@@ -15,7 +13,7 @@ param myObject object
 param myArray array
 ```
 
-A parameter cannot have the same name as a [variable](./variables.md), [resource](./resources.md), or another parameter in the same scope.
+A parameter cannot have the same name as a [variable](./variables.md), [resource](./resources.md), [output](./outputs.md) or another parameter in the same scope.
 
 ## Secure parameters
 If you are familiar with ARM template parameters, you will notice a conspicuous absense of `secureString` and `secureObject` types. In this language, these types are implemented as modifiers.
