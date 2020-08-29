@@ -1,7 +1,4 @@
 # Expressions
-Other content TBD. This section will be expanded as we design the expression syntax and semantics.
-
-# Operators
 The bicep language supports the following operators in expressions:
 
 ## Precedence and Associativity
