@@ -53,7 +53,7 @@ jobs:
         run: dotnet build --configuration ${{ matrix.configuration }}
       
       - name: Test
-        run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage"
+        run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
 
       - name: Publish Language Server
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
@@ -74,6 +74,11 @@ jobs:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.rid }}/publish/*
           if-no-files-found: error
+
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          flags: dotnet
 
   build-vsix:
     name: 'Build VSIX'
