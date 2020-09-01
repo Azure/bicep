@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "copy-webpack-plugin": "^6.0.4",
+    "copy-webpack-plugin": "^6.1.0",
     "css-loader": "^4.2.2",
     "file-loader": "^6.0.0",
     "gulp": "^4.0.2",
