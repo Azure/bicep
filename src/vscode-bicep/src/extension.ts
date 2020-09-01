@@ -10,7 +10,7 @@ import { createAzExtOutputChannel } from "vscode-azureextensionui";
 export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  const outputChannel = createAzExtOutputChannel('Bicep', 'bicep');
+  const outputChannel = createAzExtOutputChannel("Bicep", "bicep");
 
   await activateWithTelemetryAndErrorHandling(
     context,
