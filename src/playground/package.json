@@ -15,7 +15,7 @@
   "devDependencies": {
     "copy-webpack-plugin": "^6.0.4",
     "css-loader": "^4.2.2",
-    "file-loader": "^6.0.0",
+    "file-loader": "^6.1.0",
     "gulp": "^4.0.2",
     "nerdbank-gitversioning": "^3.2.31",
     "raw-loader": "^4.0.1",
