@@ -87,7 +87,7 @@
         "nerdbank-gitversioning": "^3.2.31",
         "prettier": "^2.1.1",
         "typescript": "^4.0.2",
-        "vsce": "^1.79.4"
+        "vsce": "^1.79.5"
     },
     "dependencies": {
         "triple-beam": "^1.3.0",
