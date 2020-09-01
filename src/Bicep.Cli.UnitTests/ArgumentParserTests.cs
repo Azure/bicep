@@ -51,23 +51,23 @@ namespace Bicep.Cli.UnitTests
         }
 
         [TestMethod]
-        public void Null_or_empty_parameters_should_return_UnrecognizedArguments_instance()
+        public void Empty_parameters_should_return_null()
         {
-            var arguments = ArgumentParser.Parse(Array.Empty<string>());
-            arguments.Should().BeOfType<UnrecognizedArguments>();
+            var arguments = ArgumentParser.TryParse(Array.Empty<string>());
+            arguments.Should().BeNull();
         }
 
         [TestMethod]
-        public void Wrong_command_should_return_UnrecognizedArguments_instance()
+        public void Wrong_command_should_return_null()
         {
-            var arguments = ArgumentParser.Parse(new[] {"wrong"});
-            arguments.Should().BeOfType<UnrecognizedArguments>();
+            var arguments = ArgumentParser.TryParse(new[] {"wrong"});
+            arguments.Should().BeNull();
         }
 
         [TestMethod]
         public void BuildNoFiles_ShouldThrow()
         {
-            Action noFiles = () => ArgumentParser.Parse(new[] {"build"});
+            Action noFiles = () => ArgumentParser.TryParse(new[] {"build"});
 
             noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the build command.");
         }
@@ -75,7 +75,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildNoFilesButStdOut_ShouldThrow()
         {
-            Action noFiles = () => ArgumentParser.Parse(new[] {"build", "--stdout"});
+            Action noFiles = () => ArgumentParser.TryParse(new[] {"build", "--stdout"});
 
             noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the build command.");
         }
@@ -83,7 +83,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFile_ShouldReturnOneFile()
         {
-            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "file1"});
+            var arguments = (BuildArguments?)ArgumentParser.TryParse(new[] {"build", "file1"});
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -94,7 +94,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
-            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--stdout", "file1"});
+            var arguments = (BuildArguments?)ArgumentParser.TryParse(new[] {"build", "--stdout", "file1"});
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -105,7 +105,7 @@ namespace Bicep.Cli.UnitTests
                 [TestMethod]
         public void BuildOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
-            var arguments = (BuildArguments?)ArgumentParser.Parse(new[] {"build", "--STDOUT", "file1"});
+            var arguments = (BuildArguments?)ArgumentParser.TryParse(new[] {"build", "--STDOUT", "file1"});
 
             // using classic assert so R# understands the value is not null
             Assert.IsNotNull(arguments);
@@ -116,7 +116,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildMultipleFiles_ShouldReturnAllFiles()
         {
-            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "file1", "file2", "file3"});
+            var arguments = (BuildArguments?) ArgumentParser.TryParse(new[] {"build", "file1", "file2", "file3"});
 
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1", "file2", "file3");
@@ -126,7 +126,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildMultipleFilesStdOut_ShouldReturnAllFilesAndStdOut()
         {
-            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "file3"});
+            var arguments = (BuildArguments?) ArgumentParser.TryParse(new[] {"build", "--stdout", "file1", "file2", "file3"});
 
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1", "file2", "file3");
@@ -136,7 +136,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildMultipleFilesStdOutTwice_ShouldReturnAllFilesAndStdOut()
         {
-            var arguments = (BuildArguments?) ArgumentParser.Parse(new[] {"build", "--stdout", "file1", "file2", "--stdout", "file3"});
+            var arguments = (BuildArguments?) ArgumentParser.TryParse(new[] {"build", "--stdout", "file1", "file2", "--stdout", "file3"});
 
             Assert.IsNotNull(arguments);
             arguments!.Files.Should().Equal("file1", "file2", "file3");
@@ -146,7 +146,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] { "--version" });
+            var arguments = ArgumentParser.TryParse(new[] { "--version" });
 
             arguments.Should().BeOfType<VersionArguments>();
         }
@@ -154,7 +154,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] { "--help" });
+            var arguments = ArgumentParser.TryParse(new[] { "--help" });
 
             arguments.Should().BeOfType<HelpArguments>();
         }
@@ -162,7 +162,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionShortArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"-v"});
+            var arguments = ArgumentParser.TryParse(new[] {"-v"});
 
             arguments.Should().BeOfType<VersionArguments>();
         }
@@ -170,7 +170,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpShortArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"-h"});
+            var arguments = ArgumentParser.TryParse(new[] {"-h"});
 
             arguments.Should().BeOfType<HelpArguments>();
         }

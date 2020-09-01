@@ -9,11 +9,11 @@ namespace Bicep.Cli.CommandLine
 {
     public static class ArgumentParser
     {
-        public static ArgumentsBase Parse(string[] args)
+        public static ArgumentsBase? TryParse(string[] args)
         {
-            if (args == null || args.Any() == false)
+            if (args.Length < 1)
             {
-                return new UnrecognizedArguments("");
+                return null;
             }
 
             // parse verb
@@ -21,15 +21,17 @@ namespace Bicep.Cli.CommandLine
             {
                 case CliConstants.CommandBuild:
                     return ParseBuild(args[1..]);
+                case CliConstants.CommandDecompile:
+                    return ParseDecompile(args[1..]);
                 case CliConstants.ArgumentHelp:
                 case CliConstants.ArgumentHelpShort:
                     return new HelpArguments();
                 case CliConstants.ArgumentVersion:
                 case CliConstants.ArgumentVersionShort:
                     return new VersionArguments();
-                default:
-                    return new UnrecognizedArguments(string.Join(' ', args));
             }
+            
+            return null;
         }
 
         public static string GetExeName()
@@ -67,6 +69,12 @@ Usage:
     Options:
       --stdout    Prints all output to stdout instead of corresponding files
 
+  {exeName} decompile [options] [<files>...]
+    Attempts to decompile one or more template .json files to .bicep
+
+    Arguments:
+      <files>     The list of one or more .json files to decompile
+
   {exeName} [options]
     Options:
       --version  -v   Shows bicep version information
@@ -80,6 +88,11 @@ Usage:
         private static BuildArguments ParseBuild(string[] files)
         {
             return new BuildArguments(files);
+        }
+
+        private static DecompileArguments ParseDecompile(string[] files)
+        {
+            return new DecompileArguments(files);
         }
     }
 }
