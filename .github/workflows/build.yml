@@ -32,12 +32,15 @@ jobs:
         - os: 'windows-latest'
           rid: 'win-x64'
           configuration: 'release'
+          publishLanguageServer: 'false'
         - os: 'ubuntu-latest'
           rid: 'linux-x64'
           configuration: 'release'
+          publishLanguageServer: 'true'
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
+          publishLanguageServer: 'false'
 
     steps:
       - uses: actions/checkout@v2
@@ -56,6 +59,7 @@ jobs:
         run: dotnet test --configuration ${{ matrix.configuration }} --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings
 
       - name: Publish Language Server
+        if: ${{ matrix.publishLanguageServer == 'true' }}
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
       
       - name: Publish Bicep
@@ -63,7 +67,7 @@ jobs:
 
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
-        if: ${{ matrix.rid == 'linux-x64' }}
+        if: ${{ matrix.publishLanguageServer == 'true' }}
         with:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/netcoreapp3.1/publish/*
@@ -79,6 +83,36 @@ jobs:
         uses: codecov/codecov-action@v1
         with:
           flags: dotnet
+
+  build-windows-setup:
+    name: 'Build Windows Setup'
+    runs-on: 'windows-latest'
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.301
+      
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-win-x64
+          path: ./src/installer-win/bicep
+      
+      - name: Build Windows Installer
+        run: dotnet build --configuration release ./src/installer-win/installer.proj
+      
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: bicep-setup-win-x64
+          path: ./src/installer-win/bin/release/net46/bicep-setup-win-x64.exe
 
   build-vsix:
     name: 'Build VSIX'
