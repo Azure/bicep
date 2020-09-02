@@ -42,8 +42,20 @@
     "contributes": {
         "configuration": {
             "type": "object",
-            "title": "Bicep Configuration",
-            "properties": {}
+            "title": "Bicep",
+            "properties": {
+                "bicep.trace.server": {
+                    "type": "string",
+                    "enum": [
+                        "Off",
+                        "Messages",
+                        "Verbose"
+                    ],
+                    "default": "Off",
+                    "description": "Configure tracing of messages sent to the Bicep language server.",
+                    "scope": "window"
+                }
+            }
         },
         "languages": [
             {

@@ -4,20 +4,20 @@ import * as vscode from "vscode";
 import {
   registerUIExtensionVariables,
   AzureUserInput,
-  createAzExtOutputChannel,
   callWithTelemetryAndErrorHandling,
   IActionContext,
+  IAzExtOutputChannel,
 } from "vscode-azureextensionui";
 
 export async function activateWithTelemetryAndErrorHandling(
   context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel,
+  outputChannel: IAzExtOutputChannel,
   activateCallback: () => Promise<void>
 ): Promise<void> {
   const startTime = Date.now();
   registerUIExtensionVariables({
     context,
-    outputChannel: createAzExtOutputChannel(outputChannel.name, "bicep"),
+    outputChannel,
     ui: new AzureUserInput(context.globalState),
   });
 

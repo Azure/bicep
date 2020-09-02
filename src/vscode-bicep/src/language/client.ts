@@ -14,20 +14,22 @@ import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 const dotnetRuntimeVersion = "3.1";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 
-export async function launchLanugageServiceWithProgressReport(
-  context: vscode.ExtensionContext
+export async function launchLanguageServiceWithProgressReport(
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel
 ): Promise<void> {
   await vscode.window.withProgress(
     {
       title: "Launching Bicep language service...",
       location: vscode.ProgressLocation.Notification,
     },
-    async () => await launchLanguageService(context)
+    async () => await launchLanguageService(context, outputChannel)
   );
 }
 
 async function launchLanguageService(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  outputChannel: vscode.OutputChannel
 ): Promise<void> {
   getLogger().info("Launching Bicep language service...");
 
@@ -50,6 +52,7 @@ async function launchLanguageService(
   const clientOptions: lsp.LanguageClientOptions = {
     documentSelector: [{ language: "bicep" }],
     progressOnInitialization: true,
+    outputChannel,
     synchronize: {
       fileEvents: vscode.workspace.createFileSystemWatcher("**/*.bicep"),
     },
@@ -62,11 +65,12 @@ async function launchLanguageService(
     clientOptions
   );
 
-  // TODO: expose Trace as a configuration item.
-  client.trace = lsp.Trace.Off;
   client.registerProposedFeatures();
 
   configureTelemetry(client);
+
+  // To enable language server tracing, you MUST have a package setting named 'bicep.trace.server'; I was unable to find a way to enable it through code.
+  // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
 
   context.subscriptions.push(client.start());
 

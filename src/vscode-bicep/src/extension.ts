@@ -3,13 +3,14 @@
 import * as vscode from "vscode";
 
 import { createLogger } from "./utils/logger";
-import { launchLanugageServiceWithProgressReport } from "./language/client";
+import { launchLanguageServiceWithProgressReport } from "./language/client";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
+import { createAzExtOutputChannel } from "vscode-azureextensionui";
 
 export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  const outputChannel = vscode.window.createOutputChannel("Bicep");
+  const outputChannel = createAzExtOutputChannel("Bicep", "bicep");
 
   await activateWithTelemetryAndErrorHandling(
     context,
@@ -17,7 +18,7 @@ export async function activate(
     async () => {
       createLogger(context, outputChannel);
 
-      await launchLanugageServiceWithProgressReport(context);
+      await launchLanguageServiceWithProgressReport(context, outputChannel);
     }
   );
 }
