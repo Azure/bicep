@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Parser;
@@ -108,7 +107,7 @@ namespace Bicep.Core.IntegrationTests
 
             string getLoggingString(SyntaxCollectorVisitor.SyntaxOrToken data)
             {
-                var depthPrefix = string.Concat(Enumerable.Repeat(" ", data.Depth));
+                var depthPrefix = new string(' ', data.Depth);
                 if (data.Syntax != null)
                 {
                     return $"{depthPrefix}{data.Syntax.GetType().Name}";
