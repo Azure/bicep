@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 
 import { createLogger } from "./utils/logger";
-import { launchLanugageServiceWithProgressReport } from "./language/client";
+import { launchLanguageServiceWithProgressReport } from "./language/client";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { createAzExtOutputChannel } from "vscode-azureextensionui";
 
@@ -18,7 +18,7 @@ export async function activate(
     async () => {
       createLogger(context, outputChannel);
 
-      await launchLanugageServiceWithProgressReport(context, outputChannel);
+      await launchLanguageServiceWithProgressReport(context, outputChannel);
     }
   );
 }

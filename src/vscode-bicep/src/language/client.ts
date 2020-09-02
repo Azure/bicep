@@ -14,7 +14,7 @@ import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 const dotnetRuntimeVersion = "3.1";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 
-export async function launchLanugageServiceWithProgressReport(
+export async function launchLanguageServiceWithProgressReport(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
 ): Promise<void> {
@@ -47,7 +47,6 @@ async function launchLanguageService(
   const serverOptions: lsp.ServerOptions = {
     run: serverExecutable,
     debug: serverExecutable,
-    options: { shell: false },
   };
 
   const clientOptions: lsp.LanguageClientOptions = {
