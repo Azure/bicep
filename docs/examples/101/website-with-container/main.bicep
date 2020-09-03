@@ -37,7 +37,7 @@ resource site 'microsoft.web/sites@2018-11-01' = {
       ]
       linuxFxVersion: 'DOCKER|${acrName}.azurecr.io/${dockerImageAndTag}'
     }
-    serverFarmId: farm.id
+    serverFarmId: farm.id // resourceId('microsoft.web/serverfarms', parameters('farmName'))
   }
 }
 

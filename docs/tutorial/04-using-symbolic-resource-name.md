@@ -113,7 +113,7 @@ When we compile, we see the ARM template is correctly using the `reference()` fu
     },
     "blobEndpoint": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01', 'full').primaryEndpoints.blob]"
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob]"
     }
   }
 }
