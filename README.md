@@ -74,6 +74,30 @@ az deployment group create -f ./main.json -g my-rg
   * From what we know, this only affects using managed identities for resources. You can still include a hardcoded managed identity resource ID (i.e. `'/subscriptions/.../resourceGroups/.../providers/Microsoft.ManagedIdentity/...': {}`)
 * Bicep is currently not covered by [Azure support plans](https://azure.microsoft.com/en-us/support/plans/) as it is still in early development stages. Expect Bicep to be covered by all support plans starting on the 0.3 version.
 
+## FAQ
+
+**Why create a new language instead of using an existing one?**
+Bicep is more of a revision to the existing ARM template language rather than an entirely new language. While most of the syntax has been changed, the core functionality of ARM templates and the runtime remains the same. You have the same template functions, same resource declarations, etc. Part of the complexity with ARM Templates is due to the "DSL" being embedded inside of JSON. With Bicep, we are revising the syntax of this DSL and moving it into its own `.bicep` file format. Before going down this path, we closely evaluated using an existing high-level programming language, but ultimately determined that bicep would be easier to learn for our target audience. We are open to other implementations of bicep in other languages.
+
+**Why not focus your energy on Terraform or other third-party IaC offerings?**
+Using terraform can be a great choice depending on the requirements of the organization, and if you are happy using terraform there is no reason to switch. At Microsoft, we are actively investing to make sure the terraform on Azure experience is the best it can be.
+
+That being said, there is a huge customer base using ARM templates today because it provides a unique set of capabilities and benefits. We wanted to make the experience for those customers first-class as well, in addition to making it easier to start for Azure focused customers who have not yet transitioned to infra-as-code.
+
+Fundamentally, we believe that configuration languages and tools are always going to be polyglot and different users will prefer different tools for different situations. We want to make sure all of these tools are great on Azure, Bicep is only a part of that effort.
+
+**Is this ready for production use? If not, when will it be ready?**
+Not yet. We wanted to get the 0.1 release out quickly and get feedback while we still have an opportunity to make breaking changes. By the end of the year, we plan to ship an 0.3 release which will be at parity with what you can accomplish with ARM templates. At that point, we will start recommending production usage.
+
+**What are you looking for feedback on?**
+The language syntax and the tooling. Now is the best time to make breaking changes, so syntax feedback is very appreciated.
+
+**Is this only for Azure?**
+Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, in the 0.1 release, you can only create Azure resources that are exposed through the ARM API.
+
+**What happens to my existing ARM Template investments?**
+One of our goals is to make the transition from ARM Templates to Bicep. We plan to ship a "decompiler" which will convert an ARM template into an equivalent Bicep file. We also will support using a standard ARM template as a Bicep module without converting it to bicep.
+
 ## Reference
 
 * [Complete language spec](./docs/spec/bicep.md)
@@ -84,7 +108,7 @@ az deployment group create -f ./main.json -g my-rg
 
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may better fit your use case.
 
-* [Farmer (@isaacabraham)](https://compositionalit.github.io/farmer/) - Generate and deploy ARM Templates on .NET
+* [Farmer](https://compositionalit.github.io/farmer/)(@isaacabraham) - Generate and deploy ARM Templates on .NET
 
 ## Contributing
 
