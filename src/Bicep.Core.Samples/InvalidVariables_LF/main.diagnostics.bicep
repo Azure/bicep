@@ -63,3 +63,18 @@ var test = utcNow('u')
 //@[11:17) Error Function 'utcNow' is not valid at this location. It can only be used in parameter default declarations. |utcNow|
 var test2 = newGuid()
 //@[12:19) Error Function 'newGuid' is not valid at this location. It can only be used in parameter default declarations. |newGuid|
+
+// bad string escape sequence in object key
+var test3 = {
+  'bad\escape': true
+//@[2:14) Error Expected a property name at this location. |'bad\escape'|
+//@[6:8) Error The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
+}
+
+// duplicate properties
+var testDupe = {
+  'duplicate': true
+//@[2:13) Error The property 'duplicate' is declared multiple times in this object. Remove or rename the duplicate properties. |'duplicate'|
+  duplicate: true
+//@[2:11) Error The property 'duplicate' is declared multiple times in this object. Remove or rename the duplicate properties. |duplicate|
+}

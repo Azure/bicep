@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Arm.Expression.Expressions;
@@ -17,13 +19,16 @@ namespace Bicep.Core.Emit
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
         {
-            "allowedValues",
             "minValue",
             "maxValue",
             "minLength",
             "maxLength",
             "metadata"
         }.ToImmutableArray();
+
+        private static ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
+            "dependsOn"
+        }.ToImmutableHashSet();
 
         private readonly JsonTextWriter writer;
         private readonly EmitterContext context;
@@ -110,6 +115,7 @@ namespace Bicep.Core.Emit
                     }
 
                     this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
+                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue("allowed"));
                     
                     break;
             }
@@ -123,7 +129,7 @@ namespace Bicep.Core.Emit
 
             foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
             {
-                if (!this.context.RequiresInlining(variableSymbol))
+                if (!this.context.VariablesToInline.Contains(variableSymbol))
                 {
                     writer.WritePropertyName(variableSymbol.Name);
                     this.EmitVariable(variableSymbol);
@@ -159,7 +165,7 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
             this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
-            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body);
+            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
@@ -170,7 +176,7 @@ namespace Bicep.Core.Emit
 
         private void EmitDependsOn(ResourceSymbol resourceSymbol)
         {
-            var dependencies = this.context.SemanticModel.SymbolGraph.GetResourceDependencies(resourceSymbol);
+            var dependencies = context.ResourceDependencies[resourceSymbol];
             if (!dependencies.Any())
             {
                 return;
@@ -229,3 +235,4 @@ namespace Bicep.Core.Emit
         }
     }
 }
+

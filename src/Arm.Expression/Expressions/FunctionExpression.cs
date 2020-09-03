@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 namespace Arm.Expression.Expressions
 {
     public class FunctionExpression : LanguageExpression

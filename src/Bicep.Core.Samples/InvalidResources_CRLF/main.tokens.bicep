@@ -97,6 +97,29 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// duplicate property at the top level with string literal syntax
+//@[65:67) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+  'name': true
+//@[2:8) StringComplete |'name'|
+//@[8:9) Colon |:|
+//@[10:14) TrueKeyword |true|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // duplicate property inside
 //@[28:30) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
@@ -126,6 +149,42 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[7:8) Colon |:|
 //@[9:12) StringComplete |'a'|
 //@[12:14) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// duplicate property inside with string literal syntax
+//@[55:57) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51) Assignment |=|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    foo: 'a'
+//@[4:7) Identifier |foo|
+//@[7:8) Colon |:|
+//@[9:12) StringComplete |'a'|
+//@[12:14) NewLine |\r\n|
+    'foo': 'a'
+//@[4:9) StringComplete |'foo'|
+//@[9:10) Colon |:|
+//@[11:14) StringComplete |'a'|
+//@[14:16) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|
@@ -269,4 +328,162 @@ output resrefout bool = bar.id
 //@[24:27) Identifier |bar|
 //@[27:28) Dot |.|
 //@[28:30) Identifier |id|
-//@[30:30) EndOfFile ||
+//@[30:34) NewLine |\r\n\r\n|
+
+// attempting to set read-only properties
+//@[41:43) NewLine |\r\n|
+resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |baz|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftBrace |{|
+//@[54:56) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  id: 2
+//@[2:4) Identifier |id|
+//@[4:5) Colon |:|
+//@[6:7) Number |2|
+//@[7:9) NewLine |\r\n|
+  type: 'hello'
+//@[2:6) Identifier |type|
+//@[6:7) Colon |:|
+//@[8:15) StringComplete |'hello'|
+//@[15:17) NewLine |\r\n|
+  apiVersion: true
+//@[2:12) Identifier |apiVersion|
+//@[12:13) Colon |:|
+//@[14:18) TrueKeyword |true|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |badDepends|
+//@[20:57) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[58:59) Assignment |=|
+//@[60:61) LeftBrace |{|
+//@[61:63) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    baz.id
+//@[4:7) Identifier |baz|
+//@[7:8) Dot |.|
+//@[8:10) Identifier |id|
+//@[10:12) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:20) Identifier |badDepends2|
+//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60) Assignment |=|
+//@[61:62) LeftBrace |{|
+//@[62:64) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    'hello'
+//@[4:11) StringComplete |'hello'|
+//@[11:13) NewLine |\r\n|
+    true
+//@[4:8) TrueKeyword |true|
+//@[8:10) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:20) Identifier |badDepends3|
+//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60) Assignment |=|
+//@[61:62) LeftBrace |{|
+//@[62:64) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:20) Identifier |badDepends4|
+//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60) Assignment |=|
+//@[61:62) LeftBrace |{|
+//@[62:64) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  dependsOn: [
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    badDepends3
+//@[4:15) Identifier |badDepends3|
+//@[15:17) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:8) Identifier |resource|
+//@[9:20) Identifier |badDepends5|
+//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[59:60) Assignment |=|
+//@[61:62) LeftBrace |{|
+//@[62:64) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  dependsOn: badDepends3.dependsOn
+//@[2:11) Identifier |dependsOn|
+//@[11:12) Colon |:|
+//@[13:24) Identifier |badDepends3|
+//@[24:25) Dot |.|
+//@[25:34) Identifier |dependsOn|
+//@[34:36) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

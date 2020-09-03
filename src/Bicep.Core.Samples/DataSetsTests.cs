@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,11 +13,9 @@ namespace Bicep.Core.Samples
     [TestClass]
     public class DataSetsTests
     {
-        private static readonly Regex Pattern_CRLF = new Regex(@"(\r\n)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex Pattern_CRLF = new Regex(@"^(\r\n)+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private static readonly Regex Pattern_LF = new Regex(@"(\n)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-        private static readonly Regex Pattern_CR = new Regex(@"(\r)+", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex Pattern_LF = new Regex(@"^(\n)+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -38,26 +38,8 @@ namespace Bicep.Core.Samples
             var lineEndingTokens = GetLineEndingTokens(dataSet.Bicep);
             lineEndingTokens.Select(token => token.Type).Should().AllBeEquivalentTo(TokenType.NewLine);
 
-            Regex? expectedPattern = null;
-            if (dataSet.Name.EndsWith("_CRLF"))
-            {
-                expectedPattern = Pattern_CRLF;
-            }
-
-            if (dataSet.Name.EndsWith("_LF"))
-            {
-                expectedPattern = Pattern_LF;
-            }
-
-            if (dataSet.Name.EndsWith("_CR"))
-            {
-                expectedPattern = Pattern_CR;
-            }
-
-            if (expectedPattern != null)
-            {
-                lineEndingTokens.All(token => expectedPattern.IsMatch(token.Text)).Should().BeTrue();
-            }
+            var expectedPattern = dataSet.HasCrLfNewlines() ? Pattern_CRLF : Pattern_LF;
+            lineEndingTokens.All(token => expectedPattern.IsMatch(token.Text)).Should().BeTrue();
         }
 
         private IEnumerable<Token> GetLineEndingTokens(string contents)
@@ -74,3 +56,4 @@ namespace Bicep.Core.Samples
         }
     }
 }
+

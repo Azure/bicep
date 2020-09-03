@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -23,7 +23,11 @@
   "variables": {
     "hostingPlanName": "[parameters('applicationName')]",
     "location": "[resourceGroup().location]",
-    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]"
+    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "resourceCRef": {
+      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+    },
+    "setResourceCRef": true
   },
   "resources": [
     {
@@ -86,7 +90,10 @@
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', 'myencryptedone')]"
+      ]
     },
     {
       "type": "Microsoft.Web/serverFarms",
@@ -128,6 +135,85 @@
           ]
         }
       }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Foo/foos",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "otherId": "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]",
+        "otherName": "nestedTemplate1",
+        "otherVersion": "2019-10-01",
+        "otherType": "Microsoft.Resources/deployments",
+        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')).mode]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA",
+      "apiVersion": "2020-01-01",
+      "name": "resourceA"
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', 'resourceA')]",
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', 'resourceA')]",
+      "properties": {
+        "aId": "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "aType": "My.Rp/typeA",
+        "aName": "resourceA",
+        "aApiVersion": "2020-01-01",
+        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]))]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeD",
+      "apiVersion": "2020-01-01",
+      "name": "constant",
+      "properties": {
+        "runtime": [
+          {
+            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+            "bType": "My.Rp/typeA/typeB",
+            "bName": "[format('{0}/myName', 'resourceA')]",
+            "bApiVersion": "2020-01-01",
+            "aKind": "[reference(resourceId('My.Rp/typeA', 'resourceA'), '2020-01-01', 'full').kind]"
+          }
+        ],
+        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), json('null'))]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+      ]
     }
   ],
   "outputs": {}

@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parser;
@@ -18,38 +20,36 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
-        public void GetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
+        public void TryGetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
             var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
-            var actual = Lexer.GetStringValue(token);
+            var actual = Lexer.TryGetStringValue(token);
 
             actual.Should().Be(expectedValue);
         }
 
         [TestMethod]
-        public void GetStringValue_WrongTokenType_ShouldThrow()
+        public void TryGetStringValue_WrongTokenType_ShouldReturnNull()
         {
             var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
-            Action wrongType = () => Lexer.GetStringValue(token);
-            wrongType.Should().Throw<ArgumentException>().WithMessage("Unexpected token of type Number.");
+            Lexer.TryGetStringValue(token).Should().BeNull();
         }
 
         [DataTestMethod]
-        [DataRow(@"", "Unexpected start or end sequence for token of type StringComplete. Text = ")]
-        [DataRow(@"hi", "Unexpected start or end sequence for token of type StringComplete. Text = hi")]
-        [DataRow(@"'hello'there", "Unexpected start or end sequence for token of type StringComplete. Text = 'hello'there")]
-        [DataRow(@"'test\!'", "String token contains an invalid escape character. Text = 'test\\!'")]
-        [DataRow(@"'", "Unexpected start or end sequence for token of type StringComplete. Text = '")]
-        [DataRow(@"'test", "Unexpected start or end sequence for token of type StringComplete. Text = 'test")]
-        [DataRow(@"'hi\", "Unexpected start or end sequence for token of type StringComplete. Text = 'hi\\")]
-        public void GetStringValue_InvalidStringLiteralToken_ShouldThrow(string literalText, string expectedExceptionMessage)
+        [DataRow(@"")]
+        [DataRow(@"hi")]
+        [DataRow(@"'hello'there")]
+        [DataRow(@"'test\!'")]
+        [DataRow(@"'")]
+        [DataRow(@"'test")]
+        [DataRow(@"'hi\")]
+        public void GetStringValue_InvalidStringLiteralToken_ShouldReturnNull(string literalText)
         {
             var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
-            Action invalidLiteral = () => Lexer.GetStringValue(token);
-            invalidLiteral.Should().Throw<ArgumentException>().WithMessage(expectedExceptionMessage);
+            Lexer.TryGetStringValue(token).Should().BeNull();
         }
 
         [TestMethod]
@@ -151,3 +151,4 @@ namespace Bicep.Core.UnitTests.Parser
         }
     }
 }
+

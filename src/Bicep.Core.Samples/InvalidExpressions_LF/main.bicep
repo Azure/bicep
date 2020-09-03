@@ -17,8 +17,6 @@ var bad = (null) ? !
 var bad = (null)!
 var bad = (null)[0]
 var bad = ()
-var bad = {}
-var bad = []
 var bad = 
 
 // variables not supported
@@ -96,6 +94,12 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
 }['test\e']
+var invalidIndexTypeOverAny = any(true)[true]
+var badIndexOverArray = [][null]
+var badIndexOverArray2 = []['s']
+var badIndexOverObj = {}[true]
+var badIndexOverObj2 = {}[0]
+var badExpressionIndexer = {}[base64('a')]
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
@@ -138,3 +142,68 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
+
+// cannot compile an expression like this
+var emitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: union({
+        a: 12 + 3
+      }, {
+        b: !true
+        c: 'hello'
+      })
+      d: resourceGroup().location
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+      }, {})
+    }
+  }
+]
+
+// cannot compile an expression like this
+var emitLimit2 = {
+  a: {
+    b: {
+      a: resourceGroup().location
+    } == 2
+    c: concat([
+
+    ], true)
+  }
+}
+
+var sampleObject = {
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+var badPropertyIndexer = sampleObject['fake']
+var badType = sampleObject.myStr / 32
+var badInnerProperty = sampleObject.myInner.fake
+var badInnerType = sampleObject.myInner.anotherStr + 2
+var badArrayIndexer = sampleObject.myArr['s']
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+var badIndexer = sampleObject.myStr['s']
+var badInnerArray = sampleObject.myInner.fakeArr['s']

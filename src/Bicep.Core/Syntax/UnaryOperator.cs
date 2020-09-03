@@ -1,4 +1,6 @@
-﻿namespace Bicep.Core.Syntax
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+namespace Bicep.Core.Syntax
 {
     /// <summary>
     /// Represents an operator acting on a single expression.
@@ -16,3 +18,4 @@
         Minus
     }
 }
+

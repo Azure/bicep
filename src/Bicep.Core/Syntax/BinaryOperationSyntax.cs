@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System;
 using Bicep.Core.Parser;
 
@@ -28,5 +30,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitBinaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.LeftExpression, this.RightExpression);
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

@@ -3,6 +3,7 @@
 var x = x
 //@[8:9) Error The expression is involved in a cycle. |x|
 var q = base64(q, !q)
+//@[14:21) Error Expected 1 argument, but got 2. |(q, !q)|
 //@[15:16) Error The expression is involved in a cycle. |q|
 //@[19:20) Error The expression is involved in a cycle. |q|
 

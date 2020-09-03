@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +107,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Member);
+            if (syntax.Key is StringSyntax @string)
+            {
+                Visit(@string);
+            }
+            else
+            {
+                AddTokenType(syntax.Key, SemanticTokenType.Member);
+            }
             base.VisitObjectPropertySyntax(syntax);
         }
 
@@ -156,9 +165,9 @@ namespace Bicep.LanguageServer
             base.VisitResourceDeclarationSyntax(syntax);
         }
 
-        public override void VisitSkippedTokensTriviaSyntax(SkippedTokensTriviaSyntax syntax)
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
-            base.VisitSkippedTokensTriviaSyntax(syntax);
+            base.VisitSkippedTriviaSyntax(syntax);
         }
 
         private void AddStringToken(Token token)
@@ -198,10 +207,6 @@ namespace Bicep.LanguageServer
 
         public override void VisitStringSyntax(StringSyntax syntax)
         {
-            foreach (var token in syntax.StringTokens)
-            {
-                AddStringToken(token);
-            }
             base.VisitStringSyntax(syntax);
         }
 
@@ -214,6 +219,18 @@ namespace Bicep.LanguageServer
 
         protected override void VisitTokenInternal(Token token)
         {
+            switch (token.Type)
+            {
+                case TokenType.StringComplete:
+                case TokenType.StringLeftPiece:
+                case TokenType.StringMiddlePiece:
+                case TokenType.StringRightPiece:
+                    AddStringToken(token);
+                    break;
+                default:
+                    break;
+            }
+
             base.VisitTokenInternal(token);
         }
 

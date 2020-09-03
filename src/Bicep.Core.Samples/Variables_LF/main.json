@@ -13,8 +13,18 @@
     "interp4": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
     "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
     "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, json('true'))]",
+    "bracketInTheMiddle": "a[b]",
+    "bracketAtBeginning": "[[test",
+    "enclosingBrackets": "[[test]",
+    "emptyJsonArray": "[[]",
+    "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
+    "nestedBrackets": "[[test[]test2]",
+    "nestedInterpolatedBrackets": "[format('[{0}]', variables('emptyJsonArray'))]",
+    "bracketStringInExpression": "[concat('[', '''test''', ']')]",
     "myTruth": true,
     "myFalsehood": false,
+    "myEmptyObj": {},
+    "myEmptyArray": [],
     "myObj": {
       "a": "a",
       "b": -12,
@@ -52,19 +62,26 @@
     ],
     "expressionIndexOnAny": "[json('{}')[resourceGroup().location]]",
     "anyIndexOnAny": "[json('true')[json('false')]]",
-    "namedPropertyIndexer": "[json('{}').foo]",
-    "intIndexer": "[json('[\"s\"]')[0]]",
-    "functionOnIndexer1": "[concat(json('[\"s\"]')[0], 's')]",
+    "namedPropertyIndexer": "[json('{\"foo\":\"s\"}').foo]",
+    "intIndexer": "[createArray('s')[0]]",
+    "functionOnIndexer1": "[concat(createArray('s')[0], 's')]",
     "functionOnIndexer2": "[concat(json('[]')[0], 's')]",
     "functionOnIndexer3": "[concat(json('[]')[0], 's')]",
     "singleQuote": "'",
     "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
-    "subscription": "foo-id",
-    "subId": "[subscription().id]",
-    "myRg": "[if(json('true'), concat('1', '-rg'), 'foo-rg')]",
-    "add": "[add(1, 2)]",
-    "myAddition": "[if(equals(variables('add'), 3), concat('answer', concat('is', sub(add(3, 1), add(0, 1)))), 'false')]",
-    "myOtherAddition": "[if(equals(variables('add'), 4), 'true', if(equals(variables('add'), add(add(0, 1), add(0, add(1, 1)))), concat('answer', concat('is', sub(add(3, 1), add(0, 1)))), 'false'))]"
+    "previousEmitLimit": [
+      "[concat('s')]",
+      "[format('{0}', 4)]",
+      {
+        "a": {
+          "b": "[base64('s')]",
+          "c": "[concat(createArray(add(12, 3)), createArray(not(json('true')), 'hello'))]",
+          "d": "[resourceGroup().location]",
+          "e": "[concat(createArray(json('true')))]",
+          "f": "[concat(createArray(equals('s', 12)))]"
+        }
+      }
+    ]
   },
   "resources": [],
   "outputs": {}

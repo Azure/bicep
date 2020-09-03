@@ -1,21 +1,20 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.IntegrationTests.Extensons;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Json;
-using Bicep.Core.UnitTests.Serialization;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.SemanticModel
 {
@@ -38,13 +37,13 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 return $"{diagnostic.Level} {diagnostic.Message} |{spanText}|";
             }
             
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, model.GetAllDiagnostics(), getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainDiagnostics}", sourceTextWithDiags);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainDiagnostics), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Diagnostics,
-                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainDiagnostics}",
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]
@@ -73,13 +72,13 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 return $"{symbol.Kind} {symbol.Name}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet.Bicep, symbols, symb => symb.NameSyntax.Span, getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}/{DataSet.TestFileMainSymbols}", sourceTextWithDiags);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainSymbols), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Symbols,
-                sourceLocation: $"src/Bicep.Core.Samples/{dataSet.Name}/{DataSet.TestFileMainSymbols}",
-                targetLocation: resultsFile);
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                actualLocation: resultsFile);
         }
 
         [DataTestMethod]
@@ -193,3 +192,4 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         }
     }
 }
+

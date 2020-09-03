@@ -1,6 +1,4 @@
 # Resources
-> **Note**: Not implemented yet
-
 A `resource` declaration defines a resource that will be either created or updated at deployment time along with its intended state. The resource is also assigned to an identifier. You can reference the identifier in [expressions](./expressions.md) that are part of [variables](./variables.md), [outputs](./outputs), or other `resource` declarations.
 
 Consider the following declaration that creates or updates a [DNS Zone](https://docs.microsoft.com/en-us/azure/dns/dns-zones-records):
@@ -21,18 +19,20 @@ A `resource` declaration consists of the following components:
 
 ## Resource Type
 A resource type itself (`Microsoft.Network/dnszones@2018-05-01` in our example) consists of the following components:
-- An optional provider prefix. The default provider is Azure Resource Manager whose prefix is `azrm://`
-- A provider-specific resource type. In the case of the `azrm` provider, the resource type is of the form: `<ARM resource provider namespace>/<ARM resource type(s)>@<ARM API version>`.
+- An optional provider prefix. The default provider is Azure Resource Manager whose prefix is `az://`
+- A provider-specific resource type. In the case of the `az` provider, the resource type is of the form: `<ARM resource provider namespace>/<ARM resource type(s)>@<ARM API version>`.
 
-Common `azrm` resource types include:
+Common `az` resource types include:
 - `Microsoft.Compute/virtualMachineScaleSets@2018-10-01`
 - `Microsoft.Network/virtualNetworks/subnets@2018-11-01`
 - `Microsoft.Authorization/roleAssignments@2018-09-01-preview`
 
 Their fully qualified equivalents would be:
-- `azrm://Microsoft.Compute/virtualMachineScaleSets@2018-10-01`
-- `azrm://Microsoft.Network/virtualNetworks/subnets@2018-11-01`
-- `azrm://Microsoft.Authorization/roleAssignments@2018-09-01-preview`
+- `az://Microsoft.Compute/virtualMachineScaleSets@2018-10-01`
+- `az://Microsoft.Network/virtualNetworks/subnets@2018-11-01`
+- `az://Microsoft.Authorization/roleAssignments@2018-09-01-preview`
+
+> **Note**: Provider prefixes such as `az://` are not yet implemented.
 
 A full `resource` declaration with a fully qualified resource type looks like the following:
 ```

@@ -1,15 +1,17 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class ObjectSyntax : SyntaxBase, IExpressionSyntax
     {
         public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBrace)
         {
             AssertTokenType(openBrace, nameof(openBrace), TokenType.LeftBrace);
-            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
+            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 0);
             AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
             this.OpenBrace = openBrace;
@@ -39,5 +41,7 @@ namespace Bicep.Core.Syntax
         /// Gets the object properties. May return duplicate properties.
         /// </summary>
         public IEnumerable<ObjectPropertySyntax> Properties => this.Children.OfType<ObjectPropertySyntax>();
+
+        public ExpressionKind ExpressionKind => ExpressionKind.ObjectLiteral;
     }
 }

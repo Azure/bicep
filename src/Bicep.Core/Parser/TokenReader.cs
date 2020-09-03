@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,19 +54,15 @@ namespace Bicep.Core.Parser
             this.Position += positions;
         }
 
-        public void StepBack()
-        {
-            if (this.Position == 0)
-            {
-                throw new InvalidOperationException("Reader is already at the beginning.");
-            }
-
-            this.Position -= 1;
-        }
-
         public IEnumerable<Token> Slice(int start, int length)
         {
             return this.Tokens.Skip(start).Take(length);
         }
+
+        public Token AtPosition(int position)
+        {
+            return this.Tokens[position];
+        }
     }
 }
+

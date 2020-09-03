@@ -55,6 +55,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   sku: {
     name: 'Standard_LRS'
   }
+  dependsOn: [
+    myStorageAccount
+  ]
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
@@ -112,5 +115,77 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
         }
       ]
     }
+  }
+}
+
+resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
+  name: 'nestedTemplate1'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      // string key value
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: [
+      ]
+    }
+  }
+}
+
+// should be able to access the read only properties
+resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
+  name: 'nestedTemplate1'
+  properties: {
+    otherId: nested.id
+    otherName: nested.name
+    otherVersion: nested.apiVersion
+    otherType: nested.type
+
+    otherThings: nested.properties.mode
+  }
+}
+
+resource resourceA 'My.Rp/typeA@2020-01-01' = {
+  name: 'resourceA'
+}
+
+resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
+  name: '${resourceA.name}/myName'
+}
+
+resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
+  name: '${resourceA.name}/myName'
+  properties: {
+    aId: resourceA.id
+    aType: resourceA.type
+    aName: resourceA.name
+    aApiVersion: resourceA.apiVersion
+    bProperties: resourceB.properties
+  }
+}
+
+var varARuntime = {
+  bId: resourceB.id
+  bType: resourceB.type
+  bName: resourceB.name
+  bApiVersion: resourceB.apiVersion
+  aKind: resourceA.kind
+}
+
+var varBRuntime = [
+  varARuntime
+]
+
+var resourceCRef = {
+  id: resourceC.id
+}
+var setResourceCRef = true
+
+resource resourceD 'My.Rp/typeD@2020-01-01' = {
+  name: 'constant'
+  properties: {
+    runtime: varBRuntime
+    // repro for https://github.com/Azure/bicep/issues/316
+    repro316: setResourceCRef ? resourceCRef : null
   }
 }

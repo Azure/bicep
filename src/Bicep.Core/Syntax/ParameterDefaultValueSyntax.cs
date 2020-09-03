@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -6,7 +8,7 @@ namespace Bicep.Core.Syntax
     {
         public ParameterDefaultValueSyntax(Token assignmentToken, SyntaxBase defaultValue)
         {
-            this.AssertTokenType(assignmentToken, nameof(assignmentToken), TokenType.Assignment);
+            AssertTokenType(assignmentToken, nameof(assignmentToken), TokenType.Assignment);
 
             this.AssignmentToken = assignmentToken;
             this.DefaultValue = defaultValue;

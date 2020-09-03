@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arm.Expression", "src\Arm.E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.IntegrationTests", "src\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj", "{0DE47D02-2BBE-4352-9E38-79A374F9C41E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Cli.IntegrationTests", "src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj", "{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{0DE47D02-2BBE-4352-9E38-79A374F9C41E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DE47D02-2BBE-4352-9E38-79A374F9C41E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DE47D02-2BBE-4352-9E38-79A374F9C41E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +105,7 @@ Global
 		{29A1AE2B-D47D-41DD-9824-279475D9B6C2} = {B02251C3-B01E-40EB-B145-2B03F25FE653}
 		{3229C864-9524-4FDB-BE76-3714ABE7F4E2} = {FE323E78-E865-46E2-859A-E4F6FB312C0F}
 		{0DE47D02-2BBE-4352-9E38-79A374F9C41E} = {76F6CBAF-FE81-4B56-B0DB-DE6FD7174771}
+		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3} = {B02251C3-B01E-40EB-B145-2B03F25FE653}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

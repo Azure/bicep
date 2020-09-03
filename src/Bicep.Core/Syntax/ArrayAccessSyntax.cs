@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -6,8 +8,8 @@ namespace Bicep.Core.Syntax
     {
         public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, SyntaxBase indexExpression, Token closeSquare)
         {
-            this.AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
-            this.AssertTokenType(closeSquare, nameof(closeSquare), TokenType.RightSquare);
+            AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
+            AssertTokenType(closeSquare, nameof(closeSquare), TokenType.RightSquare);
 
             this.BaseExpression = baseExpression;
             this.OpenSquare = openSquare;
@@ -26,5 +28,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, CloseSquare);
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

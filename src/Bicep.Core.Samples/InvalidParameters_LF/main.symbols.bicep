@@ -48,7 +48,9 @@ param wrongType fluffyBunny = 'what\'s up doc?
 
 // unterminated interpolated string
 param wrongType fluffyBunny = 'what\'s ${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 42
 param wrongType fluffyBunny = 'what\'s ${up
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 44
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 45
 param wrongType fluffyBunny = 'what\'s ${'up
@@ -56,8 +58,11 @@ param wrongType fluffyBunny = 'what\'s ${'up
 
 // unterminated nested interpolated string
 param wrongType fluffyBunny = 'what\'s ${'up${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 47
 param wrongType fluffyBunny = 'what\'s ${'up${
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 47
 param wrongType fluffyBunny = 'what\'s ${'up${doc
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 50
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[6:15) Parameter wrongType. Declaration start char: 0, length: 51
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
@@ -67,8 +72,16 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 56
+
+// bad interpolated string format
+param badInterpolatedString string = 'hello ${}!'
+//@[6:27) Parameter badInterpolatedString. Declaration start char: 0, length: 50
+param badInterpolatedString2 string = 'hello ${a b c}!'
+//@[6:28) Parameter badInterpolatedString2. Declaration start char: 0, length: 57
 
 param wrongType fluffyBunny = 'what\'s up doc?'
+//@[6:15) Parameter wrongType. Declaration start char: 0, length: 49
 
 // modifier on an invalid type
 param someArray arra {
@@ -94,9 +107,9 @@ param secureInt int {
 
 // wrong modifier value types
 param wrongIntModifier int {
-//@[6:22) Parameter wrongIntModifier. Declaration start char: 0, length: 147
+//@[6:22) Parameter wrongIntModifier. Declaration start char: 0, length: 141
   default: true
-  allowedValues: [
+  allowed: [
     'test'
     true
   ]
@@ -117,11 +130,11 @@ param wrongMetadataSchema string {
 
 // expression in modifier
 param expressionInModifier string {
-//@[6:26) Parameter expressionInModifier. Declaration start char: 0, length: 123
+//@[6:26) Parameter expressionInModifier. Declaration start char: 0, length: 117
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
-  allowedValues: [
+  allowed: [
     i
   ]
 }
@@ -144,8 +157,8 @@ param paramModifierOneCycle string {
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
-//@[6:28) Parameter paramModifierSelfCycle. Declaration start char: 0, length: 91
-  allowedValues: [
+//@[6:28) Parameter paramModifierSelfCycle. Declaration start char: 0, length: 85
+  allowed: [
     paramModifierSelfCycle
   ]
 }
@@ -166,6 +179,37 @@ param paramMixedTwoCycle1 string = paramMixedTwoCycle2
 param paramMixedTwoCycle2 string {
 //@[6:25) Parameter paramMixedTwoCycle2. Declaration start char: 0, length: 69
   default: paramMixedTwoCycle1
+}
+
+// wrong types of "variable"/identifier access
+var sampleVar = 'sample'
+//@[4:13) Variable sampleVar. Declaration start char: 0, length: 25
+resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+//@[9:23) Resource sampleResource. Declaration start char: 0, length: 76
+  name: 'foo'
+}
+output sampleOutput string = 'hello'
+//@[7:19) Output sampleOutput. Declaration start char: 0, length: 38
+
+param paramAccessingVar string = concat(sampleVar, 's')
+//@[6:23) Parameter paramAccessingVar. Declaration start char: 0, length: 56
+param paramAccessingVar2 string {
+//@[6:24) Parameter paramAccessingVar2. Declaration start char: 0, length: 71
+  default: 'foo ${sampleVar} foo'
+}
+
+param paramAccessingResource string = sampleResource
+//@[6:28) Parameter paramAccessingResource. Declaration start char: 0, length: 53
+param paramAccessingResource2 string {
+//@[6:29) Parameter paramAccessingResource2. Declaration start char: 0, length: 91
+  default: base64(sampleResource.properties.foo)
+}
+
+param paramAccessingOutput string = sampleOutput
+//@[6:26) Parameter paramAccessingOutput. Declaration start char: 0, length: 49
+param paramAccessingOutput2 string {
+//@[6:27) Parameter paramAccessingOutput2. Declaration start char: 0, length: 64
+  default: sampleOutput
 }
 
 // unterminated multi-line comment

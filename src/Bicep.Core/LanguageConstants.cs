@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -27,6 +29,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
+        public static readonly TypeSymbol ResourceRef = new ResourceRefType();
         public static readonly TypeSymbol String = new PrimitiveType("string");
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int");
@@ -67,7 +70,7 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty("default", parameterType);
 
-            yield return new TypeProperty("allowedValues", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
+            yield return new TypeProperty("allowed", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
 
             if (ReferenceEquals(parameterType, Int))
             {
@@ -101,7 +104,13 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
-            yield return new TypeProperty("name", String, TypePropertyFlags.Required);
+            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+
+            yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
+
+            yield return new TypeProperty("type", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+
+            yield return new TypeProperty("apiVersion", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
 
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
@@ -132,6 +141,8 @@ namespace Bicep.Core
             yield return new TypeProperty("identity", Object);
 
             yield return new TypeProperty("properties", Object);
+
+            yield return new TypeProperty("dependsOn", new TypedArrayType(ResourceRef), TypePropertyFlags.WriteOnly);
         }
     }
 }

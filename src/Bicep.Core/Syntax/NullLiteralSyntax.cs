@@ -1,12 +1,14 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class NullLiteralSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class NullLiteralSyntax : SyntaxBase, IExpressionSyntax
     {
         public NullLiteralSyntax(Token nullKeyword)
         {
-            this.AssertTokenType(nullKeyword, nameof(nullKeyword), TokenType.NullKeyword);
+            AssertTokenType(nullKeyword, nameof(nullKeyword), TokenType.NullKeyword);
 
             this.NullKeyword = nullKeyword;
         }
@@ -16,5 +18,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitNullLiteralSyntax(this);
 
         public override TextSpan Span => this.NullKeyword.Span;
+        
+        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

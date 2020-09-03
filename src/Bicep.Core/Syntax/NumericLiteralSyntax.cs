@@ -1,8 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class NumericLiteralSyntax : SyntaxBase, IExpressionSyntax, ILiteralSyntax
+    public class NumericLiteralSyntax : SyntaxBase, IExpressionSyntax
     {
         public NumericLiteralSyntax(Token literal, int value)
         {
@@ -19,5 +21,7 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span
             => TextSpan.Between(Literal, Literal);
+
+        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

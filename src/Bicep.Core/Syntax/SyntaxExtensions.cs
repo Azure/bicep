@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -10,9 +13,13 @@ namespace Bicep.Core.Syntax
         public static IList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
         {
             var diagnostics = new List<Diagnostic>();
-            var visitor = new ParseDiagnosticsVisitor(diagnostics);
-            visitor.Visit(syntax);
+            var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnostics);
+            parseErrorVisitor.Visit(syntax);
 
+            // TODO: Remove this when we fix IL limitations
+            var emitLimitationVisitor = new EmitLimitationVisitor(diagnostics);
+            emitLimitationVisitor.Visit(syntax);
+            
             return diagnostics;
         }
 
@@ -20,3 +27,4 @@ namespace Bicep.Core.Syntax
             => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
     }
 }
+

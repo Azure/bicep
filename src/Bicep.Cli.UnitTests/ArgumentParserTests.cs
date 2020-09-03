@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
+using System.IO;
+using System.Text;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.CommandLine.Arguments;
 using FluentAssertions;
@@ -10,9 +14,40 @@ namespace Bicep.Cli.UnitTests
     public class ArgumentParserTests
     {
         [TestMethod]
+        public void PrintUsage_ShouldPrintUsage()
+        {
+            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintUsage);
+
+            actual.Should().Contain("--help");
+            actual.Should().Contain("--version");
+            actual.Should().Contain("build");
+            actual.Should().Contain("options");
+            actual.Should().Contain("--stdout");
+        }
+
+        [TestMethod]
         public void PrintUsage_ShouldNotThrow()
         {
-            ArgumentParser.PrintUsage();
+            ArgumentParser.PrintUsage(Console.Out);
+        }
+
+        [TestMethod]
+        public void PrintVersion_ShouldPrintVersion()
+        {
+            var actual = TextWriterHelper.InvokeWriterAction(ArgumentParser.PrintVersion);
+            actual.Should().MatchRegex(@"Bicep CLI version \d+\.\d+\.\d+(|-alpha) \([0-9a-f]{10}\)");
+        }
+
+        [TestMethod]
+        public void PrintVersion_ShouldNotThrow()
+        {
+            ArgumentParser.PrintVersion(Console.Out);
+        }
+
+        [TestMethod]
+        public void GetExeName_ShouldReturnExecutableName()
+        {
+            ArgumentParser.GetExeName().Should().Be("bicep");
         }
 
         [TestMethod]
@@ -111,7 +146,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"--version"});
+            var arguments = ArgumentParser.Parse(new[] { "--version" });
 
             arguments.Should().BeOfType<VersionArguments>();
         }
@@ -119,7 +154,23 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpArguments_instance()
         {
-            var arguments = ArgumentParser.Parse(new[] {"--help"});
+            var arguments = ArgumentParser.Parse(new[] { "--help" });
+
+            arguments.Should().BeOfType<HelpArguments>();
+        }
+
+        [TestMethod]
+        public void Version_argument_should_return_VersionShortArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"-v"});
+
+            arguments.Should().BeOfType<VersionArguments>();
+        }
+
+        [TestMethod]
+        public void Help_argument_should_return_HelpShortArguments_instance()
+        {
+            var arguments = ArgumentParser.Parse(new[] {"-h"});
 
             arguments.Should().BeOfType<HelpArguments>();
         }

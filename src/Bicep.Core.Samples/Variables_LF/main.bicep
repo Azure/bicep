@@ -12,9 +12,22 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 
+// verify correct bracket escaping
+var bracketInTheMiddle = 'a[b]'
+var bracketAtBeginning = '[test'
+var enclosingBrackets = '[test]'
+var emptyJsonArray = '[]'
+var interpolatedBrackets = '[${myInt}]'
+var nestedBrackets = '[test[]test2]'
+var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
+var bracketStringInExpression = concat('[', '\'test\'',']')
+
 // booleans
 var myTruth = true
 var myFalsehood = false
+
+var myEmptyObj = { }
+var myEmptyArray = [ ]
 
 // object
 var myObj = {
@@ -63,6 +76,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var namedPropertyIndexer = {
+  foo: 's'
 }['foo']
 
 var intIndexer = [
@@ -85,10 +99,26 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
-// namespaces
-var subscription = 'foo-id'
-var subId = az.subscription().id
-var myRg = true ? sys.concat('1', '-rg') : 'foo-rg'
-var add = 1 + 2
-var myAddition = add == 3 ? sys.concat('answer', concat('is', sys.sub((sys.add(3, 1)), sys.add(0, 1)))) : 'false'
-var myOtherAddition = add == 4 ? 'true' : add == sys.add(sys.add(0, 1), sys.add(0, sys.add(1, 1))) ? sys.concat('answer', concat('is', sys.sub((sys.add(3, 1)), sys.add(0, 1)))) : 'false'
+// previously this was not possible to emit correctly
+var previousEmitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: concat([
+        12 + 3
+      ], [
+        !true
+        'hello'
+      ])
+      d: resourceGroup().location
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
+    }
+  }
+]

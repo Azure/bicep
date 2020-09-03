@@ -28,13 +28,9 @@ var bad = (null) ? !
 var bad = (null)!
 //@[16:17) Error Expected a new line character at this location. |!|
 var bad = (null)[0]
-//@[17:18) Error Cannot use an integer indexer on an expression of type 'null'. An 'array' type is required. |0|
+//@[10:16) Error Cannot index over expression of type 'null'. Arrays or objects are required. |(null)|
 var bad = ()
 //@[11:12) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
-var bad = {}
-//@[11:12) Error Expected a new line character at this location. |}|
-var bad = []
-//@[11:12) Error Expected a new line character at this location. |]|
 var bad = 
 //@[10:10) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
@@ -54,11 +50,11 @@ var not = !'s'
 //@[10:14) Error Cannot apply operator '!' to operand of type 'string'. |!'s'|
 var not = ![
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'array'. |![\r\n]|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'array'. |![\n]|
 ]
 var not = !{
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'object'. |!{\r\n}|
+//@[10:14) Error Cannot apply operator '!' to operand of type 'object'. |!{\n}|
 }
 
 // unary not chaining will be added in the future
@@ -81,11 +77,11 @@ var minus = -'s'
 //@[12:16) Error Cannot apply operator '-' to operand of type 'string'. |-'s'|
 var minus = -[
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'array'. |-[\r\n]|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'array'. |-[\n]|
 ]
 var minus = -{
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'object'. |-{\r\n}|
+//@[12:16) Error Cannot apply operator '-' to operand of type 'object'. |-{\n}|
 }
 
 // multiplicative
@@ -94,7 +90,7 @@ var mod = 's' % true
 var mul = true * null
 //@[10:21) Error Cannot apply operator '*' to operands of type 'bool' and 'null'. |true * null|
 var div = {
-//@[10:21) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\r\n} / [\r\n]|
+//@[10:19) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\n} / [\n]|
 } / [
 ]
 
@@ -108,7 +104,7 @@ var sub = true - false
 var eq = true =~ null
 //@[9:21) Error Cannot apply operator '=~' to operands of type 'bool' and 'null'. |true =~ null|
 var ne = 15 !~ [
-//@[9:19) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\r\n]|
+//@[9:18) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\n]|
 ]
 
 // relational
@@ -117,10 +113,10 @@ var lt = 4 < 's'
 var lteq = null <= 10
 //@[11:21) Error Cannot apply operator '<=' to operands of type 'null' and 'int'. |null <= 10|
 var gt = false>[
-//@[9:19) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\r\n]|
+//@[9:18) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\n]|
 ]
 var gteq = {
-//@[11:24) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\r\n} >= false|
+//@[11:23) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\n} >= false|
 } >= false
 
 // logical
@@ -136,6 +132,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
+//@[14:18) Error The name 'test' does not exist in the current context. |test|
 //@[36:49) Error Cannot apply operator '&&' to operands of type 'bool' and 'null'. |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
@@ -164,12 +161,24 @@ var errorInsideArrayAccess = [
 ][!0]
 //@[2:4) Error Cannot apply operator '!' to operand of type 'int'. |!0|
 var integerIndexOnNonArray = (null)[0]
-//@[36:37) Error Cannot use an integer indexer on an expression of type 'null'. An 'array' type is required. |0|
+//@[29:35) Error Cannot index over expression of type 'null'. Arrays or objects are required. |(null)|
 var stringIndexOnNonObject = 'test'['test']
-//@[36:42) Error Cannot use a string indexer on an expression of type 'string'. An 'object' type is required. |'test'|
+//@[29:35) Error Cannot index over expression of type 'string'. Arrays or objects are required. |'test'|
 var malformedStringIndex = {
 }['test\e']
 //@[7:9) Error The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
+var invalidIndexTypeOverAny = any(true)[true]
+//@[40:44) Error The array index must be of type 'string' or 'int' but the provided index was of type 'bool'. |true|
+var badIndexOverArray = [][null]
+//@[27:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'null'. |null|
+var badIndexOverArray2 = []['s']
+//@[28:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+var badIndexOverObj = {}[true]
+//@[25:29) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'bool'. |true|
+var badIndexOverObj2 = {}[0]
+//@[26:27) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'int'. |0|
+var badExpressionIndexer = {}[base64('a')]
+//@[30:41) Error The type 'object' does not contain any properties. |base64('a')|
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
@@ -206,26 +215,26 @@ var fakeVar = concat(totallyFakeVar, 's')
 
 // bad functions arguments
 var concatNotEnough = concat()
-//@[22:30) Error Cannot resolve function concat(). |concat()|
+//@[28:30) Error Expected as least 1 argument, but got 0. |()|
 var padLeftNotEnough = padLeft('s')
-//@[23:35) Error Cannot resolve function padLeft(string). |padLeft('s')|
+//@[30:35) Error Expected 2 to 3 arguments, but got 1. |('s')|
 var takeTooMany = take([
-//@[18:36) Error Cannot resolve function take(array, int, int, string). |take([\r\n],1,2,'s')|
+//@[22:35) Error Expected 2 arguments, but got 4. |([\n],1,2,'s')|
 ],1,2,'s')
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[23:35) Error Cannot resolve function concat(object). |concat({\r\n})|
+//@[30:33) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'array'.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[36:53) Error Cannot resolve function concat(string, array). |concat('s', [\r\n])|
+//@[48:51) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
-//@[24:36) Error Cannot resolve function indexOf(int, int). |indexOf(1,1)|
+//@[32:34) Error Argument of type 'int' is not assignable to parameter of type 'string'. |1,|
 
 // not enough params
 var test1 = listKeys('abcd')
-//@[12:28) Error Cannot resolve function listKeys(string). |listKeys('abcd')|
+//@[20:28) Error Expected 2 to 3 arguments, but got 1. |('abcd')|
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
@@ -234,3 +243,82 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
 //@[12:16) Error The name 'list' does not exist in the current context. |list|
+
+// cannot compile an expression like this
+var emitLimit = [
+  concat('s')
+  '${4}'
+  {
+    a: {
+      b: base64('s')
+      c: union({
+        a: 12 + 3
+//@[11:17) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |12 + 3|
+      }, {
+        b: !true
+//@[11:16) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |!true|
+        c: 'hello'
+      })
+      d: resourceGroup().location
+      e: union({
+        x: true
+      }, {})
+      f: intersection({
+        q: 's' == 12
+//@[11:20) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |'s' == 12|
+      }, {})
+    }
+  }
+]
+
+// cannot compile an expression like this
+var emitLimit2 = {
+  a: {
+    b: {
+      a: resourceGroup().location
+//@[9:33) Error The expression is inside an object literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
+    } == 2
+    c: concat([
+
+    ], true)
+//@[7:11) Error Argument of type 'bool' is not assignable to parameter of type 'array'. |true|
+  }
+}
+
+var sampleObject = {
+  myInt: 42
+  myStr: 's'
+  myBool: false
+  myNull: null
+  myInner: {
+    anotherStr: 'a'
+    otherArr: [
+      's'
+      'a'
+    ]
+  }
+  myArr: [
+    1
+    2
+    3
+  ]
+}
+
+var badProperty = sampleObject.myFake
+//@[31:37) Error The type 'object' does not contain property 'myFake'. |myFake|
+var badPropertyIndexer = sampleObject['fake']
+//@[38:44) Error The type 'object' does not contain property 'fake'. |'fake'|
+var badType = sampleObject.myStr / 32
+//@[14:37) Error Cannot apply operator '/' to operands of type 'string' and 'int'. |sampleObject.myStr / 32|
+var badInnerProperty = sampleObject.myInner.fake
+//@[44:48) Error The type 'object' does not contain property 'fake'. |fake|
+var badInnerType = sampleObject.myInner.anotherStr + 2
+//@[19:54) Error Cannot apply operator '+' to operands of type 'string' and 'int'. |sampleObject.myInner.anotherStr + 2|
+var badArrayIndexer = sampleObject.myArr['s']
+//@[41:44) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
+//@[57:60) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+var badIndexer = sampleObject.myStr['s']
+//@[17:35) Error Cannot index over expression of type 'string'. Arrays or objects are required. |sampleObject.myStr|
+var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|
