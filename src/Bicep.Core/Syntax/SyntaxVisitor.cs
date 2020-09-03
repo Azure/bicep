@@ -220,6 +220,15 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
+            if (syntax.NamespaceIdentifiers != null)
+            {
+                foreach (var namespaceIdentifier in syntax.NamespaceIdentifiers)
+                {
+                    this.Visit(namespaceIdentifier);
+                    this.VisitToken(syntax.NamespaceIdentifierOperator);
+                }
+            }
+            
             this.Visit(syntax.Name);
             this.VisitToken(syntax.OpenParen);
             this.VisitNodes(syntax.Arguments);

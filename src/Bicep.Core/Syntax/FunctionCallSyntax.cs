@@ -7,16 +7,22 @@ namespace Bicep.Core.Syntax
 {
     public class FunctionCallSyntax : SyntaxBase, IExpressionSyntax, ISymbolReference
     {
-        public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
+        public FunctionCallSyntax(ImmutableArray<IdentifierSyntax>? namespaceIdentifiers, Token? namespaceIdentifierOperator, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
             this.AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
             this.AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
 
+            this.NamespaceIdentifiers = namespaceIdentifiers;
+            this.NamespaceIdentifierOperator = namespaceIdentifierOperator;
             this.Name = name;
             this.OpenParen = openParen;
             this.Arguments = arguments.ToImmutableArray();
             this.CloseParen = closeParen;
         }
+
+        public ImmutableArray<IdentifierSyntax>? NamespaceIdentifiers { get; }
+
+        public Token? NamespaceIdentifierOperator { get; }
 
         public IdentifierSyntax Name { get; }
 

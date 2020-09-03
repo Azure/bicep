@@ -321,6 +321,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
+
+            public ErrorDiagnostic NamespaceNotDefined(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP056",
+                $"The specified namespace '{name}' does not exist. Available namespaces are: '{namespaces.ConcatString(", ")}'.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

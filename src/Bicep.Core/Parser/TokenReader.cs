@@ -30,11 +30,26 @@ namespace Bicep.Core.Parser
             return Tokens[Position];
         }
 
+        public Token? PeekAt(int position)
+        {
+            if (position > Tokens.Length)
+            {
+                return null;
+            }
+
+            return Tokens[position];
+        }
+
         public Token Read()
         {
             var output = Peek();
             this.Position++;
             return output;
+        }
+
+        public void Advance(int positions)
+        {
+            this.Position += positions;
         }
 
         public void StepBack()

@@ -84,3 +84,11 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
+
+// namespaces
+var subscription = 'foo-id'
+var subId = az.subscription().id
+var myRg = true ? sys.concat('1', '-rg') : 'foo-rg'
+var add = 1 + 2
+var myAddition = add == 3 ? sys.concat('answer', concat('is', sys.sub((sys.add(3, 1)), sys.add(0, 1)))) : 'false'
+var myOtherAddition = add == 4 ? 'true' : add == sys.add(sys.add(0, 1), sys.add(0, sys.add(1, 1))) ? sys.concat('answer', concat('is', sys.sub((sys.add(3, 1)), sys.add(0, 1)))) : 'false'

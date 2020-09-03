@@ -80,7 +80,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, syntax.NamespaceIdentifiers, syntax.NamespaceIdentifierOperator?.Text);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -108,30 +108,53 @@ namespace Bicep.Core.SemanticModel
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span)
+        private Symbol LookupSymbolByName(string name, TextSpan span, ImmutableArray<IdentifierSyntax>? namespaceIdentifiers = null, string? namespaceIdentifierOperator = null)
         {
-            if (this.declarations.TryGetValue(name, out var localSymbol))
+            if (namespaceIdentifiers == null && this.declarations.TryGetValue(name, out var localSymbol))
             {
                 // we found the symbol in the local namespace
                 return ValidateFunctionFlags(localSymbol, span);
             }
 
-            // symbol does not exist in the local namespace
-            // try it in the imported namespaces
-
-            // match in one of the namespaces
-            var foundSymbols = this.namespaces
-                .Select(ns => ns.TryGetFunctionSymbol(name))
-                .Where(symbol => symbol != null)
-                .ToList();
-
-            if (foundSymbols.Count() > 1)
+            FunctionSymbol? foundSymbol = null;
+            if (namespaceIdentifiers?.Count() > 0)
             {
-                // ambiguous symbol
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
-            }
+                var namespaceIdentifier = string.Join(
+                    separator: namespaceIdentifierOperator,
+                    values: namespaceIdentifiers.Value.Select(ns => ns.IdentifierName));
 
-            var foundSymbol = foundSymbols.FirstOrDefault();
+                var foundNamespace = this.namespaces
+                    .Where(ns => ns.Name.Equals(namespaceIdentifier, System.StringComparison.OrdinalIgnoreCase))
+                    .FirstOrDefault();
+
+                if (foundNamespace == null)
+                {
+                    // namespace does not exist
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).NamespaceNotDefined(namespaceIdentifier, this.namespaces.Select(ns => ns.Name)));
+                }
+
+                foundSymbol = foundNamespace!.TryGetFunctionSymbol(name);
+            }
+            else
+            {
+                // symbol does not exist in the local namespace
+                // try it in the imported namespaces
+
+                // match in one of the namespaces
+                var foundSymbols = this.namespaces
+                    .Select(ns => ns.TryGetFunctionSymbol(name))
+                    .Where(symbol => symbol != null)
+                    .ToList();
+
+                if (foundSymbols.Count() > 1)
+                {
+                    // ambiguous symbol
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
+                }
+
+                foundSymbol = foundSymbols.FirstOrDefault();
+            }
+            
             if (foundSymbol == null)
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));

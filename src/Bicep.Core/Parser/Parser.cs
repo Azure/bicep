@@ -295,6 +295,8 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase FunctionCallOrVariableAccess()
         {
+            var (namespaceIdentifiers, namespaceIdentifierOperator) = this.ResolveNamespace();
+
             var identifier = this.Identifier(b => b.ExpectedFunctionName());
 
             if (this.Check(TokenType.LeftParen) == false)
@@ -311,7 +313,14 @@ namespace Bicep.Core.Parser
             {
                 // end of a parameter-less function call
                 var closeParen = this.reader.Read();
-                return new FunctionCallSyntax(identifier, openParen, ImmutableArray<FunctionArgumentSyntax>.Empty, closeParen);
+
+                return new FunctionCallSyntax(
+                    namespaceIdentifiers: namespaceIdentifiers,
+                    namespaceIdentifierOperator: namespaceIdentifierOperator, 
+                    name: identifier,
+                    openParen: openParen, 
+                    arguments: ImmutableArray<FunctionArgumentSyntax>.Empty,
+                    closeParen: closeParen);
             }
 
             while (true)
@@ -325,7 +334,13 @@ namespace Bicep.Core.Parser
                     // return the accumulated arguments
                     var closeParen = this.reader.Read();
                     var argumentNodes = arguments.Select(a => new FunctionArgumentSyntax(a.expression, a.comma));
-                    return new FunctionCallSyntax(identifier, openParen, argumentNodes, closeParen);
+                    return new FunctionCallSyntax(
+                        namespaceIdentifiers: namespaceIdentifiers,
+                        namespaceIdentifierOperator: namespaceIdentifierOperator,
+                        name: identifier,
+                        openParen: openParen,
+                        arguments: argumentNodes,
+                        closeParen: closeParen);
                 }
 
                 var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
@@ -335,6 +350,50 @@ namespace Bicep.Core.Parser
                 lastArgument.comma = comma;
                 arguments[arguments.Count - 1] = lastArgument;
             }
+        }
+
+        private (ImmutableArray<IdentifierSyntax>?, Token?) ResolveNamespace(TokenType namespaceOperator = TokenType.Dot)
+        {
+            List<IdentifierSyntax>? namespaceIdentifiers = null;
+            Token? tokenOperator = null;
+            int currentPeekPosition = reader.Position;
+            int initialPeekPosition = reader.Position;
+
+            // look ahead without consuming any tokens yet
+            // namespace and functions are declared in the following form:
+            // namespace.identifier() or namespace_p1.namespace_p2.namespace_pn.identifier()
+
+            while (true)
+            {
+                Token? currentToken = reader.PeekAt(currentPeekPosition);
+                Token? nextToken = reader.PeekAt(currentPeekPosition + 1);
+
+                if (currentToken?.Type == TokenType.Identifier &&
+                    nextToken?.Type == namespaceOperator)
+                {
+                    namespaceIdentifiers ??= new List<IdentifierSyntax>();
+                    tokenOperator ??= nextToken;
+
+                    namespaceIdentifiers
+                        .Add(new IdentifierSyntax(currentToken));
+
+                    currentPeekPosition += 2;
+                    continue;
+                }
+                else if (currentToken?.Type == TokenType.Identifier &&
+                         nextToken?.Type == TokenType.LeftParen)
+                {
+                    // function found, advance reader to function identifier
+                    reader.Advance(currentPeekPosition - initialPeekPosition);
+                    break;
+                }
+                else
+                {
+                    return (null, null);
+                }
+            }
+
+            return (namespaceIdentifiers?.ToImmutableArray(), tokenOperator);
         }
 
         private ImmutableArray<Token> NewLines()

@@ -58,7 +58,13 @@
     "functionOnIndexer2": "[concat(json('[]')[0], 's')]",
     "functionOnIndexer3": "[concat(json('[]')[0], 's')]",
     "singleQuote": "'",
-    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]"
+    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
+    "subscription": "foo-id",
+    "subId": "[subscription().id]",
+    "myRg": "[if(json('true'), concat('1', '-rg'), 'foo-rg')]",
+    "add": "[add(1, 2)]",
+    "myAddition": "[if(equals(variables('add'), 3), concat('answer', concat('is', sub(add(3, 1), add(0, 1)))), 'false')]",
+    "myOtherAddition": "[if(equals(variables('add'), 4), 'true', if(equals(variables('add'), add(add(0, 1), add(0, add(1, 1)))), concat('answer', concat('is', sub(add(3, 1), add(0, 1)))), 'false'))]"
   },
   "resources": [],
   "outputs": {}
