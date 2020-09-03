@@ -40,6 +40,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDocumentHighlightHandler>()
                     .WithHandler<BicepRenameHandler>()
                     .WithHandler<BicepHoverHandler>()
+                    .WithHandler<BicepCompletionHandler>()
 #pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
 #pragma warning restore 0612
