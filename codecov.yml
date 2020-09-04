@@ -13,6 +13,8 @@ coverage:
         threshold: 1%
         flags:
           - dotnet
+        paths:
+          - src
 
 comment:
   layout: "reach,diff,flags,tree"
