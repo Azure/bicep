@@ -185,7 +185,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
 var zones = length(vm.zones) > 0 ? vm.zones : []
 
 // to repro error - replace pubIp with any other name to break the cyclical dependency
-resource pubIp 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
+resource pip 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
   name: '${vm.name}-pip'
   zones: vm.properties.network.enabledPublicIpZone ? zones : null
   location: location
