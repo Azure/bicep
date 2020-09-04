@@ -1,3 +1,5 @@
+// https://github.com/Azure/azure-quickstart-templates/blob/master/101-vm-simple-zones/azuredeploy.json
+
 // The name of your Virtual Machine.
 param vmName string = 'linuxvm'
 
