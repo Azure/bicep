@@ -153,12 +153,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic OutputTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP026",
-                $"The output expects a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
+                $"The output expects a value of type {expectedType} but the provided value is of type {actualType}.");
 
             public ErrorDiagnostic ParameterTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP027",
-                $"The parameter expects a default value of type '{expectedType}' but provided value is of type '{actualType}'.");
+                $"The parameter expects a default value of type {expectedType} but provided value is of type {actualType}.");
 
             public ErrorDiagnostic IdentifierMultipleDeclarations(object identifier) => new ErrorDiagnostic(
                 TextSpan,
@@ -188,12 +188,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedValueTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP033",
-                $"Expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
+                $"Expected a value of type {expectedType} but the provided value is of type {actualType}.");
 
             public ErrorDiagnostic ArrayTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP034",
-                $"The enclosing array expected an item of type '{expectedType}', but the provided item was of type '{actualType}'.");
+                $"The enclosing array expected an item of type {expectedType}, but the provided item was of type {actualType}.");
 
             public ErrorDiagnostic MissingRequiredProperties(object properties) => new ErrorDiagnostic(
                 TextSpan,
@@ -203,12 +203,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic PropertyTypeMismatch(string property, TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP036",
-                $"The property '{property}' expected a value of type '{expectedType}' but the provided value is of type '{actualType}'.");
+                $"The property '{property}' expected a value of type {expectedType} but the provided value is of type {actualType}.");
 
             public ErrorDiagnostic DisallowedProperty(object property, object type) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP037",
-                $"The property '{property}' is not allowed on objects of type '{type}'.");
+                $"The property '{property}' is not allowed on objects of type {type}.");
 
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
@@ -218,17 +218,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnaryOperatorInvalidType(object operatorName, object type) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP044",
-                $"Cannot apply operator '{operatorName}' to operand of type '{type}'.");
+                $"Cannot apply operator '{operatorName}' to operand of type {type}.");
 
             public ErrorDiagnostic BinaryOperatorInvalidType(object operatorName, object type1, object type2) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP045",
-                $"Cannot apply operator '{operatorName}' to operands of type '{type1}' and '{type2}'.");
+                $"Cannot apply operator '{operatorName}' to operands of type {type1} and {type2}.");
 
             public ErrorDiagnostic ValueTypeMismatch(object type) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP046",
-                $"Expected a value of type '{type}'.");
+                $"Expected a value of type {type}.");
 
             public ErrorDiagnostic ResourceTypeInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,
@@ -247,7 +247,7 @@ namespace Bicep.Core.Diagnostics
                     messageBuilder
                         .Append("\n")
                         .Append($"  Overload {i + 1} of {overloadCount}, '{overloadSignatures[i]}', gave the following error:\n")
-                        .Append($"    Argument of type '{argumentType}' is not assignable to parameter of type '{parameterTypes[i]}'.");
+                        .Append($"    Argument of type {argumentType} is not assignable to parameter of type {parameterTypes[i]}.");
                 }
 
                 var message = messageBuilder.ToString();
@@ -261,22 +261,22 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP049",
-                $"The array index must be of type '{LanguageConstants.String}' or '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
+                $"The array index must be of type {LanguageConstants.String} or {LanguageConstants.Int} but the provided index was of type {wrongType}.");
 
             public ErrorDiagnostic UnknownProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP053",
-                $"The type '{type}' does not contain property '{badProperty}'.");
+                $"The type {type} does not contain property '{badProperty}'.");
 
             public ErrorDiagnostic NoPropertiesAllowed(TypeSymbol type) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP054",
-                $"The type '{type}' does not contain any properties.");
+                $"The type {type} does not contain any properties.");
 
             public ErrorDiagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP055",
-                $"Cannot access properties of type '{wrongType}'. An '{LanguageConstants.Object}' type is required.");
+                $"Cannot access properties of type {wrongType}. An {LanguageConstants.Object} type is required.");
 
             public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
@@ -346,7 +346,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP070",
-                $"Argument of type '{argumentType}' is not assignable to parameter of type '{parameterType}'.");
+                $"Argument of type {argumentType} is not assignable to parameter of type {parameterType}.");
 
             public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
             {

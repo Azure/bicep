@@ -33,11 +33,11 @@ var bar = foo()
 //@[10:13) Error The name 'foo' does not exist in the current context. |foo|
 var x = 2 + !3
 //@[4:5) Error Identifier 'x' is declared multiple times. Remove or rename the duplicates. |x|
-//@[12:14) Error Cannot apply operator '!' to operand of type 'int'. |!3|
+//@[12:14) Error Cannot apply operator '!' to operand of type int. |!3|
 var y = false ? true + 1 : !4
 //@[4:5) Error Identifier 'y' is declared multiple times. Remove or rename the duplicates. |y|
-//@[16:24) Error Cannot apply operator '+' to operands of type 'bool' and 'int'. |true + 1|
-//@[27:29) Error Cannot apply operator '!' to operand of type 'int'. |!4|
+//@[16:24) Error Cannot apply operator '+' to operands of type bool and int. |true + 1|
+//@[27:29) Error Cannot apply operator '!' to operand of type int. |!4|
 
 // test for array item recovery
 var x = [
@@ -46,7 +46,7 @@ var x = [
   =
 //@[2:3) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |=|
   !null
-//@[2:7) Error Cannot apply operator '!' to operand of type 'null'. |!null|
+//@[2:7) Error Cannot apply operator '!' to operand of type null. |!null|
 ]
 
 // test for object property recovery
@@ -55,7 +55,7 @@ var y = {
   =
 //@[2:3) Error Expected a property name at this location. |=|
   foo: !2
-//@[7:9) Error Cannot apply operator '!' to operand of type 'int'. |!2|
+//@[7:9) Error Cannot apply operator '!' to operand of type int. |!2|
 }
 
 // utcNow and newGuid used outside a param default value

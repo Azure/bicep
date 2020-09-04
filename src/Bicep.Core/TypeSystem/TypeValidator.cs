@@ -56,6 +56,18 @@ namespace Bicep.Core.TypeSystem
                 case ResourceRefType _:
                     return sourceType.TypeKind == TypeKind.Resource;
 
+                case StringLiteralType _ when sourceType is StringLiteralType:
+                    // The name *is* the escaped string value, so we must have an exact match.
+                    return targetType.Name == sourceType.Name;
+
+                case PrimitiveType _ when sourceType is StringLiteralType:
+                    // string literals can be assigned to strings
+                    return targetType.Name == LanguageConstants.String.Name;
+
+                case StringLiteralType _ when sourceType is PrimitiveType:
+                    // string literals can be assigned from strings
+                    return sourceType.Name == LanguageConstants.String.Name;
+
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
                     // compare by type name
@@ -224,7 +236,7 @@ namespace Bicep.Core.TypeSystem
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
-            if (targetType.AdditionalPropertiesType == null)
+            if (targetType.AdditionalProperties == null)
             {
                 // extra properties are not allowed by the type
                 result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
@@ -237,7 +249,7 @@ namespace Bicep.Core.TypeSystem
                     bool skipConstantCheckForProperty = skipConstantCheck;
 
                     // is the property marked as requiring compile-time constants and has the parent already validated this?
-                    if (skipConstantCheckForProperty == false && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.Constant))
+                    if (skipConstantCheckForProperty == false && targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.Constant))
                     {
                         // validate that values are compile-time constants
                         result = result.Concat(GetCompileTimeConstantViolation(extraProperty.Value));
@@ -249,7 +261,7 @@ namespace Bicep.Core.TypeSystem
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         extraProperty.Value,
-                        targetType.AdditionalPropertiesType,
+                        targetType.AdditionalProperties.Type,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);

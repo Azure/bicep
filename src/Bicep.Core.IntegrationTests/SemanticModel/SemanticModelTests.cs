@@ -69,7 +69,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             {
                 (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
 
-                return $"{symbol.Kind} {symbol.Name}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
+                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);

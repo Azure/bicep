@@ -9,6 +9,11 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public class ObjectType : TypeSymbol
     {
+        private static readonly TypeProperty DefaultAdditionalProperties = new TypeProperty(
+            "additionalProperties",
+            LanguageConstants.Any,
+            TypePropertyFlags.None);
+
         public ObjectType(string name) : base(name)
         {
         }
@@ -17,8 +22,6 @@ namespace Bicep.Core.TypeSystem
 
         public virtual ImmutableDictionary<string, TypeProperty> Properties => ImmutableDictionary<string, TypeProperty>.Empty;
 
-        public virtual TypeSymbol? AdditionalPropertiesType => LanguageConstants.Any;
-
-        public virtual TypePropertyFlags AdditionalPropertiesFlags => TypePropertyFlags.None;
+        public virtual TypeProperty? AdditionalProperties => DefaultAdditionalProperties;
     }
 }
