@@ -38,7 +38,14 @@ bicep --help
 ```
 
 ### Windows
-#### Installing (PowerShell)
+
+#### Installer
+* Download the [latest Windows installer](https://github.com/Azure/bicep/releases/latest/download/bicep-setup-win-x64.exe).
+* Run the downloaded executable. The installer does not require administrative privileges.
+* Step through the installation wizard.
+* After the installation, Bicep CLI will be added to your user PATH. If you have any command shell windows open (`cmd`, `PowerShell`, or similar), you will need to close and reopen them for the PATH change to take effect.
+
+#### PowerShell
 ```powershell
 # Create the install folder
 $installPath = "$env:USERPROFILE\.bicep"
