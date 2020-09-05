@@ -306,7 +306,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find a part of the path '.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
@@ -321,7 +321,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find a part of the path '.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
