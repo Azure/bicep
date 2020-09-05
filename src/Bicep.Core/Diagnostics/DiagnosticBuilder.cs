@@ -93,7 +93,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedParameterType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP014",
-                $"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
+                $"Expected a parameter type at this location. Please specify one of the following types: {LanguageConstants.DeclarationTypesString}.");
 
             public ErrorDiagnostic ExpectedVariableIdentifier() => new ErrorDiagnostic(
                 TextSpan,
@@ -173,12 +173,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidOutputType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP030",
-                $"The output type is not valid. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
+                $"The output type is not valid. Please specify one of the following types: {LanguageConstants.DeclarationTypesString}.");
 
             public ErrorDiagnostic InvalidParameterType() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP031",
-                $"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.PrimitiveTypesString}.");
+                $"The parameter type is not valid. Please specify one of the following types: {LanguageConstants.DeclarationTypesString}.");
 
             public ErrorDiagnostic CompileTimeConstantRequired() => new ErrorDiagnostic(
                 TextSpan,
