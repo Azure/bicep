@@ -111,7 +111,8 @@ namespace Bicep.Cli
 
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
-            var result = emitter.Emit(outputPath);
+            using var outputStream = CreateFileStream(outputPath);
+            var result = emitter.Emit(outputStream);
 
             foreach (var diagnostic in result.Diagnostics)
             {
@@ -160,6 +161,18 @@ namespace Bicep.Cli
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
+                throw new BicepException(exception.Message, exception);
+            }
+        }
+
+        private static FileStream CreateFileStream(string path)
+        {
+            try
+            {
+                return new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (Exception exception)
+            {
                 throw new BicepException(exception.Message, exception);
             }
         }

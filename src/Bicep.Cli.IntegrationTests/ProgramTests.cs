@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
+using Bicep.Cli.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -333,6 +334,28 @@ namespace Bicep.Cli.IntegrationTests
 
             output.Should().BeEmpty();
             error.Should().MatchRegex(expectedErrorRegex);
+        }
+
+        [TestMethod]
+        public void LockedOutputFileShouldProduceExpectedError()
+        {
+            var inputFile = FileHelper.SaveResultFile(this.TestContext!, "Empty.bicep", DataSets.Empty.Bicep);
+            var outputFile = PathHelper.GetDefaultOutputPath(inputFile);
+
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            {
+                // keep the output stream open while we attempt to write to it
+                // this should force an access denied error
+                var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+                {
+                    var p = new Program(@out, err);
+                    p.Run(new[] { "build", inputFile }).Should().Be(1);
+                });
+
+                output.Should().BeEmpty();
+                error.Should().Contain("Empty.json");
+            }
         }
 
         private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)
