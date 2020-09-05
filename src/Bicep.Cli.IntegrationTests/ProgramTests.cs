@@ -305,6 +305,36 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().ContainAll(diagnosticsFromAllFiles);
         }
 
+        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find a part of the path '.+WrongDir\\Fake.bicep'")]
+        [DataTestMethod]
+        public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
+        {
+            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = new Program(@out, err);
+                p.Run(new[] {"build", badPath}).Should().Be(1);
+            });
+
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(expectedErrorRegex);
+        }
+
+        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find a part of the path '.+WrongDir\\Fake.bicep'")]
+        [DataTestMethod]
+        public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
+        {
+            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = new Program(@out, err);
+                p.Run(new[] { "build", "--stdout", badPath }).Should().Be(1);
+            });
+
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(expectedErrorRegex);
+        }
+
         private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)
         {
             var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
