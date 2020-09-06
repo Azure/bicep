@@ -1,12 +1,10 @@
 {
-  // Defines version of MSBuild project SDKs to use
-  // https://docs.microsoft.com/en-us/visualstudio/msbuild/how-to-use-project-sdk?view=vs-2019#how-project-sdks-are-resolved
   "msbuild-sdks": {
     "Microsoft.Build.NoTargets": "2.0.1"
   },
   "sdk": {
-    "comment": "Need to use a particular version to ensure consistency across machines no matter what SDK versions they have installed.",
+    "allowPrerelease": false,
     "version": "3.1.301",
-    "RollForward": "latestFeature"
+    "rollForward": "latestFeature"
   }
 }
