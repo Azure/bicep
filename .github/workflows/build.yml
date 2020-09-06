@@ -248,3 +248,13 @@ jobs:
           asset_path: ./vscode-bicep.vsix/vscode-bicep.vsix
           asset_name: vscode-bicep.vsix
           asset_content_type: binary/octet-stream
+      
+      - name: Upload bicep-setup-win-x64.exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./bicep-setup-win-x64/bicep-setup-win-x64.exe
+          asset_name: bicep-setup-win-x64.exe
+          asset_content_type: binary/octet-stream
