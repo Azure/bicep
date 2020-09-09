@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)/CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
