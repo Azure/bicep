@@ -208,12 +208,19 @@ namespace Bicep.Core.UnitTests.Parser
         }
 
         [DataTestMethod]
-        [DataRow("a.b","(a.b)")]
+        [DataRow("a.b.c","(a.b)")]
         [DataRow("null.fail", "(null.fail)")]
         [DataRow("foo().bar","(foo().bar)")]
         public void PropertyAccessShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(PropertyAccessSyntax));
+        }
+
+        [DataTestMethod]
+        [DataRow("a.b.c.foo()", "((a.b).c)foo()")]
+        public void InstanceFunctionCallShouldParseSuccessfully(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(InstanceFunctionCallSyntax));
         }
 
         [DataTestMethod]

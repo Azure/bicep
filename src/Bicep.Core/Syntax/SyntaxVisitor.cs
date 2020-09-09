@@ -232,6 +232,15 @@ namespace Bicep.Core.Syntax
             this.VisitToken(syntax.CloseParen);
         }
 
+        public virtual void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Name);
+            this.VisitToken(syntax.OpenParen);
+            this.VisitNodes(syntax.Arguments);
+            this.VisitToken(syntax.CloseParen);
+        }
+
         public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             this.Visit(syntax.Expression);
