@@ -9,12 +9,14 @@ namespace Bicep.Core.Syntax
 {
     public class InstanceFunctionCallSyntax : SyntaxBase, IExpressionSyntax, ISymbolReference
     {
-        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
+        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
             AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
             AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertTokenType(dot, nameof(dot), TokenType.Dot);
 
             this.BaseExpression = baseExpression;
+            this.Dot = dot;
             this.Name = name;
             this.OpenParen = openParen;
             this.Arguments = arguments.ToImmutableArray();
@@ -22,6 +24,8 @@ namespace Bicep.Core.Syntax
         }
 
         public SyntaxBase BaseExpression { get; }
+
+        public Token Dot { get; }
 
         public IdentifierSyntax Name { get; }
 

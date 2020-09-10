@@ -62,7 +62,8 @@ unaryOperator -> "!" | "-" | "+"
 memberExpression ->
   primaryExpression |
   memberExpression "[" expression "]" |
-  memberExpression "." IDENTIFIER(property)
+  memberExpression "." IDENTIFIER(property) |
+  memberExpression "." functionCall
 
 primaryExpression ->
   functionCall |

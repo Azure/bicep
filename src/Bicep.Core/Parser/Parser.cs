@@ -240,14 +240,24 @@ namespace Bicep.Core.Parser
                 {
                     // dot operator
                     Token dot = this.reader.Read();
+                    IdentifierSyntax identifier = this.Identifier(b => b.ExpectedFunctionOrPropertyName());
 
-                    if (IsFunctionCall())
+                    if (Check(TokenType.LeftParen))
                     {
-                        current = GetInstanceFunctionCallSyntax(current);
+                        var functionCall = FunctionCallAccess(identifier);
+
+                        // gets instance function call
+                        current = new InstanceFunctionCallSyntax(
+                            current,
+                            dot,
+                            functionCall.Identifier,
+                            functionCall.OpenParen,
+                            functionCall.ArgumentNodes,
+                            functionCall.CloseParen);
                     }
                     else
                     {
-                        current = GetPropertyAccessSyntax(current, dot);
+                        current = new PropertyAccessSyntax(current, dot, identifier);
                     }
 
                     continue;
@@ -303,96 +313,35 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase FunctionCallOrVariableAccess()
         {
-            if (IsFunctionCall())
+            var identifier = this.Identifier(b => b.ExpectedVariableOrFunctionName());
+
+            if (Check(TokenType.LeftParen))
             {
-                return GetFunctionCallSyntax();
+                var functionCall = FunctionCallAccess(identifier);
+
+                return new FunctionCallSyntax(
+                    functionCall.Identifier,
+                    functionCall.OpenParen,
+                    functionCall.ArgumentNodes,
+                    functionCall.CloseParen);
             }
-            // assumes variable call
-            return GetVariableAccessSyntax();
-        }
-
-        /// <summary>
-        /// Method that peeks current and next token, if current token is an identifier and the next is 
-        /// is left parenthesis then assumes a function call
-        /// </summary>
-        private bool IsFunctionCall()
-        {
-            if (reader.Peek().Type == TokenType.Identifier &&
-               reader.Position + 1 <= reader.Count - 1 &&
-               reader.AtPosition(reader.Position + 1).Type == TokenType.LeftParen)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Method that consumes current identifier token and returns VariableAccessSyntax
-        /// </summary>
-        private SyntaxBase GetVariableAccessSyntax()
-        {
-            // TODO: This identifier could be variable, parameter or output, consider a combined error message?
-            var identifier = this.Identifier(b => b.ExpectedVariableIdentifier());
-
-            // just a reference to a variable, parameter, or output
+            // returns variable access
             return new VariableAccessSyntax(identifier);
         }
 
         /// <summary>
-        /// Method that consumes current identifier token and returns PropertyAccessSyntax
-        /// </summary>
-        private SyntaxBase GetPropertyAccessSyntax(SyntaxBase baseExpression, Token dot)
-        {
-            var propertyName = this.Identifier(b => b.ExpectedPropertyIdentifier());
-            return new PropertyAccessSyntax(baseExpression, dot, propertyName);
-        }
-
-        /// <summary>
-        /// Returns a FunctionCallSyntax including all its arguments if they exist
-        /// </summary>
-        private SyntaxBase GetFunctionCallSyntax()
-        {
-            var functionCall = GetFunctionCall();
-
-            return new FunctionCallSyntax(
-                functionCall.Identifier,
-                functionCall.OpenParen,
-                functionCall.ArgumentNodes,
-                functionCall.CloseParen);
-        }
-
-        /// <summary>
-        /// Returns a FunctionCallSyntax including all its arguments if they exist
-        /// </summary>
-        private SyntaxBase GetInstanceFunctionCallSyntax(SyntaxBase baseExpression)
-        {
-            var functionCall = GetFunctionCall();
-
-            return new InstanceFunctionCallSyntax(
-                baseExpression,
-                functionCall.Identifier,
-                functionCall.OpenParen,
-                functionCall.ArgumentNodes,
-                functionCall.CloseParen);
-        }
-
-
-        /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) GetFunctionCall()
+        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName)
         {
-            var identifier = this.Identifier(b => b.ExpectedFunctionName());
+           var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
-            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
+            var argumentNodes = FunctionCallArguments();
 
-            var argumentNodes = GetCallArguments();
-
-            // consuming right paren, GetCallArguments() validated that it exists
+            // consuming right paren, FunctionCallArguments() already validated that it exists
             var closeParen = this.reader.Read();
 
-            return (identifier, openParen, argumentNodes, closeParen);
+            return (functionName, openParen, argumentNodes, closeParen);
         }
 
         /// <summary>
@@ -400,7 +349,7 @@ namespace Bicep.Core.Parser
         /// This method stops when a right paren is found without consuming it, a caller must
         /// consume the right paren token.
         /// </summary>
-        private IEnumerable<FunctionArgumentSyntax> GetCallArguments()
+        private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments()
         {
             if (this.Check(TokenType.RightParen))
             {

@@ -211,13 +211,15 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("a.b","(a.b)")]
         [DataRow("null.fail", "(null.fail)")]
         [DataRow("foo().bar","(foo().bar)")]
+        [DataRow("a.b.c.foo().bar", "(((a.b).c).foo().bar)")]
         public void PropertyAccessShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(PropertyAccessSyntax));
         }
 
         [DataTestMethod]
-        [DataRow("a.b.c.foo()", "((a.b).c)foo()")]
+        [DataRow("a.b.c.foo()", "((a.b).c).foo()")]
+        [DataRow("a.b.c.d.e.f.g.foo()", "((((((a.b).c).d).e).f).g).foo()")]
         public void InstanceFunctionCallShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(InstanceFunctionCallSyntax));
@@ -245,6 +247,7 @@ namespace Bicep.Core.UnitTests.Parser
         [DataRow("a[12]", "(a[12])")]
         [DataRow("null[foo()]", "(null[foo()])")]
         [DataRow("foo()[bar()]", "(foo()[bar()])")]
+        [DataRow("a.b.c.foo()[bar()]", "(((a.b).c).foo()[bar()])")]
         public void ArrayAccessShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(ArrayAccessSyntax));
