@@ -64,9 +64,14 @@ namespace Bicep.Cli
                     // return non-zero exit code on errors
                     return logger.HasLoggedErrors ? 1 : 0;
                 }
-                catch (CommandLineException cliException)
+                catch (CommandLineException exception)
                 {
-                    this.errorWriter.WriteLine(cliException.Message);
+                    this.errorWriter.WriteLine(exception.Message);
+                    return 1;
+                }
+                catch (BicepException exception)
+                {
+                    this.errorWriter.WriteLine(exception.Message);
                     return 1;
                 }
             }
@@ -99,14 +104,15 @@ namespace Bicep.Cli
 
         private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            string text = File.ReadAllText(bicepPath);
+            string text = ReadFile(bicepPath);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
 
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
-            var result = emitter.Emit(outputPath);
+            using var outputStream = CreateFileStream(outputPath);
+            var result = emitter.Emit(outputStream);
 
             foreach (var diagnostic in result.Diagnostics)
             {
@@ -126,7 +132,7 @@ namespace Bicep.Cli
             }
             foreach(var bicepPath in bicepPaths)
             {
-                string text = File.ReadAllText(bicepPath);
+                string text = ReadFile(bicepPath);
                 var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
                 var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
@@ -142,6 +148,32 @@ namespace Bicep.Cli
             }
             if (bicepPaths.Length > 1) {
                 writer.WriteEndArray();
+            }
+        }
+
+        private static string ReadFile(string path)
+        {
+            try
+            {
+                return File.ReadAllText(path);
+            }
+            catch (Exception exception)
+            {
+                // I/O classes typically throw a large variety of exceptions
+                // instead of handling each one separately let's just trust the message we get
+                throw new BicepException(exception.Message, exception);
+            }
+        }
+
+        private static FileStream CreateFileStream(string path)
+        {
+            try
+            {
+                return new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException(exception.Message, exception);
             }
         }
     }
