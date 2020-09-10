@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
@@ -400,6 +401,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP077",
                 $"The property '{badProperty}' on type '{type}' is write-only. Write-only properties cannot be accessed.");
+
+            public ErrorDiagnostic MissingDiscriminator(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP078",
+                $"Property '{discriminatorKey}' must be supplied. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
+
+            public ErrorDiagnostic ExpectedDiscriminatorStringLiteral(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP079",
+                $"Property '{discriminatorKey}' must be supplied as a string literal. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
+
+            public ErrorDiagnostic FailedToMatchDiscriminator(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP080",
+                $"Unable to match a known type for property '{discriminatorKey}'. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

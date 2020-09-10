@@ -662,6 +662,86 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property 'extra' is not allowed on objects of type ParameterModifier_array.");
         }
 
+        [TestMethod]
+        public void DiscriminatedObjectType_raises_appropriate_diagnostics_for_matches()
+        {
+            var discriminatedType = new DiscriminatedObjectType(
+                "discObj",
+                "myDiscriminator",
+                new []
+                {
+                    new NamedObjectType("typeA", new []
+                    { 
+                        new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
+                        new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
+                    }, null),
+                    new NamedObjectType("typeB", new []
+                    { 
+                        new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
+                        new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
+                    }, null),
+                });
+
+            // no discriminator field supplied
+            var obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("Property 'myDiscriminator' must be supplied. Valid key types are: 'valA', 'valB'.");
+                });
+
+            // incorrect type specified for the discriminator field
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
+                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("Property 'myDiscriminator' must be supplied as a string literal. Valid key types are: 'valA', 'valB'.");
+                });
+
+            // discriminator value that matches neither option supplied
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("Unable to match a known type for property 'myDiscriminator'. Valid key types are: 'valA', 'valB'.");
+                });
+
+            // missing required property for the 'valB' branch
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("The specified object is missing the following required properties: fieldB.");
+                });
+
+            // supplied the required property for the 'valB' branch
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
+                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().BeEmpty();
+        }
+
         public static string GetDisplayName(MethodInfo method, object[] row)
         {
             row.Length.Should().Be(2);
