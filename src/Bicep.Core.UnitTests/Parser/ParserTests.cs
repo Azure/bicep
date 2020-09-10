@@ -208,7 +208,7 @@ namespace Bicep.Core.UnitTests.Parser
         }
 
         [DataTestMethod]
-        [DataRow("a.b.c","(a.b)")]
+        [DataRow("a.b","(a.b)")]
         [DataRow("null.fail", "(null.fail)")]
         [DataRow("foo().bar","(foo().bar)")]
         public void PropertyAccessShouldParseSuccessfully(string text, string expected)
