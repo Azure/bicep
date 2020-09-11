@@ -1863,7 +1863,7 @@ var badIndexer = sampleObject.myStr['s']
 //@[39:40)   RightSquare |]|
 //@[40:41)  NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[0:53) VariableDeclarationSyntax
+//@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |badInnerArray|
@@ -1884,4 +1884,32 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[49:52)   StringSyntax
 //@[49:52)    StringComplete |'s'|
 //@[52:53)   RightSquare |]|
-//@[53:53) EndOfFile ||
+//@[53:54)  NewLine |\n|
+var foo = a.b.c.bar().baz
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |foo|
+//@[8:9)  Assignment |=|
+//@[16:25)  PropertyAccessSyntax
+//@[16:21)   InstanceFunctionCallSyntax
+//@[10:15)    PropertyAccessSyntax
+//@[10:13)     PropertyAccessSyntax
+//@[10:11)      VariableAccessSyntax
+//@[10:11)       IdentifierSyntax
+//@[10:11)        Identifier |a|
+//@[11:12)      Dot |.|
+//@[12:13)      IdentifierSyntax
+//@[12:13)       Identifier |b|
+//@[13:14)     Dot |.|
+//@[14:15)     IdentifierSyntax
+//@[14:15)      Identifier |c|
+//@[15:16)    Dot |.|
+//@[16:19)    IdentifierSyntax
+//@[16:19)     Identifier |bar|
+//@[19:20)    LeftParen |(|
+//@[20:21)    RightParen |)|
+//@[21:22)   Dot |.|
+//@[22:25)   IdentifierSyntax
+//@[22:25)    Identifier |baz|
+//@[25:25) EndOfFile ||

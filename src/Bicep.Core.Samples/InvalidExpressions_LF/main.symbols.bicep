@@ -278,4 +278,6 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 var badIndexer = sampleObject.myStr['s']
 //@[4:14) Variable badIndexer. Declaration start char: 0, length: 41
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[4:17) Variable badInnerArray. Declaration start char: 0, length: 53
+//@[4:17) Variable badInnerArray. Declaration start char: 0, length: 54
+var foo = a.b.c.bar().baz
+//@[4:7) Variable foo. Declaration start char: 0, length: 25

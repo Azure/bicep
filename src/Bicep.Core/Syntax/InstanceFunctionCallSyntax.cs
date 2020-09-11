@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class InstanceFunctionCallSyntax : SyntaxBase, IExpressionSyntax, ISymbolReference
+    public class InstanceFunctionCallSyntax : SyntaxBase, IExpressionSyntax
     {
         public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
@@ -17,6 +17,7 @@ namespace Bicep.Core.Syntax
 
             this.BaseExpression = baseExpression;
             this.Dot = dot;
+            //TODO: Implement ISymbolReference once binding is implemented
             this.Name = name;
             this.OpenParen = openParen;
             this.Arguments = arguments.ToImmutableArray();

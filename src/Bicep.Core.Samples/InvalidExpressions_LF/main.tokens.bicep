@@ -1224,4 +1224,20 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[48:49) LeftSquare |[|
 //@[49:52) StringComplete |'s'|
 //@[52:53) RightSquare |]|
-//@[53:53) EndOfFile ||
+//@[53:54) NewLine |\n|
+var foo = a.b.c.bar().baz
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |foo|
+//@[8:9) Assignment |=|
+//@[10:11) Identifier |a|
+//@[11:12) Dot |.|
+//@[12:13) Identifier |b|
+//@[13:14) Dot |.|
+//@[14:15) Identifier |c|
+//@[15:16) Dot |.|
+//@[16:19) Identifier |bar|
+//@[19:20) LeftParen |(|
+//@[20:21) RightParen |)|
+//@[21:22) Dot |.|
+//@[22:25) Identifier |baz|
+//@[25:25) EndOfFile ||

@@ -322,3 +322,5 @@ var badIndexer = sampleObject.myStr['s']
 //@[17:35) Error Cannot index over expression of type 'string'. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|
+var foo = a.b.c.bar().baz
+//@[16:21) Error This is not a valid expression. |bar()|
