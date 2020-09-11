@@ -3,11 +3,10 @@
 
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Resources;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -424,6 +423,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
+
+            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP080",
+                $"Resource type {resourceTypeReference.FormatName()} does not have types available");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

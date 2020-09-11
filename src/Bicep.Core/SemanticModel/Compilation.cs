@@ -74,7 +74,7 @@ namespace Bicep.Core.SemanticModel
                 declarations.OfType<ResourceSymbol>(),
                 declarations.OfType<OutputSymbol>());
 
-            return new SemanticModel(file, symbolContext.TypeManager, bindings);
+            return new SemanticModel(resourceTypeRegistrar, file, symbolContext.TypeManager, bindings);
         }
     }
 }

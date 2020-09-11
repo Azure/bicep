@@ -46,6 +46,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.7.1
@@ -93,6 +94,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.7.1
@@ -123,6 +125,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.1
@@ -162,6 +165,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.7.1

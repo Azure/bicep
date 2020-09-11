@@ -13,12 +13,14 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticModel
     {
+        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
         private readonly ITypeManager typeManager;
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings)
+        public SemanticModel(ResourceTypeRegistrar resourceTypeRegistrar, FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings)
         {
+            this.resourceTypeRegistrar = resourceTypeRegistrar;
             this.Root = root;
             this.typeManager = typeManager;
             this.bindings = bindings.ToImmutableDictionary();
