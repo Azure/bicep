@@ -293,7 +293,7 @@ namespace Bicep.Core.TypeSystem
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
-            if (targetType.AdditionalProperties == null)
+            if (targetType.AdditionalPropertiesType == null)
             {
                 // extra properties are not allowed by the type
                 result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
@@ -306,7 +306,7 @@ namespace Bicep.Core.TypeSystem
                     bool skipConstantCheckForProperty = skipConstantCheck;
 
                     // is the property marked as requiring compile-time constants and has the parent already validated this?
-                    if (skipConstantCheckForProperty == false && targetType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.Constant))
+                    if (skipConstantCheckForProperty == false && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.Constant))
                     {
                         // validate that values are compile-time constants
                         result = result.Concat(GetCompileTimeConstantViolation(extraProperty.Value));
@@ -318,7 +318,7 @@ namespace Bicep.Core.TypeSystem
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         extraProperty.Value,
-                        targetType.AdditionalProperties.Type,
+                        targetType.AdditionalPropertiesType,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);

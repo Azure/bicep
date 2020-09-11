@@ -58,7 +58,7 @@ namespace Bicep.Core.TypeSystem
 
             // TODO: Construct/lookup type information based on JSON schema or swagger
             // for now assuming very basic resource schema
-            return new ResourceType(typeName, LanguageConstants.CreateResourceProperties(typeReference), additionalProperties: null, typeReference);
+            return new ResourceType(typeName, LanguageConstants.CreateResourceProperties(typeReference), additionalPropertiesType: null, typeReference);
         }
 
         private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)
@@ -196,7 +196,7 @@ namespace Bicep.Core.TypeSystem
                 .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => this.GetTypeInfoInternal(context, p.Value)))));
 
             // TODO: Add structural naming?
-            return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalProperties: null);
+            return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
         }
 
         private TypeSymbol GetArrayType(TypeManagerContext context, ArraySyntax array)
@@ -266,7 +266,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            if (baseType.Properties.Any() || baseType.AdditionalProperties != null)
+            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
             {
                 // the object type allows properties
                 return LanguageConstants.Any;
@@ -304,10 +304,10 @@ namespace Bicep.Core.TypeSystem
 
             // the property is not declared
             // check additional properties
-            if (baseType.AdditionalProperties != null)
+            if (baseType.AdditionalPropertiesType != null)
             {
                 // yes - return the additional property type
-                return baseType.AdditionalProperties.Type;
+                return baseType.AdditionalPropertiesType;
             }
 
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
