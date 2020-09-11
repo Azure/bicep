@@ -1,0 +1,156 @@
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Bicep.Core.Navigation;
+using Bicep.Core.Samples;
+using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
+using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LanguageServer.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
+
+namespace Bicep.LangServer.IntegrationTests
+{
+    [TestClass]
+    public class ReferencesTests
+    {
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task FindReferencesWithDeclarationsShouldProduceCorrectResults(DataSet dataSet)
+        {
+            var uri = DocumentUri.From($"/{dataSet.Name}");
+
+            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var symbolTable = compilation.ReconstructSymbolTable();
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+
+            var symbolToSyntaxLookup = symbolTable
+                .Where(pair => pair.Value.Kind != SymbolKind.Error)
+                .ToLookup(pair => pair.Value, pair => pair.Key);
+
+            foreach (var (syntax, symbol) in symbolTable.Where(s => s.Value.Kind != SymbolKind.Error))
+            {
+                var locations = await client.RequestReferences(new ReferenceParams
+                {
+                    TextDocument = new TextDocumentIdentifier(uri),
+                    Context = new ReferenceContext
+                    {
+                        IncludeDeclaration = true
+                    },
+                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                });
+
+                // all URIs should be the same in the results
+                locations.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
+
+                // calculate expected ranges
+                var expectedRanges = symbolToSyntaxLookup[symbol]
+                    .Select(node => PositionHelper.GetNameRange(lineStarts, node));
+
+                // ranges should match what we got from our own symbol table
+                locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task FindReferencesWithoutDeclarationsShouldProduceCorrectResults(DataSet dataSet)
+        {
+            var uri = DocumentUri.From($"/{dataSet.Name}");
+
+            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var symbolTable = compilation.ReconstructSymbolTable();
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+
+            var symbolToSyntaxLookup = symbolTable
+                .Where(pair => pair.Value.Kind != SymbolKind.Error)
+                .ToLookup(pair => pair.Value, pair => pair.Key);
+
+            foreach (var (syntax, symbol) in symbolTable.Where(s => s.Value.Kind != SymbolKind.Error))
+            {
+                var locations = await client.RequestReferences(new ReferenceParams
+                {
+                    TextDocument = new TextDocumentIdentifier(uri),
+                    Context = new ReferenceContext
+                    {
+                        IncludeDeclaration = false
+                    },
+                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                });
+
+                // all URIs should be the same in the results
+                locations.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
+
+                // exclude declarations when calculating expected ranges
+                var expectedRanges = symbolToSyntaxLookup[symbol]
+                    .Where(node => !(node is IDeclarationSyntax))
+                    .Select(node => PositionHelper.GetNameRange(lineStarts, node));
+
+                // ranges should match what we got from our own symbol table
+                locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task FindReferencesOnNonSymbolsShouldProduceEmptyResult(DataSet dataSet)
+        {
+            // local function
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax);
+
+            var uri = DocumentUri.From($"/{dataSet.Name}");
+
+            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var compilation = new Compilation(SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+
+            var wrongNodes = SyntaxAggregator.Aggregate(
+                compilation.ProgramSyntax,
+                new List<SyntaxBase>(),
+                (accumulated, node) =>
+                {
+                    if (IsWrongNode(node) && !(node is ProgramSyntax))
+                    {
+                        accumulated.Add(node);
+                    }
+
+                    return accumulated;
+                },
+                accumulated => accumulated,
+                (accumulated, node) => IsWrongNode(node));
+
+            foreach (var syntax in wrongNodes)
+            {
+                var locations = await client.RequestReferences(new ReferenceParams
+                {
+                    TextDocument = new TextDocumentIdentifier(uri),
+                    Context = new ReferenceContext
+                    {
+                        IncludeDeclaration = false
+                    },
+                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                });
+
+                locations.Should().BeEmpty();
+            }
+        }
+
+        private static IEnumerable<object[]> GetData()
+        {
+            return DataSets.AllDataSets.ToDynamicTestData();
+        }
+    }
+
+    
+}

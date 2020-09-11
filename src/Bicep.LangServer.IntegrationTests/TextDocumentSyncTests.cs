@@ -7,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -26,22 +27,14 @@ namespace Bicep.LangServer.IntegrationTests
                 });
             });
 
-            client.TextDocument.DidOpenTextDocument(new DidOpenTextDocumentParams
-            {
-                TextDocument = new TextDocumentItem
-                {
-                    LanguageId = "bicep",
-                    Version = 1,
-                    Uri = documentUri,
-                    Text = @"
+            // open document
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, @"
 param myParam string = 2
 resource myRes 'invalidFormat' = {
 
 }
 randomToken
-",
-                },
-            });
+", 1));
 
             var response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
@@ -59,27 +52,15 @@ randomToken
                 }
             );
 
+            // change document
             diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
-            client.TextDocument.DidChangeTextDocument(new DidChangeTextDocumentParams
-            {
-                TextDocument = new VersionedTextDocumentIdentifier
-                {
-                    Version = 2,
-                    Uri = documentUri,
-                },
-                ContentChanges = new Container<TextDocumentContentChangeEvent>(
-                    new TextDocumentContentChangeEvent
-                    {
-                        Text = @"
+            client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(documentUri, @"
 param myParam string = 'fixed!'
 resource myRes 'invalidFormat' = {
 
 }
 randomToken
-",
-                    }
-                ),
-            });
+", 2));
 
             response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
@@ -92,6 +73,13 @@ randomToken
                     d.Should().HaveCodeAndSeverity("BCP007", DiagnosticSeverity.Error);
                 }
             );
+
+            // close document
+            diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
+            client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(documentUri, 3));
+
+            response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
+            response.Diagnostics.Should().BeEmpty();
         }
     }
 }

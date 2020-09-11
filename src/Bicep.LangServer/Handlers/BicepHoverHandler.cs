@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new Hover());
             }
 
-            return Task.FromResult<Hover>(new Hover
+            return Task.FromResult(new Hover
             {
                 Contents = new MarkedStringsOrMarkupContent(new MarkupContent
                 {

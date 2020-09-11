@@ -7,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -27,22 +28,13 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             // client opens the document
-            client.TextDocument.DidOpenTextDocument(new DidOpenTextDocumentParams
-            {
-                TextDocument = new TextDocumentItem
-                {
-                    LanguageId = "bicep",
-                    Version = 0,
-                    Uri = documentUri,
-                    Text = @"
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name = 'test'
   }
   output myOutput string = 'myOutput'
-",
-                },
-            });
+", 0));
 
             // client requests symbols
             var symbols = await client.TextDocument.RequestDocumentSymbol(new DocumentSymbolParams
@@ -72,26 +64,12 @@ resource myRes 'myRp/provider@2019-01-01' = {
             );
 
             // client deletes the output and renames the resource
-            client.TextDocument.DidChangeTextDocument(new DidChangeTextDocumentParams
-            {
-                TextDocument = new VersionedTextDocumentIdentifier
-                {
-                    Version = 1,
-                    Uri = documentUri,
-                },
-                ContentChanges = new Container<TextDocumentContentChangeEvent>(
-                    // for now we're sending the full document every time, nothing fancy..
-                    new TextDocumentContentChangeEvent
-                    {
-                        Text = @"
+            client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(documentUri, @"
 param myParam string = 'test'
 resource myRenamedRes 'myRp/provider@2019-01-01' = {
   name = 'test'
   }
-",
-                    }
-                )
-            });
+", 1));
 
             // client requests symbols
             symbols = await client.TextDocument.RequestDocumentSymbol(new DocumentSymbolParams
