@@ -9,21 +9,26 @@ namespace Bicep.Core.TypeSystem
 {
     public class DiscriminatedObjectType : TypeSymbol
     {
-        public DiscriminatedObjectType(string name, string discriminatorKey, IEnumerable<NamedObjectType> unionMembers)
+        public DiscriminatedObjectType(string name, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
             : base(name)
         {
-            var unionMembersByKey = new Dictionary<string, NamedObjectType>();
+            var unionMembersByKey = new Dictionary<string, ITypeReference>();
             var unionKeyTypes = new List<StringLiteralType>();
             foreach (var member in unionMembers)
             {
-                if (!member.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
+                if (!(member.Type is NamedObjectType namedObject))
+                {
+                    throw new ArgumentException($"Invalid member of type {member.Type.GetType()}");
+                }
+
+                if (!namedObject.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
                 {
                     throw new ArgumentException("Missing discriminator field on member");
                 }
 
-                if (!(discriminatorProp.Type is StringLiteralType stringLiteral))
+                if (!(discriminatorProp.TypeReference.Type is StringLiteralType stringLiteral))
                 {
-                    throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.Type.Name} on member");
+                    throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.TypeReference.Type.Name} on member");
                 }
 
                 unionMembersByKey.Add(stringLiteral.Name, member);
@@ -32,12 +37,12 @@ namespace Bicep.Core.TypeSystem
 
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.DiscriminatorKey = discriminatorKey;
-            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
+            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes.Select(x => x));
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
-        public ImmutableDictionary<string, NamedObjectType> UnionMembersByKey { get; }
+        public ImmutableDictionary<string, ITypeReference> UnionMembersByKey { get; }
 
         public string DiscriminatorKey { get; }
 

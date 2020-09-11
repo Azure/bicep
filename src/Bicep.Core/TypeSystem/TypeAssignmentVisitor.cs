@@ -112,7 +112,7 @@ namespace Bicep.Core.TypeSystem
 
                 // TODO: Construct/lookup type information based on JSON schema or swagger
                 // for now assuming very basic resource schema
-                return new ResourceType(stringContent, LanguageConstants.CreateResourceProperties(typeReference), additionalPropertiesType: null, typeReference);
+                return new ResourceType(stringContent, LanguageConstants.CreateResourceProperties(typeReference), additionalProperties: null, typeReference);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -207,7 +207,7 @@ namespace Bicep.Core.TypeSystem
                     .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => assignedTypes[p]))));
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
+                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalProperties: null);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -255,7 +255,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
-                var aggregatedItemType = UnionType.Create(itemTypes);
+                var aggregatedItemType = UnionType.Create(itemTypes.Select(x => x));
                 if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never)
                 {
                     // array contains a mix of item types or is empty
@@ -394,7 +394,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // the index is of "any" type or integer type
                         // return the item type
-                        return baseArray.ItemType;
+                        return baseArray.Item.Type;
                     }
 
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
@@ -623,7 +623,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
+            if (baseType.Properties.Any() || baseType.AdditionalProperties != null)
             {
                 // the object type allows properties
                 return LanguageConstants.Any;
@@ -656,15 +656,15 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // there is - return its type
-                return declaredProperty.Type;
+                return declaredProperty.TypeReference.Type;
             }
 
             // the property is not declared
             // check additional properties
-            if (baseType.AdditionalPropertiesType != null)
+            if (baseType.AdditionalProperties != null)
             {
                 // yes - return the additional property type
-                return baseType.AdditionalPropertiesType;
+                return baseType.AdditionalProperties.Type;
             }
 
             return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));

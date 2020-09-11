@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Linq;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,7 +13,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void CreatingEmptyUnionShouldProduceTheNeverType()
         {
-            var actual = UnionType.Create();
+            var actual = UnionType.Create(Enumerable.Empty<ITypeReference>());
             actual.Name.Should().Be("never");
             actual.TypeKind.Should().Be(TypeKind.Never);
             actual.Should().BeOfType<UnionType>();
@@ -28,7 +29,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType) actual).Members.Should().Equal(LanguageConstants.Bool, LanguageConstants.String);
+            ((UnionType) actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Bool, LanguageConstants.String);
         }
 
         [TestMethod]
@@ -39,7 +40,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType)actual).Members.Should().Equal(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Null);
+            ((UnionType)actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Null);
         }
 
         [TestMethod]
@@ -53,7 +54,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType) actual).Members.Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
+            ((UnionType) actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
         }
 
         [TestMethod]
@@ -67,7 +68,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType)actual).Members.Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
+            ((UnionType)actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
         }
 
         [TestMethod]
