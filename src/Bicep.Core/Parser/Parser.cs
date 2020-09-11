@@ -338,8 +338,7 @@ namespace Bicep.Core.Parser
 
             var argumentNodes = FunctionCallArguments();
 
-            // consuming right paren, FunctionCallArguments() already validated that it exists
-            var closeParen = this.reader.Read();
+            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
             return (functionName, openParen, argumentNodes, closeParen);
         }
