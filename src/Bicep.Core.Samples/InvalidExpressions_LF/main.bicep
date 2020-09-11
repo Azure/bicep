@@ -207,4 +207,5 @@ var badArrayIndexer = sampleObject.myArr['s']
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-var foo = a.b.c.bar().baz
+var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
+var invalidInstanceFunctionAccess = a.b.c.bar()

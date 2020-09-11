@@ -1885,31 +1885,57 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[49:52)    StringComplete |'s'|
 //@[52:53)   RightSquare |]|
 //@[53:54)  NewLine |\n|
-var foo = a.b.c.bar().baz
-//@[0:25) VariableDeclarationSyntax
+var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
+//@[0:66) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  IdentifierSyntax
-//@[4:7)   Identifier |foo|
-//@[8:9)  Assignment |=|
-//@[16:25)  PropertyAccessSyntax
-//@[16:21)   InstanceFunctionCallSyntax
-//@[10:15)    PropertyAccessSyntax
-//@[10:13)     PropertyAccessSyntax
-//@[10:11)      VariableAccessSyntax
-//@[10:11)       IdentifierSyntax
-//@[10:11)        Identifier |a|
-//@[11:12)      Dot |.|
-//@[12:13)      IdentifierSyntax
-//@[12:13)       Identifier |b|
-//@[13:14)     Dot |.|
-//@[14:15)     IdentifierSyntax
-//@[14:15)      Identifier |c|
-//@[15:16)    Dot |.|
-//@[16:19)    IdentifierSyntax
-//@[16:19)     Identifier |bar|
-//@[19:20)    LeftParen |(|
-//@[20:21)    RightParen |)|
-//@[21:22)   Dot |.|
-//@[22:25)   IdentifierSyntax
-//@[22:25)    Identifier |baz|
-//@[25:25) EndOfFile ||
+//@[4:47)  IdentifierSyntax
+//@[4:47)   Identifier |invalidPropertyCallOnInstanceFunctionAccess|
+//@[48:49)  Assignment |=|
+//@[56:65)  PropertyAccessSyntax
+//@[56:61)   InstanceFunctionCallSyntax
+//@[50:55)    PropertyAccessSyntax
+//@[50:53)     PropertyAccessSyntax
+//@[50:51)      VariableAccessSyntax
+//@[50:51)       IdentifierSyntax
+//@[50:51)        Identifier |a|
+//@[51:52)      Dot |.|
+//@[52:53)      IdentifierSyntax
+//@[52:53)       Identifier |b|
+//@[53:54)     Dot |.|
+//@[54:55)     IdentifierSyntax
+//@[54:55)      Identifier |c|
+//@[55:56)    Dot |.|
+//@[56:59)    IdentifierSyntax
+//@[56:59)     Identifier |bar|
+//@[59:60)    LeftParen |(|
+//@[60:61)    RightParen |)|
+//@[61:62)   Dot |.|
+//@[62:65)   IdentifierSyntax
+//@[62:65)    Identifier |baz|
+//@[65:66)  NewLine |\n|
+var invalidInstanceFunctionAccess = a.b.c.bar()
+//@[0:48) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:33)  IdentifierSyntax
+//@[4:33)   Identifier |invalidInstanceFunctionAccess|
+//@[34:35)  Assignment |=|
+//@[42:47)  InstanceFunctionCallSyntax
+//@[36:41)   PropertyAccessSyntax
+//@[36:39)    PropertyAccessSyntax
+//@[36:37)     VariableAccessSyntax
+//@[36:37)      IdentifierSyntax
+//@[36:37)       Identifier |a|
+//@[37:38)     Dot |.|
+//@[38:39)     IdentifierSyntax
+//@[38:39)      Identifier |b|
+//@[39:40)    Dot |.|
+//@[40:41)    IdentifierSyntax
+//@[40:41)     Identifier |c|
+//@[41:42)   Dot |.|
+//@[42:45)   IdentifierSyntax
+//@[42:45)    Identifier |bar|
+//@[45:46)   LeftParen |(|
+//@[46:47)   RightParen |)|
+//@[47:48)  NewLine |\n|
+
+//@[0:0) EndOfFile ||
