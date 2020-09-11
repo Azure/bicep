@@ -78,7 +78,7 @@ namespace Bicep.Core.Samples
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);
             
-            result.Diagnostics.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty();
+            result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             stream.Position = 0;

@@ -80,7 +80,7 @@
       }
     },
     {
-      "type": "Microsoft.Web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2019-08-01",
       "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",

@@ -146,6 +146,11 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var declaredType = resourceTypeProvider.GetType(typeReference);
+
+                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                }
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });

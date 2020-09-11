@@ -44,7 +44,7 @@
   },
   "resources": [
     {
-      "type": "microsoft.network/publicIpAddresses",
+      "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-06-01",
       "name": "certPublicIp",
       "location": "[parameters('location')]",
@@ -53,7 +53,7 @@
       }
     },
     {
-      "type": "microsoft.network/networkSecurityGroups",
+      "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-08-01",
       "name": "[variables('nsgName')]",
       "location": "[parameters('location')]",
@@ -76,7 +76,7 @@
       }
     },
     {
-      "type": "microsoft.network/virtualNetworks",
+      "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2019-06-01",
       "name": "[variables('vnetName')]",
       "location": "[parameters('location')]",
@@ -92,18 +92,18 @@
             "properties": {
               "addressPrefix": "10.0.0.0/24",
               "networkSecurityGroup": {
-                "id": "[resourceId('microsoft.network/networkSecurityGroups', variables('nsgName'))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('microsoft.network/networkSecurityGroups', variables('nsgName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
       ]
     },
     {
-      "type": "microsoft.network/networkInterfaces",
+      "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2019-06-01",
       "name": "certNic",
       "location": "[parameters('location')]",
@@ -114,22 +114,22 @@
             "properties": {
               "privateIpAllocationMethod": "Dynamic",
               "publicIpAddress": {
-                "id": "[resourceId('microsoft.network/publicIpAddresses', 'certPublicIp')]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'certPublicIp')]"
               },
               "subnet": {
-                "id": "[format('{0}/subnets/{1}', resourceId('microsoft.network/virtualNetworks', variables('vnetName')), variables('subnet1Name'))]"
+                "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('vnetName')), variables('subnet1Name'))]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('microsoft.network/publicIpAddresses', 'certPublicIp')]",
-        "[resourceId('microsoft.network/virtualNetworks', variables('vnetName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'certPublicIp')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
       ]
     },
     {
-      "type": "microsoft.compute/virtualMachines",
+      "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2019-07-01",
       "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
@@ -170,13 +170,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('microsoft.network/networkInterfaces', 'certNic')]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
             }
           ]
         }
       },
       "dependsOn": [
-        "[resourceId('microsoft.network/networkInterfaces', 'certNic')]"
+        "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
       ]
     }
   ],

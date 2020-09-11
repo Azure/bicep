@@ -20,7 +20,7 @@
   "variables": {},
   "resources": [
     {
-      "type": "microsoft.network/virtualNetworks/virtualNetworkPeerings",
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
       "apiVersion": "2019-11-01",
       "name": "[format('{0}/peering-to-remote-vnet', parameters('localVnetName'))]",
       "location": "[parameters('location')]",

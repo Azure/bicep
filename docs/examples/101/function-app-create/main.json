@@ -92,7 +92,7 @@
       "tags": "[variables('appTags')]"
     },
     {
-      "type": "Microsoft.Web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2019-08-01",
       "name": "[variables('appServiceName')]",
       "location": "[parameters('location')]",
@@ -136,7 +136,7 @@
             "hostType": "Standard"
           }
         ],
-        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appServiceName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
         "reserved": false,
         "isXenon": false,
         "hyperV": false,
@@ -179,7 +179,7 @@
       "tags": "[variables('appTags')]",
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
-        "[resourceId('Microsoft.Web/serverFarms', variables('appServiceName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },

@@ -126,7 +126,7 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/publicIpAddresses",
+      "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-04-01",
       "name": "[parameters('HostPublicIPAddressName')]",
       "location": "[parameters('location')]",
@@ -261,14 +261,14 @@
                 "id": "[format('{0}/subnets{1}', reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '2019-04-01', 'full'), parameters('NATSubnetName'))]"
               },
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('HostPublicIPAddressName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIpAddresses', parameters('HostPublicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
