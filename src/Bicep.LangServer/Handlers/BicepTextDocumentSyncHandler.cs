@@ -1,17 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace Bicep.LanguageServer.Handlers
@@ -19,21 +16,11 @@ namespace Bicep.LanguageServer.Handlers
     class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
     {
         private readonly ICompilationManager compilationManager;
-        private readonly ILogger<BicepTextDocumentSyncHandler> logger;
-        private readonly ILanguageServerConfiguration configuration;
-        private readonly ILanguageServer server;
 
-        public BicepTextDocumentSyncHandler(
-            ICompilationManager compilationManager,
-            ILogger<BicepTextDocumentSyncHandler> logger,
-            ILanguageServerConfiguration configuration,
-            ILanguageServer server)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager)
             : base(TextDocumentSyncKind.Full, GetSaveRegistrationOptions())
         {
             this.compilationManager = compilationManager;
-            this.logger = logger;
-            this.configuration = configuration;
-            this.server = server;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -53,8 +40,6 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            //await configuration.GetScopedConfiguration(request.TextDocument.Uri);
-
             this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text);
             
             return Unit.Task;
@@ -68,11 +53,6 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
         {
-            //if (configuration.TryGetScopedConfiguration(request.TextDocument.Uri, out var disposable))
-            //{
-            //    disposable.Dispose();
-            //}
-
             this.compilationManager.CloseCompilation(request.TextDocument.Uri);
             return Unit.Task;
         }

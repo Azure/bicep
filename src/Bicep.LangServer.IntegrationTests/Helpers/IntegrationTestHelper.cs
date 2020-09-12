@@ -4,11 +4,14 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer;
-using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using System;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -35,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
             return client;
         }
 
-        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 60000)
+        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 10000)
         {
             var completed = await Task.WhenAny(
                 task,
@@ -48,6 +51,25 @@ namespace Bicep.LangServer.IntegrationTests
             }
 
             return await task;
+        }
+
+        public static async Task<ILanguageClient> StartServerWithText(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null)
+        {
+            var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
+            var client = await IntegrationTestHelper.StartServerWithClientConnection(options =>
+            {
+                onClientOptions?.Invoke(options);
+                options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
+            });
+
+            // send open document notification
+            client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(uri, text, 0));
+
+            // notifications don't produce responses,
+            // but our server should send us diagnostics when it receives the notification
+            await IntegrationTestHelper.WithTimeout(diagnosticsPublished.Task);
+
+            return client;
         }
     }
 }

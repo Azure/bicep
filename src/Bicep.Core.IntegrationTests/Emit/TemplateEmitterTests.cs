@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Bicep.Core.Emit;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -97,7 +96,8 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
-            return emitter.Emit(filePath);
+            using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            return emitter.Emit(stream);
         }
 
         private EmitResult EmitTemplate(string text, MemoryStream memoryStream)

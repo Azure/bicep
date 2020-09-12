@@ -24,17 +24,6 @@ namespace Bicep.Core.Emit
         }
 
         /// <summary>
-        /// Emits a template to the specified file if there are no errors. The specified file is not touched if there are compilation errors.
-        /// </summary>
-        /// <param name="fileName">The path to the file.</param>
-        public EmitResult Emit(string fileName)
-        {
-            using var stream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-
-            return Emit(stream);
-        }
-
-        /// <summary>
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
         /// </summary>
         /// <param name="stream">The stream to write the template</param>

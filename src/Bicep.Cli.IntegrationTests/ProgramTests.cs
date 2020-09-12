@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
+using Bicep.Cli.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -303,6 +304,58 @@ namespace Bicep.Cli.IntegrationTests
                 .SelectMany(e => e);
 
             error.Should().ContainAll(diagnosticsFromAllFiles);
+        }
+
+        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataTestMethod]
+        public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
+        {
+            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = new Program(@out, err);
+                p.Run(new[] {"build", badPath}).Should().Be(1);
+            });
+
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(expectedErrorRegex);
+        }
+
+        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataTestMethod]
+        public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
+        {
+            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var p = new Program(@out, err);
+                p.Run(new[] { "build", "--stdout", badPath }).Should().Be(1);
+            });
+
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(expectedErrorRegex);
+        }
+
+        [TestMethod]
+        public void LockedOutputFileShouldProduceExpectedError()
+        {
+            var inputFile = FileHelper.SaveResultFile(this.TestContext!, "Empty.bicep", DataSets.Empty.Bicep);
+            var outputFile = PathHelper.GetDefaultOutputPath(inputFile);
+
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            {
+                // keep the output stream open while we attempt to write to it
+                // this should force an access denied error
+                var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+                {
+                    var p = new Program(@out, err);
+                    p.Run(new[] { "build", inputFile }).Should().Be(1);
+                });
+
+                output.Should().BeEmpty();
+                error.Should().Contain("Empty.json");
+            }
         }
 
         private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)

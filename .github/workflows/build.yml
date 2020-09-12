@@ -192,7 +192,7 @@ jobs:
     name: 'Create Release'
     runs-on: 'ubuntu-latest'
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
-    needs: [build-bicep, build-vsix, build-playground]
+    needs: [build-bicep, build-vsix, build-playground, build-windows-setup]
 
     steps:
       - name: Download Build Artifacts
