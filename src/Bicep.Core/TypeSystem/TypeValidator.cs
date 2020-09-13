@@ -91,12 +91,12 @@ namespace Bicep.Core.TypeSystem
                     // validation left for later
                     return true;
 
-                case UnionType targetUnion when sourceType is UnionType sourceUnion:
+                case TypeSymbol _ when sourceType is UnionType sourceUnion:
                     // union types are guaranteed to be flat
                     
                     // TODO: Replace with some sort of set intersection
                     // are all source type members assignable to the target type?
-                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetUnion) == true);
+                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetType) == true);
 
                 case UnionType targetUnion:
                     // the source type should be a singleton type

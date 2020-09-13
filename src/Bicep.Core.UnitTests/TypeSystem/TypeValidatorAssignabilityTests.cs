@@ -128,6 +128,28 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void UnionShouldBeAssignableToTypeIfAllMembersAre()
+        {
+            var boolIntUnion = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
+            var stringUnion = UnionType.Create(LanguageConstants.String);
+            TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.Bool).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(stringUnion, boolIntUnion).Should().BeFalse();
+
+            var logLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
+            var failureLogLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"));
+            TypeValidator.AreTypesAssignable(logLevelsUnion, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(logLevelsUnion, stringUnion).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(logLevelsUnion, boolIntUnion).Should().BeFalse();
+
+            // Source union is a subset of target union - this should be allowed
+            TypeValidator.AreTypesAssignable(failureLogLevelsUnion, logLevelsUnion).Should().BeTrue();
+
+            // Source union is a strict superset of target union - this should not be allowed
+            TypeValidator.AreTypesAssignable(logLevelsUnion, failureLogLevelsUnion).Should().BeFalse();
+        }
+
+        [TestMethod]
         public void StringLiteralTypesShouldBeAssignableToAndFromStrings()
         {
             var literalVal1 = new StringLiteralType("evie");
