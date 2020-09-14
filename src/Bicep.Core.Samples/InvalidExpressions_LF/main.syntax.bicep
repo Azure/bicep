@@ -1891,8 +1891,8 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[4:47)  IdentifierSyntax
 //@[4:47)   Identifier |invalidPropertyCallOnInstanceFunctionAccess|
 //@[48:49)  Assignment |=|
-//@[56:65)  PropertyAccessSyntax
-//@[56:61)   InstanceFunctionCallSyntax
+//@[50:65)  PropertyAccessSyntax
+//@[50:61)   InstanceFunctionCallSyntax
 //@[50:55)    PropertyAccessSyntax
 //@[50:53)     PropertyAccessSyntax
 //@[50:51)      VariableAccessSyntax
@@ -1919,7 +1919,7 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[4:33)  IdentifierSyntax
 //@[4:33)   Identifier |invalidInstanceFunctionAccess|
 //@[34:35)  Assignment |=|
-//@[42:47)  InstanceFunctionCallSyntax
+//@[36:47)  InstanceFunctionCallSyntax
 //@[36:41)   PropertyAccessSyntax
 //@[36:39)    PropertyAccessSyntax
 //@[36:37)     VariableAccessSyntax

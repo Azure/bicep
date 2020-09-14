@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -38,7 +37,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitInstanceFunctionCallSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Name, CloseParen);
+        public override TextSpan Span => TextSpan.Between(BaseExpression, CloseParen);
 
         public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }

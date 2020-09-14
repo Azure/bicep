@@ -323,7 +323,7 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[56:61) Error This is not a valid expression. |bar()|
+//@[50:61) Error This is not a valid expression. |a.b.c.bar()|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[42:47) Error This is not a valid expression. |bar()|
+//@[36:47) Error This is not a valid expression. |a.b.c.bar()|
 
