@@ -1,0 +1,25 @@
+.navbar {
+  height: 40px;
+  z-index: 1;
+}
+
+.playground-container {
+  z-index: 0;
+  position: relative;
+  top: -40px;
+  padding-top: 40px;
+  height: 100%;
+  width: 100%;
+}
+
+.playground-editorpane {
+  width: 50%;
+  height: 100%;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  height: auto;
+  max-height: 80vh;
+  overflow-x: hidden;
+}

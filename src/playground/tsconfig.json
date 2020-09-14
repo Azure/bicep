@@ -3,11 +3,13 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "sourceMap": true,
     "declarationMap": true,
     "inlineSources": false,
     "declaration": true,
     "stripInternal": true,
+    "jsx": "react",
     "lib": [
       "es2016",
       "dom"
