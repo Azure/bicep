@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
 interface JsonEditorProps {
@@ -13,8 +13,14 @@ export const JsonEditor : React.FC<JsonEditorProps> = props=> {
     },
     readOnly: true,
   };
+  
+  const monacoRef = useRef<MonacoEditor>();
+  
+  // clear the selection after rendering completes
+  setTimeout(() => monacoRef.current.editor.setSelection({startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1}), 0);
 
   return <MonacoEditor
+    ref={monacoRef}
     language="json"
     theme="vs-dark"
     value={props.content}

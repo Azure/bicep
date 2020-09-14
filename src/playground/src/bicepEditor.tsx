@@ -9,7 +9,7 @@ interface Props {
   handleJsonChange: (jsonContent: string) => void,
 }
 
-function handleEditorDidMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) {
+function configureEditorForBicep(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) {
   monaco.languages.register({
     id: 'bicep',
     extensions: ['.bicep'],
@@ -78,21 +78,27 @@ export const BicepEditor : React.FC<Props> = (props) => {
   const [initialCode, setInitialCode] = useState(props.initialCode);
   const [bicepContent, setBicepContent] = useState(props.initialCode);
 
-  const onBicepChange = (editor, text: string) => {
+  const handleContentChange = (editor: monacoEditor.editor.IStandaloneCodeEditor, text: string) => {
     setBicepContent(text);
     const { template, diagnostics } = compileAndEmitDiagnostics(text);
     monacoEditor.editor.setModelMarkers(editor.getModel(), 'default', diagnostics);
     props.handleJsonChange(template);
   }
 
-  const onEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
-    handleEditorDidMount(editor, monaco);
-    onBicepChange(editor, bicepContent);
+  const handleEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+    configureEditorForBicep(editor, monaco);
+    handleContentChange(editor, bicepContent);
   }
 
   if (initialCode != props.initialCode) {
     setInitialCode(props.initialCode);
-    onBicepChange(monacoRef.current.editor, props.initialCode);
+    handleContentChange(monacoRef.current.editor, props.initialCode);
+
+    // clear the selection after this completes
+    setTimeout(() => {
+      monacoRef.current.editor.setSelection({startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1});
+      monacoRef.current.editor.setScrollPosition({scrollLeft: 0, scrollTop: 0});
+    }, 0);
   }
 
   return <MonacoEditor
@@ -101,7 +107,7 @@ export const BicepEditor : React.FC<Props> = (props) => {
     theme="vs-dark"
     value={bicepContent}
     options={options}
-    onChange={text => onBicepChange(monacoRef.current.editor, text)}
-    editorDidMount={onEditorDidMount}
+    onChange={text => handleContentChange(monacoRef.current.editor, text)}
+    editorDidMount={handleEditorDidMount}
   />
 };
