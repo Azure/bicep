@@ -1,0 +1,107 @@
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+
+import React, { useRef, useState } from 'react';
+import MonacoEditor from 'react-monaco-editor';
+import { compileAndEmitDiagnostics, getSemanticTokens, getSemanticTokensLegend } from './lspInterop';
+
+interface Props {
+  initialCode: string,
+  handleJsonChange: (jsonContent: string) => void,
+}
+
+function handleEditorDidMount(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) {
+  monaco.languages.register({
+    id: 'bicep',
+    extensions: ['.bicep'],
+    aliases: ['bicep'],
+  });
+
+  monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
+    getLegend: () => getSemanticTokensLegend(),
+    provideDocumentSemanticTokens: (model, lastResultId, token) => getSemanticTokens(model.getValue()),
+    releaseDocumentSemanticTokens: () => { }
+  });
+
+  // @ts-expect-error
+  editor._themeService._theme.getTokenStyleMetadata = (type, modifiers) => {
+    // see 'monaco-editor/esm/vs/editor/standalone/common/themes.js' to understand these indices
+    switch (type) {
+      case 'keyword':
+        return { foreground: 12 };
+      case 'comment':
+        return { foreground: 7 };
+      case 'parameter':
+        return { foreground: 2 };
+      case 'property':
+        return { foreground: 3 };
+      case 'type':
+        return { foreground: 8 };
+      case 'member':
+        return { foreground: 6 };
+      case 'string':
+        return { foreground: 5 };
+      case 'variable':
+        return { foreground: 4 };
+      case 'operator':
+        return { foreground: 9 };
+      case 'function':
+        return { foreground: 13 };
+      case 'number':
+        return { foreground: 15 };
+      case 'class':
+      case 'enummember':
+      case 'event':
+      case 'modifier':
+      case 'label':
+      case 'typeParameter':
+      case 'macro':
+      case 'interface':
+      case 'enum':
+      case 'regexp':
+      case 'struct':
+      case 'namespace':
+        return { foreground: 0 };
+    }
+  };
+}
+
+export const BicepEditor : React.FC<Props> = (props) => {
+  const options = {
+    automaticLayout: true,
+    minimap: {
+      enabled: false,
+    },
+    'semanticHighlighting.enabled': true,
+  };
+
+  const monacoRef = useRef<MonacoEditor>();
+  const [initialCode, setInitialCode] = useState(props.initialCode);
+  const [bicepContent, setBicepContent] = useState(props.initialCode);
+
+  const onBicepChange = (editor, text: string) => {
+    setBicepContent(text);
+    const { template, diagnostics } = compileAndEmitDiagnostics(text);
+    monacoEditor.editor.setModelMarkers(editor.getModel(), 'default', diagnostics);
+    props.handleJsonChange(template);
+  }
+
+  const onEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
+    handleEditorDidMount(editor, monaco);
+    onBicepChange(editor, bicepContent);
+  }
+
+  if (initialCode != props.initialCode) {
+    setInitialCode(props.initialCode);
+    onBicepChange(monacoRef.current.editor, props.initialCode);
+  }
+
+  return <MonacoEditor
+    ref={monacoRef}
+    language="bicep"
+    theme="vs-dark"
+    value={bicepContent}
+    options={options}
+    onChange={text => onBicepChange(monacoRef.current.editor, text)}
+    editorDidMount={onEditorDidMount}
+  />
+};
