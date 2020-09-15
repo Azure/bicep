@@ -366,7 +366,13 @@ namespace Bicep.Core.Parser
                 {
                     // end of function call
                     // return the accumulated arguments without consuming right paren a caller must consume it
-                    return arguments.Select(a => new FunctionArgumentSyntax(a.expression, a.comma));
+                    var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
+                    foreach (var argument in arguments)
+                    {
+                        functionArguments.Add(
+                            new FunctionArgumentSyntax(argument.expression, argument.comma));
+                    }
+                    return functionArguments.ToImmutableArray();
                 }
 
                 var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
