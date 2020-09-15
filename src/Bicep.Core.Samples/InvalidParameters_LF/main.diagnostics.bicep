@@ -137,11 +137,11 @@ param duplicatedModifierProperty string {
 // non-existent modifiers
 param secureInt int {
   secure: true
-//@[2:8) Error The property 'secure' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |secure|
+//@[2:8) Error The property 'secure' is not allowed on objects of type ParameterModifier<int>. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |secure|
   minLength: 3
-//@[2:11) Error The property 'minLength' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |minLength|
+//@[2:11) Error The property 'minLength' is not allowed on objects of type ParameterModifier<int>. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |minLength|
   maxLength: 123
-//@[2:11) Error The property 'maxLength' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |maxLength|
+//@[2:11) Error The property 'maxLength' is not allowed on objects of type ParameterModifier<int>. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |maxLength|
 }
 
 // wrong modifier value types
@@ -259,6 +259,28 @@ param paramAccessingOutput string = sampleOutput
 param paramAccessingOutput2 string {
   default: sampleOutput
 //@[11:23) Error The name 'sampleOutput' is an output. Outputs cannot be referenced in expressions. |sampleOutput|
+}
+
+param stringLiteral string {
+  allowed: [
+    'def'
+  ]
+}
+
+param stringLiteral2 string {
+  allowed: [
+    'abc'
+    'def'
+  ]
+  default: stringLiteral
+}
+
+param stringLiteral3 string {
+  allowed: [
+    'abc'
+  ]
+  default: stringLiteral2
+//@[11:25) Error The property 'default' expected a value of type 'abc' but the provided value is of type 'abc' | 'def'. |stringLiteral2|
 }
 
 // unterminated multi-line comment

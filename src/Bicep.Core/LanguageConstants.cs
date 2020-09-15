@@ -46,39 +46,44 @@ namespace Bicep.Core
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static readonly string DeclarationTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
-
-        public static TypeSymbol CreateParameterModifierType(TypeSymbol parameterType)
+        public static TypeSymbol? TryGetDeclarationType(string typeName)
         {
-            if (parameterType.TypeKind != TypeKind.Primitive)
+            if (DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
             {
-                throw new ArgumentException($"Modifiers are not supported for type '{parameterType.Name}'.");
+                return primitiveType;
             }
 
-            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalProperties: null);
+            return null;
         }
 
-        private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol parameterType)
+        public static readonly string DeclarationTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
+
+        public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Object))
+            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalProperties: null);
+        }
+
+        private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
+        {
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object))
             {
                 // only string and object types have secure equivalents
                 yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
             }
 
             // default value is allowed to have expressions
-            yield return new TypeProperty("default", parameterType);
+            yield return new TypeProperty("default", allowedValuesType);
 
-            yield return new TypeProperty("allowed", new TypedArrayType(parameterType), TypePropertyFlags.Constant);
+            yield return new TypeProperty("allowed", new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
 
-            if (ReferenceEquals(parameterType, Int))
+            if (ReferenceEquals(primitiveType, Int))
             {
                 // value constraints are valid on integer parameters only
                 yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
                 yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
             }
 
-            if (ReferenceEquals(parameterType, String) || ReferenceEquals(parameterType, Array))
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array))
             {
                 // strings and arrays can have length constraints
                 yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);

@@ -85,7 +85,7 @@ param secretObject object {
 
 // enum parameter
 param storageSku string {
-//@[6:16) Parameter storageSku. Type: string. Declaration start char: 0, length: 91
+//@[6:16) Parameter storageSku. Type: 'Standard_GRS' | 'Standard_LRS'. Declaration start char: 0, length: 91
   allowed: [
     'Standard_LRS'
     'Standard_GRS'
@@ -138,7 +138,7 @@ param additionalMetadata string {
 
 // all modifiers together
 param someParameter string {
-//@[6:19) Parameter someParameter. Type: string. Declaration start char: 0, length: 224
+//@[6:19) Parameter someParameter. Type: 'one' | 'three' | 'two'. Declaration start char: 0, length: 224
   secure: true
   minLength: 3
   maxLength: 24
@@ -159,5 +159,23 @@ param defaultValueExpression int {
 }
 
 param defaultExpression bool = 18 != (true || false)
-//@[6:23) Parameter defaultExpression. Type: bool. Declaration start char: 0, length: 54
+//@[6:23) Parameter defaultExpression. Type: bool. Declaration start char: 0, length: 56
+
+param stringLiteral string {
+//@[6:19) Parameter stringLiteral. Type: 'abc' | 'def'. Declaration start char: 0, length: 76
+  allowed: [
+    'abc'
+    'def'
+  ]
+}
+
+param stringLiteralWithAllowedValuesSuperset string {
+//@[6:44) Parameter stringLiteralWithAllowedValuesSuperset. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 0, length: 136
+  allowed: [
+    'abc'
+    'def'
+    'ghi'
+  ]
+  default: stringLiteral
+}
 
