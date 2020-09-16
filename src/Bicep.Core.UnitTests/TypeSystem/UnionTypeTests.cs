@@ -71,6 +71,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void UnionTypeShouldDisplayStringLiteralsCorrectly()
+        {
+            var unionType = UnionType.Create(
+                new StringLiteralType("Error"),
+                new StringLiteralType("Warning"),
+                new StringLiteralType("Info")
+            );
+
+            unionType.Name.Should().Be("'Error' | 'Info' | 'Warning'");
+        }
+
+        [TestMethod]
         public void SingletonUnionCreationShouldProduceSingletonType()
         {
             UnionType.Create(LanguageConstants.Int).Should().BeSameAs(LanguageConstants.Int);

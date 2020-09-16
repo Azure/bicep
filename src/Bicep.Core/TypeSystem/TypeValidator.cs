@@ -56,6 +56,18 @@ namespace Bicep.Core.TypeSystem
                 case ResourceRefType _:
                     return sourceType.TypeKind == TypeKind.Resource;
 
+                case StringLiteralType _ when sourceType is StringLiteralType:
+                    // The name *is* the escaped string value, so we must have an exact match.
+                    return targetType.Name == sourceType.Name;
+
+                case PrimitiveType _ when sourceType is StringLiteralType:
+                    // string literals can be assigned to strings
+                    return targetType.Name == LanguageConstants.String.Name;
+
+                case StringLiteralType _ when sourceType is PrimitiveType:
+                    // string literals can be assigned from strings
+                    return sourceType.Name == LanguageConstants.String.Name;
+
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
                     // compare by type name
@@ -71,12 +83,20 @@ namespace Bicep.Core.TypeSystem
                     // this function does not validate item types
                     return true;
 
-                case UnionType targetUnion when sourceType is UnionType sourceUnion:
+                case DiscriminatedObjectType targetDiscriminated when sourceType is DiscriminatedObjectType sourceDiscriminated:
+                    // validation left for later
+                    return true;
+
+                case DiscriminatedObjectType targetDiscriminated when sourceType is ObjectType sourceObject:
+                    // validation left for later
+                    return true;
+
+                case TypeSymbol _ when sourceType is UnionType sourceUnion:
                     // union types are guaranteed to be flat
                     
                     // TODO: Replace with some sort of set intersection
                     // are all source type members assignable to the target type?
-                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetUnion) == true);
+                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetType) == true);
 
                 case UnionType targetUnion:
                     // the source type should be a singleton type
@@ -129,6 +149,11 @@ namespace Bicep.Core.TypeSystem
                 return errors.Concat(GetObjectAssignmentDiagnostics(typeManager, objectValue, targetObjectType, skipConstantCheck));
             }
 
+            if (expression is ObjectSyntax objectDiscriminated && targetType is DiscriminatedObjectType targetDiscriminated)
+            {
+                return errors.Concat(GetDiscriminatedObjectAssignmentDiagnostics(typeManager, objectDiscriminated, targetDiscriminated, skipConstantCheck));
+            }
+
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
@@ -155,6 +180,50 @@ namespace Bicep.Core.TypeSystem
                     (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
                     skipConstantCheck,
                     skipTypeErrors: true)); 
+        }
+
+        private static IEnumerable<ErrorDiagnostic> GetDiscriminatedObjectAssignmentDiagnostics(ITypeManager typeManager, ObjectSyntax expression, DiscriminatedObjectType targetType, bool skipConstantCheck)
+        {
+            // if we have parse errors, there's no point to check assignability
+            // we should not return the parse errors however because they will get double collected
+            if (expression.HasParseErrors())
+            {
+                yield break;
+            }
+
+            var propertyMap = expression.ToPropertyDictionary();
+
+            if (!propertyMap.TryGetValue(targetType.DiscriminatorKey, out var discriminatorProperty))
+            {
+                // object doesn't contain the discriminator field
+                yield return DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType);
+                yield break;
+            }
+
+            // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
+            // In this case, the best we can do is validate against the union of all the settable properties.
+            // Let's not do this just yet, and see if a use-case arises.
+
+            var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value, new TypeManagerContext());
+            if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
+            {
+                yield return DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
+                yield break;
+            }
+
+            if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectType))
+            {
+                // no matches
+                yield return DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
+                yield break;
+            }
+
+            // we have a match!
+            foreach (var diagnostic in GetObjectAssignmentDiagnostics(typeManager, expression, selectedObjectType, skipConstantCheck))
+            {
+                yield return diagnostic;
+            }
+            yield break;
         }
 
         private static IEnumerable<ErrorDiagnostic> GetObjectAssignmentDiagnostics(ITypeManager typeManager, ObjectSyntax expression, ObjectType targetType, bool skipConstantCheck)

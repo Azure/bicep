@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -24,6 +24,8 @@
     "hostingPlanName": "[parameters('applicationName')]",
     "location": "[resourceGroup().location]",
     "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "_siteApiVersion": "2019-08-01",
+    "_siteType": "Microsoft.Web/sites",
     "resourceCRef": {
       "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
     },
@@ -216,5 +218,14 @@
       ]
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "siteApiVersion": {
+      "type": "string",
+      "value": "2019-08-01"
+    },
+    "siteType": {
+      "type": "string",
+      "value": "Microsoft.Web/sites"
+    }
+  }
 }

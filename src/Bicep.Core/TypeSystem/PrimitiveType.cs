@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {

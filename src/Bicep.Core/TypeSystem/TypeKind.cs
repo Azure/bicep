@@ -37,6 +37,16 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Union of multiple types.
         /// </summary>
-        Union
+        Union,
+
+        /// <summary>
+        /// String literal type.
+        /// </summary>
+        StringLiteral,
+
+        /// <summary>
+        /// Discriminated object type.
+        /// </summary>
+        DiscriminatedObject,
     }
 }

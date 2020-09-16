@@ -18,16 +18,16 @@ param missingType
 param myString2 string = 'string value'
 
 param wrongDefaultValue string = 42
-//@[33:35) Error The parameter expects a default value of type 'string' but provided value is of type 'int'. |42|
+//@[33:35) Error The parameter expects a default value of type string but provided value is of type int. |42|
 
 param myInt2 int = 42
 param noValueAfterColon int =   
 //@[32:32) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 param myTruth bool = 'not a boolean'
-//@[21:36) Error The parameter expects a default value of type 'bool' but provided value is of type 'string'. |'not a boolean'|
+//@[21:36) Error The parameter expects a default value of type bool but provided value is of type 'not a boolean'. |'not a boolean'|
 param myFalsehood bool = 'false'
-//@[25:32) Error The parameter expects a default value of type 'bool' but provided value is of type 'string'. |'false'|
+//@[25:32) Error The parameter expects a default value of type bool but provided value is of type 'false'. |'false'|
 
 param wrongAssignmentToken string: 'hello'
 //@[33:34) Error Expected the '=' token, a parameter modifier, or a newline at this location. |:|
@@ -137,45 +137,45 @@ param duplicatedModifierProperty string {
 // non-existent modifiers
 param secureInt int {
   secure: true
-//@[2:8) Error The property 'secure' is not allowed on objects of type 'ParameterModifier_int'. |secure|
+//@[2:8) Error The property 'secure' is not allowed on objects of type ParameterModifier_int. |secure|
   minLength: 3
-//@[2:11) Error The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'. |minLength|
+//@[2:11) Error The property 'minLength' is not allowed on objects of type ParameterModifier_int. |minLength|
   maxLength: 123
-//@[2:11) Error The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'. |maxLength|
+//@[2:11) Error The property 'maxLength' is not allowed on objects of type ParameterModifier_int. |maxLength|
 }
 
 // wrong modifier value types
 param wrongIntModifier int {
   default: true
-//@[11:15) Error The property 'default' expected a value of type 'int' but the provided value is of type 'bool'. |true|
+//@[11:15) Error The property 'default' expected a value of type int but the provided value is of type bool. |true|
   allowed: [
     'test'
-//@[4:10) Error The enclosing array expected an item of type 'int', but the provided item was of type 'string'. |'test'|
+//@[4:10) Error The enclosing array expected an item of type int, but the provided item was of type 'test'. |'test'|
     true
-//@[4:8) Error The enclosing array expected an item of type 'int', but the provided item was of type 'bool'. |true|
+//@[4:8) Error The enclosing array expected an item of type int, but the provided item was of type bool. |true|
   ]
   minValue: {
-//@[12:17) Error The property 'minValue' expected a value of type 'int' but the provided value is of type 'object'. |{\n  }|
+//@[12:17) Error The property 'minValue' expected a value of type int but the provided value is of type object. |{\n  }|
   }
   maxValue: [
-//@[12:17) Error The property 'maxValue' expected a value of type 'int' but the provided value is of type 'array'. |[\n  ]|
+//@[12:17) Error The property 'maxValue' expected a value of type int but the provided value is of type array. |[\n  ]|
   ]
   metadata: 'wrong'
-//@[12:19) Error The property 'metadata' expected a value of type 'ParameterModifierMetadata' but the provided value is of type 'string'. |'wrong'|
+//@[12:19) Error The property 'metadata' expected a value of type ParameterModifierMetadata but the provided value is of type 'wrong'. |'wrong'|
 }
 
 // wrong metadata schema
 param wrongMetadataSchema string {
   metadata: {
     description: true
-//@[17:21) Error The property 'description' expected a value of type 'string' but the provided value is of type 'bool'. |true|
+//@[17:21) Error The property 'description' expected a value of type string but the provided value is of type bool. |true|
   }
 }
 
 // expression in modifier
 param expressionInModifier string {
   default: 2 + 3
-//@[11:16) Error The property 'default' expected a value of type 'string' but the provided value is of type 'int'. |2 + 3|
+//@[11:16) Error The property 'default' expected a value of type string but the provided value is of type int. |2 + 3|
   maxLength: a + 2
 //@[13:14) Error The name 'a' does not exist in the current context. |a|
 //@[13:18) Error The value must be a compile-time constant. |a + 2|
@@ -248,7 +248,7 @@ param paramAccessingVar2 string {
 
 param paramAccessingResource string = sampleResource
 //@[38:52) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|
-//@[38:52) Error The parameter expects a default value of type 'string' but provided value is of type 'Microsoft.Foo/foos@2020-02-02'. |sampleResource|
+//@[38:52) Error The parameter expects a default value of type string but provided value is of type Microsoft.Foo/foos@2020-02-02. |sampleResource|
 param paramAccessingResource2 string {
   default: base64(sampleResource.properties.foo)
 //@[18:32) Error This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. |sampleResource|

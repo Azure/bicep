@@ -41,20 +41,20 @@ var x = a + 2
 // unary NOT
 var not = !null
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:15) Error Cannot apply operator '!' to operand of type 'null'. |!null|
+//@[10:15) Error Cannot apply operator '!' to operand of type null. |!null|
 var not = !4
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:12) Error Cannot apply operator '!' to operand of type 'int'. |!4|
+//@[10:12) Error Cannot apply operator '!' to operand of type int. |!4|
 var not = !'s'
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:14) Error Cannot apply operator '!' to operand of type 'string'. |!'s'|
+//@[10:14) Error Cannot apply operator '!' to operand of type 's'. |!'s'|
 var not = ![
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:14) Error Cannot apply operator '!' to operand of type 'array'. |![\n]|
+//@[10:14) Error Cannot apply operator '!' to operand of type array. |![\n]|
 ]
 var not = !{
 //@[4:7) Error Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
-//@[10:14) Error Cannot apply operator '!' to operand of type 'object'. |!{\n}|
+//@[10:14) Error Cannot apply operator '!' to operand of type object. |!{\n}|
 }
 
 // unary not chaining will be added in the future
@@ -68,123 +68,123 @@ var minus = ------12
 // unary minus
 var minus = -true
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'bool'. |-true|
+//@[12:17) Error Cannot apply operator '-' to operand of type bool. |-true|
 var minus = -null
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:17) Error Cannot apply operator '-' to operand of type 'null'. |-null|
+//@[12:17) Error Cannot apply operator '-' to operand of type null. |-null|
 var minus = -'s'
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:16) Error Cannot apply operator '-' to operand of type 'string'. |-'s'|
+//@[12:16) Error Cannot apply operator '-' to operand of type 's'. |-'s'|
 var minus = -[
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:16) Error Cannot apply operator '-' to operand of type 'array'. |-[\n]|
+//@[12:16) Error Cannot apply operator '-' to operand of type array. |-[\n]|
 ]
 var minus = -{
 //@[4:9) Error Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
-//@[12:16) Error Cannot apply operator '-' to operand of type 'object'. |-{\n}|
+//@[12:16) Error Cannot apply operator '-' to operand of type object. |-{\n}|
 }
 
 // multiplicative
 var mod = 's' % true
-//@[10:20) Error Cannot apply operator '%' to operands of type 'string' and 'bool'. |'s' % true|
+//@[10:20) Error Cannot apply operator '%' to operands of type 's' and bool. |'s' % true|
 var mul = true * null
-//@[10:21) Error Cannot apply operator '*' to operands of type 'bool' and 'null'. |true * null|
+//@[10:21) Error Cannot apply operator '*' to operands of type bool and null. |true * null|
 var div = {
-//@[10:19) Error Cannot apply operator '/' to operands of type 'object' and 'array'. |{\n} / [\n]|
+//@[10:19) Error Cannot apply operator '/' to operands of type object and array. |{\n} / [\n]|
 } / [
 ]
 
 // additive
 var add = null + 's'
-//@[10:20) Error Cannot apply operator '+' to operands of type 'null' and 'string'. |null + 's'|
+//@[10:20) Error Cannot apply operator '+' to operands of type null and 's'. |null + 's'|
 var sub = true - false
-//@[10:22) Error Cannot apply operator '-' to operands of type 'bool' and 'bool'. |true - false|
+//@[10:22) Error Cannot apply operator '-' to operands of type bool and bool. |true - false|
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
-//@[9:21) Error Cannot apply operator '=~' to operands of type 'bool' and 'null'. |true =~ null|
+//@[9:21) Error Cannot apply operator '=~' to operands of type bool and null. |true =~ null|
 var ne = 15 !~ [
-//@[9:18) Error Cannot apply operator '!~' to operands of type 'int' and 'array'. |15 !~ [\n]|
+//@[9:18) Error Cannot apply operator '!~' to operands of type int and array. |15 !~ [\n]|
 ]
 
 // relational
 var lt = 4 < 's'
-//@[9:16) Error Cannot apply operator '<' to operands of type 'int' and 'string'. |4 < 's'|
+//@[9:16) Error Cannot apply operator '<' to operands of type int and 's'. |4 < 's'|
 var lteq = null <= 10
-//@[11:21) Error Cannot apply operator '<=' to operands of type 'null' and 'int'. |null <= 10|
+//@[11:21) Error Cannot apply operator '<=' to operands of type null and int. |null <= 10|
 var gt = false>[
-//@[9:18) Error Cannot apply operator '>' to operands of type 'bool' and 'array'. |false>[\n]|
+//@[9:18) Error Cannot apply operator '>' to operands of type bool and array. |false>[\n]|
 ]
 var gteq = {
-//@[11:23) Error Cannot apply operator '>=' to operands of type 'object' and 'bool'. |{\n} >= false|
+//@[11:23) Error Cannot apply operator '>=' to operands of type object and bool. |{\n} >= false|
 } >= false
 
 // logical
 var and = null && 'a'
-//@[10:21) Error Cannot apply operator '&&' to operands of type 'null' and 'string'. |null && 'a'|
+//@[10:21) Error Cannot apply operator '&&' to operands of type null and 'a'. |null && 'a'|
 var or = 10 || 4
-//@[9:16) Error Cannot apply operator '||' to operands of type 'int' and 'int'. |10 || 4|
+//@[9:16) Error Cannot apply operator '||' to operands of type int and int. |10 || 4|
 
 // conditional
 var ternary = null ? 4 : false
-//@[14:18) Error Expected a value of type 'bool'. |null|
+//@[14:18) Error Expected a value of type bool. |null|
 
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
 //@[14:18) Error The name 'test' does not exist in the current context. |test|
-//@[36:49) Error Cannot apply operator '&&' to operands of type 'bool' and 'null'. |false && null|
+//@[36:49) Error Cannot apply operator '&&' to operands of type bool and null. |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
-//@[14:21) Error Cannot apply operator '&&' to operands of type 'int' and 'int'. |-2 && 3|
-//@[25:27) Error Cannot apply operator '!' to operand of type 'int'. |!4|
+//@[14:21) Error Cannot apply operator '&&' to operands of type int and int. |-2 && 3|
+//@[25:27) Error Cannot apply operator '!' to operand of type int. |!4|
 var complex = null ? !4: false
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
-//@[21:23) Error Cannot apply operator '!' to operand of type 'int'. |!4|
+//@[21:23) Error Cannot apply operator '!' to operand of type int. |!4|
 var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
 //@[4:11) Error Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
-//@[50:57) Error Cannot apply operator '&&' to operands of type 'int' and 'int'. |-2 && 3|
-//@[61:63) Error Cannot apply operator '!' to operand of type 'int'. |!4|
-//@[79:92) Error Cannot apply operator '&&' to operands of type 'bool' and 'null'. |false && null|
+//@[50:57) Error Cannot apply operator '&&' to operands of type int and int. |-2 && 3|
+//@[61:63) Error Cannot apply operator '!' to operand of type int. |!4|
+//@[79:92) Error Cannot apply operator '&&' to operands of type bool and null. |false && null|
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[4:17) Error Identifier 'nestedTernary' is declared multiple times. Remove or rename the duplicates. |nestedTernary|
-//@[31:32) Error Expected a value of type 'bool'. |2|
+//@[31:32) Error Expected a value of type bool. |2|
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 //@[4:17) Error Identifier 'nestedTernary' is declared multiple times. Remove or rename the duplicates. |nestedTernary|
-//@[21:25) Error Expected a value of type 'bool'. |null|
+//@[21:25) Error Expected a value of type bool. |null|
 
 // bad array access
 var errorInsideArrayAccess = [
   !null
-//@[2:7) Error Cannot apply operator '!' to operand of type 'null'. |!null|
+//@[2:7) Error Cannot apply operator '!' to operand of type null. |!null|
 ][!0]
-//@[2:4) Error Cannot apply operator '!' to operand of type 'int'. |!0|
+//@[2:4) Error Cannot apply operator '!' to operand of type int. |!0|
 var integerIndexOnNonArray = (null)[0]
 //@[29:35) Error Cannot index over expression of type 'null'. Arrays or objects are required. |(null)|
 var stringIndexOnNonObject = 'test'['test']
-//@[29:35) Error Cannot index over expression of type 'string'. Arrays or objects are required. |'test'|
+//@[29:35) Error Cannot index over expression of type ''test''. Arrays or objects are required. |'test'|
 var malformedStringIndex = {
 }['test\e']
 //@[7:9) Error The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
 var invalidIndexTypeOverAny = any(true)[true]
-//@[40:44) Error The array index must be of type 'string' or 'int' but the provided index was of type 'bool'. |true|
+//@[40:44) Error The array index must be of type string or int but the provided index was of type bool. |true|
 var badIndexOverArray = [][null]
 //@[27:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'null'. |null|
 var badIndexOverArray2 = []['s']
-//@[28:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+//@[28:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
 var badIndexOverObj = {}[true]
 //@[25:29) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'bool'. |true|
 var badIndexOverObj2 = {}[0]
 //@[26:27) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'int'. |0|
 var badExpressionIndexer = {}[base64('a')]
-//@[30:41) Error The type 'object' does not contain any properties. |base64('a')|
+//@[30:41) Error The type object does not contain any properties. |base64('a')|
 
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
-//@[32:35) Error Cannot access properties of type 'bool'. An 'object' type is required. |foo|
+//@[32:35) Error Cannot access properties of type bool. An object type is required. |foo|
 var badExpressionInPropertyAccess = resourceGroup()[!'location']
-//@[52:63) Error Cannot apply operator '!' to operand of type 'string'. |!'location'|
+//@[52:63) Error Cannot apply operator '!' to operand of type 'location'. |!'location'|
 
 var propertyAccessOnVariable = x.foo
 //@[31:32) Error The referenced declaration with name 'x' is not valid. |x|
@@ -224,13 +224,13 @@ var takeTooMany = take([
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[30:33) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'array'.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type 'object' is not assignable to parameter of type 'bool | int | string'. |{\n}|
+//@[30:33) Error Cannot resolve function overload.\n  Overload 1 of 2, '(param0: array): array', gave the following error:\n    Argument of type object is not assignable to parameter of type array.\n  Overload 2 of 2, '(param0: bool | int | string): string', gave the following error:\n    Argument of type object is not assignable to parameter of type bool | int | string. |{\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
-//@[48:51) Error Argument of type 'array' is not assignable to parameter of type 'bool | int | string'. |[\n]|
+//@[48:51) Error Argument of type array is not assignable to parameter of type bool | int | string. |[\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
-//@[32:34) Error Argument of type 'int' is not assignable to parameter of type 'string'. |1,|
+//@[32:34) Error Argument of type int is not assignable to parameter of type string. |1,|
 
 // not enough params
 var test1 = listKeys('abcd')
@@ -281,7 +281,7 @@ var emitLimit2 = {
     c: concat([
 
     ], true)
-//@[7:11) Error Argument of type 'bool' is not assignable to parameter of type 'array'. |true|
+//@[7:11) Error Argument of type bool is not assignable to parameter of type array. |true|
   }
 }
 
@@ -305,20 +305,20 @@ var sampleObject = {
 }
 
 var badProperty = sampleObject.myFake
-//@[31:37) Error The type 'object' does not contain property 'myFake'. |myFake|
+//@[31:37) Error The type object does not contain property 'myFake'. |myFake|
 var badPropertyIndexer = sampleObject['fake']
-//@[38:44) Error The type 'object' does not contain property 'fake'. |'fake'|
+//@[38:44) Error The type object does not contain property 'fake'. |'fake'|
 var badType = sampleObject.myStr / 32
-//@[14:37) Error Cannot apply operator '/' to operands of type 'string' and 'int'. |sampleObject.myStr / 32|
+//@[14:37) Error Cannot apply operator '/' to operands of type 's' and int. |sampleObject.myStr / 32|
 var badInnerProperty = sampleObject.myInner.fake
-//@[44:48) Error The type 'object' does not contain property 'fake'. |fake|
+//@[44:48) Error The type object does not contain property 'fake'. |fake|
 var badInnerType = sampleObject.myInner.anotherStr + 2
-//@[19:54) Error Cannot apply operator '+' to operands of type 'string' and 'int'. |sampleObject.myInner.anotherStr + 2|
+//@[19:54) Error Cannot apply operator '+' to operands of type 'a' and int. |sampleObject.myInner.anotherStr + 2|
 var badArrayIndexer = sampleObject.myArr['s']
-//@[41:44) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+//@[41:44) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
-//@[57:60) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'string'. |'s'|
+//@[57:60) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
 var badIndexer = sampleObject.myStr['s']
-//@[17:35) Error Cannot index over expression of type 'string'. Arrays or objects are required. |sampleObject.myStr|
+//@[17:35) Error Cannot index over expression of type ''s''. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[41:48) Error The type 'object' does not contain property 'fakeArr'. |fakeArr|
+//@[41:48) Error The type object does not contain property 'fakeArr'. |fakeArr|

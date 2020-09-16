@@ -18,7 +18,7 @@ namespace Bicep.Core.SemanticModel
 
         public SyntaxBase Value { get; }
 
-        public TypeSymbol Type => GetVariableType(new TypeManagerContext());
+        public override TypeSymbol Type => GetVariableType(new TypeManagerContext());
 
         public TypeSymbol GetVariableType(TypeManagerContext context)
         {
