@@ -90,7 +90,7 @@ In the example below, we are constructing a `subnets` property of a virtual netw
 variables subnets = [
   {
     name: 'api'
-    subnetPrefix = '10.144.0.0/24'
+    subnetPrefix: '10.144.0.0/24'
   }
   {
     name: 'worker'
