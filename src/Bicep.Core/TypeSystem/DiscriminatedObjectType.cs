@@ -13,6 +13,7 @@ namespace Bicep.Core.TypeSystem
             : base(name)
         {
             var unionMembersByKey = new Dictionary<string, NamedObjectType>();
+            var unionKeyTypes = new List<StringLiteralType>();
             foreach (var member in unionMembers)
             {
                 if (!member.Properties.TryGetValue(discriminatorKey, out var discriminatorProp))
@@ -25,22 +26,21 @@ namespace Bicep.Core.TypeSystem
                     throw new ArgumentException($"Invalid discriminator field type {discriminatorProp.Type.Name} on member");
                 }
 
-                if (unionMembersByKey.ContainsKey(stringLiteral.Name))
-                {
-                    throw new ArgumentException($"Duplicate discriminator field {stringLiteral.Name} on member");
-                }
-
-                unionMembersByKey[stringLiteral.Name] = member;
+                unionMembersByKey.Add(stringLiteral.Name, member);
+                unionKeyTypes.Add(stringLiteral);
             }
 
-            this.DiscriminatorKey = discriminatorKey;
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
+            this.DiscriminatorKey = discriminatorKey;
+            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
+        public ImmutableDictionary<string, NamedObjectType> UnionMembersByKey { get; }
+
         public string DiscriminatorKey { get; }
 
-        public ImmutableDictionary<string, NamedObjectType> UnionMembersByKey { get; }
+        public TypeSymbol DiscriminatorKeysUnionType { get; }
     }
 }

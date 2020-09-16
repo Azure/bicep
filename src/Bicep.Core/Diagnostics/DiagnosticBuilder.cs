@@ -402,20 +402,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP077",
                 $"The property '{badProperty}' on type '{type}' is write-only. Write-only properties cannot be accessed.");
 
-            public ErrorDiagnostic MissingDiscriminator(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
+            public ErrorDiagnostic MissingRequiredProperty(string propertyName, TypeSymbol expectedType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP078",
-                $"Property '{discriminatorKey}' must be supplied. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
-
-            public ErrorDiagnostic ExpectedDiscriminatorStringLiteral(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP079",
-                $"Property '{discriminatorKey}' must be supplied as a string literal. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
-
-            public ErrorDiagnostic FailedToMatchDiscriminator(string discriminatorKey, IEnumerable<string> keys) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP080",
-                $"Unable to match a known type for property '{discriminatorKey}'. Valid key types are: {string.Join(", ", keys.OrderBy(x => x))}.");
+                $"The property '{propertyName}' requires a value of type {expectedType}, but none was supplied.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

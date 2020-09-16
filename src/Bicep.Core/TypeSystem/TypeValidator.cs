@@ -196,7 +196,7 @@ namespace Bicep.Core.TypeSystem
             if (!propertyMap.TryGetValue(targetType.DiscriminatorKey, out var discriminatorProperty))
             {
                 // object doesn't contain the discriminator field
-                yield return DiagnosticBuilder.ForPosition(expression).MissingDiscriminator(targetType.DiscriminatorKey, targetType.UnionMembersByKey.Keys);
+                yield return DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType);
                 yield break;
             }
 
@@ -207,14 +207,14 @@ namespace Bicep.Core.TypeSystem
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value, new TypeManagerContext());
             if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
             {
-                yield return DiagnosticBuilder.ForPosition(expression).ExpectedDiscriminatorStringLiteral(targetType.DiscriminatorKey, targetType.UnionMembersByKey.Keys);
+                yield return DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
                 yield break;
             }
 
             if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectType))
             {
                 // no matches
-                yield return DiagnosticBuilder.ForPosition(discriminatorProperty.Value).FailedToMatchDiscriminator(targetType.DiscriminatorKey, targetType.UnionMembersByKey.Keys);
+                yield return DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
                 yield break;
             }
 

@@ -713,7 +713,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
             errors.Should().SatisfyRespectively(
                 x => {
-                    x.Message.Should().Be("Property 'myDiscriminator' must be supplied. Valid key types are: 'valA', 'valB'.");
+                    x.Message.Should().Be("The property 'myDiscriminator' requires a value of type 'valA' | 'valB', but none was supplied.");
                 });
 
             // incorrect type specified for the discriminator field
@@ -726,7 +726,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
             errors.Should().SatisfyRespectively(
                 x => {
-                    x.Message.Should().Be("Property 'myDiscriminator' must be supplied as a string literal. Valid key types are: 'valA', 'valB'.");
+                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type object.");
                 });
 
             // discriminator value that matches neither option supplied
@@ -738,7 +738,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
             errors.Should().SatisfyRespectively(
                 x => {
-                    x.Message.Should().Be("Unable to match a known type for property 'myDiscriminator'. Valid key types are: 'valA', 'valB'.");
+                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type 'valC'.");
                 });
 
             // missing required property for the 'valB' branch
