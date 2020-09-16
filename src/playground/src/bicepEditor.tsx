@@ -6,7 +6,8 @@ import { compileAndEmitDiagnostics, getSemanticTokens, getSemanticTokensLegend }
 
 interface Props {
   initialCode: string,
-  handleJsonChange: (jsonContent: string) => void,
+  onBicepChange: (bicepContent: string) => void,
+  onJsonChange: (jsonContent: string) => void,
 }
 
 function configureEditorForBicep(editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) {
@@ -82,7 +83,8 @@ export const BicepEditor : React.FC<Props> = (props) => {
     setBicepContent(text);
     const { template, diagnostics } = compileAndEmitDiagnostics(text);
     monacoEditor.editor.setModelMarkers(editor.getModel(), 'default', diagnostics);
-    props.handleJsonChange(template);
+    props.onBicepChange(text);
+    props.onJsonChange(template);
   }
 
   const handleEditorDidMount = (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => {
