@@ -87,7 +87,7 @@ resource[] storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01
 In the example below, we are constructing a `subnets` property of a virtual network resource from the `subnets` array. On each loop iteration, the `subnet` variable is set to the current element of the array.
 
 ```
-variables subnets = [
+var subnets = [
   {
     name: 'api'
     subnetPrefix: '10.144.0.0/24'
