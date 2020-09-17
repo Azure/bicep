@@ -322,3 +322,8 @@ var badIndexer = sampleObject.myStr['s']
 //@[17:35) Error Cannot index over expression of type ''s''. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) Error The type object does not contain property 'fakeArr'. |fakeArr|
+var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
+//@[50:61) Error This is not a valid expression. |a.b.c.bar()|
+var invalidInstanceFunctionAccess = a.b.c.bar()
+//@[36:47) Error This is not a valid expression. |a.b.c.bar()|
+

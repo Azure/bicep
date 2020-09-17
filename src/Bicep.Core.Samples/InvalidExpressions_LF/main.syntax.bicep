@@ -1863,7 +1863,7 @@ var badIndexer = sampleObject.myStr['s']
 //@[39:40)   RightSquare |]|
 //@[40:41)  NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[0:53) VariableDeclarationSyntax
+//@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |badInnerArray|
@@ -1884,4 +1884,58 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[49:52)   StringSyntax
 //@[49:52)    StringComplete |'s'|
 //@[52:53)   RightSquare |]|
-//@[53:53) EndOfFile ||
+//@[53:54)  NewLine |\n|
+var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
+//@[0:66) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:47)  IdentifierSyntax
+//@[4:47)   Identifier |invalidPropertyCallOnInstanceFunctionAccess|
+//@[48:49)  Assignment |=|
+//@[50:65)  PropertyAccessSyntax
+//@[50:61)   InstanceFunctionCallSyntax
+//@[50:55)    PropertyAccessSyntax
+//@[50:53)     PropertyAccessSyntax
+//@[50:51)      VariableAccessSyntax
+//@[50:51)       IdentifierSyntax
+//@[50:51)        Identifier |a|
+//@[51:52)      Dot |.|
+//@[52:53)      IdentifierSyntax
+//@[52:53)       Identifier |b|
+//@[53:54)     Dot |.|
+//@[54:55)     IdentifierSyntax
+//@[54:55)      Identifier |c|
+//@[55:56)    Dot |.|
+//@[56:59)    IdentifierSyntax
+//@[56:59)     Identifier |bar|
+//@[59:60)    LeftParen |(|
+//@[60:61)    RightParen |)|
+//@[61:62)   Dot |.|
+//@[62:65)   IdentifierSyntax
+//@[62:65)    Identifier |baz|
+//@[65:66)  NewLine |\n|
+var invalidInstanceFunctionAccess = a.b.c.bar()
+//@[0:48) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:33)  IdentifierSyntax
+//@[4:33)   Identifier |invalidInstanceFunctionAccess|
+//@[34:35)  Assignment |=|
+//@[36:47)  InstanceFunctionCallSyntax
+//@[36:41)   PropertyAccessSyntax
+//@[36:39)    PropertyAccessSyntax
+//@[36:37)     VariableAccessSyntax
+//@[36:37)      IdentifierSyntax
+//@[36:37)       Identifier |a|
+//@[37:38)     Dot |.|
+//@[38:39)     IdentifierSyntax
+//@[38:39)      Identifier |b|
+//@[39:40)    Dot |.|
+//@[40:41)    IdentifierSyntax
+//@[40:41)     Identifier |c|
+//@[41:42)   Dot |.|
+//@[42:45)   IdentifierSyntax
+//@[42:45)    Identifier |bar|
+//@[45:46)   LeftParen |(|
+//@[46:47)   RightParen |)|
+//@[47:48)  NewLine |\n|
+
+//@[0:0) EndOfFile ||

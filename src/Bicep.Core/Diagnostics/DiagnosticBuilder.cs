@@ -121,10 +121,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP019",
                 "Expected a new line character at this location.");
 
-            public ErrorDiagnostic ExpectedPropertyIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedFunctionOrPropertyName() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP020",
-                "Expected a property identifier at this location.");
+                "Expected a function or property name at this location.");
 
             public ErrorDiagnostic ExpectedNumericLiteral() => new ErrorDiagnostic(
                 TextSpan,
@@ -136,10 +136,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP022",
                 "Expected a property name at this location.");
 
-            public ErrorDiagnostic ExpectedFunctionName() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedVariableOrFunctionName() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP023",
-                "Expected a function name at this location.");
+                "Expected a variable or function name at this location.");
 
             public ErrorDiagnostic IdentifierNameExceedsLimit() => new ErrorDiagnostic(
                 TextSpan,

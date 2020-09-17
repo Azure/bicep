@@ -240,9 +240,25 @@ namespace Bicep.Core.Parser
                 {
                     // dot operator
                     Token dot = this.reader.Read();
-                    IdentifierSyntax propertyName = this.Identifier(b => b.ExpectedPropertyIdentifier());
+                    IdentifierSyntax identifier = this.Identifier(b => b.ExpectedFunctionOrPropertyName());
 
-                    current = new PropertyAccessSyntax(current, dot, propertyName);
+                    if (Check(TokenType.LeftParen))
+                    {
+                        var functionCall = FunctionCallAccess(identifier);
+
+                        // gets instance function call
+                        current = new InstanceFunctionCallSyntax(
+                            current,
+                            dot,
+                            functionCall.Identifier,
+                            functionCall.OpenParen,
+                            functionCall.ArgumentNodes,
+                            functionCall.CloseParen);
+                    }
+                    else
+                    {
+                        current = new PropertyAccessSyntax(current, dot, identifier);
+                    }
 
                     continue;
                 }
@@ -297,24 +313,49 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase FunctionCallOrVariableAccess()
         {
-            var identifier = this.Identifier(b => b.ExpectedFunctionName());
+            var identifier = this.Identifier(b => b.ExpectedVariableOrFunctionName());
 
-            if (this.Check(TokenType.LeftParen) == false)
+            if (Check(TokenType.LeftParen))
             {
-                // just a reference to a variable, parameter, or output
-                return new VariableAccessSyntax(identifier);
+                var functionCall = FunctionCallAccess(identifier);
+
+                return new FunctionCallSyntax(
+                    functionCall.Identifier,
+                    functionCall.OpenParen,
+                    functionCall.ArgumentNodes,
+                    functionCall.CloseParen);
             }
+            // returns variable access
+            return new VariableAccessSyntax(identifier);
+        }
 
-            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
+        /// <summary>
+        /// Method that gets a function call identifier, its arguments plus open and close parens
+        /// </summary>
+        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName)
+        {
+           var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
-            var arguments = new List<(SyntaxBase expression, Token? comma)>();
+            var argumentNodes = FunctionCallArguments();
 
+            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+
+            return (functionName, openParen, argumentNodes, closeParen);
+        }
+
+        /// <summary>
+        /// Method that consumes and returns all arguments from an Instance of Function call.
+        /// This method stops when a right paren is found without consuming it, a caller must
+        /// consume the right paren token.
+        /// </summary>
+        private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments()
+        {
             if (this.Check(TokenType.RightParen))
             {
-                // end of a parameter-less function call
-                var closeParen = this.reader.Read();
-                return new FunctionCallSyntax(identifier, openParen, ImmutableArray<FunctionArgumentSyntax>.Empty, closeParen);
+                return ImmutableArray<FunctionArgumentSyntax>.Empty;
             }
+
+            var arguments = new List<(SyntaxBase expression, Token? comma)>();
 
             while (true)
             {
@@ -324,14 +365,18 @@ namespace Bicep.Core.Parser
                 if (this.Check(TokenType.RightParen))
                 {
                     // end of function call
-                    // return the accumulated arguments
-                    var closeParen = this.reader.Read();
-                    var argumentNodes = arguments.Select(a => new FunctionArgumentSyntax(a.expression, a.comma));
-                    return new FunctionCallSyntax(identifier, openParen, argumentNodes, closeParen);
+                    // return the accumulated arguments without consuming right paren a caller must consume it
+                    var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
+                    foreach (var argument in arguments)
+                    {
+                        functionArguments.Add(
+                            new FunctionArgumentSyntax(argument.expression, argument.comma));
+                    }
+                    return functionArguments.ToImmutableArray();
                 }
 
                 var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
-                
+
                 // update the tuple
                 var lastArgument = arguments.Last();
                 lastArgument.comma = comma;
