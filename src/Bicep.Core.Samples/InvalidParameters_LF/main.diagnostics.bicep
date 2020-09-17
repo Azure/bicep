@@ -191,25 +191,25 @@ param expressionInModifier string {
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
-//@[36:56) Error The expression is involved in a cycle. |paramDefaultOneCycle|
+//@[36:56) Error This expression is referencing its own declaration in a cycle. |paramDefaultOneCycle|
 
 // 2-cycle in params
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
-//@[37:58) Error The expression is involved in a cycle. |paramDefaultTwoCycle2|
+//@[37:58) Error The expression is involved in a cycle (paramDefaultTwoCycle2 -> paramDefaultTwoCycle1). |paramDefaultTwoCycle2|
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
-//@[37:58) Error The expression is involved in a cycle. |paramDefaultTwoCycle1|
+//@[37:58) Error The expression is involved in a cycle (paramDefaultTwoCycle1 -> paramDefaultTwoCycle2). |paramDefaultTwoCycle1|
 
 // 1-cycle in modifier params
 param paramModifierOneCycle string {
   default: paramModifierOneCycle
-//@[11:32) Error The expression is involved in a cycle. |paramModifierOneCycle|
+//@[11:32) Error This expression is referencing its own declaration in a cycle. |paramModifierOneCycle|
 }
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
   allowed: [
     paramModifierSelfCycle
-//@[4:26) Error The expression is involved in a cycle. |paramModifierSelfCycle|
+//@[4:26) Error This expression is referencing its own declaration in a cycle. |paramModifierSelfCycle|
 //@[4:26) Error The value must be a compile-time constant. |paramModifierSelfCycle|
   ]
 }
@@ -217,19 +217,19 @@ param paramModifierSelfCycle string {
 // 2-cycle in modifier params
 param paramModifierTwoCycle1 string {
   default: paramModifierTwoCycle2
-//@[11:33) Error The expression is involved in a cycle. |paramModifierTwoCycle2|
+//@[11:33) Error The expression is involved in a cycle (paramModifierTwoCycle2 -> paramModifierTwoCycle1). |paramModifierTwoCycle2|
 }
 param paramModifierTwoCycle2 string {
   default: paramModifierTwoCycle1
-//@[11:33) Error The expression is involved in a cycle. |paramModifierTwoCycle1|
+//@[11:33) Error The expression is involved in a cycle (paramModifierTwoCycle1 -> paramModifierTwoCycle2). |paramModifierTwoCycle1|
 }
 
 // 2-cycle mixed param syntaxes
 param paramMixedTwoCycle1 string = paramMixedTwoCycle2
-//@[35:54) Error The expression is involved in a cycle. |paramMixedTwoCycle2|
+//@[35:54) Error The expression is involved in a cycle (paramMixedTwoCycle2 -> paramMixedTwoCycle1). |paramMixedTwoCycle2|
 param paramMixedTwoCycle2 string {
   default: paramMixedTwoCycle1
-//@[11:30) Error The expression is involved in a cycle. |paramMixedTwoCycle1|
+//@[11:30) Error The expression is involved in a cycle (paramMixedTwoCycle1 -> paramMixedTwoCycle2). |paramMixedTwoCycle1|
 }
 
 // wrong types of "variable"/identifier access

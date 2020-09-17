@@ -15,8 +15,5 @@ namespace Bicep.Core.Diagnostics
 
         public ErrorDiagnostic WithSpan(TextSpan newSpan)
             => new ErrorDiagnostic(newSpan, Code, Message);
-
-        public static bool IsCyclicExpressionError(ErrorDiagnostic diagnostic) => 
-            string.Equals(diagnostic.Code, DiagnosticBuilder.BCP061CyclicExpressionCode, StringComparison.OrdinalIgnoreCase);
     }
 }

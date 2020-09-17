@@ -19,7 +19,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             const string expectedMessage = "Properties of the symbol context should not be accessed until name binding is completed.";
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var context = new SymbolContext(new TypeManager(bindings), bindings);
+            var cyclesBySyntax = new Dictionary<SyntaxBase, DeclaredSymbol[]>();
+            var context = new SymbolContext(new TypeManager(bindings, cyclesBySyntax), bindings);
 
             Action byName = () =>
             {
