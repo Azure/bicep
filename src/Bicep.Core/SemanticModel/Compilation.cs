@@ -30,7 +30,7 @@ namespace Bicep.Core.SemanticModel
         {
             var builtinNamespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()}.ToImmutableArray();
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var cyclesBySyntax = new Dictionary<SyntaxBase, DeclaredSymbol[]>();
+            var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done

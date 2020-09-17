@@ -408,7 +408,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CyclicSelfReference() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP079",
-                "This expression is referencing its own declaration in a cycle.");
+                "This expression is referencing its own declaration, which is not allowed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<SyntaxBase, DeclaredSymbol[]> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static ImmutableDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<string, DeclaredSymbol> declarations, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new CyclicCheckVisitor(declarations, bindings);
             visitor.Visit(programSyntax);
@@ -35,9 +35,9 @@ namespace Bicep.Core.TypeSystem
             Complete,
         }
 
-        private ImmutableDictionary<SyntaxBase, DeclaredSymbol[]> FindCycles()
+        private ImmutableDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> FindCycles()
         {
-            var shortestCycleBySyntax = new Dictionary<SyntaxBase, DeclaredSymbol[]>();
+            var shortestCycleBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             var visitState = new Dictionary<DeclaredSymbol, VisitorState>();
             foreach (var kvp in declarationAccessDict)
             {
@@ -58,7 +58,7 @@ namespace Bicep.Core.TypeSystem
             return shortestCycleBySyntax.ToImmutableDictionary();
         }
 
-        private void FindCyclesDfs(Stack<DeclaredSymbol> symbolStack, Dictionary<DeclaredSymbol, VisitorState> visitState, IDictionary<SyntaxBase, DeclaredSymbol[]> shortestCycleBySyntax)
+        private void FindCyclesDfs(Stack<DeclaredSymbol> symbolStack, Dictionary<DeclaredSymbol, VisitorState> visitState, IDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> shortestCycleBySyntax)
         {
             var declaration = symbolStack.Peek();
             var syntaxBySymbol = declarationAccessDict[declaration].GroupBy(x => bindings[x]);
@@ -88,13 +88,13 @@ namespace Bicep.Core.TypeSystem
             symbolStack.Pop();
         }
 
-        private void AddCycleInformation(Stack<DeclaredSymbol> symbolStack, DeclaredSymbol referencedDeclaration, IDictionary<SyntaxBase, DeclaredSymbol[]> shortestCycleBySyntax)
+        private void AddCycleInformation(Stack<DeclaredSymbol> symbolStack, DeclaredSymbol referencedDeclaration, IDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> shortestCycleBySyntax)
         {
             var cycle = symbolStack
                 .TakeWhile(x => x != referencedDeclaration)
                 .Concat(new [] { referencedDeclaration })
                 .Reverse()
-                .ToArray();
+                .ToImmutableArray();
 
             var cyclicSyntaxBySymbol = cycle
                 .SelectMany(s => declarationAccessDict[s])

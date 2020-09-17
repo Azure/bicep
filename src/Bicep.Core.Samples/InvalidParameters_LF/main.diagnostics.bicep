@@ -191,7 +191,7 @@ param expressionInModifier string {
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
-//@[36:56) Error This expression is referencing its own declaration in a cycle. |paramDefaultOneCycle|
+//@[36:56) Error This expression is referencing its own declaration, which is not allowed. |paramDefaultOneCycle|
 
 // 2-cycle in params
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
@@ -202,14 +202,14 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 // 1-cycle in modifier params
 param paramModifierOneCycle string {
   default: paramModifierOneCycle
-//@[11:32) Error This expression is referencing its own declaration in a cycle. |paramModifierOneCycle|
+//@[11:32) Error This expression is referencing its own declaration, which is not allowed. |paramModifierOneCycle|
 }
 
 // 1-cycle in modifier with non-default property
 param paramModifierSelfCycle string {
   allowed: [
     paramModifierSelfCycle
-//@[4:26) Error This expression is referencing its own declaration in a cycle. |paramModifierSelfCycle|
+//@[4:26) Error This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
 //@[4:26) Error The value must be a compile-time constant. |paramModifierSelfCycle|
   ]
 }

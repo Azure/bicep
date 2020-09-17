@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Resources;
@@ -810,7 +811,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(type, LanguageConstants.CreateResourceProperties(typeReference), null, typeReference);
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, DeclaredSymbol[]>());
+        private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }
 

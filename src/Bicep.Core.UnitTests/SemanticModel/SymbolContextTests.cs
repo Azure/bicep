@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -19,7 +20,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             const string expectedMessage = "Properties of the symbol context should not be accessed until name binding is completed.";
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var cyclesBySyntax = new Dictionary<SyntaxBase, DeclaredSymbol[]>();
+            var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             var context = new SymbolContext(new TypeManager(bindings, cyclesBySyntax), bindings);
 
             Action byName = () =>

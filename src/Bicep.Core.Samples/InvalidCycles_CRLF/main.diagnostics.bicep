@@ -1,11 +1,11 @@
 
 //self-cycle
 var x = x
-//@[8:9) Error This expression is referencing its own declaration in a cycle. |x|
+//@[8:9) Error This expression is referencing its own declaration, which is not allowed. |x|
 var q = base64(q, !q)
 //@[14:21) Error Expected 1 argument, but got 2. |(q, !q)|
-//@[15:16) Error This expression is referencing its own declaration in a cycle. |q|
-//@[19:20) Error This expression is referencing its own declaration in a cycle. |q|
+//@[15:16) Error This expression is referencing its own declaration, which is not allowed. |q|
+//@[19:20) Error This expression is referencing its own declaration, which is not allowed. |q|
 
 //2-cycle
 var a = b
