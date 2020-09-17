@@ -223,11 +223,11 @@ namespace Bicep.Core.Syntax
         public virtual void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             this.Visit(syntax.BaseExpression);
-            this.VisitToken(syntax.Dot);
+            this.Visit(syntax.Dot);
             this.Visit(syntax.Name);
-            this.VisitToken(syntax.OpenParen);
+            this.Visit(syntax.OpenParen);
             this.VisitNodes(syntax.Arguments);
-            this.VisitToken(syntax.CloseParen);
+            this.Visit(syntax.CloseParen);
         }
 
         public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
