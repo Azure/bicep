@@ -100,7 +100,7 @@ var f = g && true
 //@[13:17)    TrueKeyword |true|
 //@[17:19)  NewLine |\r\n|
 var g = e ? e : e
-//@[0:17) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |g|
@@ -117,4 +117,92 @@ var g = e ? e : e
 //@[16:17)   VariableAccessSyntax
 //@[16:17)    IdentifierSyntax
 //@[16:17)     Identifier |e|
-//@[17:17) EndOfFile ||
+//@[17:21)  NewLine |\r\n\r\n|
+
+//4-cycle
+//@[9:11) NoOpDeclarationSyntax
+//@[9:11)  NewLine |\r\n|
+var aa = {
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |aa|
+//@[7:8)  Assignment |=|
+//@[9:23)  ObjectSyntax
+//@[9:10)   LeftBrace |{|
+//@[10:12)   NewLine |\r\n|
+  bb: bb
+//@[2:10)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |bb|
+//@[4:5)    Colon |:|
+//@[6:8)    VariableAccessSyntax
+//@[6:8)     IdentifierSyntax
+//@[6:8)      Identifier |bb|
+//@[8:10)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
+var bb = {
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |bb|
+//@[7:8)  Assignment |=|
+//@[9:23)  ObjectSyntax
+//@[9:10)   LeftBrace |{|
+//@[10:12)   NewLine |\r\n|
+  cc: cc
+//@[2:10)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |cc|
+//@[4:5)    Colon |:|
+//@[6:8)    VariableAccessSyntax
+//@[6:8)     IdentifierSyntax
+//@[6:8)      Identifier |cc|
+//@[8:10)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
+var cc = {
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |cc|
+//@[7:8)  Assignment |=|
+//@[9:23)  ObjectSyntax
+//@[9:10)   LeftBrace |{|
+//@[10:12)   NewLine |\r\n|
+  dd: dd
+//@[2:10)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |dd|
+//@[4:5)    Colon |:|
+//@[6:8)    VariableAccessSyntax
+//@[6:8)     IdentifierSyntax
+//@[6:8)      Identifier |dd|
+//@[8:10)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
+var dd = {
+//@[0:23) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |dd|
+//@[7:8)  Assignment |=|
+//@[9:23)  ObjectSyntax
+//@[9:10)   LeftBrace |{|
+//@[10:12)   NewLine |\r\n|
+  aa: aa
+//@[2:10)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |aa|
+//@[4:5)    Colon |:|
+//@[6:8)    VariableAccessSyntax
+//@[6:8)     IdentifierSyntax
+//@[6:8)      Identifier |aa|
+//@[8:10)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

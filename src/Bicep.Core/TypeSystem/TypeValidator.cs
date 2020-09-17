@@ -127,7 +127,7 @@ namespace Bicep.Core.TypeSystem
             bool skipTypeErrors)
         {
             // TODO: The type of this expression and all subexpressions should be cached
-            TypeSymbol? expressionType = typeManager.GetTypeInfo(expression, new TypeManagerContext());
+            TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
             var errors = Enumerable.Empty<ErrorDiagnostic>();
@@ -204,7 +204,7 @@ namespace Bicep.Core.TypeSystem
             // In this case, the best we can do is validate against the union of all the settable properties.
             // Let's not do this just yet, and see if a use-case arises.
 
-            var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value, new TypeManagerContext());
+            var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
             if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
             {
                 yield return DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);

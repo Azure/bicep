@@ -7,14 +7,12 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
-        // ReSharper disable once InconsistentNaming
-        public const string BCP061CyclicExpressionCode = "BCP061";
-
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
@@ -299,10 +297,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name '{name}' is not a function.");
 
-            public ErrorDiagnostic CyclicExpression() => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
                 TextSpan,
-                BCP061CyclicExpressionCode,
-                "The expression is involved in a cycle.");
+                "BCP080",
+                $"The expression is involved in a cycle ({string.Join(" -> ", cycle)}).");
 
             public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
                 TextSpan,
@@ -406,6 +404,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP078",
                 $"The property '{propertyName}' requires a value of type {expectedType}, but none was supplied.");
+
+            public ErrorDiagnostic CyclicSelfReference() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP079",
+                "This expression is referencing its own declaration, which is not allowed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

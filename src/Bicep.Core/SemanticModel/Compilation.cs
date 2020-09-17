@@ -30,11 +30,12 @@ namespace Bicep.Core.SemanticModel
         {
             var builtinNamespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()}.ToImmutableArray();
             var bindings = new Dictionary<SyntaxBase, Symbol>();
+            var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(bindings), bindings);
+            var symbolContext = new SymbolContext(new TypeManager(bindings, cyclesBySyntax), bindings);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
@@ -51,6 +52,12 @@ namespace Bicep.Core.SemanticModel
             // bind identifiers to declarations
             var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtinNamespaces);
             binder.Visit(this.ProgramSyntax);
+
+            var shortestCycleBySyntax = CyclicCheckVisitor.FindCycles(this.ProgramSyntax, uniqueDeclarations, bindings);
+            foreach (var kvp in shortestCycleBySyntax)
+            {
+                cyclesBySyntax.Add(kvp.Key, kvp.Value);
+            }
 
             // name binding is done
             // allow type queries now

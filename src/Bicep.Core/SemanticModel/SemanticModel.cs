@@ -54,7 +54,7 @@ namespace Bicep.Core.SemanticModel
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax, new TypeManagerContext());
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,

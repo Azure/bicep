@@ -61,7 +61,7 @@ namespace Bicep.Core.SemanticModel
         private IEnumerable<ErrorDiagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax)
         {
             // figure out type of the default value
-            TypeSymbol? defaultValueType = this.Context.TypeManager.GetTypeInfo(defaultValueSyntax.DefaultValue, new TypeManagerContext());
+            TypeSymbol? defaultValueType = this.Context.TypeManager.GetTypeInfo(defaultValueSyntax.DefaultValue);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (defaultValueType is ErrorTypeSymbol)

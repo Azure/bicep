@@ -18,12 +18,8 @@ namespace Bicep.Core.SemanticModel
 
         public SyntaxBase Value { get; }
 
-        public override TypeSymbol Type => GetVariableType(new TypeManagerContext());
-
-        public TypeSymbol GetVariableType(TypeManagerContext context)
-        {
-            return this.Context.TypeManager.GetTypeInfo(this.DeclaringVariable.Value, context);
-        }
+        public override TypeSymbol Type
+            => this.Context.TypeManager.GetTypeInfo(this.DeclaringVariable.Value);
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitVariableSymbol(this);
 
