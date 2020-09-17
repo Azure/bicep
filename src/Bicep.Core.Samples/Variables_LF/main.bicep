@@ -122,3 +122,12 @@ var previousEmitLimit = [
     }
   }
 ]
+
+var myVar = 'hello'
+var myVar2 = any({
+  something: myVar
+})
+var myVar3 = any(any({
+  something: myVar
+}))
+var myVar4 = length(any(concat('s','a')))
