@@ -838,6 +838,68 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5)  NewLine |\r\n\r\n|
 
+var _siteApiVersion = site.apiVersion
+//@[0:39) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |_siteApiVersion|
+//@[20:21)  Assignment |=|
+//@[22:37)  PropertyAccessSyntax
+//@[22:26)   VariableAccessSyntax
+//@[22:26)    IdentifierSyntax
+//@[22:26)     Identifier |site|
+//@[26:27)   Dot |.|
+//@[27:37)   IdentifierSyntax
+//@[27:37)    Identifier |apiVersion|
+//@[37:39)  NewLine |\r\n|
+var _siteType = site.type
+//@[0:29) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |_siteType|
+//@[14:15)  Assignment |=|
+//@[16:25)  PropertyAccessSyntax
+//@[16:20)   VariableAccessSyntax
+//@[16:20)    IdentifierSyntax
+//@[16:20)     Identifier |site|
+//@[20:21)   Dot |.|
+//@[21:25)   IdentifierSyntax
+//@[21:25)    Identifier |type|
+//@[25:29)  NewLine |\r\n\r\n|
+
+output siteApiVersion string = site.apiVersion
+//@[0:48) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |siteApiVersion|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[29:30)  Assignment |=|
+//@[31:46)  PropertyAccessSyntax
+//@[31:35)   VariableAccessSyntax
+//@[31:35)    IdentifierSyntax
+//@[31:35)     Identifier |site|
+//@[35:36)   Dot |.|
+//@[36:46)   IdentifierSyntax
+//@[36:46)    Identifier |apiVersion|
+//@[46:48)  NewLine |\r\n|
+output siteType string = site.type
+//@[0:38) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:15)  IdentifierSyntax
+//@[7:15)   Identifier |siteType|
+//@[16:22)  TypeSyntax
+//@[16:22)   Identifier |string|
+//@[23:24)  Assignment |=|
+//@[25:34)  PropertyAccessSyntax
+//@[25:29)   VariableAccessSyntax
+//@[25:29)    IdentifierSyntax
+//@[25:29)     Identifier |site|
+//@[29:30)   Dot |.|
+//@[30:34)   IdentifierSyntax
+//@[30:34)    Identifier |type|
+//@[34:38)  NewLine |\r\n\r\n|
+
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[0:358) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|

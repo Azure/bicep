@@ -81,7 +81,15 @@
           "f": "[concat(createArray(equals('s', 12)))]"
         }
       }
-    ]
+    ],
+    "myVar": "hello",
+    "myVar2": {
+      "something": "[variables('myVar')]"
+    },
+    "myVar3": {
+      "something": "[variables('myVar')]"
+    },
+    "myVar4": "[length(concat('s', 'a'))]"
   },
   "resources": [],
   "outputs": {}

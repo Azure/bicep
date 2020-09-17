@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core
@@ -40,9 +41,7 @@ namespace Bicep.Core
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
-        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String);
-
-        public static readonly ImmutableArray<TypeProperty> TopLevelResourceProperties = CreateResourceProperties().ToImmutableArray();
+        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
@@ -94,7 +93,7 @@ namespace Bicep.Core
             yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
-        private static IEnumerable<TypeProperty> CreateResourceProperties()
+        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
         {
             /*
              * The following properties are intentionally excluded from this model:
@@ -108,9 +107,9 @@ namespace Bicep.Core
 
             yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
 
-            yield return new TypeProperty("type", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("type", new StringLiteralType(resourceTypeReference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
 
-            yield return new TypeProperty("apiVersion", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("apiVersion", new StringLiteralType(resourceTypeReference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
 
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);

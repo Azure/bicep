@@ -1,18 +1,19 @@
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const buildVersion = require('./package.json').version;
 const path = require('path');
 
 module.exports = {
   entry: {
-    "main": './src/index.ts',
-    // monaco workers
-    "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js',
-    "json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
+    "main": './src/index.tsx',
   },
   output: {
     globalObject: 'self',
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
+  devtool: 'source-map',
   module: {
     rules: [{
         test: /\.tsx?$/,
@@ -36,9 +37,15 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: '../Bicep.Wasm/bin/Release/netstandard2.1/wwwroot/_framework', to: './_framework/' },
-        { from: './src/index.html' },
-        { from: './src/favicon.ico' }
       ],
+    }),
+    new HtmlWebpackPlugin({
+      title: `Bicep Playground ${buildVersion}`,
+      favicon: `./src/favicon.ico`,
+      template: `./src/index.html`,
+    }),
+    new MonacoWebpackPlugin({
+      languages: ['json']
     }),
   ],
   devServer: {

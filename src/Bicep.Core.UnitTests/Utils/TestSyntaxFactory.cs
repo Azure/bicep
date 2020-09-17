@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Utils
         // TODO: Escape string correctly
         public static StringSyntax CreateString(string value)
         {
-            var token = CreateToken(TokenType.StringComplete, $"'{value}'");
+            var token = CreateToken(TokenType.StringComplete, StringUtils.EscapeBicepString(value));
             var segment = Lexer.TryGetStringValue(token) ?? throw new ArgumentException($"Unable to parse {value}");
 
             return new StringSyntax(new [] { token }, Enumerable.Empty<SyntaxBase>(), new [] { segment });

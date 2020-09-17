@@ -6,19 +6,10 @@ html, body {
   background-color: #1e1e1e;
 }
 
-.container {
+.app-container {
+  position: 'absolute';
   height: 100vh;
-  display: grid;
-  grid-auto-columns: 1fr;
-  grid-auto-flow: column;
-}
-
-.left-half {
-  grid-column: 1;
-}
-
-.right-half {
-  grid-column: 2;
+  width: 100vw;
 }
 
 @keyframes spinner {

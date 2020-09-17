@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
-                TypeValidator.AreTypesAssignable(type, LanguageConstants.Any).Should().BeTrue($"because type '{type.Name}' should be assignable to the '{LanguageConstants.Any.Name}' type.");
+                TypeValidator.AreTypesAssignable(type, LanguageConstants.Any).Should().BeTrue($"because type {type.Name} should be assignable to the '{LanguageConstants.Any.Name}' type.");
             }
         }
 
@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             foreach (TypeSymbol type in LanguageConstants.DeclarationTypes.Values)
             {
-                TypeValidator.AreTypesAssignable(type, type).Should().BeTrue($"because type '{type.Name}' should be assignable to itself.");
+                TypeValidator.AreTypesAssignable(type, type).Should().BeTrue($"because type {type.Name} should be assignable to itself.");
             }
         }
 
@@ -127,6 +127,45 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.String), union).Should().BeFalse();
         }
 
+        [TestMethod]
+        public void UnionShouldBeAssignableToTypeIfAllMembersAre()
+        {
+            var boolIntUnion = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
+            var stringUnion = UnionType.Create(LanguageConstants.String);
+            TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.Bool).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(stringUnion, boolIntUnion).Should().BeFalse();
+
+            var logLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
+            var failureLogLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"));
+            TypeValidator.AreTypesAssignable(logLevelsUnion, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(logLevelsUnion, stringUnion).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(logLevelsUnion, boolIntUnion).Should().BeFalse();
+
+            // Source union is a subset of target union - this should be allowed
+            TypeValidator.AreTypesAssignable(failureLogLevelsUnion, logLevelsUnion).Should().BeTrue();
+
+            // Source union is a strict superset of target union - this should not be allowed
+            TypeValidator.AreTypesAssignable(logLevelsUnion, failureLogLevelsUnion).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void StringLiteralTypesShouldBeAssignableToAndFromStrings()
+        {
+            var literalVal1 = new StringLiteralType("evie");
+            var literalVal2 = new StringLiteralType("casper");
+
+            // different string literals should not be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, literalVal2).Should().BeFalse();
+
+            // same-name string literals should be assignable to each other
+            TypeValidator.AreTypesAssignable(literalVal1, new StringLiteralType("evie")).Should().BeTrue();
+
+            // string literals should be assignable to and from regular strings
+            TypeValidator.AreTypesAssignable(literalVal1, LanguageConstants.String).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.String, literalVal1).Should().BeTrue();
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
@@ -141,7 +180,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int).ToList();
 
             errors.Should().HaveCount(1);
-            errors.Single().Message.Should().Be("Expected a value of type 'int' but the provided value is of type 'object'.");
+            errors.Single().Message.Should().Be("Expected a value of type int but the provided value is of type object.");
         }
 
         [TestMethod]
@@ -165,8 +204,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_string'.",
-                    "The property 'extra2' is not allowed on objects of type 'ParameterModifier_string'.");
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_string.",
+                    "The property 'extra2' is not allowed on objects of type ParameterModifier_string.");
         }
 
         [TestMethod]
@@ -217,9 +256,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType())
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'managedByExtended' expected a value of type 'string[]' but the provided value is of type 'string'.",
-                    "The enclosing array expected an item of type 'string', but the provided item was of type 'bool'.",
-                    "The enclosing array expected an item of type 'string', but the provided item was of type 'int'.");
+                    "The enclosing array expected an item of type string, but the provided item was of type bool.",
+                    "The property 'managedByExtended' expected a value of type string[] but the provided value is of type 'not an array'.",
+                    "The enclosing array expected an item of type string, but the provided item was of type int.");
         }
 
         [TestMethod]
@@ -263,8 +302,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'wrongTagType' expected a value of type 'string' but the provided value is of type 'bool'.",
-                    "The property 'wrongTagType2' expected a value of type 'string' but the provided value is of type 'int'.");
+                    "The property 'wrongTagType' expected a value of type string but the provided value is of type bool.",
+                    "The property 'wrongTagType2' expected a value of type string but the provided value is of type int.");
         }
 
         [TestMethod]
@@ -453,15 +492,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type 'string' but the provided value is of type 'bool'.",
-                    "The property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
-                    //"The property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    //"The property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
-                    "The property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
-                    "The property 'allowed' expected a value of type 'string[]' but the provided value is of type 'object'.",
-                    "The property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_string'.",
-                    "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.");
+                    "The property 'default' expected a value of type string but the provided value is of type bool.",
+                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
+                    //"The property 'minValue' expected a value of type int but the provided value is of type bool.",
+                    //"The property 'maxValue' expected a value of type int but the provided value is of type string.",
+                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
+                    "The property 'allowed' expected a value of type string[] but the provided value is of type object.",
+                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_string.",
+                    "The property 'description' expected a value of type string but the provided value is of type int.");
         }
 
         [TestMethod]
@@ -497,15 +536,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'allowed' expected a value of type 'int[]' but the provided value is of type 'object'.",
-                    "The property 'minValue' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'default' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'maxValue' expected a value of type 'int' but the provided value is of type 'string'.",
-                    "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_int'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_int'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_int'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_int'.");
+                    "The property 'allowed' expected a value of type int[] but the provided value is of type object.",
+                    "The property 'minValue' expected a value of type int but the provided value is of type bool.",
+                    "The property 'default' expected a value of type int but the provided value is of type bool.",
+                    "The property 'maxValue' expected a value of type int but the provided value is of type '11'.",
+                    "The property 'description' expected a value of type string but the provided value is of type int.",
+                    "The property 'secure' is not allowed on objects of type ParameterModifier_int.",
+                    "The property 'minLength' is not allowed on objects of type ParameterModifier_int.",
+                    "The property 'maxLength' is not allowed on objects of type ParameterModifier_int.",
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_int.");
         }
 
         [TestMethod]
@@ -544,15 +583,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool))
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type 'bool' but the provided value is of type 'int'.",
-                    "The enclosing array expected an item of type 'bool', but the provided item was of type 'int'.",
-                    "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_bool'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_bool'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_bool'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_bool'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_bool'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_bool'.");
+                    "The property 'default' expected a value of type bool but the provided value is of type int.",
+                    "The enclosing array expected an item of type bool, but the provided item was of type int.",
+                    "The property 'description' expected a value of type string but the provided value is of type int.",
+                    "The property 'secure' is not allowed on objects of type ParameterModifier_bool.",
+                    "The property 'minValue' is not allowed on objects of type ParameterModifier_bool.",
+                    "The property 'maxValue' is not allowed on objects of type ParameterModifier_bool.",
+                    "The property 'minLength' is not allowed on objects of type ParameterModifier_bool.",
+                    "The property 'maxLength' is not allowed on objects of type ParameterModifier_bool.",
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_bool.");
         }
 
         [TestMethod]
@@ -589,15 +628,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'secure' expected a value of type 'bool' but the provided value is of type 'int'.",
-                    "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'allowed' expected a value of type 'object[]' but the provided value is of type 'object'.",
-                    "The property 'default' expected a value of type 'object' but the provided value is of type 'bool'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_object'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_object'.",
-                    "The property 'minLength' is not allowed on objects of type 'ParameterModifier_object'.",
-                    "The property 'maxLength' is not allowed on objects of type 'ParameterModifier_object'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_object'.");
+                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
+                    "The property 'description' expected a value of type string but the provided value is of type int.",
+                    "The property 'allowed' expected a value of type object[] but the provided value is of type object.",
+                    "The property 'default' expected a value of type object but the provided value is of type bool.",
+                    "The property 'minValue' is not allowed on objects of type ParameterModifier_object.",
+                    "The property 'maxValue' is not allowed on objects of type ParameterModifier_object.",
+                    "The property 'minLength' is not allowed on objects of type ParameterModifier_object.",
+                    "The property 'maxLength' is not allowed on objects of type ParameterModifier_object.",
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_object.");
         }
 
         [TestMethod]
@@ -634,15 +673,95 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'default' expected a value of type 'array' but the provided value is of type 'bool'.",
-                    "The property 'maxLength' expected a value of type 'int' but the provided value is of type 'bool'.",
-                    "The property 'allowed' expected a value of type 'array[]' but the provided value is of type 'object'.",
-                    "The property 'minLength' expected a value of type 'int' but the provided value is of type 'object'.",
-                    "The property 'description' expected a value of type 'string' but the provided value is of type 'int'.",
-                    "The property 'secure' is not allowed on objects of type 'ParameterModifier_array'.",
-                    "The property 'minValue' is not allowed on objects of type 'ParameterModifier_array'.",
-                    "The property 'maxValue' is not allowed on objects of type 'ParameterModifier_array'.",
-                    "The property 'extra' is not allowed on objects of type 'ParameterModifier_array'.");
+                    "The property 'default' expected a value of type array but the provided value is of type bool.",
+                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
+                    "The property 'allowed' expected a value of type array[] but the provided value is of type object.",
+                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
+                    "The property 'description' expected a value of type string but the provided value is of type int.",
+                    "The property 'secure' is not allowed on objects of type ParameterModifier_array.",
+                    "The property 'minValue' is not allowed on objects of type ParameterModifier_array.",
+                    "The property 'maxValue' is not allowed on objects of type ParameterModifier_array.",
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_array.");
+        }
+
+        [TestMethod]
+        public void DiscriminatedObjectType_raises_appropriate_diagnostics_for_matches()
+        {
+            var discriminatedType = new DiscriminatedObjectType(
+                "discObj",
+                "myDiscriminator",
+                new []
+                {
+                    new NamedObjectType("typeA", new []
+                    { 
+                        new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
+                        new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
+                    }, null),
+                    new NamedObjectType("typeB", new []
+                    { 
+                        new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
+                        new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
+                    }, null),
+                });
+
+            // no discriminator field supplied
+            var obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("The property 'myDiscriminator' requires a value of type 'valA' | 'valB', but none was supplied.");
+                });
+
+            // incorrect type specified for the discriminator field
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
+                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type object.");
+                });
+
+            // discriminator value that matches neither option supplied
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type 'valC'.");
+                });
+
+            // missing required property for the 'valB' branch
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().SatisfyRespectively(
+                x => {
+                    x.Message.Should().Be("The specified object is missing the following required properties: fieldB.");
+                });
+
+            // supplied the required property for the 'valB' branch
+            obj = TestSyntaxFactory.CreateObject(new []
+            {
+                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
+                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
+            });
+
+            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
+            errors.Should().BeEmpty();
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)
@@ -688,7 +807,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var type = "Mock.Rp/mockType@2020-01-01";
             var typeReference = ResourceTypeReference.TryParse(type)!;
 
-            return new ResourceType(type, LanguageConstants.TopLevelResourceProperties, null, typeReference);
+            return new ResourceType(type, LanguageConstants.CreateResourceProperties(typeReference), null, typeReference);
         }
 
         private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>());

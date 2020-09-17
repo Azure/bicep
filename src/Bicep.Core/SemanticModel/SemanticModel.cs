@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -35,8 +36,13 @@ namespace Bicep.Core.SemanticModel
         public IEnumerable<ErrorDiagnostic> GetSemanticDiagnostics()
         {
             var diagnostics = new List<ErrorDiagnostic>();
+            
             var visitor = new SemanticErrorVisitor(diagnostics);
             visitor.Visit(this.Root);
+
+            // TODO: Remove this when we fix IL limitations
+            var emitLimitationVisitor = new EmitLimitationVisitor(diagnostics, this);
+            emitLimitationVisitor.Visit(this.Root.Syntax);
 
             return diagnostics;
         }

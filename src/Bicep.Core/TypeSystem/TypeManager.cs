@@ -58,7 +58,7 @@ namespace Bicep.Core.TypeSystem
 
             // TODO: Construct/lookup type information based on JSON schema or swagger
             // for now assuming very basic resource schema
-            return new ResourceType(typeName, LanguageConstants.TopLevelResourceProperties, additionalPropertiesType: null, typeReference);
+            return new ResourceType(typeName, LanguageConstants.CreateResourceProperties(typeReference), additionalPropertiesType: null, typeReference);
         }
 
         private TypeSymbol GetTypeInfoInternal(TypeManagerContext context, SyntaxBase syntax)
@@ -154,7 +154,7 @@ namespace Bicep.Core.TypeSystem
             if (@string.IsInterpolated() == false)
             {
                 // uninterpolated strings have a known type
-                return LanguageConstants.String;
+                return new StringLiteralType(@string.GetLiteralValue());
             }
 
             var errors = new List<ErrorDiagnostic>();

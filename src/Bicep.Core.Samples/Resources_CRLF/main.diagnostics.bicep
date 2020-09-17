@@ -118,6 +118,12 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
   }
 }
 
+var _siteApiVersion = site.apiVersion
+var _siteType = site.type
+
+output siteApiVersion string = site.apiVersion
+output siteType string = site.type
+
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
   name: 'nestedTemplate1'
   properties: {

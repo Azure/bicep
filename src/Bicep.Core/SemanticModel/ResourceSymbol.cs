@@ -17,7 +17,7 @@ namespace Bicep.Core.SemanticModel
 
         public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax) this.DeclaringSyntax;
 
-        public TypeSymbol Type
+        public override TypeSymbol Type
         {
             get
             {

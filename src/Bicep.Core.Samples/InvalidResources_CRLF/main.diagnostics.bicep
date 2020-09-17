@@ -80,27 +80,27 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) Error Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
   location: [
-//@[12:18) Error The property 'location' expected a value of type 'string' but the provided value is of type 'array'. |[\r\n  ]|
+//@[12:18) Error The property 'location' expected a value of type string but the provided value is of type array. |[\r\n  ]|
   ]
   tags: 'tag are not a string?'
-//@[8:31) Error The property 'tags' expected a value of type 'Tags' but the provided value is of type 'string'. |'tag are not a string?'|
+//@[8:31) Error The property 'tags' expected a value of type Tags but the provided value is of type 'tag are not a string?'. |'tag are not a string?'|
 }
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: true ? 's' : 'a' + 1
-//@[21:28) Error Cannot apply operator '+' to operands of type 'string' and 'int'. |'a' + 1|
+//@[21:28) Error Cannot apply operator '+' to operands of type 'a' and int. |'a' + 1|
   properties: {
     x: foo()
 //@[7:10) Error The name 'foo' is not a function. |foo|
     y: true && (null || !4)
-//@[24:26) Error Cannot apply operator '!' to operand of type 'int'. |!4|
+//@[24:26) Error Cannot apply operator '!' to operand of type int. |!4|
     a: [
       a
 //@[6:7) Error The name 'a' does not exist in the current context. |a|
       !null
-//@[6:11) Error Cannot apply operator '!' to operand of type 'null'. |!null|
+//@[6:11) Error Cannot apply operator '!' to operand of type null. |!null|
       true && true || true + -true * 4
-//@[29:34) Error Cannot apply operator '-' to operand of type 'bool'. |-true|
+//@[29:34) Error Cannot apply operator '-' to operand of type bool. |-true|
     ]
   }
 }
@@ -113,26 +113,27 @@ param resrefpar string = foo.id
 //@[25:28) Error The referenced declaration with name 'foo' is not valid. |foo|
 
 output resrefout bool = bar.id
-//@[24:30) Error The output expects a value of type 'bool' but the provided value is of type 'string'. |bar.id|
+//@[24:30) Error The output expects a value of type bool but the provided value is of type string. |bar.id|
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   id: 2
 //@[2:4) Error The property 'id' is read-only. Expressions cannot be assigned to read-only properties. |id|
-//@[6:7) Error The property 'id' expected a value of type 'string' but the provided value is of type 'int'. |2|
+//@[6:7) Error The property 'id' expected a value of type string but the provided value is of type int. |2|
   type: 'hello'
 //@[2:6) Error The property 'type' is read-only. Expressions cannot be assigned to read-only properties. |type|
+//@[8:15) Error The property 'type' expected a value of type 'Microsoft.Foo/foos' but the provided value is of type 'hello'. |'hello'|
   apiVersion: true
 //@[2:12) Error The property 'apiVersion' is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
-//@[14:18) Error The property 'apiVersion' expected a value of type 'string' but the provided value is of type 'bool'. |true|
+//@[14:18) Error The property 'apiVersion' expected a value of type '2020-02-02-alpha' but the provided value is of type bool. |true|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     baz.id
-//@[4:10) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'string'. |baz.id|
+//@[4:10) Error The enclosing array expected an item of type resource, but the provided item was of type string. |baz.id|
   ]
 }
 
@@ -140,9 +141,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     'hello'
-//@[4:11) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'string'. |'hello'|
+//@[4:11) Error The enclosing array expected an item of type resource, but the provided item was of type 'hello'. |'hello'|
     true
-//@[4:8) Error The enclosing array expected an item of type 'resource', but the provided item was of type 'bool'. |true|
+//@[4:8) Error The enclosing array expected an item of type resource, but the provided item was of type bool. |true|
   ]
 }
 

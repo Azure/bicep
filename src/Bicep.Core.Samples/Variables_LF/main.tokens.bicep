@@ -627,4 +627,67 @@ var previousEmitLimit = [
 //@[3:4) NewLine |\n|
 ]
 //@[0:1) RightSquare |]|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+var myVar = 'hello'
+//@[0:3) Identifier |var|
+//@[4:9) Identifier |myVar|
+//@[10:11) Assignment |=|
+//@[12:19) StringComplete |'hello'|
+//@[19:20) NewLine |\n|
+var myVar2 = any({
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |myVar2|
+//@[11:12) Assignment |=|
+//@[13:16) Identifier |any|
+//@[16:17) LeftParen |(|
+//@[17:18) LeftBrace |{|
+//@[18:19) NewLine |\n|
+  something: myVar
+//@[2:11) Identifier |something|
+//@[11:12) Colon |:|
+//@[13:18) Identifier |myVar|
+//@[18:19) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+var myVar3 = any(any({
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |myVar3|
+//@[11:12) Assignment |=|
+//@[13:16) Identifier |any|
+//@[16:17) LeftParen |(|
+//@[17:20) Identifier |any|
+//@[20:21) LeftParen |(|
+//@[21:22) LeftBrace |{|
+//@[22:23) NewLine |\n|
+  something: myVar
+//@[2:11) Identifier |something|
+//@[11:12) Colon |:|
+//@[13:18) Identifier |myVar|
+//@[18:19) NewLine |\n|
+}))
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) RightParen |)|
+//@[3:4) NewLine |\n|
+var myVar4 = length(any(concat('s','a')))
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |myVar4|
+//@[11:12) Assignment |=|
+//@[13:19) Identifier |length|
+//@[19:20) LeftParen |(|
+//@[20:23) Identifier |any|
+//@[23:24) LeftParen |(|
+//@[24:30) Identifier |concat|
+//@[30:31) LeftParen |(|
+//@[31:34) StringComplete |'s'|
+//@[34:35) Comma |,|
+//@[35:38) StringComplete |'a'|
+//@[38:39) RightParen |)|
+//@[39:40) RightParen |)|
+//@[40:41) RightParen |)|
+//@[41:42) NewLine |\n|
+
+//@[0:0) EndOfFile ||
