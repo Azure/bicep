@@ -8,7 +8,7 @@ using Bicep.Core.Syntax;
 namespace Bicep.Core.Parser
 {
     [DebuggerDisplay("{Type} = {Text}")]
-    public class Token : IPositionable
+    public class Token : SyntaxBase
     {
         public Token(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
         {
@@ -21,7 +21,9 @@ namespace Bicep.Core.Parser
 
         public TokenType Type { get; }
 
-        public TextSpan Span { get; }
+        public override void Accept(SyntaxVisitor visitor) => visitor.VisitToken(this);
+
+        public override TextSpan Span { get; }
 
         public string Text { get; }
 

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -94,6 +95,9 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task GoToDefinitionOnUnboundSyntaxNodeShouldReturnEmptyResponse(DataSet dataSet)
         {
+            // local function
+            bool IsUnboundNode(IDictionary<SyntaxBase, Symbol> dictionary, SyntaxBase syntax) => dictionary.ContainsKey(syntax) == false && !(syntax is Token);
+
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
@@ -106,7 +110,7 @@ namespace Bicep.LangServer.IntegrationTests
                 seed: new List<SyntaxBase>(),
                 function: (accumulated, syntax) =>
                 {
-                    if (symbolTable.ContainsKey(syntax) == false && !(syntax is ProgramSyntax))
+                    if (IsUnboundNode(symbolTable, syntax) && !(syntax is ProgramSyntax))
                     {
                         // only collect unbound nodes non-program nodes
                         accumulated.Add(syntax);
@@ -116,7 +120,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 resultSelector: accumulated => accumulated,
                 // visit children only if current node is not bound
-                continuationFunction: (accumulated, syntax) => symbolTable.ContainsKey(syntax) == false);
+                continuationFunction: (accumulated, syntax) => IsUnboundNode(symbolTable, syntax));
 
             foreach (var syntax in unboundNodes)
             {

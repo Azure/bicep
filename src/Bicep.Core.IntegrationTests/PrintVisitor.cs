@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests
             this.buffer = buffer;
         }
 
-        protected override void VisitTokenInternal(Token token)
+        public override void VisitToken(Token token)
         {
             WriteTrivia(token.LeadingTrivia);
             buffer.Append(token.Text);

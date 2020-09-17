@@ -213,7 +213,7 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitTernaryOperationSyntax(syntax);
         }
 
-        protected override void VisitTokenInternal(Token token)
+        public override void VisitToken(Token token)
         {
             switch (token.Type)
             {
@@ -227,7 +227,7 @@ namespace Bicep.Wasm.LanguageHelpers
                     break;
             }
 
-            base.VisitTokenInternal(token);
+            base.VisitToken(token);
         }
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
