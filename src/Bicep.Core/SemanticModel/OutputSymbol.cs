@@ -40,7 +40,7 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            TypeSymbol valueType = this.Context.TypeManager.GetTypeInfo(this.Value, new TypeManagerContext());
+            TypeSymbol valueType = this.Context.TypeManager.GetTypeInfo(this.Value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorTypeSymbol)
