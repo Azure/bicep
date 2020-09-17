@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Parser
             this.buffer = buffer;
         }
 
-        protected override void VisitTokenInternal(Token token) => this.buffer.Append(token.Text);
+        public override void VisitToken(Token token) => this.buffer.Append(token.Text);
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {

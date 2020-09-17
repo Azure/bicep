@@ -20,37 +20,27 @@ namespace Bicep.Core.IntegrationTests
     {
         private class SyntaxCollectorVisitor : SyntaxVisitor
         {
-            public class SyntaxOrToken
+            public class SyntaxItem
             {
-                public SyntaxOrToken(SyntaxBase syntax, int depth)
+                public SyntaxItem(SyntaxBase syntax, int depth)
                 {
                     Syntax = syntax;
-                    Token = null;
                     Depth = depth;
                 }
 
-                public SyntaxOrToken(Token token, int depth)
-                {
-                    Syntax = null;
-                    Token = token;
-                    Depth = depth;
-                }
-
-                public SyntaxBase? Syntax { get; }
-
-                public Token? Token { get; }
+                public SyntaxBase Syntax { get; }
 
                 public int Depth { get; }
             }
 
             private int depth = 0;
-            private readonly IList<SyntaxOrToken> syntaxList = new List<SyntaxOrToken>();
+            private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
 
             private SyntaxCollectorVisitor()
             {
             }
 
-            public static ImmutableArray<SyntaxOrToken> Build(ProgramSyntax syntax)
+            public static ImmutableArray<SyntaxItem> Build(ProgramSyntax syntax)
             {
                 var visitor = new SyntaxCollectorVisitor();
                 visitor.VisitProgramSyntax(syntax);
@@ -58,16 +48,9 @@ namespace Bicep.Core.IntegrationTests
                 return visitor.syntaxList.ToImmutableArray();
             }
 
-            protected override void VisitTokenInternal(Token token)
-            {
-                syntaxList.Add(new SyntaxOrToken(token, depth));
-
-                base.VisitTokenInternal(token);
-            }
-
             protected override void VisitInternal(SyntaxBase syntax)
             {
-                syntaxList.Add(new SyntaxOrToken(syntax, depth));
+                syntaxList.Add(new SyntaxItem(syntax, depth));
 
                 depth++;
                 base.VisitInternal(syntax);
@@ -105,28 +88,19 @@ namespace Bicep.Core.IntegrationTests
             var program = SyntaxFactory.CreateFromText(dataSet.Bicep);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
 
-            string getLoggingString(SyntaxCollectorVisitor.SyntaxOrToken data)
+            string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
             {
                 var depthPrefix = new string(' ', data.Depth);
-                if (data.Syntax != null)
-                {
-                    return $"{depthPrefix}{data.Syntax.GetType().Name}";
-                }
                 
-                if (data.Token != null)
+                if (data.Syntax is Token token)
                 {
-                    return $"{depthPrefix}{data.Token.Type} |{OutputHelper.EscapeWhitespace(data.Token.Text)}|";
+                    return $"{depthPrefix}{token.Type} |{OutputHelper.EscapeWhitespace(token.Text)}|";
                 }
 
-                throw new NotImplementedException();
+                return $"{depthPrefix}{data.Syntax.GetType().Name}";
             }
 
-            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxOrToken data)
-            {
-                var positionable = (data.Syntax as IPositionable ?? data.Token as IPositionable)!;
-
-                return positionable.Span;
-            }
+            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -89,7 +90,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverNonHoverableElementsShouldProduceEmptyHovers(DataSet dataSet)
         {
             // local function
-            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax);
+            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
