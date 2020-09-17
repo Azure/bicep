@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
+import * as path from "path";
 import { existsSync } from "fs";
 import { getLogger } from "../utils/logger";
 import {
@@ -40,8 +41,11 @@ async function launchLanguageService(
   getLogger().debug(`Found language server at '${languageServerPath}'.`);
 
   const serverExecutable: lsp.Executable = {
-    command: dotnetCommandPath,
+    command: path.basename(dotnetCommandPath),
     args: [languageServerPath],
+    options: {
+      cwd: path.dirname(dotnetCommandPath),
+    },
   };
 
   const serverOptions: lsp.ServerOptions = {
@@ -91,7 +95,7 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
     throw new Error(`Failed to install .NET runtime v${dotnetRuntimeVersion}.`);
   }
 
-  return result.dotnetPath;
+  return path.resolve(result.dotnetPath);
 }
 
 function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
@@ -105,7 +109,7 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
     );
   }
 
-  return languageServerPath;
+  return path.resolve(languageServerPath);
 }
 
 function configureTelemetry(client: lsp.LanguageClient) {
