@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -16,10 +15,6 @@ namespace Bicep.Core.Syntax
             var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnostics);
             parseErrorVisitor.Visit(syntax);
 
-            // TODO: Remove this when we fix IL limitations
-            var emitLimitationVisitor = new EmitLimitationVisitor(diagnostics);
-            emitLimitationVisitor.Visit(syntax);
-            
             return diagnostics;
         }
 

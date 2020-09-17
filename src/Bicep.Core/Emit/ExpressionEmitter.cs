@@ -105,6 +105,19 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            if (syntax is FunctionCallSyntax functionCall && 
+                symbol is FunctionSymbol functionSymbol && 
+                string.Equals(functionSymbol.Name, "any", LanguageConstants.IdentifierComparison))
+            {
+                // the outermost function in the current syntax node is the "any" function
+                // we should emit its argument directly
+                // otherwise, they'd get wrapped in a json() template function call in the converted expression
+
+                // we have checks for function parameter count mismatch, which should prevent an exception from being thrown
+                EmitExpression(functionCall.Arguments.Single().Expression);
+                return;
+            }
+
             LanguageExpression converted = converter.ConvertExpression(syntax);
 
             if (converted is JTokenExpression valueExpression && valueExpression.Value.Type == JTokenType.Integer)

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
@@ -12,18 +13,20 @@ namespace Bicep.Core.Emit
     /// </summary>
     public class EmitLimitationVisitor : SyntaxVisitor
     {
-        private readonly IList<Diagnostic> diagnostics;
+        private readonly IList<ErrorDiagnostic> diagnostics;
+        private readonly SemanticModel.SemanticModel model;
 
         private readonly Stack<VisitorState> stack = new Stack<VisitorState>();
 
-        public EmitLimitationVisitor(IList<Diagnostic> diagnostics)
+        public EmitLimitationVisitor(IList<ErrorDiagnostic> diagnostics, SemanticModel.SemanticModel model)
         {
             this.diagnostics = diagnostics;
+            this.model = model;
         }
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            var kind = (node as IExpressionSyntax)?.ExpressionKind ?? ExpressionKind.None;
+            var kind = GetExpressionKind(node);
             var newState = GetNewState(kind);
 
             if (newState == VisitorState.SecondOperatorChainInsideObjectLiteralInsideFirstOperatorChain)
@@ -40,6 +43,21 @@ namespace Bicep.Core.Emit
             base.VisitInternal(node);
 
             this.stack.Pop();
+        }
+
+        private ExpressionKind GetExpressionKind(SyntaxBase node)
+        {
+            if (node is FunctionCallSyntax && 
+                this.model.GetSymbolInfo(node) is FunctionSymbol symbol &&
+                string.Equals(symbol.Name, "any", LanguageConstants.IdentifierComparison))
+            {
+                // the "any" function exists in bicep only and is not actually emitted to the IL,
+                // so it has no impact on the complexity of the expression being compiled
+                // (this entire class is temporary and will be removed when latest runtime changes get deployed)
+                return ExpressionKind.None;
+            }
+
+            return (node as IExpressionSyntax)?.ExpressionKind ?? ExpressionKind.None;
         }
 
         private VisitorState GetNewState(ExpressionKind kind)
