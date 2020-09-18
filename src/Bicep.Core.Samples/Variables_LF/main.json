@@ -89,7 +89,11 @@
     "myVar3": {
       "something": "[variables('myVar')]"
     },
-    "myVar4": "[length(concat('s', 'a'))]"
+    "myVar4": "[length(concat('s', 'a'))]",
+    "_": 3,
+    "__": "[mul(10, variables('_'))]",
+    "_0a_1b": true,
+    "_1_": "[or(variables('_0a_1b'), equals(add(variables('__'), mod(variables('_'), 2)), 0))]"
   },
   "resources": [],
   "outputs": {}

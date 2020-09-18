@@ -170,5 +170,14 @@ var myVar3 = any(any({
   something: myVar
 }))
 var myVar4 = length(any(concat('s','a')))
-//@[4:10) Variable myVar4. Type: int. Declaration start char: 0, length: 42
+//@[4:10) Variable myVar4. Type: int. Declaration start char: 0, length: 43
 
+// identifiers can have underscores
+var _ = 3
+//@[4:5) Variable _. Type: int. Declaration start char: 0, length: 10
+var __ = 10 * _
+//@[4:6) Variable __. Type: int. Declaration start char: 0, length: 16
+var _0a_1b = true
+//@[4:10) Variable _0a_1b. Type: bool. Declaration start char: 0, length: 18
+var _1_ = _0a_1b || (__ + _ % 2 == 0)
+//@[4:7) Variable _1_. Type: bool. Declaration start char: 0, length: 37
