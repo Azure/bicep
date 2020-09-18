@@ -132,3 +132,8 @@ var myVar3 = any(any({
 }))
 var myVar4 = length(any(concat('s','a')))
 
+// identifiers can have underscores
+var _ = 3
+var __ = 10 * _
+var _0a_1b = true
+var _1_ = _0a_1b || (__ + _ % 2 == 0)

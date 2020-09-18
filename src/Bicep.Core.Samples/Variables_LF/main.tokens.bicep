@@ -688,6 +688,43 @@ var myVar4 = length(any(concat('s','a')))
 //@[38:39) RightParen |)|
 //@[39:40) RightParen |)|
 //@[40:41) RightParen |)|
-//@[41:42) NewLine |\n|
+//@[41:43) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+// identifiers can have underscores
+//@[35:36) NewLine |\n|
+var _ = 3
+//@[0:3) Identifier |var|
+//@[4:5) Identifier |_|
+//@[6:7) Assignment |=|
+//@[8:9) Number |3|
+//@[9:10) NewLine |\n|
+var __ = 10 * _
+//@[0:3) Identifier |var|
+//@[4:6) Identifier |__|
+//@[7:8) Assignment |=|
+//@[9:11) Number |10|
+//@[12:13) Asterisk |*|
+//@[14:15) Identifier |_|
+//@[15:16) NewLine |\n|
+var _0a_1b = true
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |_0a_1b|
+//@[11:12) Assignment |=|
+//@[13:17) TrueKeyword |true|
+//@[17:18) NewLine |\n|
+var _1_ = _0a_1b || (__ + _ % 2 == 0)
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |_1_|
+//@[8:9) Assignment |=|
+//@[10:16) Identifier |_0a_1b|
+//@[17:19) LogicalOr ||||
+//@[20:21) LeftParen |(|
+//@[21:23) Identifier |__|
+//@[24:25) Plus |+|
+//@[26:27) Identifier |_|
+//@[28:29) Modulo |%|
+//@[30:31) Number |2|
+//@[32:34) Equals |==|
+//@[35:36) Number |0|
+//@[36:37) RightParen |)|
+//@[37:37) EndOfFile ||
