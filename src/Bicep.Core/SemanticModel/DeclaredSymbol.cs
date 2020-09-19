@@ -30,17 +30,6 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets the type of the symbol.
         /// </summary>
-        public abstract TypeSymbol Type { get; }
-
-        protected TypeSymbol? GetPrimitiveTypeByName(string typeName)
-        {
-            var type = this.Context.TypeManager.GetTypeByName(typeName);
-            if (type?.TypeKind == TypeKind.Primitive)
-            {
-                return type;
-            }
-
-            return null;
-        }
+        public TypeSymbol Type => this.Context.TypeManager.GetTypeInfo(DeclaringSyntax);
     }
 }
