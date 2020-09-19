@@ -359,11 +359,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new[]
             {
                 TestSyntaxFactory.CreateProperty("secure", TestSyntaxFactory.CreateBool(false)),
-                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateString("foo")),
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateString("One")),
 
                 TestSyntaxFactory.CreateProperty("allowed", TestSyntaxFactory.CreateArray(new []
                 {
-                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("One"))
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("One")),
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("Two")),
                 })),
 
                 TestSyntaxFactory.CreateProperty("minLength", TestSyntaxFactory.CreateInt(33)),
@@ -378,7 +379,29 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String)).Should().BeEmpty();
+            var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
+            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType)).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void Valid_parameter_modifier_should_ensure_default_value_is_assignable_to_allowed_values()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("default", TestSyntaxFactory.CreateString("Three")),
+
+                TestSyntaxFactory.CreateProperty("allowed", TestSyntaxFactory.CreateArray(new []
+                {
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("One")),
+                    TestSyntaxFactory.CreateArrayItem(TestSyntaxFactory.CreateString("Two")),
+                })),
+            });
+
+            var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
+
+            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType))
+                .Should().SatisfyRespectively(
+                    x => x.Message.Should().Be("The property 'default' expected a value of type 'One' | 'Two' but the provided value is of type 'Three'."));
         }
 
         [TestMethod]
@@ -816,4 +839,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }
-

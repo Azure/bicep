@@ -121,7 +121,7 @@ namespace Bicep.Core.Emit
                     }
 
                     this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
-                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue("allowed"));
+                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
                     
                     break;
             }

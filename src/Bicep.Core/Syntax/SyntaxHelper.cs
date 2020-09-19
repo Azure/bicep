@@ -14,14 +14,18 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            var allowedProperty = modifierObject.Properties.FirstOrDefault(p => p.GetKeyText() == "allowed");
-
+            var allowedProperty = modifierObject.Properties.SingleOrDefault(p => p.GetKeyText() == LanguageConstants.ParameterAllowedPropertyName);
             if (allowedProperty == null)
             {
                 return null;
             }
 
-            return (allowedProperty.Value as ArraySyntax)?.Items.Select(i => i.Value);
+            if (!(allowedProperty.Value is ArraySyntax allowedArraySyntax))
+            {
+                return null;
+            }
+
+            return allowedArraySyntax.Items.Select(i => i.Value);
         }
     }
 }

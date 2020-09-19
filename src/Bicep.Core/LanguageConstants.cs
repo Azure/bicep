@@ -22,6 +22,8 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
 
+        public const string ParameterAllowedPropertyName = "allowed";
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
@@ -74,7 +76,7 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty("default", allowedValuesType);
 
-            yield return new TypeProperty("allowed", new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
+            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
 
             if (ReferenceEquals(primitiveType, Int))
             {
