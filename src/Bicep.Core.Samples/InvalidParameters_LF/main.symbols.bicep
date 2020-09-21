@@ -212,5 +212,29 @@ param paramAccessingOutput2 string {
   default: sampleOutput
 }
 
+param stringLiteral string {
+//@[6:19) Parameter stringLiteral. Type: 'def'. Declaration start char: 0, length: 59
+  allowed: [
+    'def'
+  ]
+}
+
+param stringLiteral2 string {
+//@[6:20) Parameter stringLiteral2. Type: 'abc' | 'def'. Declaration start char: 0, length: 95
+  allowed: [
+    'abc'
+    'def'
+  ]
+  default: stringLiteral
+}
+
+param stringLiteral3 string {
+//@[6:20) Parameter stringLiteral3. Type: 'abc'. Declaration start char: 0, length: 86
+  allowed: [
+    'abc'
+  ]
+  default: stringLiteral2
+}
+
 // unterminated multi-line comment
 /*    

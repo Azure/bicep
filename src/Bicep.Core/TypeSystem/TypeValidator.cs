@@ -64,10 +64,6 @@ namespace Bicep.Core.TypeSystem
                     // string literals can be assigned to strings
                     return targetType.Name == LanguageConstants.String.Name;
 
-                case StringLiteralType _ when sourceType is PrimitiveType:
-                    // string literals can be assigned from strings
-                    return sourceType.Name == LanguageConstants.String.Name;
-
                 case PrimitiveType _ when sourceType is PrimitiveType:
                     // both types are primitive
                     // compare by type name

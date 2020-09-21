@@ -65,8 +65,8 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should be successful
             var result = this.EmitTemplate(dataSet.Bicep, memoryStream);
-            result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
+            result.Status.Should().Be(EmitStatus.Succeeded);
 
             // normalizing the formatting in case there are differences in indentation
             // this way the diff between actual and expected will be clean

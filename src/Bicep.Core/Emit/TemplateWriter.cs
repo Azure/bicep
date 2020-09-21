@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
@@ -84,18 +85,25 @@ namespace Bicep.Core.Emit
         {
             // local function
             bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
+            var primitiveType = parameterSymbol.TryGetPrimitiveType();
+
+            if (primitiveType == null)
+            {
+                // this should have been caught by the type checker long ago
+                throw new ArgumentException($"Unable to find primitive type for parameter {parameterSymbol.Name}");
+            }
 
             writer.WriteStartObject();
 
             switch (parameterSymbol.Modifier)
             {
                 case null:
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, secure: false));
 
                     break;
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, secure: false));
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, secure: false));
                     this.emitter.EmitPropertyExpression("defaultValue", defaultValueSyntax.DefaultValue);
 
                     break;
@@ -104,7 +112,7 @@ namespace Bicep.Core.Emit
                     // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
                     var properties = modifierSyntax.ToPropertyValueDictionary();
 
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(parameterSymbol.Type, IsSecure(properties.TryGetValue("secure"))));
+                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
 
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
@@ -113,7 +121,7 @@ namespace Bicep.Core.Emit
                     }
 
                     this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
-                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue("allowed"));
+                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
                     
                     break;
             }

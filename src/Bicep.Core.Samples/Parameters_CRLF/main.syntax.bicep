@@ -763,7 +763,7 @@ param defaultValueExpression int {
 //@[1:5)  NewLine |\r\n\r\n|
 
 param defaultExpression bool = 18 != (true || false)
-//@[0:54) ParameterDeclarationSyntax
+//@[0:56) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |defaultExpression|
@@ -784,6 +784,90 @@ param defaultExpression bool = 18 != (true || false)
 //@[46:51)      BooleanLiteralSyntax
 //@[46:51)       FalseKeyword |false|
 //@[51:52)     RightParen |)|
-//@[52:54)  NewLine |\r\n|
+//@[52:56)  NewLine |\r\n\r\n|
+
+param stringLiteral string {
+//@[0:76) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:19)  IdentifierSyntax
+//@[6:19)   Identifier |stringLiteral|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[27:72)  ObjectSyntax
+//@[27:28)   LeftBrace |{|
+//@[28:30)   NewLine |\r\n|
+  allowed: [
+//@[2:41)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:39)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:14)     NewLine |\r\n|
+    'abc'
+//@[4:11)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'abc'|
+//@[9:11)      NewLine |\r\n|
+    'def'
+//@[4:11)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'def'|
+//@[9:11)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5)  NewLine |\r\n\r\n|
+
+param stringLiteralWithAllowedValuesSuperset string {
+//@[0:136) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:44)  IdentifierSyntax
+//@[6:44)   Identifier |stringLiteralWithAllowedValuesSuperset|
+//@[45:51)  TypeSyntax
+//@[45:51)   Identifier |string|
+//@[52:134)  ObjectSyntax
+//@[52:53)   LeftBrace |{|
+//@[53:55)   NewLine |\r\n|
+  allowed: [
+//@[2:52)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:50)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:14)     NewLine |\r\n|
+    'abc'
+//@[4:11)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'abc'|
+//@[9:11)      NewLine |\r\n|
+    'def'
+//@[4:11)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'def'|
+//@[9:11)      NewLine |\r\n|
+    'ghi'
+//@[4:11)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'ghi'|
+//@[9:11)      NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+  default: stringLiteral
+//@[2:26)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |default|
+//@[9:10)    Colon |:|
+//@[11:24)    VariableAccessSyntax
+//@[11:24)     IdentifierSyntax
+//@[11:24)      Identifier |stringLiteral|
+//@[24:26)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3)  NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

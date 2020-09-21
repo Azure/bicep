@@ -518,6 +518,62 @@ param defaultExpression bool = 18 != (true || false)
 //@[43:45) LogicalOr ||||
 //@[46:51) FalseKeyword |false|
 //@[51:52) RightParen |)|
-//@[52:54) NewLine |\r\n|
+//@[52:56) NewLine |\r\n\r\n|
+
+param stringLiteral string {
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |stringLiteral|
+//@[20:26) Identifier |string|
+//@[27:28) LeftBrace |{|
+//@[28:30) NewLine |\r\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:14) NewLine |\r\n|
+    'abc'
+//@[4:9) StringComplete |'abc'|
+//@[9:11) NewLine |\r\n|
+    'def'
+//@[4:9) StringComplete |'def'|
+//@[9:11) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+param stringLiteralWithAllowedValuesSuperset string {
+//@[0:5) Identifier |param|
+//@[6:44) Identifier |stringLiteralWithAllowedValuesSuperset|
+//@[45:51) Identifier |string|
+//@[52:53) LeftBrace |{|
+//@[53:55) NewLine |\r\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:14) NewLine |\r\n|
+    'abc'
+//@[4:9) StringComplete |'abc'|
+//@[9:11) NewLine |\r\n|
+    'def'
+//@[4:9) StringComplete |'def'|
+//@[9:11) NewLine |\r\n|
+    'ghi'
+//@[4:9) StringComplete |'ghi'|
+//@[9:11) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+  default: stringLiteral
+//@[2:9) Identifier |default|
+//@[9:10) Colon |:|
+//@[11:24) Identifier |stringLiteral|
+//@[24:26) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

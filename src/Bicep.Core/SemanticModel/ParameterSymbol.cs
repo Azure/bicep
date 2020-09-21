@@ -20,6 +20,9 @@ namespace Bicep.Core.SemanticModel
 
         public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
 
+        public TypeSymbol? TryGetPrimitiveType()
+            => LanguageConstants.TryGetDeclarationType(this.DeclaringParameter.Type.TypeName);
+
         public SyntaxBase? Modifier { get; }
 
         public override SymbolKind Kind => SymbolKind.Parameter;
@@ -47,8 +50,12 @@ namespace Bicep.Core.SemanticModel
                     diagnostics = diagnostics.Concat(ValidateDefaultValue(defaultValueSyntax));
                     break;
 
-                case ObjectSyntax modifierSyntax when this.Type.TypeKind != TypeKind.Error:
-                    diagnostics = diagnostics.Concat(TypeValidator.GetExpressionAssignmentDiagnostics(this.Context.TypeManager, modifierSyntax, LanguageConstants.CreateParameterModifierType(this.Type)));
+                case ObjectSyntax modifierSyntax:
+                    if (this.Type.TypeKind != TypeKind.Error && this.TryGetPrimitiveType() is TypeSymbol primitiveType)
+                    {
+                        var modifierType = LanguageConstants.CreateParameterModifierType(primitiveType, this.Type);
+                        diagnostics = diagnostics.Concat(TypeValidator.GetExpressionAssignmentDiagnostics(this.Context.TypeManager, modifierSyntax, modifierType));
+                    }
                     break;
             }
 

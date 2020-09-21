@@ -163,5 +163,26 @@ param paramAccessingOutput2 string {
   default: sampleOutput
 }
 
+param stringLiteral string {
+  allowed: [
+    'def'
+  ]
+}
+
+param stringLiteral2 string {
+  allowed: [
+    'abc'
+    'def'
+  ]
+  default: stringLiteral
+}
+
+param stringLiteral3 string {
+  allowed: [
+    'abc'
+  ]
+  default: stringLiteral2
+}
+
 // unterminated multi-line comment
 /*    
