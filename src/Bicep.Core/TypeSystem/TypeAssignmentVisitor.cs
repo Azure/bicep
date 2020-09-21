@@ -255,7 +255,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
-                var aggregatedItemType = UnionType.Create(itemTypes.Select(x => x));
+                var aggregatedItemType = UnionType.Create(itemTypes);
                 if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never)
                 {
                     // array contains a mix of item types or is empty
