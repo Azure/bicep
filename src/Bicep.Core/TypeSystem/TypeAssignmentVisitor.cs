@@ -672,7 +672,11 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName, availableProperties));
+            var error = availableProperties.Any() ? 
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(baseType, propertyName, availableProperties) :
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName);
+
+            return new ErrorTypeSymbol(error);
         }
     }
 }
