@@ -205,8 +205,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
-                    "The property 'extra' is not allowed on objects of type ParameterModifier_string.",
-                    "The property 'extra2' is not allowed on objects of type ParameterModifier_string.");
+                    "The property 'extra' is not allowed on objects of type ParameterModifier_string. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.",
+                    "The property 'extra2' is not allowed on objects of type ParameterModifier_string. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.");
         }
 
         [TestMethod]

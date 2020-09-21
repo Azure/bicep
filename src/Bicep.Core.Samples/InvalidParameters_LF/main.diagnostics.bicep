@@ -137,11 +137,11 @@ param duplicatedModifierProperty string {
 // non-existent modifiers
 param secureInt int {
   secure: true
-//@[2:8) Error The property 'secure' is not allowed on objects of type ParameterModifier_int. |secure|
+//@[2:8) Error The property 'secure' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |secure|
   minLength: 3
-//@[2:11) Error The property 'minLength' is not allowed on objects of type ParameterModifier_int. |minLength|
+//@[2:11) Error The property 'minLength' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |minLength|
   maxLength: 123
-//@[2:11) Error The property 'maxLength' is not allowed on objects of type ParameterModifier_int. |maxLength|
+//@[2:11) Error The property 'maxLength' is not allowed on objects of type ParameterModifier_int. Permissible properties include 'allowed', 'default', 'maxValue', 'metadata', 'minValue'. |maxLength|
 }
 
 // wrong modifier value types

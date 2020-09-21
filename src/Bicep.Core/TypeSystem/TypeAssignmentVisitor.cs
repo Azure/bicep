@@ -667,7 +667,12 @@ namespace Bicep.Core.TypeSystem
                 return baseType.AdditionalProperties.Type;
             }
 
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
+            var availableProperties = baseType.Properties.Values
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => p.Name)
+                .OrderBy(x => x);
+
+            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName, availableProperties));
         }
     }
 }
