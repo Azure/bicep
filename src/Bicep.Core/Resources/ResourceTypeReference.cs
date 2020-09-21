@@ -43,13 +43,8 @@ namespace Bicep.Core.Resources
 
         public string FullyQualifiedType => $"{this.Namespace}/{this.Types.ConcatString("/")}";
 
-        public static ResourceTypeReference? TryParse(string? resourceType)
+        public static ResourceTypeReference? TryParse(string resourceType)
         {
-            if (resourceType == null)
-            {
-                return null;
-            }
-
             var match = ResourceTypePattern.Match(resourceType);
             if (match.Success == false)
             {

@@ -11,7 +11,6 @@ namespace Bicep.Core.UnitTests.Resource
     public class ResourceTypeReferenceTests
     {
         [DataTestMethod]
-        [DataRow(null)]
         [DataRow("")]
         [DataRow("wrong")]
         [DataRow("Microsoft.Compute")]

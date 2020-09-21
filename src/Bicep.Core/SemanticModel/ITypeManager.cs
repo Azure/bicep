@@ -8,8 +8,6 @@ namespace Bicep.Core.SemanticModel
     public interface ITypeManager
     {
         public TypeSymbol GetTypeInfo(SyntaxBase syntax);
-
-        public TypeSymbol? GetTypeByName(string? typeName);
     }
 }
 

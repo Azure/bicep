@@ -20,9 +20,6 @@ namespace Bicep.Core.SemanticModel
 
         public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
 
-        // TODO if this is a string parameter with 'allowed' set, convert it to a union of string literal types
-        public override TypeSymbol Type => this.GetPrimitiveTypeByName(this.DeclaringParameter.Type.TypeName) ?? new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(this.DeclaringParameter.Type).InvalidParameterType());
-
         public SyntaxBase? Modifier { get; }
 
         public override SymbolKind Kind => SymbolKind.Parameter;
