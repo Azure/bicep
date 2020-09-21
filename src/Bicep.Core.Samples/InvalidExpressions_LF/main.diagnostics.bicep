@@ -28,7 +28,7 @@ var bad = (null) ? !
 var bad = (null)!
 //@[16:17) Error Expected a new line character at this location. |!|
 var bad = (null)[0]
-//@[10:16) Error Cannot index over expression of type 'null'. Arrays or objects are required. |(null)|
+//@[10:16) Error Cannot index over expression of type null. Arrays or objects are required. |(null)|
 var bad = ()
 //@[11:12) Error Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
 var bad = 
@@ -161,22 +161,22 @@ var errorInsideArrayAccess = [
 ][!0]
 //@[2:4) Error Cannot apply operator '!' to operand of type int. |!0|
 var integerIndexOnNonArray = (null)[0]
-//@[29:35) Error Cannot index over expression of type 'null'. Arrays or objects are required. |(null)|
+//@[29:35) Error Cannot index over expression of type null. Arrays or objects are required. |(null)|
 var stringIndexOnNonObject = 'test'['test']
-//@[29:35) Error Cannot index over expression of type ''test''. Arrays or objects are required. |'test'|
+//@[29:35) Error Cannot index over expression of type 'test'. Arrays or objects are required. |'test'|
 var malformedStringIndex = {
 }['test\e']
 //@[7:9) Error The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
 var invalidIndexTypeOverAny = any(true)[true]
 //@[40:44) Error The array index must be of type string or int but the provided index was of type bool. |true|
 var badIndexOverArray = [][null]
-//@[27:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type 'null'. |null|
+//@[27:31) Error Indexing over arrays requires an index of type int but the provided index was of type null. |null|
 var badIndexOverArray2 = []['s']
-//@[28:31) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
+//@[28:31) Error Indexing over arrays requires an index of type int but the provided index was of type 's'. |'s'|
 var badIndexOverObj = {}[true]
-//@[25:29) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'bool'. |true|
+//@[25:29) Error Indexing over objects requires an index of type string but the provided index was of type bool. |true|
 var badIndexOverObj2 = {}[0]
-//@[26:27) Error Indexing over objects requires an index of type 'string' but the provided index was of type 'int'. |0|
+//@[26:27) Error Indexing over objects requires an index of type string but the provided index was of type int. |0|
 var badExpressionIndexer = {}[base64('a')]
 //@[30:41) Error The type object does not contain any properties. |base64('a')|
 
@@ -305,23 +305,23 @@ var sampleObject = {
 }
 
 var badProperty = sampleObject.myFake
-//@[31:37) Error The type object does not contain property 'myFake'. |myFake|
+//@[31:37) Error The type object does not contain property 'myFake'. Available properties include 'myArr', 'myBool', 'myInner', 'myInt', 'myNull', 'myStr'. |myFake|
 var badPropertyIndexer = sampleObject['fake']
-//@[38:44) Error The type object does not contain property 'fake'. |'fake'|
+//@[38:44) Error The type object does not contain property 'fake'. Available properties include 'myArr', 'myBool', 'myInner', 'myInt', 'myNull', 'myStr'. |'fake'|
 var badType = sampleObject.myStr / 32
 //@[14:37) Error Cannot apply operator '/' to operands of type 's' and int. |sampleObject.myStr / 32|
 var badInnerProperty = sampleObject.myInner.fake
-//@[44:48) Error The type object does not contain property 'fake'. |fake|
+//@[44:48) Error The type object does not contain property 'fake'. Available properties include 'anotherStr', 'otherArr'. |fake|
 var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[19:54) Error Cannot apply operator '+' to operands of type 'a' and int. |sampleObject.myInner.anotherStr + 2|
 var badArrayIndexer = sampleObject.myArr['s']
-//@[41:44) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
+//@[41:44) Error Indexing over arrays requires an index of type int but the provided index was of type 's'. |'s'|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
-//@[57:60) Error Indexing over arrays requires an index of type 'int' but the provided index was of type ''s''. |'s'|
+//@[57:60) Error Indexing over arrays requires an index of type int but the provided index was of type 's'. |'s'|
 var badIndexer = sampleObject.myStr['s']
-//@[17:35) Error Cannot index over expression of type ''s''. Arrays or objects are required. |sampleObject.myStr|
+//@[17:35) Error Cannot index over expression of type 's'. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[41:48) Error The type object does not contain property 'fakeArr'. |fakeArr|
+//@[41:48) Error The type object does not contain property 'fakeArr'. Available properties include 'anotherStr', 'otherArr'. |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[50:61) Error This is not a valid expression. |a.b.c.bar()|
 var invalidInstanceFunctionAccess = a.b.c.bar()

@@ -300,8 +300,21 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType.AdditionalProperties == null)
             {
+                var validUnspecifiedProperties = targetType.Properties.Values
+                    .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+                    .Select(p => p.Name)
+                    .Except(expression.Properties.Select(p => p.GetKeyText()), LanguageConstants.IdentifierComparer)
+                    .OrderBy(x => x);
+
                 // extra properties are not allowed by the type
-                result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
+                foreach (var extraProperty in extraProperties)
+                {
+                    var error = validUnspecifiedProperties.Any() ? 
+                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(extraProperty.GetKeyText(), targetType.Name, validUnspecifiedProperties) :
+                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name);
+
+                    result = result.Concat(error.AsEnumerable());
+                }
             }
             else
             {

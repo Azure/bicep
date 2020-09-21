@@ -38,8 +38,6 @@ namespace Bicep.Core.TypeSystem
 
         public static TypeSymbol Create(params ITypeReference[] members) => Create((IEnumerable<ITypeReference>) members);
 
-        public static TypeSymbol Create(params TypeSymbol[] members) => Create(members.Select(x => x));
-
         private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) => 
             members.SelectMany(member => member.Type is UnionType union 
                 ? FlattenMembers(union.Members)

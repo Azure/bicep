@@ -255,7 +255,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
-                var aggregatedItemType = UnionType.Create(itemTypes.Select(x => x));
+                var aggregatedItemType = UnionType.Create(itemTypes);
                 if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never)
                 {
                     // array contains a mix of item types or is empty
@@ -667,7 +667,16 @@ namespace Bicep.Core.TypeSystem
                 return baseType.AdditionalProperties.Type;
             }
 
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
+            var availableProperties = baseType.Properties.Values
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => p.Name)
+                .OrderBy(x => x);
+
+            var error = availableProperties.Any() ? 
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(baseType, propertyName, availableProperties) :
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName);
+
+            return new ErrorTypeSymbol(error);
         }
     }
 }

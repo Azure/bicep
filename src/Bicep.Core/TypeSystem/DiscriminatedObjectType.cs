@@ -37,7 +37,7 @@ namespace Bicep.Core.TypeSystem
 
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.DiscriminatorKey = discriminatorKey;
-            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes.Select(x => x));
+            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
