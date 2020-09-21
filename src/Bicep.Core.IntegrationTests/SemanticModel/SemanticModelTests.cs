@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             {
                 var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
 
-                return $"{diagnostic.Level} {diagnostic.Message} |{spanText}|";
+                return $"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message} |{spanText}|";
             }
             
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
