@@ -84,7 +84,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void NothingShouldBeAssignableToNeverType()
         {
-            var never = UnionType.Create();
+            var never = UnionType.Create(Enumerable.Empty<ITypeReference>());
             TypeValidator.AreTypesAssignable(LanguageConstants.Bool, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Int, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.String, never).Should().BeFalse();

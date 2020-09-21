@@ -96,14 +96,14 @@ namespace Bicep.Core.TypeSystem
                     
                     // TODO: Replace with some sort of set intersection
                     // are all source type members assignable to the target type?
-                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember, targetType) == true);
+                    return sourceUnion.Members.All(sourceMember => AreTypesAssignable(sourceMember.Type, targetType) == true);
 
                 case UnionType targetUnion:
                     // the source type should be a singleton type
                     Debug.Assert(!(sourceType is UnionType),"!(sourceType is UnionType)");
 
                     // can source type be assigned to any union member types
-                    return targetUnion.Members.Any(targetMember => AreTypesAssignable(sourceType, targetMember) == true);
+                    return targetUnion.Members.Any(targetMember => AreTypesAssignable(sourceType, targetMember.Type) == true);
 
                 default:
                     // expression cannot be assigned to the type
@@ -176,7 +176,7 @@ namespace Bicep.Core.TypeSystem
                 .SelectMany(arrayItemSyntax => GetExpressionAssignmentDiagnosticsInternal(
                     typeManager,
                     arrayItemSyntax.Value,
-                    targetType.ItemType,
+                    targetType.Item.Type,
                     (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
                     skipConstantCheck,
                     skipTypeErrors: true)); 
@@ -211,11 +211,16 @@ namespace Bicep.Core.TypeSystem
                 yield break;
             }
 
-            if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectType))
+            if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
             {
                 // no matches
                 yield return DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
                 yield break;
+            }
+
+            if (!(selectedObjectReference.Type is ObjectType selectedObjectType))
+            {
+                throw new InvalidOperationException($"Discriminated type {targetType.Name} contains non-object member");
             }
 
             // we have a match!
@@ -278,7 +283,7 @@ namespace Bicep.Core.TypeSystem
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         declaredPropertySyntax.Value,
-                        declaredProperty.Type,
+                        declaredProperty.TypeReference.Type,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
@@ -293,7 +298,7 @@ namespace Bicep.Core.TypeSystem
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
-            if (targetType.AdditionalPropertiesType == null)
+            if (targetType.AdditionalProperties == null)
             {
                 // extra properties are not allowed by the type
                 result = result.Concat(extraProperties.Select(extraProperty => DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name)));
@@ -318,7 +323,7 @@ namespace Bicep.Core.TypeSystem
                     var diagnostics = GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         extraProperty.Value,
-                        targetType.AdditionalPropertiesType,
+                        targetType.AdditionalProperties.Type,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);

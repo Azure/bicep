@@ -55,7 +55,7 @@ namespace Bicep.Core
                 throw new ArgumentException($"Modifiers are not supported for type '{parameterType.Name}'.");
             }
 
-            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalPropertiesType: null);
+            return new NamedObjectType($"ParameterModifier_{parameterType.Name}", CreateParameterModifierProperties(parameterType), additionalProperties: null);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol parameterType)
@@ -141,7 +141,8 @@ namespace Bicep.Core
 
             yield return new TypeProperty("properties", Object);
 
-            yield return new TypeProperty("dependsOn", new TypedArrayType(ResourceRef), TypePropertyFlags.WriteOnly);
+            var resourceRefArray = new TypedArrayType(ResourceRef);
+            yield return new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly);
         }
     }
 }

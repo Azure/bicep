@@ -10,7 +10,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class UnionType : TypeSymbol
     {
-        private UnionType(string name, ImmutableArray<TypeSymbol> members)
+        private UnionType(string name, ImmutableArray<ITypeReference> members)
             : base(name)
         {
             this.Members = members;
@@ -18,32 +18,34 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => this.Members.Any() ? TypeKind.Union : TypeKind.Never;
 
-        public ImmutableArray<TypeSymbol> Members { get; }
+        public ImmutableArray<ITypeReference> Members { get; }
 
-        public static TypeSymbol Create(IEnumerable<TypeSymbol> unionMembers)
+        public static TypeSymbol Create(IEnumerable<ITypeReference> unionMembers)
         {
             // flatten and then de-duplicate members
             var finalMembers = FlattenMembers(unionMembers)
                 .Distinct()
-                .OrderBy(m => m.Name, StringComparer.Ordinal)
+                .OrderBy(m => m.Type.Name, StringComparer.Ordinal)
                 .ToImmutableArray();
 
             return finalMembers.Length switch
             {
-                0 => new UnionType("never", ImmutableArray<TypeSymbol>.Empty),
-                1 => finalMembers[0],
+                0 => new UnionType("never", ImmutableArray<ITypeReference>.Empty),
+                1 => finalMembers[0].Type,
                 _ => new UnionType(FormatName(finalMembers), finalMembers)
             };
         }
 
-        public static TypeSymbol Create(params TypeSymbol[] members) => Create((IEnumerable<TypeSymbol>) members);
+        public static TypeSymbol Create(params ITypeReference[] members) => Create((IEnumerable<ITypeReference>) members);
 
-        private static IEnumerable<TypeSymbol> FlattenMembers(IEnumerable<TypeSymbol> members) => 
-            members.SelectMany(member => member is UnionType union 
+        public static TypeSymbol Create(params TypeSymbol[] members) => Create(members.Select(x => x));
+
+        private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) => 
+            members.SelectMany(member => member.Type is UnionType union 
                 ? FlattenMembers(union.Members)
                 : member.AsEnumerable());
 
-        private static string FormatName(IEnumerable<TypeSymbol> unionMembers) => unionMembers.Select(m => m.Name).ConcatString(" | ");
+        private static string FormatName(IEnumerable<ITypeReference> unionMembers) => unionMembers.Select(m => m.Type.Name).ConcatString(" | ");
     }
 }
 

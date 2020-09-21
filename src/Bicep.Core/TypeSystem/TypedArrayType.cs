@@ -4,12 +4,12 @@ namespace Bicep.Core.TypeSystem
 {
     public class TypedArrayType : ArrayType
     {
-        public TypedArrayType(TypeSymbol itemType)
-            : base(itemType.Name + "[]")
+        public TypedArrayType(ITypeReference itemReference)
+            : base(itemReference.Type.Name + "[]")
         {
-            this.ItemType = itemType;
+            this.Item = itemReference;
         }
 
-        public override TypeSymbol ItemType { get; }
+        public override ITypeReference Item { get; }
     }
 }

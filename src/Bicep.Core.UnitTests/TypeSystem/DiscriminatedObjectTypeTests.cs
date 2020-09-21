@@ -30,8 +30,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             discObj.UnionMembersByKey.Keys.Should().BeEquivalentTo("'keyA'", "'keyB'");
             discObj.TypeKind.Should().Be(TypeKind.DiscriminatedObject);
 
-            discObj.UnionMembersByKey[new StringLiteralType("keyA").Name].Should().Be(namedObjectA);
-            discObj.UnionMembersByKey[new StringLiteralType("keyB").Name].Should().Be(namedObjectB);
+            discObj.UnionMembersByKey[new StringLiteralType("keyA").Name].Type.Should().Be(namedObjectA);
+            discObj.UnionMembersByKey[new StringLiteralType("keyB").Name].Type.Should().Be(namedObjectB);
         }
 
         [TestMethod]

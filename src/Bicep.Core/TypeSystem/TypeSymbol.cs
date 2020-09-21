@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public abstract class TypeSymbol : Symbol
+    public abstract class TypeSymbol : Symbol, ITypeReference
     {
         protected TypeSymbol(string name) : base(name)
         {
@@ -15,6 +15,8 @@ namespace Bicep.Core.TypeSystem
         public override SymbolKind Kind => SymbolKind.Type;
 
         public abstract TypeKind TypeKind { get; }
+
+        public TypeSymbol Type => this;
 
         public override void Accept(SymbolVisitor visitor)
         {
