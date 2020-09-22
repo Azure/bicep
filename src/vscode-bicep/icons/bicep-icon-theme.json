@@ -1,10 +1,18 @@
 {
     "iconDefinitions": {
-        "__bicep_file": {
-            "iconPath": "./azure-resource-manager.png"
+        "__bicep_file_light": {
+            "iconPath": "./bicep_light.png"
+        },
+        "__bicep_file_dark": {
+            "iconPath": "./bicep_dark.png"
         }
     },
     "fileExtensions": {
-        "bicep": "__bicep_file"
+        "bicep": "__bicep_file_light"
+    },
+    "light": {
+        "fileExtensions": {
+            "bicep": "__bicep_file_dark"
+        }
     }
 }
