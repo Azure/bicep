@@ -13,12 +13,12 @@ namespace Bicep.Core.Emit
     /// </summary>
     public class EmitLimitationVisitor : SyntaxVisitor
     {
-        private readonly IList<ErrorDiagnostic> diagnostics;
+        private readonly IList<Diagnostic> diagnostics;
         private readonly SemanticModel.SemanticModel model;
 
         private readonly Stack<VisitorState> stack = new Stack<VisitorState>();
 
-        public EmitLimitationVisitor(IList<ErrorDiagnostic> diagnostics, SemanticModel.SemanticModel model)
+        public EmitLimitationVisitor(IList<Diagnostic> diagnostics, SemanticModel.SemanticModel model)
         {
             this.diagnostics = diagnostics;
             this.model = model;

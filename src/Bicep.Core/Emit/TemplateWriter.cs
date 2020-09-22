@@ -85,9 +85,8 @@ namespace Bicep.Core.Emit
         {
             // local function
             bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
-            var primitiveType = parameterSymbol.TryGetPrimitiveType();
 
-            if (primitiveType == null)
+            if (!(SyntaxHelper.TryGetPrimitiveType(parameterSymbol.DeclaringParameter) is TypeSymbol primitiveType))
             {
                 // this should have been caught by the type checker long ago
                 throw new ArgumentException($"Unable to find primitive type for parameter {parameterSymbol.Name}");

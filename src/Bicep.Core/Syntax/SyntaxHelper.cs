@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -27,5 +28,8 @@ namespace Bicep.Core.Syntax
 
             return allowedArraySyntax.Items.Select(i => i.Value);
         }
+
+        public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
+            => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.Type.TypeName);
     }
 }
