@@ -1,0 +1,10 @@
+{
+    "iconDefinitions": {
+        "__bicep_file": {
+            "iconPath": "./azure-resource-manager.png"
+        }
+    },
+    "fileExtensions": {
+        "bicep": "__bicep_file"
+    }
+}

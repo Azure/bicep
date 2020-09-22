@@ -75,6 +75,13 @@
                 "language": "bicep",
                 "path": "./snippets/bicep.json"
             }
+        ],
+        "iconThemes": [
+            {
+                "id": "bicep-icons",
+                "label": "BicepIcons",
+                "path": "./icons/bicep-icon-theme.json"
+            }
         ]
     },
     "scripts": {
