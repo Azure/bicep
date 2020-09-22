@@ -30,27 +30,31 @@ namespace Bicep.Core.Parser
 
         public ProgramSyntax Program()
         {
-            var declarations = new List<SyntaxBase>();
+            var declarationsOrTokens = new List<SyntaxBase>();
             
             while (!this.IsAtEnd())
             {
-                var statement = Declaration();
-                declarations.Add(statement);
+                // this produces either a declaration node, skipped tokens node or just a token
+                
+                var declarationOrToken = Declaration();
+                declarationsOrTokens.Add(declarationOrToken);
 
-                if (statement is IDeclarationSyntax)
+                // if skipped node is returned above, the newline is not consumed
+                // if newline token is returned, we must not expect another (could be a beginning of a declaration)
+                if (declarationOrToken is IDeclarationSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, consumeTerminator: true, TokenType.NewLine);
                     if (newLine != null)
                     {
-                        declarations.Add(newLine);
+                        declarationsOrTokens.Add(newLine);
                     }
                 }
             }
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(declarations, endOfFile, this.lexerDiagnostics);
+            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
         }
 
         public SyntaxBase Declaration() =>

@@ -21,8 +21,8 @@ namespace Bicep.Core
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
-		
-		public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
+
+        public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
 
         public const string ParameterAllowedPropertyName = "allowed";
 

@@ -39,6 +39,7 @@ namespace Bicep.Core.Syntax
         public virtual void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
         }
+
         public virtual void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax)
         {
             // visit paired elements in order
