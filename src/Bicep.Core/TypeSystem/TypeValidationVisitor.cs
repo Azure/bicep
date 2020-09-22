@@ -16,44 +16,44 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly ITypeManager typeManager;
         private readonly IList<Diagnostic> diagnostics;
-        private readonly IDictionary<SyntaxBase, ImmutableArray<Diagnostic>> syntaxDiagnostics;
 
-        public TypeValidationVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, ITypeManager typeManager, IList<Diagnostic> diagnostics)
+        public static IEnumerable<Diagnostic> GetTypeValidationDiagnostics(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, ITypeManager typeManager, ProgramSyntax program)
+        {
+            var diagnostics = new List<Diagnostic>();
+
+            var visitor = new TypeValidationVisitor(bindings, typeManager, diagnostics);
+            visitor.Visit(program);
+
+            return diagnostics;
+        }
+
+        private TypeValidationVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, ITypeManager typeManager, IList<Diagnostic> diagnostics)
         {
             this.bindings = bindings;
             this.typeManager = typeManager;
             this.diagnostics = diagnostics;
-            this.syntaxDiagnostics = new Dictionary<SyntaxBase, ImmutableArray<Diagnostic>>();
-        }
-
-        public override void VisitProgramSyntax(ProgramSyntax syntax)
-        {
-            base.VisitProgramSyntax(syntax);
-            diagnostics.AddRange(syntaxDiagnostics.Values.SelectMany(x => x));
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            var diagnostics = this.ValidateIdentifierAccess(syntax);
+            diagnostics.AddRange(this.ValidateIdentifierAccess(syntax));
 
             var assignedType = typeManager.GetTypeInfo(syntax);
 
             switch (syntax.Modifier)
             {
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    diagnostics = diagnostics.Concat(ValidateDefaultValue(defaultValueSyntax, assignedType));
+                    diagnostics.AddRange(ValidateDefaultValue(defaultValueSyntax, assignedType));
                     break;
 
                 case ObjectSyntax modifierSyntax:
                     if (assignedType.TypeKind != TypeKind.Error && SyntaxHelper.TryGetPrimitiveType(syntax) is PrimitiveType primitiveType)
                     {
                         var modifierType = LanguageConstants.CreateParameterModifierType(primitiveType, assignedType);
-                        diagnostics = diagnostics.Concat(TypeValidator.GetExpressionAssignmentDiagnostics(typeManager, modifierSyntax, modifierType));
+                        diagnostics.AddRange(TypeValidator.GetExpressionAssignmentDiagnostics(typeManager, modifierSyntax, modifierType));
                     }
                     break;
             }
-
-            syntaxDiagnostics[syntax] = diagnostics.ToImmutableArray();
         }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
@@ -65,16 +65,16 @@ namespace Bicep.Core.TypeSystem
         {
             var assignedType = typeManager.GetTypeInfo(syntax);
             
-            var diagnostics = TypeValidator.GetExpressionAssignmentDiagnostics(typeManager, syntax.Body, assignedType);
+            var currentDiagnostics = TypeValidator.GetExpressionAssignmentDiagnostics(typeManager, syntax.Body, assignedType);
 
-            syntaxDiagnostics[syntax] = diagnostics.ToImmutableArray();
+            diagnostics.AddRange(currentDiagnostics);
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            var diagnostics = GetOutputDeclarationDiagnostics(syntax);
+            var currentDiagnostics = GetOutputDeclarationDiagnostics(syntax);
 
-            syntaxDiagnostics[syntax] = diagnostics.ToImmutableArray();
+            diagnostics.AddRange(currentDiagnostics);
         }
 
         private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(OutputDeclarationSyntax syntax)
@@ -123,7 +123,10 @@ namespace Bicep.Core.TypeSystem
                     {
                         var symbol = bindings[current];
                         
-                        // excluded symbol kinds already generate errors - no need to duplicate
+                        // Error: already has error info attached, no need to add more
+                        // Parameter: references are permitted in other parameters' default values as long as there is not a cycle (BCP080)
+                        // Function: we already validate that a function cannot be used as a variable (BCP063)
+                        // Output: we already validate that outputs cannot be referenced in expressions (BCP058)
                         if (symbol.Kind != SymbolKind.Error &&
                             symbol.Kind != SymbolKind.Parameter &&
                             symbol.Kind != SymbolKind.Function &&
