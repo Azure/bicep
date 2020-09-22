@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
@@ -6,11 +6,11 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
-    public class SemanticErrorVisitor : SymbolVisitor
+    public class SemanticDiagnosticVisitor : SymbolVisitor
     {
         private readonly IList<Diagnostic> diagnostics;
 
-        public SemanticErrorVisitor(IList<Diagnostic> diagnostics)
+        public SemanticDiagnosticVisitor(IList<Diagnostic> diagnostics)
         {
             this.diagnostics = diagnostics;
         }
@@ -71,7 +71,7 @@ namespace Bicep.Core.SemanticModel
 
         protected void CollectDiagnostics(Symbol symbol)
         {
-            foreach (ErrorDiagnostic diagnostic in symbol.GetDiagnostics())
+            foreach (var diagnostic in symbol.GetDiagnostics())
             {
                 this.diagnostics.Add(diagnostic);
             }

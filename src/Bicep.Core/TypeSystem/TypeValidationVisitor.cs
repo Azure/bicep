@@ -16,14 +16,14 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly ITypeManager typeManager;
         private readonly IList<Diagnostic> diagnostics;
-        private readonly IDictionary<SyntaxBase, ImmutableArray<ErrorDiagnostic>> syntaxDiagnostics;
+        private readonly IDictionary<SyntaxBase, ImmutableArray<Diagnostic>> syntaxDiagnostics;
 
         public TypeValidationVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, ITypeManager typeManager, IList<Diagnostic> diagnostics)
         {
             this.bindings = bindings;
             this.typeManager = typeManager;
             this.diagnostics = diagnostics;
-            this.syntaxDiagnostics = new Dictionary<SyntaxBase, ImmutableArray<ErrorDiagnostic>>();
+            this.syntaxDiagnostics = new Dictionary<SyntaxBase, ImmutableArray<Diagnostic>>();
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -77,7 +77,7 @@ namespace Bicep.Core.TypeSystem
             syntaxDiagnostics[syntax] = diagnostics.ToImmutableArray();
         }
 
-        private IEnumerable<ErrorDiagnostic> GetOutputDeclarationDiagnostics(OutputDeclarationSyntax syntax)
+        private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(OutputDeclarationSyntax syntax)
         {
             var assignedType = typeManager.GetTypeInfo(syntax);
             var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -93,10 +93,10 @@ namespace Bicep.Core.TypeSystem
                 return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType.Name, valueType.Name).AsEnumerable();
             }
 
-            return Enumerable.Empty<ErrorDiagnostic>();
+            return Enumerable.Empty<Diagnostic>();
         }
 
-        private IEnumerable<ErrorDiagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
+        private IEnumerable<Diagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
         {
             // figure out type of the default value
             var defaultValueType = typeManager.GetTypeInfo(defaultValueSyntax.DefaultValue);
@@ -112,12 +112,12 @@ namespace Bicep.Core.TypeSystem
                 return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType.Name, defaultValueType.Name).AsEnumerable();
             }
 
-            return Enumerable.Empty<ErrorDiagnostic>();
+            return Enumerable.Empty<Diagnostic>();
         }
 
-        private IEnumerable<ErrorDiagnostic> ValidateIdentifierAccess(ParameterDeclarationSyntax syntax)
+        private IEnumerable<Diagnostic> ValidateIdentifierAccess(ParameterDeclarationSyntax syntax)
         {
-            return SyntaxAggregator.Aggregate(syntax, new List<ErrorDiagnostic>(), (accumulated, current) =>
+            return SyntaxAggregator.Aggregate(syntax, new List<Diagnostic>(), (accumulated, current) =>
                 {
                     if (current is VariableAccessSyntax)
                     {

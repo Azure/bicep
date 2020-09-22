@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
         {
             var diagnostics = new List<Diagnostic>();
             
-            var visitor = new SemanticErrorVisitor(diagnostics);
+            var visitor = new SemanticDiagnosticVisitor(diagnostics);
             visitor.Visit(this.Root);
 
             var typeDiagnosticsVisitor = new TypeValidationVisitor(bindings, typeManager, diagnostics);
