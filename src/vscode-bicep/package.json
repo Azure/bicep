@@ -69,12 +69,6 @@
                 ],
                 "configuration": "./language-configuration.json"
             }
-        ],
-        "snippets": [
-            {
-                "language": "bicep",
-                "path": "./snippets/bicep.json"
-            }
         ]
     },
     "scripts": {

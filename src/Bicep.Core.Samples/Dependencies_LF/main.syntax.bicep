@@ -1,5 +1,5 @@
 param deployTimeParam string = 'steve'
-//@[0:39) ParameterDeclarationSyntax
+//@[0:38) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |deployTimeParam|
@@ -9,18 +9,18 @@ param deployTimeParam string = 'steve'
 //@[29:30)   Assignment |=|
 //@[31:38)   StringSyntax
 //@[31:38)    StringComplete |'steve'|
-//@[38:39)  NewLine |\n|
+//@[38:39) NewLine |\n|
 var deployTimeVar = 'nigel'
-//@[0:28) VariableDeclarationSyntax
+//@[0:27) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |deployTimeVar|
 //@[18:19)  Assignment |=|
 //@[20:27)  StringSyntax
 //@[20:27)   StringComplete |'nigel'|
-//@[27:28)  NewLine |\n|
+//@[27:28) NewLine |\n|
 var dependentVar = {
-//@[0:84) VariableDeclarationSyntax
+//@[0:82) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |dependentVar|
@@ -53,10 +53,10 @@ var dependentVar = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 var resourceDependency = {
-//@[0:138) VariableDeclarationSyntax
+//@[0:136) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |resourceDependency|
@@ -131,10 +131,10 @@ var resourceDependency = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 output resourceAType string = resA.type
-//@[0:40) OutputDeclarationSyntax
+//@[0:39) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:20)  IdentifierSyntax
 //@[7:20)   Identifier |resourceAType|
@@ -148,9 +148,9 @@ output resourceAType string = resA.type
 //@[34:35)   Dot |.|
 //@[35:39)   IdentifierSyntax
 //@[35:39)    Identifier |type|
-//@[39:40)  NewLine |\n|
+//@[39:40) NewLine |\n|
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:134) ResourceDeclarationSyntax
+//@[0:132) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resA|
@@ -198,10 +198,10 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[14:15)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 output resourceBId string = resB.id
-//@[0:36) OutputDeclarationSyntax
+//@[0:35) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |resourceBId|
@@ -215,9 +215,9 @@ output resourceBId string = resB.id
 //@[32:33)   Dot |.|
 //@[33:35)   IdentifierSyntax
 //@[33:35)    Identifier |id|
-//@[35:36)  NewLine |\n|
+//@[35:36) NewLine |\n|
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:127) ResourceDeclarationSyntax
+//@[0:125) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resB|
@@ -257,10 +257,10 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 var resourceIds = {
-//@[0:49) VariableDeclarationSyntax
+//@[0:47) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |resourceIds|
@@ -296,10 +296,10 @@ var resourceIds = {
 //@[12:13)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:119) ResourceDeclarationSyntax
+//@[0:117) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resC|
@@ -339,10 +339,10 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[0:113) ResourceDeclarationSyntax
+//@[0:111) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resD|
@@ -381,10 +381,10 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[0:126) ResourceDeclarationSyntax
+//@[0:124) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |resE|
@@ -428,7 +428,7 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 output resourceCProperties object = resC.properties
 //@[0:51) OutputDeclarationSyntax

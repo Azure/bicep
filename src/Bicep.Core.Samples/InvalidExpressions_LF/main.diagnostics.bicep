@@ -26,8 +26,10 @@ var bad = (null) ? :
 var bad = (null) ? !
 //@[20:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = (null)!
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[16:17) [BCP019 (Error)] Expected a new line character at this location. |!|
 var bad = (null)[0]
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:16) [BCP076 (Error)] Cannot index over expression of type null. Arrays or objects are required. |(null)|
 var bad = ()
 //@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|

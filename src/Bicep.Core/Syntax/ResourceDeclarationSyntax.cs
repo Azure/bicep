@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Extensions;
+
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 
@@ -8,19 +8,17 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body, Token? newLine)
+        public ResourceDeclarationSyntax(Token resourceKeyword, IdentifierSyntax name, SyntaxBase type, Token assignment, SyntaxBase body)
         {
             AssertKeyword(resourceKeyword, nameof(resourceKeyword), LanguageConstants.ResourceKeyword);
             AssertTokenType(resourceKeyword, nameof(resourceKeyword), TokenType.Identifier);
             AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
-            AssertTokenType(newLine, nameof(newLine), TokenType.NewLine);
 
             this.ResourceKeyword = resourceKeyword;
             this.Name = name;
             this.Type = type;
             this.Assignment = assignment;
             this.Body = body;
-            this.NewLine = newLine;
         }
 
         public Token ResourceKeyword { get; }
@@ -33,11 +31,9 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
-        public Token? NewLine { get; }
-
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitResourceDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(ResourceKeyword, TextSpan.LastNonNull(Body, NewLine));
+        public override TextSpan Span => TextSpan.Between(ResourceKeyword, Body);
 
         public StringSyntax? TryGetType() => Type as StringSyntax;
     }
