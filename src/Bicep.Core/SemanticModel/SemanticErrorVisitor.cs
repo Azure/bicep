@@ -8,9 +8,9 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticErrorVisitor : SymbolVisitor
     {
-        private readonly IList<ErrorDiagnostic> diagnostics;
+        private readonly IList<Diagnostic> diagnostics;
 
-        public SemanticErrorVisitor(IList<ErrorDiagnostic> diagnostics)
+        public SemanticErrorVisitor(IList<Diagnostic> diagnostics)
         {
             this.diagnostics = diagnostics;
         }

@@ -33,12 +33,15 @@ namespace Bicep.Core.SemanticModel
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ErrorDiagnostic> GetSemanticDiagnostics()
+        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<ErrorDiagnostic>();
+            var diagnostics = new List<Diagnostic>();
             
             var visitor = new SemanticErrorVisitor(diagnostics);
             visitor.Visit(this.Root);
+
+            var typeDiagnosticsVisitor = new TypeValidationVisitor(bindings, typeManager, diagnostics);
+            typeDiagnosticsVisitor.Visit(this.Root.Syntax);
 
             // TODO: Remove this when we fix IL limitations
             var emitLimitationVisitor = new EmitLimitationVisitor(diagnostics, this);

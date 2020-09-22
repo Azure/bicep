@@ -20,12 +20,12 @@ namespace Bicep.Core.TypeSystem
         /// <param name="expression">the expression to check for compile-time constant violations</param>
         public static IList<ErrorDiagnostic> GetCompileTimeConstantViolation(SyntaxBase expression)
         {
-            var errors = new List<ErrorDiagnostic>();
-            var visitor = new CompileTimeConstantVisitor(errors);
+            var diagnostics = new List<ErrorDiagnostic>();
+            var visitor = new CompileTimeConstantVisitor(diagnostics);
 
             visitor.Visit(expression);
 
-            return errors;
+            return diagnostics;
         }
 
         /// <summary>
@@ -126,37 +126,37 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
-            var errors = Enumerable.Empty<ErrorDiagnostic>();
+            var diagnostics = Enumerable.Empty<ErrorDiagnostic>();
             if (skipTypeErrors == false && expressionType is ErrorTypeSymbol)
             {
-                errors = errors.Concat(expressionType.GetDiagnostics());
+                diagnostics = diagnostics.Concat(expressionType.GetDiagnostics());
             }
 
             // basic assignability check
             if (AreTypesAssignable(expressionType, targetType) == false)
             {
                 // fundamentally different types - cannot assign
-                return errors.Append(typeMismatchErrorFactory(targetType, expressionType, expression));
+                return diagnostics.Append(typeMismatchErrorFactory(targetType, expressionType, expression));
             }
 
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
-                return errors.Concat(GetObjectAssignmentDiagnostics(typeManager, objectValue, targetObjectType, skipConstantCheck));
+                return diagnostics.Concat(GetObjectAssignmentDiagnostics(typeManager, objectValue, targetObjectType, skipConstantCheck));
             }
 
             if (expression is ObjectSyntax objectDiscriminated && targetType is DiscriminatedObjectType targetDiscriminated)
             {
-                return errors.Concat(GetDiscriminatedObjectAssignmentDiagnostics(typeManager, objectDiscriminated, targetDiscriminated, skipConstantCheck));
+                return diagnostics.Concat(GetDiscriminatedObjectAssignmentDiagnostics(typeManager, objectDiscriminated, targetDiscriminated, skipConstantCheck));
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                return errors.Concat(GetArrayAssignmentDiagnostics(typeManager, arrayValue, targetArrayType, skipConstantCheck));
+                return diagnostics.Concat(GetArrayAssignmentDiagnostics(typeManager, arrayValue, targetArrayType, skipConstantCheck));
             }
 
-            return errors;
+            return diagnostics;
         }
 
         private static IEnumerable<ErrorDiagnostic> GetArrayAssignmentDiagnostics(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, bool skipConstantCheck)

@@ -15,6 +15,14 @@ namespace Bicep.Core.Extensions
         {
             yield return single;
         }
+
+        public static void AddRange<T>(this IList<T> list, IEnumerable<T> range)
+        {
+            foreach (var element in range)
+            {
+                list.Add(element);
+            }
+        }
     }
 }
 
