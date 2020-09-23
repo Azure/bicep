@@ -64,7 +64,7 @@ namespace Bicep.Core
 
         public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalProperties: null);
+            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)

@@ -16,14 +16,16 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : SyntaxVisitor
     {
+        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
 
         private readonly IDictionary<SyntaxBase, TypeSymbol> assignedTypes;
 
-        public TypeAssignmentVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
+            this.resourceTypeRegistrar = resourceTypeRegistrar;
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
@@ -110,9 +112,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
                 }
 
-                // TODO: Construct/lookup type information based on JSON schema or swagger
-                // for now assuming very basic resource schema
-                return new ResourceType(stringContent, LanguageConstants.CreateResourceProperties(typeReference), additionalProperties: null, typeReference);
+                return resourceTypeRegistrar.GetType(typeReference);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -218,7 +218,7 @@ namespace Bicep.Core.TypeSystem
                     .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => assignedTypes[p]))));
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalProperties: null);
+                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -624,7 +624,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            if (baseType.Properties.Any() || baseType.AdditionalProperties != null)
+            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
             {
                 // the object type allows properties
                 return LanguageConstants.Any;
@@ -662,10 +662,10 @@ namespace Bicep.Core.TypeSystem
 
             // the property is not declared
             // check additional properties
-            if (baseType.AdditionalProperties != null)
+            if (baseType.AdditionalPropertiesType != null)
             {
                 // yes - return the additional property type
-                return baseType.AdditionalProperties.Type;
+                return baseType.AdditionalPropertiesType.Type;
             }
 
             var availableProperties = baseType.Properties.Values

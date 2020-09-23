@@ -830,12 +830,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var type = "Mock.Rp/mockType@2020-01-01";
-            var typeReference = ResourceTypeReference.TryParse(type)!;
+            var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return new ResourceType(type, LanguageConstants.CreateResourceProperties(typeReference), null, typeReference);
+            return new ResourceType(typeReference, LanguageConstants.CreateResourceProperties(typeReference));
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }

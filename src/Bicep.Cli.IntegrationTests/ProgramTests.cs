@@ -360,7 +360,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(text));
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             return compilation.GetSemanticModel()
