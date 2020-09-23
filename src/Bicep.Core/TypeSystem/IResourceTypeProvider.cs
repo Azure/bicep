@@ -7,8 +7,8 @@ namespace Bicep.Core.TypeSystem
 {
     public interface IResourceTypeProvider
     {
-        ResourceType LookupType(ResourceTypeReference reference);
+        ResourceType GetType(ResourceTypeReference reference);
 
-        bool HasTypeDefined(ResourceTypeReference typeReference);
+        bool HasType(ResourceTypeReference typeReference);
     }
 }

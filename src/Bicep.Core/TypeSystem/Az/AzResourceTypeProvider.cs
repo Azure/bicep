@@ -6,9 +6,9 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem.Azrm
+namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzrmResourceTypeProvider : IResourceTypeProvider
+    public class AzResourceTypeProvider : IResourceTypeProvider
     {
         private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
             => new []
@@ -32,17 +32,9 @@ namespace Bicep.Core.TypeSystem.Azrm
                 )));
         }
 
-        private readonly IReadOnlyDictionary<ResourceTypeReference, Func<ResourceType>> manualTypeDefinitions = new []
+        public ResourceType GetType(ResourceTypeReference typeReference)
         {
-            Get_Microsoft_Resources_resourceGroups_2020_06_01(),
-        }.ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2, ResourceTypeReferenceComparer.Instance);
-
-        private ResourceType? TryLookupResource(ResourceTypeReference typeReference)
-            => manualTypeDefinitions.TryGetValue(typeReference, out var builderFunc) ? builderFunc() : null;
-
-        public ResourceType LookupType(ResourceTypeReference typeReference)
-        {
-            var resourceType = TryLookupResource(typeReference);
+            var resourceType = TryGetResource(typeReference);
 
             if (resourceType != null)
             {
@@ -53,7 +45,15 @@ namespace Bicep.Core.TypeSystem.Azrm
             return new ResourceType(typeReference, LanguageConstants.CreateResourceProperties(typeReference));
         }
 
-        public bool HasTypeDefined(ResourceTypeReference typeReference)
-            => TryLookupResource(typeReference) != null;
+        public bool HasType(ResourceTypeReference typeReference)
+            => TryGetResource(typeReference) != null;
+
+        private readonly IReadOnlyDictionary<ResourceTypeReference, Func<ResourceType>> manualTypeDefinitions = new []
+        {
+            Get_Microsoft_Resources_resourceGroups_2020_06_01(),
+        }.ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2, ResourceTypeReferenceComparer.Instance);
+
+        private ResourceType? TryGetResource(ResourceTypeReference typeReference)
+            => manualTypeDefinitions.TryGetValue(typeReference, out var builderFunc) ? builderFunc() : null;
     }
 }

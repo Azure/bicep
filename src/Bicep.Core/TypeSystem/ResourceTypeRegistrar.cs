@@ -1,25 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem.Azrm;
 
 namespace Bicep.Core.TypeSystem
 {
     public class ResourceTypeRegistrar
     {
-        public static ResourceTypeRegistrar Instance { get; } = new ResourceTypeRegistrar();
+        private readonly IResourceTypeProvider resourceTypeProvider;
 
-        private IResourceTypeProvider resourceTypeProvider;
-
-        private ResourceTypeRegistrar()
+        public ResourceTypeRegistrar(IResourceTypeProvider resourceTypeProvider)
         {
-            resourceTypeProvider = new AzrmResourceTypeProvider();
+            this.resourceTypeProvider = resourceTypeProvider;
         }
 
-        public ResourceType LookupType(ResourceTypeReference typeReference)
-            => resourceTypeProvider.LookupType(typeReference);
+        public ResourceType GetType(ResourceTypeReference typeReference)
+            => resourceTypeProvider.GetType(typeReference);
 
-        public bool HasTypeDefined(ResourceTypeReference typeReference)
-            => resourceTypeProvider.HasTypeDefined(typeReference);
+        public bool HasType(ResourceTypeReference typeReference)
+            => resourceTypeProvider.HasType(typeReference);
     }
 }

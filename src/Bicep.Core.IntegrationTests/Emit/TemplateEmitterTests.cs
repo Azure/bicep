@@ -93,7 +93,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         private EmitResult EmitTemplate(string text, string filePath)
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(text));
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -102,7 +102,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         private EmitResult EmitTemplate(string text, MemoryStream memoryStream)
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(text));
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
             TextWriter tw = new StreamWriter(memoryStream);

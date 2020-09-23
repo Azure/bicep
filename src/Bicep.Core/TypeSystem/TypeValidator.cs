@@ -296,7 +296,7 @@ namespace Bicep.Core.TypeSystem
                 .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
                 .Select(name => propertyMap[name]);
 
-            if (targetType.AdditionalProperties == null)
+            if (targetType.AdditionalPropertiesType == null)
             {
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
@@ -334,7 +334,7 @@ namespace Bicep.Core.TypeSystem
                     GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         extraProperty.Value,
-                        targetType.AdditionalProperties.Type,
+                        targetType.AdditionalPropertiesType.Type,
                         diagnostics,
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
                         skipConstantCheckForProperty,

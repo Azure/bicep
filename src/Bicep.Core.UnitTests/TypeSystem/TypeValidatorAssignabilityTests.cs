@@ -835,6 +835,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(typeReference, LanguageConstants.CreateResourceProperties(typeReference));
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }

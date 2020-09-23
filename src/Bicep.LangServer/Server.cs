@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
@@ -60,10 +62,14 @@ namespace Bicep.LanguageServer
 
         private static void RegisterServices(IServiceCollection services)
         {
+            // We don't want to recreate this every compilation.
+            // I'm not using DI for it here, because I think it makes sense to set this up for the CLI at the same time.
+            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
-            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
+            services.AddSingleton<ICompilationProvider>(provider => new BicepCompilationProvider(resourceTypeRegistrar));
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
         }

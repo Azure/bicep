@@ -9,6 +9,7 @@ using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
@@ -25,7 +26,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationSnippetsShouldBeValid()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
@@ -89,7 +90,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
@@ -143,7 +144,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextInEmptyFileShouldReturnFunctionCompletions()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
@@ -161,7 +162,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(@"
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(@"
 param p string
 var v = true
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
@@ -210,7 +211,7 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(@"
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
@@ -259,7 +260,7 @@ output length int = 42
         [TestMethod]
         public void NonDeclarationContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
             var provider = new BicepCompletionProvider();
 
             var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None));
