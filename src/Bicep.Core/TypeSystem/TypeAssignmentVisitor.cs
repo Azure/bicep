@@ -110,9 +110,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
                 }
 
-                // TODO: Construct/lookup type information based on JSON schema or swagger
-                // for now assuming very basic resource schema
-                return new ResourceType(stringContent, LanguageConstants.CreateResourceProperties(typeReference), additionalProperties: null, typeReference);
+                return ResourceTypeRegistrar.Instance.LookupType(typeReference);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
