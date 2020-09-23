@@ -88,6 +88,20 @@ namespace Bicep.Core.UnitTests.Parser
         }
 
         [DataTestMethod]
+        [DataRow("[0:0]", "[0:0]", true)]
+        [DataRow("[10:12]", "[12:13]", true)]
+        [DataRow("[12:13]", "[10:12]", false)]
+        [DataRow("[100:200]", "[105:200]", false)]
+        [DataRow("[100:200]", "[105:205]", false)]
+        public void AreNeighbors_ShouldProduceCorrectResult(string firstSpan, string secondSpan, bool expectedResult)
+        {
+            var first = TextSpan.Parse(firstSpan);
+            var second = TextSpan.Parse(secondSpan);
+
+            TextSpan.AreNeighbors(first, second).Should().Be(expectedResult);
+        }
+
+        [DataTestMethod]
         [DataRow("[0:0]", "[0:0]", "[0:0]")]
         [DataRow("[0:2]", "[2:3]", "[0:2]")]
         [DataRow("[2:3]", "[0:2]", "[2:3]")]

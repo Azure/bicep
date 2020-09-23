@@ -88,11 +88,6 @@ namespace Bicep.LanguageServer
             base.VisitIdentifierSyntax(syntax);
         }
 
-        public override void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
-        {
-            base.VisitNoOpDeclarationSyntax(syntax);
-        }
-
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
         {
             AddTokenType(syntax.NullKeyword, SemanticTokenType.Keyword);

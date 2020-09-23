@@ -1,52 +1,48 @@
 
-//@[0:2) NoOpDeclarationSyntax
-//@[0:2)  NewLine |\r\n|
+//@[0:2) NewLine |\r\n|
 // wrong declaration
-//@[20:22) NoOpDeclarationSyntax
-//@[20:22)  NewLine |\r\n|
+//@[20:22) NewLine |\r\n|
 bad
-//@[0:7) SkippedTriviaSyntax
+//@[0:3) SkippedTriviaSyntax
 //@[0:3)  Identifier |bad|
-//@[3:7)  NewLine |\r\n\r\n|
+//@[3:7) NewLine |\r\n\r\n|
 
 // incomplete
-//@[13:15) NoOpDeclarationSyntax
-//@[13:15)  NewLine |\r\n|
+//@[13:15) NewLine |\r\n|
 resource 
-//@[0:11) SkippedTriviaSyntax
+//@[0:8) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 resource foo
-//@[0:14) SkippedTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
-//@[12:14)  NewLine |\r\n|
+//@[12:14) NewLine |\r\n|
 resource fo/o
-//@[0:15) SkippedTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:11)  Identifier |fo|
 //@[11:12)  Slash |/|
 //@[12:13)  Identifier |o|
-//@[13:15)  NewLine |\r\n|
+//@[13:15) NewLine |\r\n|
 resource foo 'ddd'
-//@[0:20) SkippedTriviaSyntax
+//@[0:18) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
 //@[13:18)  StringComplete |'ddd'|
-//@[18:20)  NewLine |\r\n|
+//@[18:20) NewLine |\r\n|
 resource foo 'ddd'=
-//@[0:23) SkippedTriviaSyntax
+//@[0:19) SkippedTriviaSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  Identifier |foo|
 //@[13:18)  StringComplete |'ddd'|
 //@[18:19)  Assignment |=|
-//@[19:23)  NewLine |\r\n\r\n|
+//@[19:23) NewLine |\r\n\r\n|
 
 // wrong resource type
-//@[22:24) NoOpDeclarationSyntax
-//@[22:24)  NewLine |\r\n|
+//@[22:24) NewLine |\r\n|
 resource foo 'ddd'={
-//@[0:27) ResourceDeclarationSyntax
+//@[0:23) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -58,13 +54,12 @@ resource foo 'ddd'={
 //@[20:22)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // using string interpolation for the resource type
-//@[51:53) NoOpDeclarationSyntax
-//@[51:53)  NewLine |\r\n|
+//@[51:53) NewLine |\r\n|
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
-//@[0:68) ResourceDeclarationSyntax
+//@[0:64) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -80,13 +75,12 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 //@[61:63)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // missing required property
-//@[28:30) NoOpDeclarationSyntax
-//@[28:30)  NewLine |\r\n|
+//@[28:30) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
-//@[0:59) ResourceDeclarationSyntax
+//@[0:55) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -98,13 +92,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[52:54)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property at the top level
-//@[38:40) NoOpDeclarationSyntax
-//@[38:40)  NewLine |\r\n|
+//@[38:40) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:89) ResourceDeclarationSyntax
+//@[0:85) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -132,13 +125,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[12:14)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property at the top level with string literal syntax
-//@[65:67) NoOpDeclarationSyntax
-//@[65:67)  NewLine |\r\n|
+//@[65:67) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:91) ResourceDeclarationSyntax
+//@[0:87) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -166,13 +158,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[14:16)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property inside
-//@[28:30) NoOpDeclarationSyntax
-//@[28:30)  NewLine |\r\n|
+//@[28:30) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:125) ResourceDeclarationSyntax
+//@[0:121) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -219,13 +210,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property inside with string literal syntax
-//@[55:57) NoOpDeclarationSyntax
-//@[55:57)  NewLine |\r\n|
+//@[55:57) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:127) ResourceDeclarationSyntax
+//@[0:123) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -272,13 +262,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // wrong property types
-//@[23:25) NoOpDeclarationSyntax
-//@[23:25)  NewLine |\r\n|
+//@[23:25) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:128) ResourceDeclarationSyntax
+//@[0:124) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
@@ -317,10 +306,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[31:33)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:235) ResourceDeclarationSyntax
+//@[0:231) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |bar|
@@ -441,13 +430,12 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // unsupported resource ref
-//@[27:29) NoOpDeclarationSyntax
-//@[27:29)  NewLine |\r\n|
+//@[27:29) NewLine |\r\n|
 var resrefvar = bar.name
-//@[0:28) VariableDeclarationSyntax
+//@[0:24) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |resrefvar|
@@ -459,10 +447,10 @@ var resrefvar = bar.name
 //@[19:20)   Dot |.|
 //@[20:24)   IdentifierSyntax
 //@[20:24)    Identifier |name|
-//@[24:28)  NewLine |\r\n\r\n|
+//@[24:28) NewLine |\r\n\r\n|
 
 param resrefpar string = foo.id
-//@[0:35) ParameterDeclarationSyntax
+//@[0:31) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |resrefpar|
@@ -477,10 +465,10 @@ param resrefpar string = foo.id
 //@[28:29)    Dot |.|
 //@[29:31)    IdentifierSyntax
 //@[29:31)     Identifier |id|
-//@[31:35)  NewLine |\r\n\r\n|
+//@[31:35) NewLine |\r\n\r\n|
 
 output resrefout bool = bar.id
-//@[0:34) OutputDeclarationSyntax
+//@[0:30) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |resrefout|
@@ -494,13 +482,12 @@ output resrefout bool = bar.id
 //@[27:28)   Dot |.|
 //@[28:30)   IdentifierSyntax
 //@[28:30)    Identifier |id|
-//@[30:34)  NewLine |\r\n\r\n|
+//@[30:34) NewLine |\r\n\r\n|
 
 // attempting to set read-only properties
-//@[41:43) NoOpDeclarationSyntax
-//@[41:43)  NewLine |\r\n|
+//@[41:43) NewLine |\r\n|
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:123) ResourceDeclarationSyntax
+//@[0:119) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |baz|
@@ -544,10 +531,10 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[18:20)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:117) ResourceDeclarationSyntax
+//@[0:113) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:19)  IdentifierSyntax
 //@[9:19)   Identifier |badDepends|
@@ -588,10 +575,10 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:129) ResourceDeclarationSyntax
+//@[0:125) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:20)  IdentifierSyntax
 //@[9:20)   Identifier |badDepends2|
@@ -632,10 +619,10 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:85) ResourceDeclarationSyntax
+//@[0:81) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:20)  IdentifierSyntax
 //@[9:20)   Identifier |badDepends3|
@@ -655,10 +642,10 @@ resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[14:16)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:123) ResourceDeclarationSyntax
+//@[0:119) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:20)  IdentifierSyntax
 //@[9:20)   Identifier |badDepends4|
@@ -695,7 +682,7 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:117) ResourceDeclarationSyntax

@@ -37,6 +37,8 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
+//@[6:15) [BCP028 (Error)] Identifier 'wrongType' is declared multiple times. Remove or rename the duplicates. |wrongType|
+//@[16:27) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string. |fluffyBunny|
 //@[36:37) [BCP019 (Error)] Expected a new line character at this location. |s|
 //@[45:46) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. |'|
 

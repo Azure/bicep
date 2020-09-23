@@ -6,6 +6,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +65,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
+            services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
         }
     }
 }

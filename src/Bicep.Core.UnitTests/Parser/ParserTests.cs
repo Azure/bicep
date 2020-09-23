@@ -46,8 +46,8 @@ namespace Bicep.Core.UnitTests.Parser
             {
                 var becauseFileValid = $"{file} is considered valid";
                 var program = ParserHelper.Parse(file, diags => diags.Should().BeEmpty(becauseFileValid));
-                program.Statements.Should().HaveCount(statementCount, becauseFileValid);
-                program.Statements.Should().AllBeOfType(expectedType, becauseFileValid);
+                program.Declarations.Should().HaveCount(statementCount, becauseFileValid);
+                program.Declarations.Should().AllBeOfType(expectedType, becauseFileValid);
             }
 
             var invalidFiles = new []

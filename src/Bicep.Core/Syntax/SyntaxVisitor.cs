@@ -40,13 +40,22 @@ namespace Bicep.Core.Syntax
         {
         }
 
+        public virtual void VisitSeparatedSyntaxList(SeparatedSyntaxList syntax)
+        {
+            // visit paired elements in order
+            foreach (var (item, token) in syntax.GetPairedElements())
+            {
+                this.Visit(item);
+                this.Visit(token);
+            }
+        }
+
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             this.Visit(syntax.ParameterKeyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Modifier);
-            this.Visit(syntax.NewLine);
         }
 
         public virtual void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
@@ -61,7 +70,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
-            this.Visit(syntax.NewLine);
         }
 
         public virtual void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -71,7 +79,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Body);
-            this.Visit(syntax.NewLine);
         }
 
         public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -81,12 +88,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
-            this.Visit(syntax.NewLine);
-        }
-
-        public virtual void VisitNoOpDeclarationSyntax(NoOpDeclarationSyntax syntax)
-        {
-            this.Visit(syntax.NewLine);
         }
 
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
@@ -116,7 +117,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitProgramSyntax(ProgramSyntax syntax)
         {
-            this.VisitNodes(syntax.Statements);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.EndOfFile);
         }
 

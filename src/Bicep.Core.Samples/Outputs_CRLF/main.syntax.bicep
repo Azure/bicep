@@ -1,8 +1,7 @@
 
-//@[0:2) NoOpDeclarationSyntax
-//@[0:2)  NewLine |\r\n|
+//@[0:2) NewLine |\r\n|
 output myStr string = 'hello'
-//@[0:33) OutputDeclarationSyntax
+//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myStr|
@@ -11,10 +10,10 @@ output myStr string = 'hello'
 //@[20:21)  Assignment |=|
 //@[22:29)  StringSyntax
 //@[22:29)   StringComplete |'hello'|
-//@[29:33)  NewLine |\r\n\r\n|
+//@[29:33) NewLine |\r\n\r\n|
 
 output myInt int = 7
-//@[0:22) OutputDeclarationSyntax
+//@[0:20) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myInt|
@@ -23,9 +22,9 @@ output myInt int = 7
 //@[17:18)  Assignment |=|
 //@[19:20)  NumericLiteralSyntax
 //@[19:20)   Number |7|
-//@[20:22)  NewLine |\r\n|
+//@[20:22) NewLine |\r\n|
 output myOtherInt int = 20 / 13 + 80 % -4
-//@[0:45) OutputDeclarationSyntax
+//@[0:41) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |myOtherInt|
@@ -48,10 +47,10 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[39:40)     Minus |-|
 //@[40:41)     NumericLiteralSyntax
 //@[40:41)      Number |4|
-//@[41:45)  NewLine |\r\n\r\n|
+//@[41:45) NewLine |\r\n\r\n|
 
 output myBool bool = !false
-//@[0:29) OutputDeclarationSyntax
+//@[0:27) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
 //@[7:13)   Identifier |myBool|
@@ -62,9 +61,9 @@ output myBool bool = !false
 //@[21:22)   Exclamation |!|
 //@[22:27)   BooleanLiteralSyntax
 //@[22:27)    FalseKeyword |false|
-//@[27:29)  NewLine |\r\n|
+//@[27:29) NewLine |\r\n|
 output myOtherBool bool = true
-//@[0:34) OutputDeclarationSyntax
+//@[0:30) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |myOtherBool|
@@ -73,10 +72,10 @@ output myOtherBool bool = true
 //@[24:25)  Assignment |=|
 //@[26:30)  BooleanLiteralSyntax
 //@[26:30)   TrueKeyword |true|
-//@[30:34)  NewLine |\r\n\r\n|
+//@[30:34) NewLine |\r\n\r\n|
 
 output suchEmpty array = [
-//@[0:33) OutputDeclarationSyntax
+//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |suchEmpty|
@@ -88,10 +87,10 @@ output suchEmpty array = [
 //@[26:28)   NewLine |\r\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 output suchEmpty2 object = {
-//@[0:35) OutputDeclarationSyntax
+//@[0:31) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |suchEmpty2|
@@ -103,10 +102,10 @@ output suchEmpty2 object = {
 //@[28:30)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 output obj object = {
-//@[0:182) OutputDeclarationSyntax
+//@[0:178) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |obj|
@@ -216,10 +215,10 @@ output obj object = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 output myArr array = [
-//@[0:78) OutputDeclarationSyntax
+//@[0:74) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myArr|
@@ -253,10 +252,10 @@ output myArr array = [
 //@[25:27)    NewLine |\r\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 output rgLocation string = resourceGroup().location
-//@[0:55) OutputDeclarationSyntax
+//@[0:51) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |rgLocation|
@@ -272,10 +271,10 @@ output rgLocation string = resourceGroup().location
 //@[42:43)   Dot |.|
 //@[43:51)   IdentifierSyntax
 //@[43:51)    Identifier |location|
-//@[51:55)  NewLine |\r\n\r\n|
+//@[51:55) NewLine |\r\n\r\n|
 
 output crossRegion bool = resourceGroup().location == deployment().location ? false : true
-//@[0:94) OutputDeclarationSyntax
+//@[0:90) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |crossRegion|
@@ -309,10 +308,10 @@ output crossRegion bool = resourceGroup().location == deployment().location ? fa
 //@[84:85)   Colon |:|
 //@[86:90)   BooleanLiteralSyntax
 //@[86:90)    TrueKeyword |true|
-//@[90:94)  NewLine |\r\n\r\n|
+//@[90:94) NewLine |\r\n\r\n|
 
 output expressionBasedIndexer string = {
-//@[0:144) OutputDeclarationSyntax
+//@[0:140) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:29)  IdentifierSyntax
 //@[7:29)   Identifier |expressionBasedIndexer|
@@ -378,10 +377,10 @@ output expressionBasedIndexer string = {
 //@[27:28)   Dot |.|
 //@[28:31)   IdentifierSyntax
 //@[28:31)    Identifier |foo|
-//@[31:35)  NewLine |\r\n\r\n|
+//@[31:35) NewLine |\r\n\r\n|
 
 var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
-//@[0:110) VariableDeclarationSyntax
+//@[0:106) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:31)  IdentifierSyntax
 //@[4:31)   Identifier |secondaryKeyIntermediateVar|
@@ -412,10 +411,10 @@ var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), 
 //@[93:94)   Dot |.|
 //@[94:106)   IdentifierSyntax
 //@[94:106)    Identifier |secondaryKey|
-//@[106:110)  NewLine |\r\n\r\n|
+//@[106:110) NewLine |\r\n\r\n|
 
 output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
-//@[0:99) OutputDeclarationSyntax
+//@[0:97) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |primaryKey|
@@ -448,7 +447,7 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[86:87)   Dot |.|
 //@[87:97)   IdentifierSyntax
 //@[87:97)    Identifier |primaryKey|
-//@[97:99)  NewLine |\r\n|
+//@[97:99) NewLine |\r\n|
 output secondaryKey string = secondaryKeyIntermediateVar
 //@[0:56) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|

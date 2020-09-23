@@ -1,52 +1,51 @@
 /* 
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
-//@[2:4) NoOpDeclarationSyntax
-//@[2:4)  NewLine |\n\n|
+//@[2:4) NewLine |\n\n|
 
 param myString string
-//@[0:22) ParameterDeclarationSyntax
+//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |myString|
 //@[15:21)  TypeSyntax
 //@[15:21)   Identifier |string|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 wrong
-//@[0:7) SkippedTriviaSyntax
+//@[0:5) SkippedTriviaSyntax
 //@[0:5)  Identifier |wrong|
-//@[5:7)  NewLine |\n\n|
+//@[5:7) NewLine |\n\n|
 
 param myInt int
-//@[0:16) ParameterDeclarationSyntax
+//@[0:15) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:11)  IdentifierSyntax
 //@[6:11)   Identifier |myInt|
 //@[12:15)  TypeSyntax
 //@[12:15)   Identifier |int|
-//@[15:16)  NewLine |\n|
+//@[15:16) NewLine |\n|
 param
-//@[0:7) SkippedTriviaSyntax
+//@[0:5) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
-//@[5:7)  NewLine |\n\n|
+//@[5:7) NewLine |\n\n|
 
 param myBool bool
-//@[0:19) ParameterDeclarationSyntax
+//@[0:17) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myBool|
 //@[13:17)  TypeSyntax
 //@[13:17)   Identifier |bool|
-//@[17:19)  NewLine |\n\n|
+//@[17:19) NewLine |\n\n|
 
 param missingType
-//@[0:19) SkippedTriviaSyntax
+//@[0:17) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  Identifier |missingType|
-//@[17:19)  NewLine |\n\n|
+//@[17:19) NewLine |\n\n|
 
 param myString2 string = 'string value'
-//@[0:41) ParameterDeclarationSyntax
+//@[0:39) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myString2|
@@ -56,10 +55,10 @@ param myString2 string = 'string value'
 //@[23:24)   Assignment |=|
 //@[25:39)   StringSyntax
 //@[25:39)    StringComplete |'string value'|
-//@[39:41)  NewLine |\n\n|
+//@[39:41) NewLine |\n\n|
 
 param wrongDefaultValue string = 42
-//@[0:37) ParameterDeclarationSyntax
+//@[0:35) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |wrongDefaultValue|
@@ -69,10 +68,10 @@ param wrongDefaultValue string = 42
 //@[31:32)   Assignment |=|
 //@[33:35)   NumericLiteralSyntax
 //@[33:35)    Number |42|
-//@[35:37)  NewLine |\n\n|
+//@[35:37) NewLine |\n\n|
 
 param myInt2 int = 42
-//@[0:22) ParameterDeclarationSyntax
+//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myInt2|
@@ -82,17 +81,17 @@ param myInt2 int = 42
 //@[17:18)   Assignment |=|
 //@[19:21)   NumericLiteralSyntax
 //@[19:21)    Number |42|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 param noValueAfterColon int =   
-//@[0:34) SkippedTriviaSyntax
+//@[0:29) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  Identifier |noValueAfterColon|
 //@[24:27)  Identifier |int|
 //@[28:29)  Assignment |=|
-//@[32:34)  NewLine |\n\n|
+//@[32:34) NewLine |\n\n|
 
 param myTruth bool = 'not a boolean'
-//@[0:37) ParameterDeclarationSyntax
+//@[0:36) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:13)  IdentifierSyntax
 //@[6:13)   Identifier |myTruth|
@@ -102,9 +101,9 @@ param myTruth bool = 'not a boolean'
 //@[19:20)   Assignment |=|
 //@[21:36)   StringSyntax
 //@[21:36)    StringComplete |'not a boolean'|
-//@[36:37)  NewLine |\n|
+//@[36:37) NewLine |\n|
 param myFalsehood bool = 'false'
-//@[0:34) ParameterDeclarationSyntax
+//@[0:32) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |myFalsehood|
@@ -114,19 +113,19 @@ param myFalsehood bool = 'false'
 //@[23:24)   Assignment |=|
 //@[25:32)   StringSyntax
 //@[25:32)    StringComplete |'false'|
-//@[32:34)  NewLine |\n\n|
+//@[32:34) NewLine |\n\n|
 
 param wrongAssignmentToken string: 'hello'
-//@[0:44) SkippedTriviaSyntax
+//@[0:42) SkippedTriviaSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  Identifier |wrongAssignmentToken|
 //@[27:33)  Identifier |string|
 //@[33:34)  Colon |:|
 //@[35:42)  StringComplete |'hello'|
-//@[42:44)  NewLine |\n\n|
+//@[42:44) NewLine |\n\n|
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
-//@[0:289) ParameterDeclarationSyntax
+//@[0:287) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:267)  IdentifierSyntax
 //@[6:267)   Identifier |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
@@ -136,18 +135,22 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[275:276)   Assignment |=|
 //@[277:287)   StringSyntax
 //@[277:287)    StringComplete |'why not?'|
-//@[287:289)  NewLine |\n\n|
+//@[287:289) NewLine |\n\n|
 
 // badly escaped string
-//@[23:24) NoOpDeclarationSyntax
-//@[23:24)  NewLine |\n|
+//@[23:24) NewLine |\n|
 param wrongType fluffyBunny = 'what's up doc?'
-//@[0:48) SkippedTriviaSyntax
+//@[0:36) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:15)  Identifier |wrongType|
-//@[16:27)  Identifier |fluffyBunny|
-//@[28:29)  Assignment |=|
-//@[30:36)  StringComplete |'what'|
+//@[6:15)  IdentifierSyntax
+//@[6:15)   Identifier |wrongType|
+//@[16:27)  TypeSyntax
+//@[16:27)   Identifier |fluffyBunny|
+//@[28:36)  ParameterDefaultValueSyntax
+//@[28:29)   Assignment |=|
+//@[30:36)   StringSyntax
+//@[30:36)    StringComplete |'what'|
+//@[36:48) SkippedTriviaSyntax
 //@[36:37)  Identifier |s|
 //@[38:40)  Identifier |up|
 //@[41:44)  Identifier |doc|
@@ -156,10 +159,9 @@ param wrongType fluffyBunny = 'what's up doc?'
 //@[46:48)  NewLine |\n\n|
 
 // invalid escape
-//@[17:18) NoOpDeclarationSyntax
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 param wrongType fluffyBunny = 'what\s up doc?'
-//@[0:48) ParameterDeclarationSyntax
+//@[0:46) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -169,13 +171,12 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[28:29)   Assignment |=|
 //@[30:46)   SkippedTriviaSyntax
 //@[30:46)    StringComplete |'what\s up doc?'|
-//@[46:48)  NewLine |\n\n|
+//@[46:48) NewLine |\n\n|
 
 // unterminated string 
-//@[23:24) NoOpDeclarationSyntax
-//@[23:24)  NewLine |\n|
+//@[23:24) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s up doc?
-//@[0:48) ParameterDeclarationSyntax
+//@[0:46) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -185,13 +186,12 @@ param wrongType fluffyBunny = 'what\'s up doc?
 //@[28:29)   Assignment |=|
 //@[30:46)   SkippedTriviaSyntax
 //@[30:46)    StringComplete |'what\'s up doc?|
-//@[46:48)  NewLine |\n\n|
+//@[46:48) NewLine |\n\n|
 
 // unterminated interpolated string
-//@[35:36) NoOpDeclarationSyntax
-//@[35:36)  NewLine |\n|
+//@[35:36) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${
-//@[0:42) ParameterDeclarationSyntax
+//@[0:41) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -203,9 +203,9 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[30:41)    StringLeftPiece |'what\'s ${|
 //@[41:41)    SkippedTriviaSyntax
 //@[41:41)    StringRightPiece ||
-//@[41:42)  NewLine |\n|
+//@[41:42) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up
-//@[0:44) ParameterDeclarationSyntax
+//@[0:43) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -219,9 +219,9 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[41:43)     IdentifierSyntax
 //@[41:43)      Identifier |up|
 //@[43:43)    StringRightPiece ||
-//@[43:44)  NewLine |\n|
+//@[43:44) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up}
-//@[0:45) ParameterDeclarationSyntax
+//@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -235,9 +235,9 @@ param wrongType fluffyBunny = 'what\'s ${up}
 //@[41:43)     IdentifierSyntax
 //@[41:43)      Identifier |up|
 //@[43:44)    StringRightPiece |}|
-//@[44:45)  NewLine |\n|
+//@[44:45) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up
-//@[0:46) ParameterDeclarationSyntax
+//@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -250,13 +250,12 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[41:44)    SkippedTriviaSyntax
 //@[41:44)     StringComplete |'up|
 //@[44:44)    StringRightPiece ||
-//@[44:46)  NewLine |\n\n|
+//@[44:46) NewLine |\n\n|
 
 // unterminated nested interpolated string
-//@[42:43) NoOpDeclarationSyntax
-//@[42:43)  NewLine |\n|
+//@[42:43) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
-//@[0:47) ParameterDeclarationSyntax
+//@[0:46) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -270,9 +269,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[41:46)     StringLeftPiece |'up${|
 //@[46:46)     SkippedTriviaSyntax
 //@[46:46)     StringRightPiece ||
-//@[46:47)  NewLine |\n|
+//@[46:47) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
-//@[0:47) ParameterDeclarationSyntax
+//@[0:46) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -286,9 +285,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[41:46)     StringLeftPiece |'up${|
 //@[46:46)     SkippedTriviaSyntax
 //@[46:46)     StringRightPiece ||
-//@[46:47)  NewLine |\n|
+//@[46:47) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc
-//@[0:50) ParameterDeclarationSyntax
+//@[0:49) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -304,9 +303,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[46:49)      IdentifierSyntax
 //@[46:49)       Identifier |doc|
 //@[49:49)     StringRightPiece ||
-//@[49:50)  NewLine |\n|
+//@[49:50) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
-//@[0:51) ParameterDeclarationSyntax
+//@[0:50) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -323,9 +322,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[46:49)       Identifier |doc|
 //@[49:50)     StringRightPiece |}|
 //@[50:50)    StringRightPiece ||
-//@[50:51)  NewLine |\n|
+//@[50:51) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
-//@[0:52) ParameterDeclarationSyntax
+//@[0:51) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -342,9 +341,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[46:49)       Identifier |doc|
 //@[49:51)     StringRightPiece |}'|
 //@[51:51)    StringRightPiece ||
-//@[51:52)  NewLine |\n|
+//@[51:52) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
-//@[0:55) ParameterDeclarationSyntax
+//@[0:53) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -361,13 +360,12 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[46:49)       Identifier |doc|
 //@[49:51)     StringRightPiece |}'|
 //@[51:53)    StringRightPiece |}?|
-//@[53:55)  NewLine |\n\n|
+//@[53:55) NewLine |\n\n|
 
 // object literal inside interpolated string
-//@[44:45) NoOpDeclarationSyntax
-//@[44:45)  NewLine |\n|
+//@[44:45) NewLine |\n|
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
-//@[0:56) ParameterDeclarationSyntax
+//@[0:54) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -388,13 +386,12 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[52:53)     RightBrace |}|
 //@[53:54)     StringComplete |'|
 //@[54:54)    StringRightPiece ||
-//@[54:56)  NewLine |\n\n|
+//@[54:56) NewLine |\n\n|
 
 // bad interpolated string format
-//@[33:34) NoOpDeclarationSyntax
-//@[33:34)  NewLine |\n|
+//@[33:34) NewLine |\n|
 param badInterpolatedString string = 'hello ${}!'
-//@[0:50) ParameterDeclarationSyntax
+//@[0:49) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |badInterpolatedString|
@@ -406,9 +403,9 @@ param badInterpolatedString string = 'hello ${}!'
 //@[37:46)    StringLeftPiece |'hello ${|
 //@[46:46)    SkippedTriviaSyntax
 //@[46:49)    StringRightPiece |}!'|
-//@[49:50)  NewLine |\n|
+//@[49:50) NewLine |\n|
 param badInterpolatedString2 string = 'hello ${a b c}!'
-//@[0:57) ParameterDeclarationSyntax
+//@[0:55) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |badInterpolatedString2|
@@ -426,10 +423,10 @@ param badInterpolatedString2 string = 'hello ${a b c}!'
 //@[49:50)      Identifier |b|
 //@[51:52)      Identifier |c|
 //@[52:55)    StringRightPiece |}!'|
-//@[55:57)  NewLine |\n\n|
+//@[55:57) NewLine |\n\n|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
-//@[0:49) ParameterDeclarationSyntax
+//@[0:47) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
@@ -439,13 +436,12 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[28:29)   Assignment |=|
 //@[30:47)   StringSyntax
 //@[30:47)    StringComplete |'what\'s up doc?'|
-//@[47:49)  NewLine |\n\n|
+//@[47:49) NewLine |\n\n|
 
 // modifier on an invalid type
-//@[30:31) NoOpDeclarationSyntax
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 param someArray arra {
-//@[0:57) ParameterDeclarationSyntax
+//@[0:55) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |someArray|
@@ -472,13 +468,12 @@ param someArray arra {
 //@[15:16)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // duplicate modifier property
-//@[30:31) NoOpDeclarationSyntax
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 param duplicatedModifierProperty string {
-//@[0:76) ParameterDeclarationSyntax
+//@[0:74) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:32)  IdentifierSyntax
 //@[6:32)   Identifier |duplicatedModifierProperty|
@@ -505,13 +500,12 @@ param duplicatedModifierProperty string {
 //@[15:16)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // non-existent modifiers
-//@[25:26) NoOpDeclarationSyntax
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 param secureInt int {
-//@[0:72) ParameterDeclarationSyntax
+//@[0:70) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |secureInt|
@@ -546,13 +540,12 @@ param secureInt int {
 //@[16:17)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // wrong modifier value types
-//@[29:30) NoOpDeclarationSyntax
-//@[29:30)  NewLine |\n|
+//@[29:30) NewLine |\n|
 param wrongIntModifier int {
-//@[0:141) ParameterDeclarationSyntax
+//@[0:139) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |wrongIntModifier|
@@ -622,13 +615,12 @@ param wrongIntModifier int {
 //@[19:20)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // wrong metadata schema
-//@[24:25) NoOpDeclarationSyntax
-//@[24:25)  NewLine |\n|
+//@[24:25) NewLine |\n|
 param wrongMetadataSchema string {
-//@[0:78) ParameterDeclarationSyntax
+//@[0:76) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:25)  IdentifierSyntax
 //@[6:25)   Identifier |wrongMetadataSchema|
@@ -658,13 +650,12 @@ param wrongMetadataSchema string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // expression in modifier
-//@[25:26) NoOpDeclarationSyntax
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 param expressionInModifier string {
-//@[0:117) ParameterDeclarationSyntax
+//@[0:115) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
@@ -728,13 +719,12 @@ param expressionInModifier string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // 1-cycle in params
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 param paramDefaultOneCycle string = paramDefaultOneCycle
-//@[0:58) ParameterDeclarationSyntax
+//@[0:56) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |paramDefaultOneCycle|
@@ -745,13 +735,12 @@ param paramDefaultOneCycle string = paramDefaultOneCycle
 //@[36:56)   VariableAccessSyntax
 //@[36:56)    IdentifierSyntax
 //@[36:56)     Identifier |paramDefaultOneCycle|
-//@[56:58)  NewLine |\n\n|
+//@[56:58) NewLine |\n\n|
 
 // 2-cycle in params
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
-//@[0:59) ParameterDeclarationSyntax
+//@[0:58) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramDefaultTwoCycle1|
@@ -762,9 +751,9 @@ param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 //@[37:58)   VariableAccessSyntax
 //@[37:58)    IdentifierSyntax
 //@[37:58)     Identifier |paramDefaultTwoCycle2|
-//@[58:59)  NewLine |\n|
+//@[58:59) NewLine |\n|
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
-//@[0:60) ParameterDeclarationSyntax
+//@[0:58) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramDefaultTwoCycle2|
@@ -775,13 +764,12 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[37:58)   VariableAccessSyntax
 //@[37:58)    IdentifierSyntax
 //@[37:58)     Identifier |paramDefaultTwoCycle1|
-//@[58:60)  NewLine |\n\n|
+//@[58:60) NewLine |\n\n|
 
 // 1-cycle in modifier params
-//@[29:30) NoOpDeclarationSyntax
-//@[29:30)  NewLine |\n|
+//@[29:30) NewLine |\n|
 param paramModifierOneCycle string {
-//@[0:73) ParameterDeclarationSyntax
+//@[0:71) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramModifierOneCycle|
@@ -801,13 +789,12 @@ param paramModifierOneCycle string {
 //@[32:33)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // 1-cycle in modifier with non-default property
-//@[48:49) NoOpDeclarationSyntax
-//@[48:49)  NewLine |\n|
+//@[48:49) NewLine |\n|
 param paramModifierSelfCycle string {
-//@[0:85) ParameterDeclarationSyntax
+//@[0:83) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierSelfCycle|
@@ -835,13 +822,12 @@ param paramModifierSelfCycle string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // 2-cycle in modifier params
-//@[29:30) NoOpDeclarationSyntax
-//@[29:30)  NewLine |\n|
+//@[29:30) NewLine |\n|
 param paramModifierTwoCycle1 string {
-//@[0:74) ParameterDeclarationSyntax
+//@[0:73) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierTwoCycle1|
@@ -861,9 +847,9 @@ param paramModifierTwoCycle1 string {
 //@[33:34)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 param paramModifierTwoCycle2 string {
-//@[0:75) ParameterDeclarationSyntax
+//@[0:73) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierTwoCycle2|
@@ -883,13 +869,12 @@ param paramModifierTwoCycle2 string {
 //@[33:34)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // 2-cycle mixed param syntaxes
-//@[31:32) NoOpDeclarationSyntax
-//@[31:32)  NewLine |\n|
+//@[31:32) NewLine |\n|
 param paramMixedTwoCycle1 string = paramMixedTwoCycle2
-//@[0:55) ParameterDeclarationSyntax
+//@[0:54) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:25)  IdentifierSyntax
 //@[6:25)   Identifier |paramMixedTwoCycle1|
@@ -900,9 +885,9 @@ param paramMixedTwoCycle1 string = paramMixedTwoCycle2
 //@[35:54)   VariableAccessSyntax
 //@[35:54)    IdentifierSyntax
 //@[35:54)     Identifier |paramMixedTwoCycle2|
-//@[54:55)  NewLine |\n|
+//@[54:55) NewLine |\n|
 param paramMixedTwoCycle2 string {
-//@[0:69) ParameterDeclarationSyntax
+//@[0:67) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:25)  IdentifierSyntax
 //@[6:25)   Identifier |paramMixedTwoCycle2|
@@ -922,22 +907,21 @@ param paramMixedTwoCycle2 string {
 //@[30:31)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // wrong types of "variable"/identifier access
-//@[46:47) NoOpDeclarationSyntax
-//@[46:47)  NewLine |\n|
+//@[46:47) NewLine |\n|
 var sampleVar = 'sample'
-//@[0:25) VariableDeclarationSyntax
+//@[0:24) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |sampleVar|
 //@[14:15)  Assignment |=|
 //@[16:24)  StringSyntax
 //@[16:24)   StringComplete |'sample'|
-//@[24:25)  NewLine |\n|
+//@[24:25) NewLine |\n|
 resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
-//@[0:76) ResourceDeclarationSyntax
+//@[0:75) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:23)  IdentifierSyntax
 //@[9:23)   Identifier |sampleResource|
@@ -957,9 +941,9 @@ resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
 //@[13:14)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 output sampleOutput string = 'hello'
-//@[0:38) OutputDeclarationSyntax
+//@[0:36) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |sampleOutput|
@@ -968,10 +952,10 @@ output sampleOutput string = 'hello'
 //@[27:28)  Assignment |=|
 //@[29:36)  StringSyntax
 //@[29:36)   StringComplete |'hello'|
-//@[36:38)  NewLine |\n\n|
+//@[36:38) NewLine |\n\n|
 
 param paramAccessingVar string = concat(sampleVar, 's')
-//@[0:56) ParameterDeclarationSyntax
+//@[0:55) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |paramAccessingVar|
@@ -992,9 +976,9 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[51:54)     StringSyntax
 //@[51:54)      StringComplete |'s'|
 //@[54:55)    RightParen |)|
-//@[55:56)  NewLine |\n|
+//@[55:56) NewLine |\n|
 param paramAccessingVar2 string {
-//@[0:71) ParameterDeclarationSyntax
+//@[0:69) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |paramAccessingVar2|
@@ -1017,10 +1001,10 @@ param paramAccessingVar2 string {
 //@[33:34)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param paramAccessingResource string = sampleResource
-//@[0:53) ParameterDeclarationSyntax
+//@[0:52) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramAccessingResource|
@@ -1031,9 +1015,9 @@ param paramAccessingResource string = sampleResource
 //@[38:52)   VariableAccessSyntax
 //@[38:52)    IdentifierSyntax
 //@[38:52)     Identifier |sampleResource|
-//@[52:53)  NewLine |\n|
+//@[52:53) NewLine |\n|
 param paramAccessingResource2 string {
-//@[0:91) ParameterDeclarationSyntax
+//@[0:89) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |paramAccessingResource2|
@@ -1067,10 +1051,10 @@ param paramAccessingResource2 string {
 //@[48:49)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param paramAccessingOutput string = sampleOutput
-//@[0:49) ParameterDeclarationSyntax
+//@[0:48) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |paramAccessingOutput|
@@ -1081,9 +1065,9 @@ param paramAccessingOutput string = sampleOutput
 //@[36:48)   VariableAccessSyntax
 //@[36:48)    IdentifierSyntax
 //@[36:48)     Identifier |sampleOutput|
-//@[48:49)  NewLine |\n|
+//@[48:49) NewLine |\n|
 param paramAccessingOutput2 string {
-//@[0:64) ParameterDeclarationSyntax
+//@[0:62) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramAccessingOutput2|
@@ -1103,10 +1087,10 @@ param paramAccessingOutput2 string {
 //@[23:24)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param stringLiteral string {
-//@[0:59) ParameterDeclarationSyntax
+//@[0:57) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |stringLiteral|
@@ -1133,10 +1117,10 @@ param stringLiteral string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param stringLiteral2 string {
-//@[0:95) ParameterDeclarationSyntax
+//@[0:93) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |stringLiteral2|
@@ -1177,10 +1161,10 @@ param stringLiteral2 string {
 //@[24:25)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param stringLiteral3 string {
-//@[0:86) ParameterDeclarationSyntax
+//@[0:84) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |stringLiteral3|
@@ -1216,10 +1200,9 @@ param stringLiteral3 string {
 //@[25:26)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // unterminated multi-line comment
-//@[34:35) NoOpDeclarationSyntax
-//@[34:35)  NewLine |\n|
+//@[34:35) NewLine |\n|
 /*    
 //@[6:6) EndOfFile ||

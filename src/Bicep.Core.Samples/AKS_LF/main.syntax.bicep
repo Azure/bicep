@@ -1,32 +1,31 @@
 // mandatory params
-//@[19:20) NoOpDeclarationSyntax
-//@[19:20)  NewLine |\n|
+//@[19:20) NewLine |\n|
 param dnsPrefix string
-//@[0:23) ParameterDeclarationSyntax
+//@[0:22) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |dnsPrefix|
 //@[16:22)  TypeSyntax
 //@[16:22)   Identifier |string|
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 param linuxAdminUsername string
-//@[0:32) ParameterDeclarationSyntax
+//@[0:31) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |linuxAdminUsername|
 //@[25:31)  TypeSyntax
 //@[25:31)   Identifier |string|
-//@[31:32)  NewLine |\n|
+//@[31:32) NewLine |\n|
 param sshRSAPublicKey string
-//@[0:29) ParameterDeclarationSyntax
+//@[0:28) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |sshRSAPublicKey|
 //@[22:28)  TypeSyntax
 //@[22:28)   Identifier |string|
-//@[28:29)  NewLine |\n|
+//@[28:29) NewLine |\n|
 param servcePrincipalClientId string {
-//@[0:58) ParameterDeclarationSyntax
+//@[0:57) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |servcePrincipalClientId|
@@ -45,9 +44,9 @@ param servcePrincipalClientId string {
 //@[16:17)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 param servicePrincipalClientSecret string {
-//@[0:64) ParameterDeclarationSyntax
+//@[0:62) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:34)  IdentifierSyntax
 //@[6:34)   Identifier |servicePrincipalClientSecret|
@@ -66,13 +65,12 @@ param servicePrincipalClientSecret string {
 //@[16:17)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // optional params
-//@[18:19) NoOpDeclarationSyntax
-//@[18:19)  NewLine |\n|
+//@[18:19) NewLine |\n|
 param clusterName string = 'aks101cluster'
-//@[0:43) ParameterDeclarationSyntax
+//@[0:42) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |clusterName|
@@ -82,9 +80,9 @@ param clusterName string = 'aks101cluster'
 //@[25:26)   Assignment |=|
 //@[27:42)   StringSyntax
 //@[27:42)    StringComplete |'aks101cluster'|
-//@[42:43)  NewLine |\n|
+//@[42:43) NewLine |\n|
 param location string = resourceGroup().location
-//@[0:49) ParameterDeclarationSyntax
+//@[0:48) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |location|
@@ -101,9 +99,9 @@ param location string = resourceGroup().location
 //@[39:40)    Dot |.|
 //@[40:48)    IdentifierSyntax
 //@[40:48)     Identifier |location|
-//@[48:49)  NewLine |\n|
+//@[48:49) NewLine |\n|
 param osDiskSizeGB int {
-//@[0:77) ParameterDeclarationSyntax
+//@[0:76) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |osDiskSizeGB|
@@ -138,9 +136,9 @@ param osDiskSizeGB int {
 //@[18:19)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 param agentCount int {
-//@[0:73) ParameterDeclarationSyntax
+//@[0:72) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |agentCount|
@@ -175,9 +173,9 @@ param agentCount int {
 //@[16:17)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 param agentVMSize string = 'Standard_DS2_v2'
-//@[0:45) ParameterDeclarationSyntax
+//@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |agentVMSize|
@@ -187,13 +185,12 @@ param agentVMSize string = 'Standard_DS2_v2'
 //@[25:26)   Assignment |=|
 //@[27:44)   StringSyntax
 //@[27:44)    StringComplete |'Standard_DS2_v2'|
-//@[44:45)  NewLine |\n|
+//@[44:45) NewLine |\n|
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
-//@[103:105) NoOpDeclarationSyntax
-//@[103:105)  NewLine |\n\n|
+//@[103:105) NewLine |\n\n|
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
-//@[0:827) ResourceDeclarationSyntax
+//@[0:825) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |aks|
@@ -392,10 +389,9 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[5:6)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // fyi - dot property access (aks.fqdn) has not been spec'd
-//@[59:60) NoOpDeclarationSyntax
-//@[59:60)  NewLine |\n|
+//@[59:60) NewLine |\n|
 //output controlPlaneFQDN string = aks.properties.fqdn 
 //@[55:55) EndOfFile ||
