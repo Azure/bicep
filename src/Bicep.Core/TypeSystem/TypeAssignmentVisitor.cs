@@ -11,30 +11,90 @@ using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 
 namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : SyntaxVisitor
     {
+        public class TypeAssignment
+        {
+            public TypeAssignment(ITypeReference reference)
+                : this(reference, Enumerable.Empty<Diagnostic>())
+            {
+            }
+
+            public TypeAssignment(ITypeReference reference, IEnumerable<Diagnostic> diagnostics)
+            {
+                Reference = reference;
+                Diagnostics = diagnostics;
+            }
+
+            public ITypeReference Reference { get; }
+
+            public IEnumerable<Diagnostic> Diagnostics { get; }
+        }
+
         private readonly ResourceTypeRegistrar resourceTypeRegistrar;
+        private readonly TypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
+        private IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
 
-        private readonly IDictionary<SyntaxBase, ITypeReference> assignedTypes;
-
-        public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, TypeManager typeManager, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
             this.resourceTypeRegistrar = resourceTypeRegistrar;
+            this.typeManager = typeManager;
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
-            this.bindings = bindings; 
+            this.bindings = bindings;
             this.cyclesBySyntax = cyclesBySyntax;
-            this.assignedTypes = new Dictionary<SyntaxBase, ITypeReference>();
+            this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
         }
 
-        public TypeSymbol GetTypeSymbol(SyntaxBase syntax) => VisitAndReturnType(syntax);
+        public TypeAssignment GetTypeAssignment(SyntaxBase syntax)
+        {
+            Visit(syntax);
+
+            if (!assignedTypes.TryGetValue(syntax, out var typeAssignment))
+            {
+                return new TypeAssignment(new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression()));
+            }
+
+            return typeAssignment;
+        }
+
+        public IEnumerable<Diagnostic> GetAllDiagnostics()
+            => assignedTypes.Values.SelectMany(x => x.Diagnostics);
+
+        private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
+        {
+            if (assignedTypes.ContainsKey(syntax))
+            {
+                return;
+            }
+
+            var cyclicErrorType = CheckForCyclicError(syntax);
+            if (cyclicErrorType != null)
+            {
+                assignedTypes[syntax] = new TypeAssignment(cyclicErrorType);
+                return;
+            }
+
+            assignedTypes[syntax] = assignFunc();
+        }
+
+        private void AssignType(SyntaxBase syntax, Func<ITypeReference> assignFunc)
+            => AssignTypeWithCaching(syntax, () => new TypeAssignment(assignFunc()));
+
+        private void AssignTypeWithDiagnostics(SyntaxBase syntax, Func<IList<Diagnostic>, ITypeReference> assignFunc)
+            => AssignTypeWithCaching(syntax, () => {
+                var diagnostics = new List<Diagnostic>();
+                var reference = assignFunc(diagnostics);
+
+                return new TypeAssignment(reference, diagnostics);
+            });
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
         {
@@ -59,37 +119,8 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private void AssignTypeWithCaching(SyntaxBase syntax, Func<ITypeReference> assignFunc)
-        {
-            if (assignedTypes.ContainsKey(syntax))
-            {
-                return;
-            }
-
-            var cyclicErrorType = CheckForCyclicError(syntax);
-            if (cyclicErrorType != null)
-            {
-                assignedTypes[syntax] = cyclicErrorType;
-                return;
-            }
-
-            assignedTypes[syntax] = assignFunc();
-        }
-
-        private TypeSymbol VisitAndReturnType(SyntaxBase syntax)
-        {
-            Visit(syntax);
-
-            if (!assignedTypes.TryGetValue(syntax, out var typeSymbol))
-            {
-                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
-            }
-
-            return typeSymbol.Type;
-        }
-
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var stringSyntax = syntax.TryGetType();
 
                 if (stringSyntax != null && stringSyntax.IsInterpolated())
@@ -112,40 +143,56 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
                 }
 
-                return resourceTypeRegistrar.GetType(typeReference);
+                var declaredType = resourceTypeRegistrar.GetType(typeReference);
+            
+                return TypeValidator.NarrowType(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
-                var primitiveType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
-                if (primitiveType == null)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                diagnostics.AddRange(this.ValidateIdentifierAccess(syntax));
+
+                var declaredType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
+                if (declaredType == null)
                 {
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
                 }
-
-                if (!object.ReferenceEquals(primitiveType, LanguageConstants.String))
+                
+                var assignedType = declaredType;
+                if (object.ReferenceEquals(assignedType, LanguageConstants.String))
                 {
-                    return primitiveType;
+                    var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
+                        .Select(item => typeManager.GetTypeInfo(item));
+
+                    if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
+                    {
+                        assignedType = UnionType.Create(allowedItemTypes);
+                    }
+                }
+                
+                switch (syntax.Modifier)
+                {
+                    case ParameterDefaultValueSyntax defaultValueSyntax:
+                        diagnostics.AddRange(ValidateDefaultValue(defaultValueSyntax, assignedType));
+                        break;
+
+                    case ObjectSyntax modifierSyntax:
+                        var modifierType = LanguageConstants.CreateParameterModifierType(declaredType, assignedType);
+                        var currentDiagnostics = TypeValidator.GetExpressionAssignmentDiagnostics(typeManager, modifierSyntax, modifierType);
+                        diagnostics.AddRange(currentDiagnostics);
+                        break;
                 }
 
-                var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
-                    .Select(item => VisitAndReturnType(item));
-
-                if (allowedItemTypes == null || !allowedItemTypes.All(itemType => itemType is StringLiteralType))
-                {
-                    return primitiveType;
-                }
-
-                return UnionType.Create(allowedItemTypes);
+                return assignedType;
             });
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
-                return VisitAndReturnType(syntax.Value);
+            => AssignType(syntax, () => {
+                return typeManager.GetTypeInfo(syntax.Value);
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var primitiveType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
 
                 if (primitiveType == null)
@@ -153,14 +200,18 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
                 }
 
+                var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
+
+                diagnostics.AddRange(currentDiagnostics);
+
                 return primitiveType;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => LanguageConstants.Bool);
+            => AssignType(syntax, () => LanguageConstants.Bool);
 
         public override void VisitStringSyntax(StringSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 if (syntax.TryGetLiteralValue() is string literalValue)
                 {
                     // uninterpolated strings have a known type
@@ -171,7 +222,7 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var interpolatedExpression in syntax.Expressions)
                 {
-                    var expressionType = VisitAndReturnType(interpolatedExpression);
+                    var expressionType = typeManager.GetTypeInfo(interpolatedExpression);
                     CollectErrors(errors, expressionType);
                 }
 
@@ -186,24 +237,24 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => LanguageConstants.Int);
+            => AssignType(syntax, () => LanguageConstants.Int);
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => LanguageConstants.Null);
+            => AssignType(syntax, () => LanguageConstants.Null);
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 // error should have already been raised by the ParseDiagnosticsVisitor - no need to add another
                 return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
             });
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
                 foreach (var objectProperty in syntax.Properties)
                 {
-                    var propertyType = VisitAndReturnType(objectProperty);
+                    var propertyType = typeManager.GetTypeInfo(objectProperty);
                     CollectErrors(errors, propertyType);
                 }
 
@@ -212,13 +263,14 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
+                // type results are cached
                 var namedProperties = syntax.Properties
                     .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
-                    .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => assignedTypes[p]))));
+                    .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => typeManager.GetTypeInfo(p)))));
 
                 var additionalProperties = syntax.Properties
                     .Where(p => p.TryGetKeyText() == null)
-                    .Select(p => assignedTypes[p]);
+                    .Select(p => typeManager.GetTypeInfo(p));
 
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
@@ -227,17 +279,17 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
                 if (syntax.Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated())
                 {
                     // if the key is an interpolated string, we need to check the expressions referenced by it 
-                    var keyType = VisitAndReturnType(syntax.Key);
+                    var keyType = typeManager.GetTypeInfo(syntax.Key);
                     CollectErrors(errors, keyType);
                 }
 
-                var valueType = VisitAndReturnType(syntax.Value);
+                var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
 
                 if (errors.Any())
@@ -249,34 +301,22 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitArrayItemSyntax(ArrayItemSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
-                Visit(syntax.Value);
-
-                return assignedTypes[syntax.Value];
-            });
+            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Value));
 
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
-                Visit(syntax.Expression);
-
-                return assignedTypes[syntax.Expression];
-            });
+            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
 
         public override void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
-                Visit(syntax.Expression);
-
-                return assignedTypes[syntax.Expression];
-            });
+            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
 
         public override void VisitArraySyntax(ArraySyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
                 var itemTypes = new List<TypeSymbol>(syntax.Children.Length);
                 foreach (var arrayItem in syntax.Children)
                 {
-                    var itemType = VisitAndReturnType(arrayItem);
+                    var itemType = typeManager.GetTypeInfo(arrayItem);
                     itemTypes.Add(itemType);
                     CollectErrors(errors, itemType);
                 }
@@ -298,17 +338,17 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
                 // ternary operator requires the condition to be of bool type
-                var conditionType = VisitAndReturnType(syntax.ConditionExpression);
+                var conditionType = typeManager.GetTypeInfo(syntax.ConditionExpression);
                 CollectErrors(errors, conditionType);
 
-                var trueType = VisitAndReturnType(syntax.TrueExpression);
+                var trueType = typeManager.GetTypeInfo(syntax.TrueExpression);
                 CollectErrors(errors, trueType);
 
-                var falseType = VisitAndReturnType(syntax.FalseExpression);
+                var falseType = typeManager.GetTypeInfo(syntax.FalseExpression);
                 CollectErrors(errors, falseType);
 
                 if (errors.Any())
@@ -327,13 +367,13 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
-                var operandType1 = VisitAndReturnType(syntax.LeftExpression);
+                var operandType1 = typeManager.GetTypeInfo(syntax.LeftExpression);
                 CollectErrors(errors, operandType1);
 
-                var operandType2 = VisitAndReturnType(syntax.RightExpression);
+                var operandType2 = typeManager.GetTypeInfo(syntax.RightExpression);
                 CollectErrors(errors, operandType2);
 
                 if (errors.Any())
@@ -356,7 +396,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
                 // TODO: When we add number type, this will have to be adjusted
@@ -367,7 +407,7 @@ namespace Bicep.Core.TypeSystem
                     _ => throw new NotImplementedException()
                 };
 
-                var operandType = VisitAndReturnType(syntax.Expression);
+                var operandType = typeManager.GetTypeInfo(syntax.Expression);
                 CollectErrors(errors, operandType);
 
                 if (errors.Any())
@@ -384,13 +424,13 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
-                var baseType = VisitAndReturnType(syntax.BaseExpression);
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
 
-                var indexType = VisitAndReturnType(syntax.IndexExpression);
+                var indexType = typeManager.GetTypeInfo(syntax.IndexExpression);
                 CollectErrors(errors, indexType);
 
                 if (errors.Any() || indexType.TypeKind == TypeKind.Error)
@@ -462,10 +502,10 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
-                var baseType = VisitAndReturnType(syntax.BaseExpression);
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
 
                 if (errors.Any())
@@ -494,9 +534,9 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
-                var argumentTypes = syntax.Arguments.Select(syntax1 => VisitAndReturnType(syntax1)).ToList();
+                var argumentTypes = syntax.Arguments.Select(arg => typeManager.GetTypeInfo(arg)).ToList();
 
                 foreach (TypeSymbol argumentType in argumentTypes)
                 {
@@ -519,7 +559,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
         {
-            var declaringType = VisitAndReturnType(declaredSymbol.DeclaringSyntax);
+            var declaringType = typeManager.GetTypeInfo(declaredSymbol.DeclaringSyntax);
 
             // symbols are responsible for doing their own type checking
             // the error from that should not be propagated to expressions that have type errors
@@ -535,7 +575,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-            => AssignTypeWithCaching(syntax, () => {
+            => AssignType(syntax, () => {
                 switch (bindings[syntax])
                 {
                     case ErrorSymbol errorSymbol:
@@ -561,9 +601,9 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
-        private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
+        private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
-            errors.AddRange(type.GetDiagnostics());
+            errors.AddRange(reference.Type.GetDiagnostics());
         }
 
         private static TypeSymbol GetFunctionSymbolType(
@@ -703,6 +743,69 @@ namespace Bicep.Core.TypeSystem
                 DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName);
 
             return new ErrorTypeSymbol(error);
+        }
+
+        private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        {
+            var valueType = typeManager.GetTypeInfo(syntax.Value);
+
+            // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
+            if (valueType is ErrorTypeSymbol)
+            {
+                return valueType.GetDiagnostics();
+            }
+
+            if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false)
+            {
+                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType.Name, valueType.Name).AsEnumerable();
+            }
+
+            return Enumerable.Empty<Diagnostic>();
+        }
+
+        private IEnumerable<Diagnostic> ValidateDefaultValue(ParameterDefaultValueSyntax defaultValueSyntax, TypeSymbol assignedType)
+        {
+            // figure out type of the default value
+            var defaultValueType = typeManager.GetTypeInfo(defaultValueSyntax.DefaultValue);
+
+            // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
+            if (defaultValueType is ErrorTypeSymbol)
+            {
+                return defaultValueType.GetDiagnostics();
+            }
+
+            if (TypeValidator.AreTypesAssignable(defaultValueType, assignedType) == false)
+            {
+                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType.Name, defaultValueType.Name).AsEnumerable();
+            }
+
+            return Enumerable.Empty<Diagnostic>();
+        }
+
+        private IEnumerable<Diagnostic> ValidateIdentifierAccess(ParameterDeclarationSyntax syntax)
+        {
+            return SyntaxAggregator.Aggregate(syntax, new List<Diagnostic>(), (accumulated, current) =>
+                {
+                    if (current is VariableAccessSyntax)
+                    {
+                        var symbol = bindings[current];
+                        
+                        // Error: already has error info attached, no need to add more
+                        // Parameter: references are permitted in other parameters' default values as long as there is not a cycle (BCP080)
+                        // Function: we already validate that a function cannot be used as a variable (BCP063)
+                        // Output: we already validate that outputs cannot be referenced in expressions (BCP058)
+                        if (symbol.Kind != SymbolKind.Error &&
+                            symbol.Kind != SymbolKind.Parameter &&
+                            symbol.Kind != SymbolKind.Function &&
+                            symbol.Kind != SymbolKind.Output)
+                        {
+                            accumulated.Add(DiagnosticBuilder.ForPosition(current).CannotReferenceSymbolInParamDefaultValue());
+                        }
+                    }
+
+                    return accumulated;
+                },
+                accumulated => accumulated);
         }
     }
 }

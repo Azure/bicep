@@ -40,7 +40,7 @@ namespace Bicep.Core.SemanticModel
             var visitor = new SemanticDiagnosticVisitor(diagnostics);
             visitor.Visit(this.Root);
 
-            var typeValidationDiagnostics = TypeValidationVisitor.GetTypeValidationDiagnostics(bindings, typeManager, this.Root.Syntax);
+            var typeValidationDiagnostics = typeManager.GetAllDiagnostics();
             diagnostics.AddRange(typeValidationDiagnostics);
 
             // TODO: Remove this when we fix IL limitations
