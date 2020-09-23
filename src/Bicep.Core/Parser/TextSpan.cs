@@ -142,6 +142,29 @@ namespace Bicep.Core.Parser
             return AreOverlapping(b, a);
         }
 
+        /// <summary>
+        /// Checks if span of b begins where span of a ends.
+        /// </summary>
+        /// <param name="a">The first span</param>
+        /// <param name="b">The second span</param>
+        public static bool AreNeighbors(IPositionable a, IPositionable b) => AreNeighbors(a.Span, b.Span);
+
+        /// <summary>
+        /// Checks if span b begins where span a ends.
+        /// </summary>
+        /// <param name="a">The first span</param>
+        /// <param name="b">The second span</param>
+        public static bool AreNeighbors(TextSpan a, TextSpan b)
+        {
+            if (IsPairInOrder(a, b))
+            {
+                return a.Position + a.Length == b.Position;
+            }
+
+            // this method is not pair order agnostic
+            return false;
+        }
+
         public static TextSpan Parse(string text)
         {
             if (TryParse(text, out TextSpan? span))

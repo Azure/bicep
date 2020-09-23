@@ -35,7 +35,6 @@ namespace Bicep.Core.Parser
             while (!this.IsAtEnd())
             {
                 // this produces either a declaration node, skipped tokens node or just a token
-                
                 var declarationOrToken = Declaration();
                 declarationsOrTokens.Add(declarationOrToken);
 
