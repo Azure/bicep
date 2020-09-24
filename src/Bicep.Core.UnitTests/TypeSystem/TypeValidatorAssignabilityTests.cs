@@ -832,7 +832,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return new ResourceType(typeReference, LanguageConstants.CreateResourceProperties(typeReference));
+            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
         }
 
         private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());

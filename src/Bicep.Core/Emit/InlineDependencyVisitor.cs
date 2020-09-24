@@ -128,8 +128,13 @@ namespace Bicep.Core.Emit
                         return;
                     }
 
+                    if (!(resourceType.Body is ObjectType bodyObjectType))
+                    {
+                        return;
+                    }
+
                     var property = syntax.PropertyName.IdentifierName;
-                    if (!resourceType.Properties.TryGetValue(property, out var propertyType))
+                    if (!bodyObjectType.Properties.TryGetValue(property, out var propertyType))
                     {
                         // unknown property
                         return;

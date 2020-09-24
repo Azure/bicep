@@ -56,6 +56,9 @@ namespace Bicep.Core.TypeSystem
                 case ResourceRefType _:
                     return sourceType.TypeKind == TypeKind.Resource;
 
+                case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
+                    return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
+
                 case StringLiteralType _ when sourceType is StringLiteralType:
                     // The name *is* the escaped string value, so we must have an exact match.
                     return targetType.Name == sourceType.Name;
@@ -126,6 +129,12 @@ namespace Bicep.Core.TypeSystem
             bool skipConstantCheck,
             bool skipTypeErrors)
         {
+            if (targetType is ResourceType targetResourceType)
+            {
+                GetExpressionAssignmentDiagnosticsInternal(typeManager, expression, targetResourceType.Body.Type, diagnostics, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+                return;
+            }
+
             // TODO: The type of this expression and all subexpressions should be cached
             TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
 
