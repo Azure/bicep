@@ -517,6 +517,9 @@ namespace Bicep.Core.TypeSystem
                     case VariableSymbol variable:
                         return VisitDeclaredSymbol(syntax, variable);
 
+                    case NamespaceSymbol @namespace:
+                        return @namespace!;
+
                     case OutputSymbol _:
                         return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
 

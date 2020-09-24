@@ -136,6 +136,16 @@ namespace Bicep.Core.SemanticModel
             var foundSymbol = foundSymbols.FirstOrDefault();
             if (foundSymbol == null)
             {
+                // last attempt, if symbol is not found in the local namespace, attempt to check the imported namespaces
+                var foundNamespace = this.namespaces
+                    .Where(ns => ns.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+                    .FirstOrDefault();
+
+                if(foundNamespace != null)
+                {
+                    return foundNamespace!;
+                }
+                
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
             }
 
