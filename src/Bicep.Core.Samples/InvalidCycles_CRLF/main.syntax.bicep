@@ -1,11 +1,9 @@
 
-//@[0:2) NoOpDeclarationSyntax
-//@[0:2)  NewLine |\r\n|
+//@[0:2) NewLine |\r\n|
 //self-cycle
-//@[12:14) NoOpDeclarationSyntax
-//@[12:14)  NewLine |\r\n|
+//@[12:14) NewLine |\r\n|
 var x = x
-//@[0:11) VariableDeclarationSyntax
+//@[0:9) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |x|
@@ -13,9 +11,9 @@ var x = x
 //@[8:9)  VariableAccessSyntax
 //@[8:9)   IdentifierSyntax
 //@[8:9)    Identifier |x|
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var q = base64(q, !q)
-//@[0:25) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |q|
@@ -36,13 +34,12 @@ var q = base64(q, !q)
 //@[19:20)      IdentifierSyntax
 //@[19:20)       Identifier |q|
 //@[20:21)   RightParen |)|
-//@[21:25)  NewLine |\r\n\r\n|
+//@[21:25) NewLine |\r\n\r\n|
 
 //2-cycle
-//@[9:11) NoOpDeclarationSyntax
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var a = b
-//@[0:11) VariableDeclarationSyntax
+//@[0:9) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |a|
@@ -50,9 +47,9 @@ var a = b
 //@[8:9)  VariableAccessSyntax
 //@[8:9)   IdentifierSyntax
 //@[8:9)    Identifier |b|
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var b = add(a,1)
-//@[0:20) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |b|
@@ -70,13 +67,12 @@ var b = add(a,1)
 //@[14:15)    NumericLiteralSyntax
 //@[14:15)     Number |1|
 //@[15:16)   RightParen |)|
-//@[16:20)  NewLine |\r\n\r\n|
+//@[16:20) NewLine |\r\n\r\n|
 
 //3-cycle
-//@[9:11) NoOpDeclarationSyntax
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var e = f
-//@[0:11) VariableDeclarationSyntax
+//@[0:9) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |e|
@@ -84,9 +80,9 @@ var e = f
 //@[8:9)  VariableAccessSyntax
 //@[8:9)   IdentifierSyntax
 //@[8:9)    Identifier |f|
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var f = g && true
-//@[0:19) VariableDeclarationSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |f|
@@ -98,9 +94,9 @@ var f = g && true
 //@[10:12)   LogicalAnd |&&|
 //@[13:17)   BooleanLiteralSyntax
 //@[13:17)    TrueKeyword |true|
-//@[17:19)  NewLine |\r\n|
+//@[17:19) NewLine |\r\n|
 var g = e ? e : e
-//@[0:21) VariableDeclarationSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |g|
@@ -117,13 +113,12 @@ var g = e ? e : e
 //@[16:17)   VariableAccessSyntax
 //@[16:17)    IdentifierSyntax
 //@[16:17)     Identifier |e|
-//@[17:21)  NewLine |\r\n\r\n|
+//@[17:21) NewLine |\r\n\r\n|
 
 //4-cycle
-//@[9:11) NoOpDeclarationSyntax
-//@[9:11)  NewLine |\r\n|
+//@[9:11) NewLine |\r\n|
 var aa = {
-//@[0:25) VariableDeclarationSyntax
+//@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |aa|
@@ -142,9 +137,9 @@ var aa = {
 //@[8:10)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\r\n|
+//@[1:3) NewLine |\r\n|
 var bb = {
-//@[0:25) VariableDeclarationSyntax
+//@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |bb|
@@ -163,9 +158,9 @@ var bb = {
 //@[8:10)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\r\n|
+//@[1:3) NewLine |\r\n|
 var cc = {
-//@[0:25) VariableDeclarationSyntax
+//@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |cc|
@@ -184,7 +179,7 @@ var cc = {
 //@[8:10)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\r\n|
+//@[1:3) NewLine |\r\n|
 var dd = {
 //@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

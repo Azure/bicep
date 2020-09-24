@@ -13,6 +13,8 @@ using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Bicep.Cli.CommandLine.Arguments;
+using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Cli
 {
@@ -107,7 +109,8 @@ namespace Bicep.Cli
             string text = ReadFile(bicepPath);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+            var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
 
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
@@ -135,7 +138,8 @@ namespace Bicep.Cli
                 string text = ReadFile(bicepPath);
                 var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-                var compilation = new Compilation(SyntaxFactory.CreateFromText(text));
+                var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+                var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
 
                 var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 

@@ -22,7 +22,6 @@
     <EmbeddedResource Include="**\main.diagnostics.bicep" />
     <EmbeddedResource Include="**\main.tokens.bicep" />
     <EmbeddedResource Include="**\main.syntax.bicep" />
-    <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
   </ItemGroup>

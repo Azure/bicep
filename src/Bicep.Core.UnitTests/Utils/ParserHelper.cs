@@ -9,11 +9,9 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class ParserHelper
     {
-        public static ProgramSyntax Parse(string text) => new Core.Parser.Parser(text).Program();
-
         public static ProgramSyntax Parse(string text, Action<IEnumerable<Diagnostic>> onDiagnosticsFunc)
         {
-            var program = Parse(text);
+            var program = SyntaxFactory.CreateFromText(text);
             var diagnostics = program.GetParseDiagnostics();
             onDiagnosticsFunc(diagnostics);
 

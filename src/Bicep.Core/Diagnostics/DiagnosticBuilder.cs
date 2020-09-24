@@ -209,6 +209,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type {type}.");
 
+            public ErrorDiagnostic DisallowedPropertyWithPermissibleProperties(object property, object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP038",
+                $"The property '{property}' is not allowed on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
+
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -264,8 +269,13 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic UnknownProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
                 TextSpan,
-                "BCP053",
+                "BCP052",
                 $"The type {type} does not contain property '{badProperty}'.");
+
+            public ErrorDiagnostic UnknownPropertyWithAvailableProperties(TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP053",
+                $"The type {type} does not contain property '{badProperty}'. Available properties include '{availableProperties.ConcatString("', '")}'.");
 
             public ErrorDiagnostic NoPropertiesAllowed(TypeSymbol type) => new ErrorDiagnostic(
                 TextSpan,
@@ -383,17 +393,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP074",
-                $"Indexing over arrays requires an index of type '{LanguageConstants.Int}' but the provided index was of type '{wrongType}'.");
+                $"Indexing over arrays requires an index of type {LanguageConstants.Int} but the provided index was of type {wrongType}.");
 
             public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP075",
-                $"Indexing over objects requires an index of type '{LanguageConstants.String}' but the provided index was of type '{wrongType}'.");
+                $"Indexing over objects requires an index of type {LanguageConstants.String} but the provided index was of type {wrongType}.");
 
             public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP076",
-                $"Cannot index over expression of type '{wrongType}'. Arrays or objects are required.");
+                $"Cannot index over expression of type {wrongType}. Arrays or objects are required.");
 
             public ErrorDiagnostic WriteOnlyProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
                 TextSpan,

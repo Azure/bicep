@@ -1,68 +1,60 @@
 
-//@[0:1) NoOpDeclarationSyntax
-//@[0:1)  NewLine |\n|
+//@[0:1) NewLine |\n|
 // unknown declaration
-//@[22:23) NoOpDeclarationSyntax
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 bad
-//@[0:5) SkippedTriviaSyntax
+//@[0:3) SkippedTriviaSyntax
 //@[0:3)  Identifier |bad|
-//@[3:5)  NewLine |\n\n|
+//@[3:5) NewLine |\n\n|
 
 // incomplete variable declaration
-//@[34:35) NoOpDeclarationSyntax
-//@[34:35)  NewLine |\n|
+//@[34:35) NewLine |\n|
 var
-//@[0:5) SkippedTriviaSyntax
+//@[0:3) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
-//@[3:5)  NewLine |\n\n|
+//@[3:5) NewLine |\n\n|
 
 // unassigned variable
-//@[22:23) NoOpDeclarationSyntax
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 var foo
+//@[0:7) SkippedTriviaSyntax
+//@[0:3)  Identifier |var|
+//@[4:7)  Identifier |foo|
+//@[7:9) NewLine |\n\n|
+
+// no value assigned
+//@[20:21) NewLine |\n|
+var foo =
 //@[0:9) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
-//@[7:9)  NewLine |\n\n|
+//@[8:9)  Assignment |=|
+//@[9:11) NewLine |\n\n|
 
-// no value assigned
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
-var foo =
+// bad token value
+//@[18:19) NewLine |\n|
+var foo = &
 //@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[8:9)  Assignment |=|
-//@[9:11)  NewLine |\n\n|
-
-// bad token value
-//@[18:19) NoOpDeclarationSyntax
-//@[18:19)  NewLine |\n|
-var foo = &
-//@[0:13) SkippedTriviaSyntax
-//@[0:3)  Identifier |var|
-//@[4:7)  Identifier |foo|
-//@[8:9)  Assignment |=|
 //@[10:11)  Unrecognized |&|
-//@[11:13)  NewLine |\n\n|
+//@[11:13) NewLine |\n\n|
 
 // bad value
-//@[12:13) NoOpDeclarationSyntax
-//@[12:13)  NewLine |\n|
+//@[12:13) NewLine |\n|
 var foo = *
-//@[0:13) SkippedTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |foo|
 //@[8:9)  Assignment |=|
 //@[10:11)  Asterisk |*|
-//@[11:13)  NewLine |\n\n|
+//@[11:13) NewLine |\n\n|
 
 // expressions
-//@[14:15) NoOpDeclarationSyntax
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var bar = x
-//@[0:12) VariableDeclarationSyntax
+//@[0:11) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bar|
@@ -70,9 +62,9 @@ var bar = x
 //@[10:11)  VariableAccessSyntax
 //@[10:11)   IdentifierSyntax
 //@[10:11)    Identifier |x|
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var bar = foo()
-//@[0:16) VariableDeclarationSyntax
+//@[0:15) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bar|
@@ -82,9 +74,9 @@ var bar = foo()
 //@[10:13)    Identifier |foo|
 //@[13:14)   LeftParen |(|
 //@[14:15)   RightParen |)|
-//@[15:16)  NewLine |\n|
+//@[15:16) NewLine |\n|
 var x = 2 + !3
-//@[0:15) VariableDeclarationSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |x|
@@ -97,9 +89,9 @@ var x = 2 + !3
 //@[12:13)    Exclamation |!|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var y = false ? true + 1 : !4
-//@[0:31) VariableDeclarationSyntax
+//@[0:29) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |y|
@@ -119,13 +111,12 @@ var y = false ? true + 1 : !4
 //@[27:28)    Exclamation |!|
 //@[28:29)    NumericLiteralSyntax
 //@[28:29)     Number |4|
-//@[29:31)  NewLine |\n\n|
+//@[29:31) NewLine |\n\n|
 
 // test for array item recovery
-//@[31:32) NoOpDeclarationSyntax
-//@[31:32)  NewLine |\n|
+//@[31:32) NewLine |\n|
 var x = [
-//@[0:33) VariableDeclarationSyntax
+//@[0:31) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |x|
@@ -155,13 +146,12 @@ var x = [
 //@[7:8)    NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // test for object property recovery
-//@[36:37) NoOpDeclarationSyntax
-//@[36:37)  NewLine |\n|
+//@[36:37) NewLine |\n|
 var y = {
-//@[0:27) VariableDeclarationSyntax
+//@[0:25) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |y|
@@ -185,13 +175,12 @@ var y = {
 //@[9:10)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // utcNow and newGuid used outside a param default value
-//@[56:57) NoOpDeclarationSyntax
-//@[56:57)  NewLine |\n|
+//@[56:57) NewLine |\n|
 var test = utcNow('u')
-//@[0:23) VariableDeclarationSyntax
+//@[0:22) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:8)  IdentifierSyntax
 //@[4:8)   Identifier |test|
@@ -204,9 +193,9 @@ var test = utcNow('u')
 //@[18:21)    StringSyntax
 //@[18:21)     StringComplete |'u'|
 //@[21:22)   RightParen |)|
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 var test2 = newGuid()
-//@[0:23) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |test2|
@@ -216,13 +205,12 @@ var test2 = newGuid()
 //@[12:19)    Identifier |newGuid|
 //@[19:20)   LeftParen |(|
 //@[20:21)   RightParen |)|
-//@[21:23)  NewLine |\n\n|
+//@[21:23) NewLine |\n\n|
 
 // bad string escape sequence in object key
-//@[43:44) NoOpDeclarationSyntax
-//@[43:44)  NewLine |\n|
+//@[43:44) NewLine |\n|
 var test3 = {
-//@[0:38) VariableDeclarationSyntax
+//@[0:36) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |test3|
@@ -238,11 +226,10 @@ var test3 = {
 //@[20:21)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // duplicate properties
-//@[23:24) NoOpDeclarationSyntax
-//@[23:24)  NewLine |\n|
+//@[23:24) NewLine |\n|
 var testDupe = {
 //@[0:56) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

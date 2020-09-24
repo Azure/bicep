@@ -16,14 +16,16 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : SyntaxVisitor
     {
+        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
 
         private readonly IDictionary<SyntaxBase, TypeSymbol> assignedTypes;
 
-        public TypeAssignmentVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
+            this.resourceTypeRegistrar = resourceTypeRegistrar;
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
@@ -110,22 +112,31 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
                 }
 
-                // TODO: Construct/lookup type information based on JSON schema or swagger
-                // for now assuming very basic resource schema
-                return new ResourceType(stringContent, LanguageConstants.CreateResourceProperties(typeReference), additionalPropertiesType: null, typeReference);
+                return resourceTypeRegistrar.GetType(typeReference);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithCaching(syntax, () => {
-                var primitiveType = GetPrimitiveTypeByName(syntax.Type.TypeName);
-
+                var primitiveType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
                 if (primitiveType == null)
                 {
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
                 }
 
-                // TODO if this is a string parameter with 'allowed' set, convert it to a union of string literal types
-                return primitiveType;
+                if (!object.ReferenceEquals(primitiveType, LanguageConstants.String))
+                {
+                    return primitiveType;
+                }
+
+                var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
+                    .Select(item => VisitAndReturnType(item));
+
+                if (allowedItemTypes == null || !allowedItemTypes.All(itemType => itemType is StringLiteralType))
+                {
+                    return primitiveType;
+                }
+
+                return UnionType.Create(allowedItemTypes);
             });
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
@@ -135,7 +146,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => AssignTypeWithCaching(syntax, () => {
-                var primitiveType = GetPrimitiveTypeByName(syntax.Type.TypeName);
+                var primitiveType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
 
                 if (primitiveType == null)
                 {
@@ -394,7 +405,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // the index is of "any" type or integer type
                         // return the item type
-                        return baseArray.ItemType;
+                        return baseArray.Item.Type;
                     }
 
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType));
@@ -528,16 +539,6 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
-        private static TypeSymbol? GetPrimitiveTypeByName(string typeName)
-        {
-            if (LanguageConstants.DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
-            {
-                return primitiveType;
-            }
-
-            return null;
-        }
-
         private static void CollectErrors(List<ErrorDiagnostic> errors, TypeSymbol type)
         {
             errors.AddRange(type.GetDiagnostics());
@@ -659,7 +660,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // there is - return its type
-                return declaredProperty.Type;
+                return declaredProperty.TypeReference.Type;
             }
 
             // the property is not declared
@@ -667,10 +668,19 @@ namespace Bicep.Core.TypeSystem
             if (baseType.AdditionalPropertiesType != null)
             {
                 // yes - return the additional property type
-                return baseType.AdditionalPropertiesType;
+                return baseType.AdditionalPropertiesType.Type;
             }
 
-            return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName));
+            var availableProperties = baseType.Properties.Values
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => p.Name)
+                .OrderBy(x => x);
+
+            var error = availableProperties.Any() ? 
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(baseType, propertyName, availableProperties) :
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName);
+
+            return new ErrorTypeSymbol(error);
         }
     }
 }

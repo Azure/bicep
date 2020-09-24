@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -29,21 +30,34 @@ namespace Bicep.Core.Parser
 
         public ProgramSyntax Program()
         {
-            var statements = new List<SyntaxBase>();
+            var declarationsOrTokens = new List<SyntaxBase>();
+            
             while (!this.IsAtEnd())
             {
-                var statement = Declaration();
-                statements.Add(statement);
+                // this produces either a declaration node, skipped tokens node or just a token
+                var declarationOrToken = Declaration();
+                declarationsOrTokens.Add(declarationOrToken);
+
+                // if skipped node is returned above, the newline is not consumed
+                // if newline token is returned, we must not expect another (could be a beginning of a declaration)
+                if (declarationOrToken is IDeclarationSyntax)
+                {
+                    // declarations must be followed by a newline or the file must end
+                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, consumeTerminator: true, TokenType.NewLine);
+                    if (newLine != null)
+                    {
+                        declarationsOrTokens.Add(newLine);
+                    }
+                }
             }
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(statements, endOfFile, this.lexerDiagnostics);
+            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
         }
 
-        private SyntaxBase Declaration()
-        {
-            return this.WithRecovery(() =>
+        public SyntaxBase Declaration() =>
+            this.WithRecovery(() =>
             {
                 var current = reader.Peek();
 
@@ -55,12 +69,11 @@ namespace Bicep.Core.Parser
                         LanguageConstants.OutputKeyword => this.OutputDeclaration(),
                         _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                     },
-                    TokenType.NewLine => this.NoOpStatement(),
-                    // TODO: Update when adding other statement types
+                    TokenType.NewLine => this.NewLine(),
+                    
                     _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                 };
-            }, true, TokenType.NewLine);
-        }
+            }, consumeTerminator: false, TokenType.NewLine);
 
         private SyntaxBase ParameterDeclaration()
         {
@@ -84,9 +97,7 @@ namespace Bicep.Core.Parser
                 _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
             };
 
-            var newLine = this.NewLineOrEof();
-
-            return new ParameterDeclarationSyntax(keyword, name, type, modifier, newLine);
+            return new ParameterDeclarationSyntax(keyword, name, type, modifier);
         }
 
         private SyntaxBase ParameterDefaultValue()
@@ -104,9 +115,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLineOrEof();
-
-            return new VariableDeclarationSyntax(keyword, name, assignment, value, newLine);
+            return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
 
         private SyntaxBase OutputDeclaration()
@@ -117,9 +126,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var value = this.Expression();
 
-            var newLine = this.NewLineOrEof();
-
-            return new OutputDeclarationSyntax(keyword, name, type, assignment, value, newLine);
+            return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
         }
 
         private SyntaxBase ResourceDeclaration()
@@ -133,15 +140,7 @@ namespace Bicep.Core.Parser
             var assignment = this.Assignment();
             var body = this.Object();
 
-            var newLine = this.NewLineOrEof();
-
-            return new ResourceDeclarationSyntax(keyword, name, type, assignment, body, newLine);
-        }
-
-        private SyntaxBase NoOpStatement()
-        {
-            var newLine = this.NewLine();
-            return new NoOpDeclarationSyntax(newLine);
+            return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
         }
 
         private Token? NewLineOrEof()
@@ -658,6 +657,20 @@ namespace Bicep.Core.Parser
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase
+        {
+            var startReaderPosition = reader.Position;
+            try
+            {
+                return syntaxFunc();
+            }
+            catch (ExpectedTokenException exception)
+            {
+                return SynchronizeAndReturnTrivia(startReaderPosition, consumeTerminator, _ => exception.Error, terminatingTypes);
+            }
+        }
+
+        private SyntaxBase? WithRecoveryNullable<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
+            where TSyntax : SyntaxBase?
         {
             var startReaderPosition = reader.Position;
             try

@@ -4,6 +4,7 @@ using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -53,7 +54,7 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
-            var compilation = new Compilation(ParserHelper.Parse(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
 
             var parsed = ParserHelper.ParseExpression(text);
 

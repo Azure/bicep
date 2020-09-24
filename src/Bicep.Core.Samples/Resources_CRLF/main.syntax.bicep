@@ -1,8 +1,7 @@
 
-//@[0:2) NoOpDeclarationSyntax
-//@[0:2)  NewLine |\r\n|
+//@[0:2) NewLine |\r\n|
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[0:123) ResourceDeclarationSyntax
+//@[0:119) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:21)  IdentifierSyntax
 //@[9:21)   Identifier |basicStorage|
@@ -30,10 +29,10 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[20:22)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[0:107) ResourceDeclarationSyntax
+//@[0:103) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:16)  IdentifierSyntax
 //@[9:16)   Identifier |dnsZone|
@@ -61,10 +60,10 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 //@[20:22)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[0:473) ResourceDeclarationSyntax
+//@[0:469) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:25)  IdentifierSyntax
 //@[9:25)   Identifier |myStorageAccount|
@@ -214,10 +213,10 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[0:542) ResourceDeclarationSyntax
+//@[0:538) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:24)  IdentifierSyntax
 //@[9:24)   Identifier |withExpressions|
@@ -397,10 +396,10 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
-//@[0:79) ParameterDeclarationSyntax
+//@[0:77) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |applicationName|
@@ -426,9 +425,9 @@ param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 //@[72:74)        Identifier |id|
 //@[74:75)     RightParen |)|
 //@[75:77)    StringRightPiece |}'|
-//@[77:79)  NewLine |\r\n|
+//@[77:79) NewLine |\r\n|
 var hostingPlanName = applicationName // why not just use the param directly?
-//@[0:81) VariableDeclarationSyntax
+//@[0:37) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |hostingPlanName|
@@ -436,27 +435,27 @@ var hostingPlanName = applicationName // why not just use the param directly?
 //@[22:37)  VariableAccessSyntax
 //@[22:37)   IdentifierSyntax
 //@[22:37)    Identifier |applicationName|
-//@[77:81)  NewLine |\r\n\r\n|
+//@[77:81) NewLine |\r\n\r\n|
 
 param appServicePlanTier string
-//@[0:33) ParameterDeclarationSyntax
+//@[0:31) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |appServicePlanTier|
 //@[25:31)  TypeSyntax
 //@[25:31)   Identifier |string|
-//@[31:33)  NewLine |\r\n|
+//@[31:33) NewLine |\r\n|
 param appServicePlanInstances int
-//@[0:37) ParameterDeclarationSyntax
+//@[0:33) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |appServicePlanInstances|
 //@[30:33)  TypeSyntax
 //@[30:33)   Identifier |int|
-//@[33:37)  NewLine |\r\n\r\n|
+//@[33:37) NewLine |\r\n\r\n|
 
 var location = resourceGroup().location
-//@[0:43) VariableDeclarationSyntax
+//@[0:39) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:12)  IdentifierSyntax
 //@[4:12)   Identifier |location|
@@ -470,10 +469,10 @@ var location = resourceGroup().location
 //@[30:31)   Dot |.|
 //@[31:39)   IdentifierSyntax
 //@[31:39)    Identifier |location|
-//@[39:43)  NewLine |\r\n\r\n|
+//@[39:43) NewLine |\r\n\r\n|
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
-//@[0:375) ResourceDeclarationSyntax
+//@[0:371) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |farm|
@@ -554,10 +553,10 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
-//@[0:96) VariableDeclarationSyntax
+//@[0:94) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |cosmosDbResourceId|
@@ -579,9 +578,9 @@ var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cos
 //@[86:93)     IdentifierSyntax
 //@[86:93)      Identifier |account|
 //@[93:94)   RightParen |)|
-//@[94:96)  NewLine |\r\n|
+//@[94:96) NewLine |\r\n|
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
-//@[0:68) VariableDeclarationSyntax
+//@[0:64) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |cosmosDbRef|
@@ -599,16 +598,14 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 //@[47:48)   Dot |.|
 //@[48:64)   IdentifierSyntax
 //@[48:64)    Identifier |documentEndpoint|
-//@[64:68)  NewLine |\r\n\r\n|
+//@[64:68) NewLine |\r\n\r\n|
 
 // this variable is not accessed anywhere in this template and depends on a run-time reference
-//@[94:96) NoOpDeclarationSyntax
-//@[94:96)  NewLine |\r\n|
+//@[94:96) NewLine |\r\n|
 // it should not be present at all in the template output as there is nowhere logical to put it
-//@[95:97) NoOpDeclarationSyntax
-//@[95:97)  NewLine |\r\n|
+//@[95:97) NewLine |\r\n|
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[0:55) VariableDeclarationSyntax
+//@[0:51) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |cosmosDbEndpoint|
@@ -620,26 +617,26 @@ var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
 //@[34:35)   Dot |.|
 //@[35:51)   IdentifierSyntax
 //@[35:51)    Identifier |documentEndpoint|
-//@[51:55)  NewLine |\r\n\r\n|
+//@[51:55) NewLine |\r\n\r\n|
 
 param webSiteName string
-//@[0:26) ParameterDeclarationSyntax
+//@[0:24) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |webSiteName|
 //@[18:24)  TypeSyntax
 //@[18:24)   Identifier |string|
-//@[24:26)  NewLine |\r\n|
+//@[24:26) NewLine |\r\n|
 param cosmosDb object
-//@[0:23) ParameterDeclarationSyntax
+//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |cosmosDb|
 //@[15:21)  TypeSyntax
 //@[15:21)   Identifier |object|
-//@[21:23)  NewLine |\r\n|
+//@[21:23) NewLine |\r\n|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
-//@[0:693) ResourceDeclarationSyntax
+//@[0:689) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |site|
@@ -836,10 +833,10 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 var _siteApiVersion = site.apiVersion
-//@[0:39) VariableDeclarationSyntax
+//@[0:37) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |_siteApiVersion|
@@ -851,9 +848,9 @@ var _siteApiVersion = site.apiVersion
 //@[26:27)   Dot |.|
 //@[27:37)   IdentifierSyntax
 //@[27:37)    Identifier |apiVersion|
-//@[37:39)  NewLine |\r\n|
+//@[37:39) NewLine |\r\n|
 var _siteType = site.type
-//@[0:29) VariableDeclarationSyntax
+//@[0:25) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |_siteType|
@@ -865,10 +862,10 @@ var _siteType = site.type
 //@[20:21)   Dot |.|
 //@[21:25)   IdentifierSyntax
 //@[21:25)    Identifier |type|
-//@[25:29)  NewLine |\r\n\r\n|
+//@[25:29) NewLine |\r\n\r\n|
 
 output siteApiVersion string = site.apiVersion
-//@[0:48) OutputDeclarationSyntax
+//@[0:46) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |siteApiVersion|
@@ -882,9 +879,9 @@ output siteApiVersion string = site.apiVersion
 //@[35:36)   Dot |.|
 //@[36:46)   IdentifierSyntax
 //@[36:46)    Identifier |apiVersion|
-//@[46:48)  NewLine |\r\n|
+//@[46:48) NewLine |\r\n|
 output siteType string = site.type
-//@[0:38) OutputDeclarationSyntax
+//@[0:34) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |siteType|
@@ -898,10 +895,10 @@ output siteType string = site.type
 //@[29:30)   Dot |.|
 //@[30:34)   IdentifierSyntax
 //@[30:34)    Identifier |type|
-//@[34:38)  NewLine |\r\n\r\n|
+//@[34:38) NewLine |\r\n\r\n|
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
-//@[0:358) ResourceDeclarationSyntax
+//@[0:354) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:15)  IdentifierSyntax
 //@[9:15)   Identifier |nested|
@@ -980,13 +977,12 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 // should be able to access the read only properties
-//@[52:54) NoOpDeclarationSyntax
-//@[52:54)  NewLine |\r\n|
+//@[52:54) NewLine |\r\n|
 resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
-//@[0:288) ResourceDeclarationSyntax
+//@[0:284) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:36)  IdentifierSyntax
 //@[9:36)   Identifier |accessingReadOnlyProperties|
@@ -1087,10 +1083,10 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource resourceA 'My.Rp/typeA@2020-01-01' = {
-//@[0:75) ResourceDeclarationSyntax
+//@[0:71) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:18)  IdentifierSyntax
 //@[9:18)   Identifier |resourceA|
@@ -1110,10 +1106,10 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 //@[19:21)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[0:96) ResourceDeclarationSyntax
+//@[0:92) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:18)  IdentifierSyntax
 //@[9:18)   Identifier |resourceB|
@@ -1141,10 +1137,10 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[34:36)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[0:273) ResourceDeclarationSyntax
+//@[0:269) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:18)  IdentifierSyntax
 //@[9:18)   Identifier |resourceC|
@@ -1248,10 +1244,10 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 var varARuntime = {
-//@[0:159) VariableDeclarationSyntax
+//@[0:155) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |varARuntime|
@@ -1326,10 +1322,10 @@ var varARuntime = {
 //@[23:25)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 var varBRuntime = [
-//@[0:41) VariableDeclarationSyntax
+//@[0:37) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |varBRuntime|
@@ -1345,10 +1341,10 @@ var varBRuntime = [
 //@[13:15)    NewLine |\r\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:5)  NewLine |\r\n\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
 var resourceCRef = {
-//@[0:45) VariableDeclarationSyntax
+//@[0:43) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |resourceCRef|
@@ -1371,16 +1367,16 @@ var resourceCRef = {
 //@[18:20)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\r\n|
+//@[1:3) NewLine |\r\n|
 var setResourceCRef = true
-//@[0:30) VariableDeclarationSyntax
+//@[0:26) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |setResourceCRef|
 //@[20:21)  Assignment |=|
 //@[22:26)  BooleanLiteralSyntax
 //@[22:26)   TrueKeyword |true|
-//@[26:30)  NewLine |\r\n\r\n|
+//@[26:30) NewLine |\r\n\r\n|
 
 resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[0:231) ResourceDeclarationSyntax

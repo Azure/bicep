@@ -1,60 +1,58 @@
 /*
   This tests the various cases of invalid expressions.
 */
-//@[2:4) NoOpDeclarationSyntax
-//@[2:4)  NewLine |\n\n|
+//@[2:4) NewLine |\n\n|
 
 // bad expressions
-//@[18:19) NoOpDeclarationSyntax
-//@[18:19)  NewLine |\n|
+//@[18:19) NewLine |\n|
 var bad = a+
-//@[0:13) SkippedTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Identifier |a|
 //@[11:12)  Plus |+|
-//@[12:13)  NewLine |\n|
+//@[12:13) NewLine |\n|
 var bad = *
-//@[0:12) SkippedTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Asterisk |*|
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var bad = /
-//@[0:12) SkippedTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Slash |/|
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var bad = %
-//@[0:12) SkippedTriviaSyntax
+//@[0:11) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Modulo |%|
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var bad = 33-
-//@[0:14) SkippedTriviaSyntax
+//@[0:13) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:12)  Number |33|
 //@[12:13)  Minus |-|
-//@[13:14)  NewLine |\n|
+//@[13:14) NewLine |\n|
 var bad = --33
-//@[0:15) SkippedTriviaSyntax
+//@[0:14) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  Minus |-|
 //@[11:12)  Minus |-|
 //@[12:14)  Number |33|
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var bad = 3 * 4 /
-//@[0:18) SkippedTriviaSyntax
+//@[0:17) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -62,18 +60,18 @@ var bad = 3 * 4 /
 //@[12:13)  Asterisk |*|
 //@[14:15)  Number |4|
 //@[16:17)  Slash |/|
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 var bad = 222222222222222222222222222222222222222222 * 4
-//@[0:57) SkippedTriviaSyntax
+//@[0:56) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:52)  Number |222222222222222222222222222222222222222222|
 //@[53:54)  Asterisk |*|
 //@[55:56)  Number |4|
-//@[56:57)  NewLine |\n|
+//@[56:57) NewLine |\n|
 var bad = (null) ?
-//@[0:19) SkippedTriviaSyntax
+//@[0:18) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -81,9 +79,9 @@ var bad = (null) ?
 //@[11:15)  NullKeyword |null|
 //@[15:16)  RightParen |)|
 //@[17:18)  Question |?|
-//@[18:19)  NewLine |\n|
+//@[18:19) NewLine |\n|
 var bad = (null) ? :
-//@[0:21) SkippedTriviaSyntax
+//@[0:20) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -92,9 +90,9 @@ var bad = (null) ? :
 //@[15:16)  RightParen |)|
 //@[17:18)  Question |?|
 //@[19:20)  Colon |:|
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var bad = (null) ? !
-//@[0:21) SkippedTriviaSyntax
+//@[0:20) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
@@ -103,19 +101,23 @@ var bad = (null) ? !
 //@[15:16)  RightParen |)|
 //@[17:18)  Question |?|
 //@[19:20)  Exclamation |!|
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var bad = (null)!
-//@[0:18) SkippedTriviaSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  LeftParen |(|
-//@[11:15)  NullKeyword |null|
-//@[15:16)  RightParen |)|
+//@[10:16)  ParenthesizedExpressionSyntax
+//@[10:11)   LeftParen |(|
+//@[11:15)   NullLiteralSyntax
+//@[11:15)    NullKeyword |null|
+//@[15:16)   RightParen |)|
+//@[16:18) SkippedTriviaSyntax
 //@[16:17)  Exclamation |!|
 //@[17:18)  NewLine |\n|
 var bad = (null)[0]
-//@[0:20) VariableDeclarationSyntax
+//@[0:19) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bad|
@@ -130,27 +132,26 @@ var bad = (null)[0]
 //@[17:18)   NumericLiteralSyntax
 //@[17:18)    Number |0|
 //@[18:19)   RightSquare |]|
-//@[19:20)  NewLine |\n|
+//@[19:20) NewLine |\n|
 var bad = ()
-//@[0:13) SkippedTriviaSyntax
+//@[0:12) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
 //@[10:11)  LeftParen |(|
 //@[11:12)  RightParen |)|
-//@[12:13)  NewLine |\n|
+//@[12:13) NewLine |\n|
 var bad = 
-//@[0:12) SkippedTriviaSyntax
+//@[0:9) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:12)  NewLine |\n\n|
+//@[10:12) NewLine |\n\n|
 
 // variables not supported
-//@[26:27) NoOpDeclarationSyntax
-//@[26:27)  NewLine |\n|
+//@[26:27) NewLine |\n|
 var x = a + 2
-//@[0:15) VariableDeclarationSyntax
+//@[0:13) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |x|
@@ -162,13 +163,12 @@ var x = a + 2
 //@[10:11)   Plus |+|
 //@[12:13)   NumericLiteralSyntax
 //@[12:13)    Number |2|
-//@[13:15)  NewLine |\n\n|
+//@[13:15) NewLine |\n\n|
 
 // unary NOT
-//@[12:13) NoOpDeclarationSyntax
-//@[12:13)  NewLine |\n|
+//@[12:13) NewLine |\n|
 var not = !null
-//@[0:16) VariableDeclarationSyntax
+//@[0:15) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
@@ -177,9 +177,9 @@ var not = !null
 //@[10:11)   Exclamation |!|
 //@[11:15)   NullLiteralSyntax
 //@[11:15)    NullKeyword |null|
-//@[15:16)  NewLine |\n|
+//@[15:16) NewLine |\n|
 var not = !4
-//@[0:13) VariableDeclarationSyntax
+//@[0:12) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
@@ -188,9 +188,9 @@ var not = !4
 //@[10:11)   Exclamation |!|
 //@[11:12)   NumericLiteralSyntax
 //@[11:12)    Number |4|
-//@[12:13)  NewLine |\n|
+//@[12:13) NewLine |\n|
 var not = !'s'
-//@[0:15) VariableDeclarationSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
@@ -199,9 +199,9 @@ var not = !'s'
 //@[10:11)   Exclamation |!|
 //@[11:14)   StringSyntax
 //@[11:14)    StringComplete |'s'|
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var not = ![
-//@[0:15) VariableDeclarationSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
@@ -213,9 +213,9 @@ var not = ![
 //@[12:13)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 var not = !{
-//@[0:16) VariableDeclarationSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |not|
@@ -227,13 +227,12 @@ var not = !{
 //@[12:13)    NewLine |\n|
 }
 //@[0:1)    RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // unary not chaining will be added in the future
-//@[49:50) NoOpDeclarationSyntax
-//@[49:50)  NewLine |\n|
+//@[49:50) NewLine |\n|
 var not = !!!!!!!true
-//@[0:23) SkippedTriviaSyntax
+//@[0:21) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  Identifier |not|
 //@[8:9)  Assignment |=|
@@ -245,13 +244,12 @@ var not = !!!!!!!true
 //@[15:16)  Exclamation |!|
 //@[16:17)  Exclamation |!|
 //@[17:21)  TrueKeyword |true|
-//@[21:23)  NewLine |\n\n|
+//@[21:23) NewLine |\n\n|
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
-//@[80:81) NoOpDeclarationSyntax
-//@[80:81)  NewLine |\n|
+//@[80:81) NewLine |\n|
 var minus = ------12
-//@[0:22) SkippedTriviaSyntax
+//@[0:20) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  Identifier |minus|
 //@[10:11)  Assignment |=|
@@ -262,13 +260,12 @@ var minus = ------12
 //@[16:17)  Minus |-|
 //@[17:18)  Minus |-|
 //@[18:20)  Number |12|
-//@[20:22)  NewLine |\n\n|
+//@[20:22) NewLine |\n\n|
 
 // unary minus
-//@[14:15) NoOpDeclarationSyntax
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var minus = -true
-//@[0:18) VariableDeclarationSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
@@ -277,9 +274,9 @@ var minus = -true
 //@[12:13)   Minus |-|
 //@[13:17)   BooleanLiteralSyntax
 //@[13:17)    TrueKeyword |true|
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 var minus = -null
-//@[0:18) VariableDeclarationSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
@@ -288,9 +285,9 @@ var minus = -null
 //@[12:13)   Minus |-|
 //@[13:17)   NullLiteralSyntax
 //@[13:17)    NullKeyword |null|
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 var minus = -'s'
-//@[0:17) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
@@ -299,9 +296,9 @@ var minus = -'s'
 //@[12:13)   Minus |-|
 //@[13:16)   StringSyntax
 //@[13:16)    StringComplete |'s'|
-//@[16:17)  NewLine |\n|
+//@[16:17) NewLine |\n|
 var minus = -[
-//@[0:17) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
@@ -313,9 +310,9 @@ var minus = -[
 //@[14:15)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 var minus = -{
-//@[0:18) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |minus|
@@ -327,13 +324,12 @@ var minus = -{
 //@[14:15)    NewLine |\n|
 }
 //@[0:1)    RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // multiplicative
-//@[17:18) NoOpDeclarationSyntax
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 var mod = 's' % true
-//@[0:21) VariableDeclarationSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |mod|
@@ -344,9 +340,9 @@ var mod = 's' % true
 //@[14:15)   Modulo |%|
 //@[16:20)   BooleanLiteralSyntax
 //@[16:20)    TrueKeyword |true|
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var mul = true * null
-//@[0:22) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |mul|
@@ -357,9 +353,9 @@ var mul = true * null
 //@[15:16)   Asterisk |*|
 //@[17:21)   NullLiteralSyntax
 //@[17:21)    NullKeyword |null|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var div = {
-//@[0:21) VariableDeclarationSyntax
+//@[0:19) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |div|
@@ -376,13 +372,12 @@ var div = {
 //@[5:6)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // additive
-//@[11:12) NoOpDeclarationSyntax
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var add = null + 's'
-//@[0:21) VariableDeclarationSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |add|
@@ -393,9 +388,9 @@ var add = null + 's'
 //@[15:16)   Plus |+|
 //@[17:20)   StringSyntax
 //@[17:20)    StringComplete |'s'|
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var sub = true - false
-//@[0:24) VariableDeclarationSyntax
+//@[0:22) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |sub|
@@ -406,13 +401,12 @@ var sub = true - false
 //@[15:16)   Minus |-|
 //@[17:22)   BooleanLiteralSyntax
 //@[17:22)    FalseKeyword |false|
-//@[22:24)  NewLine |\n\n|
+//@[22:24) NewLine |\n\n|
 
 // equality (== and != can't have a type error because they work on "any" type)
-//@[79:80) NoOpDeclarationSyntax
-//@[79:80)  NewLine |\n|
+//@[79:80) NewLine |\n|
 var eq = true =~ null
-//@[0:22) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |eq|
@@ -423,9 +417,9 @@ var eq = true =~ null
 //@[14:16)   EqualsInsensitive |=~|
 //@[17:21)   NullLiteralSyntax
 //@[17:21)    NullKeyword |null|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var ne = 15 !~ [
-//@[0:20) VariableDeclarationSyntax
+//@[0:18) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |ne|
@@ -439,13 +433,12 @@ var ne = 15 !~ [
 //@[16:17)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // relational
-//@[13:14) NoOpDeclarationSyntax
-//@[13:14)  NewLine |\n|
+//@[13:14) NewLine |\n|
 var lt = 4 < 's'
-//@[0:17) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |lt|
@@ -456,9 +449,9 @@ var lt = 4 < 's'
 //@[11:12)   LessThan |<|
 //@[13:16)   StringSyntax
 //@[13:16)    StringComplete |'s'|
-//@[16:17)  NewLine |\n|
+//@[16:17) NewLine |\n|
 var lteq = null <= 10
-//@[0:22) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:8)  IdentifierSyntax
 //@[4:8)   Identifier |lteq|
@@ -469,9 +462,9 @@ var lteq = null <= 10
 //@[16:18)   LessThanOrEqual |<=|
 //@[19:21)   NumericLiteralSyntax
 //@[19:21)    Number |10|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var gt = false>[
-//@[0:19) VariableDeclarationSyntax
+//@[0:18) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |gt|
@@ -485,9 +478,9 @@ var gt = false>[
 //@[16:17)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:2)  NewLine |\n|
+//@[1:2) NewLine |\n|
 var gteq = {
-//@[0:25) VariableDeclarationSyntax
+//@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:8)  IdentifierSyntax
 //@[4:8)   Identifier |gteq|
@@ -501,13 +494,12 @@ var gteq = {
 //@[2:4)   GreaterThanOrEqual |>=|
 //@[5:10)   BooleanLiteralSyntax
 //@[5:10)    FalseKeyword |false|
-//@[10:12)  NewLine |\n\n|
+//@[10:12) NewLine |\n\n|
 
 // logical
-//@[10:11) NoOpDeclarationSyntax
-//@[10:11)  NewLine |\n|
+//@[10:11) NewLine |\n|
 var and = null && 'a'
-//@[0:22) VariableDeclarationSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |and|
@@ -518,9 +510,9 @@ var and = null && 'a'
 //@[15:17)   LogicalAnd |&&|
 //@[18:21)   StringSyntax
 //@[18:21)    StringComplete |'a'|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var or = 10 || 4
-//@[0:18) VariableDeclarationSyntax
+//@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:6)  IdentifierSyntax
 //@[4:6)   Identifier |or|
@@ -531,13 +523,12 @@ var or = 10 || 4
 //@[12:14)   LogicalOr ||||
 //@[15:16)   NumericLiteralSyntax
 //@[15:16)    Number |4|
-//@[16:18)  NewLine |\n\n|
+//@[16:18) NewLine |\n\n|
 
 // conditional
-//@[14:15) NoOpDeclarationSyntax
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 var ternary = null ? 4 : false
-//@[0:32) VariableDeclarationSyntax
+//@[0:30) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |ternary|
@@ -551,13 +542,12 @@ var ternary = null ? 4 : false
 //@[23:24)   Colon |:|
 //@[25:30)   BooleanLiteralSyntax
 //@[25:30)    FalseKeyword |false|
-//@[30:32)  NewLine |\n\n|
+//@[30:32) NewLine |\n\n|
 
 // complex expressions
-//@[22:23) NoOpDeclarationSyntax
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 var complex = test(2 + 3*4, true || false && null)
-//@[0:51) VariableDeclarationSyntax
+//@[0:50) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |complex|
@@ -590,9 +580,9 @@ var complex = test(2 + 3*4, true || false && null)
 //@[45:49)      NullLiteralSyntax
 //@[45:49)       NullKeyword |null|
 //@[49:50)   RightParen |)|
-//@[50:51)  NewLine |\n|
+//@[50:51) NewLine |\n|
 var complex = -2 && 3 && !4 && 5
-//@[0:33) VariableDeclarationSyntax
+//@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |complex|
@@ -615,9 +605,9 @@ var complex = -2 && 3 && !4 && 5
 //@[28:30)   LogicalAnd |&&|
 //@[31:32)   NumericLiteralSyntax
 //@[31:32)    Number |5|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var complex = null ? !4: false
-//@[0:31) VariableDeclarationSyntax
+//@[0:30) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |complex|
@@ -633,9 +623,9 @@ var complex = null ? !4: false
 //@[23:24)   Colon |:|
 //@[25:30)   BooleanLiteralSyntax
 //@[25:30)    FalseKeyword |false|
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
-//@[0:94) VariableDeclarationSyntax
+//@[0:92) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |complex|
@@ -689,10 +679,10 @@ var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || f
 //@[85:87)     LogicalAnd |&&|
 //@[88:92)     NullLiteralSyntax
 //@[88:92)      NullKeyword |null|
-//@[92:94)  NewLine |\n\n|
+//@[92:94) NewLine |\n\n|
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
-//@[0:70) VariableDeclarationSyntax
+//@[0:69) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |nestedTernary|
@@ -727,9 +717,9 @@ var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[65:66)     Colon |:|
 //@[67:69)     NumericLiteralSyntax
 //@[67:69)      Number |15|
-//@[69:70)  NewLine |\n|
+//@[69:70) NewLine |\n|
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
-//@[0:77) VariableDeclarationSyntax
+//@[0:75) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |nestedTernary|
@@ -773,13 +763,12 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 //@[72:74)     NumericLiteralSyntax
 //@[72:74)      Number |15|
 //@[74:75)    RightParen |)|
-//@[75:77)  NewLine |\n\n|
+//@[75:77) NewLine |\n\n|
 
 // bad array access
-//@[19:20) NoOpDeclarationSyntax
-//@[19:20)  NewLine |\n|
+//@[19:20) NewLine |\n|
 var errorInsideArrayAccess = [
-//@[0:45) VariableDeclarationSyntax
+//@[0:44) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:26)  IdentifierSyntax
 //@[4:26)   Identifier |errorInsideArrayAccess|
@@ -803,9 +792,9 @@ var errorInsideArrayAccess = [
 //@[3:4)    NumericLiteralSyntax
 //@[3:4)     Number |0|
 //@[4:5)   RightSquare |]|
-//@[5:6)  NewLine |\n|
+//@[5:6) NewLine |\n|
 var integerIndexOnNonArray = (null)[0]
-//@[0:39) VariableDeclarationSyntax
+//@[0:38) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:26)  IdentifierSyntax
 //@[4:26)   Identifier |integerIndexOnNonArray|
@@ -820,9 +809,9 @@ var integerIndexOnNonArray = (null)[0]
 //@[36:37)   NumericLiteralSyntax
 //@[36:37)    Number |0|
 //@[37:38)   RightSquare |]|
-//@[38:39)  NewLine |\n|
+//@[38:39) NewLine |\n|
 var stringIndexOnNonObject = 'test'['test']
-//@[0:44) VariableDeclarationSyntax
+//@[0:43) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:26)  IdentifierSyntax
 //@[4:26)   Identifier |stringIndexOnNonObject|
@@ -834,9 +823,9 @@ var stringIndexOnNonObject = 'test'['test']
 //@[36:42)   StringSyntax
 //@[36:42)    StringComplete |'test'|
 //@[42:43)   RightSquare |]|
-//@[43:44)  NewLine |\n|
+//@[43:44) NewLine |\n|
 var malformedStringIndex = {
-//@[0:41) VariableDeclarationSyntax
+//@[0:40) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |malformedStringIndex|
@@ -851,9 +840,9 @@ var malformedStringIndex = {
 //@[2:10)   SkippedTriviaSyntax
 //@[2:10)    StringComplete |'test\e'|
 //@[10:11)   RightSquare |]|
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var invalidIndexTypeOverAny = any(true)[true]
-//@[0:46) VariableDeclarationSyntax
+//@[0:45) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:27)  IdentifierSyntax
 //@[4:27)   Identifier |invalidIndexTypeOverAny|
@@ -871,9 +860,9 @@ var invalidIndexTypeOverAny = any(true)[true]
 //@[40:44)   BooleanLiteralSyntax
 //@[40:44)    TrueKeyword |true|
 //@[44:45)   RightSquare |]|
-//@[45:46)  NewLine |\n|
+//@[45:46) NewLine |\n|
 var badIndexOverArray = [][null]
-//@[0:33) VariableDeclarationSyntax
+//@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:21)  IdentifierSyntax
 //@[4:21)   Identifier |badIndexOverArray|
@@ -886,9 +875,9 @@ var badIndexOverArray = [][null]
 //@[27:31)   NullLiteralSyntax
 //@[27:31)    NullKeyword |null|
 //@[31:32)   RightSquare |]|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var badIndexOverArray2 = []['s']
-//@[0:33) VariableDeclarationSyntax
+//@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |badIndexOverArray2|
@@ -901,9 +890,9 @@ var badIndexOverArray2 = []['s']
 //@[28:31)   StringSyntax
 //@[28:31)    StringComplete |'s'|
 //@[31:32)   RightSquare |]|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var badIndexOverObj = {}[true]
-//@[0:31) VariableDeclarationSyntax
+//@[0:30) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |badIndexOverObj|
@@ -916,9 +905,9 @@ var badIndexOverObj = {}[true]
 //@[25:29)   BooleanLiteralSyntax
 //@[25:29)    TrueKeyword |true|
 //@[29:30)   RightSquare |]|
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 var badIndexOverObj2 = {}[0]
-//@[0:29) VariableDeclarationSyntax
+//@[0:28) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |badIndexOverObj2|
@@ -931,9 +920,9 @@ var badIndexOverObj2 = {}[0]
 //@[26:27)   NumericLiteralSyntax
 //@[26:27)    Number |0|
 //@[27:28)   RightSquare |]|
-//@[28:29)  NewLine |\n|
+//@[28:29) NewLine |\n|
 var badExpressionIndexer = {}[base64('a')]
-//@[0:44) VariableDeclarationSyntax
+//@[0:42) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |badExpressionIndexer|
@@ -952,13 +941,12 @@ var badExpressionIndexer = {}[base64('a')]
 //@[37:40)      StringComplete |'a'|
 //@[40:41)    RightParen |)|
 //@[41:42)   RightSquare |]|
-//@[42:44)  NewLine |\n\n|
+//@[42:44) NewLine |\n\n|
 
 // bad propertyAccess
-//@[21:22) NoOpDeclarationSyntax
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var dotAccessOnNonObject = true.foo
-//@[0:36) VariableDeclarationSyntax
+//@[0:35) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |dotAccessOnNonObject|
@@ -969,9 +957,9 @@ var dotAccessOnNonObject = true.foo
 //@[31:32)   Dot |.|
 //@[32:35)   IdentifierSyntax
 //@[32:35)    Identifier |foo|
-//@[35:36)  NewLine |\n|
+//@[35:36) NewLine |\n|
 var badExpressionInPropertyAccess = resourceGroup()[!'location']
-//@[0:66) VariableDeclarationSyntax
+//@[0:64) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:33)  IdentifierSyntax
 //@[4:33)   Identifier |badExpressionInPropertyAccess|
@@ -988,10 +976,10 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 //@[53:63)    StringSyntax
 //@[53:63)     StringComplete |'location'|
 //@[63:64)   RightSquare |]|
-//@[64:66)  NewLine |\n\n|
+//@[64:66) NewLine |\n\n|
 
 var propertyAccessOnVariable = x.foo
-//@[0:38) VariableDeclarationSyntax
+//@[0:36) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:28)  IdentifierSyntax
 //@[4:28)   Identifier |propertyAccessOnVariable|
@@ -1003,13 +991,12 @@ var propertyAccessOnVariable = x.foo
 //@[32:33)   Dot |.|
 //@[33:36)   IdentifierSyntax
 //@[33:36)    Identifier |foo|
-//@[36:38)  NewLine |\n\n|
+//@[36:38) NewLine |\n\n|
 
 // function used like a variable
-//@[32:33) NoOpDeclarationSyntax
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var funcvarvar = concat + base64 || !uniqueString
-//@[0:50) VariableDeclarationSyntax
+//@[0:49) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |funcvarvar|
@@ -1029,9 +1016,9 @@ var funcvarvar = concat + base64 || !uniqueString
 //@[37:49)    VariableAccessSyntax
 //@[37:49)     IdentifierSyntax
 //@[37:49)      Identifier |uniqueString|
-//@[49:50)  NewLine |\n|
+//@[49:50) NewLine |\n|
 param funcvarparam bool = concat
-//@[0:33) ParameterDeclarationSyntax
+//@[0:32) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |funcvarparam|
@@ -1042,9 +1029,9 @@ param funcvarparam bool = concat
 //@[26:32)   VariableAccessSyntax
 //@[26:32)    IdentifierSyntax
 //@[26:32)     Identifier |concat|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 output funcvarout array = padLeft
-//@[0:35) OutputDeclarationSyntax
+//@[0:33) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |funcvarout|
@@ -1054,13 +1041,12 @@ output funcvarout array = padLeft
 //@[26:33)  VariableAccessSyntax
 //@[26:33)   IdentifierSyntax
 //@[26:33)    Identifier |padLeft|
-//@[33:35)  NewLine |\n\n|
+//@[33:35) NewLine |\n\n|
 
 // non-existent function
-//@[24:25) NoOpDeclarationSyntax
-//@[24:25)  NewLine |\n|
+//@[24:25) NewLine |\n|
 var fakeFunc = red() + green() * orange()
-//@[0:42) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:12)  IdentifierSyntax
 //@[4:12)   Identifier |fakeFunc|
@@ -1084,9 +1070,9 @@ var fakeFunc = red() + green() * orange()
 //@[33:39)      Identifier |orange|
 //@[39:40)     LeftParen |(|
 //@[40:41)     RightParen |)|
-//@[41:42)  NewLine |\n|
+//@[41:42) NewLine |\n|
 param fakeFuncP string {
-//@[0:46) ParameterDeclarationSyntax
+//@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |fakeFuncP|
@@ -1108,13 +1094,12 @@ param fakeFuncP string {
 //@[17:18)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // non-existent variable
-//@[24:25) NoOpDeclarationSyntax
-//@[24:25)  NewLine |\n|
+//@[24:25) NewLine |\n|
 var fakeVar = concat(totallyFakeVar, 's')
-//@[0:43) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |fakeVar|
@@ -1132,13 +1117,12 @@ var fakeVar = concat(totallyFakeVar, 's')
 //@[37:40)    StringSyntax
 //@[37:40)     StringComplete |'s'|
 //@[40:41)   RightParen |)|
-//@[41:43)  NewLine |\n\n|
+//@[41:43) NewLine |\n\n|
 
 // bad functions arguments
-//@[26:27) NoOpDeclarationSyntax
-//@[26:27)  NewLine |\n|
+//@[26:27) NewLine |\n|
 var concatNotEnough = concat()
-//@[0:31) VariableDeclarationSyntax
+//@[0:30) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |concatNotEnough|
@@ -1148,9 +1132,9 @@ var concatNotEnough = concat()
 //@[22:28)    Identifier |concat|
 //@[28:29)   LeftParen |(|
 //@[29:30)   RightParen |)|
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 var padLeftNotEnough = padLeft('s')
-//@[0:36) VariableDeclarationSyntax
+//@[0:35) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |padLeftNotEnough|
@@ -1163,9 +1147,9 @@ var padLeftNotEnough = padLeft('s')
 //@[31:34)    StringSyntax
 //@[31:34)     StringComplete |'s'|
 //@[34:35)   RightParen |)|
-//@[35:36)  NewLine |\n|
+//@[35:36) NewLine |\n|
 var takeTooMany = take([
-//@[0:37) VariableDeclarationSyntax
+//@[0:35) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |takeTooMany|
@@ -1193,13 +1177,12 @@ var takeTooMany = take([
 //@[6:9)    StringSyntax
 //@[6:9)     StringComplete |'s'|
 //@[9:10)   RightParen |)|
-//@[10:12)  NewLine |\n\n|
+//@[10:12) NewLine |\n\n|
 
 // wrong argument types
-//@[23:24) NoOpDeclarationSyntax
-//@[23:24)  NewLine |\n|
+//@[23:24) NewLine |\n|
 var concatWrongTypes = concat({
-//@[0:35) VariableDeclarationSyntax
+//@[0:34) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |concatWrongTypes|
@@ -1215,9 +1198,9 @@ var concatWrongTypes = concat({
 })
 //@[0:1)     RightBrace |}|
 //@[1:2)   RightParen |)|
-//@[2:3)  NewLine |\n|
+//@[2:3) NewLine |\n|
 var concatWrongTypesContradiction = concat('s', [
-//@[0:53) VariableDeclarationSyntax
+//@[0:52) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:33)  IdentifierSyntax
 //@[4:33)   Identifier |concatWrongTypesContradiction|
@@ -1237,9 +1220,9 @@ var concatWrongTypesContradiction = concat('s', [
 ])
 //@[0:1)     RightSquare |]|
 //@[1:2)   RightParen |)|
-//@[2:3)  NewLine |\n|
+//@[2:3) NewLine |\n|
 var indexOfWrongTypes = indexOf(1,1)
-//@[0:38) VariableDeclarationSyntax
+//@[0:36) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:21)  IdentifierSyntax
 //@[4:21)   Identifier |indexOfWrongTypes|
@@ -1256,13 +1239,12 @@ var indexOfWrongTypes = indexOf(1,1)
 //@[34:35)    NumericLiteralSyntax
 //@[34:35)     Number |1|
 //@[35:36)   RightParen |)|
-//@[36:38)  NewLine |\n\n|
+//@[36:38) NewLine |\n\n|
 
 // not enough params
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var test1 = listKeys('abcd')
-//@[0:30) VariableDeclarationSyntax
+//@[0:28) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |test1|
@@ -1275,13 +1257,12 @@ var test1 = listKeys('abcd')
 //@[21:27)    StringSyntax
 //@[21:27)     StringComplete |'abcd'|
 //@[27:28)   RightParen |)|
-//@[28:30)  NewLine |\n\n|
+//@[28:30) NewLine |\n\n|
 
 // list spelled wrong 
-//@[22:23) NoOpDeclarationSyntax
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 var test2 = lsitKeys('abcd', '2020-01-01')
-//@[0:44) VariableDeclarationSyntax
+//@[0:42) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |test2|
@@ -1298,13 +1279,12 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 //@[29:41)    StringSyntax
 //@[29:41)     StringComplete |'2020-01-01'|
 //@[41:42)   RightParen |)|
-//@[42:44)  NewLine |\n\n|
+//@[42:44) NewLine |\n\n|
 
 // just 'list' 
-//@[15:16) NoOpDeclarationSyntax
-//@[15:16)  NewLine |\n|
+//@[15:16) NewLine |\n|
 var test3 = list('abcd', '2020-01-01')
-//@[0:40) VariableDeclarationSyntax
+//@[0:38) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |test3|
@@ -1321,13 +1301,12 @@ var test3 = list('abcd', '2020-01-01')
 //@[25:37)    StringSyntax
 //@[25:37)     StringComplete |'2020-01-01'|
 //@[37:38)   RightParen |)|
-//@[38:40)  NewLine |\n\n|
+//@[38:40) NewLine |\n\n|
 
 // cannot compile an expression like this
-//@[41:42) NoOpDeclarationSyntax
-//@[41:42)  NewLine |\n|
+//@[41:42) NewLine |\n|
 var emitLimit = [
-//@[0:317) VariableDeclarationSyntax
+//@[0:315) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:13)  IdentifierSyntax
 //@[4:13)   Identifier |emitLimit|
@@ -1522,13 +1501,12 @@ var emitLimit = [
 //@[3:4)    NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // cannot compile an expression like this
-//@[41:42) NoOpDeclarationSyntax
-//@[41:42)  NewLine |\n|
+//@[41:42) NewLine |\n|
 var emitLimit2 = {
-//@[0:117) VariableDeclarationSyntax
+//@[0:115) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |emitLimit2|
@@ -1601,10 +1579,10 @@ var emitLimit2 = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 var sampleObject = {
-//@[0:192) VariableDeclarationSyntax
+//@[0:190) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |sampleObject|
@@ -1712,10 +1690,10 @@ var sampleObject = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 var badProperty = sampleObject.myFake
-//@[0:38) VariableDeclarationSyntax
+//@[0:37) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |badProperty|
@@ -1727,9 +1705,9 @@ var badProperty = sampleObject.myFake
 //@[30:31)   Dot |.|
 //@[31:37)   IdentifierSyntax
 //@[31:37)    Identifier |myFake|
-//@[37:38)  NewLine |\n|
+//@[37:38) NewLine |\n|
 var badPropertyIndexer = sampleObject['fake']
-//@[0:46) VariableDeclarationSyntax
+//@[0:45) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |badPropertyIndexer|
@@ -1742,9 +1720,9 @@ var badPropertyIndexer = sampleObject['fake']
 //@[38:44)   StringSyntax
 //@[38:44)    StringComplete |'fake'|
 //@[44:45)   RightSquare |]|
-//@[45:46)  NewLine |\n|
+//@[45:46) NewLine |\n|
 var badType = sampleObject.myStr / 32
-//@[0:38) VariableDeclarationSyntax
+//@[0:37) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |badType|
@@ -1760,9 +1738,9 @@ var badType = sampleObject.myStr / 32
 //@[33:34)   Slash |/|
 //@[35:37)   NumericLiteralSyntax
 //@[35:37)    Number |32|
-//@[37:38)  NewLine |\n|
+//@[37:38) NewLine |\n|
 var badInnerProperty = sampleObject.myInner.fake
-//@[0:49) VariableDeclarationSyntax
+//@[0:48) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |badInnerProperty|
@@ -1778,9 +1756,9 @@ var badInnerProperty = sampleObject.myInner.fake
 //@[43:44)   Dot |.|
 //@[44:48)   IdentifierSyntax
 //@[44:48)    Identifier |fake|
-//@[48:49)  NewLine |\n|
+//@[48:49) NewLine |\n|
 var badInnerType = sampleObject.myInner.anotherStr + 2
-//@[0:55) VariableDeclarationSyntax
+//@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |badInnerType|
@@ -1800,9 +1778,9 @@ var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[51:52)   Plus |+|
 //@[53:54)   NumericLiteralSyntax
 //@[53:54)    Number |2|
-//@[54:55)  NewLine |\n|
+//@[54:55) NewLine |\n|
 var badArrayIndexer = sampleObject.myArr['s']
-//@[0:46) VariableDeclarationSyntax
+//@[0:45) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |badArrayIndexer|
@@ -1819,9 +1797,9 @@ var badArrayIndexer = sampleObject.myArr['s']
 //@[41:44)   StringSyntax
 //@[41:44)    StringComplete |'s'|
 //@[44:45)   RightSquare |]|
-//@[45:46)  NewLine |\n|
+//@[45:46) NewLine |\n|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
-//@[0:62) VariableDeclarationSyntax
+//@[0:61) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |badInnerArrayIndexer|
@@ -1842,9 +1820,9 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[57:60)   StringSyntax
 //@[57:60)    StringComplete |'s'|
 //@[60:61)   RightSquare |]|
-//@[61:62)  NewLine |\n|
+//@[61:62) NewLine |\n|
 var badIndexer = sampleObject.myStr['s']
-//@[0:41) VariableDeclarationSyntax
+//@[0:40) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |badIndexer|
@@ -1861,9 +1839,9 @@ var badIndexer = sampleObject.myStr['s']
 //@[36:39)   StringSyntax
 //@[36:39)    StringComplete |'s'|
 //@[39:40)   RightSquare |]|
-//@[40:41)  NewLine |\n|
+//@[40:41) NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[0:54) VariableDeclarationSyntax
+//@[0:53) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |badInnerArray|
@@ -1884,9 +1862,9 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[49:52)   StringSyntax
 //@[49:52)    StringComplete |'s'|
 //@[52:53)   RightSquare |]|
-//@[53:54)  NewLine |\n|
+//@[53:54) NewLine |\n|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[0:66) VariableDeclarationSyntax
+//@[0:65) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:47)  IdentifierSyntax
 //@[4:47)   Identifier |invalidPropertyCallOnInstanceFunctionAccess|
@@ -1912,9 +1890,9 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[61:62)   Dot |.|
 //@[62:65)   IdentifierSyntax
 //@[62:65)    Identifier |baz|
-//@[65:66)  NewLine |\n|
+//@[65:66) NewLine |\n|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[0:48) VariableDeclarationSyntax
+//@[0:47) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:33)  IdentifierSyntax
 //@[4:33)   Identifier |invalidInstanceFunctionAccess|
@@ -1936,6 +1914,6 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[42:45)    Identifier |bar|
 //@[45:46)   LeftParen |(|
 //@[46:47)   RightParen |)|
-//@[47:48)  NewLine |\n|
+//@[47:48) NewLine |\n|
 
 //@[0:0) EndOfFile ||

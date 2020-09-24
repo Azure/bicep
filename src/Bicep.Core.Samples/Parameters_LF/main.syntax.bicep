@@ -1,42 +1,39 @@
 /* 
   This is a block comment.
 */
-//@[2:4) NoOpDeclarationSyntax
-//@[2:4)  NewLine |\n\n|
+//@[2:4) NewLine |\n\n|
 
 // parameters without default value
-//@[35:36) NoOpDeclarationSyntax
-//@[35:36)  NewLine |\n|
+//@[35:36) NewLine |\n|
 param myString string
-//@[0:22) ParameterDeclarationSyntax
+//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |myString|
 //@[15:21)  TypeSyntax
 //@[15:21)   Identifier |string|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 param myInt int
-//@[0:16) ParameterDeclarationSyntax
+//@[0:15) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:11)  IdentifierSyntax
 //@[6:11)   Identifier |myInt|
 //@[12:15)  TypeSyntax
 //@[12:15)   Identifier |int|
-//@[15:16)  NewLine |\n|
+//@[15:16) NewLine |\n|
 param myBool bool
-//@[0:19) ParameterDeclarationSyntax
+//@[0:17) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myBool|
 //@[13:17)  TypeSyntax
 //@[13:17)   Identifier |bool|
-//@[17:19)  NewLine |\n\n|
+//@[17:19) NewLine |\n\n|
 
 // parameters with default value
-//@[32:33) NoOpDeclarationSyntax
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 param myString2 string = 'strin${2}g value'
-//@[0:44) ParameterDeclarationSyntax
+//@[0:43) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myString2|
@@ -49,9 +46,9 @@ param myString2 string = 'strin${2}g value'
 //@[33:34)    NumericLiteralSyntax
 //@[33:34)     Number |2|
 //@[34:43)    StringRightPiece |}g value'|
-//@[43:44)  NewLine |\n|
+//@[43:44) NewLine |\n|
 param myInt2 int = 42
-//@[0:22) ParameterDeclarationSyntax
+//@[0:21) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myInt2|
@@ -61,9 +58,9 @@ param myInt2 int = 42
 //@[17:18)   Assignment |=|
 //@[19:21)   NumericLiteralSyntax
 //@[19:21)    Number |42|
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 param myTruth bool = true
-//@[0:26) ParameterDeclarationSyntax
+//@[0:25) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:13)  IdentifierSyntax
 //@[6:13)   Identifier |myTruth|
@@ -73,9 +70,9 @@ param myTruth bool = true
 //@[19:20)   Assignment |=|
 //@[21:25)   BooleanLiteralSyntax
 //@[21:25)    TrueKeyword |true|
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 param myFalsehood bool = false
-//@[0:31) ParameterDeclarationSyntax
+//@[0:30) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |myFalsehood|
@@ -85,9 +82,9 @@ param myFalsehood bool = false
 //@[23:24)   Assignment |=|
 //@[25:30)   BooleanLiteralSyntax
 //@[25:30)    FalseKeyword |false|
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 param myEscapedString string = 'First line\nSecond\ttabbed\tline'
-//@[0:66) ParameterDeclarationSyntax
+//@[0:65) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |myEscapedString|
@@ -97,9 +94,9 @@ param myEscapedString string = 'First line\nSecond\ttabbed\tline'
 //@[29:30)   Assignment |=|
 //@[31:65)   StringSyntax
 //@[31:65)    StringComplete |'First line\nSecond\ttabbed\tline'|
-//@[65:66)  NewLine |\n|
+//@[65:66) NewLine |\n|
 param myNewGuid string = newGuid()
-//@[0:35) ParameterDeclarationSyntax
+//@[0:34) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myNewGuid|
@@ -112,9 +109,9 @@ param myNewGuid string = newGuid()
 //@[25:32)     Identifier |newGuid|
 //@[32:33)    LeftParen |(|
 //@[33:34)    RightParen |)|
-//@[34:35)  NewLine |\n|
+//@[34:35) NewLine |\n|
 param myUtcTime string = utcNow()
-//@[0:35) ParameterDeclarationSyntax
+//@[0:33) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myUtcTime|
@@ -127,13 +124,12 @@ param myUtcTime string = utcNow()
 //@[25:31)     Identifier |utcNow|
 //@[31:32)    LeftParen |(|
 //@[32:33)    RightParen |)|
-//@[33:35)  NewLine |\n\n|
+//@[33:35) NewLine |\n\n|
 
 // object default value
-//@[23:24) NoOpDeclarationSyntax
-//@[23:24)  NewLine |\n|
+//@[23:24) NewLine |\n|
 param foo object = {
-//@[0:290) ParameterDeclarationSyntax
+//@[0:288) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:9)  IdentifierSyntax
 //@[6:9)   Identifier |foo|
@@ -296,13 +292,12 @@ param foo object = {
 //@[3:4)     NewLine |\n|
 }
 //@[0:1)    RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // array default value
-//@[22:23) NoOpDeclarationSyntax
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 param myArrayParam array = [
-//@[0:50) ParameterDeclarationSyntax
+//@[0:48) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |myArrayParam|
@@ -330,13 +325,12 @@ param myArrayParam array = [
 //@[5:6)     NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // alternative array parameter
-//@[30:31) NoOpDeclarationSyntax
-//@[30:31)  NewLine |\n|
+//@[30:31) NewLine |\n|
 param myAlternativeArrayParam array {
-//@[0:109) ParameterDeclarationSyntax
+//@[0:107) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |myAlternativeArrayParam|
@@ -389,13 +383,12 @@ param myAlternativeArrayParam array {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // secure string
-//@[16:17) NoOpDeclarationSyntax
-//@[16:17)  NewLine |\n|
+//@[16:17) NewLine |\n|
 param password string {
-//@[0:42) ParameterDeclarationSyntax
+//@[0:40) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |password|
@@ -414,13 +407,12 @@ param password string {
 //@[14:15)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // non-secure string
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 param nonSecure string {
-//@[0:44) ParameterDeclarationSyntax
+//@[0:42) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |nonSecure|
@@ -439,13 +431,12 @@ param nonSecure string {
 //@[15:16)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // secure object
-//@[16:17) NoOpDeclarationSyntax
-//@[16:17)  NewLine |\n|
+//@[16:17) NewLine |\n|
 param secretObject object {
-//@[0:46) ParameterDeclarationSyntax
+//@[0:44) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |secretObject|
@@ -464,13 +455,12 @@ param secretObject object {
 //@[14:15)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // enum parameter
-//@[17:18) NoOpDeclarationSyntax
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 param storageSku string {
-//@[0:84) ParameterDeclarationSyntax
+//@[0:82) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |storageSku|
@@ -502,13 +492,12 @@ param storageSku string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // length constraint on a string
-//@[32:33) NoOpDeclarationSyntax
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 param storageName string {
-//@[0:61) ParameterDeclarationSyntax
+//@[0:59) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |storageName|
@@ -535,13 +524,12 @@ param storageName string {
 //@[15:16)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // length constraint on an array
-//@[32:33) NoOpDeclarationSyntax
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 param someArray array {
-//@[0:58) ParameterDeclarationSyntax
+//@[0:56) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |someArray|
@@ -568,13 +556,12 @@ param someArray array {
 //@[15:16)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // empty metadata
-//@[17:18) NoOpDeclarationSyntax
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 param emptyMetadata string {
-//@[0:50) ParameterDeclarationSyntax
+//@[0:48) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |emptyMetadata|
@@ -596,13 +583,12 @@ param emptyMetadata string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // description
-//@[14:15) NoOpDeclarationSyntax
-//@[14:15)  NewLine |\n|
+//@[14:15) NewLine |\n|
 param description string {
-//@[0:82) ParameterDeclarationSyntax
+//@[0:80) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |description|
@@ -632,13 +618,12 @@ param description string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // random extra metadata
-//@[24:25) NoOpDeclarationSyntax
-//@[24:25)  NewLine |\n|
+//@[24:25) NewLine |\n|
 param additionalMetadata string {
-//@[0:158) ParameterDeclarationSyntax
+//@[0:156) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |additionalMetadata|
@@ -714,13 +699,12 @@ param additionalMetadata string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // all modifiers together
-//@[25:26) NoOpDeclarationSyntax
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 param someParameter string {
-//@[0:209) ParameterDeclarationSyntax
+//@[0:207) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |someParameter|
@@ -808,10 +792,10 @@ param someParameter string {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param defaultValueExpression int {
-//@[0:68) ParameterDeclarationSyntax
+//@[0:66) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |defaultValueExpression|
@@ -845,10 +829,10 @@ param defaultValueExpression int {
 //@[29:30)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 param defaultExpression bool = 18 != (true || false)
-//@[0:53) ParameterDeclarationSyntax
+//@[0:52) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |defaultExpression|
@@ -869,6 +853,6 @@ param defaultExpression bool = 18 != (true || false)
 //@[46:51)      BooleanLiteralSyntax
 //@[46:51)       FalseKeyword |false|
 //@[51:52)     RightParen |)|
-//@[52:53)  NewLine |\n|
+//@[52:53) NewLine |\n|
 
 //@[0:0) EndOfFile ||

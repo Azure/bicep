@@ -6,10 +6,11 @@ namespace Bicep.Core.TypeSystem
     {
         public ArrayType(string name) : base(name)
         {
+            Item = LanguageConstants.Any;
         }
 
         public override TypeKind TypeKind => TypeKind.Primitive;
 
-        public virtual TypeSymbol ItemType => LanguageConstants.Any;
+        public virtual ITypeReference Item { get; }
     }
 }

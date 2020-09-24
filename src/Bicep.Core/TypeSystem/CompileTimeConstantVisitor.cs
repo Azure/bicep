@@ -12,11 +12,11 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public sealed class CompileTimeConstantVisitor : SyntaxVisitor
     {
-        private readonly IList<ErrorDiagnostic> errors;
+        private readonly IList<Diagnostic> diagnostics;
 
-        public CompileTimeConstantVisitor(IList<ErrorDiagnostic> errors)
+        public CompileTimeConstantVisitor(IList<Diagnostic> diagnostics)
         {
-            this.errors = errors;
+            this.diagnostics = diagnostics;
         }
 
         /*
@@ -68,7 +68,7 @@ namespace Bicep.Core.TypeSystem
 
         private void AppendError(SyntaxBase syntax)
         {
-            this.errors.Add(DiagnosticBuilder.ForPosition(syntax).CompileTimeConstantRequired());
+            this.diagnostics.Add(DiagnosticBuilder.ForPosition(syntax).CompileTimeConstantRequired());
         }
     }
 }

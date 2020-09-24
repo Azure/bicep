@@ -705,6 +705,82 @@ param paramAccessingOutput2 string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+param stringLiteral string {
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |stringLiteral|
+//@[20:26) Identifier |string|
+//@[27:28) LeftBrace |{|
+//@[28:29) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+    'def'
+//@[4:9) StringComplete |'def'|
+//@[9:10) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param stringLiteral2 string {
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |stringLiteral2|
+//@[21:27) Identifier |string|
+//@[28:29) LeftBrace |{|
+//@[29:30) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+    'abc'
+//@[4:9) StringComplete |'abc'|
+//@[9:10) NewLine |\n|
+    'def'
+//@[4:9) StringComplete |'def'|
+//@[9:10) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+  default: stringLiteral
+//@[2:9) Identifier |default|
+//@[9:10) Colon |:|
+//@[11:24) Identifier |stringLiteral|
+//@[24:25) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param stringLiteral3 string {
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |stringLiteral3|
+//@[21:27) Identifier |string|
+//@[28:29) LeftBrace |{|
+//@[29:30) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+    'abc'
+//@[4:9) StringComplete |'abc'|
+//@[9:10) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+  default: stringLiteral2
+//@[2:9) Identifier |default|
+//@[9:10) Colon |:|
+//@[11:25) Identifier |stringLiteral2|
+//@[25:26) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    

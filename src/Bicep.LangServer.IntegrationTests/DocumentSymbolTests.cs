@@ -49,17 +49,17 @@ resource myRes 'myRp/provider@2019-01-01' = {
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myParam");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Field);
-                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (2, 0));
+                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (1, 29));
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myRes");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Object);
-                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (5, 0));
+                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (4, 3));
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myOutput");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Interface);
-                    x.DocumentSymbol.Range.Should().HaveRange((5, 2), (6, 0));
+                    x.DocumentSymbol.Range.Should().HaveRange((5, 2), (5, 37));
                 }
             );
 
@@ -84,12 +84,12 @@ resource myRenamedRes 'myRp/provider@2019-01-01' = {
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myParam");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Field);
-                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (2, 0));
+                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (1, 29));
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myRenamedRes");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Object);
-                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (5, 0));
+                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (4, 3));
                 }
             );
         }

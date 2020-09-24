@@ -7,8 +7,8 @@ namespace Bicep.Core.TypeSystem
 {
     public class ResourceType : NamedObjectType
     {
-        public ResourceType(string name, IEnumerable<TypeProperty> properties, TypeSymbol? additionalPropertiesType, ResourceTypeReference typeReference)
-            : base(name, properties, additionalPropertiesType)
+        public ResourceType(ResourceTypeReference typeReference, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType = null)
+            : base(typeReference.FormatName(), properties, additionalPropertiesType)
         {
             TypeReference = typeReference;
         }

@@ -35,24 +35,6 @@ namespace Bicep.Core.SemanticModel
                 yield return this.Type;
             }
         }
-
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
-        {
-            TypeSymbol valueType = this.Context.TypeManager.GetTypeInfo(this.Value);
-
-            // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
-            if (valueType is ErrorTypeSymbol)
-            {
-                return valueType.GetDiagnostics();
-            }
-
-            if (TypeValidator.AreTypesAssignable(valueType, this.Type) == false)
-            {
-                return this.CreateError(this.Value, b => b.OutputTypeMismatch(this.Type.Name, valueType.Name)).AsEnumerable();
-            }
-
-            return Enumerable.Empty<ErrorDiagnostic>();
-        }
     }
 }
 

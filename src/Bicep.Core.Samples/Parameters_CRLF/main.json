@@ -140,6 +140,22 @@
     "defaultExpression": {
       "type": "bool",
       "defaultValue": "[not(equals(18, or(json('true'), json('false'))))]"
+    },
+    "stringLiteral": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def"
+      ]
+    },
+    "stringLiteralWithAllowedValuesSuperset": {
+      "type": "string",
+      "defaultValue": "[parameters('stringLiteral')]",
+      "allowedValues": [
+        "abc",
+        "def",
+        "ghi"
+      ]
     }
   },
   "functions": [],

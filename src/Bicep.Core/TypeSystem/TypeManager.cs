@@ -16,14 +16,14 @@ namespace Bicep.Core.TypeSystem
         // stores results of type checks
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
 
-        public TypeManager(IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeManager(ResourceTypeRegistrar resourceTypeRegistrar, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.bindings = bindings; 
             this.cyclesBySyntax = cyclesBySyntax;
-            this.typeAssignmentVisitor = new TypeAssignmentVisitor(bindings, cyclesBySyntax);
+            this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeRegistrar, bindings, cyclesBySyntax);
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
