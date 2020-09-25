@@ -27,6 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Completions\declarations.json" />
+    <None Remove="Variables_LF\completions.declarations.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Completions\declarations.json" />
+    <EmbeddedResource Include="Variables_LF\Completions\symbolsPlusTypes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />

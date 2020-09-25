@@ -86,6 +86,9 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[39:42) StringRightPiece |}}'|
 //@[42:44) NewLine |\n\n|
 
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
+
 // verify correct bracket escaping
 //@[34:35) NewLine |\n|
 var bracketInTheMiddle = 'a[b]'
@@ -94,6 +97,8 @@ var bracketInTheMiddle = 'a[b]'
 //@[23:24) Assignment |=|
 //@[25:31) StringComplete |'a[b]'|
 //@[31:32) NewLine |\n|
+// #completionTest(25) -> symbolsPlusTypes
+//@[42:43) NewLine |\n|
 var bracketAtBeginning = '[test'
 //@[0:3) Identifier |var|
 //@[4:22) Identifier |bracketAtBeginning|
@@ -628,6 +633,9 @@ var previousEmitLimit = [
 ]
 //@[0:1) RightSquare |]|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
 
 var myVar = 'hello'
 //@[0:3) Identifier |var|
