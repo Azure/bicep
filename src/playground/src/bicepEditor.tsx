@@ -1,5 +1,4 @@
-import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
-
+import * as monacoEditor from 'monaco-editor';
 import React, { useRef, useState } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import { compileAndEmitDiagnostics, getSemanticTokens, getSemanticTokensLegend } from './lspInterop';
@@ -67,7 +66,8 @@ function configureEditorForBicep(editor: monacoEditor.editor.IStandaloneCodeEdit
 }
 
 export const BicepEditor : React.FC<Props> = (props) => {
-  const options = {
+  const options: monacoEditor.editor.IStandaloneEditorConstructionOptions = {
+    scrollBeyondLastLine: false,
     automaticLayout: true,
     minimap: {
       enabled: false,

@@ -20,7 +20,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
-resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
+resource dScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'scriptWithStorage'
   location: location
   kind: 'AzureCLI'
