@@ -82,13 +82,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type {\r\n  default: \r\n  allowed: [\r\n    \r\n  ]\r\n}\n```"
+        "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "param ${1:Identifier} ${2:Type} {\r\n  default: $3\r\n  allowed: [\r\n    $4\r\n  ]\r\n}",
+    "insertText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}",
     "insertTextFormat": "snippet"
   },
   {
@@ -99,13 +99,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type {\r\n  \r\n}\n```"
+        "value": "```bicep\nparam Identifier Type {\n  \n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "param ${1:Identifier} ${2:Type} {\r\n  $0\r\n}",
+    "insertText": "param ${1:Identifier} ${2:Type} {\n  $0\n}",
     "insertTextFormat": "snippet"
   },
   {
@@ -116,13 +116,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nparam Identifier string {\r\n  secure: true\r\n}\n```"
+        "value": "```bicep\nparam Identifier string {\n  secure: true\n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "param ${1:Identifier} string {\r\n  secure: true\r\n}",
+    "insertText": "param ${1:Identifier} string {\n  secure: true\n}",
     "insertTextFormat": "snippet"
   },
   {
@@ -145,13 +145,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\r\n  name: \r\n  location: \r\n  properties: {\r\n    \r\n  }\r\n}\n```"
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\r\n  name: $5\r\n  location: $6\r\n  properties: {\r\n    $0\r\n  }\r\n}",
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}",
     "insertTextFormat": "snippet"
   },
   {
@@ -162,13 +162,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\r\n  name: \r\n  properties: {\r\n    \r\n  }\r\n}\n```"
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\r\n  name: $6\r\n  properties: {\r\n    $0\r\n  }\r\n}",
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}",
     "insertTextFormat": "snippet"
   },
   {
@@ -179,13 +179,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\r\n  name: \r\n  \r\n}\r\n\n```"
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\r\n  name: $5\r\n  $0\r\n}\r\n",
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n",
     "insertTextFormat": "snippet"
   },
   {
@@ -196,13 +196,13 @@
       "hasString": false,
       "markupContent": {
         "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\r\n  name: \r\n  \r\n}\n```"
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
       },
       "hasMarkupContent": true
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\r\n  name: $6\r\n  $0\r\n}",
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}",
     "insertTextFormat": "snippet"
   },
   {

@@ -130,11 +130,26 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static async Task<JToken> GetActualCompletions(ILanguageClient client, DocumentUri uri, Position position)
         {
+            // local function
+            string NormalizeLineEndings(string value) => value.Replace("\r", string.Empty);
+
             var completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = new TextDocumentIdentifier(uri),
                 Position = position
             });
+
+            // normalize line endings so assertions match on all OSs
+            foreach (var completion in completions)
+            {
+                completion.InsertText = NormalizeLineEndings(completion.InsertText);
+                completion.Detail = NormalizeLineEndings(completion.Detail);
+
+                if (completion.Documentation?.MarkupContent?.Value != null)
+                {
+                    completion.Documentation.MarkupContent.Value = NormalizeLineEndings(completion.Documentation.MarkupContent.Value);
+                }
+            }
 
             return JToken.FromObject(completions.OrderBy(c => c.Label), DataSetSerialization.CreateSerializer());
         }
