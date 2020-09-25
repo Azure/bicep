@@ -1,0 +1,237 @@
+[
+  {
+    "label": "output",
+    "kind": "keyword",
+    "detail": "Output keyword",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "output",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "output",
+    "kind": "snippet",
+    "detail": "Output declaration",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\noutput Identifier Type = \n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "output ${1:Identifier} ${2:Type} = $0",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "param",
+    "kind": "keyword",
+    "detail": "Parameter keyword",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "param",
+    "kind": "snippet",
+    "detail": "Parameter declaration",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nparam Identifier Type\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param ${1:Identifier} ${2:Type}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "param",
+    "kind": "snippet",
+    "detail": "Parameter declaration with default value",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nparam Identifier Type = DefaultValue\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "param",
+    "kind": "snippet",
+    "detail": "Parameter declaration with default and allowed values",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "param",
+    "kind": "snippet",
+    "detail": "Parameter declaration with options",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nparam Identifier Type {\n  \n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param ${1:Identifier} ${2:Type} {\n  $0\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "param",
+    "kind": "snippet",
+    "detail": "Secure string parameter",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nparam Identifier string {\n  secure: true\n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "param ${1:Identifier} string {\n  secure: true\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "resource",
+    "kind": "keyword",
+    "detail": "Resource keyword",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resource",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Resource with defaults",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Child Resource with defaults",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Resource without defaults",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "resource",
+    "kind": "snippet",
+    "detail": "Child Resource without defaults",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "var",
+    "kind": "keyword",
+    "detail": "Variable keyword",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "var",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "var",
+    "kind": "snippet",
+    "detail": "Variable declaration",
+    "documentation": {
+      "hasString": false,
+      "markupContent": {
+        "kind": "markdown",
+        "value": "```bicep\nvar Identifier = \n```"
+      },
+      "hasMarkupContent": true
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "var ${1:Identifier} = $0",
+    "insertTextFormat": "snippet"
+  }
+]

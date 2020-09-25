@@ -21,9 +21,12 @@ var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 //@[4:19) Variable curliesInInterp. Type: string. Declaration start char: 0, length: 42
 
+// #completionTest(0) -> declarations
+
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
 //@[4:22) Variable bracketInTheMiddle. Type: 'a[b]'. Declaration start char: 0, length: 31
+// #completionTest(25) -> symbolsPlusTypes
 var bracketAtBeginning = '[test'
 //@[4:22) Variable bracketAtBeginning. Type: '[test'. Declaration start char: 0, length: 32
 var enclosingBrackets = '[test]'
@@ -158,6 +161,8 @@ var previousEmitLimit = [
     }
   }
 ]
+
+// #completionTest(0) -> declarations
 
 var myVar = 'hello'
 //@[4:9) Variable myVar. Type: 'hello'. Declaration start char: 0, length: 19

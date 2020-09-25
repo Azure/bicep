@@ -7,8 +7,8 @@ bad
 //@[0:3)  Identifier |bad|
 //@[3:5) NewLine |\n\n|
 
-// incomplete variable declaration
-//@[34:35) NewLine |\n|
+// incomplete variable declaration #completionTest(0,1,2) -> declarations
+//@[73:74) NewLine |\n|
 var
 //@[0:3) SkippedTriviaSyntax
 //@[0:3)  Identifier |var|

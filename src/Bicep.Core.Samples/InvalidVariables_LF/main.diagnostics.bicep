@@ -3,7 +3,7 @@
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
 
-// incomplete variable declaration
+// incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 //@[3:3) [BCP015 (Error)] Expected a variable identifier at this location. ||
 

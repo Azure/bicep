@@ -2,7 +2,7 @@
 // unknown declaration
 bad
 
-// incomplete variable declaration
+// incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 
 // unassigned variable
