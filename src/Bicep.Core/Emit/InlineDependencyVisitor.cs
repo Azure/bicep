@@ -122,14 +122,9 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(variableAccessSyntax))
             {
                 case ResourceSymbol resourceSymbol:
-                    if (!(resourceSymbol.Type is ResourceType resourceType))
+                    if (!(resourceSymbol.Type is ResourceType resourceType && resourceType.Body is ObjectType bodyObjectType))
                     {
-                        // Type could be an ErrorType here
-                        return;
-                    }
-
-                    if (!(resourceType.Body is ObjectType bodyObjectType))
-                    {
+                        // Resource or body could be an ErrorType here. We only want to attempt property access on an object body.
                         return;
                     }
 

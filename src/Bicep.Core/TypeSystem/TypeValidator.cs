@@ -57,6 +57,7 @@ namespace Bicep.Core.TypeSystem
                     return sourceType.TypeKind == TypeKind.Resource;
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
+                    // When assigning a resource, we're really assigning the value of the resource body.
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
 
                 case StringLiteralType _ when sourceType is StringLiteralType:
@@ -131,6 +132,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (targetType is ResourceType targetResourceType)
             {
+                // When assigning a resource, we're really assigning the value of the resource body.
                 GetExpressionAssignmentDiagnosticsInternal(typeManager, expression, targetResourceType.Body.Type, diagnostics, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
                 return;
             }

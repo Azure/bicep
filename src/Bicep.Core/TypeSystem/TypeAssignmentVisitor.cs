@@ -456,7 +456,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (baseType is ResourceType resourceType)
                 {
-                    // use the resource body for property access
+                    // We're accessing a property on the resource body.
                     baseType = resourceType.Body.Type;
                 }
 
