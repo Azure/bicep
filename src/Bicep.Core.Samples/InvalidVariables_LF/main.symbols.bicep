@@ -60,3 +60,9 @@ var testDupe = {
   'duplicate': true
   duplicate: true
 }
+
+// interpolation with type errors in key
+var objWithInterp = {
+//@[4:17) Variable objWithInterp. Type: error. Declaration start char: 0, length: 62
+  'ab${nonExistentIdentifier}cd': true
+}

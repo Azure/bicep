@@ -76,6 +76,13 @@ var myObj = {
   }
 }
 
+var objWithInterp = {
+//@[4:17) Variable objWithInterp. Type: object. Declaration start char: 0, length: 116
+  '${myStr}': 1
+  'abc${myStr}def': 2
+  '${interp1}abc${interp2}': '${interp1}abc${interp2}'
+}
+
 // array
 var myArr = [
 //@[4:9) Variable myArr. Type: array. Declaration start char: 0, length: 43

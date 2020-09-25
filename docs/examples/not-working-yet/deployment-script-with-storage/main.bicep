@@ -27,9 +27,7 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      // todo - add expression once properties can be set as strings
-      replaceWithId: {
-      }
+      '${uamiId}': { }
     }
   }
   properties: {

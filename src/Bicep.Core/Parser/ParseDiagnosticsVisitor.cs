@@ -54,7 +54,8 @@ namespace Bicep.Core.Parser
             base.VisitObjectSyntax(syntax);
 
             var duplicatedProperties = syntax.Properties
-                .GroupBy(propertySyntax => propertySyntax.GetKeyText())
+                .Where(prop => prop.HasKnownKey())
+                .GroupBy(prop => prop.GetKeyText())
                 .Where(group => group.Count() > 1);
 
             foreach (IGrouping<string, ObjectPropertySyntax> group in duplicatedProperties)

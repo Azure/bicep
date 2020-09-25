@@ -718,4 +718,60 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[34:36)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var interpVal = 'abc'
+//@[0:21) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |interpVal|
+//@[14:15)  Assignment |=|
+//@[16:21)  StringSyntax
+//@[16:21)   StringComplete |'abc'|
+//@[21:23) NewLine |\r\n|
+resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[0:205) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |badInterp|
+//@[19:56)  StringSyntax
+//@[19:56)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[57:58)  Assignment |=|
+//@[59:205)  ObjectSyntax
+//@[59:60)   LeftBrace |{|
+//@[60:62)   NewLine |\r\n|
+  name: 'test'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)    NewLine |\r\n|
+  '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
+//@[2:96)   ObjectPropertySyntax
+//@[2:16)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:14)     VariableAccessSyntax
+//@[5:14)      IdentifierSyntax
+//@[5:14)       Identifier |interpVal|
+//@[14:16)     StringRightPiece |}'|
+//@[16:17)    Colon |:|
+//@[18:31)    StringSyntax
+//@[18:31)     StringComplete |'unsupported'|
+//@[94:96)    NewLine |\r\n|
+  '${undefinedSymbol}': true
+//@[2:30)   ObjectPropertySyntax
+//@[2:22)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:20)     VariableAccessSyntax
+//@[5:20)      IdentifierSyntax
+//@[5:20)       Identifier |undefinedSymbol|
+//@[20:22)     StringRightPiece |}'|
+//@[22:23)    Colon |:|
+//@[24:28)    BooleanLiteralSyntax
+//@[24:28)     TrueKeyword |true|
+//@[28:30)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

@@ -214,18 +214,44 @@ namespace Bicep.Core.TypeSystem
 
                 // type results are cached
                 var properties = syntax.Properties
+                    .Where(p => p.HasKnownKey())
                     .GroupBy(p => p.GetKeyText(), LanguageConstants.IdentifierComparer)
                     .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => assignedTypes[p]))));
 
+                TypeSymbol? additionalPropertiesType = null;
+                if (syntax.Properties.Any(p => !p.HasKnownKey()))
+                {
+                    var additionalProperties = syntax.Properties
+                        .Where(p => !p.HasKnownKey())
+                        .Select(p => assignedTypes[p]);
+
+                    additionalPropertiesType = UnionType.Create(additionalProperties);
+                }
+
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
+                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             => AssignTypeWithCaching(syntax, () => {
-                Visit(syntax.Value);
+                var errors = new List<ErrorDiagnostic>();
 
-                return assignedTypes[syntax.Value];
+                if (syntax.Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated())
+                {
+                    // if the key is an interpolated string, we need to check the expressions referenced by it 
+                    var keyType = VisitAndReturnType(syntax.Key);
+                    CollectErrors(errors, keyType);
+                }
+
+                var valueType = VisitAndReturnType(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (errors.Any())
+                {
+                    return new ErrorTypeSymbol(errors);
+                }
+
+                return valueType;
             });
 
         public override void VisitArrayItemSyntax(ArrayItemSyntax syntax)

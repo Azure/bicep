@@ -50,3 +50,8 @@ var testDupe = {
   'duplicate': true
   duplicate: true
 }
+
+// interpolation with type errors in key
+var objWithInterp = {
+  'ab${nonExistentIdentifier}cd': true
+}

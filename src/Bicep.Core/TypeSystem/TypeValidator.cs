@@ -13,6 +13,8 @@ namespace Bicep.Core.TypeSystem
 {
     public static class TypeValidator
     {
+        public delegate Diagnostic TypeMismatchErrorFactory(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression);
+
         /// <summary>
         /// Gets the list of compile-time constant violations. An error is logged for every occurrence of an expression that is not entirely composed of literals.
         /// It may return inaccurate results for malformed trees.
@@ -111,7 +113,7 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic>? typeMismatchErrorFactory = null)
+        public static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, TypeMismatchErrorFactory? typeMismatchErrorFactory = null)
         {
             // generic error creator if a better one was not specified.
             typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
@@ -126,7 +128,7 @@ namespace Bicep.Core.TypeSystem
             SyntaxBase expression,
             TypeSymbol targetType,
             IList<Diagnostic> diagnostics,
-            Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic> typeMismatchErrorFactory,
+            TypeMismatchErrorFactory typeMismatchErrorFactory,
             bool skipConstantCheck,
             bool skipTypeErrors)
         {
@@ -206,9 +208,8 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            var propertyMap = expression.ToPropertyDictionary();
-
-            if (!propertyMap.TryGetValue(targetType.DiscriminatorKey, out var discriminatorProperty))
+            var discriminatorProperty = expression.Properties.FirstOrDefault(x => x.HasKnownKey() && LanguageConstants.IdentifierComparer.Equals(x.GetKeyText(), targetType.DiscriminatorKey));
+            if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
@@ -253,10 +254,12 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            var propertyMap = expression.ToPropertyDictionary();
+            var knownPropertyMap = expression.Properties
+                .Where(x => x.HasKnownKey())
+                .ToDictionary(x => x.GetKeyText(), LanguageConstants.IdentifierComparer);
 
             var missingRequiredProperties = targetType.Properties.Values
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && propertyMap.ContainsKey(p.Name) == false)
+                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !knownPropertyMap.ContainsKey(p.Name))
                 .Select(p => p.Name)
                 .OrderBy(p => p)
                 .ConcatString(LanguageConstants.ListSeparator);
@@ -267,7 +270,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var declaredProperty in targetType.Properties.Values)
             {
-                if (propertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
+                if (knownPropertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
                 {
                     bool skipConstantCheckForProperty = skipConstantCheck;
 
@@ -303,24 +306,33 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Select(p => p.GetKeyText())
-                .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
-                .Select(name => propertyMap[name]);
+                .Where(p => !p.HasKnownKey() || !targetType.Properties.ContainsKey(p.GetKeyText()));
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+                    .Where(p => !knownPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
-                    .Except(expression.Properties.Select(p => p.GetKeyText()), LanguageConstants.IdentifierComparer)
                     .OrderBy(x => x);
 
                 // extra properties are not allowed by the type
                 foreach (var extraProperty in extraProperties)
                 {
-                    var error = validUnspecifiedProperties.Any() ? 
-                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(extraProperty.GetKeyText(), targetType.Name, validUnspecifiedProperties) :
-                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name);
+                    ErrorDiagnostic error;
+                    if (extraProperty.HasKnownKey())
+                    {
+                        var keyName = extraProperty.GetKeyText();
+                        error = validUnspecifiedProperties.Any() ? 
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(keyName, targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(keyName, targetType.Name);
+                    }
+                    else
+                    {
+                        error = validUnspecifiedProperties.Any() ? 
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedUnknownKeyPropertyWithPermissibleProperties(targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedUnknownKeyProperty(targetType.Name);
+                    }
 
                     diagnostics.AddRange(error.AsEnumerable());
                 }
@@ -342,12 +354,22 @@ namespace Bicep.Core.TypeSystem
                         skipConstantCheckForProperty = true;
                     }
 
+                    TypeMismatchErrorFactory typeMismatchErrorFactory;
+                    if (extraProperty.HasKnownKey())
+                    {
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType);
+                    }
+                    else
+                    {
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType, actualType);
+                    }
+
                     GetExpressionAssignmentDiagnosticsInternal(
                         typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType.Type,
                         diagnostics,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
+                        typeMismatchErrorFactory,
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
                 }
