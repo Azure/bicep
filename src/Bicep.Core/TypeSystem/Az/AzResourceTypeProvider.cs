@@ -26,10 +26,13 @@ namespace Bicep.Core.TypeSystem.Az
 
             return (reference, () => new ResourceType(
                 reference,
-                GetCommonResourceProperties(reference).Concat(
-                    new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                    new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
-                )));
+                new NamedObjectType(
+                    reference.FormatName(),
+                        GetCommonResourceProperties(reference).Concat(
+                        new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                        new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
+                    ),
+                    null)));
         }
 
         public ResourceType GetType(ResourceTypeReference typeReference)
@@ -42,7 +45,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // TODO move default definition into types assembly
-            return new ResourceType(typeReference, LanguageConstants.CreateResourceProperties(typeReference));
+            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
         }
 
         public bool HasType(ResourceTypeReference typeReference)

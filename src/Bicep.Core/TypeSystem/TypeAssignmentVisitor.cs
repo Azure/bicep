@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem
 
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
 
-        private readonly IDictionary<SyntaxBase, TypeSymbol> assignedTypes;
+        private readonly IDictionary<SyntaxBase, ITypeReference> assignedTypes;
 
         public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.bindings = bindings; 
             this.cyclesBySyntax = cyclesBySyntax;
-            this.assignedTypes = new Dictionary<SyntaxBase, TypeSymbol>();
+            this.assignedTypes = new Dictionary<SyntaxBase, ITypeReference>();
         }
 
         public TypeSymbol GetTypeSymbol(SyntaxBase syntax) => VisitAndReturnType(syntax);
@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeSymbol> assignFunc)
+        private void AssignTypeWithCaching(SyntaxBase syntax, Func<ITypeReference> assignFunc)
         {
             if (assignedTypes.ContainsKey(syntax))
             {
@@ -85,7 +85,7 @@ namespace Bicep.Core.TypeSystem
                 return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).InvalidExpression());
             }
 
-            return typeSymbol;
+            return typeSymbol.Type;
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -454,6 +454,12 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
+                if (baseType is ResourceType resourceType)
+                {
+                    // We're accessing a property on the resource body.
+                    baseType = resourceType.Body.Type;
+                }
+
                 if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
                 {
                     // can only access properties of objects
@@ -520,13 +526,13 @@ namespace Bicep.Core.TypeSystem
                     case ResourceSymbol resource:
                         // resource bodies can participate in cycles
                         // need to explicitly force a type check on the body
-                        return VisitDeclaredSymbol(syntax, resource);
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, resource));
 
                     case ParameterSymbol parameter:
-                        return VisitDeclaredSymbol(syntax, parameter);
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, parameter));
 
                     case VariableSymbol variable:
-                        return VisitDeclaredSymbol(syntax, variable);
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
 
                     case OutputSymbol _:
                         return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
