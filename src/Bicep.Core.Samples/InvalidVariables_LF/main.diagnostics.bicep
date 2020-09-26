@@ -78,3 +78,9 @@ var testDupe = {
   duplicate: true
 //@[2:11) [BCP025 (Error)] The property 'duplicate' is declared multiple times in this object. Remove or rename the duplicate properties. |duplicate|
 }
+
+// interpolation with type errors in key
+var objWithInterp = {
+  'ab${nonExistentIdentifier}cd': true
+//@[7:28) [BCP057 (Error)] The name 'nonExistentIdentifier' does not exist in the current context. |nonExistentIdentifier|
+}

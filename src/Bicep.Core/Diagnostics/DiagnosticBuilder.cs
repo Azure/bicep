@@ -214,6 +214,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP038",
                 $"The property '{property}' is not allowed on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
 
+            public ErrorDiagnostic DisallowedInterpolatedKeyProperty(object type) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP039",
+                $"String interpolation is not supported for keys on objects of type {type}.");
+
+            public ErrorDiagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP040",
+                $"String interpolation is not supported for keys on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
+
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -336,11 +346,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function '{functionName}' is not valid at this location. It can only be used in resource declarations.");
-
-            public ErrorDiagnostic StringInterpolationNotPermittedInObjectPropertyKey() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP067",
-                "String interpolation in not supported in object keys.");
 
             public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
                 TextSpan,

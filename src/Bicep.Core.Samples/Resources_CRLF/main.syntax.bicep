@@ -1438,4 +1438,87 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[3:5)    NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var myInterpKey = 'abc'
+//@[0:23) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |myInterpKey|
+//@[16:17)  Assignment |=|
+//@[18:23)  StringSyntax
+//@[18:23)   StringComplete |'abc'|
+//@[23:25) NewLine |\r\n|
+resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
+//@[0:202) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |resourceWithInterp|
+//@[28:53)  StringSyntax
+//@[28:53)   StringComplete |'My.Rp/interp@2020-01-01'|
+//@[54:55)  Assignment |=|
+//@[56:202)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'interpTest'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:20)    StringSyntax
+//@[8:20)     StringComplete |'interpTest'|
+//@[20:22)    NewLine |\r\n|
+  properties: {
+//@[2:120)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:118)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    '${myInterpKey}': 1
+//@[4:25)     ObjectPropertySyntax
+//@[4:20)      StringSyntax
+//@[4:7)       StringLeftPiece |'${|
+//@[7:18)       VariableAccessSyntax
+//@[7:18)        IdentifierSyntax
+//@[7:18)         Identifier |myInterpKey|
+//@[18:20)       StringRightPiece |}'|
+//@[20:21)      Colon |:|
+//@[22:23)      NumericLiteralSyntax
+//@[22:23)       Number |1|
+//@[23:25)      NewLine |\r\n|
+    'abc${myInterpKey}def': 2
+//@[4:31)     ObjectPropertySyntax
+//@[4:26)      StringSyntax
+//@[4:10)       StringLeftPiece |'abc${|
+//@[10:21)       VariableAccessSyntax
+//@[10:21)        IdentifierSyntax
+//@[10:21)         Identifier |myInterpKey|
+//@[21:26)       StringRightPiece |}def'|
+//@[26:27)      Colon |:|
+//@[28:29)      NumericLiteralSyntax
+//@[28:29)       Number |2|
+//@[29:31)      NewLine |\r\n|
+    '${myInterpKey}abc${myInterpKey}': 3
+//@[4:42)     ObjectPropertySyntax
+//@[4:37)      StringSyntax
+//@[4:7)       StringLeftPiece |'${|
+//@[7:18)       VariableAccessSyntax
+//@[7:18)        IdentifierSyntax
+//@[7:18)         Identifier |myInterpKey|
+//@[18:24)       StringMiddlePiece |}abc${|
+//@[24:35)       VariableAccessSyntax
+//@[24:35)        IdentifierSyntax
+//@[24:35)         Identifier |myInterpKey|
+//@[35:37)       StringRightPiece |}'|
+//@[37:38)      Colon |:|
+//@[39:40)      NumericLiteralSyntax
+//@[39:40)       Number |3|
+//@[40:42)      NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

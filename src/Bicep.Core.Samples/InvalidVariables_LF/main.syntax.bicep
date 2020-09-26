@@ -257,4 +257,31 @@ var testDupe = {
 //@[17:18)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// interpolation with type errors in key
+//@[40:41) NewLine |\n|
+var objWithInterp = {
+//@[0:62) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |objWithInterp|
+//@[18:19)  Assignment |=|
+//@[20:62)  ObjectSyntax
+//@[20:21)   LeftBrace |{|
+//@[21:22)   NewLine |\n|
+  'ab${nonExistentIdentifier}cd': true
+//@[2:39)   ObjectPropertySyntax
+//@[2:32)    StringSyntax
+//@[2:7)     StringLeftPiece |'ab${|
+//@[7:28)     VariableAccessSyntax
+//@[7:28)      IdentifierSyntax
+//@[7:28)       Identifier |nonExistentIdentifier|
+//@[28:32)     StringRightPiece |}cd'|
+//@[32:33)    Colon |:|
+//@[34:38)    BooleanLiteralSyntax
+//@[34:38)     TrueKeyword |true|
+//@[38:39)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

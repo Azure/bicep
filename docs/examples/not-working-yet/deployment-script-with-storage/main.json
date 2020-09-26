@@ -51,7 +51,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "replaceWithId": {}
+          "[variables('uamiId')]": {}
         }
       },
       "properties": {

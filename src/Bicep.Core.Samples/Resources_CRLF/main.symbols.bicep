@@ -225,3 +225,15 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
     repro316: setResourceCRef ? resourceCRef : null
   }
 }
+
+var myInterpKey = 'abc'
+//@[4:15) Variable myInterpKey. Type: 'abc'. Declaration start char: 0, length: 23
+resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
+//@[9:27) Resource resourceWithInterp. Type: My.Rp/interp@2020-01-01. Declaration start char: 0, length: 202
+  name: 'interpTest'
+  properties: {
+    '${myInterpKey}': 1
+    'abc${myInterpKey}def': 2
+    '${myInterpKey}abc${myInterpKey}': 3
+  }
+}

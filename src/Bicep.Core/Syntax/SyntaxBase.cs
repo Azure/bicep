@@ -66,16 +66,11 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        protected static void AssertIdentifierOrStringLiteral(SyntaxBase syntax, [InvokerParameterName] string parameterName)
+        protected static void AssertIdentifierOrString(SyntaxBase syntax, [InvokerParameterName] string parameterName)
         {
             switch (syntax)
             {
-                case StringSyntax stringSyntax:
-                    if (stringSyntax.IsInterpolated())
-                    {
-                        throw new ArgumentException($"{parameterName} is an interpolated string");
-                    }
-                    break;
+                case StringSyntax _:
                 case IdentifierSyntax _:
                     break;
                 default:

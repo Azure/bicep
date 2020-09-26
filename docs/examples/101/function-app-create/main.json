@@ -152,7 +152,7 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",

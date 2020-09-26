@@ -99,7 +99,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypeInterpolationUnsupported());
                 }
 
-                var stringContent = stringSyntax?.GetLiteralValue();
+                var stringContent = stringSyntax?.TryGetLiteralValue();
                 if (stringContent == null)
                 {
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
@@ -161,10 +161,10 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitStringSyntax(StringSyntax syntax)
             => AssignTypeWithCaching(syntax, () => {
-                if (!syntax.IsInterpolated())
+                if (syntax.TryGetLiteralValue() is string literalValue)
                 {
                     // uninterpolated strings have a known type
-                    return new StringLiteralType(syntax.GetLiteralValue());
+                    return new StringLiteralType(literalValue);
                 }
 
                 var errors = new List<ErrorDiagnostic>();
@@ -212,20 +212,40 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(errors);
                 }
 
-                // type results are cached
-                var properties = syntax.Properties
-                    .GroupBy(p => p.GetKeyText(), LanguageConstants.IdentifierComparer)
+                var namedProperties = syntax.Properties
+                    .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
                     .Select(group => new TypeProperty(group.Key, UnionType.Create(group.Select(p => assignedTypes[p]))));
 
+                var additionalProperties = syntax.Properties
+                    .Where(p => p.TryGetKeyText() == null)
+                    .Select(p => assignedTypes[p]);
+
+                var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
+
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, properties, additionalPropertiesType: null);
+                return new NamedObjectType(LanguageConstants.Object.Name, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             => AssignTypeWithCaching(syntax, () => {
-                Visit(syntax.Value);
+                var errors = new List<ErrorDiagnostic>();
 
-                return assignedTypes[syntax.Value];
+                if (syntax.Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated())
+                {
+                    // if the key is an interpolated string, we need to check the expressions referenced by it 
+                    var keyType = VisitAndReturnType(syntax.Key);
+                    CollectErrors(errors, keyType);
+                }
+
+                var valueType = VisitAndReturnType(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (errors.Any())
+                {
+                    return new ErrorTypeSymbol(errors);
+                }
+
+                return valueType;
             });
 
         public override void VisitArrayItemSyntax(ArrayItemSyntax syntax)
@@ -424,10 +444,9 @@ namespace Bicep.Core.TypeSystem
                     {
                         switch (syntax.IndexExpression)
                         {
-                            case StringSyntax @string when @string.IsInterpolated() == false:
-                                var propertyName = @string.GetLiteralValue();
-                                
-                                return GetNamedPropertyType(baseObject, syntax.IndexExpression, propertyName);
+                            case StringSyntax @string when @string.TryGetLiteralValue() is string literalValue:
+                                // indexing using a string literal so we know the name of the property
+                                return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue);
 
                             default:
                                 // the property name is itself an expression
