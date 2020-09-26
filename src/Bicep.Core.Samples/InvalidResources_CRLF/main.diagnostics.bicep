@@ -168,8 +168,8 @@ var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:16) [BCP040 (Error)] Additional properties are not allowed on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${interpVal}'|
+//@[2:16) [BCP040 (Error)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${interpVal}'|
   '${undefinedSymbol}': true
-//@[2:22) [BCP040 (Error)] Additional properties are not allowed on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${undefinedSymbol}'|
+//@[2:22) [BCP040 (Error)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${undefinedSymbol}'|
 //@[5:20) [BCP057 (Error)] The name 'undefinedSymbol' does not exist in the current context. |undefinedSymbol|
 }

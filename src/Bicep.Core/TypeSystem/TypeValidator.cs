@@ -327,8 +327,8 @@ namespace Bicep.Core.TypeSystem
                     else
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedUnknownKeyPropertyWithPermissibleProperties(targetType.Name, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedUnknownKeyProperty(targetType.Name);
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(targetType.Name);
                     }
 
                     diagnostics.AddRange(error.AsEnumerable());

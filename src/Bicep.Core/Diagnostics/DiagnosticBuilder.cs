@@ -214,15 +214,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP038",
                 $"The property '{property}' is not allowed on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
 
-            public ErrorDiagnostic DisallowedUnknownKeyProperty(object type) => new ErrorDiagnostic(
+            public ErrorDiagnostic DisallowedInterpolatedKeyProperty(object type) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP039",
-                $"Additional properties are not allowed on objects of type {type}.");
+                $"String interpolation is not supported for keys on objects of type {type}.");
 
-            public ErrorDiagnostic DisallowedUnknownKeyPropertyWithPermissibleProperties(object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
+            public ErrorDiagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP040",
-                $"Additional properties are not allowed on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
+                $"String interpolation is not supported for keys on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
 
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
