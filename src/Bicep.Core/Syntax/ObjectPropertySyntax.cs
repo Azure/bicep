@@ -22,16 +22,13 @@ namespace Bicep.Core.Syntax
             this.NewLines = newLines.ToImmutableArray();
         }
 
-        public string GetKeyText()
+        public string? TryGetKeyText()
             => Key switch {
                 IdentifierSyntax identifier => identifier.IdentifierName,
-                StringSyntax @string => @string.GetLiteralValue(),
+                StringSyntax @string => @string.TryGetLiteralValue(),
                 // this should not be possible as we assert the type in the constructor
                 _ => throw new InvalidOperationException($"Unexpected key syntax {Key.GetType()}"),
             };
-
-        public bool HasKnownKey()
-            => !(Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated());
 
         public SyntaxBase Key { get; }
 

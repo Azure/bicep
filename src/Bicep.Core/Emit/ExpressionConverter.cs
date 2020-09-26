@@ -127,7 +127,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
 
-            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => p.HasKnownKey() && LanguageConstants.IdentifierComparer.Equals(p.GetKeyText(), "name"));
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), "name"));
             if (namePropertySyntax == null)
             {
                 // this condition should have already been validated by the type checker
@@ -222,10 +222,10 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertString(StringSyntax syntax)
         {
-            if (!syntax.IsInterpolated())
+            if (syntax.TryGetLiteralValue() is string literalStringValue)
             {
                 // no need to build a format string
-                return new JTokenExpression(syntax.GetLiteralValue());;
+                return new JTokenExpression(literalStringValue);;
             }
 
             if (syntax.Expressions.Length == 1)

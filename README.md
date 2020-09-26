@@ -70,8 +70,6 @@ az deployment group create -f ./main.json -g my-rg
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
 * No IntelliSense whatsoever [[#269](https://github.com/Azure/bicep/issues/269)]
 * Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
-* No support for string interpolation in property names [[#267](https://github.com/Azure/bicep/issues/267)]
-  * From what we know, this only affects using managed identities for resources. You can still include a hardcoded managed identity resource ID (i.e. `'/subscriptions/.../resourceGroups/.../providers/Microsoft.ManagedIdentity/...': {}`)
 * Bicep is currently not covered by [Azure support plans](https://azure.microsoft.com/en-us/support/plans/) as it is still in early development stages. Expect Bicep to be covered by all support plans starting on the 0.3 version.
 
 ## FAQ

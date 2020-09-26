@@ -804,6 +804,15 @@
     ]
   },
   {
+    "label": "objWithInterp",
+    "kind": "variable",
+    "detail": "objWithInterp",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "objWithInterp",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "or",
     "kind": "function",
     "detail": "or",

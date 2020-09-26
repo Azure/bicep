@@ -208,7 +208,7 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            var discriminatorProperty = expression.Properties.FirstOrDefault(x => x.HasKnownKey() && LanguageConstants.IdentifierComparer.Equals(x.GetKeyText(), targetType.DiscriminatorKey));
+            var discriminatorProperty = expression.Properties.FirstOrDefault(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), targetType.DiscriminatorKey));
             if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
@@ -254,12 +254,10 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            var knownPropertyMap = expression.Properties
-                .Where(x => x.HasKnownKey())
-                .ToDictionary(x => x.GetKeyText(), LanguageConstants.IdentifierComparer);
+            var namedPropertyMap = expression.ToNamedPropertyDictionary();
 
             var missingRequiredProperties = targetType.Properties.Values
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !knownPropertyMap.ContainsKey(p.Name))
+                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
                 .Select(p => p.Name)
                 .OrderBy(p => p)
                 .ConcatString(LanguageConstants.ListSeparator);
@@ -270,7 +268,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var declaredProperty in targetType.Properties.Values)
             {
-                if (knownPropertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
+                if (namedPropertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
                 {
                     bool skipConstantCheckForProperty = skipConstantCheck;
 
@@ -306,13 +304,13 @@ namespace Bicep.Core.TypeSystem
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Where(p => !p.HasKnownKey() || !targetType.Properties.ContainsKey(p.GetKeyText()));
+                .Where(p => !(p.TryGetKeyText() is string keyName) || !targetType.Properties.ContainsKey(keyName));
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
-                    .Where(p => !knownPropertyMap.ContainsKey(p.Name))
+                    .Where(p => !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
                     .OrderBy(x => x);
 
@@ -320,9 +318,8 @@ namespace Bicep.Core.TypeSystem
                 foreach (var extraProperty in extraProperties)
                 {
                     ErrorDiagnostic error;
-                    if (extraProperty.HasKnownKey())
+                    if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        var keyName = extraProperty.GetKeyText();
                         error = validUnspecifiedProperties.Any() ? 
                             DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(keyName, targetType.Name, validUnspecifiedProperties) :
                             DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(keyName, targetType.Name);
@@ -355,9 +352,9 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     TypeMismatchErrorFactory typeMismatchErrorFactory;
-                    if (extraProperty.HasKnownKey())
+                    if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType);
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(keyName, expectedType, actualType);
                     }
                     else
                     {

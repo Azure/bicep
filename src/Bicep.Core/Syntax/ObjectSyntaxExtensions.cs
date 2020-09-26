@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Syntax
 {
@@ -13,6 +14,9 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
         public static ImmutableDictionary<string, SyntaxBase> ToKnownPropertyValueDictionary(this ObjectSyntax syntax) =>
-            syntax.Properties.Where(p => p.HasKnownKey()).ToImmutableDictionary(p => p.GetKeyText(), p => p.Value, LanguageConstants.IdentifierComparer);
+            syntax.Properties.ToImmutableDictionaryExcludingNull(p => p.TryGetKeyText(), p => p.Value, LanguageConstants.IdentifierComparer);
+
+        public static ImmutableDictionary<string, ObjectPropertySyntax> ToNamedPropertyDictionary(this ObjectSyntax syntax) =>	
+            syntax.Properties.ToImmutableDictionaryExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer);
     }
 }

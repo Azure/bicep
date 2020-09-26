@@ -144,15 +144,14 @@ namespace Bicep.Core.Emit
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                if (propertySyntax.HasKnownKey())
+                if (propertySyntax.TryGetKeyText() is string keyName)
                 {
-                    var keyText = propertySyntax.GetKeyText();
-                    if (propertiesToOmit?.Contains(keyText) == true)
+                    if (propertiesToOmit?.Contains(keyName) == true)
                     {
                         continue;
                     }
 
-                    EmitPropertyExpression(keyText, propertySyntax.Value);
+                    EmitPropertyExpression(keyName, propertySyntax.Value);
                 }
                 else
                 {
