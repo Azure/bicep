@@ -10,15 +10,6 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
-            => new []
-            {
-                new TypeProperty("id", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-                new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-            };
-
         private static (ResourceTypeReference, Func<ResourceType>) Get_Microsoft_Resources_resourceGroups_2020_06_01()
         {
             // hand crafted from https://github.com/Azure/azure-rest-api-specs/blob/405df4e/specification/resources/resource-manager/Microsoft.Resources/stable/2020-06-01/resources.json
@@ -28,7 +19,7 @@ namespace Bicep.Core.TypeSystem.Az
                 reference,
                 new NamedObjectType(
                     reference.FormatName(),
-                        GetCommonResourceProperties(reference).Concat(
+                        LanguageConstants.GetCommonResourceProperties(reference).Concat(
                         new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                         new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
                     ),
@@ -95,7 +86,7 @@ namespace Bicep.Core.TypeSystem.Az
                 },
                 null);
 
-            var baseResource = GetCommonResourceProperties(reference).Concat(
+            var baseResource = LanguageConstants.GetCommonResourceProperties(reference).Concat(
                 new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None),
                 new TypeProperty("identity", identity, TypePropertyFlags.Required));
