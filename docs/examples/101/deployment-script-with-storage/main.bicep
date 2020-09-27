@@ -24,12 +24,7 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-<<<<<<< HEAD:docs/examples/101/deployment-script-with-storage/main.bicep
-      // todo - add expression once properties can be set as strings
-      '${uamiId}': {}
-=======
       '${uamiId}': { }
->>>>>>> fc828515a8c5963f9e186aeac60afd7e2497f907:docs/examples/not-working-yet/deployment-script-with-storage/main.bicep
     }
   }
   properties: {
