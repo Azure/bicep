@@ -110,4 +110,4 @@ Because we are now treating the ARM Template as an IL, we expect and encourage o
 * [Cloud Maker](https://cloudmaker.ai) (@cloud-maker-ai) - Draw deployable infrastructure diagrams that are converted to ARM templates
 
 ## Contributing
-See [Contributing to Bicep](./CONTRIBUTING.md).
+See [Contributing to Bicep](./CONTRIBUTING.md) for information on building/running the code, contributing code, contributing examples and contributing feature requests or bug reports.
