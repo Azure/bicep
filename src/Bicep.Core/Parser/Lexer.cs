@@ -214,7 +214,7 @@ namespace Bicep.Core.Parser
         private void LexToken()
         {
             textWindow.Reset();
-            ScanLeadingTrivia();
+            
             // important to force enum evaluation here via .ToImmutableArray()!
             var leadingTrivia = ScanLeadingTrivia().ToImmutableArray();
 
@@ -414,7 +414,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private TokenType GetIdentifierTokenType(int length)
+        private TokenType GetIdentifierTokenType()
         {
             var identifier = textWindow.GetText();
 
@@ -427,21 +427,19 @@ namespace Bicep.Core.Parser
 
         private TokenType ScanIdentifier()
         {
-            var length = 1;
             while (true)
             {
                 if (textWindow.IsAtEnd())
                 {
-                    return GetIdentifierTokenType(length);
+                    return GetIdentifierTokenType();
                 }
 
-                if (!IsAlphaNumeric(textWindow.Peek()))
+                if (!IsIdentifierContinuation(textWindow.Peek()))
                 {
-                    return GetIdentifierTokenType(length);
+                    return GetIdentifierTokenType();
                 }
 
                 textWindow.Advance();
-                length++;
             }
         }
 
@@ -612,7 +610,7 @@ namespace Bicep.Core.Parser
                         return TokenType.Number;
                     }
 
-                    if (IsAlpha(nextChar))
+                    if (IsIdentifierStart(nextChar))
                     {
                         return this.ScanIdentifier();
                     }
@@ -621,11 +619,9 @@ namespace Bicep.Core.Parser
             }
         }
 
-        // TODO: Need IsIdStart and IsIdContinue (to disallow starting identifiers with 0-9, for example)
+        private static bool IsIdentifierStart(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 
-        private static bool IsAlpha(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
-
-        private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);
+        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c);
 
         private static bool IsDigit(char c) => c >= '0' && c <= '9';
 

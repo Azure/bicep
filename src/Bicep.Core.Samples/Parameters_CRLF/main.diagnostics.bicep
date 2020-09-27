@@ -138,3 +138,19 @@ param defaultValueExpression int {
 
 param defaultExpression bool = 18 != (true || false)
 
+param stringLiteral string {
+  allowed: [
+    'abc'
+    'def'
+  ]
+}
+
+param stringLiteralWithAllowedValuesSuperset string {
+  allowed: [
+    'abc'
+    'def'
+    'ghi'
+  ]
+  default: stringLiteral
+}
+

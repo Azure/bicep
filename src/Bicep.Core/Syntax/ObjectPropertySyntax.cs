@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
     {
         public ObjectPropertySyntax(SyntaxBase key, Token colon, SyntaxBase value, IEnumerable<Token> newLines)
         {
-            AssertIdentifierOrStringLiteral(key, nameof(key));
+            AssertIdentifierOrString(key, nameof(key));
             AssertTokenType(colon, nameof(colon), TokenType.Colon);
             AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 1);
 
@@ -22,10 +22,10 @@ namespace Bicep.Core.Syntax
             this.NewLines = newLines.ToImmutableArray();
         }
 
-        public string GetKeyText()
+        public string? TryGetKeyText()
             => Key switch {
                 IdentifierSyntax identifier => identifier.IdentifierName,
-                StringSyntax @string => @string.GetLiteralValue(),
+                StringSyntax @string => @string.TryGetLiteralValue(),
                 // this should not be possible as we assert the type in the constructor
                 _ => throw new InvalidOperationException($"Unexpected key syntax {Key.GetType()}"),
             };

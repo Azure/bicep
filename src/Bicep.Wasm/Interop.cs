@@ -11,6 +11,8 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Wasm
 {
@@ -51,7 +53,7 @@ namespace Bicep.Wasm
         public object GetSemanticTokens(string content)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(content);
-            var compilation = new Compilation(SyntaxFactory.CreateFromText(content));
+            var compilation = GetCompilation(content);
             var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.ProgramSyntax, lineStarts);
 
             var data = new List<int>();
@@ -87,8 +89,7 @@ namespace Bicep.Wasm
             try
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
-                var compilation = new Compilation(SyntaxFactory.CreateFromText(content));
-
+                var compilation = GetCompilation(content);
                 var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
                 // memory stream is not ideal for frequent large allocations
@@ -109,6 +110,12 @@ namespace Bicep.Wasm
             {
                 return (exception.ToString(), Enumerable.Empty<dynamic>());
             }
+        }
+
+        private static Compilation GetCompilation(string text)
+        {
+            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+            return new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
         }
 
         private static string ReadStreamToEnd(Stream stream)

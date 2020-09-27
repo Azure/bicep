@@ -1,42 +1,39 @@
 
-//@[0:1) NoOpDeclarationSyntax
-//@[0:1)  NewLine |\n|
+//@[0:1) NewLine |\n|
 // an int variable
-//@[18:19) NoOpDeclarationSyntax
-//@[18:19)  NewLine |\n|
+//@[18:19) NewLine |\n|
 var myInt = 42
-//@[0:16) VariableDeclarationSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myInt|
 //@[10:11)  Assignment |=|
 //@[12:14)  NumericLiteralSyntax
 //@[12:14)   Number |42|
-//@[14:16)  NewLine |\n\n|
+//@[14:16) NewLine |\n\n|
 
 // a string variable
-//@[20:21) NoOpDeclarationSyntax
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var myStr = 'str'
-//@[0:18) VariableDeclarationSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myStr|
 //@[10:11)  Assignment |=|
 //@[12:17)  StringSyntax
 //@[12:17)   StringComplete |'str'|
-//@[17:18)  NewLine |\n|
+//@[17:18) NewLine |\n|
 var curliesWithNoInterp = '}{1}{'
-//@[0:34) VariableDeclarationSyntax
+//@[0:33) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:23)  IdentifierSyntax
 //@[4:23)   Identifier |curliesWithNoInterp|
 //@[24:25)  Assignment |=|
 //@[26:33)  StringSyntax
 //@[26:33)   StringComplete |'}{1}{'|
-//@[33:34)  NewLine |\n|
+//@[33:34) NewLine |\n|
 var interp1 = 'abc${123}def'
-//@[0:29) VariableDeclarationSyntax
+//@[0:28) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |interp1|
@@ -46,9 +43,9 @@ var interp1 = 'abc${123}def'
 //@[20:23)   NumericLiteralSyntax
 //@[20:23)    Number |123|
 //@[23:28)   StringRightPiece |}def'|
-//@[28:29)  NewLine |\n|
+//@[28:29) NewLine |\n|
 var interp2 = '${123}def'
-//@[0:26) VariableDeclarationSyntax
+//@[0:25) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |interp2|
@@ -58,9 +55,9 @@ var interp2 = '${123}def'
 //@[17:20)   NumericLiteralSyntax
 //@[17:20)    Number |123|
 //@[20:25)   StringRightPiece |}def'|
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 var interp3 = 'abc${123}'
-//@[0:26) VariableDeclarationSyntax
+//@[0:25) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |interp3|
@@ -70,9 +67,9 @@ var interp3 = 'abc${123}'
 //@[20:23)   NumericLiteralSyntax
 //@[20:23)    Number |123|
 //@[23:25)   StringRightPiece |}'|
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 var interp4 = 'abc${123}${456}jk$l${789}p$'
-//@[0:44) VariableDeclarationSyntax
+//@[0:43) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |interp4|
@@ -88,9 +85,9 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 //@[36:39)   NumericLiteralSyntax
 //@[36:39)    Number |789|
 //@[39:43)   StringRightPiece |}p$'|
-//@[43:44)  NewLine |\n|
+//@[43:44) NewLine |\n|
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
-//@[0:57) VariableDeclarationSyntax
+//@[0:56) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |doubleInterp|
@@ -112,9 +109,9 @@ var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 //@[49:52)     Number |789|
 //@[52:54)    StringRightPiece |}'|
 //@[54:56)   StringRightPiece |}'|
-//@[56:57)  NewLine |\n|
+//@[56:57) NewLine |\n|
 var curliesInInterp = '{${123}{0}${true}}'
-//@[0:44) VariableDeclarationSyntax
+//@[0:42) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:19)  IdentifierSyntax
 //@[4:19)   Identifier |curliesInInterp|
@@ -127,49 +124,53 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[35:39)   BooleanLiteralSyntax
 //@[35:39)    TrueKeyword |true|
 //@[39:42)   StringRightPiece |}}'|
-//@[42:44)  NewLine |\n\n|
+//@[42:44) NewLine |\n\n|
+
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
 
 // verify correct bracket escaping
-//@[34:35) NoOpDeclarationSyntax
-//@[34:35)  NewLine |\n|
+//@[34:35) NewLine |\n|
 var bracketInTheMiddle = 'a[b]'
-//@[0:32) VariableDeclarationSyntax
+//@[0:31) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |bracketInTheMiddle|
 //@[23:24)  Assignment |=|
 //@[25:31)  StringSyntax
 //@[25:31)   StringComplete |'a[b]'|
-//@[31:32)  NewLine |\n|
+//@[31:32) NewLine |\n|
+// #completionTest(25) -> symbolsPlusTypes
+//@[42:43) NewLine |\n|
 var bracketAtBeginning = '[test'
-//@[0:33) VariableDeclarationSyntax
+//@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |bracketAtBeginning|
 //@[23:24)  Assignment |=|
 //@[25:32)  StringSyntax
 //@[25:32)   StringComplete |'[test'|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var enclosingBrackets = '[test]'
-//@[0:33) VariableDeclarationSyntax
+//@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:21)  IdentifierSyntax
 //@[4:21)   Identifier |enclosingBrackets|
 //@[22:23)  Assignment |=|
 //@[24:32)  StringSyntax
 //@[24:32)   StringComplete |'[test]'|
-//@[32:33)  NewLine |\n|
+//@[32:33) NewLine |\n|
 var emptyJsonArray = '[]'
-//@[0:26) VariableDeclarationSyntax
+//@[0:25) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:18)  IdentifierSyntax
 //@[4:18)   Identifier |emptyJsonArray|
 //@[19:20)  Assignment |=|
 //@[21:25)  StringSyntax
 //@[21:25)   StringComplete |'[]'|
-//@[25:26)  NewLine |\n|
+//@[25:26) NewLine |\n|
 var interpolatedBrackets = '[${myInt}]'
-//@[0:40) VariableDeclarationSyntax
+//@[0:39) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |interpolatedBrackets|
@@ -180,18 +181,18 @@ var interpolatedBrackets = '[${myInt}]'
 //@[31:36)    IdentifierSyntax
 //@[31:36)     Identifier |myInt|
 //@[36:39)   StringRightPiece |}]'|
-//@[39:40)  NewLine |\n|
+//@[39:40) NewLine |\n|
 var nestedBrackets = '[test[]test2]'
-//@[0:37) VariableDeclarationSyntax
+//@[0:36) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:18)  IdentifierSyntax
 //@[4:18)   Identifier |nestedBrackets|
 //@[19:20)  Assignment |=|
 //@[21:36)  StringSyntax
 //@[21:36)   StringComplete |'[test[]test2]'|
-//@[36:37)  NewLine |\n|
+//@[36:37) NewLine |\n|
 var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
-//@[0:55) VariableDeclarationSyntax
+//@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:30)  IdentifierSyntax
 //@[4:30)   Identifier |nestedInterpolatedBrackets|
@@ -202,9 +203,9 @@ var nestedInterpolatedBrackets = '[${emptyJsonArray}]'
 //@[37:51)    IdentifierSyntax
 //@[37:51)     Identifier |emptyJsonArray|
 //@[51:54)   StringRightPiece |}]'|
-//@[54:55)  NewLine |\n|
+//@[54:55) NewLine |\n|
 var bracketStringInExpression = concat('[', '\'test\'',']')
-//@[0:61) VariableDeclarationSyntax
+//@[0:59) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:29)  IdentifierSyntax
 //@[4:29)   Identifier |bracketStringInExpression|
@@ -225,32 +226,31 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[55:58)    StringSyntax
 //@[55:58)     StringComplete |']'|
 //@[58:59)   RightParen |)|
-//@[59:61)  NewLine |\n\n|
+//@[59:61) NewLine |\n\n|
 
 // booleans
-//@[11:12) NoOpDeclarationSyntax
-//@[11:12)  NewLine |\n|
+//@[11:12) NewLine |\n|
 var myTruth = true
-//@[0:19) VariableDeclarationSyntax
+//@[0:18) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:11)  IdentifierSyntax
 //@[4:11)   Identifier |myTruth|
 //@[12:13)  Assignment |=|
 //@[14:18)  BooleanLiteralSyntax
 //@[14:18)   TrueKeyword |true|
-//@[18:19)  NewLine |\n|
+//@[18:19) NewLine |\n|
 var myFalsehood = false
-//@[0:25) VariableDeclarationSyntax
+//@[0:23) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |myFalsehood|
 //@[16:17)  Assignment |=|
 //@[18:23)  BooleanLiteralSyntax
 //@[18:23)   FalseKeyword |false|
-//@[23:25)  NewLine |\n\n|
+//@[23:25) NewLine |\n\n|
 
 var myEmptyObj = { }
-//@[0:21) VariableDeclarationSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |myEmptyObj|
@@ -258,9 +258,9 @@ var myEmptyObj = { }
 //@[17:20)  ObjectSyntax
 //@[17:18)   LeftBrace |{|
 //@[19:20)   RightBrace |}|
-//@[20:21)  NewLine |\n|
+//@[20:21) NewLine |\n|
 var myEmptyArray = [ ]
-//@[0:24) VariableDeclarationSyntax
+//@[0:22) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:16)  IdentifierSyntax
 //@[4:16)   Identifier |myEmptyArray|
@@ -268,13 +268,12 @@ var myEmptyArray = [ ]
 //@[19:22)  ArraySyntax
 //@[19:20)   LeftSquare |[|
 //@[21:22)   RightSquare |]|
-//@[22:24)  NewLine |\n\n|
+//@[22:24) NewLine |\n\n|
 
 // object
-//@[9:10) NoOpDeclarationSyntax
-//@[9:10)  NewLine |\n|
+//@[9:10) NewLine |\n|
 var myObj = {
-//@[0:206) VariableDeclarationSyntax
+//@[0:204) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myObj|
@@ -418,13 +417,73 @@ var myObj = {
 //@[3:4)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
+
+var objWithInterp = {
+//@[0:116) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |objWithInterp|
+//@[18:19)  Assignment |=|
+//@[20:116)  ObjectSyntax
+//@[20:21)   LeftBrace |{|
+//@[21:22)   NewLine |\n|
+  '${myStr}': 1
+//@[2:16)   ObjectPropertySyntax
+//@[2:12)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:10)     VariableAccessSyntax
+//@[5:10)      IdentifierSyntax
+//@[5:10)       Identifier |myStr|
+//@[10:12)     StringRightPiece |}'|
+//@[12:13)    Colon |:|
+//@[14:15)    NumericLiteralSyntax
+//@[14:15)     Number |1|
+//@[15:16)    NewLine |\n|
+  'abc${myStr}def': 2
+//@[2:22)   ObjectPropertySyntax
+//@[2:18)    StringSyntax
+//@[2:8)     StringLeftPiece |'abc${|
+//@[8:13)     VariableAccessSyntax
+//@[8:13)      IdentifierSyntax
+//@[8:13)       Identifier |myStr|
+//@[13:18)     StringRightPiece |}def'|
+//@[18:19)    Colon |:|
+//@[20:21)    NumericLiteralSyntax
+//@[20:21)     Number |2|
+//@[21:22)    NewLine |\n|
+  '${interp1}abc${interp2}': '${interp1}abc${interp2}'
+//@[2:55)   ObjectPropertySyntax
+//@[2:27)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:12)     VariableAccessSyntax
+//@[5:12)      IdentifierSyntax
+//@[5:12)       Identifier |interp1|
+//@[12:18)     StringMiddlePiece |}abc${|
+//@[18:25)     VariableAccessSyntax
+//@[18:25)      IdentifierSyntax
+//@[18:25)       Identifier |interp2|
+//@[25:27)     StringRightPiece |}'|
+//@[27:28)    Colon |:|
+//@[29:54)    StringSyntax
+//@[29:32)     StringLeftPiece |'${|
+//@[32:39)     VariableAccessSyntax
+//@[32:39)      IdentifierSyntax
+//@[32:39)       Identifier |interp1|
+//@[39:45)     StringMiddlePiece |}abc${|
+//@[45:52)     VariableAccessSyntax
+//@[45:52)      IdentifierSyntax
+//@[45:52)       Identifier |interp2|
+//@[52:54)     StringRightPiece |}'|
+//@[54:55)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
 
 // array
-//@[8:9) NoOpDeclarationSyntax
-//@[8:9)  NewLine |\n|
+//@[8:9) NewLine |\n|
 var myArr = [
-//@[0:45) VariableDeclarationSyntax
+//@[0:43) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myArr|
@@ -449,13 +508,12 @@ var myArr = [
 //@[7:8)    NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // array with objects
-//@[21:22) NoOpDeclarationSyntax
-//@[21:22)  NewLine |\n|
+//@[21:22) NewLine |\n|
 var myArrWithObjects = [
-//@[0:140) VariableDeclarationSyntax
+//@[0:138) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:20)  IdentifierSyntax
 //@[4:20)   Identifier |myArrWithObjects|
@@ -525,10 +583,10 @@ var myArrWithObjects = [
 //@[3:4)    NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 var expressionIndexOnAny = any({
-//@[0:63) VariableDeclarationSyntax
+//@[0:61) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |expressionIndexOnAny|
@@ -556,10 +614,10 @@ var expressionIndexOnAny = any({
 //@[19:27)    IdentifierSyntax
 //@[19:27)     Identifier |location|
 //@[27:28)   RightSquare |]|
-//@[28:30)  NewLine |\n\n|
+//@[28:30) NewLine |\n\n|
 
 var anyIndexOnAny = any(true)[any(false)]
-//@[0:43) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:17)  IdentifierSyntax
 //@[4:17)   Identifier |anyIndexOnAny|
@@ -583,10 +641,10 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[34:39)      FalseKeyword |false|
 //@[39:40)    RightParen |)|
 //@[40:41)   RightSquare |]|
-//@[41:43)  NewLine |\n\n|
+//@[41:43) NewLine |\n\n|
 
 var namedPropertyIndexer = {
-//@[0:50) VariableDeclarationSyntax
+//@[0:48) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |namedPropertyIndexer|
@@ -609,10 +667,10 @@ var namedPropertyIndexer = {
 //@[2:7)   StringSyntax
 //@[2:7)    StringComplete |'foo'|
 //@[7:8)   RightSquare |]|
-//@[8:10)  NewLine |\n\n|
+//@[8:10) NewLine |\n\n|
 
 var intIndexer = [
-//@[0:31) VariableDeclarationSyntax
+//@[0:29) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:14)  IdentifierSyntax
 //@[4:14)   Identifier |intIndexer|
@@ -632,10 +690,10 @@ var intIndexer = [
 //@[2:3)   NumericLiteralSyntax
 //@[2:3)    Number |0|
 //@[3:4)   RightSquare |]|
-//@[4:6)  NewLine |\n\n|
+//@[4:6) NewLine |\n\n|
 
 var functionOnIndexer1 = concat([
-//@[0:52) VariableDeclarationSyntax
+//@[0:50) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |functionOnIndexer1|
@@ -665,10 +723,10 @@ var functionOnIndexer1 = concat([
 //@[6:9)    StringSyntax
 //@[6:9)     StringComplete |'s'|
 //@[9:10)   RightParen |)|
-//@[10:12)  NewLine |\n\n|
+//@[10:12) NewLine |\n\n|
 
 var functionOnIndexer2 = concat([
-//@[0:46) VariableDeclarationSyntax
+//@[0:44) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |functionOnIndexer2|
@@ -693,10 +751,10 @@ var functionOnIndexer2 = concat([
 //@[6:9)    StringSyntax
 //@[6:9)     StringComplete |'s'|
 //@[9:10)   RightParen |)|
-//@[10:12)  NewLine |\n\n|
+//@[10:12) NewLine |\n\n|
 
 var functionOnIndexer3 = concat([
-//@[0:51) VariableDeclarationSyntax
+//@[0:49) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |functionOnIndexer3|
@@ -727,19 +785,19 @@ var functionOnIndexer3 = concat([
 //@[10:13)       StringComplete |'s'|
 //@[13:14)     RightParen |)|
 //@[14:15)   RightParen |)|
-//@[15:17)  NewLine |\n\n|
+//@[15:17) NewLine |\n\n|
 
 var singleQuote = '\''
-//@[0:23) VariableDeclarationSyntax
+//@[0:22) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |singleQuote|
 //@[16:17)  Assignment |=|
 //@[18:22)  StringSyntax
 //@[18:22)   StringComplete |'\''|
-//@[22:23)  NewLine |\n|
+//@[22:23) NewLine |\n|
 var myPropertyName = '${singleQuote}foo${singleQuote}'
-//@[0:56) VariableDeclarationSyntax
+//@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:18)  IdentifierSyntax
 //@[4:18)   Identifier |myPropertyName|
@@ -754,10 +812,10 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 //@[41:52)    IdentifierSyntax
 //@[41:52)     Identifier |singleQuote|
 //@[52:54)   StringRightPiece |}'|
-//@[54:56)  NewLine |\n\n|
+//@[54:56) NewLine |\n\n|
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
-//@[0:85) VariableDeclarationSyntax
+//@[0:84) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:22)  IdentifierSyntax
 //@[4:22)   Identifier |unusedIntermediate|
@@ -784,9 +842,9 @@ var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-
 //@[71:83)    StringSyntax
 //@[71:83)     StringComplete |'2020-01-01'|
 //@[83:84)   RightParen |)|
-//@[84:85)  NewLine |\n|
+//@[84:85) NewLine |\n|
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
-//@[0:61) VariableDeclarationSyntax
+//@[0:59) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:25)  IdentifierSyntax
 //@[4:25)   Identifier |unusedIntermediateRef|
@@ -798,13 +856,12 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 //@[46:47)   Dot |.|
 //@[47:59)   IdentifierSyntax
 //@[47:59)    Identifier |secondaryKey|
-//@[59:61)  NewLine |\n\n|
+//@[59:61) NewLine |\n\n|
 
 // previously this was not possible to emit correctly
-//@[53:54) NoOpDeclarationSyntax
-//@[53:54)  NewLine |\n|
+//@[53:54) NewLine |\n|
 var previousEmitLimit = [
-//@[0:298) VariableDeclarationSyntax
+//@[0:296) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:21)  IdentifierSyntax
 //@[4:21)   Identifier |previousEmitLimit|
@@ -974,19 +1031,22 @@ var previousEmitLimit = [
 //@[3:4)    NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
-//@[1:3)  NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
 
 var myVar = 'hello'
-//@[0:20) VariableDeclarationSyntax
+//@[0:19) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myVar|
 //@[10:11)  Assignment |=|
 //@[12:19)  StringSyntax
 //@[12:19)   StringComplete |'hello'|
-//@[19:20)  NewLine |\n|
+//@[19:20) NewLine |\n|
 var myVar2 = any({
-//@[0:41) VariableDeclarationSyntax
+//@[0:40) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:10)  IdentifierSyntax
 //@[4:10)   Identifier |myVar2|
@@ -1011,9 +1071,9 @@ var myVar2 = any({
 })
 //@[0:1)     RightBrace |}|
 //@[1:2)   RightParen |)|
-//@[2:3)  NewLine |\n|
+//@[2:3) NewLine |\n|
 var myVar3 = any(any({
-//@[0:46) VariableDeclarationSyntax
+//@[0:45) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:10)  IdentifierSyntax
 //@[4:10)   Identifier |myVar3|
@@ -1044,9 +1104,9 @@ var myVar3 = any(any({
 //@[0:1)       RightBrace |}|
 //@[1:2)     RightParen |)|
 //@[2:3)   RightParen |)|
-//@[3:4)  NewLine |\n|
+//@[3:4) NewLine |\n|
 var myVar4 = length(any(concat('s','a')))
-//@[0:42) VariableDeclarationSyntax
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:10)  IdentifierSyntax
 //@[4:10)   Identifier |myVar4|
@@ -1075,6 +1135,70 @@ var myVar4 = length(any(concat('s','a')))
 //@[38:39)       RightParen |)|
 //@[39:40)     RightParen |)|
 //@[40:41)   RightParen |)|
-//@[41:42)  NewLine |\n|
+//@[41:43) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+// identifiers can have underscores
+//@[35:36) NewLine |\n|
+var _ = 3
+//@[0:9) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:5)  IdentifierSyntax
+//@[4:5)   Identifier |_|
+//@[6:7)  Assignment |=|
+//@[8:9)  NumericLiteralSyntax
+//@[8:9)   Number |3|
+//@[9:10) NewLine |\n|
+var __ = 10 * _
+//@[0:15) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |__|
+//@[7:8)  Assignment |=|
+//@[9:15)  BinaryOperationSyntax
+//@[9:11)   NumericLiteralSyntax
+//@[9:11)    Number |10|
+//@[12:13)   Asterisk |*|
+//@[14:15)   VariableAccessSyntax
+//@[14:15)    IdentifierSyntax
+//@[14:15)     Identifier |_|
+//@[15:16) NewLine |\n|
+var _0a_1b = true
+//@[0:17) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:10)  IdentifierSyntax
+//@[4:10)   Identifier |_0a_1b|
+//@[11:12)  Assignment |=|
+//@[13:17)  BooleanLiteralSyntax
+//@[13:17)   TrueKeyword |true|
+//@[17:18) NewLine |\n|
+var _1_ = _0a_1b || (__ + _ % 2 == 0)
+//@[0:37) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |_1_|
+//@[8:9)  Assignment |=|
+//@[10:37)  BinaryOperationSyntax
+//@[10:16)   VariableAccessSyntax
+//@[10:16)    IdentifierSyntax
+//@[10:16)     Identifier |_0a_1b|
+//@[17:19)   LogicalOr ||||
+//@[20:37)   ParenthesizedExpressionSyntax
+//@[20:21)    LeftParen |(|
+//@[21:36)    BinaryOperationSyntax
+//@[21:31)     BinaryOperationSyntax
+//@[21:23)      VariableAccessSyntax
+//@[21:23)       IdentifierSyntax
+//@[21:23)        Identifier |__|
+//@[24:25)      Plus |+|
+//@[26:31)      BinaryOperationSyntax
+//@[26:27)       VariableAccessSyntax
+//@[26:27)        IdentifierSyntax
+//@[26:27)         Identifier |_|
+//@[28:29)       Modulo |%|
+//@[30:31)       NumericLiteralSyntax
+//@[30:31)        Number |2|
+//@[32:34)     Equals |==|
+//@[35:36)     NumericLiteralSyntax
+//@[35:36)      Number |0|
+//@[36:37)    RightParen |)|
+//@[37:37) EndOfFile ||

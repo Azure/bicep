@@ -43,13 +43,11 @@ namespace Bicep.Core.Resources
 
         public string FullyQualifiedType => $"{this.Namespace}/{this.Types.ConcatString("/")}";
 
-        public static ResourceTypeReference? TryParse(string? resourceType)
-        {
-            if (resourceType == null)
-            {
-                return null;
-            }
+        public string FormatName()
+            => $"{this.FullyQualifiedType}@{this.ApiVersion}";
 
+        public static ResourceTypeReference? TryParse(string resourceType)
+        {
             var match = ResourceTypePattern.Match(resourceType);
             if (match.Success == false)
             {
@@ -62,5 +60,8 @@ namespace Bicep.Core.Resources
 
             return new ResourceTypeReference(ns, types, version);
         }
+
+        public static ResourceTypeReference Parse(string resourceType)
+            => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));
     }
 }

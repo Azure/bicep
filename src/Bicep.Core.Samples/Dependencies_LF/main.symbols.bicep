@@ -1,9 +1,9 @@
 param deployTimeParam string = 'steve'
-//@[6:21) Parameter deployTimeParam. Type: string. Declaration start char: 0, length: 39
+//@[6:21) Parameter deployTimeParam. Type: string. Declaration start char: 0, length: 38
 var deployTimeVar = 'nigel'
-//@[4:17) Variable deployTimeVar. Type: 'nigel'. Declaration start char: 0, length: 28
+//@[4:17) Variable deployTimeVar. Type: 'nigel'. Declaration start char: 0, length: 27
 var dependentVar = {
-//@[4:16) Variable dependentVar. Type: object. Declaration start char: 0, length: 84
+//@[4:16) Variable dependentVar. Type: object. Declaration start char: 0, length: 82
   dependencies: [
     deployTimeVar
     deployTimeParam
@@ -11,7 +11,7 @@ var dependentVar = {
 }
 
 var resourceDependency = {
-//@[4:22) Variable resourceDependency. Type: object. Declaration start char: 0, length: 138
+//@[4:22) Variable resourceDependency. Type: object. Declaration start char: 0, length: 136
   dependenciesA: [
     resA.id
     resA.name
@@ -22,9 +22,9 @@ var resourceDependency = {
 }
 
 output resourceAType string = resA.type
-//@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 40
+//@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 39
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 134
+//@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 132
   name: 'resA'
   properties: {
     deployTime: dependentVar
@@ -33,9 +33,9 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 }
 
 output resourceBId string = resB.id
-//@[7:18) Output resourceBId. Type: string. Declaration start char: 0, length: 36
+//@[7:18) Output resourceBId. Type: string. Declaration start char: 0, length: 35
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
-//@[9:13) Resource resB. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 127
+//@[9:13) Resource resB. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 125
   name: 'resB'
   properties: {
     dependencies: resourceDependency
@@ -43,13 +43,13 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 }
 
 var resourceIds = {
-//@[4:15) Variable resourceIds. Type: object. Declaration start char: 0, length: 49
+//@[4:15) Variable resourceIds. Type: object. Declaration start char: 0, length: 47
   a: resA.id
   b: resB.id
 }
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
-//@[9:13) Resource resC. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 119
+//@[9:13) Resource resC. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 117
   name: 'resC'
   properties: {
     resourceIds: resourceIds
@@ -57,14 +57,14 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 }
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[9:13) Resource resD. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 113
+//@[9:13) Resource resD. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 111
   name: '${resC.name}/resD'
   properties: {
   }
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[9:13) Resource resE. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 126
+//@[9:13) Resource resE. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 124
   name: 'resC/resD'
   properties: {
     resDRef: resD.id

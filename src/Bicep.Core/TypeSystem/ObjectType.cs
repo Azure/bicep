@@ -11,13 +11,14 @@ namespace Bicep.Core.TypeSystem
     {
         public ObjectType(string name) : base(name)
         {
+            AdditionalPropertiesType = LanguageConstants.Any;
         }
 
         public override TypeKind TypeKind => TypeKind.Primitive;
 
         public virtual ImmutableDictionary<string, TypeProperty> Properties => ImmutableDictionary<string, TypeProperty>.Empty;
 
-        public virtual TypeSymbol? AdditionalPropertiesType => LanguageConstants.Any;
+        public virtual ITypeReference? AdditionalPropertiesType { get; }
 
         public virtual TypePropertyFlags AdditionalPropertiesFlags => TypePropertyFlags.None;
     }

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "vnetname": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the VNet."
+      },
+      "defaultValue": "[format('{0}-azfw-sample-vnet', parameters('location'))]"
+    },
+    "vnetaddressprefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the address prefix to use for the VNet."
+      },
+      "defaultValue": "10.0.0.0/24"
+    },
+    "firewallsubnetprefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the address prefix to use for the AzureFirewallSubnet"
+      },
+      "defaultValue": "10.0.0.0/26"
+    },
+    "ipprefixlength": {
+      "type": "int",
+      "metadata": {
+        "description": "Specifies the size of the Public IP Prefix"
+      },
+      "defaultValue": 31,
+      "allowedValues": [
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "firewallname": "[format('{0}-fw', parameters('vnetname'))]",
+    "publicipname": "[format('{0}-pip', parameters('vnetname'))]",
+    "ipprefixname": "[format('{0}-ipprefix', parameters('vnetname'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('vnetname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetaddressprefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "[parameters('firewallsubnetprefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicipprefixes",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('ipprefixname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "prefixLength": "[parameters('ipprefixlength')]",
+        "publicIPAddressVersion": "IPv4",
+        "ipTags": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('publicipname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPPrefix": {
+          "id": "[resourceId('Microsoft.Network/publicipprefixes', variables('ipprefixname'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicipprefixes', variables('ipprefixname'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('firewallname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "threatIntelMode": "Alert",
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}-vnetIpconf', variables('firewallname'))]",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/AzureFirewallSubnet', resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')))]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipname'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicipname'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

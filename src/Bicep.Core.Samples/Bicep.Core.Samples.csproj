@@ -22,9 +22,18 @@
     <EmbeddedResource Include="**\main.diagnostics.bicep" />
     <EmbeddedResource Include="**\main.tokens.bicep" />
     <EmbeddedResource Include="**\main.syntax.bicep" />
-    <EmbeddedResource Include="..\vscode-bicep\snippets\bicep.json" LogicalName="vscode-bicep.snippets.bicep.json" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
     <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Completions\declarations.json" />
+    <None Remove="Variables_LF\completions.declarations.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Completions\declarations.json" />
+    <EmbeddedResource Include="Variables_LF\Completions\symbolsPlusTypes.json" />
   </ItemGroup>
 
   <ItemGroup>

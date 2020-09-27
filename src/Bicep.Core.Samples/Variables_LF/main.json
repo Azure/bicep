@@ -45,6 +45,11 @@
         ]
       }
     },
+    "objWithInterp": {
+      "[variables('myStr')]": 1,
+      "[format('abc{0}def', variables('myStr'))]": 2,
+      "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]": "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]"
+    },
     "myArr": [
       "pirates",
       "say",
@@ -71,7 +76,7 @@
     "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
     "previousEmitLimit": [
       "[concat('s')]",
-      "[format('{0}', 4)]",
+      4,
       {
         "a": {
           "b": "[base64('s')]",
@@ -89,7 +94,11 @@
     "myVar3": {
       "something": "[variables('myVar')]"
     },
-    "myVar4": "[length(concat('s', 'a'))]"
+    "myVar4": "[length(concat('s', 'a'))]",
+    "_": 3,
+    "__": "[mul(10, variables('_'))]",
+    "_0a_1b": true,
+    "_1_": "[or(variables('_0a_1b'), equals(add(variables('__'), mod(variables('_'), 2)), 0))]"
   },
   "resources": [],
   "outputs": {}

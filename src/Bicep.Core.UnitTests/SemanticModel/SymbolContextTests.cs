@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +22,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
-            var context = new SymbolContext(new TypeManager(bindings, cyclesBySyntax), bindings);
+            var context = new SymbolContext(new TypeManager(TestResourceTypeProvider.CreateRegistrar(), bindings, cyclesBySyntax), bindings);
 
             Action byName = () =>
             {

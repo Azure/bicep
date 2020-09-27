@@ -88,7 +88,7 @@ literalString -> "'" STRINGCHAR* "'"
 literalValue -> NUMBER | "true" | "false" | "null"
 
 object -> "{" ( NL+ ( objectProperty NL+ )* )? "}"
-objectProperty -> ( IDENTIFIER(name) | literalString ) ":" expression 
+objectProperty -> ( IDENTIFIER(name) | interpString ) ":" expression 
 
 array -> "[" ( NL+ arrayItem* )? "]"
 arrayItem -> expression NL+

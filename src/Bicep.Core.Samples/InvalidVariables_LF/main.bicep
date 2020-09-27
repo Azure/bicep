@@ -2,7 +2,7 @@
 // unknown declaration
 bad
 
-// incomplete variable declaration
+// incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 
 // unassigned variable
@@ -49,4 +49,9 @@ var test3 = {
 var testDupe = {
   'duplicate': true
   duplicate: true
+}
+
+// interpolation with type errors in key
+var objWithInterp = {
+  'ab${nonExistentIdentifier}cd': true
 }
