@@ -45,7 +45,7 @@
   "resources": [
     {
       "type": "microsoft.network/publicIpAddresses",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-06-01",
       "name": "certPublicIp",
       "location": "[parameters('location')]",
       "properties": {
@@ -54,7 +54,7 @@
     },
     {
       "type": "microsoft.network/networkSecurityGroups",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-08-01",
       "name": "[variables('nsgName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -77,7 +77,7 @@
     },
     {
       "type": "microsoft.network/virtualNetworks",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnetName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -104,7 +104,7 @@
     },
     {
       "type": "microsoft.network/networkInterfaces",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2020-06-01",
       "name": "certNic",
       "location": "[parameters('location')]",
       "properties": {
@@ -130,7 +130,7 @@
     },
     {
       "type": "microsoft.compute/virtualMachines",
-      "apiVersion": "2019-07-01",
+      "apiVersion": "2020-06-01",
       "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
       "properties": {

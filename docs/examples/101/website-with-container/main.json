@@ -33,7 +33,7 @@
   "resources": [
     {
       "type": "microsoft.web/sites",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -67,7 +67,7 @@
     },
     {
       "type": "microsoft.web/serverFarms",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('farmName')]",
       "location": "[parameters('location')]",
       "sku": {

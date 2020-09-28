@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -49,7 +49,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').name]",
       "location": "[parameters('location')]",
       "properties": {
@@ -76,7 +76,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').name]",
       "location": "[parameters('location')]",
       "properties": {
@@ -103,7 +103,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').gatewayPublicIPName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -112,7 +112,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').gatewayPublicIPName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -121,7 +121,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworkGateways",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').gatewayName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -157,7 +157,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworkGateways",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').gatewayName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -193,7 +193,7 @@
     },
     {
       "type": "Microsoft.Network/connections",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet1cfg').connectionName]",
       "location": "[parameters('location')]",
       "properties": {
@@ -215,7 +215,7 @@
     },
     {
       "type": "Microsoft.Network/connections",
-      "apiVersion": "2020-05-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnet2cfg').connectionName]",
       "location": "[parameters('location')]",
       "properties": {

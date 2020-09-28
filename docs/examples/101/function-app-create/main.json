@@ -93,7 +93,7 @@
     },
     {
       "type": "Microsoft.Web/serverFarms",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('appServiceName')]",
       "location": "[parameters('location')]",
       "kind": "functionapp",
@@ -118,7 +118,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('functionAppName')]",
       "location": "[parameters('location')]",
       "kind": "functionapp",
@@ -152,7 +152,7 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey]"
+              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey)]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
@@ -185,7 +185,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', variables('functionAppName'))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -267,7 +267,7 @@
     },
     {
       "type": "Microsoft.Web/sites/hostNameBindings",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}.azurewebsites.net', variables('functionAppName'), variables('functionAppName'))]",
       "location": "[parameters('location')]",
       "properties": {

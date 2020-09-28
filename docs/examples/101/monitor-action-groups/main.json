@@ -54,7 +54,7 @@
   "resources": [
     {
       "type": "Microsoft.Insights/actionGroups",
-      "apiVersion": "2018-03-01",
+      "apiVersion": "2019-06-01",
       "name": "[parameters('actionGroupName')]",
       "location": "Global",
       "properties": {
