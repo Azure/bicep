@@ -18,7 +18,7 @@ var networkSecurityGroupName = 'NSG'
 var networkSecurityGroupName2 = concat(subnet2Name, '-nsg')
 
 // This is the virtual machine that you're building.
-resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: virtualMachineName
   location: location
   properties: {
@@ -71,7 +71,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
   }
 }
 
-resource diagsAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = {
+resource diagsAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: diagStorageAccountName
   location: location
   sku: {
@@ -81,7 +81,7 @@ resource diagsAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = {
 }
 
 // Simple Network Security Group for subnet2
-resource nsg2 'Microsoft.Network/networkSecurityGroups@2019-08-01' = {
+resource nsg2 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName2
   location: location
   properties: {
@@ -89,7 +89,7 @@ resource nsg2 'Microsoft.Network/networkSecurityGroups@2019-08-01' = {
 }
 
 // This will build a Virtual Network.
-resource vnet 'Microsoft.Network/virtualNetworks@2017-06-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -119,7 +119,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2017-06-01' = {
 }
 
 // This will be your Primary NIC
-resource nic1 'Microsoft.Network/networkInterfaces@2017-06-01' = {
+resource nic1 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   name: nic1Name
   location: location
   properties: {
@@ -144,7 +144,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2017-06-01' = {
 }
 
 // This will be your Secondary NIC
-resource nic2 'Microsoft.Network/networkInterfaces@2017-06-01' = {
+resource nic2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   name: nic2Name
   location: location
   properties: {
@@ -163,7 +163,7 @@ resource nic2 'Microsoft.Network/networkInterfaces@2017-06-01' = {
 }
 
 // Public IP for your Primary NIC
-resource pip 'Microsoft.Network/publicIPAddresses@2017-06-01' = {
+resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: publicIPAddressName
   location: location
   properties: {
