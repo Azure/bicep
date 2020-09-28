@@ -43,7 +43,7 @@ var virtualNetworkName =  'MyVNET'
 var subnetRef = '${vn.id}/subnets/${subnetName}'
 var networkSecurityGroupName =  'default-NSG'
 
-resource stg  'Microsoft.Storage/storageAccounts@2018-11-01' = {
+resource stg  'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountName
     location: location
     sku: {
@@ -52,7 +52,7 @@ resource stg  'Microsoft.Storage/storageAccounts@2018-11-01' = {
     kind: 'Storage'
 }
 
-resource pip 'Microsoft.Network/publicIPAddresses@2018-11-01' = {
+resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: publicIPAddressName
   location: location
   properties: {
@@ -63,7 +63,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2018-11-01' = {
   }
 }
 
-resource sg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = {
+resource sg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName
   location: location
   properties: {
@@ -85,7 +85,7 @@ resource sg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = {
   }
 }
 
-resource vn 'Microsoft.Network/virtualNetworks@2018-11-01' = {
+resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -108,7 +108,7 @@ resource vn 'Microsoft.Network/virtualNetworks@2018-11-01' = {
   }
 }
 
-resource nInter 'Microsoft.Network/networkInterfaces@2018-11-01' = {
+resource nInter 'Microsoft.Network/networkInterfaces@2020-06-01' = {
     name: nicName
     location: location
 
@@ -130,7 +130,7 @@ resource nInter 'Microsoft.Network/networkInterfaces@2018-11-01' = {
       }
     }
 
-resource VM 'Microsoft.Compute/virtualMachines@2018-10-01' = {
+resource VM 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: vmName
   location: location
   properties: {
