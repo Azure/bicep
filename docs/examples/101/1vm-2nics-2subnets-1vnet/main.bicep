@@ -172,7 +172,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
 }
 
 // Network Security Group (NSG) for your Primary NIC
-resource nsg 'Microsoft.Network/networkSecurityGroups@2016-09-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName
   location: location
   properties: {
