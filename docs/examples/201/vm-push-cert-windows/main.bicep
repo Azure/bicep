@@ -21,7 +21,7 @@ var subnet1Name = 'subnet-1'
 var vnetName = 'certVnet'
 var nsgName = '${subnet1Name}-nsg'
 
-resource pip 'microsoft.network/publicIpAddresses@2019-06-01' = {
+resource pip 'microsoft.network/publicIpAddresses@2020-06-01' = {
   name: 'certPublicIp'
   location: location
   properties: {
@@ -29,7 +29,7 @@ resource pip 'microsoft.network/publicIpAddresses@2019-06-01' = {
   }
 }
 
-resource nsg 'microsoft.network/networkSecurityGroups@2019-08-01' = {
+resource nsg 'microsoft.network/networkSecurityGroups@2020-08-01' = {
   name: nsgName
   location: location
   properties: {
@@ -51,7 +51,7 @@ resource nsg 'microsoft.network/networkSecurityGroups@2019-08-01' = {
   }
 }
 
-resource vnet 'microsoft.network/virtualNetworks@2019-06-01' = {
+resource vnet 'microsoft.network/virtualNetworks@2020-06-01' = {
   name: vnetName
   location: location
   properties: {
@@ -74,7 +74,7 @@ resource vnet 'microsoft.network/virtualNetworks@2019-06-01' = {
   }
 }
 
-resource nic 'microsoft.network/networkInterfaces@2019-06-01' = {
+resource nic 'microsoft.network/networkInterfaces@2020-06-01' = {
   name: 'certNic'
   location: location
   properties: {
@@ -95,7 +95,7 @@ resource nic 'microsoft.network/networkInterfaces@2019-06-01' = {
   }
 }
 
-resource vm 'microsoft.compute/virtualMachines@2019-07-01' = {
+resource vm 'microsoft.compute/virtualMachines@2020-06-01' = {
   name: vmName
   location: location
   properties: {
