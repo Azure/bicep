@@ -39,7 +39,7 @@ var vnet2cfg = {
     asn: 65020
 }
 
-resource vnet1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+resource vnet1 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     name: vnet1cfg.name
     location: location
     properties: {
@@ -65,7 +65,7 @@ resource vnet1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
     }
 }
 
-resource vnet2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+resource vnet2 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     name: vnet2cfg.name
     location: location
     properties: {
@@ -91,7 +91,7 @@ resource vnet2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
     }
 }
 
-resource gw1pip 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
+resource gw1pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
     name: vnet1cfg.gatewayPublicIPName
     location: location
     properties: {
@@ -99,7 +99,7 @@ resource gw1pip 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
     }
 }
 
-resource gw2pip 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
+resource gw2pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
     name: vnet2cfg.gatewayPublicIPName
     location: location
     properties: {
@@ -107,7 +107,7 @@ resource gw2pip 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
     }
 }
 
-resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
+resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
     name: vnet1cfg.gatewayName
     location: location
     properties: {
@@ -138,7 +138,7 @@ resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
     }
 }
 
-resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
+resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
     name: vnet2cfg.gatewayName
     location: location
     properties: {
@@ -169,7 +169,7 @@ resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
     }
 }
 
-resource vpn1to2 'Microsoft.Network/connections@2020-05-01' = {
+resource vpn1to2 'Microsoft.Network/connections@2020-06-01' = {
     name: vnet1cfg.connectionName
     location: location
     properties: {
@@ -186,7 +186,7 @@ resource vpn1to2 'Microsoft.Network/connections@2020-05-01' = {
     }
 }
 
-resource vpn2to1 'Microsoft.Network/connections@2020-05-01' = {
+resource vpn2to1 'Microsoft.Network/connections@2020-06-01' = {
     name: vnet2cfg.connectionName
     location: location
     properties: {
