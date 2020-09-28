@@ -8,7 +8,7 @@ param secretValue string {
   secure: true
 }
 
-resource secret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
+resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
   name: '${existingKeyVaultName}/${secretName}'
   location: location
   properties: {
