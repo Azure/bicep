@@ -5,7 +5,7 @@ param addressPrefix string = '10.0.0.0/15'
 
 var vnetName = 'vnet-${suffix}'
 
-resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: vnetName
   location: resourceGroup().location
   tags: {
