@@ -11,7 +11,7 @@ var acrApiVersion = '2019-05-01'
 
 var websiteName = '${name}-site'
 
-resource site 'microsoft.web/sites@2018-11-01' = {
+resource site 'microsoft.web/sites@2020-06-01' = {
   name: websiteName
   location: location
   properties: {
@@ -43,7 +43,7 @@ resource site 'microsoft.web/sites@2018-11-01' = {
 
 var farmName = '${name}-farm'
 
-resource farm 'microsoft.web/serverFarms@2018-11-01' = {
+resource farm 'microsoft.web/serverFarms@2020-06-01' = {
   name: farmName
   location: location
   sku: {
@@ -62,4 +62,3 @@ resource farm 'microsoft.web/serverFarms@2018-11-01' = {
 
 output publicUrl string = site.properties.defaultHostName
 output ftpUser string = site.properties.ftpUsername
-
