@@ -175,7 +175,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Object, diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Object, diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -185,7 +185,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);;
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics, false);;
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("Expected a value of type int but the provided value is of type object.");
@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -212,7 +212,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics, false);
 
             diagnostics
                 .Select(e => e.Message)
@@ -231,7 +231,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -250,7 +250,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
             diagnostics.Should().BeEmpty();
         }
 
@@ -273,7 +273,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -289,7 +289,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);;
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);;
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
@@ -305,7 +305,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -324,7 +324,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -348,7 +348,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics, false);
             
             diagnostics.Should().BeEmpty();
         }
@@ -379,7 +379,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -413,7 +413,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
             var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -435,7 +435,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics, false);
 
             diagnostics
                 .Should().SatisfyRespectively(
@@ -467,7 +467,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -494,7 +494,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -527,7 +527,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics, false);
 
             diagnostics.Should().BeEmpty();
         }
@@ -563,7 +563,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -610,7 +610,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -660,7 +660,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -707,7 +707,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -755,7 +755,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics, false);
 
             diagnostics
                 .Select(d => d.Message)
@@ -799,7 +799,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
                 });
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics, false);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -817,7 +817,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 });
 
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics, false);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -834,7 +834,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 });
 
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics, false);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -851,7 +851,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 });
 
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics, false);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -876,7 +876,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 });
 
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics, false);
 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<NamedObjectType>();
@@ -903,7 +903,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // pick a valid path (int) - we should narrow the union type to just int
                 var intSyntax = TestSyntaxFactory.CreateInt(1234);
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), intSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), intSyntax, unionType, diagnostics, false);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.Int);
@@ -913,7 +913,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // pick an invalid path (object) - we should get diagnostics
                 var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), objectSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), objectSyntax, unionType, diagnostics, false);
                 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type bool | int | string but the provided value is of type object.");
                 narrowedType.Should().Be(unionType);
@@ -923,7 +923,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // try narrowing with a string
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, unionType, diagnostics, false);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.String);
@@ -937,7 +937,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // union of string literals with matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics, false);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<StringLiteralType>();
@@ -948,7 +948,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // union of string literals with non-matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics, false);
                 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type 'dave' | 'nora' but the provided value is of type 'zona'.");
                 narrowedType.Should().Be(stringLiteralUnionType);
