@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
             var registeredTypes = definedTypes.ToDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
             typeRegistrarMock
                 .Setup(x => x.GetType(It.IsAny<ResourceTypeReference>()))
-                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object));
+                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object, TypeSymbolValidationFlags.Default));
             typeRegistrarMock
                 .Setup(x => x.HasType(It.IsAny<ResourceTypeReference>()))
                 .Returns<ResourceTypeReference>(x => registeredTypes.ContainsKey(x));
@@ -37,9 +37,9 @@ namespace Bicep.Core.IntegrationTests
             var reference = ResourceTypeReference.Parse($"{fullyQualifiedType}@{apiVersion}");
 
             var resourceProperties = LanguageConstants.GetCommonResourceProperties(reference)
-                .Concat(new TypeProperty("properties", new NamedObjectType("properties", customProperties, null), TypePropertyFlags.Required));
+                .Concat(new TypeProperty("properties", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, customProperties, null), TypePropertyFlags.Required));
 
-            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), resourceProperties, null));
+            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, resourceProperties, null), TypeSymbolValidationFlags.Default);
         }
 
         [TestMethod]
@@ -69,6 +69,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
                     new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("additionalProps", new NamedObjectType(
                         "additionalProps",
+                        TypeSymbolValidationFlags.Default,
                         new [] {
                             new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.Required),
                             new TypeProperty("propB", LanguageConstants.String),
@@ -77,6 +78,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
                     )),
                     new TypeProperty("nestedObj", new NamedObjectType(
                         "nestedObj",
+                        TypeSymbolValidationFlags.Default, 
                         new [] {
                             new TypeProperty("readOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                             new TypeProperty("writeOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
@@ -178,12 +180,12 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
         {
             var customTypes = new [] {
                 CreateCustomResourceType("My.Rp/myType", "2020-01-01",
-                    new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", "discKey", new [] {
-                            new NamedObjectType("choiceA", new [] {
+                    new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", TypeSymbolValidationFlags.Default, "discKey", new [] {
+                            new NamedObjectType("choiceA", TypeSymbolValidationFlags.Default, new [] {
                                 new TypeProperty("discKey", new StringLiteralType("choiceA"), TypePropertyFlags.Required),
                                 new TypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
-                            new NamedObjectType("choiceB", new [] {
+                            new NamedObjectType("choiceB", TypeSymbolValidationFlags.Default, new [] {
                                 new TypeProperty("discKey", new StringLiteralType("choiceB"), TypePropertyFlags.Required),
                                 new TypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),

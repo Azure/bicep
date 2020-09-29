@@ -22,16 +22,19 @@ namespace Bicep.Cli
     {
         private readonly TextWriter outputWriter;
         private readonly TextWriter errorWriter;
+        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
 
-        public Program(TextWriter outputWriter, TextWriter errorWriter)
+        public Program(ResourceTypeRegistrar resourceTypeRegistrar, TextWriter outputWriter, TextWriter errorWriter)
         {
+            this.resourceTypeRegistrar = resourceTypeRegistrar;
             this.outputWriter = outputWriter;
             this.errorWriter = errorWriter;
         }
 
         public static int Main(string[] args)
         {
-            var program = new Program(Console.Out, Console.Error);
+            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+            var program = new Program(resourceTypeRegistrar, Console.Out, Console.Error);
             return program.Run(args);
         }
 
@@ -104,12 +107,11 @@ namespace Bicep.Cli
             }
         }
 
-        private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
+        private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
             string text = ReadFile(bicepPath);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
             var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
 
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());

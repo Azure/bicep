@@ -148,7 +148,7 @@ namespace Bicep.Core.TypeSystem
 
                 var declaredType = resourceTypeRegistrar.GetType(typeReference);
             
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics, warnOnTypeMismatch: true);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -182,7 +182,7 @@ namespace Bicep.Core.TypeSystem
                     case ObjectSyntax modifierSyntax:
                         var modifierType = LanguageConstants.CreateParameterModifierType(declaredType, assignedType);
                         // we don't need to actually use the narrowed type; just need to use this to collect assignment diagnostics
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, modifierSyntax, modifierType, diagnostics, warnOnTypeMismatch: false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, modifierSyntax, modifierType, diagnostics);
                         break;
                 }
 
@@ -278,7 +278,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new NamedObjectType(LanguageConstants.Object.Name, namedProperties, additionalPropertiesType);
+                return new NamedObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -337,7 +337,7 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Array;
                 }
 
-                return new TypedArrayType(aggregatedItemType);
+                return new TypedArrayType(aggregatedItemType, TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -427,7 +427,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
-            => AssignType(syntax, () => {
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var errors = new List<ErrorDiagnostic>();
 
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
@@ -489,7 +489,7 @@ namespace Bicep.Core.TypeSystem
                         {
                             case StringSyntax @string when @string.TryGetLiteralValue() is string literalValue:
                                 // indexing using a string literal so we know the name of the property
-                                return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue);
+                                return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, diagnostics);
 
                             default:
                                 // the property name is itself an expression
@@ -505,7 +505,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-            => AssignType(syntax, () => {
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var errors = new List<ErrorDiagnostic>();
 
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
@@ -533,7 +533,7 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Any;
                 }
 
-                return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName);
+                return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);
             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -707,7 +707,8 @@ namespace Bicep.Core.TypeSystem
         /// <param name="baseType">The base object type</param>
         /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
         /// <param name="propertyName">The resolved property name</param>
-        private static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName)
+        /// <param name="diagnostics">List of diagnostics to append diagnostics</param>
+        private static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, IList<Diagnostic> diagnostics)
         {
             if (baseType.TypeKind == TypeKind.Any)
             {
@@ -721,7 +722,13 @@ namespace Bicep.Core.TypeSystem
             {
                 if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 {
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(baseType, propertyName));
+                    var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
+                    diagnostics.Add(writeOnlyDiagnostic);
+
+                    if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
+                    {
+                        return new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>());
+                    }
                 }
 
                 // there is - return its type
@@ -741,11 +748,12 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var error = availableProperties.Any() ? 
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(baseType, propertyName, availableProperties) :
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(baseType, propertyName);
+            var unknownPropertyDiagnostic = availableProperties.Any() ? 
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties) :
+                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
+            diagnostics.Add(unknownPropertyDiagnostic);
 
-            return new ErrorTypeSymbol(error);
+            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
         }
 
         private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)

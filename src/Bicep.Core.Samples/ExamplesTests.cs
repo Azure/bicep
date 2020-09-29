@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
@@ -78,7 +79,7 @@ namespace Bicep.Core.Samples
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);
             
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             stream.Position = 0;

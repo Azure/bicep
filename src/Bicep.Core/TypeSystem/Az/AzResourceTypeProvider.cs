@@ -19,11 +19,13 @@ namespace Bicep.Core.TypeSystem.Az
                 reference,
                 new NamedObjectType(
                     reference.FormatName(),
+                    TypeSymbolValidationFlags.Permissive,
                         LanguageConstants.GetCommonResourceProperties(reference).Concat(
                         new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                         new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
                     ),
-                    null)));
+                    null),
+                TypeSymbolValidationFlags.Permissive));
         }
 
         private static TypeSymbol CreateEnumType(params string[] values)
@@ -36,6 +38,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var userAssignedIdentity = new NamedObjectType(
                 "UserAssignedIdentity",
+                TypeSymbolValidationFlags.Permissive,
                 new [] { 
                     new TypeProperty("clientId", LanguageConstants.String),
                     new TypeProperty("principalId", LanguageConstants.String),
@@ -44,14 +47,16 @@ namespace Bicep.Core.TypeSystem.Az
 
             var identity = new NamedObjectType(
                 "ManagedServiceIdentity",
+                TypeSymbolValidationFlags.Permissive,
                 new [] { 
                     new TypeProperty("type", CreateEnumType("UserAssigned"), TypePropertyFlags.None),
-                    new TypeProperty("userAssignedIdentities", new NamedObjectType("UserAssignedIdentities", Enumerable.Empty<TypeProperty>(), userAssignedIdentity), TypePropertyFlags.None),
+                    new TypeProperty("userAssignedIdentities", new NamedObjectType("UserAssignedIdentities", TypeSymbolValidationFlags.Permissive, Enumerable.Empty<TypeProperty>(), userAssignedIdentity), TypePropertyFlags.None),
                 },
                 null);
 
             var containerConfiguration = new NamedObjectType(
                 "ContainerConfiguration",
+                TypeSymbolValidationFlags.Permissive,
                 new [] {
                     new TypeProperty("containerGroupName", LanguageConstants.String, TypePropertyFlags.None),
                 },
@@ -59,6 +64,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var environmentVariable = new NamedObjectType(
                 "EnvironmentVariable",
+                TypeSymbolValidationFlags.Permissive,
                 new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("secureValue", LanguageConstants.String, TypePropertyFlags.None),
@@ -68,6 +74,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var storageAccountConfiguration = new NamedObjectType(
                 "StorageAccountConfiguration",
+                TypeSymbolValidationFlags.Permissive,
                 new [] {
                     new TypeProperty("storageAccountKey", LanguageConstants.String, TypePropertyFlags.None),
                     new TypeProperty("storageAccountName", LanguageConstants.String, TypePropertyFlags.None),
@@ -76,6 +83,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var scriptStatus = new NamedObjectType(
                 "ScriptStatus",
+                TypeSymbolValidationFlags.Permissive,
                 new [] {
                     new TypeProperty("containerInstanceId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("storageAccountId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -102,10 +110,10 @@ namespace Bicep.Core.TypeSystem.Az
 
             var scriptConfigurationBase = new [] {
                 new TypeProperty("primaryScriptUri", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("supportingScriptUris", new TypedArrayType(LanguageConstants.String), TypePropertyFlags.None),
+                new TypeProperty("supportingScriptUris", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Permissive), TypePropertyFlags.None),
                 new TypeProperty("scriptContent", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("arguments", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("environmentVariables", new TypedArrayType(environmentVariable), TypePropertyFlags.None),
+                new TypeProperty("environmentVariables", new TypedArrayType(environmentVariable, TypeSymbolValidationFlags.Permissive), TypePropertyFlags.None),
                 new TypeProperty("forceUpdateTag", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("retentionInterval", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("timeout", LanguageConstants.String, TypePropertyFlags.None),
@@ -113,6 +121,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var powerShellResourceProperties = new NamedObjectType(
                 "AzurePowerShellScriptProperties",
+                TypeSymbolValidationFlags.Permissive,
                 deploymentScriptPropertiesBase.Concat(scriptConfigurationBase).Concat(
                     new TypeProperty("azPowerShellVersion", LanguageConstants.String, TypePropertyFlags.Required)
                 ),
@@ -120,6 +129,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var powerShellResource = new NamedObjectType(
                 "AzurePowerShellScript",
+                TypeSymbolValidationFlags.Permissive,
                 baseResource.Concat(
                     new TypeProperty("kind", new StringLiteralType("AzurePowerShell"), TypePropertyFlags.Required),
                     new TypeProperty("properties", powerShellResourceProperties, TypePropertyFlags.Required)),
@@ -127,6 +137,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var azCliResourceProperties = new NamedObjectType(
                 "AzureCliScriptProperties",
+                TypeSymbolValidationFlags.Permissive,
                 deploymentScriptPropertiesBase.Concat(scriptConfigurationBase).Concat(
                     new TypeProperty("azCliVersion", LanguageConstants.String, TypePropertyFlags.Required)
                 ),
@@ -134,6 +145,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var azCliResource = new NamedObjectType(
                 "AzureCliScript",
+                TypeSymbolValidationFlags.Permissive,
                 baseResource.Concat(
                     new TypeProperty("kind", new StringLiteralType("AzureCLI"), TypePropertyFlags.Required),
                     new TypeProperty("properties", azCliResourceProperties, TypePropertyFlags.Required)),
@@ -143,11 +155,13 @@ namespace Bicep.Core.TypeSystem.Az
                 reference,
                 new DiscriminatedObjectType(
                     reference.FormatName(),
+                    TypeSymbolValidationFlags.Permissive,
                     "kind",
                     new [] {
                         powerShellResource,
                         azCliResource,
-                    })));
+                    }),
+                TypeSymbolValidationFlags.Permissive));
         }
 
         public ResourceType GetType(ResourceTypeReference typeReference)
@@ -160,7 +174,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // TODO move default definition into types assembly
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
+            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
         }
 
         public bool HasType(ResourceTypeReference typeReference)

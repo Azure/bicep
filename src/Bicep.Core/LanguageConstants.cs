@@ -43,9 +43,9 @@ namespace Bicep.Core
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type
-        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
+        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
-        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
@@ -64,7 +64,7 @@ namespace Bicep.Core
 
         public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
+            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
@@ -78,7 +78,7 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty("default", allowedValuesType);
 
-            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
+            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default), TypePropertyFlags.Constant);
 
             if (ReferenceEquals(primitiveType, Int))
             {
@@ -131,7 +131,7 @@ namespace Bicep.Core
             yield return new TypeProperty("kind", String);
             yield return new TypeProperty("managedBy", String);
 
-            var stringArray = new TypedArrayType(String);
+            var stringArray = new TypedArrayType(String, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("managedByExtended", stringArray);
 
             yield return new TypeProperty("location", String);
@@ -155,7 +155,7 @@ namespace Bicep.Core
 
             yield return new TypeProperty("properties", Object);
 
-            var resourceRefArray = new TypedArrayType(ResourceRef);
+            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly);
         }
     }

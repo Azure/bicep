@@ -286,13 +286,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP049",
                 $"The array index must be of type {LanguageConstants.String} or {LanguageConstants.Int} but the provided index was of type {wrongType}.");
 
-            public ErrorDiagnostic UnknownProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
+            public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP052",
                 $"The type {type} does not contain property '{badProperty}'.");
 
-            public ErrorDiagnostic UnknownPropertyWithAvailableProperties(TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new ErrorDiagnostic(
+            public Diagnostic UnknownPropertyWithAvailableProperties(bool warnInsteadOfError, TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP053",
                 $"The type {type} does not contain property '{badProperty}'. Available properties include '{availableProperties.ConcatString("', '")}'.");
 
@@ -420,8 +422,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP076",
                 $"Cannot index over expression of type {wrongType}. Arrays or objects are required.");
 
-            public ErrorDiagnostic WriteOnlyProperty(TypeSymbol type, string badProperty) => new ErrorDiagnostic(
+            public Diagnostic WriteOnlyProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP077",
                 $"The property '{badProperty}' on type '{type}' is write-only. Write-only properties cannot be accessed.");
 

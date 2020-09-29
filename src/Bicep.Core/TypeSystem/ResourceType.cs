@@ -6,11 +6,12 @@ namespace Bicep.Core.TypeSystem
 {
     public class ResourceType : TypeSymbol
     {
-        public ResourceType(ResourceTypeReference typeReference, ITypeReference body)
+        public ResourceType(ResourceTypeReference typeReference, ITypeReference body, TypeSymbolValidationFlags validationFlags)
             : base(typeReference.FormatName())
         {
             TypeReference = typeReference;
             Body = body;
+            ValidationFlags = validationFlags;
         }
 
         public override TypeKind TypeKind => TypeKind.Resource;
@@ -18,5 +19,7 @@ namespace Bicep.Core.TypeSystem
         public ResourceTypeReference TypeReference { get; }
 
         public ITypeReference Body { get; }
+
+        public override TypeSymbolValidationFlags ValidationFlags { get; }
     }
 }

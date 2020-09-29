@@ -323,6 +323,7 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 var badIndexer = sampleObject.myStr['s']
 //@[17:35) [BCP076 (Error)] Cannot index over expression of type 's'. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
+//@[20:48) [BCP076 (Error)] Cannot index over expression of type error. Arrays or objects are required. |sampleObject.myInner.fakeArr|
 //@[41:48) [BCP053 (Error)] The type object does not contain property 'fakeArr'. Available properties include 'anotherStr', 'otherArr'. |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[50:61) [BCP043 (Error)] This is not a valid expression. |a.b.c.bar()|
