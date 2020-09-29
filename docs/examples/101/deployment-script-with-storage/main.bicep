@@ -1,6 +1,3 @@
-// TODO - should not merge this example to master until it is working
-// blocked on strings in property names
-
 param location string = resourceGroup().location
 param scriptToExecute string = 'date' // will print current date & time on container
 param subId string = subscription().id // defaults to current sub

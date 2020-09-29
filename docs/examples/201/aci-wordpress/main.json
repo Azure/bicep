@@ -66,9 +66,6 @@
       "apiVersion": "2019-06-01",
       "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
-      "tags": {
-        "fakeDependsOn": "[resourceId('microsoft.authorization/roleAssignments', variables('roleAssignmentName'))]"
-      },
       "sku": {
         "name": "[parameters('storageAccountType')]"
       },
@@ -86,7 +83,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "replaceWithId": {}
+          "[variables('uamiId')]": {}
         }
       },
       "properties": {
@@ -101,6 +98,7 @@
         "timeout": "PT5M"
       },
       "dependsOn": [
+        "[resourceId('microsoft.managedIdentity/userAssignedIdentities', 'scratch')]",
         "[resourceId('microsoft.storage/storageAccounts', parameters('storageAccountName'))]"
       ]
     },
@@ -113,7 +111,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "replaceWithId": {}
+          "[variables('uamiId')]": {}
         }
       },
       "properties": {
@@ -128,6 +126,7 @@
         "timeout": "PT5M"
       },
       "dependsOn": [
+        "[resourceId('microsoft.managedIdentity/userAssignedIdentities', 'scratch')]",
         "[resourceId('microsoft.storage/storageAccounts', parameters('storageAccountName'))]"
       ]
     },
@@ -136,10 +135,6 @@
       "apiVersion": "2019-12-01",
       "name": "wordpress-containerinstance",
       "location": "[parameters('location')]",
-      "tags": {
-        "fakeDependsOn1": "[resourceId('Microsoft.Resources/deploymentScripts', format('{0}-{1}', variables('scriptName'), variables('sqlShareName')))]",
-        "fakeDependsOn2": "[resourceId('Microsoft.Resources/deploymentScripts', format('{0}-{1}', variables('scriptName'), variables('wpShareName')))]"
-      },
       "properties": {
         "containers": [
           {

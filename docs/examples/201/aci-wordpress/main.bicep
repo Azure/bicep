@@ -43,13 +43,11 @@ resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-previe
 var uamiId = resourceId(mi.type, mi.name)
 
 resource stg 'microsoft.storage/storageAccounts@2019-06-01' = {
+    dependsOn: [
+      miRoleAssign
+    ]
     name: storageAccountName
     location: location
-    tags: {
-      // todo: switch to dependsOn
-      // in quickstart template, they set a manual dependsOn to give time for the role assignment
-      fakeDependsOn: miRoleAssign.id
-    }
     sku: {
         name: storageAccountType
     }
@@ -65,9 +63,7 @@ resource dScriptWp 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = 
     identity: {
         type: 'UserAssigned'
         userAssignedIdentities: {
-            // todo - add expression once properties can be set as strings
-            replaceWithId: {
-            }
+            '${uamiId}': {}
         }
     }
     properties: {
@@ -92,9 +88,7 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
     identity: {
         type: 'UserAssigned'
         userAssignedIdentities: {
-            // todo - add expression once properties can be set as strings
-            replaceWithId: {
-            }
+            '${uamiId}': {}
         }
     }
     properties: {
@@ -112,13 +106,12 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
 }
 
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
+  dependsOn: [
+    dScriptSql
+    dScriptWp
+  ]
   name: 'wordpress-containerinstance'
   location: location
-  // todo - replace tags with dependsOn
-  tags: {
-    fakeDependsOn1: dScriptSql.id
-    fakeDependsOn2: dScriptWp.id
-  }
   properties: {
     containers: [
       {
