@@ -85,15 +85,15 @@
         "@types/vscode": "^1.14.0",
         "@typescript-eslint/eslint-plugin": "^4.0.0",
         "@typescript-eslint/parser": "^3.10.1",
-        "eslint": "^7.9.0",
-        "eslint-config-prettier": "^6.11.0",
+        "eslint": "^7.10.0",
+        "eslint-config-prettier": "^6.12.0",
         "eslint-plugin-header": "^3.1.0",
         "eslint-plugin-prettier": "^3.1.4",
         "gulp": "^4.0.2",
         "nerdbank-gitversioning": "^3.2.31",
         "prettier": "^2.1.2",
         "typescript": "^4.0.3",
-        "vsce": "^1.79.5"
+        "vsce": "^1.80.0"
     },
     "dependencies": {
         "triple-beam": "^1.3.0",
