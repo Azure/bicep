@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : SyntaxVisitor
     {
-        public class TypeAssignment
+        private class TypeAssignment
         {
             public TypeAssignment(ITypeReference reference)
                 : this(reference, Enumerable.Empty<Diagnostic>())
@@ -53,7 +53,7 @@ namespace Bicep.Core.TypeSystem
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
         }
 
-        public TypeAssignment GetTypeAssignment(SyntaxBase syntax)
+        private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
         {
             Visit(syntax);
 
@@ -64,6 +64,9 @@ namespace Bicep.Core.TypeSystem
 
             return typeAssignment;
         }
+
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax)
+            => GetTypeAssignment(syntax).Reference.Type;
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => assignedTypes.Values.SelectMany(x => x.Diagnostics);

@@ -31,8 +31,8 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static (ResourceTypeReference, Func<ResourceType>) Get_Microsoft_Resources_deploymentScripts_2020_10_01()
         {
-            // hand crafted from https://github.com/Azure/azure-rest-api-specs/blob/405df4e/specification/resources/resource-manager/Microsoft.Resources/stable/2020-10-01/deploymentScripts.json
-            var reference = ResourceTypeReference.Parse("Microsoft.Resources/deploymentScripts@2020-10-01");
+            // hand crafted from https://github.com/Azure/azure-rest-api-specs/blob/405df4e/specification/resources/resource-manager/Microsoft.Resources/preview/2019-10-01-preview/deploymentScripts.json
+            var reference = ResourceTypeReference.Parse("Microsoft.Resources/deploymentScripts@2019-10-01-preview");
 
             var userAssignedIdentity = new NamedObjectType(
                 "UserAssignedIdentity",

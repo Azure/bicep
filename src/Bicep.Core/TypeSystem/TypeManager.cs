@@ -22,11 +22,8 @@ namespace Bicep.Core.TypeSystem
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeRegistrar, this, bindings, cyclesBySyntax);
         }
 
-        private TypeAssignmentVisitor.TypeAssignment GetTypeAssignment(SyntaxBase syntax)
-            => typeAssignmentVisitor.GetTypeAssignment(syntax);
-
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
-            => GetTypeAssignment(syntax).Reference.Type;
+            => typeAssignmentVisitor.GetTypeInfo(syntax);
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();

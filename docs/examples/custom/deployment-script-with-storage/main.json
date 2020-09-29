@@ -44,7 +44,7 @@
     },
     {
       "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2019-10-01-preview",
       "name": "scriptWithStorage",
       "location": "[parameters('location')]",
       "kind": "AzureCLI",
@@ -73,7 +73,7 @@
   "outputs": {
     "scriptLogs": {
       "type": "string",
-      "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'scriptWithStorage')), '2020-10-01', 'Full').properties.log]"
+      "value": "[reference(format('{0}/logs/default', resourceId('Microsoft.Resources/deploymentScripts', 'scriptWithStorage')), '2019-10-01-preview', 'Full').properties.log]"
     }
   }
 }
