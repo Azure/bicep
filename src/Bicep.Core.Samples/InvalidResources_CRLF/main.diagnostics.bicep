@@ -30,7 +30,7 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
-//@[51:55) [BCP035 (Error)] The specified object is missing the following required properties: name. |{\r\n}|
+//@[51:55) [BCP035 (Warning)] The specified object is missing the following required properties: name. |{\r\n}|
 }
 
 // duplicate property at the top level
@@ -80,10 +80,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
   location: [
-//@[12:18) [BCP036 (Error)] The property 'location' expected a value of type string but the provided value is of type array. |[\r\n  ]|
+//@[12:18) [BCP036 (Warning)] The property 'location' expected a value of type string but the provided value is of type array. |[\r\n  ]|
   ]
   tags: 'tag are not a string?'
-//@[8:31) [BCP036 (Error)] The property 'tags' expected a value of type Tags but the provided value is of type 'tag are not a string?'. |'tag are not a string?'|
+//@[8:31) [BCP036 (Warning)] The property 'tags' expected a value of type Tags but the provided value is of type 'tag are not a string?'. |'tag are not a string?'|
 }
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -119,21 +119,21 @@ output resrefout bool = bar.id
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   id: 2
-//@[2:4) [BCP073 (Error)] The property 'id' is read-only. Expressions cannot be assigned to read-only properties. |id|
-//@[6:7) [BCP036 (Error)] The property 'id' expected a value of type string but the provided value is of type int. |2|
+//@[2:4) [BCP073 (Warning)] The property 'id' is read-only. Expressions cannot be assigned to read-only properties. |id|
+//@[6:7) [BCP036 (Warning)] The property 'id' expected a value of type string but the provided value is of type int. |2|
   type: 'hello'
-//@[2:6) [BCP073 (Error)] The property 'type' is read-only. Expressions cannot be assigned to read-only properties. |type|
-//@[8:15) [BCP036 (Error)] The property 'type' expected a value of type 'Microsoft.Foo/foos' but the provided value is of type 'hello'. |'hello'|
+//@[2:6) [BCP073 (Warning)] The property 'type' is read-only. Expressions cannot be assigned to read-only properties. |type|
+//@[8:15) [BCP036 (Warning)] The property 'type' expected a value of type 'Microsoft.Foo/foos' but the provided value is of type 'hello'. |'hello'|
   apiVersion: true
-//@[2:12) [BCP073 (Error)] The property 'apiVersion' is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
-//@[14:18) [BCP036 (Error)] The property 'apiVersion' expected a value of type '2020-02-02-alpha' but the provided value is of type bool. |true|
+//@[2:12) [BCP073 (Warning)] The property 'apiVersion' is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
+//@[14:18) [BCP036 (Warning)] The property 'apiVersion' expected a value of type '2020-02-02-alpha' but the provided value is of type bool. |true|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     baz.id
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type resource, but the provided item was of type string. |baz.id|
+//@[4:10) [BCP034 (Warning)] The enclosing array expected an item of type resource, but the provided item was of type string. |baz.id|
   ]
 }
 
@@ -141,9 +141,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type resource, but the provided item was of type 'hello'. |'hello'|
+//@[4:11) [BCP034 (Warning)] The enclosing array expected an item of type resource, but the provided item was of type 'hello'. |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type resource, but the provided item was of type bool. |true|
+//@[4:8) [BCP034 (Warning)] The enclosing array expected an item of type resource, but the provided item was of type bool. |true|
   ]
 }
 
@@ -168,8 +168,8 @@ var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:16) [BCP040 (Error)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${interpVal}'|
+//@[2:16) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${interpVal}'|
   '${undefinedSymbol}': true
-//@[2:22) [BCP040 (Error)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${undefinedSymbol}'|
+//@[2:22) [BCP040 (Warning)] String interpolation is not supported for keys on objects of type Microsoft.Foo/foos@2020-02-02-alpha. Permissible properties include 'dependsOn', 'eTag', 'extendedLocation', 'identity', 'kind', 'location', 'managedBy', 'managedByExtended', 'plan', 'properties', 'scale', 'sku', 'tags', 'zones'. |'${undefinedSymbol}'|
 //@[5:20) [BCP057 (Error)] The name 'undefinedSymbol' does not exist in the current context. |undefinedSymbol|
 }

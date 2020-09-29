@@ -36,33 +36,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 
                 var diagnostic = diagnosticMethod.Invoke(builder, mockParams.ToArray()) as Diagnostic;
 
-                if (mockParams.Any())
-                {
-                    // verify that all the params are actually being written in the message
-                    diagnostic!.Message.Should().ContainAll(CollectExpectedStrings(mockParams), $"method {diagnosticMethod.Name} should use all of its parameters in the format string.");
-                }
-
                 // verify that the Code is unique
                 definedCodes.Should().NotContain(diagnostic!.Code, $"Method {diagnosticMethod.Name} should be assigned a unique error code.");
                 definedCodes.Add(diagnostic!.Code);
-            }
-        }
-
-        private static IEnumerable<string> CollectExpectedStrings(IEnumerable<object> mockParameters)
-        {
-            foreach (object mockParameter in mockParameters)
-            {
-                if (mockParameter is IEnumerable<object> enumerable)
-                {
-                    foreach (object inner in enumerable)
-                    {
-                        yield return inner.ToString()!;
-                    }
-
-                    continue;
-                }
-
-                yield return mockParameter.ToString()!;
             }
         }
 
@@ -88,14 +64,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> {$"<value_{index}"};
             }
 
-            if (parameter.ParameterType == typeof(int))
+            if (parameter.ParameterType == typeof(int) || parameter.ParameterType == typeof(int?))
             {
                 return 0;
             }
 
-            if (parameter.ParameterType == typeof(int?))
+            if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
             {
-                return 0;
+                return false;
             }
 
             if (parameter.ParameterType == typeof(SymbolKind))

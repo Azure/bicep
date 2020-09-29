@@ -153,7 +153,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
             
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics, warnOnTypeMismatch: true);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -187,7 +187,7 @@ namespace Bicep.Core.TypeSystem
                     case ObjectSyntax modifierSyntax:
                         var modifierType = LanguageConstants.CreateParameterModifierType(declaredType, assignedType);
                         // we don't need to actually use the narrowed type; just need to use this to collect assignment diagnostics
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, modifierSyntax, modifierType, diagnostics);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, modifierSyntax, modifierType, diagnostics, warnOnTypeMismatch: false);
                         break;
                 }
 

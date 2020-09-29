@@ -6,6 +6,7 @@ using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.SemanticModel;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.Diagnostics
@@ -183,43 +184,51 @@ namespace Bicep.Core.Diagnostics
                 "BCP032",
                 "The value must be a compile-time constant.");
 
-            public ErrorDiagnostic ExpectedValueTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
+            public Diagnostic ExpectedValueTypeMismatch(bool warnInsteadOfError, object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP033",
                 $"Expected a value of type {expectedType} but the provided value is of type {actualType}.");
 
-            public ErrorDiagnostic ArrayTypeMismatch(object expectedType, object actualType) => new ErrorDiagnostic(
+            public Diagnostic ArrayTypeMismatch(bool warnInsteadOfError, object expectedType, object actualType) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP034",
                 $"The enclosing array expected an item of type {expectedType}, but the provided item was of type {actualType}.");
 
-            public ErrorDiagnostic MissingRequiredProperties(object properties) => new ErrorDiagnostic(
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, object properties) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP035",
                 $"The specified object is missing the following required properties: {properties}.");
 
-            public ErrorDiagnostic PropertyTypeMismatch(string property, TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
+            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP036",
                 $"The property '{property}' expected a value of type {expectedType} but the provided value is of type {actualType}.");
 
-            public ErrorDiagnostic DisallowedProperty(object property, object type) => new ErrorDiagnostic(
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, object property, object type) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP037",
                 $"The property '{property}' is not allowed on objects of type {type}.");
 
-            public ErrorDiagnostic DisallowedPropertyWithPermissibleProperties(object property, object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
+            public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, object property, object type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP038",
                 $"The property '{property}' is not allowed on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
 
-            public ErrorDiagnostic DisallowedInterpolatedKeyProperty(object type) => new ErrorDiagnostic(
+            public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, object type) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP039",
                 $"String interpolation is not supported for keys on objects of type {type}.");
 
-            public ErrorDiagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(object type, IEnumerable<string> validUnspecifiedProperties) => new ErrorDiagnostic(
+            public Diagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(bool warnInsteadOfError, object type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP040",
                 $"String interpolation is not supported for keys on objects of type {type}. Permissible properties include '{validUnspecifiedProperties.ConcatString("', '")}'.");
 
@@ -389,8 +398,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP072",
                 "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
 
-            public ErrorDiagnostic CannotAssignToReadOnlyProperty(string property) => new ErrorDiagnostic(
+            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP073",
                 $"The property '{property}' is read-only. Expressions cannot be assigned to read-only properties.");
 
@@ -414,8 +424,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP077",
                 $"The property '{badProperty}' on type '{type}' is write-only. Write-only properties cannot be accessed.");
 
-            public ErrorDiagnostic MissingRequiredProperty(string propertyName, TypeSymbol expectedType) => new ErrorDiagnostic(
+            public Diagnostic MissingRequiredProperty(bool warnInsteadOfError, string propertyName, TypeSymbol expectedType) => new Diagnostic(
                 TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP078",
                 $"The property '{propertyName}' requires a value of type {expectedType}, but none was supplied.");
 
