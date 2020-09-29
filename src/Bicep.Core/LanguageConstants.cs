@@ -102,6 +102,14 @@ namespace Bicep.Core
             yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
+        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
+        {
+            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+        }
+
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
         {
             /*
@@ -112,13 +120,10 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
-            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("type", new StringLiteralType(resourceTypeReference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("apiVersion", new StringLiteralType(resourceTypeReference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
+            {
+                yield return prop;
+            }
 
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
