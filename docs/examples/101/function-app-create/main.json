@@ -258,7 +258,7 @@
         "http20Enabled": true,
         "minTlsVersion": "1.2",
         "ftpsState": "AllAllowed",
-        "reservedInstanceCount": 0
+        "PreWarmedInstanceCount": 0
       },
       "tags": "[variables('appTags')]",
       "dependsOn": [
