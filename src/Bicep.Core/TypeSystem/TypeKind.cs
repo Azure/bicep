@@ -48,5 +48,10 @@ namespace Bicep.Core.TypeSystem
         /// Discriminated object type.
         /// </summary>
         DiscriminatedObject,
+
+        /// <summary>
+        /// Unassignable type
+        /// </summary>
+        Unassignable,
     }
 }

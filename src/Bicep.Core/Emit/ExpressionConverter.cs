@@ -78,6 +78,11 @@ namespace Bicep.Core.Emit
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
 
+                case InstanceFunctionCallSyntax instanceFunctionCall:
+                    return ConvertFunction(
+                        instanceFunctionCall.Name.IdentifierName,
+                        instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
+
                 case ArrayAccessSyntax arrayAccess:
                     return AppendProperty(
                         ToFunctionExpression(arrayAccess.BaseExpression),

@@ -46,7 +46,7 @@ namespace Bicep.Core.SemanticModel
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
-
+        
         public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
@@ -60,6 +60,7 @@ namespace Bicep.Core.SemanticModel
                 .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
             
+            // TODO: add a check to verify namespace
             foreach (IGrouping<string, DeclaredSymbol> group in duplicateSymbols)
             {
                 foreach (DeclaredSymbol duplicatedSymbol in group)

@@ -6,18 +6,23 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class ErrorTypeSymbol : TypeSymbol
+    public class UnassignableTypeSymbol : TypeSymbol
     {
         private const string ErrorTypeName = "error";
         private readonly ImmutableArray<ErrorDiagnostic> errors;
 
-        public ErrorTypeSymbol(ErrorDiagnostic error)
+        public UnassignableTypeSymbol(string name)
+            : base(name)
+        {
+        }
+
+        public UnassignableTypeSymbol(ErrorDiagnostic error)
             : base(ErrorTypeName)
         {
             this.errors = ImmutableArray.Create<ErrorDiagnostic>(error);
         }
 
-        public ErrorTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
+        public UnassignableTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
             : base(ErrorTypeName)
         {
             this.errors = errors.ToImmutableArray();
@@ -25,10 +30,10 @@ namespace Bicep.Core.TypeSystem
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            return this.errors;
+            return this.errors.IsDefaultOrEmpty ? ImmutableArray<ErrorDiagnostic>.Empty : this.errors;
         }
 
-        public override TypeKind TypeKind => TypeKind.Error;
+        public override TypeKind TypeKind => this.errors.IsDefaultOrEmpty ? TypeKind.Unassignable : TypeKind.Error;
     }
 }
 

@@ -83,7 +83,7 @@ namespace Bicep.Core.TypeSystem
             var valueType = typeManager.GetTypeInfo(syntax.Value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
-            if (valueType is ErrorTypeSymbol)
+            if (valueType is UnassignableTypeSymbol)
             {
                 return valueType.GetDiagnostics();
             }
@@ -102,7 +102,7 @@ namespace Bicep.Core.TypeSystem
             var defaultValueType = typeManager.GetTypeInfo(defaultValueSyntax.DefaultValue);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
-            if (defaultValueType is ErrorTypeSymbol)
+            if (defaultValueType is UnassignableTypeSymbol)
             {
                 return defaultValueType.GetDiagnostics();
             }

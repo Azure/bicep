@@ -6,7 +6,7 @@ namespace Bicep.Core.TypeSystem
 {
     public static class ErrorSymbolExtensions
     {
-        public static ErrorTypeSymbol ToErrorType(this ErrorSymbol errorSymbol) => new ErrorTypeSymbol(errorSymbol.GetDiagnostics());
+        public static UnassignableTypeSymbol ToErrorType(this ErrorSymbol errorSymbol) => new UnassignableTypeSymbol(errorSymbol.GetDiagnostics());
     }
 }
 

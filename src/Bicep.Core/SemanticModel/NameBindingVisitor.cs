@@ -88,6 +88,16 @@ namespace Bicep.Core.SemanticModel
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            base.VisitInstanceFunctionCallSyntax(syntax);
+
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+
+            // bind what we got - the type checker will validate if it fits
+            this.bindings.Add(syntax, symbol);
+        }
+
         private Symbol ValidateFunctionFlags(Symbol symbol, TextSpan span)
         {
             if (!(symbol is FunctionSymbol functionSymbol))
@@ -121,6 +131,17 @@ namespace Bicep.Core.SemanticModel
             // symbol does not exist in the local namespace
             // try it in the imported namespaces
 
+            // namespace check first
+            var namespaceSymbol = this.namespaces
+                .Where(ns => ns.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+
+            if (namespaceSymbol != null)
+            {
+                // found namespace symbol wins
+                return ValidateFunctionFlags(namespaceSymbol, span);
+            }
+
             // match in one of the namespaces
             var foundSymbols = this.namespaces
                 .Select(ns => ns.TryGetFunctionSymbol(name))
@@ -136,16 +157,6 @@ namespace Bicep.Core.SemanticModel
             var foundSymbol = foundSymbols.FirstOrDefault();
             if (foundSymbol == null)
             {
-                // last attempt, if symbol is not found in the local namespace, attempt to check the imported namespaces
-                var foundNamespace = this.namespaces
-                    .Where(ns => ns.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault();
-
-                if(foundNamespace != null)
-                {
-                    return foundNamespace!;
-                }
-                
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
             }
 
