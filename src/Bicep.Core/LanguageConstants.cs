@@ -50,9 +50,9 @@ namespace Bicep.Core
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static TypeSymbol? TryGetDeclarationType(string typeName)
+        public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
-            if (DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
+            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
             {
                 return primitiveType;
             }
@@ -69,7 +69,7 @@ namespace Bicep.Core
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object))
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
             {
                 // only string and object types have secure equivalents
                 yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
@@ -80,14 +80,14 @@ namespace Bicep.Core
 
             yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
 
-            if (ReferenceEquals(primitiveType, Int))
+            if (ReferenceEquals(primitiveType, Int) || ReferenceEquals(primitiveType, Any))
             {
                 // value constraints are valid on integer parameters only
                 yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
                 yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
             }
 
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array))
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array) || ReferenceEquals(primitiveType, Any))
             {
                 // strings and arrays can have length constraints
                 yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);

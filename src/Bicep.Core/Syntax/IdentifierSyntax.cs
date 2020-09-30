@@ -4,7 +4,10 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class IdentifierSyntax : SyntaxBase
+    /// <summary>
+    /// Represents a well-formed identifier.
+    /// </summary>
+    public class IdentifierSyntax : IdentifierSyntaxBase
     {
         public IdentifierSyntax(Token identifier)
         {
@@ -16,7 +19,7 @@ namespace Bicep.Core.Syntax
 
         public Token Identifier { get; }
 
-        public string IdentifierName => this.Identifier.Text;
+        public override string IdentifierName => this.Identifier.Text;
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitIdentifierSyntax(this);
 

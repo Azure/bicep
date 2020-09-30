@@ -10,10 +10,34 @@ param myInt int
 param
 //@[5:5) [BCP013 (Error)] Expected a parameter identifier at this location. ||
 
+param 3
+//@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. |3|
+//@[7:7) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+param % string
+//@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. |%|
+param % string 3 = 's'
+//@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. |%|
+//@[15:16) [BCP008 (Error)] Expected the '=' token, a parameter modifier, or a newline at this location. |3|
+
 param myBool bool
 
 param missingType
 //@[17:17) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+param malformedType 44
+//@[20:22) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |44|
+
+// malformed type but type check should still happen
+param malformedType2 44 = f
+//@[21:23) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |44|
+//@[26:27) [BCP057 (Error)] The name 'f' does not exist in the current context. |f|
+
+// malformed type but type check should still happen
+param malformedModifier 44 {
+//@[24:26) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |44|
+  secure: 's'
+//@[10:13) [BCP036 (Error)] The property 'secure' expected a value of type bool but the provided value is of type 's'. |'s'|
+}
 
 param myString2 string = 'string value'
 

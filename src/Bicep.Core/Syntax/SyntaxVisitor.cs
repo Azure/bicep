@@ -52,7 +52,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            this.Visit(syntax.ParameterKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Modifier);
@@ -66,7 +66,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            this.Visit(syntax.VariableKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
@@ -74,7 +74,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            this.Visit(syntax.ResourceKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
@@ -83,7 +83,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            this.Visit(syntax.OutputKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
@@ -93,6 +93,11 @@ namespace Bicep.Core.Syntax
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             this.Visit(syntax.Identifier);
+        }
+
+        public virtual void VisitMalformedIdentifierSyntax(MalformedIdentifierSyntax syntax)
+        {
+            this.VisitNodes(syntax.Tokens);
         }
 
         public virtual void VisitTypeSyntax(TypeSyntax syntax)
@@ -137,6 +142,10 @@ namespace Bicep.Core.Syntax
             {
                 this.Visit(element);
             }
+        }
+
+        public virtual void VisitMissingSyntax(MissingSyntax syntax)
+        {
         }
 
         public virtual void VisitObjectSyntax(ObjectSyntax syntax)

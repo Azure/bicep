@@ -4,18 +4,47 @@ bad
 
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
+//@[3:3) Variable <missing>. Type: error. Declaration start char: 0, length: 3
+
+// incomplete keyword
+// #completionTest(0,1) -> declarations
+v
+// #completionTest(0,1,2) -> declarations
+va
 
 // unassigned variable
 var foo
+//@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 7
+
+// malformed identifier
+var 2 
+//@[4:5) Variable <error>. Type: error. Declaration start char: 0, length: 6
+var $ = 23
+//@[4:5) Variable <error>. Type: int. Declaration start char: 0, length: 10
+var # 33 = 43
+//@[4:8) Variable <error>. Type: int. Declaration start char: 0, length: 13
 
 // no value assigned
 var foo =
+//@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 9
+
+// bad =
+var badEquals 2
+//@[4:13) Variable badEquals. Type: error. Declaration start char: 0, length: 15
+var badEquals2 3 true
+//@[4:14) Variable badEquals2. Type: error. Declaration start char: 0, length: 21
+
+// malformed identifier but type check should happen regardless
+var 2 = x
+//@[4:5) Variable <error>. Type: error. Declaration start char: 0, length: 9
 
 // bad token value
 var foo = &
+//@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 11
 
 // bad value
 var foo = *
+//@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 11
 
 // expressions
 var bar = x

@@ -68,6 +68,13 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void FileTreeNodesShouldHaveConsistentSpans(DataSet dataSet)
+        {
+            RunSpanConsistencyTest(dataSet.Bicep);
+        }
+
+        [DataTestMethod]
         [DataRow("")]
         [DataRow("param")]
         [DataRow("param\r\n")]
@@ -79,6 +86,7 @@ namespace Bicep.Core.IntegrationTests
         public void Oneliners_ShouldRoundTripSuccessfully(string contents)
         {
             RunRoundTripTest(contents);
+            RunSpanConsistencyTest(contents);
         }
 
         [DataTestMethod]
@@ -127,6 +135,42 @@ namespace Bicep.Core.IntegrationTests
             visitor.Visit(program);
 
             buffer.ToString().Should().Be(contents);
+        }
+
+        private static void RunSpanConsistencyTest(string text)
+        {
+            var program = SyntaxFactory.CreateFromText(text);
+            program.Should().BeOfType<ProgramSyntax>();
+
+            var visitor = new SpanConsistencyVisitor();
+            visitor.Visit(program);
+        }
+
+        private sealed class SpanConsistencyVisitor : SyntaxVisitor
+        {
+            private int maxPosition = 0;
+
+            protected override void VisitInternal(SyntaxBase node)
+            {
+                // trivia cause the spans of any particular node to be discontinuous
+                // but should be consistently increasing as we visit the tree
+                var span = node.Span;
+                span.Position.Should().BeGreaterOrEqualTo(this.maxPosition);
+                this.maxPosition = node.Span.Position;
+
+                base.VisitInternal(node);
+
+                this.maxPosition.Should().Be(span.Position + span.Length);
+            }
+
+            public override void VisitToken(Token token)
+            {
+                base.VisitToken(token);
+
+                var span = token.Span;
+                span.Position.Should().BeGreaterOrEqualTo(this.maxPosition);
+                this.maxPosition = span.Position + span.Length;
+            }
         }
     }
 }

@@ -23,21 +23,22 @@ namespace Bicep.Core.Parser
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
-
-            foreach (var diagnostic in syntax.LexerDiagnostics)
-            {
-                this.diagnostics.Add(diagnostic);
-            }
+            
+            this.diagnostics.AddRange(syntax.LexerDiagnostics);
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
             base.VisitSkippedTriviaSyntax(syntax);
 
-            foreach (var diagnostic in syntax.Diagnostics)
-            {
-                this.diagnostics.Add(diagnostic);
-            }
+            this.diagnostics.AddRange(syntax.Diagnostics);
+        }
+
+        public override void VisitMalformedIdentifierSyntax(MalformedIdentifierSyntax syntax)
+        {
+            base.VisitMalformedIdentifierSyntax(syntax);
+
+            this.diagnostics.AddRange(syntax.Diagnostics);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)

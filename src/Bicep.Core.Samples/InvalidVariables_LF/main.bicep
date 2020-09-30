@@ -5,11 +5,29 @@ bad
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 
+// incomplete keyword
+// #completionTest(0,1) -> declarations
+v
+// #completionTest(0,1,2) -> declarations
+va
+
 // unassigned variable
 var foo
 
+// malformed identifier
+var 2 
+var $ = 23
+var # 33 = 43
+
 // no value assigned
 var foo =
+
+// bad =
+var badEquals 2
+var badEquals2 3 true
+
+// malformed identifier but type check should happen regardless
+var 2 = x
 
 // bad token value
 var foo = &

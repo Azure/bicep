@@ -10,44 +10,135 @@ bad
 // incomplete
 //@[13:15) NewLine |\r\n|
 output 
-//@[0:6) SkippedTriviaSyntax
+//@[0:7) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
+//@[7:7)  MalformedIdentifierSyntax
+//@[7:7)   Missing ||
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
 //@[7:11) NewLine |\r\n\r\n|
 
 // missing type
 //@[15:17) NewLine |\r\n|
 output foo
-//@[0:10) SkippedTriviaSyntax
+//@[0:10) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:10)  Identifier |foo|
+//@[7:10)  IdentifierSyntax
+//@[7:10)   Identifier |foo|
+//@[10:10)  SkippedTriviaSyntax
+//@[10:10)  SkippedTriviaSyntax
+//@[10:10)  SkippedTriviaSyntax
 //@[10:14) NewLine |\r\n\r\n|
+
+// malformed identifier
+//@[23:25) NewLine |\r\n|
+output 2
+//@[0:8) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:8)  MalformedIdentifierSyntax
+//@[7:8)   Number |2|
+//@[8:8)  SkippedTriviaSyntax
+//@[8:8)  SkippedTriviaSyntax
+//@[8:8)  SkippedTriviaSyntax
+//@[8:12) NewLine |\r\n\r\n|
+
+// malformed type
+//@[17:19) NewLine |\r\n|
+output malformedType 3
+//@[0:22) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |malformedType|
+//@[21:22)  SkippedTriviaSyntax
+//@[21:22)   Number |3|
+//@[22:22)  SkippedTriviaSyntax
+//@[22:22)  SkippedTriviaSyntax
+//@[22:26) NewLine |\r\n\r\n|
+
+// malformed type but type check should still happen
+//@[52:54) NewLine |\r\n|
+output malformedType2 3 = 2 + null
+//@[0:34) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |malformedType2|
+//@[22:23)  SkippedTriviaSyntax
+//@[22:23)   Number |3|
+//@[24:25)  Assignment |=|
+//@[26:34)  BinaryOperationSyntax
+//@[26:27)   NumericLiteralSyntax
+//@[26:27)    Number |2|
+//@[28:29)   Plus |+|
+//@[30:34)   NullLiteralSyntax
+//@[30:34)    NullKeyword |null|
+//@[34:38) NewLine |\r\n\r\n|
+
+// malformed type assignment
+//@[28:30) NewLine |\r\n|
+output malformedAssignment 2 = 2
+//@[0:32) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |malformedAssignment|
+//@[27:28)  SkippedTriviaSyntax
+//@[27:28)   Number |2|
+//@[29:30)  Assignment |=|
+//@[31:32)  NumericLiteralSyntax
+//@[31:32)   Number |2|
+//@[32:36) NewLine |\r\n\r\n|
+
+// malformed type before assignment
+//@[35:37) NewLine |\r\n|
+output lol 2 = true
+//@[0:19) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:10)  IdentifierSyntax
+//@[7:10)   Identifier |lol|
+//@[11:12)  SkippedTriviaSyntax
+//@[11:12)   Number |2|
+//@[13:14)  Assignment |=|
+//@[15:19)  BooleanLiteralSyntax
+//@[15:19)   TrueKeyword |true|
+//@[19:23) NewLine |\r\n\r\n|
 
 // wrong type + missing value
 //@[29:31) NewLine |\r\n|
 output foo fluffy
-//@[0:17) SkippedTriviaSyntax
+//@[0:17) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:10)  Identifier |foo|
-//@[11:17)  Identifier |fluffy|
+//@[7:10)  IdentifierSyntax
+//@[7:10)   Identifier |foo|
+//@[11:17)  TypeSyntax
+//@[11:17)   Identifier |fluffy|
+//@[17:17)  SkippedTriviaSyntax
+//@[17:17)  SkippedTriviaSyntax
 //@[17:21) NewLine |\r\n\r\n|
 
 // missing value
 //@[16:18) NewLine |\r\n|
 output foo string
-//@[0:17) SkippedTriviaSyntax
+//@[0:17) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:10)  Identifier |foo|
-//@[11:17)  Identifier |string|
+//@[7:10)  IdentifierSyntax
+//@[7:10)   Identifier |foo|
+//@[11:17)  TypeSyntax
+//@[11:17)   Identifier |string|
+//@[17:17)  SkippedTriviaSyntax
+//@[17:17)  SkippedTriviaSyntax
 //@[17:21) NewLine |\r\n\r\n|
 
 // missing value
 //@[16:18) NewLine |\r\n|
 output foo string =
-//@[0:19) SkippedTriviaSyntax
+//@[0:19) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:10)  Identifier |foo|
-//@[11:17)  Identifier |string|
+//@[7:10)  IdentifierSyntax
+//@[7:10)   Identifier |foo|
+//@[11:17)  TypeSyntax
+//@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
+//@[19:19)  SkippedTriviaSyntax
 //@[19:23) NewLine |\r\n\r\n|
 
 // wrong string output values
@@ -153,12 +244,15 @@ output i int = [
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\r\n|
 output i int = }
-//@[0:16) SkippedTriviaSyntax
+//@[0:16) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:8)  Identifier |i|
-//@[9:12)  Identifier |int|
+//@[7:8)  IdentifierSyntax
+//@[7:8)   Identifier |i|
+//@[9:12)  TypeSyntax
+//@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
-//@[15:16)  RightBrace |}|
+//@[15:16)  SkippedTriviaSyntax
+//@[15:16)   RightBrace |}|
 //@[16:18) NewLine |\r\n|
 }
 //@[0:1) SkippedTriviaSyntax

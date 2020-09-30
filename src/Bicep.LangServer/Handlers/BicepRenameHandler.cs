@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        private static IdentifierSyntax? GetIdentifier(SyntaxBase syntax)
+        private static IdentifierSyntaxBase? GetIdentifier(SyntaxBase syntax)
         {
             switch (syntax)
             {
