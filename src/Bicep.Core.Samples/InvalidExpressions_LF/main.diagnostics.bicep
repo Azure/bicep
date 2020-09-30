@@ -326,7 +326,7 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) [BCP053 (Error)] The type object does not contain property 'fakeArr'. Available properties include 'anotherStr', 'otherArr'. |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[50:61) [BCP043 (Error)] This is not a valid expression. |a.b.c.bar()|
+//@[56:59) [BCP057 (Error)] The name 'bar' does not exist in the current context. |bar|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[36:47) [BCP043 (Error)] This is not a valid expression. |a.b.c.bar()|
+//@[42:45) [BCP057 (Error)] The name 'bar' does not exist in the current context. |bar|
 

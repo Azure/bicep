@@ -38,11 +38,13 @@ namespace Bicep.Core.TypeSystem
         /// <returns>Returns true if values of the specified source type are assignable to the target type. Returns false otherwise or null if assignability cannot be determined.</returns>
         public static bool? AreTypesAssignable(TypeSymbol? sourceType, TypeSymbol? targetType)
         {
+            // return null when sourceType, targetType is either null or sourceType is UnassignableTypeSymbol and contains errors -> GetDiagnostics() returns a list of errors or when targetType is UnassignableTypeSymbol
             if (sourceType == null || targetType == null || ( sourceType is UnassignableTypeSymbol unassignableTypeSymbol && unassignableTypeSymbol.GetDiagnostics().Any() ) || targetType is UnassignableTypeSymbol)
             {
                 return null;
             }
 
+            // sourceType is either AnyType or is UnassignableTypeSymbol and does not contain any errors.
             if (sourceType is AnyType || (sourceType is UnassignableTypeSymbol _unassignableTypeSymbol && !_unassignableTypeSymbol.GetDiagnostics().Any()))
             {
                 // "any" type is assignable to all types
