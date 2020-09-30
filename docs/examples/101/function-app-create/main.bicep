@@ -241,7 +241,7 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
     http20Enabled: true
     minTlsVersion: '1.2'
     ftpsState: 'AllAllowed'
-    reservedInstanceCount: 0
+    PreWarmedInstanceCount: 0
   }
   tags: appTags
 }
