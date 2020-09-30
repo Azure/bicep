@@ -10,6 +10,8 @@ using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -69,7 +71,8 @@ namespace Bicep.Core.Samples
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void ExampleIsValid(ExampleData example)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(example.BicepContents));
+            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
+            var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(example.BicepContents));
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
             using var stream = new MemoryStream();

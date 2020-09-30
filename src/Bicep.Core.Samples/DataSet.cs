@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using FluentAssertions;
@@ -18,8 +20,10 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainCompiled = "main.json";
+        public const string TestCompletionsPrefix = TestCompletionsDirectory + ".";
+        public const string TestCompletionsDirectory = "Completions";
 
-        private static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
+        public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
 
         private readonly Lazy<string> lazyBicep;
 
@@ -33,6 +37,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazySymbols;
 
+        private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
+
         public DataSet(string name)
         {
             this.Name = name;
@@ -43,6 +49,7 @@ namespace Bicep.Core.Samples
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
+            this.lazyCompletions = new Lazy<ImmutableDictionary<string, string>>(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
         public string Name { get; }
@@ -61,6 +68,8 @@ namespace Bicep.Core.Samples
 
         public string Syntax => this.lazySyntax.Value;
 
+        public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
+
         // validity is set by naming convention
 
         public bool IsValid => this.Name.Contains("Invalid", StringComparison.Ordinal) == false;
@@ -74,7 +83,9 @@ namespace Bicep.Core.Samples
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet) data[0]).Name}";
 
-        private string ReadDataSetFile(string fileName) => ReadFile($"{Prefix}{this.Name}.{fileName}");
+        private string ReadDataSetFile(string fileName) => ReadFile(GetStreamName(fileName));
+
+        private string GetStreamName(string fileName) => $"{Prefix}{this.Name}.{fileName}";
 
         public static string ReadFile(string streamName)
         {
@@ -84,6 +95,23 @@ namespace Bicep.Core.Samples
             using var reader = new StreamReader(stream ?? Stream.Null);
 
             return reader.ReadToEnd();
+        }
+
+        public static ImmutableDictionary<string, string> ReadDataSetDictionary(string streamNamePrefix)
+        {
+            var matches = Assembly.GetExecutingAssembly()
+                .GetManifestResourceNames()
+                .Where(streamName => streamName.StartsWith(streamNamePrefix))
+                .Select(streamName => (streamName, key: streamName.Substring(streamNamePrefix.Length)));
+
+            var builder = ImmutableDictionary.CreateBuilder<string, string>();
+
+            foreach (var (streamName, key) in matches)
+            {
+                builder.Add(key, ReadFile(streamName));
+            }
+
+            return builder.ToImmutable();
         }
     }
 }

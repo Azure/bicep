@@ -16,15 +16,17 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 DateParseHandling = DateParseHandling.None,
                 Formatting = Formatting.Indented,
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                ContractResolver = new DataSetContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
                 TypeNameHandling = TypeNameHandling.None
             };
 
-            settings.Converters.Add(new StringEnumConverter {NamingStrategy = new CamelCaseNamingStrategy()});
+            settings.Converters.Add(CreateEnumConverter());
 
             return settings;
         }
+
+        public static StringEnumConverter CreateEnumConverter() => new StringEnumConverter {NamingStrategy = new CamelCaseNamingStrategy(), AllowIntegerValues = false};
 
         public static JsonSerializer CreateSerializer() => JsonSerializer.Create(CreateSerializerSettings());
 

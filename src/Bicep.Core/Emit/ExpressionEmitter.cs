@@ -145,13 +145,19 @@ namespace Bicep.Core.Emit
         {
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                var keyText = propertySyntax.GetKeyText();
-                if (propertiesToOmit?.Contains(keyText) == true)
+                if (propertySyntax.TryGetKeyText() is string keyName)
                 {
-                    continue;
-                }
+                    if (propertiesToOmit?.Contains(keyName) == true)
+                    {
+                        continue;
+                    }
 
-                EmitPropertyExpression(keyText, propertySyntax.Value);
+                    EmitPropertyExpression(keyName, propertySyntax.Value);
+                }
+                else
+                {
+                    EmitPropertyExpressionWithExpressionKey(propertySyntax.Key, propertySyntax.Value);
+                }
             }
         }
 
@@ -165,6 +171,13 @@ namespace Bicep.Core.Emit
         {
             writer.WritePropertyName(name);
             EmitExpression(expression);
+        }
+
+        public void EmitPropertyExpressionWithExpressionKey(SyntaxBase expressionKey, SyntaxBase expressionValue)
+        {
+            var keyExpression = converter.ConvertExpression(expressionKey);
+            var keyText = ExpressionSerializer.SerializeExpression(keyExpression);
+            EmitPropertyExpression(keyText, expressionValue);
         }
 
         public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)

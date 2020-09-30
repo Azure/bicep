@@ -12,8 +12,11 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 var curliesInInterp = '{${123}{0}${true}}'
 
+// #completionTest(0) -> declarations
+
 // verify correct bracket escaping
 var bracketInTheMiddle = 'a[b]'
+// #completionTest(25) -> symbolsPlusTypes
 var bracketAtBeginning = '[test'
 var enclosingBrackets = '[test]'
 var emptyJsonArray = '[]'
@@ -49,6 +52,12 @@ var myObj = {
       'hello'
     ]
   }
+}
+
+var objWithInterp = {
+  '${myStr}': 1
+  'abc${myStr}def': 2
+  '${interp1}abc${interp2}': '${interp1}abc${interp2}'
 }
 
 // array
@@ -122,6 +131,8 @@ var previousEmitLimit = [
     }
   }
 ]
+
+// #completionTest(0) -> declarations
 
 var myVar = 'hello'
 var myVar2 = any({

@@ -126,6 +126,9 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[39:42)   StringRightPiece |}}'|
 //@[42:44) NewLine |\n\n|
 
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
+
 // verify correct bracket escaping
 //@[34:35) NewLine |\n|
 var bracketInTheMiddle = 'a[b]'
@@ -137,6 +140,8 @@ var bracketInTheMiddle = 'a[b]'
 //@[25:31)  StringSyntax
 //@[25:31)   StringComplete |'a[b]'|
 //@[31:32) NewLine |\n|
+// #completionTest(25) -> symbolsPlusTypes
+//@[42:43) NewLine |\n|
 var bracketAtBeginning = '[test'
 //@[0:32) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -410,6 +415,67 @@ var myObj = {
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var objWithInterp = {
+//@[0:116) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |objWithInterp|
+//@[18:19)  Assignment |=|
+//@[20:116)  ObjectSyntax
+//@[20:21)   LeftBrace |{|
+//@[21:22)   NewLine |\n|
+  '${myStr}': 1
+//@[2:16)   ObjectPropertySyntax
+//@[2:12)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:10)     VariableAccessSyntax
+//@[5:10)      IdentifierSyntax
+//@[5:10)       Identifier |myStr|
+//@[10:12)     StringRightPiece |}'|
+//@[12:13)    Colon |:|
+//@[14:15)    NumericLiteralSyntax
+//@[14:15)     Number |1|
+//@[15:16)    NewLine |\n|
+  'abc${myStr}def': 2
+//@[2:22)   ObjectPropertySyntax
+//@[2:18)    StringSyntax
+//@[2:8)     StringLeftPiece |'abc${|
+//@[8:13)     VariableAccessSyntax
+//@[8:13)      IdentifierSyntax
+//@[8:13)       Identifier |myStr|
+//@[13:18)     StringRightPiece |}def'|
+//@[18:19)    Colon |:|
+//@[20:21)    NumericLiteralSyntax
+//@[20:21)     Number |2|
+//@[21:22)    NewLine |\n|
+  '${interp1}abc${interp2}': '${interp1}abc${interp2}'
+//@[2:55)   ObjectPropertySyntax
+//@[2:27)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:12)     VariableAccessSyntax
+//@[5:12)      IdentifierSyntax
+//@[5:12)       Identifier |interp1|
+//@[12:18)     StringMiddlePiece |}abc${|
+//@[18:25)     VariableAccessSyntax
+//@[18:25)      IdentifierSyntax
+//@[18:25)       Identifier |interp2|
+//@[25:27)     StringRightPiece |}'|
+//@[27:28)    Colon |:|
+//@[29:54)    StringSyntax
+//@[29:32)     StringLeftPiece |'${|
+//@[32:39)     VariableAccessSyntax
+//@[32:39)      IdentifierSyntax
+//@[32:39)       Identifier |interp1|
+//@[39:45)     StringMiddlePiece |}abc${|
+//@[45:52)     VariableAccessSyntax
+//@[45:52)      IdentifierSyntax
+//@[45:52)       Identifier |interp2|
+//@[52:54)     StringRightPiece |}'|
+//@[54:55)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -966,6 +1032,9 @@ var previousEmitLimit = [
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(0) -> declarations
+//@[37:39) NewLine |\n\n|
 
 var myVar = 'hello'
 //@[0:19) VariableDeclarationSyntax

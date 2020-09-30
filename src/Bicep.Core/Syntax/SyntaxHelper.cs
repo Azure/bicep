@@ -15,7 +15,7 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            var allowedProperty = modifierObject.Properties.SingleOrDefault(p => p.GetKeyText() == LanguageConstants.ParameterAllowedPropertyName);
+            var allowedProperty = modifierObject.Properties.SingleOrDefault(p => p.TryGetKeyText() == LanguageConstants.ParameterAllowedPropertyName);
             if (allowedProperty == null)
             {
                 return null;

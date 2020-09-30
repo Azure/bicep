@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parser
@@ -54,14 +55,14 @@ namespace Bicep.Core.Parser
             base.VisitObjectSyntax(syntax);
 
             var duplicatedProperties = syntax.Properties
-                .GroupBy(propertySyntax => propertySyntax.GetKeyText())
+                .GroupByExcludingNull(prop => prop.TryGetKeyText(), LanguageConstants.IdentifierComparer)
                 .Where(group => group.Count() > 1);
 
-            foreach (IGrouping<string, ObjectPropertySyntax> group in duplicatedProperties)
+            foreach (var group in duplicatedProperties)
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(duplicatedProperty.GetKeyText()));
+                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(group.Key));
                 }
             }
         }

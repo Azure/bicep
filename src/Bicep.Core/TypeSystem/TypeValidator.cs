@@ -13,6 +13,8 @@ namespace Bicep.Core.TypeSystem
 {
     public static class TypeValidator
     {
+        public delegate Diagnostic TypeMismatchErrorFactory(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression);
+
         /// <summary>
         /// Gets the list of compile-time constant violations. An error is logged for every occurrence of an expression that is not entirely composed of literals.
         /// It may return inaccurate results for malformed trees.
@@ -55,6 +57,10 @@ namespace Bicep.Core.TypeSystem
 
                 case ResourceRefType _:
                     return sourceType.TypeKind == TypeKind.Resource;
+
+                case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
+                    // When assigning a resource, we're really assigning the value of the resource body.
+                    return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
 
                 case StringLiteralType _ when sourceType is StringLiteralType:
                     // The name *is* the escaped string value, so we must have an exact match.
@@ -107,25 +113,29 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static IEnumerable<Diagnostic> GetExpressionAssignmentDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic>? typeMismatchErrorFactory = null)
+        public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, IList<Diagnostic> diagnostics)
         {
             // generic error creator if a better one was not specified.
-            typeMismatchErrorFactory ??= (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
+            TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
 
-            var diagnostics = new List<Diagnostic>();
-            GetExpressionAssignmentDiagnosticsInternal(typeManager, expression, targetType, diagnostics, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
-
-            return diagnostics;
+            return NarrowTypeInternal(typeManager, expression, targetType, diagnostics, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
 
-        private static void GetExpressionAssignmentDiagnosticsInternal(ITypeManager typeManager,
+        private static TypeSymbol NarrowTypeInternal(ITypeManager typeManager,
             SyntaxBase expression,
             TypeSymbol targetType,
             IList<Diagnostic> diagnostics,
-            Func<TypeSymbol, TypeSymbol, SyntaxBase, Diagnostic> typeMismatchErrorFactory,
+            TypeMismatchErrorFactory typeMismatchErrorFactory,
             bool skipConstantCheck,
             bool skipTypeErrors)
         {
+            if (targetType is ResourceType targetResourceType)
+            {
+                // When assigning a resource, we're really assigning the value of the resource body.
+                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnostics, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+                return new ResourceType(targetResourceType.TypeReference, narrowedBody);
+            }
+
             // TODO: The type of this expression and all subexpressions should be cached
             TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
 
@@ -140,68 +150,74 @@ namespace Bicep.Core.TypeSystem
             {
                 // fundamentally different types - cannot assign
                 diagnostics.Add(typeMismatchErrorFactory(targetType, expressionType, expression));
-                return;
+                return targetType;
             }
 
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {
-                GetObjectAssignmentDiagnostics(typeManager, objectValue, targetObjectType, diagnostics, skipConstantCheck);
-                return;
+                return NarrowObjectType(typeManager, objectValue, targetObjectType, diagnostics, skipConstantCheck);
             }
 
             if (expression is ObjectSyntax objectDiscriminated && targetType is DiscriminatedObjectType targetDiscriminated)
             {
-                GetDiscriminatedObjectAssignmentDiagnostics(typeManager, objectDiscriminated, targetDiscriminated, diagnostics, skipConstantCheck);
-                return;
+                return NarrowDiscriminatedObjectType(typeManager, objectDiscriminated, targetDiscriminated, diagnostics, skipConstantCheck);
             }
 
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
-                GetArrayAssignmentDiagnostics(typeManager, arrayValue, targetArrayType, diagnostics, skipConstantCheck);
-                return;
+                return NarrowArrayAssignmentType(typeManager, arrayValue, targetArrayType, diagnostics, skipConstantCheck);
             }
+
+            if (targetType is UnionType targetUnionType)
+            {
+                return UnionType.Create(targetUnionType.Members.Where(x => AreTypesAssignable(expressionType, x.Type) == true));
+            }
+
+            return targetType;
         }
 
-        private static void GetArrayAssignmentDiagnostics(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
+        private static TypeSymbol NarrowArrayAssignmentType(ITypeManager typeManager, ArraySyntax expression, ArrayType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
         {
             // if we have parse errors, no need to check assignability
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {
-                return;
+                return targetType;
             }
 
+            var arrayProperties = new List<TypeSymbol>();
             foreach (var arrayItemSyntax in expression.Items)
             {
-                GetExpressionAssignmentDiagnosticsInternal(
+                arrayProperties.Add(NarrowTypeInternal(
                     typeManager,
                     arrayItemSyntax.Value,
                     targetType.Item.Type,
                     diagnostics,
                     (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
                     skipConstantCheck,
-                    skipTypeErrors: true);
+                    skipTypeErrors: true));
             }
+
+            return new TypedArrayType(UnionType.Create(arrayProperties));
         }
 
-        private static void GetDiscriminatedObjectAssignmentDiagnostics(ITypeManager typeManager, ObjectSyntax expression, DiscriminatedObjectType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
+        private static TypeSymbol NarrowDiscriminatedObjectType(ITypeManager typeManager, ObjectSyntax expression, DiscriminatedObjectType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
         {
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {
-                return;
+                return LanguageConstants.Any;
             }
 
-            var propertyMap = expression.ToPropertyDictionary();
-
-            if (!propertyMap.TryGetValue(targetType.DiscriminatorKey, out var discriminatorProperty))
+            var discriminatorProperty = expression.Properties.FirstOrDefault(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), targetType.DiscriminatorKey));
+            if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
-                return;
+                return LanguageConstants.Any;
             }
 
             // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
@@ -212,14 +228,14 @@ namespace Bicep.Core.TypeSystem
             if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
             {
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
-                return;
+                return LanguageConstants.Any;
             }
 
             if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
             {
                 // no matches
                 diagnostics.Add(DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
-                return;
+                return LanguageConstants.Any;
             }
 
             if (!(selectedObjectReference.Type is ObjectType selectedObjectType))
@@ -228,10 +244,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             // we have a match!
-            GetObjectAssignmentDiagnostics(typeManager, expression, selectedObjectType, diagnostics, skipConstantCheck);
+            return NarrowObjectType(typeManager, expression, selectedObjectType, diagnostics, skipConstantCheck);
         }
 
-        private static void GetObjectAssignmentDiagnostics(ITypeManager typeManager, ObjectSyntax expression, ObjectType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
+        private static TypeSymbol NarrowObjectType(ITypeManager typeManager, ObjectSyntax expression, ObjectType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
         {
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
@@ -239,13 +255,13 @@ namespace Bicep.Core.TypeSystem
             // we should not return the parse errors however because they will get double collected
             if (expression.HasParseErrors())
             {
-                return;
+                return targetType;
             }
 
-            var propertyMap = expression.ToPropertyDictionary();
+            var namedPropertyMap = expression.ToNamedPropertyDictionary();
 
             var missingRequiredProperties = targetType.Properties.Values
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && propertyMap.ContainsKey(p.Name) == false)
+                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
                 .Select(p => p.Name)
                 .OrderBy(p => p)
                 .ConcatString(LanguageConstants.ListSeparator);
@@ -254,9 +270,10 @@ namespace Bicep.Core.TypeSystem
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(missingRequiredProperties));
             }
 
+            var narrowedProperties = new List<TypeProperty>();
             foreach (var declaredProperty in targetType.Properties.Values)
             {
-                if (propertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
+                if (namedPropertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
                 {
                     bool skipConstantCheckForProperty = skipConstantCheck;
 
@@ -279,7 +296,7 @@ namespace Bicep.Core.TypeSystem
 
                     // declared property is specified in the value object
                     // validate type
-                    GetExpressionAssignmentDiagnosticsInternal(
+                    var narrowedType = NarrowTypeInternal(
                         typeManager,
                         declaredPropertySyntax.Value,
                         declaredProperty.TypeReference.Type,
@@ -287,29 +304,43 @@ namespace Bicep.Core.TypeSystem
                         (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
+                        
+                    narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
+                }
+                else
+                {
+                    narrowedProperties.Add(declaredProperty);
                 }
             }
 
             // find properties that are specified on in the expression object but not declared in the schema
             var extraProperties = expression.Properties
-                .Select(p => p.GetKeyText())
-                .Except(targetType.Properties.Values.Select(p => p.Name), LanguageConstants.IdentifierComparer)
-                .Select(name => propertyMap[name]);
+                .Where(p => !(p.TryGetKeyText() is string keyName) || !targetType.Properties.ContainsKey(keyName));
 
             if (targetType.AdditionalPropertiesType == null)
             {
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+                    .Where(p => !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
-                    .Except(expression.Properties.Select(p => p.GetKeyText()), LanguageConstants.IdentifierComparer)
                     .OrderBy(x => x);
 
                 // extra properties are not allowed by the type
                 foreach (var extraProperty in extraProperties)
                 {
-                    var error = validUnspecifiedProperties.Any() ? 
-                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(extraProperty.GetKeyText(), targetType.Name, validUnspecifiedProperties) :
-                        DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(extraProperty.GetKeyText(), targetType.Name);
+                    ErrorDiagnostic error;
+                    if (extraProperty.TryGetKeyText() is string keyName)
+                    {
+                        error = validUnspecifiedProperties.Any() ? 
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(keyName, targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(keyName, targetType.Name);
+                    }
+                    else
+                    {
+                        error = validUnspecifiedProperties.Any() ? 
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(targetType.Name);
+                    }
 
                     diagnostics.AddRange(error.AsEnumerable());
                 }
@@ -331,17 +362,30 @@ namespace Bicep.Core.TypeSystem
                         skipConstantCheckForProperty = true;
                     }
 
-                    GetExpressionAssignmentDiagnosticsInternal(
+                    TypeMismatchErrorFactory typeMismatchErrorFactory;
+                    if (extraProperty.TryGetKeyText() is string keyName)
+                    {
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(keyName, expectedType, actualType);
+                    }
+                    else
+                    {
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType, actualType);
+                    }
+
+                    var narrowedProperty = NarrowTypeInternal(
                         typeManager,
                         extraProperty.Value,
                         targetType.AdditionalPropertiesType.Type,
                         diagnostics,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(extraProperty.GetKeyText(), expectedType, actualType),
+                        typeMismatchErrorFactory,
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
+
+                    // TODO should we try and narrow the additional properties type? May be difficult
                 }
             }
+
+            return new NamedObjectType(targetType.Name, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
         }
     }
 }
-

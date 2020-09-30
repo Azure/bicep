@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
 
                 case ObjectSyntax modifierSyntax:
                     // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
-                    var properties = modifierSyntax.ToPropertyValueDictionary();
+                    var properties = modifierSyntax.ToKnownPropertyValueDictionary();
 
                     this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
 

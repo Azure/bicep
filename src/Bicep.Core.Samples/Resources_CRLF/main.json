@@ -29,7 +29,8 @@
     "resourceCRef": {
       "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
     },
-    "setResourceCRef": true
+    "setResourceCRef": true,
+    "myInterpKey": "abc"
   },
   "resources": [
     {
@@ -216,6 +217,16 @@
         "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
         "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
       ]
+    },
+    {
+      "type": "My.Rp/interp",
+      "apiVersion": "2020-01-01",
+      "name": "interpTest",
+      "properties": {
+        "[variables('myInterpKey')]": 1,
+        "[format('abc{0}def', variables('myInterpKey'))]": 2,
+        "[format('{0}abc{1}', variables('myInterpKey'), variables('myInterpKey'))]": 3
+      }
     }
   ],
   "outputs": {

@@ -1,6 +1,3 @@
-// TODO - should not merge this example to master until it is working
-// blocked on strings in property names
-
 param location string = resourceGroup().location
 param scriptToExecute string = 'date' // will print current date & time on container
 param subId string = subscription().id // defaults to current sub
@@ -27,9 +24,7 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      // todo - add expression once properties can be set as strings
-      replaceWithId: {
-      }
+      '${uamiId}': { }
     }
   }
   properties: {

@@ -135,3 +135,12 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: badDepends3.dependsOn
 }
+
+var interpVal = 'abc'
+//@[4:13) Variable interpVal. Type: 'abc'. Declaration start char: 0, length: 21
+resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[9:18) Resource badInterp. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 205
+  name: 'test'
+  '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
+  '${undefinedSymbol}': true
+}

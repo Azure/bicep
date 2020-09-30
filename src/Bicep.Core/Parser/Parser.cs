@@ -643,7 +643,7 @@ namespace Bicep.Core.Parser
                     current.Type switch {
                         TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
                         TokenType.StringComplete => this.InterpolableString(),
-                        TokenType.StringLeftPiece => throw new ExpectedTokenException(current, b => b.StringInterpolationNotPermittedInObjectPropertyKey()),
+                        TokenType.StringLeftPiece => this.InterpolableString(),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
                     }, b => b.ExpectedPropertyName());
 

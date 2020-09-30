@@ -6,8 +6,8 @@ bad
 //@[0:3) Identifier |bad|
 //@[3:5) NewLine |\n\n|
 
-// incomplete variable declaration
-//@[34:35) NewLine |\n|
+// incomplete variable declaration #completionTest(0,1,2) -> declarations
+//@[73:74) NewLine |\n|
 var
 //@[0:3) Identifier |var|
 //@[3:5) NewLine |\n\n|
@@ -184,6 +184,25 @@ var testDupe = {
 //@[11:12) Colon |:|
 //@[13:17) TrueKeyword |true|
 //@[17:18) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// interpolation with type errors in key
+//@[40:41) NewLine |\n|
+var objWithInterp = {
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |objWithInterp|
+//@[18:19) Assignment |=|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+  'ab${nonExistentIdentifier}cd': true
+//@[2:7) StringLeftPiece |'ab${|
+//@[7:28) Identifier |nonExistentIdentifier|
+//@[28:32) StringRightPiece |}cd'|
+//@[32:33) Colon |:|
+//@[34:38) TrueKeyword |true|
+//@[38:39) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

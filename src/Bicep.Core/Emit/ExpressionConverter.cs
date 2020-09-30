@@ -132,7 +132,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
 
-            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.GetKeyText(), "name"));
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), "name"));
             if (namePropertySyntax == null)
             {
                 // this condition should have already been validated by the type checker
@@ -227,10 +227,23 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertString(StringSyntax syntax)
         {
-            if (!syntax.IsInterpolated())
+            if (syntax.TryGetLiteralValue() is string literalStringValue)
             {
                 // no need to build a format string
-                return new JTokenExpression(syntax.GetLiteralValue());;
+                return new JTokenExpression(literalStringValue);;
+            }
+
+            if (syntax.Expressions.Length == 1)
+            {
+                const string emptyStringOpen = LanguageConstants.StringDelimiter + LanguageConstants.StringHoleOpen; // '${
+                const string emptyStringClose = LanguageConstants.StringHoleClose + LanguageConstants.StringDelimiter; // }'
+
+                // Special-case interpolation of format '${myValue}' because it's a common pattern for userAssignedIdentities.
+                // There's no need for a 'format' function because we just have a single expression with no outer formatting.
+                if (syntax.StringTokens[0].Text == emptyStringOpen && syntax.StringTokens[1].Text == emptyStringClose)
+                {
+                    return ConvertExpression(syntax.Expressions[0]);
+                }
             }
 
             var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
