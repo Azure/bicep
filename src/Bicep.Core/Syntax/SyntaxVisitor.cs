@@ -52,7 +52,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            this.Visit(syntax.ParameterKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Modifier);
@@ -66,7 +66,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            this.Visit(syntax.VariableKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
@@ -74,7 +74,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            this.Visit(syntax.ResourceKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
@@ -83,7 +83,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            this.Visit(syntax.OutputKeyword);
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
@@ -92,7 +92,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
-            this.Visit(syntax.Identifier);
+            this.Visit(syntax.Child);
         }
 
         public virtual void VisitTypeSyntax(TypeSyntax syntax)

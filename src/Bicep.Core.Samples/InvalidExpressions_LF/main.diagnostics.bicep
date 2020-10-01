@@ -4,26 +4,37 @@
 
 // bad expressions
 var bad = a+
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[12:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = *
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |*|
 var bad = /
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |/|
 var bad = %
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |%|
 var bad = 33-
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[13:13) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = --33
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |-|
 var bad = 3 * 4 /
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[17:17) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = 222222222222222222222222222222222222222222 * 4
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:52) [BCP010 (Error)] Expected a valid 32-bit signed integer. |222222222222222222222222222222222222222222|
 var bad = (null) ?
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[18:18) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = (null) ? :
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |:|
 var bad = (null) ? !
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[20:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 var bad = (null)!
 //@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
@@ -32,8 +43,10 @@ var bad = (null)[0]
 //@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:16) [BCP076 (Error)] Cannot index over expression of type null. Arrays or objects are required. |(null)|
 var bad = ()
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
 var bad = 
+//@[4:7) [BCP028 (Error)] Identifier 'bad' is declared multiple times. Remove or rename the duplicates. |bad|
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 // variables not supported
@@ -61,10 +74,12 @@ var not = !{
 
 // unary not chaining will be added in the future
 var not = !!!!!!!true
+//@[4:7) [BCP028 (Error)] Identifier 'not' is declared multiple times. Remove or rename the duplicates. |not|
 //@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |!|
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
 var minus = ------12
+//@[4:9) [BCP028 (Error)] Identifier 'minus' is declared multiple times. Remove or rename the duplicates. |minus|
 //@[13:14) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |-|
 
 // unary minus

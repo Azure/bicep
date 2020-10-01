@@ -120,14 +120,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.OutputKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitOutputDeclarationSyntax(syntax);
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.ParameterKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitParameterDeclarationSyntax(syntax);
         }
@@ -155,7 +155,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.ResourceKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitResourceDeclarationSyntax(syntax);
         }
@@ -260,7 +260,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.VariableKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }

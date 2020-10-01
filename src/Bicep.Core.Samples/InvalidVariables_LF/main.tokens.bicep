@@ -12,6 +12,19 @@ var
 //@[0:3) Identifier |var|
 //@[3:5) NewLine |\n\n|
 
+// incomplete keyword
+//@[21:22) NewLine |\n|
+// #completionTest(0,1) -> declarations
+//@[39:40) NewLine |\n|
+v
+//@[0:1) Identifier |v|
+//@[1:2) NewLine |\n|
+// #completionTest(0,1,2) -> declarations
+//@[41:42) NewLine |\n|
+va
+//@[0:2) Identifier |va|
+//@[2:4) NewLine |\n\n|
+
 // unassigned variable
 //@[22:23) NewLine |\n|
 var foo
@@ -19,12 +32,55 @@ var foo
 //@[4:7) Identifier |foo|
 //@[7:9) NewLine |\n\n|
 
+// malformed identifier
+//@[23:24) NewLine |\n|
+var 2 
+//@[0:3) Identifier |var|
+//@[4:5) Number |2|
+//@[6:7) NewLine |\n|
+var $ = 23
+//@[0:3) Identifier |var|
+//@[4:5) Unrecognized |$|
+//@[6:7) Assignment |=|
+//@[8:10) Number |23|
+//@[10:11) NewLine |\n|
+var # 33 = 43
+//@[0:3) Identifier |var|
+//@[4:5) Unrecognized |#|
+//@[6:8) Number |33|
+//@[9:10) Assignment |=|
+//@[11:13) Number |43|
+//@[13:15) NewLine |\n\n|
+
 // no value assigned
 //@[20:21) NewLine |\n|
 var foo =
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |foo|
 //@[8:9) Assignment |=|
+//@[9:11) NewLine |\n\n|
+
+// bad =
+//@[8:9) NewLine |\n|
+var badEquals 2
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |badEquals|
+//@[14:15) Number |2|
+//@[15:16) NewLine |\n|
+var badEquals2 3 true
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |badEquals2|
+//@[15:16) Number |3|
+//@[17:21) TrueKeyword |true|
+//@[21:23) NewLine |\n\n|
+
+// malformed identifier but type check should happen regardless
+//@[63:64) NewLine |\n|
+var 2 = x
+//@[0:3) Identifier |var|
+//@[4:5) Number |2|
+//@[6:7) Assignment |=|
+//@[8:9) Identifier |x|
 //@[9:11) NewLine |\n\n|
 
 // bad token value

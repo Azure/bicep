@@ -30,6 +30,6 @@ namespace Bicep.Core.Syntax
         }
 
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
-            => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.Type.TypeName);
+            => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.ParameterType?.TypeName);
     }
 }

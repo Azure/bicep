@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -155,7 +154,11 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 diagnostics.AddRange(this.ValidateIdentifierAccess(syntax));
 
-                var declaredType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
+                // assume "any" type when the parameter has parse errors (either missing or was skipped)
+                var declaredType = syntax.ParameterType == null
+                    ? LanguageConstants.Any
+                    : LanguageConstants.TryGetDeclarationType(syntax.ParameterType.TypeName);
+
                 if (declaredType == null)
                 {
                     return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
@@ -195,8 +198,12 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics => {
-                var primitiveType = LanguageConstants.TryGetDeclarationType(syntax.Type.TypeName);
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                // assume "any" type if the output type has parse errors (either missing or skipped)
+                var primitiveType = syntax.OutputType == null
+                    ? LanguageConstants.Any
+                    : LanguageConstants.TryGetDeclarationType(syntax.OutputType.TypeName);
 
                 if (primitiveType == null)
                 {

@@ -56,7 +56,9 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
+            // only consider declarations with valid identifiers
             var duplicateSymbols = this.AllDeclarations
+                .Where(decl => decl.NameSyntax.IsValid)
                 .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
             

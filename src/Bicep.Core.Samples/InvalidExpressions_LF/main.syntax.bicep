@@ -6,101 +6,123 @@
 // bad expressions
 //@[18:19) NewLine |\n|
 var bad = a+
-//@[0:12) SkippedTriviaSyntax
+//@[0:12) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Identifier |a|
-//@[11:12)  Plus |+|
+//@[10:12)  SkippedTriviaSyntax
+//@[10:11)   Identifier |a|
+//@[11:12)   Plus |+|
 //@[12:13) NewLine |\n|
 var bad = *
-//@[0:11) SkippedTriviaSyntax
+//@[0:11) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Asterisk |*|
+//@[10:11)  SkippedTriviaSyntax
+//@[10:11)   Asterisk |*|
 //@[11:12) NewLine |\n|
 var bad = /
-//@[0:11) SkippedTriviaSyntax
+//@[0:11) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Slash |/|
+//@[10:11)  SkippedTriviaSyntax
+//@[10:11)   Slash |/|
 //@[11:12) NewLine |\n|
 var bad = %
-//@[0:11) SkippedTriviaSyntax
+//@[0:11) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Modulo |%|
+//@[10:11)  SkippedTriviaSyntax
+//@[10:11)   Modulo |%|
 //@[11:12) NewLine |\n|
 var bad = 33-
-//@[0:13) SkippedTriviaSyntax
+//@[0:13) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:12)  Number |33|
-//@[12:13)  Minus |-|
+//@[10:13)  SkippedTriviaSyntax
+//@[10:12)   Number |33|
+//@[12:13)   Minus |-|
 //@[13:14) NewLine |\n|
 var bad = --33
-//@[0:14) SkippedTriviaSyntax
+//@[0:14) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Minus |-|
-//@[11:12)  Minus |-|
-//@[12:14)  Number |33|
+//@[10:14)  SkippedTriviaSyntax
+//@[10:11)   Minus |-|
+//@[11:12)   Minus |-|
+//@[12:14)   Number |33|
 //@[14:15) NewLine |\n|
 var bad = 3 * 4 /
-//@[0:17) SkippedTriviaSyntax
+//@[0:17) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  Number |3|
-//@[12:13)  Asterisk |*|
-//@[14:15)  Number |4|
-//@[16:17)  Slash |/|
+//@[10:17)  SkippedTriviaSyntax
+//@[10:11)   Number |3|
+//@[12:13)   Asterisk |*|
+//@[14:15)   Number |4|
+//@[16:17)   Slash |/|
 //@[17:18) NewLine |\n|
 var bad = 222222222222222222222222222222222222222222 * 4
-//@[0:56) SkippedTriviaSyntax
+//@[0:56) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:52)  Number |222222222222222222222222222222222222222222|
-//@[53:54)  Asterisk |*|
-//@[55:56)  Number |4|
+//@[10:56)  SkippedTriviaSyntax
+//@[10:52)   Number |222222222222222222222222222222222222222222|
+//@[53:54)   Asterisk |*|
+//@[55:56)   Number |4|
 //@[56:57) NewLine |\n|
 var bad = (null) ?
-//@[0:18) SkippedTriviaSyntax
+//@[0:18) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  LeftParen |(|
-//@[11:15)  NullKeyword |null|
-//@[15:16)  RightParen |)|
-//@[17:18)  Question |?|
+//@[10:18)  SkippedTriviaSyntax
+//@[10:11)   LeftParen |(|
+//@[11:15)   NullKeyword |null|
+//@[15:16)   RightParen |)|
+//@[17:18)   Question |?|
 //@[18:19) NewLine |\n|
 var bad = (null) ? :
-//@[0:20) SkippedTriviaSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  LeftParen |(|
-//@[11:15)  NullKeyword |null|
-//@[15:16)  RightParen |)|
-//@[17:18)  Question |?|
-//@[19:20)  Colon |:|
+//@[10:20)  SkippedTriviaSyntax
+//@[10:11)   LeftParen |(|
+//@[11:15)   NullKeyword |null|
+//@[15:16)   RightParen |)|
+//@[17:18)   Question |?|
+//@[19:20)   Colon |:|
 //@[20:21) NewLine |\n|
 var bad = (null) ? !
-//@[0:20) SkippedTriviaSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  LeftParen |(|
-//@[11:15)  NullKeyword |null|
-//@[15:16)  RightParen |)|
-//@[17:18)  Question |?|
-//@[19:20)  Exclamation |!|
+//@[10:20)  SkippedTriviaSyntax
+//@[10:11)   LeftParen |(|
+//@[11:15)   NullKeyword |null|
+//@[15:16)   RightParen |)|
+//@[17:18)   Question |?|
+//@[19:20)   Exclamation |!|
 //@[20:21) NewLine |\n|
 var bad = (null)!
 //@[0:16) VariableDeclarationSyntax
@@ -134,18 +156,22 @@ var bad = (null)[0]
 //@[18:19)   RightSquare |]|
 //@[19:20) NewLine |\n|
 var bad = ()
-//@[0:12) SkippedTriviaSyntax
+//@[0:12) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:11)  LeftParen |(|
-//@[11:12)  RightParen |)|
+//@[10:12)  SkippedTriviaSyntax
+//@[10:11)   LeftParen |(|
+//@[11:12)   RightParen |)|
 //@[12:13) NewLine |\n|
 var bad = 
-//@[0:9) SkippedTriviaSyntax
+//@[0:10) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |bad|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
+//@[10:10)  SkippedTriviaSyntax
 //@[10:12) NewLine |\n\n|
 
 // variables not supported
@@ -232,34 +258,38 @@ var not = !{
 // unary not chaining will be added in the future
 //@[49:50) NewLine |\n|
 var not = !!!!!!!true
-//@[0:21) SkippedTriviaSyntax
+//@[0:21) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:7)  Identifier |not|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |not|
 //@[8:9)  Assignment |=|
-//@[10:11)  Exclamation |!|
-//@[11:12)  Exclamation |!|
-//@[12:13)  Exclamation |!|
-//@[13:14)  Exclamation |!|
-//@[14:15)  Exclamation |!|
-//@[15:16)  Exclamation |!|
-//@[16:17)  Exclamation |!|
-//@[17:21)  TrueKeyword |true|
+//@[10:21)  SkippedTriviaSyntax
+//@[10:11)   Exclamation |!|
+//@[11:12)   Exclamation |!|
+//@[12:13)   Exclamation |!|
+//@[13:14)   Exclamation |!|
+//@[14:15)   Exclamation |!|
+//@[15:16)   Exclamation |!|
+//@[16:17)   Exclamation |!|
+//@[17:21)   TrueKeyword |true|
 //@[21:23) NewLine |\n\n|
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
 //@[80:81) NewLine |\n|
 var minus = ------12
-//@[0:20) SkippedTriviaSyntax
+//@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:9)  Identifier |minus|
+//@[4:9)  IdentifierSyntax
+//@[4:9)   Identifier |minus|
 //@[10:11)  Assignment |=|
-//@[12:13)  Minus |-|
-//@[13:14)  Minus |-|
-//@[14:15)  Minus |-|
-//@[15:16)  Minus |-|
-//@[16:17)  Minus |-|
-//@[17:18)  Minus |-|
-//@[18:20)  Number |12|
+//@[12:20)  SkippedTriviaSyntax
+//@[12:13)   Minus |-|
+//@[13:14)   Minus |-|
+//@[14:15)   Minus |-|
+//@[15:16)   Minus |-|
+//@[16:17)   Minus |-|
+//@[17:18)   Minus |-|
+//@[18:20)   Number |12|
 //@[20:22) NewLine |\n\n|
 
 // unary minus
