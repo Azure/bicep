@@ -2,7 +2,7 @@
 param dnsPrefix string
 param linuxAdminUsername string
 param sshRSAPublicKey string
-param servcePrincipalClientId string
+param servicePrincipalClientId string
 param servicePrincipalClientSecret string {
   secure: true
 }
@@ -49,7 +49,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
       }
     }
     servicePrincipalProfile: {
-      clientId: servcePrincipalClientId
+      clientId: servicePrincipalClientId
       secret: servicePrincipalClientSecret
     } 
   }
