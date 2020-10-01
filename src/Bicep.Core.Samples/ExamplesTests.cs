@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
@@ -71,14 +72,13 @@ namespace Bicep.Core.Samples
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void ExampleIsValid(ExampleData example)
         {
-            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-            var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(example.BicepContents));
+            var compilation = new Compilation(new AzResourceTypeProvider(), SyntaxFactory.CreateFromText(example.BicepContents));
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);
             
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             stream.Position = 0;

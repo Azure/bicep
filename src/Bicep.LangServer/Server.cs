@@ -21,17 +21,17 @@ namespace Bicep.LanguageServer
     {
         private readonly OmnisharpLanguageServer server;
 
-        public Server(PipeReader input, PipeWriter output)
-            : this(options => options.WithInput(input).WithOutput(output))
+        public Server(PipeReader input, PipeWriter output, Func<IResourceTypeProvider> resourceTypeProviderBuilder)
+            : this(resourceTypeProviderBuilder, options => options.WithInput(input).WithOutput(output))
         {
         }
 
-        public Server(Stream input, Stream output)
-            : this(options => options.WithInput(input).WithOutput(output))
+        public Server(Stream input, Stream output, Func<IResourceTypeProvider> resourceTypeProviderBuilder)
+            : this(resourceTypeProviderBuilder, options => options.WithInput(input).WithOutput(output))
         {
         }
         
-        private Server(Action<LanguageServerOptions> onOptionsFunc)
+        private Server(Func<IResourceTypeProvider> resourceTypeProviderBuilder, Action<LanguageServerOptions> onOptionsFunc)
         {
             server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options =>
             {
@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer
 #pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
 #pragma warning restore 0612
-                    .WithServices(RegisterServices);
+                    .WithServices(services => RegisterServices(resourceTypeProviderBuilder, services));
 
                 onOptionsFunc(options);
             });
@@ -60,16 +60,13 @@ namespace Bicep.LanguageServer
             await server.WaitForExit;
         }
 
-        private static void RegisterServices(IServiceCollection services)
+        private static void RegisterServices(Func<IResourceTypeProvider> resourceTypeProviderBuilder, IServiceCollection services)
         {
-            // We don't want to recreate this every compilation.
-            // I'm not using DI for it here, because I think it makes sense to set this up for the CLI at the same time.
-            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
+            services.AddSingleton<IResourceTypeProvider>(services => resourceTypeProviderBuilder());
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
-            services.AddSingleton<ICompilationProvider>(provider => new BicepCompilationProvider(resourceTypeRegistrar));
+            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
         }

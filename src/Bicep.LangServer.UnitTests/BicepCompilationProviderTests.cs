@@ -14,7 +14,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
         {
-            var provider = new BicepCompilationProvider(TestResourceTypeProvider.CreateRegistrar());
+            var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create());
 
             var context = provider.Create(DataSets.Parameters_LF.Bicep);
 

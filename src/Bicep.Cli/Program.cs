@@ -22,16 +22,18 @@ namespace Bicep.Cli
     {
         private readonly TextWriter outputWriter;
         private readonly TextWriter errorWriter;
+        private readonly IResourceTypeProvider resourceTypeProvider;
 
-        public Program(TextWriter outputWriter, TextWriter errorWriter)
+        public Program(IResourceTypeProvider resourceTypeProvider, TextWriter outputWriter, TextWriter errorWriter)
         {
+            this.resourceTypeProvider = resourceTypeProvider;
             this.outputWriter = outputWriter;
             this.errorWriter = errorWriter;
         }
 
         public static int Main(string[] args)
         {
-            var program = new Program(Console.Out, Console.Error);
+            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error);
             return program.Run(args);
         }
 
@@ -104,13 +106,12 @@ namespace Bicep.Cli
             }
         }
 
-        private static void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
+        private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
             string text = ReadFile(bicepPath);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-            var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
+            var compilation = new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
 
             var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 
@@ -138,8 +139,7 @@ namespace Bicep.Cli
                 string text = ReadFile(bicepPath);
                 var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-                var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-                var compilation = new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
+                var compilation = new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
 
                 var emitter = new TemplateEmitter(compilation.GetSemanticModel());
 

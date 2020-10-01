@@ -18,6 +18,8 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol Type => this;
 
+        public virtual TypeSymbolValidationFlags ValidationFlags { get; } = TypeSymbolValidationFlags.Default;
+
         public override void Accept(SymbolVisitor visitor)
         {
             visitor.VisitTypeSymbol(this);

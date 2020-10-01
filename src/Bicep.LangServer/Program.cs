@@ -3,6 +3,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.LanguageServer
 {
@@ -13,7 +15,7 @@ namespace Bicep.LanguageServer
             {
                 // the server uses JSON-RPC over stdin & stdout to communicate,
                 // so be careful not to use console for logging!
-                var server = new Server(Console.OpenStandardInput(), Console.OpenStandardOutput());
+                var server = new Server(Console.OpenStandardInput(), Console.OpenStandardOutput(), () => new AzResourceTypeProvider());
 
                 await server.Run(cancellationToken);
             });
