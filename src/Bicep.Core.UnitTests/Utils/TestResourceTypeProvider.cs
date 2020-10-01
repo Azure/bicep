@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Utils
         public bool HasType(ResourceTypeReference typeReference)
             => true;
 
-        public static ResourceTypeRegistrar CreateRegistrar()
-            => new ResourceTypeRegistrar(new TestResourceTypeProvider());
+        public static IResourceTypeProvider Create()
+            => new TestResourceTypeProvider();
     }
 }

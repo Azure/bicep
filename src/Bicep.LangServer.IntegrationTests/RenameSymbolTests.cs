@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -78,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -110,7 +110,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 

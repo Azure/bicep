@@ -114,7 +114,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public static bool ShouldWarn(TypeSymbol targetType)
-            => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.Permissive);
+            => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch);
 
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, IList<Diagnostic> diagnostics)
         {

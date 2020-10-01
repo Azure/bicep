@@ -23,7 +23,7 @@ namespace Bicep.LangServer.IntegrationTests
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
-            var server = new Server(TestResourceTypeProvider.CreateRegistrar(), serverPipe.Reader, clientPipe.Writer);
+            var server = new Server(serverPipe.Reader, clientPipe.Writer, () => TestResourceTypeProvider.Create());
             var _ = server.Run(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options => 

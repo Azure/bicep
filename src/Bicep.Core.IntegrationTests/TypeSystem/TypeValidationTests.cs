@@ -28,7 +28,7 @@ namespace Bicep.Core.IntegrationTests
                 .Setup(x => x.HasType(It.IsAny<ResourceTypeReference>()))
                 .Returns<ResourceTypeReference>(x => registeredTypes.ContainsKey(x));
 
-            var compilation = new Compilation(new ResourceTypeRegistrar(typeRegistrarMock.Object), SyntaxFactory.CreateFromText(programText));
+            var compilation = new Compilation(typeRegistrarMock.Object, SyntaxFactory.CreateFromText(programText));
             return compilation.GetSemanticModel();
         }
 

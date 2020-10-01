@@ -19,13 +19,13 @@ namespace Bicep.Core.TypeSystem.Az
                 reference,
                 new NamedObjectType(
                     reference.FormatName(),
-                    TypeSymbolValidationFlags.Permissive,
+                    TypeSymbolValidationFlags.WarnOnTypeMismatch,
                         LanguageConstants.GetCommonResourceProperties(reference).Concat(
                         new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
                         new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
                     ),
                     null),
-                TypeSymbolValidationFlags.Permissive));
+                TypeSymbolValidationFlags.WarnOnTypeMismatch));
         }
 
         private static TypeSymbol CreateEnumType(params string[] values)
@@ -38,7 +38,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var userAssignedIdentity = new NamedObjectType(
                 "UserAssignedIdentity",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] { 
                     new TypeProperty("clientId", LanguageConstants.String),
                     new TypeProperty("principalId", LanguageConstants.String),
@@ -47,16 +47,16 @@ namespace Bicep.Core.TypeSystem.Az
 
             var identity = new NamedObjectType(
                 "ManagedServiceIdentity",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] { 
                     new TypeProperty("type", CreateEnumType("UserAssigned"), TypePropertyFlags.None),
-                    new TypeProperty("userAssignedIdentities", new NamedObjectType("UserAssignedIdentities", TypeSymbolValidationFlags.Permissive, Enumerable.Empty<TypeProperty>(), userAssignedIdentity), TypePropertyFlags.None),
+                    new TypeProperty("userAssignedIdentities", new NamedObjectType("UserAssignedIdentities", TypeSymbolValidationFlags.WarnOnTypeMismatch, Enumerable.Empty<TypeProperty>(), userAssignedIdentity), TypePropertyFlags.None),
                 },
                 null);
 
             var containerConfiguration = new NamedObjectType(
                 "ContainerConfiguration",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] {
                     new TypeProperty("containerGroupName", LanguageConstants.String, TypePropertyFlags.None),
                 },
@@ -64,7 +64,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var environmentVariable = new NamedObjectType(
                 "EnvironmentVariable",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                     new TypeProperty("secureValue", LanguageConstants.String, TypePropertyFlags.None),
@@ -74,7 +74,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var storageAccountConfiguration = new NamedObjectType(
                 "StorageAccountConfiguration",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] {
                     new TypeProperty("storageAccountKey", LanguageConstants.String, TypePropertyFlags.None),
                     new TypeProperty("storageAccountName", LanguageConstants.String, TypePropertyFlags.None),
@@ -83,7 +83,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var scriptStatus = new NamedObjectType(
                 "ScriptStatus",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new [] {
                     new TypeProperty("containerInstanceId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("storageAccountId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
@@ -110,10 +110,10 @@ namespace Bicep.Core.TypeSystem.Az
 
             var scriptConfigurationBase = new [] {
                 new TypeProperty("primaryScriptUri", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("supportingScriptUris", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Permissive), TypePropertyFlags.None),
+                new TypeProperty("supportingScriptUris", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.WarnOnTypeMismatch), TypePropertyFlags.None),
                 new TypeProperty("scriptContent", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("arguments", LanguageConstants.String, TypePropertyFlags.None),
-                new TypeProperty("environmentVariables", new TypedArrayType(environmentVariable, TypeSymbolValidationFlags.Permissive), TypePropertyFlags.None),
+                new TypeProperty("environmentVariables", new TypedArrayType(environmentVariable, TypeSymbolValidationFlags.WarnOnTypeMismatch), TypePropertyFlags.None),
                 new TypeProperty("forceUpdateTag", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("retentionInterval", LanguageConstants.String, TypePropertyFlags.Required),
                 new TypeProperty("timeout", LanguageConstants.String, TypePropertyFlags.None),
@@ -121,7 +121,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var powerShellResourceProperties = new NamedObjectType(
                 "AzurePowerShellScriptProperties",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 deploymentScriptPropertiesBase.Concat(scriptConfigurationBase).Concat(
                     new TypeProperty("azPowerShellVersion", LanguageConstants.String, TypePropertyFlags.Required)
                 ),
@@ -129,7 +129,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var powerShellResource = new NamedObjectType(
                 "AzurePowerShellScript",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 baseResource.Concat(
                     new TypeProperty("kind", new StringLiteralType("AzurePowerShell"), TypePropertyFlags.Required),
                     new TypeProperty("properties", powerShellResourceProperties, TypePropertyFlags.Required)),
@@ -137,7 +137,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var azCliResourceProperties = new NamedObjectType(
                 "AzureCliScriptProperties",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 deploymentScriptPropertiesBase.Concat(scriptConfigurationBase).Concat(
                     new TypeProperty("azCliVersion", LanguageConstants.String, TypePropertyFlags.Required)
                 ),
@@ -145,7 +145,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             var azCliResource = new NamedObjectType(
                 "AzureCliScript",
-                TypeSymbolValidationFlags.Permissive,
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 baseResource.Concat(
                     new TypeProperty("kind", new StringLiteralType("AzureCLI"), TypePropertyFlags.Required),
                     new TypeProperty("properties", azCliResourceProperties, TypePropertyFlags.Required)),
@@ -155,13 +155,13 @@ namespace Bicep.Core.TypeSystem.Az
                 reference,
                 new DiscriminatedObjectType(
                     reference.FormatName(),
-                    TypeSymbolValidationFlags.Permissive,
+                    TypeSymbolValidationFlags.WarnOnTypeMismatch,
                     "kind",
                     new [] {
                         powerShellResource,
                         azCliResource,
                     }),
-                TypeSymbolValidationFlags.Permissive));
+                TypeSymbolValidationFlags.WarnOnTypeMismatch));
         }
 
         public ResourceType GetType(ResourceTypeReference typeReference)

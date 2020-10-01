@@ -35,15 +35,15 @@ namespace Bicep.Core.TypeSystem
             public IEnumerable<Diagnostic> Diagnostics { get; }
         }
 
-        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
+        private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly TypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
         private IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
 
-        public TypeAssignmentVisitor(ResourceTypeRegistrar resourceTypeRegistrar, TypeManager typeManager, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
-            this.resourceTypeRegistrar = resourceTypeRegistrar;
+            this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
@@ -146,7 +146,7 @@ namespace Bicep.Core.TypeSystem
                     return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Type).InvalidResourceType());
                 }
 
-                var declaredType = resourceTypeRegistrar.GetType(typeReference);
+                var declaredType = resourceTypeProvider.GetType(typeReference);
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
@@ -222,14 +222,16 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var errors = new List<ErrorDiagnostic>();
+                var expressionTypes = new List<TypeSymbol>();
 
                 foreach (var interpolatedExpression in syntax.Expressions)
                 {
                     var expressionType = typeManager.GetTypeInfo(interpolatedExpression);
                     CollectErrors(errors, expressionType);
+                    expressionTypes.Add(expressionType);
                 }
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, expressionTypes))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -255,13 +257,15 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
 
+                var propertyTypes = new List<TypeSymbol>();
                 foreach (var objectProperty in syntax.Properties)
                 {
                     var propertyType = typeManager.GetTypeInfo(objectProperty);
                     CollectErrors(errors, propertyType);
+                    propertyTypes.Add(propertyType);
                 }
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, propertyTypes))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -284,18 +288,20 @@ namespace Bicep.Core.TypeSystem
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
+                var types = new List<TypeSymbol>();
 
                 if (syntax.Key is StringSyntax stringSyntax && stringSyntax.IsInterpolated())
                 {
                     // if the key is an interpolated string, we need to check the expressions referenced by it 
                     var keyType = typeManager.GetTypeInfo(syntax.Key);
                     CollectErrors(errors, keyType);
+                    types.Add(keyType);
                 }
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, types.Concat(valueType)))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -324,7 +330,7 @@ namespace Bicep.Core.TypeSystem
                     CollectErrors(errors, itemType);
                 }
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, itemTypes))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -354,7 +360,7 @@ namespace Bicep.Core.TypeSystem
                 var falseType = typeManager.GetTypeInfo(syntax.FalseExpression);
                 CollectErrors(errors, falseType);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, conditionType, trueType, falseType))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -379,7 +385,7 @@ namespace Bicep.Core.TypeSystem
                 var operandType2 = typeManager.GetTypeInfo(syntax.RightExpression);
                 CollectErrors(errors, operandType2);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, operandType1, operandType2))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -413,7 +419,7 @@ namespace Bicep.Core.TypeSystem
                 var operandType = typeManager.GetTypeInfo(syntax.Expression);
                 CollectErrors(errors, operandType);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, operandType))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -426,6 +432,19 @@ namespace Bicep.Core.TypeSystem
                 return expectedOperandType;
             });
 
+        private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, params TypeSymbol[] types)
+            => PropagateErrorType(errors, types as IEnumerable<TypeSymbol>);
+
+        private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, IEnumerable<TypeSymbol> types)
+        {
+            if (errors.Any())
+            {
+                return true;
+            }
+
+            return types.Any(x => x.TypeKind == TypeKind.Error);
+        }
+
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var errors = new List<ErrorDiagnostic>();
@@ -436,7 +455,7 @@ namespace Bicep.Core.TypeSystem
                 var indexType = typeManager.GetTypeInfo(syntax.IndexExpression);
                 CollectErrors(errors, indexType);
 
-                if (errors.Any() || indexType.TypeKind == TypeKind.Error)
+                if (PropagateErrorType(errors, baseType, indexType))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -511,7 +530,7 @@ namespace Bicep.Core.TypeSystem
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, baseType))
                 {
                     return new ErrorTypeSymbol(errors);
                 }
@@ -659,7 +678,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (errors.Any())
+            if (PropagateErrorType(errors))
             {
                 return new ErrorTypeSymbol(errors);
             }

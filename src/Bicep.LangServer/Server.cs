@@ -20,19 +20,18 @@ namespace Bicep.LanguageServer
     public class Server
     {
         private readonly OmnisharpLanguageServer server;
-        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
 
-        public Server(ResourceTypeRegistrar resourceTypeRegistrar, PipeReader input, PipeWriter output)
-            : this(resourceTypeRegistrar, options => options.WithInput(input).WithOutput(output))
+        public Server(PipeReader input, PipeWriter output, Func<IResourceTypeProvider> resourceTypeProviderBuilder)
+            : this(resourceTypeProviderBuilder, options => options.WithInput(input).WithOutput(output))
         {
         }
 
-        public Server(ResourceTypeRegistrar resourceTypeRegistrar, Stream input, Stream output)
-            : this(resourceTypeRegistrar, options => options.WithInput(input).WithOutput(output))
+        public Server(Stream input, Stream output, Func<IResourceTypeProvider> resourceTypeProviderBuilder)
+            : this(resourceTypeProviderBuilder, options => options.WithInput(input).WithOutput(output))
         {
         }
         
-        private Server(ResourceTypeRegistrar resourceTypeRegistrar, Action<LanguageServerOptions> onOptionsFunc)
+        private Server(Func<IResourceTypeProvider> resourceTypeProviderBuilder, Action<LanguageServerOptions> onOptionsFunc)
         {
             server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options =>
             {
@@ -48,11 +47,10 @@ namespace Bicep.LanguageServer
 #pragma warning disable 0612 // disable 'obsolete' warning for proposed LSP feature
                     .WithHandler<BicepSemanticTokensHandler>()
 #pragma warning restore 0612
-                    .WithServices(services => RegisterServices(resourceTypeRegistrar, services));
+                    .WithServices(services => RegisterServices(resourceTypeProviderBuilder, services));
 
                 onOptionsFunc(options);
             });
-            this.resourceTypeRegistrar = resourceTypeRegistrar;
         }
 
         public async Task Run(CancellationToken cancellationToken)
@@ -62,12 +60,13 @@ namespace Bicep.LanguageServer
             await server.WaitForExit;
         }
 
-        private static void RegisterServices(ResourceTypeRegistrar resourceTypeRegistrar, IServiceCollection services)
+        private static void RegisterServices(Func<IResourceTypeProvider> resourceTypeProviderBuilder, IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
+            services.AddSingleton<IResourceTypeProvider>(services => resourceTypeProviderBuilder());
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
-            services.AddSingleton<ICompilationProvider>(provider => new BicepCompilationProvider(resourceTypeRegistrar));
+            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
         }

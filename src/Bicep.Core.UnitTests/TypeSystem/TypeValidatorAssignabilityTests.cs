@@ -1001,6 +1001,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }

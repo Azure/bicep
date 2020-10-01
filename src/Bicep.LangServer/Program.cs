@@ -15,8 +15,7 @@ namespace Bicep.LanguageServer
             {
                 // the server uses JSON-RPC over stdin & stdout to communicate,
                 // so be careful not to use console for logging!
-                var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-                var server = new Server(resourceTypeRegistrar, Console.OpenStandardInput(), Console.OpenStandardOutput());
+                var server = new Server(Console.OpenStandardInput(), Console.OpenStandardOutput(), () => new AzResourceTypeProvider());
 
                 await server.Run(cancellationToken);
             });

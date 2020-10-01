@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests
         public void EmptyProgram_SyntaxNodeShouldBePersisted()
         {
             var program = SyntaxFactory.CreateFromText(DataSets.Empty.Bicep);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), program);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), program);
 
             compilation.ProgramSyntax.Should().BeSameAs(program);
             compilation.GetSemanticModel().Should().NotBeNull();

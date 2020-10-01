@@ -26,12 +26,17 @@ namespace Bicep.Cli.IntegrationTests
     {
         public TestContext? TestContext { get; set; }
 
+        private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
+        {
+            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter);
+        }
+
         [TestMethod]
         public void BicepVersionShouldPrintVersionInformation()
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] {"--version"}).Should().Be(0);
             });
 
@@ -46,7 +51,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "--help" }).Should().Be(0);
             });
 
@@ -74,7 +79,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] {"wrong", "fake", "broken"}).Should().Be(1);
             });
 
@@ -89,7 +94,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "build" }).Should().Be(1);
             });
 
@@ -107,7 +112,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "build", bicepFilePath }).Should().Be(0);
             });
 
@@ -133,7 +138,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] {"build", "--stdout", bicepFilePath}).Should().Be(0);
             });
 
@@ -162,7 +167,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
 
                 string[] args = "build".AsEnumerable().Concat(bicepFiles).ToArray();
                 p.Run(args).Should().Be(0);
@@ -196,7 +201,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
 
                 string[] args = new[] {"build", "--stdout"}.Concat(bicepFiles).ToArray();
                 p.Run(args).Should().Be(0);
@@ -222,7 +227,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "build", bicepFilePath }).Should().Be(1);
             });
 
@@ -241,7 +246,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] {"build", "--stdout", bicepFilePath}).Should().Be(1);
             });
 
@@ -265,7 +270,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run("build".AsEnumerable().Concat(bicepFiles).ToArray()).Should().Be(1);
             });
 
@@ -292,7 +297,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "build", "--stdout" }.Concat(bicepFiles).ToArray()).Should().Be(1);
             });
 
@@ -313,7 +318,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] {"build", badPath}).Should().Be(1);
             });
 
@@ -328,7 +333,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
-                var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                var p = CreateProgram(@out, err);
                 p.Run(new[] { "build", "--stdout", badPath }).Should().Be(1);
             });
 
@@ -349,7 +354,7 @@ namespace Bicep.Cli.IntegrationTests
                 // this should force an access denied error
                 var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
                 {
-                    var p = new Program(TestResourceTypeProvider.CreateRegistrar(), @out, err);
+                    var p = CreateProgram(@out, err);
                     p.Run(new[] { "build", inputFile }).Should().Be(1);
                 });
 
@@ -360,7 +365,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(text));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(text));
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
             return compilation.GetSemanticModel()

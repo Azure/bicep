@@ -29,7 +29,6 @@ namespace Bicep.Cli.Logging
 
             this.logger.Log(ToLogLevel(diagnostic.Level), message);
 
-            // TODO: Fix this when we have diagnostic severity
             this.HasLoggedErrors |= diagnostic.Level == DiagnosticLevel.Error;
         }
 
