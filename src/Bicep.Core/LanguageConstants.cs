@@ -69,6 +69,11 @@ namespace Bicep.Core
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
+            /*
+             * The primitiveType may be set to "any" when there's a parse error in the declared type syntax node.
+             * In that case, we cannot determine which modifier properties are allowed, so we allow them all.
+             */
+
             if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
             {
                 // only string and object types have secure equivalents

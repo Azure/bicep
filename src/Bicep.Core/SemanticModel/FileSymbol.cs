@@ -58,7 +58,7 @@ namespace Bicep.Core.SemanticModel
         {
             // only consider declarations with valid identifiers
             var duplicateSymbols = this.AllDeclarations
-                .Where(decl => decl.IsIdentifierValid)
+                .Where(decl => decl.NameSyntax.IsValid)
                 .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
             

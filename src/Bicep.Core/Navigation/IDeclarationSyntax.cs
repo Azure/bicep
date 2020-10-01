@@ -12,7 +12,7 @@ namespace Bicep.Core.Navigation
     /// <remarks>This is used to distinguish a declaration from syntax that references the declaration.</remarks>
     public interface IDeclarationSyntax
     {
-        IdentifierSyntaxBase Name { get; }
+        IdentifierSyntax Name { get; }
 
         Token Keyword { get; }
     }

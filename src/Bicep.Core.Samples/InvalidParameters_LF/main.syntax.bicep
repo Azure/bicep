@@ -27,31 +27,34 @@ param myInt int
 param
 //@[0:5) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[5:5)  MalformedIdentifierSyntax
-//@[5:5)   Missing ||
+//@[5:5)  IdentifierSyntax
+//@[5:5)   SkippedTriviaSyntax
 //@[5:5)  SkippedTriviaSyntax
 //@[5:7) NewLine |\n\n|
 
 param 3
 //@[0:7) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:7)  MalformedIdentifierSyntax
-//@[6:7)   Number |3|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Number |3|
 //@[7:7)  SkippedTriviaSyntax
 //@[7:8) NewLine |\n|
 param % string
 //@[0:14) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:7)  MalformedIdentifierSyntax
-//@[6:7)   Modulo |%|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Modulo |%|
 //@[8:14)  TypeSyntax
 //@[8:14)   Identifier |string|
 //@[14:15) NewLine |\n|
 param % string 3 = 's'
 //@[0:22) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:7)  MalformedIdentifierSyntax
-//@[6:7)   Modulo |%|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Modulo |%|
 //@[8:14)  TypeSyntax
 //@[8:14)   Identifier |string|
 //@[15:22)  SkippedTriviaSyntax

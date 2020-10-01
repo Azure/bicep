@@ -80,7 +80,7 @@ namespace Bicep.Core.Parser
                 RecoveryFlags.None,
                 TokenType.NewLine);
 
-        private RecoveryFlags CreateFlags(SyntaxBase precedingNode)
+        private static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
             // local function
             RecoveryFlags ConvertFlags(bool suppress) => suppress ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None;
@@ -93,8 +93,8 @@ namespace Bicep.Core.Parser
              */
             switch (precedingNode)
             {
-                case MalformedIdentifierSyntax badIdentifier:
-                    return ConvertFlags(badIdentifier.Span.Length == 0);
+                case IdentifierSyntax identifier when identifier.IsValid == false:
+                    return ConvertFlags(identifier.Span.Length == 0);
 
                 case SkippedTriviaSyntax skipped:
                     return ConvertFlags(skipped.Span.Length == 0);
@@ -108,7 +108,7 @@ namespace Bicep.Core.Parser
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), CreateFlags(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
             // TODO: Need a better way to choose the terminating token
             SyntaxBase? modifier = this.WithRecoveryNullable(
@@ -130,7 +130,7 @@ namespace Bicep.Core.Parser
                         _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
                     };
                 },
-                CreateFlags(type),
+                GetSuppressionFlag(type),
                 TokenType.NewLine);
 
             return new ParameterDeclarationSyntax(keyword, name, type, modifier);
@@ -148,8 +148,8 @@ namespace Bicep.Core.Parser
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, CreateFlags(name), TokenType.NewLine);
-            var value = this.WithRecovery(this.Expression, CreateFlags(assignment), TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
@@ -158,9 +158,9 @@ namespace Bicep.Core.Parser
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), CreateFlags(name), TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, CreateFlags(type), TokenType.NewLine);
-            var value = this.WithRecovery(this.Expression, CreateFlags(assignment), TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
+            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
         }
@@ -173,11 +173,11 @@ namespace Bicep.Core.Parser
             // TODO: Unify StringSyntax with TypeSyntax
             var type = this.WithRecovery(
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString()),
-                CreateFlags(name),
+                GetSuppressionFlag(name),
                 TokenType.Assignment, TokenType.NewLine);
 
-            var assignment = this.WithRecovery(this.Assignment, CreateFlags(type), TokenType.LeftBrace, TokenType.NewLine);
-            var body = this.WithRecovery(this.Object, CreateFlags(assignment), TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
+            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
         }
@@ -449,7 +449,7 @@ namespace Bicep.Core.Parser
             return new IdentifierSyntax(identifier);
         }
 
-        private IdentifierSyntaxBase IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] terminatingTypes)
+        private IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] terminatingTypes)
         {
             var identifierOrSkipped = this.WithRecovery(
                 () => Identifier(errorFunc),
@@ -461,20 +461,13 @@ namespace Bicep.Core.Parser
                 case IdentifierSyntax identifier:
                     return identifier;
 
-                case SkippedTriviaSyntax skipped when skipped.Elements.Any() == false:
-                    var position = this.reader.Peek().Span.Position;
-                    return new MalformedIdentifierSyntax(new[] {CreateMissingToken(position)}, skipped.Diagnostics);
-
                 case SkippedTriviaSyntax skipped:
-                    // WithRecovery only skips tokens, so the cast should be safe
-                    return new MalformedIdentifierSyntax(skipped.Elements.Cast<Token>(), skipped.Diagnostics);
+                    return new IdentifierSyntax(skipped);
 
                 default:
                     throw new NotImplementedException($"Unexpected identifier syntax type '{identifierOrSkipped.GetType().Name}'");
             }
         }
-
-        private Token CreateMissingToken(int position) => new Token(TokenType.Missing, new TextSpan(position, 0), string.Empty, ImmutableArray<SyntaxTrivia>.Empty, ImmutableArray<SyntaxTrivia>.Empty);
 
         private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {

@@ -12,8 +12,8 @@ bad
 resource 
 //@[0:9) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:9)  MalformedIdentifierSyntax
-//@[9:9)   Missing ||
+//@[9:9)  IdentifierSyntax
+//@[9:9)   SkippedTriviaSyntax
 //@[9:9)  SkippedTriviaSyntax
 //@[9:9)  SkippedTriviaSyntax
 //@[9:9)  SkippedTriviaSyntax

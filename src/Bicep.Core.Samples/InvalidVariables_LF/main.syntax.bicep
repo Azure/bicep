@@ -12,8 +12,8 @@ bad
 var
 //@[0:3) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[3:3)  MalformedIdentifierSyntax
-//@[3:3)   Missing ||
+//@[3:3)  IdentifierSyntax
+//@[3:3)   SkippedTriviaSyntax
 //@[3:3)  SkippedTriviaSyntax
 //@[3:3)  SkippedTriviaSyntax
 //@[3:5) NewLine |\n\n|
@@ -49,16 +49,18 @@ var foo
 var 2 
 //@[0:6) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:5)  MalformedIdentifierSyntax
-//@[4:5)   Number |2|
+//@[4:5)  IdentifierSyntax
+//@[4:5)   SkippedTriviaSyntax
+//@[4:5)    Number |2|
 //@[6:6)  SkippedTriviaSyntax
 //@[6:6)  SkippedTriviaSyntax
 //@[6:7) NewLine |\n|
 var $ = 23
 //@[0:10) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:5)  MalformedIdentifierSyntax
-//@[4:5)   Unrecognized |$|
+//@[4:5)  IdentifierSyntax
+//@[4:5)   SkippedTriviaSyntax
+//@[4:5)    Unrecognized |$|
 //@[6:7)  Assignment |=|
 //@[8:10)  NumericLiteralSyntax
 //@[8:10)   Number |23|
@@ -66,9 +68,10 @@ var $ = 23
 var # 33 = 43
 //@[0:13) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:8)  MalformedIdentifierSyntax
-//@[4:5)   Unrecognized |#|
-//@[6:8)   Number |33|
+//@[4:8)  IdentifierSyntax
+//@[4:8)   SkippedTriviaSyntax
+//@[4:5)    Unrecognized |#|
+//@[6:8)    Number |33|
 //@[9:10)  Assignment |=|
 //@[11:13)  NumericLiteralSyntax
 //@[11:13)   Number |43|
@@ -112,8 +115,9 @@ var badEquals2 3 true
 var 2 = x
 //@[0:9) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:5)  MalformedIdentifierSyntax
-//@[4:5)   Number |2|
+//@[4:5)  IdentifierSyntax
+//@[4:5)   SkippedTriviaSyntax
+//@[4:5)    Number |2|
 //@[6:7)  Assignment |=|
 //@[8:9)  VariableAccessSyntax
 //@[8:9)   IdentifierSyntax

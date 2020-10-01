@@ -92,12 +92,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
-            this.Visit(syntax.Identifier);
-        }
-
-        public virtual void VisitMalformedIdentifierSyntax(MalformedIdentifierSyntax syntax)
-        {
-            this.VisitNodes(syntax.Tokens);
+            this.Visit(syntax.Child);
         }
 
         public virtual void VisitTypeSyntax(TypeSyntax syntax)
@@ -142,10 +137,6 @@ namespace Bicep.Core.Syntax
             {
                 this.Visit(element);
             }
-        }
-
-        public virtual void VisitMissingSyntax(MissingSyntax syntax)
-        {
         }
 
         public virtual void VisitObjectSyntax(ObjectSyntax syntax)

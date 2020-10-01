@@ -12,8 +12,8 @@ bad
 output 
 //@[0:7) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:7)  MalformedIdentifierSyntax
-//@[7:7)   Missing ||
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
@@ -36,8 +36,9 @@ output foo
 output 2
 //@[0:8) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
-//@[7:8)  MalformedIdentifierSyntax
-//@[7:8)   Number |2|
+//@[7:8)  IdentifierSyntax
+//@[7:8)   SkippedTriviaSyntax
+//@[7:8)    Number |2|
 //@[8:8)  SkippedTriviaSyntax
 //@[8:8)  SkippedTriviaSyntax
 //@[8:8)  SkippedTriviaSyntax

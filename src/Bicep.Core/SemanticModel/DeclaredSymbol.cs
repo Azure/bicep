@@ -7,7 +7,7 @@ namespace Bicep.Core.SemanticModel
 {
     public abstract class DeclaredSymbol : Symbol
     {
-        protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntaxBase nameSyntax)
+        protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)
         {
             this.Context = context;
@@ -25,13 +25,11 @@ namespace Bicep.Core.SemanticModel
         /// <summary>
         /// Gets the syntax node of the identifier.
         /// </summary>
-        public IdentifierSyntaxBase NameSyntax { get; }
+        public IdentifierSyntax NameSyntax { get; }
 
         /// <summary>
         /// Gets the type of the symbol.
         /// </summary>
         public TypeSymbol Type => this.Context.TypeManager.GetTypeInfo(DeclaringSyntax);
-
-        public bool IsIdentifierValid => this.NameSyntax is IdentifierSyntax;
     }
 }

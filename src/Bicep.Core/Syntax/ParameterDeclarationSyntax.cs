@@ -7,10 +7,10 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public ParameterDeclarationSyntax(Token keyword, IdentifierSyntaxBase name, SyntaxBase type, SyntaxBase? modifier)
+        public ParameterDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase? modifier)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
-            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(MalformedIdentifierSyntax));
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
             
@@ -22,7 +22,7 @@ namespace Bicep.Core.Syntax
 
         public Token Keyword { get; }
         
-        public IdentifierSyntaxBase Name { get; }
+        public IdentifierSyntax Name { get; }
 
         public SyntaxBase Type { get; }
 

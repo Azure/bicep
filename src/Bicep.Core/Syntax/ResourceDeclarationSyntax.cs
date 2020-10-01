@@ -8,10 +8,10 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public ResourceDeclarationSyntax(Token keyword, IdentifierSyntaxBase name, SyntaxBase type, SyntaxBase assignment, SyntaxBase body)
+        public ResourceDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase body)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ResourceKeyword);
-            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(MalformedIdentifierSyntax));
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
@@ -26,7 +26,7 @@ namespace Bicep.Core.Syntax
 
         public Token Keyword { get; }
 
-        public IdentifierSyntaxBase Name { get; }
+        public IdentifierSyntax Name { get; }
 
         public SyntaxBase Type { get; }
 

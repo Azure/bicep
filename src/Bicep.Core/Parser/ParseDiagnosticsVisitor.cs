@@ -34,18 +34,11 @@ namespace Bicep.Core.Parser
             this.diagnostics.AddRange(syntax.Diagnostics);
         }
 
-        public override void VisitMalformedIdentifierSyntax(MalformedIdentifierSyntax syntax)
-        {
-            base.VisitMalformedIdentifierSyntax(syntax);
-
-            this.diagnostics.AddRange(syntax.Diagnostics);
-        }
-
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Identifier).IdentifierNameExceedsLimit());
+                this.diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Child).IdentifierNameExceedsLimit());
             }
 
             base.VisitIdentifierSyntax(syntax);

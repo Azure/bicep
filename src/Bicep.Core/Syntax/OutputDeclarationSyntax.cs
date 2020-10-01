@@ -7,10 +7,10 @@ namespace Bicep.Core.Syntax
 {
     public class OutputDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public OutputDeclarationSyntax(Token keyword, IdentifierSyntaxBase name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
+        public OutputDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.OutputKeyword);
-            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(MalformedIdentifierSyntax));
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
 
         public Token Keyword { get; }
 
-        public IdentifierSyntaxBase Name { get; }
+        public IdentifierSyntax Name { get; }
 
         public SyntaxBase Type { get; }
 
