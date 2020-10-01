@@ -4,7 +4,7 @@
   "parameters": {
     "configStoreName": {
       "type": "string",
-      "defaultValue": "almanStore"
+      "defaultValue": "myConfigStore"
     },
     "location": {
       "type": "string",

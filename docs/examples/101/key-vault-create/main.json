@@ -4,7 +4,7 @@
   "parameters": {
     "vaultName": {
       "type": "string",
-      "defaultValue": "[format('almankv2{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('keyVault{0}', uniqueString(resourceGroup().id))]"
     },
     "location": {
       "type": "string",

@@ -1,4 +1,4 @@
-param configStoreName string = 'almanStore'
+param configStoreName string = 'myConfigStore'
 param location string = resourceGroup().location
 
 // Specifies the names of the key-value resources. 
