@@ -9,18 +9,46 @@ output
 
 // missing type
 output foo
+//@[7:10) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[10:10) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// malformed identifier
+output 2
+//@[7:8) [BCP016 (Error)] Expected an output identifier at this location. |2|
+//@[8:8) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// malformed type
+output malformedType 3
+//@[21:22) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |3|
+//@[22:22) [BCP018 (Error)] Expected the '=' character at this location. ||
+
+// malformed type but type check should still happen
+output malformedType2 3 = 2 + null
+//@[22:23) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |3|
+//@[26:34) [BCP045 (Error)] Cannot apply operator '+' to operands of type int and null. |2 + null|
+
+// malformed type assignment
+output malformedAssignment 2 = 2
+//@[27:28) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |2|
+
+// malformed type before assignment
+output lol 2 = true
+//@[11:12) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |2|
 
 // wrong type + missing value
 output foo fluffy
+//@[7:10) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
+//@[11:17) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: array, bool, int, object, string. |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the '=' character at this location. ||
 
 // missing value
 output foo string
+//@[7:10) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[17:17) [BCP018 (Error)] Expected the '=' character at this location. ||
 
 // missing value
 output foo string =
+//@[7:10) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[19:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 // wrong string output values
@@ -54,6 +82,7 @@ output i int = [
 //@[15:19) [BCP026 (Error)] The output expects a value of type int but the provided value is of type array. |[\r\n]|
 ]
 output i int = }
+//@[7:8) [BCP028 (Error)] Identifier 'i' is declared multiple times. Remove or rename the duplicates. |i|
 //@[15:16) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |}|
 }
 //@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|

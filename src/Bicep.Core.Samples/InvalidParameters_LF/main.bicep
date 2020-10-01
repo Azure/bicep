@@ -8,9 +8,23 @@ wrong
 param myInt int
 param
 
+param 3
+param % string
+param % string 3 = 's'
+
 param myBool bool
 
 param missingType
+
+param malformedType 44
+
+// malformed type but type check should still happen
+param malformedType2 44 = f
+
+// malformed type but type check should still happen
+param malformedModifier 44 {
+  secure: 's'
+}
 
 param myString2 string = 'string value'
 

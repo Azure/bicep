@@ -43,7 +43,7 @@ namespace Bicep.Core.Parser
                 if (declarationOrToken is IDeclarationSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
-                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, consumeTerminator: true, TokenType.NewLine);
+                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
                         declarationsOrTokens.Add(newLine);
@@ -57,45 +57,81 @@ namespace Bicep.Core.Parser
         }
 
         public SyntaxBase Declaration() =>
-            this.WithRecovery(() =>
-            {
-                var current = reader.Peek();
+            this.WithRecovery(
+                () =>
+                {
+                    var current = reader.Peek();
 
-                return current.Type switch {
-                    TokenType.Identifier => current.Text switch {
-                        LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
-                        LanguageConstants.VariableKeyword => this.VariableDeclaration(),
-                        LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
-                        LanguageConstants.OutputKeyword => this.OutputDeclaration(),
+                    return current.Type switch
+                    {
+                        TokenType.Identifier => current.Text switch
+                        {
+                            LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(),
+                            LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
+                            LanguageConstants.OutputKeyword => this.OutputDeclaration(),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        },
+                        TokenType.NewLine => this.NewLine(),
+
                         _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
-                    },
-                    TokenType.NewLine => this.NewLine(),
-                    
-                    _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
-                };
-            }, consumeTerminator: false, TokenType.NewLine);
+                    };
+                },
+                RecoveryFlags.None,
+                TokenType.NewLine);
+
+        private static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
+        {
+            // local function
+            RecoveryFlags ConvertFlags(bool suppress) => suppress ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None;
+
+            /*
+             * When we have an incomplete declarations like "param\n",
+             * the keyword is parsed but all other properties are set to 0-length SkippedTriviaSyntax or MalformedIdentifierSyntax
+             * to prevent stacking multiple parse errors on a 0-length span (which is technically correct but also confusing)
+             * we will only leave the first parse error
+             */
+            switch (precedingNode)
+            {
+                case IdentifierSyntax identifier when identifier.IsValid == false:
+                    return ConvertFlags(identifier.Span.Length == 0);
+
+                case SkippedTriviaSyntax skipped:
+                    return ConvertFlags(skipped.Span.Length == 0);
+
+                default:
+                    return RecoveryFlags.None;
+            }
+        }
 
         private SyntaxBase ParameterDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
-            var name = Identifier(b => b.ExpectedParameterIdentifier());
-            var type = Type(b => b.ExpectedParameterType());
+            var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), TokenType.Identifier, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
-            var current = reader.Peek();
-            SyntaxBase? modifier = current.Type switch
-            {
-                // the parameter does not have a modifier
-                TokenType.NewLine => null,
-                TokenType.EndOfFile => null,
+            // TODO: Need a better way to choose the terminating token
+            SyntaxBase? modifier = this.WithRecoveryNullable(
+                () =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        // the parameter does not have a modifier
+                        TokenType.NewLine => null,
+                        TokenType.EndOfFile => null,
 
-                // default value is specified
-                TokenType.Assignment => this.ParameterDefaultValue(),
+                        // default value is specified
+                        TokenType.Assignment => this.ParameterDefaultValue(),
 
-                // modifier is specified
-                TokenType.LeftBrace => this.Object(),
+                        // modifier is specified
+                        TokenType.LeftBrace => this.Object(),
 
-                _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
-            };
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedParameterContinuation())
+                    };
+                },
+                GetSuppressionFlag(type),
+                TokenType.NewLine);
 
             return new ParameterDeclarationSyntax(keyword, name, type, modifier);
         }
@@ -111,9 +147,9 @@ namespace Bicep.Core.Parser
         private SyntaxBase VariableDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
-            var name = this.Identifier(b => b.ExpectedVariableIdentifier());
-            var assignment = this.Assignment();
-            var value = this.Expression();
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
@@ -121,10 +157,10 @@ namespace Bicep.Core.Parser
         private SyntaxBase OutputDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
-            var name = this.Identifier(b => b.ExpectedOutputIdentifier());
-            var type = Type(b => b.ExpectedParameterType());
-            var assignment = this.Assignment();
-            var value = this.Expression();
+            var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
+            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
         }
@@ -132,13 +168,16 @@ namespace Bicep.Core.Parser
         private SyntaxBase ResourceDeclaration()
         {
             var keyword = ExpectKeyword(LanguageConstants.ResourceKeyword);
-            var name = this.Identifier(b => b.ExpectedResourceIdentifier());
+            var name = this.IdentifierWithRecovery(b => b.ExpectedResourceIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
             // TODO: Unify StringSyntax with TypeSyntax
-            var type = ThrowIfSkipped(() => this.InterpolableString(), b => b.ExpectedResourceTypeString());
+            var type = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
 
-            var assignment = this.Assignment();
-            var body = this.Object();
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
+            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
         }
@@ -410,6 +449,26 @@ namespace Bicep.Core.Parser
             return new IdentifierSyntax(identifier);
         }
 
+        private IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] terminatingTypes)
+        {
+            var identifierOrSkipped = this.WithRecovery(
+                () => Identifier(errorFunc),
+                RecoveryFlags.None,
+                terminatingTypes);
+
+            switch (identifierOrSkipped)
+            {
+                case IdentifierSyntax identifier:
+                    return identifier;
+
+                case SkippedTriviaSyntax skipped:
+                    return new IdentifierSyntax(skipped);
+
+                default:
+                    throw new NotImplementedException($"Unexpected identifier syntax type '{identifierOrSkipped.GetType().Name}'");
+            }
+        }
+
         private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var identifier = Expect(TokenType.Identifier, errorFunc);
@@ -436,7 +495,7 @@ namespace Bicep.Core.Parser
             var startToken = reader.Peek();
             var tokensOrSyntax = new List<SyntaxBase>();
 
-            SyntaxBase? processStringSegment(bool isFirstSegment)
+            SyntaxBase? ProcessStringSegment(bool isFirstSegment)
             {
                 // This local function will be called in a loop to consume string segments and expressions in interpolation holes.
                 // Returning a non-null result will result in the caller terminating the loop and returning the given syntax tree for the string.
@@ -463,11 +522,11 @@ namespace Bicep.Core.Parser
 
                     // Look for an expression syntax inside the interpolation 'hole' (between "${" and "}").
                     // The lexer doesn't allow an expression contained inside an interpolation to span multiple lines, so we can safely use recovery to look for a NewLine character.
-                    var interpExpression = WithRecovery(() => Expression(), false, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    var interpExpression = WithRecovery(Expression, RecoveryFlags.None, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
                     if (!Check(TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine))
                     {
                         // We may have successfully parsed the expression, but have not reached the end of the expression hole. Skip to the end of the hole.
-                        var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                        var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, RecoveryFlags.None, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
 
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
@@ -486,7 +545,7 @@ namespace Bicep.Core.Parser
                 else
                 {
                     // Don't consume any tokens that aren't part of this syntax - allow synchronize to handle that safely.
-                    var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, false, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, RecoveryFlags.None, b => b.UnexpectedTokensInInterpolation(), TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
                     tokensOrSyntax.Add(skippedSyntax);
 
                     // If we're able to match a continuation, we should keep going, even if the expression parsing fails.
@@ -541,7 +600,7 @@ namespace Bicep.Core.Parser
             while (true)
             {
                 // Here we're actually parsing and returning the completed string
-                var output = processStringSegment(isFirstSegment);
+                var output = ProcessStringSegment(isFirstSegment);
                 if (output != null)
                 {
                     return output;
@@ -606,7 +665,7 @@ namespace Bicep.Core.Parser
                 var newLines = this.NewLines();
 
                 return new ArrayItemSyntax(value, newLines);
-            }, true, TokenType.NewLine);
+            }, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
         }
 
         private ObjectSyntax Object()
@@ -652,10 +711,10 @@ namespace Bicep.Core.Parser
                 var newLines = this.NewLines();
 
                 return new ObjectPropertySyntax(key, colon, value, newLines);
-            }, true, TokenType.NewLine);
+            }, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
         }
 
-        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
+        private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase
         {
             var startReaderPosition = reader.Position;
@@ -665,11 +724,11 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                return SynchronizeAndReturnTrivia(startReaderPosition, consumeTerminator, _ => exception.Error, terminatingTypes);
+                return SynchronizeAndReturnTrivia(startReaderPosition, flags, _ => exception.Error, terminatingTypes);
             }
         }
 
-        private SyntaxBase? WithRecoveryNullable<TSyntax>(Func<TSyntax> syntaxFunc, bool consumeTerminator, params TokenType[] terminatingTypes)
+        private SyntaxBase? WithRecoveryNullable<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
             where TSyntax : SyntaxBase?
         {
             var startReaderPosition = reader.Position;
@@ -679,7 +738,7 @@ namespace Bicep.Core.Parser
             }
             catch (ExpectedTokenException exception)
             {
-                return SynchronizeAndReturnTrivia(startReaderPosition, consumeTerminator, _ => exception.Error, terminatingTypes);
+                return SynchronizeAndReturnTrivia(startReaderPosition, flags, _ => exception.Error, terminatingTypes);
             }
         }
 
@@ -709,7 +768,7 @@ namespace Bicep.Core.Parser
             }
         }
 
-        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, bool consumeTerminator, DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] expectedTypes)
+        private SkippedTriviaSyntax SynchronizeAndReturnTrivia(int startReaderPosition, RecoveryFlags flags, DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] expectedTypes)
         {
             var startToken = reader.AtPosition(startReaderPosition);
 
@@ -720,7 +779,7 @@ namespace Bicep.Core.Parser
             var skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             var errorSpan = skippedSpan;
 
-            if (consumeTerminator)
+            if (flags.HasFlag(RecoveryFlags.ConsumeTerminator))
             {
                 Synchronize(true, expectedTypes);
 
@@ -728,9 +787,11 @@ namespace Bicep.Core.Parser
                 skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             }
 
-            var error = errorFunc(DiagnosticBuilder.ForPosition(errorSpan));
+            var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
+                ? ImmutableArray<ErrorDiagnostic>.Empty
+                : ImmutableArray.Create(errorFunc(DiagnosticBuilder.ForPosition(errorSpan)));
 
-            return new SkippedTriviaSyntax(skippedSpan, skippedTokens, new [] { error });
+            return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
         }
 
         private bool IsAtEnd()

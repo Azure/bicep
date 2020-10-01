@@ -67,24 +67,30 @@ namespace Bicep.LanguageServer.Completions
                 // we have at least 2 matching nodes in the "stack" and the last one is a token
                 var node = matchingNodes[^2];
 
-                if (node is ProgramSyntax)
+                switch (node)
                 {
-                    // the token at current position is inside a program node
-                    // we're in a declaration if one of the following conditions is met:
-                    // 1. the token is EOF
-                    // 2. the token is a newline and offset is 0 (file has content, but cursor is at the beginning)
-                    // 3. the token is a newline and offset is past the beginning position of the new line
-                    // (this prevents the end of a declaration from being considered a declaration context)
-                    return token.Type == TokenType.EndOfFile || 
-                           token.Type == TokenType.NewLine && (offset > token.Span.Position || offset == 0);
-                }
+                    case ProgramSyntax _:
+                        // the token at current position is inside a program node
+                        // we're in a declaration if one of the following conditions is met:
+                        // 1. the token is EOF
+                        // 2. the token is a newline and offset is 0 (file has content, but cursor is at the beginning)
+                        // 3. the token is a newline and offset is past the beginning position of the new line
+                        // (this prevents the end of a declaration from being considered a declaration context)
+                        return token.Type == TokenType.EndOfFile || 
+                               token.Type == TokenType.NewLine && (offset > token.Span.Position || offset == 0);
+                    
+                    case SkippedTriviaSyntax _:
+                        // we are in a partial declaration
+                        // if the token at current position is an identifier, assume declaration context
+                        // (completions will be filtered by the text that is present, so we don't have to be 100% right)
+                        return token.Type == TokenType.Identifier;
 
-                if (node is SkippedTriviaSyntax)
-                {
-                    // we are in a partial declaration
-                    // if the token at current position is an identifier, assume declaration context
-                    // (completions will be filtered by the text that is present, so we don't have to be 100% right)
-                    return token.Type == TokenType.Identifier;
+                    case IDeclarationSyntax declaration:
+                        // we are in a fully or partially parsed declaration
+                        // whether we are in a declaration context depends on whether our offset is within the keyword token
+                        // (by using exclusive span containment, the cursor position at the end of a keyword token 
+                        // result counts as being outside of the declaration context)
+                        return declaration.Keyword.Span.Contains(offset);
                 }
             }
 

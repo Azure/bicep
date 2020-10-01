@@ -7,30 +7,35 @@ namespace Bicep.Core.Syntax
 {
     public class OutputDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public OutputDeclarationSyntax(Token outputKeyword, IdentifierSyntax name, TypeSyntax type, Token assignment, SyntaxBase value)
+        public OutputDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
         {
-            AssertKeyword(outputKeyword, nameof(outputKeyword), LanguageConstants.OutputKeyword);
-            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.OutputKeyword);
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(IdentifierSyntax));
+            AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.OutputKeyword = outputKeyword;
+            this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
             this.Assignment = assignment;
             this.Value = value;
         }
 
-        public Token OutputKeyword { get; }
+        public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
 
-        public TypeSyntax Type { get; }
+        public SyntaxBase Type { get; }
 
-        public Token Assignment { get; }
+        public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitOutputDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(OutputKeyword, Value);
+        public override TextSpan Span => TextSpan.Between(Keyword, Value);
+
+        public TypeSyntax? OutputType => this.Type as TypeSyntax;
     }
 }

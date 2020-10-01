@@ -7,21 +7,57 @@ bad
 var
 //@[3:3) [BCP015 (Error)] Expected a variable identifier at this location. ||
 
+// incomplete keyword
+// #completionTest(0,1) -> declarations
+v
+//@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |v|
+// #completionTest(0,1,2) -> declarations
+va
+//@[0:2) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |va|
+
 // unassigned variable
 var foo
+//@[4:7) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[7:7) [BCP018 (Error)] Expected the '=' character at this location. ||
+
+// malformed identifier
+var 2 
+//@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |2|
+//@[6:6) [BCP018 (Error)] Expected the '=' character at this location. ||
+var $ = 23
+//@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |$|
+//@[4:5) [BCP001 (Error)] The following token is not recognized: '$'. |$|
+var # 33 = 43
+//@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |#|
+//@[4:5) [BCP001 (Error)] The following token is not recognized: '#'. |#|
 
 // no value assigned
 var foo =
+//@[4:7) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// bad =
+var badEquals 2
+//@[14:15) [BCP018 (Error)] Expected the '=' character at this location. |2|
+//@[15:15) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+var badEquals2 3 true
+//@[15:16) [BCP018 (Error)] Expected the '=' character at this location. |3|
+//@[21:21) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// malformed identifier but type check should happen regardless
+var 2 = x
+//@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |2|
+//@[8:9) [BCP062 (Error)] The referenced declaration with name 'x' is not valid. |x|
 
 // bad token value
 var foo = &
+//@[4:7) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[10:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |&|
 //@[10:11) [BCP001 (Error)] The following token is not recognized: '&'. |&|
 
 // bad value
 var foo = *
+//@[4:7) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[10:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |*|
 
 // expressions
@@ -30,7 +66,7 @@ var bar = x
 //@[10:11) [BCP062 (Error)] The referenced declaration with name 'x' is not valid. |x|
 var bar = foo()
 //@[4:7) [BCP028 (Error)] Identifier 'bar' is declared multiple times. Remove or rename the duplicates. |bar|
-//@[10:13) [BCP057 (Error)] The name 'foo' does not exist in the current context. |foo|
+//@[10:13) [BCP059 (Error)] The name 'foo' is not a function. |foo|
 var x = 2 + !3
 //@[4:5) [BCP028 (Error)] Identifier 'x' is declared multiple times. Remove or rename the duplicates. |x|
 //@[12:14) [BCP044 (Error)] Cannot apply operator '!' to operand of type int. |!3|
