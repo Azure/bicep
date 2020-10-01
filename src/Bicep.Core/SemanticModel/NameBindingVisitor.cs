@@ -92,10 +92,21 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitInstanceFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            Symbol? foundSymbol;
+
+            // baseExpression must be bound to a namespaceSymbol otherwise there was an error
+            if (bindings.ContainsKey(syntax.BaseExpression) &&
+                bindings[syntax.BaseExpression] is NamespaceSymbol namespaceSymbol)
+            {
+                foundSymbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, namespaceSymbol.Name);
+            }
+            else
+            {
+                foundSymbol = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameDoesNotExist(syntax.Name.IdentifierName));
+            }
 
             // bind what we got - the type checker will validate if it fits
-            this.bindings.Add(syntax, symbol);
+            this.bindings.Add(syntax, foundSymbol);
         }
 
         private Symbol ValidateFunctionFlags(Symbol symbol, TextSpan span)
@@ -120,7 +131,7 @@ namespace Bicep.Core.SemanticModel
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span)
+        private Symbol LookupSymbolByName(string name, TextSpan span, string @namespace = "")
         {
             if (this.declarations.TryGetValue(name, out var localSymbol))
             {
@@ -131,30 +142,44 @@ namespace Bicep.Core.SemanticModel
             // symbol does not exist in the local namespace
             // try it in the imported namespaces
 
-            // namespace check first
+            // check if name is a namespace symbol first
             var namespaceSymbol = this.namespaces
                 .Where(ns => ns.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
             if (namespaceSymbol != null)
             {
-                // found namespace symbol wins
+                // namespace symbol wins
                 return ValidateFunctionFlags(namespaceSymbol, span);
             }
 
             // match in one of the namespaces
-            var foundSymbols = this.namespaces
-                .Select(ns => ns.TryGetFunctionSymbol(name))
-                .Where(symbol => symbol != null)
-                .ToList();
-
-            if (foundSymbols.Count() > 1)
+            Symbol? foundSymbol;
+            if (string.IsNullOrEmpty(@namespace))
             {
-                // ambiguous symbol
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
+                var foundSymbols = this.namespaces
+                    .Select(ns => ns.TryGetFunctionSymbol(name))
+                    .Where(symbol => symbol != null)
+                    .ToList();
+
+                if (foundSymbols.Count() > 1)
+                {
+                    // ambiguous symbol
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
+                }
+
+                foundSymbol = foundSymbols.FirstOrDefault();
+            }
+            else
+            {
+                // if namespace is passed, filter the function lookup to the specified namespace
+                foundSymbol = this.namespaces
+                    .Where(ns => ns.Name.Equals(@namespace, System.StringComparison.OrdinalIgnoreCase))
+                    .Select(ns => ns.TryGetFunctionSymbol(name))
+                    .Where(symbol => symbol != null)
+                    .FirstOrDefault();
             }
 
-            var foundSymbol = foundSymbols.FirstOrDefault();
             if (foundSymbol == null)
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));

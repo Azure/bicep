@@ -395,17 +395,19 @@ var expressionIndexOnAny = any({
 //@[30:31) LeftParen |(|
 //@[31:32) LeftBrace |{|
 //@[32:33) NewLine |\n|
-})[resourceGroup().location]
+})[az.resourceGroup().location]
 //@[0:1) RightBrace |}|
 //@[1:2) RightParen |)|
 //@[2:3) LeftSquare |[|
-//@[3:16) Identifier |resourceGroup|
-//@[16:17) LeftParen |(|
-//@[17:18) RightParen |)|
-//@[18:19) Dot |.|
-//@[19:27) Identifier |location|
-//@[27:28) RightSquare |]|
-//@[28:30) NewLine |\n\n|
+//@[3:5) Identifier |az|
+//@[5:6) Dot |.|
+//@[6:19) Identifier |resourceGroup|
+//@[19:20) LeftParen |(|
+//@[20:21) RightParen |)|
+//@[21:22) Dot |.|
+//@[22:30) Identifier |location|
+//@[30:31) RightSquare |]|
+//@[31:33) NewLine |\n\n|
 
 var anyIndexOnAny = any(true)[any(false)]
 //@[0:3) Identifier |var|
@@ -622,15 +624,17 @@ var previousEmitLimit = [
 //@[6:7) RightSquare |]|
 //@[7:8) RightParen |)|
 //@[8:9) NewLine |\n|
-      d: resourceGroup().location
+      d: az.resourceGroup().location
 //@[6:7) Identifier |d|
 //@[7:8) Colon |:|
-//@[9:22) Identifier |resourceGroup|
-//@[22:23) LeftParen |(|
-//@[23:24) RightParen |)|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
+//@[9:11) Identifier |az|
+//@[11:12) Dot |.|
+//@[12:25) Identifier |resourceGroup|
+//@[25:26) LeftParen |(|
+//@[26:27) RightParen |)|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:37) NewLine |\n|
       e: concat([
 //@[6:7) Identifier |e|
 //@[7:8) Colon |:|
@@ -772,4 +776,67 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 //@[32:34) Equals |==|
 //@[35:36) Number |0|
 //@[36:37) RightParen |)|
-//@[37:37) EndOfFile ||
+//@[37:39) NewLine |\n\n|
+
+// fully qualified access
+//@[25:26) NewLine |\n|
+var resourceGroup = az.resourceGroup().name
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |resourceGroup|
+//@[18:19) Assignment |=|
+//@[20:22) Identifier |az|
+//@[22:23) Dot |.|
+//@[23:36) Identifier |resourceGroup|
+//@[36:37) LeftParen |(|
+//@[37:38) RightParen |)|
+//@[38:39) Dot |.|
+//@[39:43) Identifier |name|
+//@[43:44) NewLine |\n|
+var isTrue = sys.add(1, 2) == 3
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |isTrue|
+//@[11:12) Assignment |=|
+//@[13:16) Identifier |sys|
+//@[16:17) Dot |.|
+//@[17:20) Identifier |add|
+//@[20:21) LeftParen |(|
+//@[21:22) Number |1|
+//@[22:23) Comma |,|
+//@[24:25) Number |2|
+//@[25:26) RightParen |)|
+//@[27:29) Equals |==|
+//@[30:31) Number |3|
+//@[31:32) NewLine |\n|
+var isFalse = !isTrue
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |isFalse|
+//@[12:13) Assignment |=|
+//@[14:15) Exclamation |!|
+//@[15:21) Identifier |isTrue|
+//@[21:22) NewLine |\n|
+var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |someText|
+//@[13:14) Assignment |=|
+//@[15:21) Identifier |isTrue|
+//@[22:23) Question |?|
+//@[24:27) Identifier |sys|
+//@[27:28) Dot |.|
+//@[28:34) Identifier |concat|
+//@[34:35) LeftParen |(|
+//@[35:38) StringComplete |'a'|
+//@[38:39) Comma |,|
+//@[40:43) Identifier |sys|
+//@[43:44) Dot |.|
+//@[44:50) Identifier |concat|
+//@[50:51) LeftParen |(|
+//@[51:54) StringComplete |'b'|
+//@[54:55) Comma |,|
+//@[56:59) StringComplete |'c'|
+//@[59:60) RightParen |)|
+//@[60:61) RightParen |)|
+//@[62:63) Colon |:|
+//@[64:74) StringComplete |'someText'|
+//@[74:75) NewLine |\n|
+
+//@[0:0) EndOfFile ||

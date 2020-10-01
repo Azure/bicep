@@ -284,4 +284,67 @@ var objWithInterp = {
 //@[38:39)    NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// invalid fully qualified function access
+//@[42:43) NewLine |\n|
+var mySum = az.add(1,2)
+//@[0:23) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:9)  IdentifierSyntax
+//@[4:9)   Identifier |mySum|
+//@[10:11)  Assignment |=|
+//@[12:23)  InstanceFunctionCallSyntax
+//@[12:14)   VariableAccessSyntax
+//@[12:14)    IdentifierSyntax
+//@[12:14)     Identifier |az|
+//@[14:15)   Dot |.|
+//@[15:18)   IdentifierSyntax
+//@[15:18)    Identifier |add|
+//@[18:19)   LeftParen |(|
+//@[19:21)   FunctionArgumentSyntax
+//@[19:20)    NumericLiteralSyntax
+//@[19:20)     Number |1|
+//@[20:21)    Comma |,|
+//@[21:22)   FunctionArgumentSyntax
+//@[21:22)    NumericLiteralSyntax
+//@[21:22)     Number |2|
+//@[22:23)   RightParen |)|
+//@[23:24) NewLine |\n|
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+//@[0:51) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:12)  IdentifierSyntax
+//@[4:12)   Identifier |myConcat|
+//@[13:14)  Assignment |=|
+//@[15:51)  InstanceFunctionCallSyntax
+//@[15:18)   VariableAccessSyntax
+//@[15:18)    IdentifierSyntax
+//@[15:18)     Identifier |sys|
+//@[18:19)   Dot |.|
+//@[19:25)   IdentifierSyntax
+//@[19:25)    Identifier |concat|
+//@[25:26)   LeftParen |(|
+//@[26:30)   FunctionArgumentSyntax
+//@[26:29)    StringSyntax
+//@[26:29)     StringComplete |'a'|
+//@[29:30)    Comma |,|
+//@[31:50)   FunctionArgumentSyntax
+//@[31:50)    InstanceFunctionCallSyntax
+//@[31:33)     VariableAccessSyntax
+//@[31:33)      IdentifierSyntax
+//@[31:33)       Identifier |az|
+//@[33:34)     Dot |.|
+//@[34:40)     IdentifierSyntax
+//@[34:40)      Identifier |concat|
+//@[40:41)     LeftParen |(|
+//@[41:45)     FunctionArgumentSyntax
+//@[41:44)      StringSyntax
+//@[41:44)       StringComplete |'b'|
+//@[44:45)      Comma |,|
+//@[46:49)     FunctionArgumentSyntax
+//@[46:49)      StringSyntax
+//@[46:49)       StringComplete |'c'|
+//@[49:50)     RightParen |)|
+//@[50:51)   RightParen |)|
+//@[51:51) EndOfFile ||

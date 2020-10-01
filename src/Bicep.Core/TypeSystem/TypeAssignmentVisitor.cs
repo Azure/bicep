@@ -583,7 +583,24 @@ namespace Bicep.Core.TypeSystem
                         return GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
 
                     case VariableSymbol variable:
-                        return new UnassignableTypeSymbol(syntax.Name.IdentifierName);
+                        // this is the case when a variable name uses the same name as the fully qualified function name
+                        // e.g. var resourceGroup = az.resourceGroup().name
+
+                        // baseExpression must be bound to a namespaceSymbol (this is done in nameBindingVisitor)
+                        // if not, there was an error
+                        if (bindings.ContainsKey(syntax.BaseExpression) &&
+                            bindings[syntax.BaseExpression] is NamespaceSymbol namespaceSymbol)
+                        {
+                            var functionSymbol = namespaceSymbol.TryGetFunctionSymbol(syntax.Name.IdentifierName);
+
+                            if (functionSymbol != null)
+                            {
+                                return GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
+                            }
+                        }
+
+                        // if we get here symbolic name is not a function
+                        return new UnassignableTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
 
                     default:
                         return new UnassignableTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));

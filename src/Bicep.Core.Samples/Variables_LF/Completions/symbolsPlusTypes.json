@@ -522,6 +522,24 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "isFalse",
+    "kind": "variable",
+    "detail": "isFalse",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isFalse",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "isTrue",
+    "kind": "variable",
+    "detail": "isTrue",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isTrue",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json",
@@ -886,7 +904,7 @@
   },
   {
     "label": "resourceGroup",
-    "kind": "function",
+    "kind": "variable",
     "detail": "resourceGroup",
     "deprecated": false,
     "preselect": false,
@@ -918,6 +936,15 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "skip",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "someText",
+    "kind": "variable",
+    "detail": "someText",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "someText",
     "insertTextFormat": "plainText"
   },
   {

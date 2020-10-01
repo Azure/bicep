@@ -107,7 +107,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
                 else
                 {
@@ -118,7 +119,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
 
                 var foundRefs = model.FindReferences(symbol!);

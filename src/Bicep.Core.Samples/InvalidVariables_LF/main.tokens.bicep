@@ -205,4 +205,40 @@ var objWithInterp = {
 //@[38:39) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// invalid fully qualified function access
+//@[42:43) NewLine |\n|
+var mySum = az.add(1,2)
+//@[0:3) Identifier |var|
+//@[4:9) Identifier |mySum|
+//@[10:11) Assignment |=|
+//@[12:14) Identifier |az|
+//@[14:15) Dot |.|
+//@[15:18) Identifier |add|
+//@[18:19) LeftParen |(|
+//@[19:20) Number |1|
+//@[20:21) Comma |,|
+//@[21:22) Number |2|
+//@[22:23) RightParen |)|
+//@[23:24) NewLine |\n|
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |myConcat|
+//@[13:14) Assignment |=|
+//@[15:18) Identifier |sys|
+//@[18:19) Dot |.|
+//@[19:25) Identifier |concat|
+//@[25:26) LeftParen |(|
+//@[26:29) StringComplete |'a'|
+//@[29:30) Comma |,|
+//@[31:33) Identifier |az|
+//@[33:34) Dot |.|
+//@[34:40) Identifier |concat|
+//@[40:41) LeftParen |(|
+//@[41:44) StringComplete |'b'|
+//@[44:45) Comma |,|
+//@[46:49) StringComplete |'c'|
+//@[49:50) RightParen |)|
+//@[50:51) RightParen |)|
+//@[51:51) EndOfFile ||

@@ -66,3 +66,9 @@ var objWithInterp = {
 //@[4:17) Variable objWithInterp. Type: error. Declaration start char: 0, length: 62
   'ab${nonExistentIdentifier}cd': true
 }
+
+// invalid fully qualified function access
+var mySum = az.add(1,2)
+//@[4:9) Variable mySum. Type: error. Declaration start char: 0, length: 23
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+//@[4:12) Variable myConcat. Type: error. Declaration start char: 0, length: 51
