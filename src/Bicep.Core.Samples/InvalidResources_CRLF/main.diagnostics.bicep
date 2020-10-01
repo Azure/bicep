@@ -6,13 +6,22 @@ bad
 // incomplete
 resource 
 //@[9:9) [BCP017 (Error)] Expected a resource identifier at this location. ||
+//@[9:9) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. ||
 resource foo
+//@[9:12) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[12:12) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. ||
+//@[12:12) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. ||
 resource fo/o
 //@[11:12) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |/|
+//@[11:13) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |/o|
+//@[13:13) [BCP018 (Error)] Expected the '=' character at this location. ||
 resource foo 'ddd'
+//@[9:12) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |'ddd'|
 //@[18:18) [BCP018 (Error)] Expected the '=' character at this location. ||
 resource foo 'ddd'=
+//@[9:12) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format '<provider>/<types>@<apiVersion>'. |'ddd'|
 //@[19:19) [BCP018 (Error)] Expected the '{' character at this location. ||
 
 // wrong resource type

@@ -7,27 +7,29 @@ namespace Bicep.Core.Syntax
 {
     public class VariableDeclarationSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public VariableDeclarationSyntax(Token variableKeyword, IdentifierSyntax name, Token assignment, SyntaxBase value)
+        public VariableDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
         {
-            AssertKeyword(variableKeyword, nameof(variableKeyword), LanguageConstants.VariableKeyword);
-            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.VariableKeyword);
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
+            AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.VariableKeyword = variableKeyword;
+            this.Keyword = keyword;
             this.Name = name;
             this.Assignment = assignment;
             this.Value = value;
         }
 
-        public Token VariableKeyword { get; }
+        public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
 
-        public Token Assignment { get; }
+        public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
 
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(VariableKeyword, Value);
+        public override TextSpan Span => TextSpan.Between(Keyword, Value);
     }
 }

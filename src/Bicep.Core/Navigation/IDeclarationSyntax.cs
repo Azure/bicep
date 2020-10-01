@@ -13,5 +13,7 @@ namespace Bicep.Core.Navigation
     public interface IDeclarationSyntax
     {
         IdentifierSyntax Name { get; }
+
+        Token Keyword { get; }
     }
 }

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Serialization;
@@ -52,6 +53,46 @@ namespace Bicep.Core.IntegrationTests
 
                 tokenText.Should().Be(token.Text, "because token text at location should match original contents at the same location");
             }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public void LexerShouldProduceContiguousSpans(DataSet dataSet)
+        {
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            lexer.Lex();
+
+            int visitedPosition = 0;
+
+            // local function
+            void VisitSpan(TextSpan span, string text)
+            {
+                // the token should begin at the position where the previous token ended
+                span.Position.Should().Be(visitedPosition, $"because token or trivia '{text}' at span '{span}' should begin at position {visitedPosition}.");
+
+                // cover the span of the token
+                visitedPosition += span.Length;
+            }
+
+            // local function
+            void VisitTrivia(IEnumerable<SyntaxTrivia> trivia)
+            {
+                foreach (var trivium in trivia)
+                {
+                    VisitSpan(trivium.Span, trivium.Text);
+                }
+            }
+            
+            var tokens = lexer.GetTokens();
+            foreach (var token in tokens)
+            {
+                VisitTrivia(token.LeadingTrivia);
+                VisitSpan(token.Span, token.Text);
+                VisitTrivia(token.TrailingTrivia);
+            }
+
+            // when we're done visited position should match the length of the file
+            visitedPosition.Should().Be(dataSet.Bicep.Length);
         }
 
         [DataTestMethod]

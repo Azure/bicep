@@ -9,11 +9,33 @@ wrong
 param myInt int
 //@[6:11) Parameter myInt. Type: int. Declaration start char: 0, length: 15
 param
+//@[5:5) Parameter <missing>. Type: any. Declaration start char: 0, length: 5
+
+param 3
+//@[6:7) Parameter <error>. Type: any. Declaration start char: 0, length: 7
+param % string
+//@[6:7) Parameter <error>. Type: string. Declaration start char: 0, length: 14
+param % string 3 = 's'
+//@[6:7) Parameter <error>. Type: string. Declaration start char: 0, length: 22
 
 param myBool bool
 //@[6:12) Parameter myBool. Type: bool. Declaration start char: 0, length: 17
 
 param missingType
+//@[6:17) Parameter missingType. Type: any. Declaration start char: 0, length: 17
+
+param malformedType 44
+//@[6:19) Parameter malformedType. Type: any. Declaration start char: 0, length: 22
+
+// malformed type but type check should still happen
+param malformedType2 44 = f
+//@[6:20) Parameter malformedType2. Type: any. Declaration start char: 0, length: 27
+
+// malformed type but type check should still happen
+param malformedModifier 44 {
+//@[6:23) Parameter malformedModifier. Type: any. Declaration start char: 0, length: 44
+  secure: 's'
+}
 
 param myString2 string = 'string value'
 //@[6:15) Parameter myString2. Type: string. Declaration start char: 0, length: 39
@@ -24,6 +46,7 @@ param wrongDefaultValue string = 42
 param myInt2 int = 42
 //@[6:12) Parameter myInt2. Type: int. Declaration start char: 0, length: 21
 param noValueAfterColon int =   
+//@[6:23) Parameter noValueAfterColon. Type: int. Declaration start char: 0, length: 29
 
 param myTruth bool = 'not a boolean'
 //@[6:13) Parameter myTruth. Type: bool. Declaration start char: 0, length: 36
@@ -31,6 +54,7 @@ param myFalsehood bool = 'false'
 //@[6:17) Parameter myFalsehood. Type: bool. Declaration start char: 0, length: 32
 
 param wrongAssignmentToken string: 'hello'
+//@[6:26) Parameter wrongAssignmentToken. Type: string. Declaration start char: 0, length: 42
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 //@[6:267) Parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong. Type: string. Declaration start char: 0, length: 287

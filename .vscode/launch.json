@@ -30,7 +30,7 @@
             "preLaunchTask": "playground-build-wasm"
         },
         {
-            "name": "Bicep Cli",
+            "name": "Bicep CLI",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

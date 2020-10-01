@@ -4,10 +4,15 @@ bad
 
 // incomplete
 resource 
+//@[9:9) Resource <missing>. Type: error. Declaration start char: 0, length: 9
 resource foo
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 12
 resource fo/o
+//@[9:11) Resource fo. Type: error. Declaration start char: 0, length: 13
 resource foo 'ddd'
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 18
 resource foo 'ddd'=
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 19
 
 // wrong resource type
 resource foo 'ddd'={
