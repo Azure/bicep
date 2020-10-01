@@ -12,7 +12,7 @@
       "type": "string"
     },
     "servcePrincipalClientId": {
-      "type": "secureString"
+      "type": "string"
     },
     "servicePrincipalClientSecret": {
       "type": "secureString"

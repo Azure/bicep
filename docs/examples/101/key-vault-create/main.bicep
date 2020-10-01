@@ -1,85 +1,110 @@
-param name string = 'bicepKeyVaultTutorial'
-param location string = 'westuS'
+param vaultName string = 'almankv2${uniqueString(resourceGroup().id)}'
+param location string = resourceGroup().location
 param sku string = 'Standard'
-param tenant string = '72f988bf-86f1-41af-91ab-2d7cd011db47'
+param tenant string = '72f988bf-86f1-41af-91ab-2d7cd011db47' // replace with your tenantId
 param accessPolicies array = [
-    {
-        tenantId: tenant
-        objectId: '414d10da-615f-49a7-90a0-a7008fb31cd3'
-        permissions: {
-            keys: [ 
-                'Get'
-                'List'
-                'Update'
-                'Create'
-                'Import'
-                'Delete'
-                'Recover'
-                'Backup'
-                'Restore'
-            ]
-            secrets: [
-                'Get'
-                'List'
-                'Set'
-                'Delete'
-                'Recover'
-                'Backup'
-                'Restore'
-                ]
-            certificates: [
-                'Get'
-                'List'
-                'Update'
-                'Create'
-                'Import'
-                'Delete'
-                'Recover'
-                'Backup'
-                'Restore'
-                'ManageContacts'
-                'ManageIssuers'
-                'GetIssuers'
-                'ListIssuers'
-                'SetIssuers'
-                'DeleteIssuers'
-            ]
-        }
+  {
+    tenantId: tenant
+    objectId: 'caeebed6-cfa8-45ff-9d8a-03dba4ef9a7d' // replace with your objectId
+    permissions: {
+      keys: [ 
+        'Get'
+        'List'
+        'Update'
+        'Create'
+        'Import'
+        'Delete'
+        'Recover'
+        'Backup'
+        'Restore'
+      ]
+      secrets: [
+        'Get'
+        'List'
+        'Set'
+        'Delete'
+        'Recover'
+        'Backup'
+        'Restore'
+      ]
+      certificates: [
+        'Get'
+        'List'
+        'Update'
+        'Create'
+        'Import'
+        'Delete'
+        'Recover'
+        'Backup'
+        'Restore'
+        'ManageContacts'
+        'ManageIssuers'
+        'GetIssuers'
+        'ListIssuers'
+        'SetIssuers'
+        'DeleteIssuers'
+      ]
     }
+  }
 ]
 
 param enabledForDeployment bool = true
 param enabledForTemplateDeployment bool = true
 param enabledForDiskEncryption bool = true 
-param enableRbacAuthorization bool = false
-param enableSoftDelete bool = true 
+param enableRbacAuthorization bool = false 
 param softDeleteRetentionInDays int = 90
 
+param keyName string = 'prodKey'
+param secretName string = 'bankAccountPassword'
+param secretValue string = '12345'
+
 param networkAcls object = {
-    bypass: 'AzureServices'
-    defaultAction: 'allow'
-    ipRules: [
-    ]
-    virtualNetworkRules: [
-    ]
+    ipRules: []
+    virtualNetworkRules: []
 }
 
 resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {    
-    name: name       
-    location: location 
-    properties:{
-        tenantId: tenant
-        sku: {
-            family: 'A'
-            name: sku
-        }
-        accessPolicies: accessPolicies
-        enabledForDeployment: enabledForDeployment
-        enabledForDiskEncryption: enabledForDiskEncryption
-        enabledForTemplateDeployment: enabledForTemplateDeployment
-        enableSoftDelete: enableSoftDelete
-        softDeleteRetentionInDays: softDeleteRetentionInDays
-        enableRbacAuthorization: enableRbacAuthorization
-        networkAcls: networkAcls
+  name: vaultName       
+  location: location 
+  properties: {
+    tenantId: tenant
+    sku: {
+      family: 'A'
+      name: sku
     }
+    accessPolicies: accessPolicies
+    enabledForDeployment: enabledForDeployment
+    enabledForDiskEncryption: enabledForDiskEncryption
+    enabledForTemplateDeployment: enabledForTemplateDeployment
+    softDeleteRetentionInDays: softDeleteRetentionInDays
+    enableRbacAuthorization: enableRbacAuthorization
+    networkAcls: networkAcls
+  }
 }
+
+// create key
+var keySize = 4096
+resource key 'Microsoft.KeyVault/vaults/keys@2019-09-01' = {
+  name: '${keyvault.name}/${keyName}'
+  location: location
+  properties: {
+    kty: 'RSA' // key type
+    keyOps: [ // key operations
+      'encrypt'
+      'decrypt'
+    ]
+    keySize: keySize == -1 ? null : keySize
+    curveName: ''
+  }
+}
+
+// create secret
+resource secret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
+  name: '${keyvault.name}/${secretName}'
+  location: location
+  properties: {
+    value: secretValue
+  }
+}
+
+output proxyKey object = key
