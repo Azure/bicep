@@ -37,7 +37,6 @@
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "name": "[variables('websiteName')]",
         "siteConfig": {
           "appSettings": [
             {

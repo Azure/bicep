@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -17,12 +17,12 @@
       "defaultValue": "S1"
     },
     "skuUnits": {
-      "type": "string",
-      "defaultValue": "1"
+      "type": "int",
+      "defaultValue": 1
     },
     "d2cPartitions": {
-      "type": "string",
-      "defaultValue": "4"
+      "type": "int",
+      "defaultValue": 4
     }
   },
   "functions": [],
@@ -80,7 +80,7 @@
                 "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
                 "batchFrequencyInSeconds": 100,
                 "maxChunkSizeInBytes": 104857600,
-                "encoding": "json",
+                "encoding": "JSON",
                 "name": "[variables('storageEndpoint')]"
               }
             ]

@@ -54,7 +54,6 @@
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'scratch')).principalId]",
-        "scope": "[resourceGroup().id]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -143,7 +142,7 @@
               "image": "wordpress:4.9-apache",
               "ports": [
                 {
-                  "protocol": "Tcp",
+                  "protocol": "TCP",
                   "port": 80
                 }
               ],
@@ -166,7 +165,7 @@
               "resources": {
                 "requests": {
                   "cpu": "[variables('cpuCores')]",
-                  "memoryInGb": "[variables('memoryInGb')]"
+                  "memoryInGB": "[variables('memoryInGb')]"
                 }
               }
             }
@@ -177,7 +176,7 @@
               "image": "mysql:5.6",
               "ports": [
                 {
-                  "protocol": "Tcp",
+                  "protocol": "TCP",
                   "port": 3306
                 }
               ],
@@ -196,7 +195,7 @@
               "resources": {
                 "requests": {
                   "cpu": "[variables('cpuCores')]",
-                  "memoryInGb": "[variables('memoryInGb')]"
+                  "memoryInGB": "[variables('memoryInGb')]"
                 }
               }
             }
@@ -223,7 +222,7 @@
         "ipAddress": {
           "ports": [
             {
-              "protocol": "Tcp",
+              "protocol": "TCP",
               "port": 80
             }
           ],

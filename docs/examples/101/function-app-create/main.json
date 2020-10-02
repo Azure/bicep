@@ -13,6 +13,9 @@
     "appNamePrefix": {
       "type": "string",
       "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "workspaceResourceId": {
+      "type": "string"
     }
   },
   "functions": [],
@@ -60,10 +63,6 @@
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/default', variables('storageAccountName'))]",
-      "sku": {
-        "name": "Standard_LRS",
-        "tier": "Standard"
-      },
       "properties": {
         "cors": {
           "corsRules": []
@@ -85,7 +84,7 @@
       "kind": "web",
       "properties": {
         "Application_Type": "web",
-        "RetentionInDays": 90,
+        "WorkspaceResourceId": "[parameters('workspaceResourceId')]",
         "publicNetworkAccessForIngestion": "Enabled",
         "publicNetworkAccessForQuery": "Enabled"
       },
@@ -172,7 +171,7 @@
         "clientAffinityEnabled": false,
         "clientCertEnabled": false,
         "hostNamesDisabled": false,
-        "dailyMemoryTimeQuote": 0,
+        "dailyMemoryTimeQuota": 0,
         "httpsOnly": true,
         "redundancyMode": "None"
       },
@@ -187,7 +186,6 @@
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2018-11-01",
       "name": "[format('{0}/web', variables('functionAppName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "numberOfWorkers": -1,
         "defaultDocuments": [
@@ -269,7 +267,6 @@
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2018-11-01",
       "name": "[format('{0}/{1}.azurewebsites.net', variables('functionAppName'), variables('functionAppName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "siteName": "[variables('functionAppName')]",
         "hostNameType": "Verified"

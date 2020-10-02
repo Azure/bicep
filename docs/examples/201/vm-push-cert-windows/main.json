@@ -112,8 +112,8 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIpAllocationMethod": "Dynamic",
-              "publicIpAddress": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'certPublicIp')]"
               },
               "subnet": {

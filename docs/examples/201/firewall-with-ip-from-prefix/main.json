@@ -78,8 +78,7 @@
       "name": "[variables('ipprefixname')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard",
-        "tier": "Regional"
+        "name": "Standard"
       },
       "properties": {
         "prefixLength": "[parameters('ipprefixlength')]",

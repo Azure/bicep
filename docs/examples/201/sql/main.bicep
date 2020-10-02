@@ -31,18 +31,20 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
 }
 
 resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, but dependsOn was not automatically added
+  name: '${sqlServer.name}/${databaseName}'
   location: location
+  sku: {
+    name: databaseServiceObjectiveName
+    tier: databaseEdition
+  }
   properties: {
-    edition: databaseEdition
     collation: databaseCollation
-    requestedServiceObjectiveName: databaseServiceObjectiveName
   }
 }
 
 // very long type...
-resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01-preview' = {
-  name: '${db.name}/current' // had to change databaseName => db.name to get dependsOn working
+resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
+  name: '${db.name}/current'
   properties: {
     status: transparentDataEncryption
   }

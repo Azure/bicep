@@ -131,7 +131,7 @@ resource vpngw1 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
             tier: gatewaySku
         }
         vpnType: 'RouteBased'
-        enableBGP: true
+        enableBgp: true
         bgpSettings: {
             asn: vnet1cfg.asn
         }
@@ -162,7 +162,7 @@ resource vpngw2 'Microsoft.Network/virtualNetworkGateways@2020-05-01' = {
             tier: gatewaySku
         }
         vpnType: 'RouteBased'
-        enableBGP: true
+        enableBgp: true
         bgpSettings: {
             asn: vnet2cfg.asn
         }
@@ -175,14 +175,16 @@ resource vpn1to2 'Microsoft.Network/connections@2020-05-01' = {
     properties: {
         virtualNetworkGateway1: {
             id: vpngw1.id
+            properties: {}
         }
         virtualNetworkGateway2: {
             id: vpngw2.id
+            properties: {}
         }
         connectionType: 'Vnet2Vnet'
         routingWeight: 3
         sharedKey: sharedKey
-        enableBGP: true
+        enableBgp: true
     }
 }
 
@@ -192,13 +194,15 @@ resource vpn2to1 'Microsoft.Network/connections@2020-05-01' = {
     properties: {
         virtualNetworkGateway1: {
             id: vpngw2.id
+            properties: {}
         }
         virtualNetworkGateway2: {
             id: vpngw1.id
+            properties: {}
         }
         connectionType: 'Vnet2Vnet'
         routingWeight: 3
         sharedKey: sharedKey
-        enableBGP: true
+        enableBgp: true
     }
 }
