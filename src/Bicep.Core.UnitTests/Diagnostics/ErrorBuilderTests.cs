@@ -47,12 +47,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             if (parameter.ParameterType == typeof(TypeSymbol))
             {
-                return new PrimitiveType($"<type_{index}>");
+                return new PrimitiveType($"<type_{index}>", TypeSymbolValidationFlags.Default);
             }
 
             if (parameter.ParameterType == typeof(IList<TypeSymbol>))
             {
-                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>")};
+                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>", TypeSymbolValidationFlags.Default)};
             }
 
             if (parameter.ParameterType == typeof(IEnumerable<string>))
