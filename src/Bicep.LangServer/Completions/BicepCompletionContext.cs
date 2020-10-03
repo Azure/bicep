@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
@@ -22,7 +21,8 @@ namespace Bicep.LanguageServer.Completions
         public static BicepCompletionContext Create(ProgramSyntax syntax, int offset)
         {
             var matchingNodes = FindNodesMatchingOffset(syntax, offset);
-            var kind = IsDeclarationContext(matchingNodes, offset) ? BicepCompletionContextKind.Declaration : BicepCompletionContextKind.None;
+            var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
+                       GetDeclarationTypeFlags(matchingNodes, offset);
 
             return new BicepCompletionContext(kind);
         }
@@ -52,13 +52,54 @@ namespace Bicep.LanguageServer.Completions
             return nodes;
         }
 
-        private static bool IsDeclarationContext(List<SyntaxBase> matchingNodes, int offset)
+        private static BicepCompletionContextKind ConvertFlag(bool value, BicepCompletionContextKind flag) => value ? flag : BicepCompletionContextKind.None;
+
+        private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
         {
-            if (matchingNodes.Count == 1)
+            if (matchingNodes.Count < 2)
+            {
+                return BicepCompletionContextKind.None;
+            }
+
+            switch (matchingNodes[^1])
+            {
+                case ParameterDeclarationSyntax parameter:
+                    // the most specific matching node is a parameter declaration
+                    // the declaration syntax is "param <identifier> <type> ..."
+                    // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
+                    return ConvertFlag(parameter.Name.Span.Length > 0 && parameter.Type.Span.Position == offset, BicepCompletionContextKind.ParameterType);
+
+                case OutputDeclarationSyntax output:
+                    // the most specific matching node is an output declaration
+                    // the declaration syntax is "output <identifier> <type> ..."
+                    // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
+                    return ConvertFlag(output.Name.Span.Length > 0 && output.Type.Span.Position == offset, BicepCompletionContextKind.OutputType);
+
+                case Token token when token.Type == TokenType.Identifier && matchingNodes[^2] is TypeSyntax && matchingNodes.Count >= 3:
+                    // we are in a token that is inside a TypeSyntax node, which is inside some other node
+                    switch (matchingNodes[^3])
+                    {
+                        case ParameterDeclarationSyntax _:
+                            // type syntax is inside a param declaration
+                            return BicepCompletionContextKind.ParameterType;
+
+                        case OutputDeclarationSyntax _:
+                            // type syntax is inside an output declaration
+                            return BicepCompletionContextKind.OutputType;
+                    }
+
+                    break;
+            }
+
+            return BicepCompletionContextKind.None;
+        }
+
+        private static bool IsDeclarationStartContext(List<SyntaxBase> matchingNodes, int offset)
+        {
+            if (matchingNodes.Count == 1 && matchingNodes[0] is ProgramSyntax)
             {
                 // the file is empty and the AST has a ProgramSyntax with 0 children and an EOF
                 // because we picked the left node as winner, the only matching node is the ProgramSyntax node
-                Debug.Assert(matchingNodes[0] is ProgramSyntax, "matchingNodes[0] is ProgramSyntax");
                 return true;
             }
 

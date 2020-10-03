@@ -80,6 +80,37 @@ param missingType
 //@[17:17)  SkippedTriviaSyntax
 //@[17:19) NewLine |\n\n|
 
+// space after identifier #completionTest(32) -> paramTypes
+//@[59:60) NewLine |\n|
+param missingTypeWithSpaceAfter 
+//@[0:32) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:31)  IdentifierSyntax
+//@[6:31)   Identifier |missingTypeWithSpaceAfter|
+//@[32:32)  SkippedTriviaSyntax
+//@[32:34) NewLine |\n\n|
+
+// tab after identifier #completionTest(30) -> paramTypes
+//@[57:58) NewLine |\n|
+param missingTypeWithTabAfter	
+//@[0:30) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:29)  IdentifierSyntax
+//@[6:29)   Identifier |missingTypeWithTabAfter|
+//@[30:30)  SkippedTriviaSyntax
+//@[30:32) NewLine |\n\n|
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+//@[61:62) NewLine |\n|
+param partialType str
+//@[0:21) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:17)  IdentifierSyntax
+//@[6:17)   Identifier |partialType|
+//@[18:21)  TypeSyntax
+//@[18:21)   Identifier |str|
+//@[21:23) NewLine |\n\n|
+
 param malformedType 44
 //@[0:22) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|

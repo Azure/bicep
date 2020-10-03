@@ -16,12 +16,12 @@ namespace Bicep.LanguageServer.Completions
         {
             return GetDeclarationCompletions(context)
                 .Concat(GetSymbolCompletions(model, context))
-                .Concat(GetPrimitiveTypeCompletions(context));
+                .Concat(GetDeclarationTypeCompletions(context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext completionContext)
         {
-            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.Declaration))
+            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword");
                 yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}");
@@ -72,16 +72,43 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext completionContext) =>
-            completionContext.Kind.HasFlag(BicepCompletionContextKind.Declaration) == false
+            completionContext.Kind == BicepCompletionContextKind.None
                 ? GetAccessibleSymbols(model).Select(sym => sym.ToCompletionItem())
                 : Enumerable.Empty<CompletionItem>();
 
-        private IEnumerable<CompletionItem> GetPrimitiveTypeCompletions(BicepCompletionContext completionContext) =>
-            completionContext.Kind.HasFlag(BicepCompletionContextKind.Declaration) == false
-                ? LanguageConstants.DeclarationTypes.Values.Select(CreateTypeCompletion)
-                : Enumerable.Empty<CompletionItem>();
+        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext completionContext)
+        {
+            // local function
+            IEnumerable<CompletionItem> GetPrimitiveTypeCompletions() =>
+                LanguageConstants.DeclarationTypes.Values.Select(CreateTypeCompletion);
 
-        private IEnumerable<Symbol> GetAccessibleSymbols(SemanticModel model)
+
+            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
+            {
+                return GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets());
+            }
+
+            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.OutputType))
+            {
+                return GetPrimitiveTypeCompletions();
+            }
+
+            return Enumerable.Empty<CompletionItem>();
+        }
+
+        
+        private static IEnumerable<CompletionItem> GetParameterTypeSnippets()
+        {
+            yield return CreateSnippetCompletion("secureObject", "Secure object", @"object {
+  secure: true
+}");
+
+            yield return CreateSnippetCompletion("secureString", "Secure string", @"string {
+  secure: true
+}");
+        }
+
+        private static IEnumerable<Symbol> GetAccessibleSymbols(SemanticModel model)
         {
             var accessibleSymbols = new Dictionary<string, Symbol>();
 
@@ -98,15 +125,13 @@ namespace Bicep.LanguageServer.Completions
             }
 
             AddAccessibleSymbols(accessibleSymbols, model.Root.AllDeclarations
-                .Where(decl => !(decl is OutputSymbol)));
+                .Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
 
             AddAccessibleSymbols(accessibleSymbols, model.Root.ImportedNamespaces
                 .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>()));
 
             return accessibleSymbols.Values;
         }
-
-
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail) =>
             new CompletionItem

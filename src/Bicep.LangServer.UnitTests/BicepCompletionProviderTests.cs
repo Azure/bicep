@@ -31,7 +31,7 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.Declaration));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -95,7 +95,7 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.Declaration));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -258,15 +258,54 @@ output length int = 42
         }
 
         [TestMethod]
-        public void NonDeclarationContextShouldReturnDeclarationTypeCompletions()
+        public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.OutputType));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
-            declarationTypeCompletions.Should().SatisfyRespectively(
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
+        {
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var provider = new BicepCompletionProvider();
+
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.ParameterType));
+            var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
+
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("secureObject");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().StartWith("object");
+                    c.InsertText.Should().Contain("secure: true");
+                    c.Detail.Should().Be("Secure object");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("secureString");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().StartWith("string");
+                    c.InsertText.Should().Contain("secure: true");
+                    c.Detail.Should().Be("Secure string");
+                });
+        }
+
+        private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
+        {
+            completions.Should().SatisfyRespectively(
                 c =>
                 {
                     const string expected = "array";
