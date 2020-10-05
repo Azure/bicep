@@ -133,7 +133,11 @@ namespace Bicep.Core.SemanticModel
 
         private Symbol LookupSymbolByName(string name, TextSpan span, string @namespace = "")
         {
-            if (this.declarations.TryGetValue(name, out var localSymbol))
+            // Declarations must not have a namespace value, namespaces are used to fully qualify a function access.
+            // There might be instances where a variable declaration for example uses the same name as one of the imported
+            // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
+            // the former case must have an empty namespace value whereas the latter will have a namespace value.
+            if (string.IsNullOrEmpty(@namespace) && this.declarations.TryGetValue(name, out var localSymbol))
             {
                 // we found the symbol in the local namespace
                 return ValidateFunctionFlags(localSymbol, span);
