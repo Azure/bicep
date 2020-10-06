@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
@@ -69,7 +70,9 @@ namespace Bicep.LangServer.IntegrationTests
 
                 switch (symbol!.Kind)
                 {
-                    case SymbolKind.Error:
+                    // when a namespace does not exist, instance function call contains a null hover range
+                    case SymbolKind.Error when  (symbolReference is InstanceFunctionCallSyntax && hover.Range == null):
+                    case SymbolKind.Error when !(symbolReference is InstanceFunctionCallSyntax):
                         // error symbol
                         ValidateEmptyHover(hover);
                         break;
@@ -79,6 +82,10 @@ namespace Bicep.LangServer.IntegrationTests
                         ValidateEmptyHover(hover);
                         break;
 
+                    // when a namespace exist and there was an error with the function call or
+                    // if a valid function or namespace access, all these cases will have a hover range
+                    // and text
+                    case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax:
                     case SymbolKind.Function when symbolReference is InstanceFunctionCallSyntax:
                     case SymbolKind.Namespace:
                         ValidateInstanceFunctionCallHover(hover);

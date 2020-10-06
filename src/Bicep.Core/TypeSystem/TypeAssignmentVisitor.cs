@@ -573,6 +573,15 @@ namespace Bicep.Core.TypeSystem
                 base.VisitInstanceFunctionCallSyntax(syntax);
 
                 var errors = new List<ErrorDiagnostic>();
+                
+                var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
+                CollectErrors(errors, baseType);
+
+                if (errors.Any())
+                {
+                    return new UnassignableTypeSymbol(errors);
+                }
+
                 var argumentTypes = syntax.Arguments.Select(arg => typeManager.GetTypeInfo(arg)).ToList();
 
                 foreach (TypeSymbol argumentType in argumentTypes)

@@ -44,7 +44,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitVariableAccessSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -82,7 +82,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -131,7 +131,7 @@ namespace Bicep.Core.SemanticModel
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span, string @namespace = "")
+        private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
         {
             // Declarations must not have a namespace value, namespaces are used to fully qualify a function access.
             // There might be instances where a variable declaration for example uses the same name as one of the imported
