@@ -24,6 +24,18 @@ param myBool bool
 param missingType
 //@[6:17) Parameter missingType. Type: any. Declaration start char: 0, length: 17
 
+// space after identifier #completionTest(32) -> paramTypes
+param missingTypeWithSpaceAfter 
+//@[6:31) Parameter missingTypeWithSpaceAfter. Type: any. Declaration start char: 0, length: 32
+
+// tab after identifier #completionTest(30) -> paramTypes
+param missingTypeWithTabAfter	
+//@[6:29) Parameter missingTypeWithTabAfter. Type: any. Declaration start char: 0, length: 30
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+param partialType str
+//@[6:17) Parameter partialType. Type: error. Declaration start char: 0, length: 21
+
 param malformedType 44
 //@[6:19) Parameter malformedType. Type: any. Declaration start char: 0, length: 22
 

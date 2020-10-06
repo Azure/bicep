@@ -19,8 +19,6 @@ output
 //@[7:7)  SkippedTriviaSyntax
 //@[7:11) NewLine |\r\n\r\n|
 
-// missing type
-//@[15:17) NewLine |\r\n|
 output foo
 //@[0:10) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
@@ -30,6 +28,31 @@ output foo
 //@[10:10)  SkippedTriviaSyntax
 //@[10:10)  SkippedTriviaSyntax
 //@[10:14) NewLine |\r\n\r\n|
+
+// space after identifier #completionTest(20) -> outputTypes
+//@[60:62) NewLine |\r\n|
+output spaceAfterId 
+//@[0:20) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |spaceAfterId|
+//@[20:20)  SkippedTriviaSyntax
+//@[20:20)  SkippedTriviaSyntax
+//@[20:20)  SkippedTriviaSyntax
+//@[20:24) NewLine |\r\n\r\n|
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+//@[62:64) NewLine |\r\n|
+output partialType obj
+//@[0:22) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |partialType|
+//@[19:22)  TypeSyntax
+//@[19:22)   Identifier |obj|
+//@[22:22)  SkippedTriviaSyntax
+//@[22:22)  SkippedTriviaSyntax
+//@[22:26) NewLine |\r\n\r\n|
 
 // malformed identifier
 //@[23:25) NewLine |\r\n|

@@ -13,8 +13,18 @@ namespace Bicep.LanguageServer.Completions
         None = 0,
 
         /// <summary>
-        /// The current location represents 
+        /// The current location represents the beginning of a declaration.
         /// </summary>
-        Declaration = 1
+        DeclarationStart = 1 << 0,
+
+        /// <summary>
+        /// The current location needs a parameter type.
+        /// </summary>
+        ParameterType = 1 << 1,
+
+        /// <summary>
+        /// The current location needs an output type.
+        /// </summary>
+        OutputType = 1 << 2
     }
 }

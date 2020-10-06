@@ -24,6 +24,18 @@ param myBool bool
 param missingType
 //@[17:17) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
 
+// space after identifier #completionTest(32) -> paramTypes
+param missingTypeWithSpaceAfter 
+//@[32:32) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// tab after identifier #completionTest(30) -> paramTypes
+param missingTypeWithTabAfter	
+//@[30:30) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+param partialType str
+//@[18:21) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: array, bool, int, object, string. |str|
+
 param malformedType 44
 //@[20:22) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. |44|
 
