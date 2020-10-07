@@ -83,8 +83,8 @@ namespace Bicep.LangServer.IntegrationTests
                         break;
 
                     // when a namespace exist and there was an error with the function call or
-                    // if a valid function or namespace access, all these cases will have a hover range
-                    // and text
+                    // is a valid function call or namespace access, all these cases will have a hover range
+                    // with some text
                     case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax:
                     case SymbolKind.Function when symbolReference is InstanceFunctionCallSyntax:
                     case SymbolKind.Namespace:

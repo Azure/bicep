@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
@@ -49,7 +50,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = true
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 // all URIs should be the same in the results
@@ -88,7 +89,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 // all URIs should be the same in the results
@@ -141,11 +142,21 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 locations.Should().BeEmpty();
             }
+        }
+
+        private Position GetPosition(SyntaxBase syntax, ImmutableArray<int> lineStarts)
+        {
+            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall)
+            {
+                return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
+            }
+
+            return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
         }
 
         private static IEnumerable<object[]> GetData()

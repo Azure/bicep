@@ -46,6 +46,7 @@ namespace Bicep.LangServer.IntegrationTests
                 .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is IDeclarationSyntax)
                                && pair.Value.Kind != SymbolKind.Error
                                && pair.Value.Kind != SymbolKind.Function
+                               && pair.Value.Kind != SymbolKind.Namespace
                                // symbols whose identifiers have parse errors will have a name like <error> or <missing>
                                && pair.Value.Name.Contains("<") == false);
 
