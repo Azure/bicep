@@ -302,7 +302,7 @@ output valueB string = myRes.properties.myDisc1.valueB
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP082", expectedDiagnosticLevel).And.HaveMessage("The type choiceA does not contain property 'valueB'. Did you mean 'valueA'?")
+x                     x => x.Should().HaveCodeAndSeverity("BCP083", expectedDiagnosticLevel).And.HaveMessage("The type choiceA does not contain property 'valueB'. Did you mean 'valueA'?")
                 );
             }
         }
