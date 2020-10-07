@@ -57,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = expectedNewText,
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();
@@ -95,7 +95,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = "NewIdentifier",
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();
@@ -142,7 +142,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = "NewIdentifier",
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = GetPosition(syntax, lineStarts)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();
@@ -156,6 +156,16 @@ namespace Bicep.LangServer.IntegrationTests
                 NewText = newText,
                 Range = PositionHelper.GetNameRange(lineStarts, syntax)
             };
+
+        private Position GetPosition(SyntaxBase syntax, ImmutableArray<int> lineStarts)
+        {
+            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall)
+            {
+                return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
+            }
+
+            return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
+        }
 
         private static IEnumerable<object[]> GetData()
         {
