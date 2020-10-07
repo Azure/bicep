@@ -90,7 +90,7 @@ resource logAnalyticsWorkspaceDiagnostics 'Microsoft.OperationalInsights/workspa
 }
 
 resource solutionsVMInsights 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
-    name: '${vmInsights.name}'
+    name: vmInsights.name
     location: location
     dependsOn: [
         logAnalyticsWorkspace
@@ -99,7 +99,7 @@ resource solutionsVMInsights 'Microsoft.OperationsManagement/solutions@2015-11-0
         workspaceResourceId: logAnalyticsWorkspace.id 
     }
     plan: {
-        name: '${vmInsights}.Name'
+        name: vmInsights.name
         publisher: 'Microsoft'
         product: 'OMSGallery/${vmInsights.galleryName}'
         promotionCode: ''
@@ -107,7 +107,7 @@ resource solutionsVMInsights 'Microsoft.OperationsManagement/solutions@2015-11-0
 }
 
 resource solutionsContainerInsights 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
-    name: '${containerInsights.name}'
+    name: containerInsights.name
     location: location
     dependsOn: [
         logAnalyticsWorkspace
@@ -116,7 +116,7 @@ resource solutionsContainerInsights 'Microsoft.OperationsManagement/solutions@20
         workspaceResourceId: logAnalyticsWorkspace.id 
     }
     plan: {
-        name: '${containerInsights}.Name'
+        name: containerInsights.name
         publisher: 'Microsoft'
         product: 'OMSGallery/${containerInsights.galleryName}'
         promotionCode: ''
