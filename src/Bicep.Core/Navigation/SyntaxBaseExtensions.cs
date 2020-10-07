@@ -26,7 +26,6 @@ namespace Bicep.Core.Navigation
             private readonly int offset;
             private readonly Func<SyntaxBase, bool> predicate;
             private readonly bool inclusive;
-            //private bool visitInstanceFunctionCallBaseExpression = false;
 
             public NavigationSearchVisitor(int offset, Func<SyntaxBase, bool> predicate, bool inclusive)
             {

@@ -61,8 +61,7 @@ namespace Bicep.Core.SemanticModel
                 .Where(decl => decl.NameSyntax.IsValid)
                 .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
-            
-            // TODO: add a check to verify namespace
+
             foreach (IGrouping<string, DeclaredSymbol> group in duplicateSymbols)
             {
                 foreach (DeclaredSymbol duplicatedSymbol in group)

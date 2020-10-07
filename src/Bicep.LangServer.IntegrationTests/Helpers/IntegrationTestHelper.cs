@@ -39,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
             return client;
         }
 
-        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 1000000)
+        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 10000)
         {
             var completed = await Task.WhenAny(
                 task,
