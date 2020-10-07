@@ -92,7 +92,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitInstanceFunctionCallSyntax(syntax);
 
-            Symbol? foundSymbol;
+            Symbol foundSymbol;
 
             // baseExpression must be bound to a namespaceSymbol otherwise there was an error
             if (bindings.ContainsKey(syntax.BaseExpression) &&
