@@ -274,12 +274,35 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
 }
 
 output valueA string = myRes.properties.myDisc1.valueA
+output valueB string = myRes.properties.myDisc1.valuuuueB
+";
+
+                var model = GetSemanticModelForTest(program, customTypes);
+                model.GetAllDiagnostics().Should().SatisfyRespectively(
+                    x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type choiceA does not contain property 'valuuuueB'. Available properties include 'discKey', 'valueA'.")
+                );
+            }
+
+            {
+                // all good
+                var program = @"
+resource myRes 'My.Rp/myType@2020-01-01' = {
+  name: 'steve'
+  properties: {
+    myDisc1: {
+      discKey: 'choiceA'
+      valueA: 'hello'
+    }
+  }
+}
+
+output valueA string = myRes.properties.myDisc1.valueA
 output valueB string = myRes.properties.myDisc1.valueB
 ";
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type choiceA does not contain property 'valueB'. Available properties include 'discKey', 'valueA'.")
+                    x => x.Should().HaveCodeAndSeverity("BCP082", expectedDiagnosticLevel).And.HaveMessage("The type choiceA does not contain property 'valueB'. Did you mean 'valueA'?")
                 );
             }
         }

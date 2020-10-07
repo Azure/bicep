@@ -39,6 +39,16 @@ namespace Bicep.Core.UnitTests.Text
             result.Should().BeNull();
         }
 
+        [TestMethod]
+        public void Test()
+        {
+            var candidates = new [] { "listKeys" };
+
+            string? result = SpellChecker.GetSpellingSuggestion("lsitKeys", candidates);
+
+            result.Should().NotBeNull();
+        }
+
         [DataTestMethod]
         // maxLengthDifference = 1
         [DataRow("ooo", "ooooo", "oooooo")]

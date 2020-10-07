@@ -199,6 +199,7 @@ var sampleObject = {
 }
 
 var badProperty = sampleObject.myFake
+var badSpelling = sampleObject.myNul
 var badPropertyIndexer = sampleObject['fake']
 var badType = sampleObject.myStr / 32
 var badInnerProperty = sampleObject.myInner.fake

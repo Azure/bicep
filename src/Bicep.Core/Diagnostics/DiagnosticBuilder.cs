@@ -439,10 +439,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
 
-            public ErrorDiagnostic SymbolicNameDoesNotExistWithSugesstion(string name, string suggestedName) => new ErrorDiagnostic(
+            public ErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP081",
                 $"The name '{name}' does not exist in the current context. Did you mean '{suggestedName}'?");
+
+            public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new Diagnostic(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP082",
+                $"The type {type} does not contain property '{badProperty}'. Did you mean '{suggestedProperty}'?");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

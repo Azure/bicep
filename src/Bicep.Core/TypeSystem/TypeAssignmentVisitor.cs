@@ -11,6 +11,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -774,9 +775,19 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var unknownPropertyDiagnostic = availableProperties.Any() ? 
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties) :
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+
+            var unknownPropertyDiagnostic = availableProperties.Any() switch
+            {
+                true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
+                {
+                    string suggestedPropertyName
+                        when suggestedPropertyName != null=> diagnosticBuilder.UnknownPropertyWithSuggestion(TypeValidator.ShouldWarn(baseType), baseType, propertyName, suggestedPropertyName),
+                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties),
+                },
+                _ => diagnosticBuilder.UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName)
+            };
+
             diagnostics.Add(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;

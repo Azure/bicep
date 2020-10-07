@@ -29,9 +29,9 @@ namespace Bicep.Core.SemanticModel
 
         public override SymbolKind Kind => SymbolKind.Namespace;
 
-        private IDictionary<string, FunctionSymbol?> SymbolCache { get; }
+        public ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
 
-        private ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
+        private IDictionary<string, FunctionSymbol?> SymbolCache { get; }
 
         public FunctionSymbol? TryGetFunctionSymbol(string name)
         {

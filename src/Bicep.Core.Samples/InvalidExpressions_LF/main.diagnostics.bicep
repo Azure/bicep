@@ -220,7 +220,7 @@ output funcvarout array = padLeft
 var fakeFunc = red() + green() * orange()
 //@[15:18) [BCP057 (Error)] The name 'red' does not exist in the current context. |red|
 //@[23:28) [BCP057 (Error)] The name 'green' does not exist in the current context. |green|
-//@[33:39) [BCP057 (Error)] The name 'orange' does not exist in the current context. |orange|
+//@[33:39) [BCP081 (Error)] The name 'orange' does not exist in the current context. Did you mean 'range'? |orange|
 param fakeFuncP string {
   default: blue()
 //@[11:15) [BCP057 (Error)] The name 'blue' does not exist in the current context. |blue|
@@ -255,11 +255,11 @@ var test1 = listKeys('abcd')
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
-//@[12:20) [BCP057 (Error)] The name 'lsitKeys' does not exist in the current context. |lsitKeys|
+//@[12:20) [BCP081 (Error)] The name 'lsitKeys' does not exist in the current context. Did you mean 'listKeys'? |lsitKeys|
 
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
-//@[12:16) [BCP057 (Error)] The name 'list' does not exist in the current context. |list|
+//@[12:16) [BCP081 (Error)] The name 'list' does not exist in the current context. Did you mean 'last'? |list|
 
 // cannot compile an expression like this
 var emitLimit = [
@@ -323,6 +323,8 @@ var sampleObject = {
 
 var badProperty = sampleObject.myFake
 //@[31:37) [BCP053 (Error)] The type object does not contain property 'myFake'. Available properties include 'myArr', 'myBool', 'myInner', 'myInt', 'myNull', 'myStr'. |myFake|
+var badSpelling = sampleObject.myNul
+//@[31:36) [BCP082 (Error)] The type object does not contain property 'myNul'. Did you mean 'myNull'? |myNul|
 var badPropertyIndexer = sampleObject['fake']
 //@[38:44) [BCP053 (Error)] The type object does not contain property 'fake'. Available properties include 'myArr', 'myBool', 'myInner', 'myInt', 'myNull', 'myStr'. |'fake'|
 var badType = sampleObject.myStr / 32

@@ -118,10 +118,10 @@ namespace Bicep.Core.Text
                 {
                     // See: https://en.wikipedia.org/wiki/Levenshtein_distance#Definition
                     current[j] = first[i - 1] == second[j - 1]
-                        ? current[j] = previous[j - 1]
-                        : current[j] = 1 + Min(previous[j], current[j - 1], previous[j - 1]);
+                        ? previous[j - 1]
+                        : 1 + Min(previous[j], current[j - 1], previous[j - 1]);
 
-                    minDistance = current[j];
+                    minDistance = Min(minDistance, current[j]);
                 }
 
                 // Lev(i, maxJ + 1) to Lev(i, second.Length).
