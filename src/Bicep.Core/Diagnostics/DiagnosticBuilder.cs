@@ -438,6 +438,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
+
+            public ErrorDiagnostic SymbolicNameDoesNotExistWithSugesstion(string name, string suggestedName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP081",
+                $"The name '{name}' does not exist in the current context. Did you mean '{suggestedName}'?");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

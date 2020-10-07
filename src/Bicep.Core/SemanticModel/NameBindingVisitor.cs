@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
@@ -136,7 +137,16 @@ namespace Bicep.Core.SemanticModel
             var foundSymbol = foundSymbols.FirstOrDefault();
             if (foundSymbol == null)
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                var nameCandidates = this.declarations.Values
+                    .Concat(this.namespaces.SelectMany(ns => ns.Descendants))
+                    .Select(symbol => symbol.Name)
+                    .OrderBy(name => name);
+
+                var suggestedName = SpellChecker.GetSpellingSuggestion(name, nameCandidates);
+
+                return suggestedName != null
+                    ? new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExistWithSugesstion(name, suggestedName))
+                    : new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
             }
 
             return ValidateFunctionFlags(foundSymbol, span);

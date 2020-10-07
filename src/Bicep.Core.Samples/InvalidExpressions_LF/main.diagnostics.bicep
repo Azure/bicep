@@ -149,7 +149,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) [BCP028 (Error)] Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
-//@[14:18) [BCP057 (Error)] The name 'test' does not exist in the current context. |test|
+//@[14:18) [BCP081 (Error)] The name 'test' does not exist in the current context. Did you mean 'test1'? |test|
 //@[36:49) [BCP045 (Error)] Cannot apply operator '&&' to operands of type bool and null. |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) [BCP028 (Error)] Identifier 'complex' is declared multiple times. Remove or rename the duplicates. |complex|
