@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
