@@ -125,7 +125,7 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.1
+        uses: actions/setup-node@v2.1.2
         with:
           node-version: 10.x
 
@@ -169,7 +169,7 @@ jobs:
           dotnet-version: 3.1.301
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.1.1
+        uses: actions/setup-node@v2.1.2
         with:
           node-version: 10.x
       

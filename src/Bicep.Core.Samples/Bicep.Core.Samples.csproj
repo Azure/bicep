@@ -28,11 +28,15 @@
 
   <ItemGroup>
     <None Remove="Completions\declarations.json" />
+    <None Remove="Completions\outputTypes.json" />
+    <None Remove="Completions\paramTypes.json" />
     <None Remove="Variables_LF\completions.declarations.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Completions\declarations.json" />
+    <EmbeddedResource Include="Completions\outputTypes.json" />
+    <EmbeddedResource Include="Completions\paramTypes.json" />
     <EmbeddedResource Include="Variables_LF\Completions\symbolsPlusTypes.json" />
   </ItemGroup>
 

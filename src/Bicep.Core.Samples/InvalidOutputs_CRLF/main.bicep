@@ -5,8 +5,13 @@ bad
 // incomplete
 output 
 
-// missing type
 output foo
+
+// space after identifier #completionTest(20) -> outputTypes
+output spaceAfterId 
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+output partialType obj
 
 // malformed identifier
 output 2

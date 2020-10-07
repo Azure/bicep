@@ -13,12 +13,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class Compilation
     {
-        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
+        private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly Lazy<SemanticModel> lazySemanticModel;
 
-        public Compilation(ResourceTypeRegistrar resourceTypeRegistrar, ProgramSyntax programSyntax)
+        public Compilation(IResourceTypeProvider resourceTypeProvider, ProgramSyntax programSyntax)
         {
-            this.resourceTypeRegistrar = resourceTypeRegistrar;
+            this.resourceTypeProvider = resourceTypeProvider;
             this.ProgramSyntax = programSyntax;
 
             this.lazySemanticModel = new Lazy<SemanticModel>(this.GetSemanticModelInternal, LazyThreadSafetyMode.PublicationOnly);
@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(resourceTypeRegistrar, bindings, cyclesBySyntax), bindings);
+            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySyntax), bindings);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();

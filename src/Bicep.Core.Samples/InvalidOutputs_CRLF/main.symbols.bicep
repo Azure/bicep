@@ -6,9 +6,16 @@ bad
 output 
 //@[7:7) Output <missing>. Type: any. Declaration start char: 0, length: 7
 
-// missing type
 output foo
 //@[7:10) Output foo. Type: any. Declaration start char: 0, length: 10
+
+// space after identifier #completionTest(20) -> outputTypes
+output spaceAfterId 
+//@[7:19) Output spaceAfterId. Type: any. Declaration start char: 0, length: 20
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+output partialType obj
+//@[7:18) Output partialType. Type: error. Declaration start char: 0, length: 22
 
 // malformed identifier
 output 2

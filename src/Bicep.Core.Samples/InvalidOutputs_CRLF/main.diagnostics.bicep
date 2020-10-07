@@ -7,10 +7,18 @@ bad
 output 
 //@[7:7) [BCP016 (Error)] Expected an output identifier at this location. ||
 
-// missing type
 output foo
 //@[7:10) [BCP028 (Error)] Identifier 'foo' is declared multiple times. Remove or rename the duplicates. |foo|
 //@[10:10) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// space after identifier #completionTest(20) -> outputTypes
+output spaceAfterId 
+//@[20:20) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: array, bool, int, object, string. ||
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+output partialType obj
+//@[19:22) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: array, bool, int, object, string. |obj|
+//@[22:22) [BCP018 (Error)] Expected the '=' character at this location. ||
 
 // malformed identifier
 output 2

@@ -12,12 +12,25 @@ output
 //@[0:6) Identifier |output|
 //@[7:11) NewLine |\r\n\r\n|
 
-// missing type
-//@[15:17) NewLine |\r\n|
 output foo
 //@[0:6) Identifier |output|
 //@[7:10) Identifier |foo|
 //@[10:14) NewLine |\r\n\r\n|
+
+// space after identifier #completionTest(20) -> outputTypes
+//@[60:62) NewLine |\r\n|
+output spaceAfterId 
+//@[0:6) Identifier |output|
+//@[7:19) Identifier |spaceAfterId|
+//@[20:24) NewLine |\r\n\r\n|
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+//@[62:64) NewLine |\r\n|
+output partialType obj
+//@[0:6) Identifier |output|
+//@[7:18) Identifier |partialType|
+//@[19:22) Identifier |obj|
+//@[22:26) NewLine |\r\n\r\n|
 
 // malformed identifier
 //@[23:25) NewLine |\r\n|

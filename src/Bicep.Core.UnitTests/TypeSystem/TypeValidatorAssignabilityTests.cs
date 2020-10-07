@@ -185,7 +185,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);;
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("Expected a value of type int but the provided value is of type object.");
@@ -289,7 +289,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);;
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
@@ -777,15 +777,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var discriminatedType = new DiscriminatedObjectType(
                 "discObj",
+                TypeSymbolValidationFlags.Default,
                 "myDiscriminator",
                 new []
                 {
-                    new NamedObjectType("typeA", new []
+                    new NamedObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     { 
                         new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
                         new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
                     }, null),
-                    new NamedObjectType("typeB", new []
+                    new NamedObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     { 
                         new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
                         new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
@@ -997,9 +998,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
+            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }

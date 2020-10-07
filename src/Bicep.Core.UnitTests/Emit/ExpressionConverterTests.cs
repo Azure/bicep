@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
 
             var parsed = ParserHelper.ParseExpression(text);
 

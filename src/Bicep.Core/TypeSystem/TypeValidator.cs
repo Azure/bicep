@@ -115,10 +115,13 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        public static bool ShouldWarn(TypeSymbol targetType)
+            => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch);
+
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, IList<Diagnostic> diagnostics)
         {
             // generic error creator if a better one was not specified.
-            TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType.Name, actualType.Name);
+            TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(ShouldWarn(targetType), expectedType.Name, actualType.Name);
 
             return NarrowTypeInternal(typeManager, expression, targetType, diagnostics, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
@@ -135,7 +138,8 @@ namespace Bicep.Core.TypeSystem
             {
                 // When assigning a resource, we're really assigning the value of the resource body.
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnostics, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
-                return new ResourceType(targetResourceType.TypeReference, narrowedBody);
+
+                return new ResourceType(targetResourceType.TypeReference, narrowedBody, targetResourceType.ValidationFlags);
             }
 
             // TODO: The type of this expression and all subexpressions should be cached
@@ -197,12 +201,12 @@ namespace Bicep.Core.TypeSystem
                     arrayItemSyntax.Value,
                     targetType.Item.Type,
                     diagnostics,
-                    (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(expectedType.Name, actualType.Name),
+                    (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(ShouldWarn(targetType), expectedType.Name, actualType.Name),
                     skipConstantCheck,
                     skipTypeErrors: true));
             }
 
-            return new TypedArrayType(UnionType.Create(arrayProperties));
+            return new TypedArrayType(UnionType.Create(arrayProperties), targetType.ValidationFlags);
         }
 
         private static TypeSymbol NarrowDiscriminatedObjectType(ITypeManager typeManager, ObjectSyntax expression, DiscriminatedObjectType targetType, IList<Diagnostic> diagnostics, bool skipConstantCheck)
@@ -218,7 +222,7 @@ namespace Bicep.Core.TypeSystem
             if (discriminatorProperty == null)
             {
                 // object doesn't contain the discriminator field
-                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
                 return LanguageConstants.Any;
             }
 
@@ -229,14 +233,14 @@ namespace Bicep.Core.TypeSystem
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
             if (!(discriminatorType is StringLiteralType stringLiteralDiscriminator))
             {
-                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).PropertyTypeMismatch(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                 return LanguageConstants.Any;
             }
 
             if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
             {
                 // no matches
-                diagnostics.Add(DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                 return LanguageConstants.Any;
             }
 
@@ -269,7 +273,7 @@ namespace Bicep.Core.TypeSystem
                 .ConcatString(LanguageConstants.ListSeparator);
             if (string.IsNullOrEmpty(missingRequiredProperties) == false)
             {
-                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(missingRequiredProperties));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
             }
 
             var narrowedProperties = new List<TypeProperty>();
@@ -293,7 +297,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // the declared property is read-only
                         // value cannot be assigned to a read-only property
-                        diagnostics.Add(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(declaredProperty.Name));
+                        diagnostics.Add(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
                     }
 
                     // declared property is specified in the value object
@@ -303,7 +307,7 @@ namespace Bicep.Core.TypeSystem
                         declaredPropertySyntax.Value,
                         declaredProperty.TypeReference.Type,
                         diagnostics,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(declaredProperty.Name, expectedType, actualType),
+                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(ShouldWarn(targetType), declaredProperty.Name, expectedType, actualType),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
                         
@@ -330,18 +334,18 @@ namespace Bicep.Core.TypeSystem
                 // extra properties are not allowed by the type
                 foreach (var extraProperty in extraProperties)
                 {
-                    ErrorDiagnostic error;
+                    Diagnostic error;
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(keyName, targetType.Name, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(keyName, targetType.Name);
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(ShouldWarn(targetType), keyName, targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(ShouldWarn(targetType), keyName, targetType.Name);
                     }
                     else
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(targetType.Name, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(targetType.Name);
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(ShouldWarn(targetType), targetType.Name, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(ShouldWarn(targetType), targetType.Name);
                     }
 
                     diagnostics.AddRange(error.AsEnumerable());
@@ -367,11 +371,11 @@ namespace Bicep.Core.TypeSystem
                     TypeMismatchErrorFactory typeMismatchErrorFactory;
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(keyName, expectedType, actualType);
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(ShouldWarn(targetType), keyName, expectedType, actualType);
                     }
                     else
                     {
-                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(expectedType, actualType);
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(ShouldWarn(targetType), expectedType, actualType);
                     }
 
                     var narrowedProperty = NarrowTypeInternal(
@@ -387,7 +391,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new NamedObjectType(targetType.Name, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
+            return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
         }
     }
 }
