@@ -150,7 +150,11 @@ namespace Bicep.Core.TypeSystem.Az
             var properties = objectType.Properties ?? throw new ArgumentException();
             var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
 
-            var extendedProperties = baseProperties.Concat(properties);
+            var extendedProperties = properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+            foreach (var property in baseProperties.Where(x => !extendedProperties.ContainsKey(x.Key)))
+            {
+                extendedProperties[property.Key] = property.Value;
+            }
 
             return new NamedObjectType(name, TypeSymbolValidationFlags.WarnOnTypeMismatch, extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
         }
