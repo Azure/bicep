@@ -82,8 +82,8 @@ resource nic 'microsoft.network/networkInterfaces@2019-06-01' = {
       {
         name: 'ipconfig1'
         properties: {
-          privateIpAllocationMethod: 'Dynamic'
-          publicIpAddress: {
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
             id: pip.id
           }
           subnet: {

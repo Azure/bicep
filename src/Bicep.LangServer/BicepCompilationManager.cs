@@ -17,19 +17,19 @@ namespace Bicep.LanguageServer
 {
     public class BicepCompilationManager : ICompilationManager
     {
-        private readonly ILanguageServer server;
+        private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
-        public BicepCompilationManager(ILanguageServer server, ICompilationProvider provider)
+        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider)
         {
             this.server = server;
             this.provider = provider;
         }
 
-        public CompilationContext? UpsertCompilation(DocumentUri uri, long version, string text)
+        public CompilationContext? UpsertCompilation(DocumentUri uri, int? version, string text)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace Bicep.LanguageServer
         // TODO: Remove the lexer part when we stop it from emitting errors
         private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
 
-        private void PublishDocumentDiagnostics(DocumentUri uri, long version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
+        private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
         {
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {

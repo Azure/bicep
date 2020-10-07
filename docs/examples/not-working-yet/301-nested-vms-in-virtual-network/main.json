@@ -85,25 +85,19 @@
         "Standard_D8s_v3",
         "Standard_D16s_v3",
         "Standard_D32s_v3",
-        "Standard_D48_v3",
         "Standard_D64_v3",
         "Standard_E2_v3",
         "Standard_E4_v3",
         "Standard_E8_v3",
         "Standard_E16_v3",
-        "Standard_E20_v3",
         "Standard_E32_v3",
-        "Standard_E48_v3",
         "Standard_E64_v3",
-        "Standard_D48s_v3",
         "Standard_D64s_v3",
         "Standard_E2s_v3",
         "Standard_E4s_v3",
         "Standard_E8s_v3",
         "Standard_E16s_v3",
-        "Standard_E20s_v3",
         "Standard_E32s_v3",
-        "Standard_E48s_v3",
         "Standard_E64s_v3"
       ]
     },
@@ -126,12 +120,12 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/publicIpAddresses",
+      "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2019-04-01",
       "name": "[parameters('HostPublicIPAddressName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "basic"
+        "name": "Basic"
       },
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
@@ -256,19 +250,19 @@
             "name": "ipconfig",
             "properties": {
               "primary": true,
-              "privateIPAllocationMethod": "dynamic",
+              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[format('{0}/subnets{1}', reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '2019-04-01', 'full'), parameters('NATSubnetName'))]"
               },
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('HostPublicIPAddressName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]"
               }
             }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIpAddresses', parameters('HostPublicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     },
@@ -283,7 +277,7 @@
             "name": "ipconfig",
             "properties": {
               "primary": true,
-              "privateIPAllocationMethod": "dynamic",
+              "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[format('{0}/subnets{1}', reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '2019-04-01', 'full'), parameters('hyperVSubnetName'))]"
               }
@@ -309,12 +303,12 @@
           "imageReference": {
             "publisher": "MicrosoftWindowsServer",
             "offer": "WindowsServer",
-            "Sku": "2016-Datacenter",
+            "sku": "2016-Datacenter",
             "version": "latest"
           },
           "osDisk": {
             "name": "[format('{0}OsDisk', parameters('HostVirtualMachineName'))]",
-            "createOption": "fromImage",
+            "createOption": "FromImage",
             "managedDisk": {
               "storageAccountType": "Premium_LRS"
             },
@@ -364,6 +358,7 @@
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
       "name": "[format('{0}/InstallWindowsFeatures', resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName')))]",
+      "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Powershell",
         "type": "DSC",
@@ -386,6 +381,7 @@
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
       "name": "[format('{0}/HVHOSTSetup', resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName')))]",
+      "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
@@ -395,7 +391,7 @@
           "fileUris": [
             "[variables('HVHostSetupScriptUri')]"
           ],
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Network/networkInterfaces', parameters('HostNetworkInterface1Name'))).ipconfigurations[0].properties.privateIPAddress, reference(resourceId('Microsoft.Network/networkInterfaces', parameters('HostNetworkInterface2Name'))).ipconfigurations[0].properties.privateIPAddress, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Network/networkInterfaces', parameters('HostNetworkInterface1Name'))).ipConfigurations[0].properties.privateIPAddress, reference(resourceId('Microsoft.Network/networkInterfaces', parameters('HostNetworkInterface2Name'))).ipConfigurations[0].properties.privateIPAddress, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
         }
       },
       "dependsOn": [

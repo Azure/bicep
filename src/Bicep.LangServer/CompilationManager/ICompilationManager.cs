@@ -6,7 +6,7 @@ namespace Bicep.LanguageServer.CompilationManager
 {
     public interface ICompilationManager
     {
-        CompilationContext? UpsertCompilation(DocumentUri uri, long version, string text);
+        CompilationContext? UpsertCompilation(DocumentUri uri, int? version, string text);
 
         void CloseCompilation(DocumentUri uri);
 

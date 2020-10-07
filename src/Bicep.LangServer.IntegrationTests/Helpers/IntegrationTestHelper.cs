@@ -18,13 +18,13 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        public static async Task<ILanguageClient> StartServerWithClientConnection(Action<LanguageClientOptions> onClientOptions)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions)
         {
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
             var server = new Server(serverPipe.Reader, clientPipe.Writer, () => TestResourceTypeProvider.Create());
-            var _ = server.Run(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
+            var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options => 
             {   
@@ -39,7 +39,8 @@ namespace Bicep.LangServer.IntegrationTests
             return client;
         }
 
-        public static async Task<T> WithTimeout<T>(Task<T> task, int timeout = 10000)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Not an issue in test code.")]
+        public static async Task<T> WithTimeoutAsync<T>(Task<T> task, int timeout = 10000)
         {
             var completed = await Task.WhenAny(
                 task,
@@ -54,10 +55,10 @@ namespace Bicep.LangServer.IntegrationTests
             return await task;
         }
 
-        public static async Task<ILanguageClient> StartServerWithText(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
-            var client = await IntegrationTestHelper.StartServerWithClientConnection(options =>
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options =>
             {
                 onClientOptions?.Invoke(options);
                 options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
@@ -68,7 +69,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification
-            await IntegrationTestHelper.WithTimeout(diagnosticsPublished.Task);
+            await IntegrationTestHelper.WithTimeoutAsync(diagnosticsPublished.Task);
 
             return client;
         }

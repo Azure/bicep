@@ -75,7 +75,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
                         id: subnetRef
                     }
                     privateIPAllocationMethod: 'Dynamic'
-                    publicIpAddress: {
+                    publicIPAddress: {
                         id: publicIP.id
                     }
                 }
@@ -96,7 +96,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
                 name: 'SSH'
                 properties: {
                     priority: 1000
-                    protocol: 'TCP'
+                    protocol: 'Tcp'
                     access: 'Allow'
                     direction: 'Inbound'
                     sourceAddressPrefix: '*'
@@ -135,7 +135,7 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
     name: publicIPAddressName
     location: location
     properties: {
-        publicIpAllocationMethod: 'Dynamic'
+        publicIPAllocationMethod: 'Dynamic'
         publicIPAddressVersion: 'IPv4'
         dnsSettings: {
             domainNameLabel: dnsLabelPrefix
@@ -144,7 +144,6 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
     }
     sku: {
         name: 'Basic'
-        tier: 'Regional'
     }
 }
 
@@ -157,7 +156,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
         }
         storageProfile: {
             osDisk: {
-                createOption: 'fromImage'
+                createOption: 'FromImage'
                 managedDisk: {
                     storageAccountType: osDiskType
                 }
@@ -180,7 +179,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
             computerName: vmName
             adminUsername: adminUsername
             adminPassword: adminPasswordOrKey
-            linuxConfiguration: authenticationType == 'password' ? null : linuxConfiguration
+            linuxConfiguration: any(authenticationType == 'password' ? null : linuxConfiguration) // TODO: workaround for https://github.com/Azure/bicep/issues/449
         }
     }
 }
