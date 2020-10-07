@@ -70,7 +70,7 @@ namespace Bicep.Core.TypeSystem
                     // We allow string to string literal assignment only in the case where the "AllowLooseStringAssignment" validation flag has been set.
                     // This is to allow parameters without 'allowed' values to be assigned to fields expecting enums.
                     // At some point we may want to consider flowing the enum type backwards to solve this more elegantly.
-                    return sourceType.Name == LanguageConstants.String.Name && sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseStringAssignment);
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseStringAssignment) && sourceType.Name == LanguageConstants.String.Name;
 
                 case PrimitiveType _ when sourceType is StringLiteralType:
                     // string literals can be assigned to strings

@@ -70,11 +70,6 @@ namespace Bicep.Core.Samples
 
         private static bool IsPermittedMissingTypeDiagnostic(Diagnostic diagnostic)
         {
-            if (diagnostic.Level != DiagnosticLevel.Warning)
-            {
-                return false;
-            }
-
             if (diagnostic.Code != "BCP081")
             {
                 return false;

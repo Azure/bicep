@@ -179,7 +179,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         assignedType = UnionType.Create(allowedItemTypes);
                     }
-                    else if (object.ReferenceEquals(declaredType, LanguageConstants.String))
+                    else
                     {
                         // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
                         // we need to relax the validation for string parameters without 'allowed' values specified.
