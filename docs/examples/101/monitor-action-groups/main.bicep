@@ -12,7 +12,7 @@ param logicAppReceivers array = []
 param azureFunctionReceivers array = []
 param armRoleReceivers array = []
 
-resource actionGroup 'Microsoft.Insights/actionGroups@2018-03-01' = {
+resource actionGroup 'Microsoft.Insights/actionGroups@2019-06-01' = {
   name: actionGroupName
   location: 'Global'
   properties: {

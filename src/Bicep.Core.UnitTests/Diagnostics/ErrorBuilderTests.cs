@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
@@ -46,12 +47,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             if (parameter.ParameterType == typeof(TypeSymbol))
             {
-                return new PrimitiveType($"<type_{index}>");
+                return new PrimitiveType($"<type_{index}>", TypeSymbolValidationFlags.Default);
             }
 
             if (parameter.ParameterType == typeof(IList<TypeSymbol>))
             {
-                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>")};
+                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>", TypeSymbolValidationFlags.Default)};
             }
 
             if (parameter.ParameterType == typeof(IEnumerable<string>))
@@ -77,6 +78,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(SymbolKind))
             {
                 return SymbolKind.Variable;
+            }
+
+            if (parameter.ParameterType == typeof(ResourceTypeReference))
+            {
+                return ResourceTypeReference.Parse("Mock.ErrorParam/mockResources@2020-01-01");
             }
 
             return $"<param_{index}>";

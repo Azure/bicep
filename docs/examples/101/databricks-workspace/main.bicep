@@ -18,7 +18,7 @@ resource ws 'Microsoft.Databricks/workspaces@2018-04-01' = {
   }
   properties: {
     // TODO: improve once we have scoping functions
-    ManagedResourceGroupId: '${subscription().id}/resourceGroups/${managedResourceGroupName}'
+    managedResourceGroupId: '${subscription().id}/resourceGroups/${managedResourceGroupName}'
   }
 }
 

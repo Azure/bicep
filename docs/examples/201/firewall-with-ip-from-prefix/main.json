@@ -73,13 +73,12 @@
       }
     },
     {
-      "type": "Microsoft.Network/publicipprefixes",
+      "type": "Microsoft.Network/publicIPPrefixes",
       "apiVersion": "2020-05-01",
       "name": "[variables('ipprefixname')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard",
-        "tier": "Regional"
+        "name": "Standard"
       },
       "properties": {
         "prefixLength": "[parameters('ipprefixlength')]",
@@ -98,11 +97,11 @@
       "properties": {
         "publicIPAllocationMethod": "Static",
         "publicIPPrefix": {
-          "id": "[resourceId('Microsoft.Network/publicipprefixes', variables('ipprefixname'))]"
+          "id": "[resourceId('Microsoft.Network/publicIPPrefixes', variables('ipprefixname'))]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicipprefixes', variables('ipprefixname'))]"
+        "[resourceId('Microsoft.Network/publicIPPrefixes', variables('ipprefixname'))]"
       ]
     },
     {

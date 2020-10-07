@@ -46,10 +46,12 @@
       "apiVersion": "2019-06-01-preview",
       "name": "[format('{0}/{1}', variables('sqlServerName'), variables('databaseName'))]",
       "location": "[parameters('location')]",
+      "sku": {
+        "name": "[variables('databaseServiceObjectiveName')]",
+        "tier": "[variables('databaseEdition')]"
+      },
       "properties": {
-        "edition": "[variables('databaseEdition')]",
-        "collation": "[variables('databaseCollation')]",
-        "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+        "collation": "[variables('databaseCollation')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
@@ -57,7 +59,7 @@
     },
     {
       "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
-      "apiVersion": "2014-04-01-preview",
+      "apiVersion": "2014-04-01",
       "name": "[format('{0}/current', format('{0}/{1}', variables('sqlServerName'), variables('databaseName')))]",
       "properties": {
         "status": "[parameters('transparentDataEncryption')]"

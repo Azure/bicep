@@ -44,7 +44,7 @@
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
-            "provisionVmAgent": true
+            "provisionVMAgent": true
           }
         },
         "hardwareProfile": {
@@ -155,7 +155,7 @@
                 "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnet1Name'))]"
               },
               "privateIPAllocationMethod": "Dynamic",
-              "publicIpAddress": {
+              "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
               }
             }
