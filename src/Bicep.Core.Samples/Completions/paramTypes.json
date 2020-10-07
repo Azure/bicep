@@ -52,12 +52,8 @@
     "kind": "snippet",
     "detail": "Secure object",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nobject {\n  secure: true\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nobject {\n  secure: true\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -69,12 +65,8 @@
     "kind": "snippet",
     "detail": "Secure string",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nstring {\n  secure: true\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nstring {\n  secure: true\n}\n```"
     },
     "deprecated": false,
     "preselect": false,

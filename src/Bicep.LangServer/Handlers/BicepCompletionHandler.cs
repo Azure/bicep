@@ -43,11 +43,6 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(request);
         }
 
-        public override bool CanResolve(CompletionItem value)
-        {
-            return false;
-        }
-
         private static CompletionRegistrationOptions CreateRegistrationOptions() => new CompletionRegistrationOptions
         {
             DocumentSelector = DocumentSelectorFactory.Create(),

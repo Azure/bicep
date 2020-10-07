@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
@@ -24,6 +25,7 @@ using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class HoverTests
     {
         [DataTestMethod]
@@ -31,7 +33,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
@@ -94,7 +96,7 @@ namespace Bicep.LangServer.IntegrationTests
             bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));

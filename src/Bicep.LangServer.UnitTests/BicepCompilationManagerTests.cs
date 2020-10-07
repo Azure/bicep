@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create()));
 
-            const long version = 42;
+            const int version = 42;
             var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
@@ -76,7 +76,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create()));
 
-            const long version = 42;
+            const int version = 42;
             var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
@@ -143,7 +143,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create()));
 
-            const long version = 42;
+            const int version = 42;
             var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // first get should not return anything
@@ -173,7 +173,7 @@ namespace Bicep.LangServer.UnitTests
             firstActual.Should().BeSameAs(firstUpserted);
 
             // upsert second one
-            const long newVersion = version + 1;
+            const int newVersion = version + 1;
             var secondUpserted = manager.UpsertCompilation(uri, newVersion, "hello\r\nthere\r\n");
 
             secondUpserted.Should().NotBeNull();
@@ -200,7 +200,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void GetNonExistentCompilation_ShouldNotThrow()
         {
-            var server = Repository.Create<ILanguageServer>();
+            var server = Repository.Create<ILanguageServerFacade>();
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create()));
 
@@ -252,7 +252,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, provider.Object);
 
-            const long version = 74;
+            const int version = 74;
             var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // upsert should fail because of the mock fatal exception
@@ -307,7 +307,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, provider.Object);
 
-            const long version = 74;
+            const int version = 74;
             var uri = DocumentUri.File(this.TestContext!.TestName);
 
             // upsert should fail because of the mock fatal exception
@@ -362,9 +362,9 @@ namespace Bicep.LangServer.UnitTests
             return document;
         }
 
-        private static Mock<ILanguageServer> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
+        private static Mock<ILanguageServerFacade> CreateMockServer(Mock<ITextDocumentLanguageServer> document)
         {
-            var server = Repository.Create<ILanguageServer>();
+            var server = Repository.Create<ILanguageServerFacade>();
             server
                 .Setup(m => m.TextDocument)
                 .Returns(document.Object);
