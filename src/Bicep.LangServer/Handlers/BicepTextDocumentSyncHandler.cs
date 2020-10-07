@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
+    public class BicepTextDocumentSyncHandler : TextDocumentSyncHandler
     {
         private readonly ICompilationManager compilationManager;
 
