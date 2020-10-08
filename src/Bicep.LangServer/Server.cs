@@ -53,7 +53,7 @@ namespace Bicep.LanguageServer
             });
         }
 
-        public async Task Run(CancellationToken cancellationToken)
+        public async Task RunAsync(CancellationToken cancellationToken)
         {
             await server.Initialize(cancellationToken);
 

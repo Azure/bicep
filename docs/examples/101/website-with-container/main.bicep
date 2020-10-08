@@ -15,7 +15,6 @@ resource site 'microsoft.web/sites@2018-11-01' = {
   name: websiteName
   location: location
   properties: {
-    name: websiteName
     siteConfig: {
       appSettings: [
         {
@@ -37,7 +36,7 @@ resource site 'microsoft.web/sites@2018-11-01' = {
       ]
       linuxFxVersion: 'DOCKER|${acrName}.azurecr.io/${dockerImageAndTag}'
     }
-    serverFarmId: farm.id // resourceId('microsoft.web/serverfarms', parameters('farmName'))
+    serverFarmId: farm.id
   }
 }
 
@@ -61,5 +60,5 @@ resource farm 'microsoft.web/serverFarms@2018-11-01' = {
 }
 
 output publicUrl string = site.properties.defaultHostName
-output ftpUser string = site.properties.ftpUsername
+output ftpUser string = any(site.properties).ftpUsername // TODO: workaround for missing property definition
 

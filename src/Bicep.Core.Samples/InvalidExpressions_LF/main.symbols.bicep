@@ -279,6 +279,8 @@ var sampleObject = {
 
 var badProperty = sampleObject.myFake
 //@[4:15) Variable badProperty. Type: error. Declaration start char: 0, length: 37
+var badSpelling = sampleObject.myNul
+//@[4:15) Variable badSpelling. Type: error. Declaration start char: 0, length: 36
 var badPropertyIndexer = sampleObject['fake']
 //@[4:22) Variable badPropertyIndexer. Type: error. Declaration start char: 0, length: 45
 var badType = sampleObject.myStr / 32

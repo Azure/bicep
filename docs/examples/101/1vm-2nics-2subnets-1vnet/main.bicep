@@ -27,7 +27,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
       adminUsername: adminUsername
       adminPassword: adminPassword
       windowsConfiguration: {
-        provisionVmAgent: true
+        provisionVMAgent: true
       }
     }
     hardwareProfile: {
@@ -131,7 +131,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2017-06-01' = {
             id: '${vnet.id}/subnets/${subnet1Name}'
           }
           privateIPAllocationMethod: 'Dynamic'
-          publicIpAddress: {
+          publicIPAddress: {
             id: pip.id
           }
         }

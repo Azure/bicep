@@ -3,7 +3,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.LanguageServer
@@ -11,16 +10,16 @@ namespace Bicep.LanguageServer
     public class Program
     {
         public static async Task Main(string[] args)
-            => await RunWithCancellation(async cancellationToken =>
+            => await RunWithCancellationAsync(async cancellationToken =>
             {
                 // the server uses JSON-RPC over stdin & stdout to communicate,
                 // so be careful not to use console for logging!
                 var server = new Server(Console.OpenStandardInput(), Console.OpenStandardOutput(), () => new AzResourceTypeProvider());
 
-                await server.Run(cancellationToken);
+                await server.RunAsync(cancellationToken);
             });
 
-        private static async Task RunWithCancellation(Func<CancellationToken, Task> runFunc)
+        private static async Task RunWithCancellationAsync(Func<CancellationToken, Task> runFunc)
         {
             var cancellationTokenSource = new CancellationTokenSource();
 

@@ -8,10 +8,13 @@ namespace Bicep.Core.TypeSystem
     /// </summary>
     public class PrimitiveType : TypeSymbol
     {
-        public PrimitiveType(string name) : base(name)
+        public PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : base(name)
         {
+            ValidationFlags = validationFlags;
         }
 
         public override TypeKind TypeKind => TypeKind.Primitive;
+
+        public override TypeSymbolValidationFlags ValidationFlags { get; }
     }
 }

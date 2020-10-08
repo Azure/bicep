@@ -11,6 +11,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -146,6 +147,11 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var declaredType = resourceTypeProvider.GetType(typeReference);
+
+                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                }
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
@@ -173,6 +179,12 @@ namespace Bicep.Core.TypeSystem
                     if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
                     {
                         assignedType = UnionType.Create(allowedItemTypes);
+                    }
+                    else
+                    {
+                        // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
+                        // we need to relax the validation for string parameters without 'allowed' values specified.
+                        assignedType = LanguageConstants.LooseString;
                     }
                 }
                 
@@ -774,9 +786,19 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var unknownPropertyDiagnostic = availableProperties.Any() ? 
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties) :
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+
+            var unknownPropertyDiagnostic = availableProperties.Any() switch
+            {
+                true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
+                {
+                    string suggestedPropertyName
+                        when suggestedPropertyName != null=> diagnosticBuilder.UnknownPropertyWithSuggestion(TypeValidator.ShouldWarn(baseType), baseType, propertyName, suggestedPropertyName),
+                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties),
+                },
+                _ => diagnosticBuilder.UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName)
+            };
+
             diagnostics.Add(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? new ErrorTypeSymbol(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;

@@ -7,8 +7,8 @@ param projectName string {
 
 param location string = resourceGroup().location
 param skuName string = 'S1'
-param skuUnits string = '1' // todo - does this and d2cpartitions need to be a string?
-param d2cPartitions string = '4' // partitions used for the event stream
+param skuUnits int = 1
+param d2cPartitions int = 4 // partitions used for the event stream
 
 var unique = uniqueString(resourceGroup().id)
 
@@ -57,7 +57,7 @@ resource iot 'microsoft.devices/iotHubs@2020-03-01' = {
             fileNameFormat: '{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}'
             batchFrequencyInSeconds: 100
             maxChunkSizeInBytes: 104857600
-            encoding: 'json'
+            encoding: 'JSON'
             name: storageEndpoint
           }
         ]

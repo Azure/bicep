@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.SemanticModel;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.Diagnostics
@@ -328,11 +326,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name '{name}' is not a function.");
 
-            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP080",
-                $"The expression is involved in a cycle ({string.Join(" -> ", cycle)}).");
-
             public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP062",
@@ -438,6 +431,28 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
+
+            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP080",
+                $"The expression is involved in a cycle ({string.Join(" -> ", cycle)}).");
+
+            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP081",
+                $"Resource type {resourceTypeReference.FormatName()} does not have types available");
+
+            public ErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP082",
+                $"The name '{name}' does not exist in the current context. Did you mean '{suggestedName}'?");
+
+            public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new Diagnostic(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP083",
+                $"The type {type} does not contain property '{badProperty}'. Did you mean '{suggestedProperty}'?");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
