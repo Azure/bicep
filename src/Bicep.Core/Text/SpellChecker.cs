@@ -59,7 +59,7 @@ namespace Bicep.Core.Text
                 if (distance < 2)
                 {
                     /*
-                     * There won't be any better result with a smaller levenshtein distance,
+                     * There won't be any better result with a smaller Levenshtein distance,
                      * so check case-insensitive equality for the rest of the candidates.
                      */
                     checkCaseInsensitiveEqualityOnly = true;
@@ -85,7 +85,7 @@ namespace Bicep.Core.Text
             }
 
             /*
-             * Lev(i, j): levenshtein distance between first.Substring(0, i) and second.Substring(0, j).
+             * Lev(i, j): Levenshtein distance between first.Substring(0, i) and second.Substring(0, j).
              * Using two 1D arrays instead of one 2d array to reduce space complexity.
              */
             var previous = new int[second.Length + 1];
