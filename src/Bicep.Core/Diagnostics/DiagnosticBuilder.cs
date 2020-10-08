@@ -442,6 +442,17 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP081",
                 $"Resource type {resourceTypeReference.FormatName()} does not have types available");
+
+            public ErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP082",
+                $"The name '{name}' does not exist in the current context. Did you mean '{suggestedName}'?");
+
+            public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new Diagnostic(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP083",
+                $"The type {type} does not contain property '{badProperty}'. Did you mean '{suggestedProperty}'?");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
