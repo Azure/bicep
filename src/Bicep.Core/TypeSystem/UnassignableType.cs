@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem
             return this.errors.IsDefaultOrEmpty ? ImmutableArray<ErrorDiagnostic>.Empty : this.errors;
         }
 
-        public override TypeKind TypeKind => (!this.errors.IsDefaultOrEmpty || this.Name.Equals(ErrorTypeName)) ? TypeKind.Error : TypeKind.Unassignable;
+        public override TypeKind TypeKind => this.Name.Equals(ErrorTypeName) ? TypeKind.Error : TypeKind.Unassignable;
     }
 }
 
