@@ -90,6 +90,7 @@ namespace Bicep.Core.Text
              */
             var previous = new int[second.Length + 1];
             var current = new int[second.Length + 1];
+            var boundary = maxDistance + 1;
 
             // Initialize Lev(0, j).
             for (int j = 0; j <= second.Length; j++)
@@ -110,7 +111,7 @@ namespace Bicep.Core.Text
                 // Lev(i, 1) to Lev(i, minJ - 1).
                 for (int j = 1; j < minJ; j++)
                 {
-                    current[j] = int.MaxValue;
+                    current[j] = boundary;
                 }
 
                 // Lev(i, minJ) to Lev(i, maxJ).
@@ -127,7 +128,7 @@ namespace Bicep.Core.Text
                 // Lev(i, maxJ + 1) to Lev(i, second.Length).
                 for (int j = maxJ + 1; j <= second.Length; j++)
                 {
-                    current[j] = int.MaxValue;
+                    current[j] = boundary;
                 }
 
                 if (minDistance > maxDistance)
