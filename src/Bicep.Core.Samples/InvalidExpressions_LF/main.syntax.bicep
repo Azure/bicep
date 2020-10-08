@@ -1945,21 +1945,21 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[45:46)   LeftParen |(|
 //@[46:47)   RightParen |)|
 //@[47:48) NewLine |\n|
-var invvalidInstanceFunctionCall = az.az()
-//@[0:42) VariableDeclarationSyntax
+var invalidInstanceFunctionCall = az.az()
+//@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:32)  IdentifierSyntax
-//@[4:32)   Identifier |invvalidInstanceFunctionCall|
-//@[33:34)  Assignment |=|
-//@[35:42)  InstanceFunctionCallSyntax
-//@[35:37)   VariableAccessSyntax
-//@[35:37)    IdentifierSyntax
-//@[35:37)     Identifier |az|
-//@[37:38)   Dot |.|
-//@[38:40)   IdentifierSyntax
-//@[38:40)    Identifier |az|
-//@[40:41)   LeftParen |(|
-//@[41:42)   RightParen |)|
-//@[42:43) NewLine |\n|
+//@[4:31)  IdentifierSyntax
+//@[4:31)   Identifier |invalidInstanceFunctionCall|
+//@[32:33)  Assignment |=|
+//@[34:41)  InstanceFunctionCallSyntax
+//@[34:36)   VariableAccessSyntax
+//@[34:36)    IdentifierSyntax
+//@[34:36)     Identifier |az|
+//@[36:37)   Dot |.|
+//@[37:39)   IdentifierSyntax
+//@[37:39)    Identifier |az|
+//@[39:40)   LeftParen |(|
+//@[40:41)   RightParen |)|
+//@[41:42) NewLine |\n|
 
 //@[0:0) EndOfFile ||

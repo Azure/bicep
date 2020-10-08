@@ -299,6 +299,6 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[4:47) Variable invalidPropertyCallOnInstanceFunctionAccess. Type: error. Declaration start char: 0, length: 65
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[4:33) Variable invalidInstanceFunctionAccess. Type: error. Declaration start char: 0, length: 47
-var invvalidInstanceFunctionCall = az.az()
-//@[4:32) Variable invvalidInstanceFunctionCall. Type: error. Declaration start char: 0, length: 42
+var invalidInstanceFunctionCall = az.az()
+//@[4:31) Variable invalidInstanceFunctionCall. Type: error. Declaration start char: 0, length: 41
 

@@ -71,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                 switch (symbol!.Kind)
                 {
-                    // when a namespace does not exist, instance function call contains a null hover range
+                    // when a namespace value is not found, instance function call contains a null hover range
                     case SymbolKind.Error when  (symbolReference is InstanceFunctionCallSyntax && hover.Range == null):
                     case SymbolKind.Error when !(symbolReference is InstanceFunctionCallSyntax):
                         // error symbol
@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
                         ValidateEmptyHover(hover);
                         break;
 
-                    // when a namespace exist and there was an error with the function call or
+                    // when a namespace value is found and there was an error with the function call or
                     // is a valid function call or namespace access, all these cases will have a hover range
                     // with some text
                     case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax:

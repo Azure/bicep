@@ -160,7 +160,7 @@ namespace Bicep.Core.SemanticModel
                     return ValidateFunctionFlags(localSymbol, span);
                 }
 
-                // attempt to find function in imported namespaces
+                // attempt to find function in all imported namespaces
                 var foundSymbols = this.namespaces
                     .Select(ns => ns.TryGetFunctionSymbol(name))
                     .Where(symbol => symbol != null)

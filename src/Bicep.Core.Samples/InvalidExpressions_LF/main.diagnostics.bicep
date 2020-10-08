@@ -343,6 +343,6 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[50:51) [BCP057 (Error)] The name 'a' does not exist in the current context. |a|
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[36:37) [BCP057 (Error)] The name 'a' does not exist in the current context. |a|
-var invvalidInstanceFunctionCall = az.az()
-//@[38:40) [BCP057 (Error)] The name 'az' does not exist in the current context. |az|
+var invalidInstanceFunctionCall = az.az()
+//@[37:39) [BCP057 (Error)] The name 'az' does not exist in the current context. |az|
 
