@@ -59,7 +59,7 @@ namespace Bicep.Core.Text
                 if (distance < 2)
                 {
                     /*
-                     * There won't be any better result with a smaller levenshiten distance,
+                     * There won't be any better result with a smaller levenshtein distance,
                      * so check case-insensitive equality for the rest of the candidates.
                      */
                     checkCaseInsensitiveEqualityOnly = true;

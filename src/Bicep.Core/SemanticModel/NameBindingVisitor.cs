@@ -137,13 +137,9 @@ namespace Bicep.Core.SemanticModel
             var foundSymbol = foundSymbols.FirstOrDefault();
             if (foundSymbol == null)
             {
-                var commonWildcardOverloadNames = this.namespaces
-                    .SelectMany(ns => ns.FunctionWildcardOverloads.SelectMany(overload => overload.CommonMatchingNames));
-
                 var nameCandidates = this.declarations.Values
                     .Concat(this.namespaces.SelectMany(ns => ns.Descendants))
                     .Select(symbol => symbol.Name)
-                    .Concat(commonWildcardOverloadNames)
                     .ToImmutableSortedSet();
 
                 var suggestedName = SpellChecker.GetSpellingSuggestion(name, nameCandidates);

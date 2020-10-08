@@ -39,16 +39,7 @@ namespace Bicep.Core.SemanticModel.Namespaces
 
             // the use of FunctionPlacementConstraints.Resources prevents use of these functions anywhere where they can't be directly inlined into a resource body
             new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null, FunctionFlags.RequiresInlining),
-            new FunctionWildcardOverload(
-                "list*",
-                LanguageConstants.Any,
-                2, 3,
-                new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object },
-                null,
-                new Regex("^list[a-zA-Z]+"),
-                new[] { "listKeys", "listApiKeys", "listAuthKeys", "listAdminKeys", "listSecrets", "listCredentials", "listSasTokens" },
-                FunctionFlags.RequiresInlining),
-        }.ToImmutableArray();
+            new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]+"), FunctionFlags.RequiresInlining), }.ToImmutableArray();
 
         public AzNamespaceSymbol() : base("az", AzOverloads)
         {
