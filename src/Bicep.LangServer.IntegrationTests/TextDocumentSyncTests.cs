@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,12 +17,13 @@ namespace Bicep.LangServer.IntegrationTests
     public class TextDocumentSyncTests
     {
         [TestMethod]
+        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
         {
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnection(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);
@@ -36,7 +39,7 @@ resource myRes 'invalidFormat' = {
 randomToken
 ", 1));
 
-            var response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
+            var response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
@@ -62,7 +65,7 @@ resource myRes 'invalidFormat' = {
 randomToken
 ", 2));
 
-            response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
+            response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
@@ -78,7 +81,7 @@ randomToken
             diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
             client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(documentUri, 3));
 
-            response = await IntegrationTestHelper.WithTimeout(diagsReceived.Task);
+            response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().BeEmpty();
         }
     }

@@ -39,25 +39,19 @@ param HostVirtualMachineSize string {
     'Standard_D8s_v3'
     'Standard_D16s_v3'
     'Standard_D32s_v3'
-    'Standard_D48_v3'
     'Standard_D64_v3'
     'Standard_E2_v3'
     'Standard_E4_v3'
     'Standard_E8_v3'
     'Standard_E16_v3'
-    'Standard_E20_v3'
     'Standard_E32_v3'
-    'Standard_E48_v3'
     'Standard_E64_v3'
-    'Standard_D48s_v3'
     'Standard_D64s_v3'
     'Standard_E2s_v3'
     'Standard_E4s_v3'
     'Standard_E8s_v3'
     'Standard_E16s_v3'
-    'Standard_E20s_v3'
     'Standard_E32s_v3'
-    'Standard_E48s_v3'
     'Standard_E64s_v3'
   ]
 }
@@ -76,7 +70,7 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
   name: HostPublicIPAddressName
   location: location
   sku: {
-    name: 'basic'
+    name: 'Basic'
   }
   properties: {
     publicIPAllocationMethod: 'Dynamic'
@@ -192,7 +186,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2019-04-01' = {
         name: 'ipconfig'
         properties: {
           primary: true
-          privateIPAllocationMethod: 'dynamic'
+          privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: '${vnet}/subnets${NATSubnetName}'
           }
@@ -214,7 +208,7 @@ resource nic2 'Microsoft.Network/networkInterfaces@2019-04-01' = {
         name: 'ipconfig'
         properties: {
           primary: true
-          privateIPAllocationMethod: 'dynamic'
+          privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: '${vnet}/subnets${hyperVSubnetName}'
           }
@@ -236,12 +230,12 @@ resource hostVm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        Sku: '2016-Datacenter'
+        sku: '2016-Datacenter'
         version: 'latest'
       }
       osDisk: {
         name: '${HostVirtualMachineName}OsDisk'
-        createOption: 'fromImage'
+        createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'Premium_LRS'
         }
@@ -286,6 +280,7 @@ resource hostVm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
 
 resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
   name: '${hostVm.id}/InstallWindowsFeatures'
+  location: location
   properties: {
     publisher: 'Microsoft.Powershell'
     type: 'DSC'
@@ -304,6 +299,7 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' =
 
 resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
   name: '${hostVm.id}/HVHOSTSetup'
+  location: location
   properties: {
     publisher: 'Microsoft.Compute'
     type: 'CustomScriptExtension'
@@ -313,7 +309,7 @@ resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019
       fileUris: [
         HVHostSetupScriptUri
       ]
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${nic1.properties.ipconfigurations[0].properties.privateIPAddress} -NIC2IPAddress ${nic2.properties.ipconfigurations[0].properties.privateIPAddress} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${nic1.properties.ipConfigurations[0].properties.privateIPAddress} -NIC2IPAddress ${nic2.properties.ipConfigurations[0].properties.privateIPAddress} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
     }
   }
 }

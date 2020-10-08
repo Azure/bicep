@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.SemanticModel;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.Diagnostics
@@ -328,11 +326,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name '{name}' is not a function.");
 
-            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP080",
-                $"The expression is involved in a cycle ({string.Join(" -> ", cycle)}).");
-
             public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP062",
@@ -439,9 +432,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
 
+            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP080",
+                $"The expression is involved in a cycle ({string.Join(" -> ", cycle)}).");
+
+            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP081",
+                $"Resource type {resourceTypeReference.FormatName()} does not have types available");
+
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
-                "BCP081",
+                "BCP082",
                 $"The symbolic name '{name}' cannot reference a reserved namespace. Reserved namespaces are '{string.Join(", ", namespaces)}'.");
         }
 

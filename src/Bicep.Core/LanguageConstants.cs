@@ -35,11 +35,13 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol ResourceRef = new ResourceRefType();
-        public static readonly TypeSymbol String = new PrimitiveType("string");
+        public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
+        // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
+        public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
         public static readonly TypeSymbol Object = new ObjectType("object");
-        public static readonly TypeSymbol Int = new PrimitiveType("int");
-        public static readonly TypeSymbol Bool = new PrimitiveType("bool");
-        public static readonly TypeSymbol Null = new PrimitiveType("null");
+        public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Null = new PrimitiveType("null", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type

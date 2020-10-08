@@ -64,12 +64,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
     }
 }
 
-resource ipprefix 'Microsoft.Network/publicipprefixes@2020-05-01' = {
+resource ipprefix 'Microsoft.Network/publicIPPrefixes@2020-05-01' = {
     name: ipprefixname
     location: location
     sku: {
       name: 'Standard'
-      tier: 'Regional'
     }
     properties: {
         prefixLength: ipprefixlength

@@ -16,12 +16,8 @@
     "kind": "snippet",
     "detail": "Output declaration",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\noutput Identifier Type = \n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\noutput Identifier Type = \n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -45,12 +41,8 @@
     "kind": "snippet",
     "detail": "Parameter declaration",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nparam Identifier Type\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -62,12 +54,8 @@
     "kind": "snippet",
     "detail": "Parameter declaration with default value",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type = DefaultValue\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nparam Identifier Type = DefaultValue\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -79,12 +67,8 @@
     "kind": "snippet",
     "detail": "Parameter declaration with default and allowed values",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nparam Identifier Type {\n  default: \n  allowed: [\n    \n  ]\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -96,12 +80,8 @@
     "kind": "snippet",
     "detail": "Parameter declaration with options",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nparam Identifier Type {\n  \n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nparam Identifier Type {\n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -113,12 +93,8 @@
     "kind": "snippet",
     "detail": "Secure string parameter",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nparam Identifier string {\n  secure: true\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nparam Identifier string {\n  secure: true\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -142,12 +118,8 @@
     "kind": "snippet",
     "detail": "Resource with defaults",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  location: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -159,12 +131,8 @@
     "kind": "snippet",
     "detail": "Child Resource with defaults",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -176,12 +144,8 @@
     "kind": "snippet",
     "detail": "Resource without defaults",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/Type@Version' = {\n  name: \n  \n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -193,12 +157,8 @@
     "kind": "snippet",
     "detail": "Child Resource without defaults",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nresource Identifier 'Microsoft.Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -222,12 +182,8 @@
     "kind": "snippet",
     "detail": "Variable declaration",
     "documentation": {
-      "hasString": false,
-      "markupContent": {
-        "kind": "markdown",
-        "value": "```bicep\nvar Identifier = \n```"
-      },
-      "hasMarkupContent": true
+      "kind": "markdown",
+      "value": "```bicep\nvar Identifier = \n```"
     },
     "deprecated": false,
     "preselect": false,

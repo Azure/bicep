@@ -19,5 +19,10 @@ namespace Bicep.Core.TypeSystem
         /// Display warning diagnostics instead of errors if there is a type mismatch.
         /// </summary>
         WarnOnTypeMismatch = 1 << 0,
+
+        /// <summary>
+        /// Permits assignment from string to string literal.
+        /// </summary>
+        AllowLooseStringAssignment = 1 << 1,
     }
 }

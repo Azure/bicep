@@ -68,6 +68,27 @@ namespace Bicep.Core.Samples
             }
         }
 
+        private static bool IsPermittedMissingTypeDiagnostic(Diagnostic diagnostic)
+        {
+            if (diagnostic.Code != "BCP081")
+            {
+                return false;
+            }
+
+            var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Resource type Microsoft.AppConfiguration/configurationStores@2020-07-01-preview does not have types available",
+                "Resource type Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview does not have types available",
+                "Resource type Microsoft.Web/sites/config@2018-11-01 does not have types available",
+                "Resource type Microsoft.KeyVault/vaults/keys@2019-09-01 does not have types available",
+                "Resource type Microsoft.KeyVault/vaults/secrets@2018-02-14 does not have types available",
+                "Resource type microsoft.web/serverFarms@2018-11-01 does not have types available",
+                "Resource type Microsoft.KeyVault/vaults/secrets@2018-02-14 does not have types available",
+            };
+
+            return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void ExampleIsValid(ExampleData example)
@@ -77,8 +98,11 @@ namespace Bicep.Core.Samples
 
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);
+
+            // allow 'type not available' warnings for examples
+            var diagnostics = result.Diagnostics.Where(x => !(IsPermittedMissingTypeDiagnostic(x)));
             
-            result.Diagnostics.Where(x => x.Level == DiagnosticLevel.Error).Should().BeEmpty();
+            diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             stream.Position = 0;

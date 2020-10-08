@@ -146,6 +146,11 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var declaredType = resourceTypeProvider.GetType(typeReference);
+
+                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                }
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
@@ -173,6 +178,12 @@ namespace Bicep.Core.TypeSystem
                     if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
                     {
                         assignedType = UnionType.Create(allowedItemTypes);
+                    }
+                    else
+                    {
+                        // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
+                        // we need to relax the validation for string parameters without 'allowed' values specified.
+                        assignedType = LanguageConstants.LooseString;
                     }
                 }
                 

@@ -170,6 +170,33 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.String, literalVal1).Should().BeFalse();
         }
 
+        [TestMethod]
+        public void Generic_strings_can_be_assigned_to_string_literals_with_loose_assignment()
+        {
+            var literalVal1 = new StringLiteralType("evie");
+            var literalVal2 = new StringLiteralType("casper");
+            var literalUnion = UnionType.Create(literalVal1, literalVal2);
+
+            var genericString = LanguageConstants.String;
+            var looseString = LanguageConstants.LooseString;
+
+            // both should be treated as equivalent
+            TypeValidator.AreTypesAssignable(genericString, looseString).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(looseString, genericString).Should().BeTrue();
+
+            // normal string cannot be assigned to string literal or union type of literals
+            TypeValidator.AreTypesAssignable(genericString, literalVal1).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(genericString, literalUnion).Should().BeFalse();
+
+            // loose string can be assigned to string literal and a union type of literals!
+            TypeValidator.AreTypesAssignable(looseString, literalVal1).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(looseString, literalUnion).Should().BeTrue();
+
+            // assignment from string literal works in both cases
+            TypeValidator.AreTypesAssignable(literalVal1, genericString).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(literalVal1, looseString).Should().BeTrue();
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
