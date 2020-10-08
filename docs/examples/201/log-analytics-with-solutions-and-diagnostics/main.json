@@ -106,13 +106,13 @@
     {
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
-      "name": "[format('{0}', variables('vmInsights').name)]",
+      "name": "[variables('vmInsights').name]",
       "location": "[parameters('location')]",
       "properties": {
         "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
       },
       "plan": {
-        "name": "[format('{0}.Name', variables('vmInsights'))]",
+        "name": "[variables('vmInsights').name]",
         "publisher": "Microsoft",
         "product": "[format('OMSGallery/{0}', variables('vmInsights').galleryName)]",
         "promotionCode": ""
@@ -124,13 +124,13 @@
     {
       "type": "Microsoft.OperationsManagement/solutions",
       "apiVersion": "2015-11-01-preview",
-      "name": "[format('{0}', variables('containerInsights').name)]",
+      "name": "[variables('containerInsights').name]",
       "location": "[parameters('location')]",
       "properties": {
         "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
       },
       "plan": {
-        "name": "[format('{0}.Name', variables('containerInsights'))]",
+        "name": "[variables('containerInsights').name]",
         "publisher": "Microsoft",
         "product": "[format('OMSGallery/{0}', variables('containerInsights').galleryName)]",
         "promotionCode": ""
