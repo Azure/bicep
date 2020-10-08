@@ -444,4 +444,16 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[46:49)       StringComplete |'c'|
 //@[49:50)     RightParen |)|
 //@[50:51)   RightParen |)|
-//@[51:51) EndOfFile ||
+//@[51:53) NewLine |\n\n|
+
+// invalid use of reserved namespace
+//@[36:37) NewLine |\n|
+var az = 1
+//@[0:10) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:6)  IdentifierSyntax
+//@[4:6)   Identifier |az|
+//@[7:8)  Assignment |=|
+//@[9:10)  NumericLiteralSyntax
+//@[9:10)   Number |1|
+//@[10:10) EndOfFile ||

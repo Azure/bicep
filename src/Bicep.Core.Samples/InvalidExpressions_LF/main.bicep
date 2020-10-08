@@ -209,3 +209,4 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 var invalidInstanceFunctionAccess = a.b.c.bar()
+var invvalidInstanceFunctionCall = az.az()

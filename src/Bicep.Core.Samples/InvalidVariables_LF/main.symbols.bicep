@@ -101,3 +101,7 @@ var mySum = az.add(1,2)
 //@[4:9) Variable mySum. Type: error. Declaration start char: 0, length: 23
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[4:12) Variable myConcat. Type: error. Declaration start char: 0, length: 51
+
+// invalid use of reserved namespace
+var az = 1
+//@[4:6) Variable az. Type: int. Declaration start char: 0, length: 10

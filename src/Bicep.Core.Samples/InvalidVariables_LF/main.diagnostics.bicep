@@ -126,3 +126,7 @@ var mySum = az.add(1,2)
 //@[15:18) [BCP057 (Error)] The name 'add' does not exist in the current context. |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[34:40) [BCP057 (Error)] The name 'concat' does not exist in the current context. |concat|
+
+// invalid use of reserved namespace
+var az = 1
+//@[4:6) [BCP082 (Error)] The symbolic name 'az' cannot reference a reserved namespace. Reserved namespaces are 'sys, az'. |az|

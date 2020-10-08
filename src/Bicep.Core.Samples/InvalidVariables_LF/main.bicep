@@ -77,3 +77,6 @@ var objWithInterp = {
 // invalid fully qualified function access
 var mySum = az.add(1,2)
 var myConcat = sys.concat('a', az.concat('b', 'c'))
+
+// invalid use of reserved namespace
+var az = 1

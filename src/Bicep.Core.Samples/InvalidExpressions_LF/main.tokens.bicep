@@ -1255,5 +1255,15 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[45:46) LeftParen |(|
 //@[46:47) RightParen |)|
 //@[47:48) NewLine |\n|
+var invvalidInstanceFunctionCall = az.az()
+//@[0:3) Identifier |var|
+//@[4:32) Identifier |invvalidInstanceFunctionCall|
+//@[33:34) Assignment |=|
+//@[35:37) Identifier |az|
+//@[37:38) Dot |.|
+//@[38:40) Identifier |az|
+//@[40:41) LeftParen |(|
+//@[41:42) RightParen |)|
+//@[42:43) NewLine |\n|
 
 //@[0:0) EndOfFile ||
