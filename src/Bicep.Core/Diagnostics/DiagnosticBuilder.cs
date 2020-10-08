@@ -438,6 +438,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
+
+            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP081",
+                $"The symbolic name '{name}' cannot reference a reserved namespace. Reserved namespaces are '{string.Join(", ", namespaces)}'.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

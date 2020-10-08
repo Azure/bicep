@@ -133,34 +133,34 @@ namespace Bicep.Core.SemanticModel
 
         private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
         {
-            // Declarations must not have a namespace value, namespaces are used to fully qualify a function access.
-            // There might be instances where a variable declaration for example uses the same name as one of the imported
-            // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
-            // the former case must have an empty namespace value whereas the latter will have a namespace value.
-            if (string.IsNullOrEmpty(@namespace) && this.declarations.TryGetValue(name, out var localSymbol))
-            {
-                // we found the symbol in the local namespace
-                return ValidateFunctionFlags(localSymbol, span);
-            }
-
-            // symbol does not exist in the local namespace
-            // try it in the imported namespaces
-
-            // check if name is a namespace symbol first
-            var namespaceSymbol = this.namespaces
-                .Where(ns => ns.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase))
+            NamespaceSymbol? FindNamespace(string name) =>
+                this.namespaces
+                .Where(ns => ns.Name.Equals(name, LanguageConstants.IdentifierComparison))
                 .FirstOrDefault();
 
-            if (namespaceSymbol != null)
-            {
-                // namespace symbol wins
-                return ValidateFunctionFlags(namespaceSymbol, span);
-            }
-
-            // match in one of the namespaces
             Symbol? foundSymbol;
             if (string.IsNullOrEmpty(@namespace))
             {
+                // attempt to find name in the imported namespaces
+                var namespaceSymbol = FindNamespace(name);
+
+                if (namespaceSymbol != null)
+                {
+                    // namespace symbol found
+                    return ValidateFunctionFlags(namespaceSymbol, span);
+                }
+
+                // declarations must not have a namespace value, namespaces are used to fully qualify a function access.
+                // There might be instances where a variable declaration for example uses the same name as one of the imported
+                // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
+                // the former case must have an empty namespace value whereas the latter will have a namespace value.
+                if (this.declarations.TryGetValue(name, out var localSymbol))
+                {
+                    // we found the symbol in the local namespace
+                    return ValidateFunctionFlags(localSymbol, span);
+                }
+
+                // attempt to find function in imported namespaces
                 var foundSymbols = this.namespaces
                     .Select(ns => ns.TryGetFunctionSymbol(name))
                     .Where(symbol => symbol != null)
@@ -176,14 +176,16 @@ namespace Bicep.Core.SemanticModel
             }
             else
             {
-                // if namespace is passed, filter the function lookup to the specified namespace
-                foundSymbol = this.namespaces
-                    .Where(ns => ns.Name.Equals(@namespace, System.StringComparison.OrdinalIgnoreCase))
-                    .Select(ns => ns.TryGetFunctionSymbol(name))
-                    .Where(symbol => symbol != null)
-                    .FirstOrDefault();
-            }
+                // attempt to find name in the imported namespaces
+                var namespaceSymbol = FindNamespace(@namespace!);
 
+                if (namespaceSymbol == null)
+                {
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                }
+
+                foundSymbol = namespaceSymbol.TryGetFunctionSymbol(name);
+            }
             if (foundSymbol == null)
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));

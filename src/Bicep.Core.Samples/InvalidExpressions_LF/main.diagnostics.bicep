@@ -183,7 +183,6 @@ var stringIndexOnNonObject = 'test'['test']
 //@[29:35) [BCP076 (Error)] Cannot index over expression of type 'test'. Arrays or objects are required. |'test'|
 var malformedStringIndex = {
 }['test\e']
-//@[2:10) [BCP054 (Error)] The type object does not contain any properties. |'test\e'|
 //@[7:9) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \$, \', \\, \n, \r, \t. |\e|
 var invalidIndexTypeOverAny = any(true)[true]
 //@[40:44) [BCP049 (Error)] The array index must be of type string or int but the provided index was of type bool. |true|
@@ -339,7 +338,6 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 var badIndexer = sampleObject.myStr['s']
 //@[17:35) [BCP076 (Error)] Cannot index over expression of type 's'. Arrays or objects are required. |sampleObject.myStr|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[20:48) [BCP076 (Error)] Cannot index over expression of type error. Arrays or objects are required. |sampleObject.myInner.fakeArr|
 //@[41:48) [BCP053 (Error)] The type object does not contain property 'fakeArr'. Available properties include 'anotherStr', 'otherArr'. |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[50:51) [BCP057 (Error)] The name 'a' does not exist in the current context. |a|

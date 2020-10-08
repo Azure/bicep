@@ -69,6 +69,20 @@ namespace Bicep.Core.SemanticModel
                     yield return this.CreateError(duplicatedSymbol.NameSyntax, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
             }
+
+            var reservedSymbols = this.AllDeclarations
+                .Where(decl => decl.NameSyntax.IsValid)
+                .Where(decl => this.ImportedNamespaces.Select(ns => ns.Name).Contains(decl.Name))
+                .ToList();
+
+            foreach (DeclaredSymbol reservedSymbol in reservedSymbols)
+            {
+                yield return this.CreateError(
+                    reservedSymbol.NameSyntax, 
+                    b => b.SymbolicNameCannotUseReservedNamespaceName(
+                        reservedSymbol.Name,
+                        this.ImportedNamespaces.Select(ns => ns.Name).ToList()));
+            }
         }
     }
 }
