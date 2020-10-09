@@ -7,6 +7,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
+using Bicep.Core.Linter;
 using System.Linq;
 
 namespace Bicep.Core.Diagnostics
@@ -447,16 +448,18 @@ namespace Bicep.Core.Diagnostics
                 "BCP081",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available");
 
-            public ErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new ErrorDiagnostic(
+            public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new FixableErrorDiagnostic(
                 TextSpan,
                 "BCP082",
-                $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?");
+                $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
+                new Fix($"Change spelling to \"{suggestedName}\"", Edit.ReplacePosition(TextSpan, suggestedName)));
 
-            public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new Diagnostic(
+            public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new FixableDiagnostic(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
-                $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?");
+                $"The type {type} does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
+                new Fix($"Change spelling to \"{suggestedProperty}\"", Edit.ReplacePosition(TextSpan, suggestedProperty)));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

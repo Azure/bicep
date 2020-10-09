@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Linter;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -787,16 +788,17 @@ namespace Bicep.Core.TypeSystem
                 .OrderBy(x => x);
 
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+            var shouldWarn = TypeValidator.ShouldWarn(baseType);
 
             var unknownPropertyDiagnostic = availableProperties.Any() switch
             {
                 true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
                 {
-                    string suggestedPropertyName
-                        when suggestedPropertyName != null=> diagnosticBuilder.UnknownPropertyWithSuggestion(TypeValidator.ShouldWarn(baseType), baseType, propertyName, suggestedPropertyName),
-                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties),
+                    string suggestedPropertyName when suggestedPropertyName != null =>
+                        diagnosticBuilder.UnknownPropertyWithSuggestion(shouldWarn, baseType, propertyName, suggestedPropertyName),
+                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(shouldWarn, baseType, propertyName, availableProperties),
                 },
-                _ => diagnosticBuilder.UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName)
+                _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
             };
 
             diagnostics.Add(unknownPropertyDiagnostic);
