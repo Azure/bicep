@@ -7,7 +7,7 @@ using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Position
+namespace Bicep.Core.UnitTests.Text
 {
     [TestClass]
     public class TextCoordinateConverterTests

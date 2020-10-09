@@ -11,6 +11,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -386,7 +387,7 @@ namespace Bicep.Core.TypeSystem
                 var expectedConditionType = LanguageConstants.Bool;
                 if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
                 {
-                    return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType.Name));
+                    return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
                 
                 // the return type is the union of true and false expression types
@@ -419,7 +420,7 @@ namespace Bicep.Core.TypeSystem
 
                 // we do not have a match
                 // operand types didn't match available operators
-                return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
+                return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2));
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
@@ -444,7 +445,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
                 {
-                    return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
+                    return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
                 }
 
                 return expectedOperandType;
@@ -826,9 +827,19 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var unknownPropertyDiagnostic = availableProperties.Any() ? 
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties) :
-                DiagnosticBuilder.ForPosition(propertyExpressionPositionable).UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+
+            var unknownPropertyDiagnostic = availableProperties.Any() switch
+            {
+                true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
+                {
+                    string suggestedPropertyName
+                        when suggestedPropertyName != null=> diagnosticBuilder.UnknownPropertyWithSuggestion(TypeValidator.ShouldWarn(baseType), baseType, propertyName, suggestedPropertyName),
+                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(TypeValidator.ShouldWarn(baseType), baseType, propertyName, availableProperties),
+                },
+                _ => diagnosticBuilder.UnknownProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName)
+            };
+
             diagnostics.Add(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? new UnassignableTypeSymbol(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
@@ -846,7 +857,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false)
             {
-                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType.Name, valueType.Name).AsEnumerable();
+                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
             }
 
             return Enumerable.Empty<Diagnostic>();
@@ -865,7 +876,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(defaultValueType, assignedType) == false)
             {
-                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType.Name, defaultValueType.Name).AsEnumerable();
+                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
             }
 
             return Enumerable.Empty<Diagnostic>();

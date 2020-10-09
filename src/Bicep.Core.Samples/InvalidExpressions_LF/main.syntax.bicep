@@ -1736,6 +1736,20 @@ var badProperty = sampleObject.myFake
 //@[31:37)   IdentifierSyntax
 //@[31:37)    Identifier |myFake|
 //@[37:38) NewLine |\n|
+var badSpelling = sampleObject.myNul
+//@[0:36) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |badSpelling|
+//@[16:17)  Assignment |=|
+//@[18:36)  PropertyAccessSyntax
+//@[18:30)   VariableAccessSyntax
+//@[18:30)    IdentifierSyntax
+//@[18:30)     Identifier |sampleObject|
+//@[30:31)   Dot |.|
+//@[31:36)   IdentifierSyntax
+//@[31:36)    Identifier |myNul|
+//@[36:37) NewLine |\n|
 var badPropertyIndexer = sampleObject['fake']
 //@[0:45) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

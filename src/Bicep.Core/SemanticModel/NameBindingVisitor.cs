@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
@@ -18,13 +19,13 @@ namespace Bicep.Core.SemanticModel
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly ImmutableDictionary<string, NamespaceSymbol> namespaces;
+        private readonly ImmutableArray<NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
         {
             this.declarations = declarations;
             this.bindings = bindings;
-            this.namespaces = namespaces;
+            this.namespaces = namespaces.ToImmutableArray();
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -44,7 +45,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitVariableAccessSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -82,7 +83,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -120,25 +121,19 @@ namespace Bicep.Core.SemanticModel
             
             if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
-                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
             
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
             }
 
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
+        private Symbol LookupSymbolByName(string name, TextSpan span)
         {
-            NamespaceSymbol? FindNamespace(string name)
-            {
-                this.namespaces.TryGetValue(name, out NamespaceSymbol @namespace);
-                return @namespace;
-            }
-
             Symbol? foundSymbol;
             if (@namespace == null)
             {
