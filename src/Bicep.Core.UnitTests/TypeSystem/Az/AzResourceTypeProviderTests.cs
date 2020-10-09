@@ -19,16 +19,15 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing()
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
-
-            var knownTypes = GetAllKnownTypes().ToImmutableArray();
+            var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
-            knownTypes.Should().HaveCountGreaterThan(500);
+            availableTypes.Should().HaveCountGreaterThan(2000);
 
-            foreach (var knownType in knownTypes)
+            foreach (var availableType in availableTypes)
             {
-                resourceTypeProvider.HasType(knownType).Should().BeTrue();
-                var knownResourceType = resourceTypeProvider.GetType(knownType);
+                resourceTypeProvider.HasType(availableType).Should().BeTrue();
+                var knownResourceType = resourceTypeProvider.GetType(availableType);
 
                 try
                 {
@@ -37,35 +36,19 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 }
                 catch (Exception exception)
                 {
-                    throw new InvalidOperationException($"Deserializing type {knownType.FormatName()} failed", exception);
+                    throw new InvalidOperationException($"Deserializing type {availableType.FormatName()} failed", exception);
                 }
             }
         }
 
-        public static IEnumerable<ResourceTypeReference> GetAllKnownTypes()
+        [TestMethod]
+        public void AzResourceTypeProvider_can_list_all_types_without_throwing()
         {
-            // There's no index of types available via TypeLoader yet. When that's been added, this can be removed.
-            foreach (var fileName in typeof(TypeLoader).Assembly.GetManifestResourceNames())
-            {
-                var splitPath = fileName.Split('/');
-                if (splitPath.Length != 3 || splitPath[2] != "types.json")
-                {
-                    throw new InvalidOperationException($"Found unexpected manifest file {fileName}");
-                }
+            var resourceTypeProvider = new AzResourceTypeProvider();
+            var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
-                var providerName = splitPath[0];
-                var apiVersion = splitPath[1];
-
-                foreach (var type in TypeLoader.LoadTypes(providerName, apiVersion))
-                {
-                    if (!(type is SerializedTypes.Concrete.ResourceType concreteResourceType))
-                    {
-                        continue;
-                    }
-
-                    yield return ResourceTypeReference.Parse(concreteResourceType.Name!);
-                }
-            }
+            // sanity check - we know there should be a lot of types available
+            availableTypes.Should().HaveCountGreaterThan(2000);
         }
 
         private static ImmutableHashSet<TypeSymbol> ExpectedBuiltInTypes { get; } = new []

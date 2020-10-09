@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.SerializedTypes.Az;
@@ -10,47 +11,54 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        private readonly IDictionary<string, AzResourceTypeFactory?> typeFactories = new Dictionary<string, AzResourceTypeFactory?>(StringComparer.OrdinalIgnoreCase);
+        private readonly ITypeLoader typeLoader;
+        private readonly AzResourceTypeFactory resourceTypeFactory;
+        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
+        private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
+
+        public AzResourceTypeProvider()
+            : this(new TypeLoader())
+        {
+        }
+
+        public AzResourceTypeProvider(ITypeLoader typeLoader)
+        {
+            this.typeLoader = typeLoader;
+            this.resourceTypeFactory = new AzResourceTypeFactory();
+            this.availableResourceTypes = typeLoader.ListAllAvailableTypes().ToDictionary(
+                kvp => ResourceTypeReference.Parse(kvp.Key),
+                kvp => kvp.Value,
+                ResourceTypeReferenceComparer.Instance);
+            this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
+        }
 
         public ResourceType GetType(ResourceTypeReference typeReference)
         {
-            var resourceType = TryGetResource(typeReference);
-
-            if (resourceType != null)
+            if (loadedTypeCache.TryGetValue(typeReference, out var resourceType))
             {
                 return resourceType;
             }
 
-            // TODO move default definition into types assembly
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
+            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
+            {
+                // It's important to cache this result because LoadResourceType is an expensive operation, and
+                // duplicating types means the resourceTypeFactor won't be able to use its cache.
+                var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
+                resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
+            }
+            else
+            {
+                resourceType = new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
+            }
+
+            loadedTypeCache[typeReference] = resourceType;
+            return resourceType;
         }
 
         public bool HasType(ResourceTypeReference typeReference)
-            => TryGetResource(typeReference) != null;
+            => availableResourceTypes.ContainsKey(typeReference);
 
-        private AzResourceTypeFactory? GetTypeFactory(ResourceTypeReference typeReference)
-        {
-            var key = $"{typeReference.Namespace}@{typeReference.ApiVersion}";
-
-            if (!typeFactories.TryGetValue(key, out var typeFactory))
-            {
-                var types = TypeLoader.LoadTypes(typeReference.Namespace, typeReference.ApiVersion);
-                typeFactory = types.Any() ? new AzResourceTypeFactory(types, typeReference.ApiVersion) : null;
-                typeFactories[key] = typeFactory;
-            }
-
-            return typeFactory;
-        }
-
-        private ResourceType? TryGetResource(ResourceTypeReference typeReference)
-        {
-            var typeFactory = GetTypeFactory(typeReference);
-            if (typeFactory == null)
-            {
-                return null;
-            }
-
-            return typeFactory.TryGetResourceType(typeReference);
-        }
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
+            => availableResourceTypes.Keys;
     }
 }
