@@ -387,7 +387,7 @@ namespace Bicep.Core.TypeSystem
                 var expectedConditionType = LanguageConstants.Bool;
                 if (TypeValidator.AreTypesAssignable(conditionType, expectedConditionType) != true)
                 {
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType.Name));
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(expectedConditionType));
                 }
                 
                 // the return type is the union of true and false expression types
@@ -420,7 +420,7 @@ namespace Bicep.Core.TypeSystem
 
                 // we do not have a match
                 // operand types didn't match available operators
-                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1.Name, operandType2.Name));
+                return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2));
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
@@ -445,7 +445,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
                 {
-                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType.Name));
+                    return new ErrorTypeSymbol(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
                 }
 
                 return expectedOperandType;
@@ -816,7 +816,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false)
             {
-                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType.Name, valueType.Name).AsEnumerable();
+                return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
             }
 
             return Enumerable.Empty<Diagnostic>();
@@ -835,7 +835,7 @@ namespace Bicep.Core.TypeSystem
 
             if (TypeValidator.AreTypesAssignable(defaultValueType, assignedType) == false)
             {
-                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType.Name, defaultValueType.Name).AsEnumerable();
+                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
             }
 
             return Enumerable.Empty<Diagnostic>();

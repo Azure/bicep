@@ -33,7 +33,7 @@ namespace Bicep.Core.Parser
             {'$', '$'}
         }.ToImmutableSortedDictionary();
 
-        private static readonly string CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ConcatString(LanguageConstants.ListSeparator);
+        private static readonly IEnumerable<string> CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ToArray();
 
         // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
