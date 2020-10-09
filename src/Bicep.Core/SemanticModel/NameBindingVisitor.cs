@@ -179,7 +179,16 @@ namespace Bicep.Core.SemanticModel
 
                 if (foundSymbol == null)
                 {
-                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                    var nameCandidates = this.declarations.Values
+                    .Concat(this.namespaces.SelectMany(kvp => kvp.Value.Descendants))
+                    .Select(symbol => symbol.Name)
+                    .ToImmutableSortedSet();
+
+                    var suggestedName = SpellChecker.GetSpellingSuggestion(name, nameCandidates);
+
+                    return suggestedName != null
+                        ? new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExistWithSuggestion(name, suggestedName))
+                        : new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
                 }
             }
             else
