@@ -299,6 +299,23 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[50:51) RightParen |)|
 //@[51:53) NewLine |\n\n|
 
+var resourceGroup = ''
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |resourceGroup|
+//@[18:19) Assignment |=|
+//@[20:22) StringComplete |''|
+//@[22:23) NewLine |\n|
+var rgName = resourceGroup().name
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |rgName|
+//@[11:12) Assignment |=|
+//@[13:26) Identifier |resourceGroup|
+//@[26:27) LeftParen |(|
+//@[27:28) RightParen |)|
+//@[28:29) Dot |.|
+//@[29:33) Identifier |name|
+//@[33:35) NewLine |\n\n|
+
 // invalid use of reserved namespace
 //@[36:37) NewLine |\n|
 var az = 1

@@ -127,6 +127,10 @@ var mySum = az.add(1,2)
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[34:40) [BCP086 (Error)] The function "concat" does not exist in namespace "az". |concat|
 
+var resourceGroup = ''
+var rgName = resourceGroup().name
+//@[13:26) [BCP059 (Error)] The name "resourceGroup" is not a function. |resourceGroup|
+
 // invalid use of reserved namespace
 var az = 1
 //@[4:6) [BCP084 (Error)] The symbolic name "az" cannot reference a reserved namespace. Reserved namespaces are "az", "sys". |az|
