@@ -149,7 +149,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. |complex|
-//@[14:18) [BCP082 (Error)] The name "test" does not exist in the current context. Did you mean "test1"? |test|
+//@[14:18) [BCP057 (Error)] The name "test" does not exist in the current context. |test|
 //@[36:49) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "bool" and "null". |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. |complex|
@@ -220,7 +220,7 @@ output funcvarout array = padLeft
 var fakeFunc = red() + green() * orange()
 //@[15:18) [BCP057 (Error)] The name "red" does not exist in the current context. |red|
 //@[23:28) [BCP057 (Error)] The name "green" does not exist in the current context. |green|
-//@[33:39) [BCP082 (Error)] The name "orange" does not exist in the current context. Did you mean "range"? |orange|
+//@[33:39) [BCP057 (Error)] The name "orange" does not exist in the current context. |orange|
 param fakeFuncP string {
   default: blue()
 //@[11:15) [BCP057 (Error)] The name "blue" does not exist in the current context. |blue|
@@ -255,11 +255,11 @@ var test1 = listKeys('abcd')
 
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
-//@[12:20) [BCP082 (Error)] The name "lsitKeys" does not exist in the current context. Did you mean "listKeys"? |lsitKeys|
+//@[12:20) [BCP057 (Error)] The name "lsitKeys" does not exist in the current context. |lsitKeys|
 
 // just 'list' 
 var test3 = list('abcd', '2020-01-01')
-//@[12:16) [BCP082 (Error)] The name "list" does not exist in the current context. Did you mean "last"? |list|
+//@[12:16) [BCP057 (Error)] The name "list" does not exist in the current context. |list|
 
 // cannot compile an expression like this
 var emitLimit = [
@@ -342,9 +342,15 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) [BCP053 (Error)] The type "object" does not contain property "fakeArr". Available properties include "anotherStr", "otherArr". |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[50:51) [BCP057 (Error)] The name 'a' does not exist in the current context. |a|
+//@[50:51) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[36:37) [BCP057 (Error)] The name 'a' does not exist in the current context. |a|
+//@[36:37) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionCall = az.az()
-//@[37:39) [BCP057 (Error)] The name 'az' does not exist in the current context. |az|
+//@[37:39) [BCP086 (Error)] The function "az" does not exist in namespace "az". |az|
+var invalidPropertyAccessOnAzNamespace = az.az
+//@[44:46) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+var invalidPropertyAccessOnSysNamespace = sys.az
+//@[46:48) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+var invalidOperands = 1 + az
+//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "namespace". |1 + az|
 

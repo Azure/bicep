@@ -99,7 +99,10 @@
     "__": "[mul(10, variables('_'))]",
     "_0a_1b": true,
     "_1_": "[or(variables('_0a_1b'), equals(add(variables('__'), mod(variables('_'), 2)), 0))]",
-    "resourceGroup": "[resourceGroup().name]",
+    "resourceGroup": "something",
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupObject": "[resourceGroup()]",
+    "propertyAccessFromObject": "[variables('resourceGroupObject').name]",
     "isTrue": "[equals(add(1, 2), 3)]",
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]"

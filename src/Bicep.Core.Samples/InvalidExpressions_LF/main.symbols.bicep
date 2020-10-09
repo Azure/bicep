@@ -303,4 +303,10 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[4:33) Variable invalidInstanceFunctionAccess. Type: error. Declaration start char: 0, length: 47
 var invalidInstanceFunctionCall = az.az()
 //@[4:31) Variable invalidInstanceFunctionCall. Type: error. Declaration start char: 0, length: 41
+var invalidPropertyAccessOnAzNamespace = az.az
+//@[4:38) Variable invalidPropertyAccessOnAzNamespace. Type: error. Declaration start char: 0, length: 46
+var invalidPropertyAccessOnSysNamespace = sys.az
+//@[4:39) Variable invalidPropertyAccessOnSysNamespace. Type: error. Declaration start char: 0, length: 48
+var invalidOperands = 1 + az
+//@[4:19) Variable invalidOperands. Type: error. Declaration start char: 0, length: 28
 

@@ -780,18 +780,42 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 
 // fully qualified access
 //@[25:26) NewLine |\n|
-var resourceGroup = az.resourceGroup().name
+var resourceGroup = 'something'
 //@[0:3) Identifier |var|
 //@[4:17) Identifier |resourceGroup|
 //@[18:19) Assignment |=|
-//@[20:22) Identifier |az|
-//@[22:23) Dot |.|
-//@[23:36) Identifier |resourceGroup|
-//@[36:37) LeftParen |(|
-//@[37:38) RightParen |)|
-//@[38:39) Dot |.|
-//@[39:43) Identifier |name|
-//@[43:44) NewLine |\n|
+//@[20:31) StringComplete |'something'|
+//@[31:32) NewLine |\n|
+var resourceGroupName = az.resourceGroup().name
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |resourceGroupName|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |az|
+//@[26:27) Dot |.|
+//@[27:40) Identifier |resourceGroup|
+//@[40:41) LeftParen |(|
+//@[41:42) RightParen |)|
+//@[42:43) Dot |.|
+//@[43:47) Identifier |name|
+//@[47:48) NewLine |\n|
+var resourceGroupObject = az.resourceGroup()
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |resourceGroupObject|
+//@[24:25) Assignment |=|
+//@[26:28) Identifier |az|
+//@[28:29) Dot |.|
+//@[29:42) Identifier |resourceGroup|
+//@[42:43) LeftParen |(|
+//@[43:44) RightParen |)|
+//@[44:45) NewLine |\n|
+var propertyAccessFromObject = resourceGroupObject.name
+//@[0:3) Identifier |var|
+//@[4:28) Identifier |propertyAccessFromObject|
+//@[29:30) Assignment |=|
+//@[31:50) Identifier |resourceGroupObject|
+//@[50:51) Dot |.|
+//@[51:55) Identifier |name|
+//@[55:56) NewLine |\n|
 var isTrue = sys.add(1, 2) == 3
 //@[0:3) Identifier |var|
 //@[4:10) Identifier |isTrue|

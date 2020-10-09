@@ -19,13 +19,13 @@ namespace Bicep.Core.SemanticModel
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly ImmutableArray<NamespaceSymbol> namespaces;
+        private readonly ImmutableDictionary<string, NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces)
         {
             this.declarations = declarations;
             this.bindings = bindings;
-            this.namespaces = namespaces.ToImmutableArray();
+            this.namespaces = namespaces;
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -45,7 +45,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitVariableAccessSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -83,7 +83,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitFunctionCallSyntax(syntax);
 
-            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span);
+            var symbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, null);
 
             // bind what we got - the type checker will validate if it fits
             this.bindings.Add(syntax, symbol);
@@ -121,19 +121,25 @@ namespace Bicep.Core.SemanticModel
             
             if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
+                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
             
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
             }
 
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span)
+        private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
         {
+            NamespaceSymbol? FindNamespace(string name)
+            {
+                this.namespaces.TryGetValue(name, out NamespaceSymbol @namespace);
+                return @namespace;
+            }
+
             Symbol? foundSymbol;
             if (@namespace == null)
             {

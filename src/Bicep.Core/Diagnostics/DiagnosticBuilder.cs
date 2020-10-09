@@ -461,7 +461,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP084",
-                $"The symbolic name \"{name}\" cannot reference a reserved namespace. Reserved namespaces are {ToQuotedString(namespaces)}.");
+                $"The symbolic name \"{name}\" cannot reference a reserved namespace. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
             public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
                 TextSpan,
@@ -471,7 +471,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP086",
-                $"The function \"{functionName}\" does not exist in imported namespace \"{namespaceName}\".");
+                $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
@@ -479,8 +479,5 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
             => new DiagnosticBuilderInternal(positionable.Span);
-
-        private static string FormatNamespaces(IEnumerable<string> namespaces)
-            => namespaces.ConcatString("', '");
     }
 }
