@@ -125,7 +125,7 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, SyntaxBase expression, TypeSymbol targetType, IList<Diagnostic> diagnostics)
         {
             // generic error creator if a better one was not specified.
-            TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(ShouldWarn(targetType), expectedType.Name, actualType.Name);
+            TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ExpectedValueTypeMismatch(ShouldWarn(targetType), expectedType, actualType);
 
             return NarrowTypeInternal(typeManager, expression, targetType, diagnostics, typeMismatchErrorFactory, skipConstantCheck: false, skipTypeErrors: false);
         }
@@ -205,7 +205,7 @@ namespace Bicep.Core.TypeSystem
                     arrayItemSyntax.Value,
                     targetType.Item.Type,
                     diagnostics,
-                    (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(ShouldWarn(targetType), expectedType.Name, actualType.Name),
+                    (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).ArrayTypeMismatch(ShouldWarn(targetType), expectedType, actualType),
                     skipConstantCheck,
                     skipTypeErrors: true));
             }
@@ -273,9 +273,9 @@ namespace Bicep.Core.TypeSystem
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
                 .Select(p => p.Name)
-                .OrderBy(p => p)
-                .ConcatString(LanguageConstants.ListSeparator);
-            if (string.IsNullOrEmpty(missingRequiredProperties) == false)
+                .OrderBy(p => p);
+
+            if (missingRequiredProperties.Any())
             {
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
             }
@@ -342,14 +342,14 @@ namespace Bicep.Core.TypeSystem
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(ShouldWarn(targetType), keyName, targetType.Name, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(ShouldWarn(targetType), keyName, targetType.Name);
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(ShouldWarn(targetType), keyName, targetType, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(ShouldWarn(targetType), keyName, targetType);
                     }
                     else
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(ShouldWarn(targetType), targetType.Name, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(ShouldWarn(targetType), targetType.Name);
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(ShouldWarn(targetType), targetType, validUnspecifiedProperties) :
+                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(ShouldWarn(targetType), targetType);
                     }
 
                     diagnostics.AddRange(error.AsEnumerable());

@@ -215,7 +215,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);
 
             diagnostics.Should().HaveCount(1);
-            diagnostics.Single().Message.Should().Be("Expected a value of type int but the provided value is of type object.");
+            diagnostics.Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
         }
 
         [TestMethod]
@@ -245,8 +245,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<string>. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.",
-                    "The property 'extra2' is not allowed on objects of type ParameterModifier<string>. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.");
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".",
+                    "The property \"extra2\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".");
         }
 
         [TestMethod]
@@ -305,9 +305,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The enclosing array expected an item of type string, but the provided item was of type bool.",
-                    "The property 'managedByExtended' expected a value of type string[] but the provided value is of type 'not an array'.",
-                    "The enclosing array expected an item of type string, but the provided item was of type int.");
+                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\".",
+                    "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\".",
+                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\".");
         }
 
         [TestMethod]
@@ -319,7 +319,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics.Should().HaveCount(1);
-            diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
+            diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -357,8 +357,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'wrongTagType' expected a value of type string but the provided value is of type bool.",
-                    "The property 'wrongTagType2' expected a value of type string but the provided value is of type int.");
+                    "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\".",
+                    "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\".");
         }
 
         [TestMethod]
@@ -466,7 +466,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             diagnostics
                 .Should().SatisfyRespectively(
-                    x => x.Message.Should().Be("The property 'default' expected a value of type 'One' | 'Two' but the provided value is of type 'Three'."));
+                    x => x.Message.Should().Be("The property \"default\" expected a value of type \"'One' | 'Two'\" but the provided value is of type \"'Three'\"."));
         }
 
         [TestMethod]
@@ -595,15 +595,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type string but the provided value is of type bool.",
-                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
-                    //"The property 'minValue' expected a value of type int but the provided value is of type bool.",
-                    //"The property 'maxValue' expected a value of type int but the provided value is of type string.",
-                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
-                    "The property 'allowed' expected a value of type string[] but the provided value is of type object.",
-                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<string>.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.");
+                    "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\".",
+                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
+                    //"The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    //"The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"string\".",
+                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\".",
+                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".");
         }
 
         [TestMethod]
@@ -642,15 +642,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'allowed' expected a value of type int[] but the provided value is of type object.",
-                    "The property 'minValue' expected a value of type int but the provided value is of type bool.",
-                    "The property 'default' expected a value of type int but the provided value is of type bool.",
-                    "The property 'maxValue' expected a value of type int but the provided value is of type '11'.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<int>.");
+                    "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\".",
+                    "The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\".");
         }
 
         [TestMethod]
@@ -692,15 +692,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type bool but the provided value is of type int.",
-                    "The enclosing array expected an item of type bool, but the provided item was of type int.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<bool>.");
+                    "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\".");
         }
 
         [TestMethod]
@@ -740,15 +740,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'allowed' expected a value of type object[] but the provided value is of type object.",
-                    "The property 'default' expected a value of type object but the provided value is of type bool.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<object>.");
+                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\".",
+                    "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\".");
         }
 
         [TestMethod]
@@ -788,15 +788,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'default' expected a value of type array but the provided value is of type bool.",
-                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
-                    "The property 'allowed' expected a value of type array[] but the provided value is of type object.",
-                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<array>.");
+                    "The property \"default\" expected a value of type \"array\" but the provided value is of type \"bool\".",
+                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\".",
+                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\".");
         }
 
         [TestMethod]
@@ -831,7 +831,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The property 'myDiscriminator' requires a value of type 'valA' | 'valB', but none was supplied.");
+                        x.Message.Should().Be("The property \"myDiscriminator\" requires a value of type \"'valA' | 'valB'\", but none was supplied.");
                     });
                 narrowedType.Should().BeOfType<AnyType>();
             }
@@ -849,7 +849,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type object.");
+                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"object\".");
                     });
                 narrowedType.Should().BeOfType<AnyType>();
             }
@@ -866,7 +866,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type 'valC'.");
+                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\".");
                     });
                 narrowedType.Should().BeOfType<AnyType>();
             }
@@ -883,7 +883,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The specified object is missing the following required properties: fieldB.");
+                        x.Message.Should().Be("The specified object is missing the following required properties: \"fieldB\".");
                     });
 
                 // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
@@ -943,7 +943,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var diagnostics = new List<Diagnostic>();
                 var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), objectSyntax, unionType, diagnostics);
                 
-                diagnostics.Should().Contain(x => x.Message == "Expected a value of type bool | int | string but the provided value is of type object.");
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
                 narrowedType.Should().Be(unionType);
             }
 
@@ -978,7 +978,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var diagnostics = new List<Diagnostic>();
                 var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
                 
-                diagnostics.Should().Contain(x => x.Message == "Expected a value of type 'dave' | 'nora' but the provided value is of type 'zona'.");
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
                 narrowedType.Should().Be(stringLiteralUnionType);
             }
         }
