@@ -62,8 +62,6 @@ namespace Bicep.Core
             return null;
         }
 
-        public static readonly string DeclarationTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
-
         public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
             return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
