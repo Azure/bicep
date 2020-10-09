@@ -18,13 +18,13 @@ namespace Bicep.Core.SemanticModel
 
         private readonly IDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly ImmutableArray<NamespaceSymbol> namespaces;
+        private readonly ImmutableDictionary<string, NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, IEnumerable<NamespaceSymbol> namespaces)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces)
         {
             this.declarations = declarations;
             this.bindings = bindings;
-            this.namespaces = namespaces.ToImmutableArray();
+            this.namespaces = namespaces;
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -102,7 +102,7 @@ namespace Bicep.Core.SemanticModel
             }
             else
             {
-                foundSymbol = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameDoesNotExist(syntax.Name.IdentifierName));
+                foundSymbol = new UnassignableSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameDoesNotExist(syntax.Name.IdentifierName));
             }
 
             // bind what we got - the type checker will validate if it fits
@@ -120,12 +120,12 @@ namespace Bicep.Core.SemanticModel
             
             if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
+                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
             
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
             }
 
             return symbol;
@@ -133,13 +133,14 @@ namespace Bicep.Core.SemanticModel
 
         private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
         {
-            NamespaceSymbol? FindNamespace(string name) =>
-                this.namespaces
-                .Where(ns => ns.Name.Equals(name, LanguageConstants.IdentifierComparison))
-                .FirstOrDefault();
+            NamespaceSymbol? FindNamespace(string name)
+            {
+                this.namespaces.TryGetValue(name, out NamespaceSymbol @namespace);
+                return @namespace;
+            }
 
             Symbol? foundSymbol;
-            if (string.IsNullOrEmpty(@namespace))
+            if (@namespace == null)
             {
                 // attempt to find name in the imported namespaces
                 var namespaceSymbol = FindNamespace(name);
@@ -162,33 +163,40 @@ namespace Bicep.Core.SemanticModel
 
                 // attempt to find function in all imported namespaces
                 var foundSymbols = this.namespaces
-                    .Select(ns => ns.TryGetFunctionSymbol(name))
+                    .Select(kvp => kvp.Value.TryGetFunctionSymbol(name))
                     .Where(symbol => symbol != null)
                     .ToList();
 
                 if (foundSymbols.Count() > 1)
                 {
                     // ambiguous symbol
-                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).AmbiguousSymbolReference(name, this.namespaces.Select(ns => ns.Name)));
+                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span)
+                        .AmbiguousSymbolReference(name, this.namespaces.Keys));
                 }
 
                 foundSymbol = foundSymbols.FirstOrDefault();
+
+                if (foundSymbol == null)
+                {
+                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                }
             }
             else
             {
                 // attempt to find name in the imported namespaces
-                var namespaceSymbol = FindNamespace(@namespace!);
+                var namespaceSymbol = FindNamespace(@namespace);
 
                 if (namespaceSymbol == null)
                 {
-                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
                 }
 
                 foundSymbol = namespaceSymbol.TryGetFunctionSymbol(name);
-            }
-            if (foundSymbol == null)
-            {
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+
+                if (foundSymbol == null)
+                {
+                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionNotFound(name, @namespace));
+                }
             }
 
             return ValidateFunctionFlags(foundSymbol, span);

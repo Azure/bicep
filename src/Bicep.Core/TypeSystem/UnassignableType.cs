@@ -10,30 +10,38 @@ namespace Bicep.Core.TypeSystem
     {
         private const string ErrorTypeName = "error";
         private readonly ImmutableArray<ErrorDiagnostic> errors;
+        private readonly TypeKind kind;
 
-        public UnassignableTypeSymbol(string name)
+        public UnassignableTypeSymbol(string name, TypeKind kind)
             : base(name)
         {
+            this.kind = kind;
+
+            // if errors are not initialized, initialize it as an empty array
+            if (this.errors.IsDefault)
+            {
+                this.errors = ImmutableArray<ErrorDiagnostic>.Empty;
+            }
         }
 
         public UnassignableTypeSymbol(ErrorDiagnostic error)
-            : base(ErrorTypeName)
+            : this(ErrorTypeName, TypeKind.Error)
         {
             this.errors = ImmutableArray.Create<ErrorDiagnostic>(error);
         }
 
         public UnassignableTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
-            : base(ErrorTypeName)
+            : this(ErrorTypeName, TypeKind.Error)
         {
             this.errors = errors.ToImmutableArray();
         }
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            return this.errors.IsDefaultOrEmpty ? ImmutableArray<ErrorDiagnostic>.Empty : this.errors;
+            return this.errors;
         }
 
-        public override TypeKind TypeKind => this.Name.Equals(ErrorTypeName) ? TypeKind.Error : TypeKind.Unassignable;
+        public override TypeKind TypeKind => kind;
     }
 }
 

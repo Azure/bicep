@@ -309,7 +309,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP056",
-                $"The reference to name '{name}' is ambiguous because it exists in namespaces '{namespaces.ConcatString(", ")}'. The reference must be fully-qualified.");
+                $"The reference to name '{name}' is ambiguous because it exists in namespaces '{FormatNamespaces(namespaces)}'. The reference must be fully-qualified.");
 
             public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new ErrorDiagnostic(
                 TextSpan,
@@ -446,7 +446,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP082",
-                $"The symbolic name '{name}' cannot reference a reserved namespace. Reserved namespaces are '{string.Join(", ", namespaces)}'.");
+                $"The symbolic name '{name}' cannot reference a reserved namespace. Reserved namespaces are '{FormatNamespaces(namespaces)}'.");
+
+            public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP083",
+                $"The variable value cannot be assigned, make sure it is not a namespace value.");
+
+            public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP084",
+                $"The function '{functionName}' does not exist in imported namespace '{namespaceName}'.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
@@ -454,5 +464,8 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
             => new DiagnosticBuilderInternal(positionable.Span);
+
+        private static string FormatNamespaces(IEnumerable<string> namespaces)
+            => namespaces.ConcatString("', '");
     }
 }

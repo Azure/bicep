@@ -30,7 +30,10 @@ namespace Bicep.Core.SemanticModel
 
         private SemanticModel GetSemanticModelInternal()
         {
-            var builtinNamespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()}.ToImmutableArray();
+            var builtinNamespaces = 
+                new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol() }
+                .ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
+
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             

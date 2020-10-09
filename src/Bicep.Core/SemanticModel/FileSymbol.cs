@@ -12,7 +12,7 @@ namespace Bicep.Core.SemanticModel
     {
         public FileSymbol(string name,
             ProgramSyntax syntax,
-            IEnumerable<NamespaceSymbol> importedNamespaces,
+            ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
@@ -20,14 +20,14 @@ namespace Bicep.Core.SemanticModel
             : base(name)
         {
             this.Syntax = syntax;
-            this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
+            this.ImportedNamespaces = importedNamespaces;
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
-        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces
+        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
             .Concat<Symbol>(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
 
         public ProgramSyntax Syntax { get; }
 
-        public ImmutableArray<NamespaceSymbol> ImportedNamespaces { get; }
+        public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
@@ -70,10 +70,10 @@ namespace Bicep.Core.SemanticModel
                 }
             }
 
+            var namespaceKeys = this.ImportedNamespaces.Keys;
             var reservedSymbols = this.AllDeclarations
                 .Where(decl => decl.NameSyntax.IsValid)
-                .Where(decl => this.ImportedNamespaces.Select(ns => ns.Name).Contains(decl.Name))
-                .ToList();
+                .Where(decl => namespaceKeys.Contains(decl.Name));
 
             foreach (DeclaredSymbol reservedSymbol in reservedSymbols)
             {
@@ -81,7 +81,7 @@ namespace Bicep.Core.SemanticModel
                     reservedSymbol.NameSyntax, 
                     b => b.SymbolicNameCannotUseReservedNamespaceName(
                         reservedSymbol.Name,
-                        this.ImportedNamespaces.Select(ns => ns.Name).ToList()));
+                        namespaceKeys));
             }
         }
     }

@@ -585,7 +585,7 @@ namespace Bicep.Core.TypeSystem
 
                 switch (bindings[syntax])
                 {
-                    case ErrorSymbol errorSymbol:
+                    case UnassignableSymbol errorSymbol:
                         // function bind failure - pass the error along
                         return new UnassignableTypeSymbol(errors.Concat(errorSymbol.GetDiagnostics()));
 
@@ -621,32 +621,12 @@ namespace Bicep.Core.TypeSystem
 
                 switch (bindings[syntax])
                 {
-                    case ErrorSymbol errorSymbol:
+                    case UnassignableSymbol errorSymbol:
                         // bind bind failure - pass the error along
                         return new UnassignableTypeSymbol(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol function:
                         return GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
-
-                    case VariableSymbol variable:
-                        // this is the case when a variable name uses the same name as the fully qualified function name
-                        // e.g. var resourceGroup = az.resourceGroup().name
-
-                        // baseExpression must be bound to a namespaceSymbol (this is done in nameBindingVisitor)
-                        // if not, there was an error
-                        if (bindings.ContainsKey(syntax.BaseExpression) &&
-                            bindings[syntax.BaseExpression] is NamespaceSymbol namespaceSymbol)
-                        {
-                            var functionSymbol = namespaceSymbol.TryGetFunctionSymbol(syntax.Name.IdentifierName);
-
-                            if (functionSymbol != null)
-                            {
-                                return GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
-                            }
-                        }
-
-                        // if we get here symbolic name is not a function
-                        return new UnassignableTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
 
                     default:
                         return new UnassignableTypeSymbol(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -674,7 +654,7 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () => {
                 switch (bindings[syntax])
                 {
-                    case ErrorSymbol errorSymbol:
+                    case UnassignableSymbol errorSymbol:
                         // variable bind failure - pass the error along
                         return errorSymbol.ToErrorType();
 
@@ -689,8 +669,9 @@ namespace Bicep.Core.TypeSystem
                     case VariableSymbol variable:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
                     
-                    case NamespaceSymbol namespaceSymbol:
-                        return new UnassignableTypeSymbol(namespaceSymbol.Name);
+                    case NamespaceSymbol _:
+                        // consider using a constant
+                        return new UnassignableTypeSymbol("namespace", TypeKind.Never);
 
                     case OutputSymbol _:
                         return new UnassignableTypeSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
@@ -905,7 +886,8 @@ namespace Bicep.Core.TypeSystem
                         if (symbol.Kind != SymbolKind.Error &&
                             symbol.Kind != SymbolKind.Parameter &&
                             symbol.Kind != SymbolKind.Function &&
-                            symbol.Kind != SymbolKind.Output)
+                            symbol.Kind != SymbolKind.Output &&
+                            symbol.Kind != SymbolKind.Namespace)
                         {
                             accumulated.Add(DiagnosticBuilder.ForPosition(current).CannotReferenceSymbolInParamDefaultValue());
                         }

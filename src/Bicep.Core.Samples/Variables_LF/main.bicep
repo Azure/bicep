@@ -150,7 +150,10 @@ var _0a_1b = true
 var _1_ = _0a_1b || (__ + _ % 2 == 0)
 
 // fully qualified access
-var resourceGroup = az.resourceGroup().name
+var resourceGroup = 'something'
+var resourceGroupName = az.resourceGroup().name
+var resourceGroupObject = az.resourceGroup()
+var propertyAccessFromObject = resourceGroup.name
 var isTrue = sys.add(1, 2) == 3
 var isFalse = !isTrue
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
