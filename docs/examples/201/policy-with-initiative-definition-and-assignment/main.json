@@ -44,7 +44,7 @@
         },
         "parameters": {
           "listOfAllowedLocations": {
-            "type": "array",
+            "type": "Array",
             "metadata": {
               "description": "The List of Allowed Locations for Resource Groups and Resources.",
               "strongtype": "location",
@@ -52,7 +52,7 @@
             }
           },
           "listOfAllowedSKUs": {
-            "type": "array",
+            "type": "Array",
             "metadata": {
               "description": "The List of Allowed SKUs for Virtual Machines.",
               "strongtype": "vmSKUs",
