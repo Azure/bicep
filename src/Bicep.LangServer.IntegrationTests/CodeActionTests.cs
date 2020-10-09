@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Bicep.Core.Linter;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -46,33 +46,33 @@ namespace Bicep.LangServer.IntegrationTests
 
                 // Assert.
                 quickFixes.Should().NotBeNull();
-                quickFixes.Should().HaveCount(fixable.Fixes.Count);
 
-                int fixIndex = 0;
+                var quickFixList = quickFixes.ToList();
+                var bicepFixList = fixable.Fixes.ToList();
 
-                foreach (CommandOrCodeAction quickFix in quickFixes)
+                quickFixList.Should().HaveSameCount(bicepFixList);
+
+                for (int i = 0; i < quickFixList.Count; i++)
                 {
-                    var fix = fixable.Fixes[fixIndex];
+                    var quickFix = quickFixList[i];
+                    var bicepFix = bicepFixList[i];
 
                     quickFix.IsCodeAction.Should().BeTrue();
                     quickFix.CodeAction.Kind.Should().Be(CodeActionKind.QuickFix);
-                    quickFix.CodeAction.Title.Should().Be(fix.Description);
+                    quickFix.CodeAction.Title.Should().Be(bicepFix.Description);
                     quickFix.CodeAction.Edit.Changes.Should().ContainKey(uri);
 
-                    var textEdits = quickFix.CodeAction.Edit.Changes[uri];
-                    int editIndex = 0;
+                    var textEditList = quickFix.CodeAction.Edit.Changes[uri].ToList();
+                    var replacementList = bicepFix.Replacements.ToList();
 
-                    foreach (var textEdit in textEdits)
+                    for (int j = 0; j < textEditList.Count; j++)
                     {
-                        var fixEdit = fix.Edits[editIndex];
+                        var textEdit = textEditList[j];
+                        var replacement = replacementList[j];
 
-                        textEdit.Range.Should().Be(fixEdit.ToRange(lineStarts));
-                        textEdit.NewText.Should().Be(fixEdit.Text);
-
-                        editIndex++;
+                        textEdit.Range.Should().Be(replacement.ToRange(lineStarts));
+                        textEdit.NewText.Should().Be(replacement.Text);
                     }
-
-                    fixIndex++;
                 }
             }
 

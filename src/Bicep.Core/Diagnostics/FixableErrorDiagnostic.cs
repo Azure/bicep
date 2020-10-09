@@ -1,19 +1,42 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using Bicep.Core.Linter;
+using Bicep.Core.CodeAction;
 
 namespace Bicep.Core.Diagnostics
 {
     public class FixableErrorDiagnostic : ErrorDiagnostic, IFixable
     {
-        public FixableErrorDiagnostic(Parser.TextSpan span, string code, string message, params Fix[] fixes)
+        private readonly CodeFix fix;
+        private readonly IEnumerable<CodeFix>? additionalFixes;
+
+        public FixableErrorDiagnostic(Parser.TextSpan span, string code, string message, CodeFix fix)
             : base(span, code, message)
         {
-            this.Fixes = fixes;
+            this.fix = fix;
+            this.additionalFixes = null;
         }
 
-        public IReadOnlyList<Fix> Fixes { get; }
+        public FixableErrorDiagnostic(Parser.TextSpan span, string code, string message, CodeFix fix, params CodeFix[] additionalFixes)
+            : this(span, code, message, fix)
+        {
+            this.additionalFixes = additionalFixes;
+        }
+
+        public IEnumerable<CodeFix> Fixes
+        {
+            get
+            {
+                yield return this.fix;
+
+                if (this.additionalFixes != null)
+                {
+                    foreach (var fix in this.additionalFixes)
+                    {
+                        yield return fix;
+                    }
+                }
+            }
+        }
     }
 }

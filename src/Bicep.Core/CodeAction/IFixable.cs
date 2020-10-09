@@ -3,10 +3,10 @@
 using System.Collections.Generic;
 using Bicep.Core.Parser;
 
-namespace Bicep.Core.Linter
+namespace Bicep.Core.CodeAction
 {
     public interface IFixable : IPositionable
     {
-        public IReadOnlyList<Fix> Fixes { get; }
+        public IEnumerable<CodeFix> Fixes { get; }
     }
 }

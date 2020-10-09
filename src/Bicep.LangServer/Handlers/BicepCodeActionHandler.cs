@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Linter;
+using Bicep.Core.CodeAction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -32,15 +33,23 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new CommandOrCodeActionContainer());
             }
 
+            var requestStartOffset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.Start);
+            var requestEndOffset = request.Range.Start != request.Range.End
+                ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
+                : requestStartOffset;
+
             var quickFixes = compilationContext.Compilation.GetSemanticModel().GetAllDiagnostics()
-                .Where(diagnostic => diagnostic.Span.ToRange(compilationContext.LineStarts).Equals(request.Range))
+                .Where(fixable =>
+                    fixable.Span.ContainsInclusive(requestStartOffset) ||
+                    fixable.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= fixable.Span.Position && fixable.Span.Position + fixable.Span.Length <= requestEndOffset))
                 .OfType<IFixable>()
-                .SelectMany(fixable => fixable.Fixes.Select(fix => GetQuickFix(request.TextDocument.Uri, compilationContext, fix)));
+                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
 
             return Task.FromResult(new CommandOrCodeActionContainer(quickFixes));
         }
 
-        private static CommandOrCodeAction GetQuickFix(DocumentUri uri, CompilationContext context, Fix fix)
+        private static CommandOrCodeAction CreateQuickFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
             return new CodeAction
             {
@@ -50,10 +59,10 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
                     {
-                        [uri] = fix.Edits.Select(edit => new TextEdit
+                        [uri] = fix.Replacements.Select(replacement => new TextEdit
                         {
-                            Range = edit.ToRange(context.LineStarts),
-                            NewText = edit.Text
+                            Range = replacement.ToRange(context.LineStarts),
+                            NewText = replacement.Text
                         })
                     }
                 }
@@ -62,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CodeActionRegistrationOptions CreateCodeActionRegistrationOptions() => new CodeActionRegistrationOptions
         {
-            DocumentSelector = new DocumentSelector(),
+            DocumentSelector = DocumentSelectorFactory.Create(),
             CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix)
         };
     }
