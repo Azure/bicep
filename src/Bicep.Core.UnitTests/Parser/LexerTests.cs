@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.Parser
         [TestMethod]
         public void UnrecognizedTokens_ShouldNotBeRecognized()
         {
-            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: '^'.", "BCP001");
+            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: \"^\".", "BCP001");
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace Bicep.Core.UnitTests.Parser
             RunSingleTokenTest(
                 "'bad \\escape'",
                 TokenType.StringComplete,
-                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \\$, \\', \\\\, \\n, \\r, \\t.",
+                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \"\\$\", \"\\'\", \"\\\\\", \"\\n\", \"\\r\", \"\\t\".",
                 "BCP006",
                 expectedStartPosition: 5,
                 expectedLength: 2);

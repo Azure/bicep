@@ -9,34 +9,34 @@ var q = base64(q, !q)
 
 //2-cycle
 var a = b
-//@[8:9) [BCP080 (Error)] The expression is involved in a cycle (b -> a). |b|
+//@[8:9) [BCP080 (Error)] The expression is involved in a cycle ("b" -> "a"). |b|
 var b = add(a,1)
-//@[12:13) [BCP080 (Error)] The expression is involved in a cycle (a -> b). |a|
+//@[12:13) [BCP080 (Error)] The expression is involved in a cycle ("a" -> "b"). |a|
 
 //3-cycle
 var e = f
-//@[8:9) [BCP080 (Error)] The expression is involved in a cycle (f -> g -> e). |f|
+//@[8:9) [BCP080 (Error)] The expression is involved in a cycle ("f" -> "g" -> "e"). |f|
 var f = g && true
-//@[8:9) [BCP080 (Error)] The expression is involved in a cycle (g -> e -> f). |g|
+//@[8:9) [BCP080 (Error)] The expression is involved in a cycle ("g" -> "e" -> "f"). |g|
 var g = e ? e : e
-//@[8:9) [BCP080 (Error)] The expression is involved in a cycle (e -> f -> g). |e|
-//@[12:13) [BCP080 (Error)] The expression is involved in a cycle (e -> f -> g). |e|
-//@[16:17) [BCP080 (Error)] The expression is involved in a cycle (e -> f -> g). |e|
+//@[8:9) [BCP080 (Error)] The expression is involved in a cycle ("e" -> "f" -> "g"). |e|
+//@[12:13) [BCP080 (Error)] The expression is involved in a cycle ("e" -> "f" -> "g"). |e|
+//@[16:17) [BCP080 (Error)] The expression is involved in a cycle ("e" -> "f" -> "g"). |e|
 
 //4-cycle
 var aa = {
   bb: bb
-//@[6:8) [BCP080 (Error)] The expression is involved in a cycle (bb -> cc -> dd -> aa). |bb|
+//@[6:8) [BCP080 (Error)] The expression is involved in a cycle ("bb" -> "cc" -> "dd" -> "aa"). |bb|
 }
 var bb = {
   cc: cc
-//@[6:8) [BCP080 (Error)] The expression is involved in a cycle (cc -> dd -> aa -> bb). |cc|
+//@[6:8) [BCP080 (Error)] The expression is involved in a cycle ("cc" -> "dd" -> "aa" -> "bb"). |cc|
 }
 var cc = {
   dd: dd
-//@[6:8) [BCP080 (Error)] The expression is involved in a cycle (dd -> aa -> bb -> cc). |dd|
+//@[6:8) [BCP080 (Error)] The expression is involved in a cycle ("dd" -> "aa" -> "bb" -> "cc"). |dd|
 }
 var dd = {
   aa: aa
-//@[6:8) [BCP080 (Error)] The expression is involved in a cycle (aa -> bb -> cc -> dd). |aa|
+//@[6:8) [BCP080 (Error)] The expression is involved in a cycle ("aa" -> "bb" -> "cc" -> "dd"). |aa|
 }

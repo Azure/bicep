@@ -77,6 +77,7 @@ namespace Bicep.Core.Samples
 
             var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
+<<<<<<< HEAD
                 "Resource type Microsoft.AppConfiguration/configurationStores@2020-07-01-preview does not have types available",
                 "Resource type Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview does not have types available",
                 "Resource type Microsoft.Web/sites/config@2018-11-01 does not have types available",
@@ -85,6 +86,15 @@ namespace Bicep.Core.Samples
                 "Resource type microsoft.web/serverFarms@2018-11-01 does not have types available",
                 "Resource type Microsoft.KeyVault/vaults/secrets@2018-02-14 does not have types available",
                 "Resource type Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview does not have types available"            
+=======
+                "Resource type \"Microsoft.AppConfiguration/configurationStores@2020-07-01-preview\" does not have types available",
+                "Resource type \"Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview\" does not have types available",
+                "Resource type \"Microsoft.Web/sites/config@2018-11-01\" does not have types available",
+                "Resource type \"Microsoft.KeyVault/vaults/keys@2019-09-01\" does not have types available",
+                "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available",
+                "Resource type \"microsoft.web/serverFarms@2018-11-01\" does not have types available",
+                "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available",
+>>>>>>> d44b13b558a830e792310cb0e9a9f60d257516ee
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
