@@ -84,6 +84,7 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available",
                 "Resource type \"microsoft.web/serverFarms@2018-11-01\" does not have types available",
                 "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available",
+                "Resource type \"Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available",
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);

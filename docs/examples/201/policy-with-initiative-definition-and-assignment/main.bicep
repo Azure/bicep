@@ -30,20 +30,20 @@ resource initiativeDefinition 'Microsoft.Authorization/policySetDefinitions@2019
         }
         parameters: {
             listOfAllowedLocations: {
-                type: 'array'
-                metadata: {
+                type: 'Array'
+                metadata: ({
                     description: 'The List of Allowed Locations for Resource Groups and Resources.'
                     strongtype: 'location'
                     displayName: 'Allowed Locations'
-                }
+                })
             }
             listOfAllowedSKUs: {
-                type: 'array'
-                metadata: {
+                type: 'Array'
+                metadata: any({
                     description: 'The List of Allowed SKUs for Virtual Machines.'
                     strongtype: 'vmSKUs'
                     displayName: 'Allowed Virtual Machine Size SKUs'
-                }
+                })
             }
         }
         policyDefinitions: [

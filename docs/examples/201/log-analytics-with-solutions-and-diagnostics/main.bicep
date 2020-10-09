@@ -51,15 +51,16 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
         Environment: environmentName
         CostCenter: costCenterName
     }
-    properties: {
+    properties: any({
         retentionInDays: 30
         features: {
             searchVersion: 1
         }
         sku: {
+            
             name: 'PerGB2018'
         }
-    }
+    })
 }
 
 resource logAnalyticsWorkspaceDiagnostics 'Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview' = {

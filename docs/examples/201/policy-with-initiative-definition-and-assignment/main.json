@@ -44,15 +44,11 @@
         },
         "parameters": {
           "listOfAllowedLocations": {
-            "type": "array",
-            "metadata": {
-              "description": "The List of Allowed Locations for Resource Groups and Resources.",
-              "strongtype": "location",
-              "displayName": "Allowed Locations"
-            }
+            "type": "Array",
+            "metadata": "[json('{\"description\":\"The List of Allowed Locations for Resource Groups and Resources.\",\"strongtype\":\"location\",\"displayName\":\"Allowed Locations\"}')]"
           },
           "listOfAllowedSKUs": {
-            "type": "array",
+            "type": "Array",
             "metadata": {
               "description": "The List of Allowed SKUs for Virtual Machines.",
               "strongtype": "vmSKUs",
