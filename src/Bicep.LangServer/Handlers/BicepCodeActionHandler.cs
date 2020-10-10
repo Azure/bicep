@@ -55,6 +55,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 Kind = CodeActionKind.QuickFix,
                 Title = fix.Description,
+                IsPreferred = fix.IsPreferred,
                 Edit = new WorkspaceEdit
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
