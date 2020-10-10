@@ -458,7 +458,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
-                $"The type {type} does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
+                $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
         }
 
