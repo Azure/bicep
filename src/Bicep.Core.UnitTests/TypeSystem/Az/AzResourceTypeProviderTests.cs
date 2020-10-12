@@ -64,16 +64,21 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 return Enumerable.Empty<SerializedTypes.Concrete.TypeBase>();
             }
 
-            var compilationHelper = new CompilationHelper(program => new Compilation(new AzResourceTypeProvider(loadTypes), SyntaxFactory.CreateFromText(program)));
+            Compilation createCompilation(string program)
+                => new Compilation(new AzResourceTypeProvider(loadTypes), SyntaxFactory.CreateFromText(program));
 
-            compilationHelper.ProgramShouldHaveDiagnostics(@"
+            // Missing top-level properties - should be an error
+            var compilation = createCompilation(@"
 resource missingRequired 'Mock.Rp/mockType@2020-01-01' = {
   name: 'missingRequired'
 }
-",
-                ("BCP035", DiagnosticLevel.Error, "The specified object is missing the following required properties: \"properties\"."));
+");
+            compilation.Should().HaveDiagnostics(new [] {
+                ("BCP035", DiagnosticLevel.Error, "The specified object is missing the following required properties: \"properties\".")
+            });
 
-            compilationHelper.ProgramShouldHaveDiagnostics(@"
+            // Top-level properties that aren't part of the type definition - should be an error
+            compilation = createCompilation(@"
 resource unexpectedTopLevel 'Mock.Rp/mockType@2020-01-01' = {
   name: 'unexpectedTopLevel'
   properties: {
@@ -81,19 +86,25 @@ resource unexpectedTopLevel 'Mock.Rp/mockType@2020-01-01' = {
   }
   madeUpProperty: true
 }
-",
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Mock.Rp/mockType@2020-01-01\"."));
+");
+            compilation.Should().HaveDiagnostics(new [] {
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Mock.Rp/mockType@2020-01-01\"."),
+            });
 
-            compilationHelper.ProgramShouldHaveDiagnostics(@"
+            // Missing non top-level properties - should be a warning
+            compilation = createCompilation(@"
 resource missingRequiredProperty 'Mock.Rp/mockType@2020-01-01' = {
   name: 'missingRequiredProperty'
   properties: {    
   }
 }
-",
-                ("BCP035", DiagnosticLevel.Warning, "The specified object is missing the following required properties: \"required\"."));
+");
+            compilation.Should().HaveDiagnostics(new [] {
+                ("BCP035", DiagnosticLevel.Warning, "The specified object is missing the following required properties: \"required\"."),
+            });
 
-            compilationHelper.ProgramShouldHaveDiagnostics(@"
+            // Non top-level properties that aren't part of the type definition - should be a warning
+            compilation = createCompilation(@"
 resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
   name: 'unexpectedPropertiesProperty'
   properties: {
@@ -101,8 +112,10 @@ resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
     madeUpProperty: true
   }
 }
-",
-                ("BCP038", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."));
+");
+            compilation.Should().HaveDiagnostics(new [] {
+                ("BCP038", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"Properties\". Permissible properties include \"readwrite\", \"writeonly\"."),
+            });
         }
 
         private static IEnumerable<ResourceTypeReference> GetAllKnownTypes()
