@@ -79,6 +79,10 @@ namespace Bicep.Core.Emit
                         function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
 
                 case InstanceFunctionCallSyntax instanceFunctionCall:
+                    var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
+                    
+                    Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
+
                     return ConvertFunction(
                         instanceFunctionCall.Name.IdentifierName,
                         instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
@@ -434,6 +438,15 @@ namespace Bicep.Core.Emit
 
         private static FunctionExpression CreateJsonFunctionCall(JToken value) =>
             CreateUnaryFunction("json", new JTokenExpression(value.ToString(Formatting.None)));
+
+        protected static void Assert(bool predicate, string message)
+        {
+            if (predicate == false)
+            {
+                // we have a code defect - use the exception stack to debug
+                throw new ArgumentException(message);
+            }
+        }
     }
 }
 

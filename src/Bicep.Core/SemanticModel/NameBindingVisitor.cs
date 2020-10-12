@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -99,7 +100,7 @@ namespace Bicep.Core.SemanticModel
             if (bindings.ContainsKey(syntax.BaseExpression) &&
                 bindings[syntax.BaseExpression] is NamespaceSymbol namespaceSymbol)
             {
-                foundSymbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, namespaceSymbol.Name);
+                foundSymbol = this.LookupSymbolByName(syntax.Name.IdentifierName, syntax.Name.Span, namespaceSymbol);
             }
             else
             {
@@ -132,7 +133,7 @@ namespace Bicep.Core.SemanticModel
             return symbol;
         }
 
-        private Symbol LookupSymbolByName(string name, TextSpan span, string? @namespace)
+        private Symbol LookupSymbolByName(string name, TextSpan span, NamespaceSymbol? @namespace)
         {
             NamespaceSymbol? FindNamespace(string name)
             {
@@ -193,19 +194,11 @@ namespace Bicep.Core.SemanticModel
             }
             else
             {
-                // attempt to find name in the imported namespaces
-                var namespaceSymbol = FindNamespace(@namespace);
-
-                if (namespaceSymbol == null)
-                {
-                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
-                }
-
-                foundSymbol = namespaceSymbol.TryGetFunctionSymbol(name);
+                foundSymbol = @namespace.TryGetFunctionSymbol(name);
 
                 if (foundSymbol == null)
                 {
-                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionNotFound(name, @namespace));
+                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionNotFound(name, @namespace.Name));
                 }
             }
 

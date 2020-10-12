@@ -657,7 +657,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     case UnassignableSymbol errorSymbol:
                         // variable bind failure - pass the error along
-                        return errorSymbol.ToErrorType();
+                        return errorSymbol.ToUnassignableType();
 
                     case ResourceSymbol resource:
                         // resource bodies can participate in cycles
@@ -671,7 +671,6 @@ namespace Bicep.Core.TypeSystem
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
                     
                     case NamespaceSymbol _:
-                        // consider using a constant
                         return new UnassignableTypeSymbol("namespace", TypeKind.Never);
 
                     case OutputSymbol _:
@@ -684,6 +683,7 @@ namespace Bicep.Core.TypeSystem
 
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
+
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 

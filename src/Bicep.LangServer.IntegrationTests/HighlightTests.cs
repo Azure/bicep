@@ -48,7 +48,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var highlights = await client.RequestDocumentHighlight(new DocumentHighlightParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = GetPosition(syntax, lineStarts)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // calculate expected highlights
@@ -92,7 +92,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var highlights = await client.RequestDocumentHighlight(new DocumentHighlightParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = GetPosition(syntax, lineStarts)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 highlights.Should().BeEmpty();
@@ -119,16 +119,6 @@ namespace Bicep.LangServer.IntegrationTests
                 default:
                     throw new AssertFailedException($"Unexpected syntax type '{syntax.GetType().Name}'.");
             }
-        }
-
-        private Position GetPosition(SyntaxBase syntax, ImmutableArray<int> lineStarts)
-        {
-            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall)
-            {
-                return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
-            }
-
-            return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
         }
 
         private static IEnumerable<object[]> GetData()

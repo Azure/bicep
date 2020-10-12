@@ -461,7 +461,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP084",
-                $"The symbolic name \"{name}\" cannot reference a reserved namespace. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
+                $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
             public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
                 TextSpan,

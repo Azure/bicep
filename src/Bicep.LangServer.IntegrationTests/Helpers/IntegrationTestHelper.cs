@@ -13,6 +13,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
+using System.Collections.Immutable;
+using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -72,6 +75,20 @@ namespace Bicep.LangServer.IntegrationTests
             await IntegrationTestHelper.WithTimeoutAsync(diagnosticsPublished.Task);
 
             return client;
+        }
+
+        public static Position GetPosition(ImmutableArray<int> lineStarts, SyntaxBase syntax)
+        {
+            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall)
+            {
+                // get identifier span otherwise syntax.Span returns the position from the starting position of the whole expression.
+                // e.g. in an instance function call such as: az.resourceGroup(), syntax.Span position starts at 'az',
+                // whereas instanceFunctionCall.Name.Span the position will start in resourceGroup() which is what it should be in this
+                // case.
+                return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
+            }
+
+            return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
         }
     }
 }

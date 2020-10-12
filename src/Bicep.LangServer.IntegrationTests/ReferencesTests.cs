@@ -52,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = true
                     },
-                    Position = GetPosition(syntax, lineStarts)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -91,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = GetPosition(syntax, lineStarts)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -144,21 +144,11 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = GetPosition(syntax, lineStarts)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 locations.Should().BeEmpty();
             }
-        }
-
-        private Position GetPosition(SyntaxBase syntax, ImmutableArray<int> lineStarts)
-        {
-            if (syntax is InstanceFunctionCallSyntax instanceFunctionCall)
-            {
-                return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
-            }
-
-            return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
         }
 
         private static IEnumerable<object[]> GetData()
