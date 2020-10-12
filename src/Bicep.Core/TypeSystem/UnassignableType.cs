@@ -23,14 +23,14 @@ namespace Bicep.Core.TypeSystem
         {
         }
 
-        public UnassignableTypeSymbol(ErrorDiagnostic error)
-            : this(ErrorTypeName, TypeKind.Error, ImmutableArray.Create<ErrorDiagnostic>(error))
+        public static UnassignableTypeSymbol CreateErrors(ErrorDiagnostic error)
         {
+            return new UnassignableTypeSymbol(ErrorTypeName, TypeKind.Error, ImmutableArray.Create<ErrorDiagnostic>(error));
         }
 
-        public UnassignableTypeSymbol(IEnumerable<ErrorDiagnostic> errors)
-            : this(ErrorTypeName, TypeKind.Error, errors.ToImmutableArray())
+        public static UnassignableTypeSymbol CreateErrors(IEnumerable<ErrorDiagnostic> errors)
         {
+            return new UnassignableTypeSymbol(ErrorTypeName, TypeKind.Error, errors.ToImmutableArray());
         }
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
