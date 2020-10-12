@@ -11,6 +11,17 @@ namespace Bicep.Core.TypeSystem.Az
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
         private readonly IDictionary<string, AzResourceTypeFactory?> typeFactories = new Dictionary<string, AzResourceTypeFactory?>(StringComparer.OrdinalIgnoreCase);
+        private readonly Func<string, string, IEnumerable<SerializedTypes.Concrete.TypeBase>> loadTypeFunc;
+
+        public AzResourceTypeProvider(Func<string, string, IEnumerable<Bicep.SerializedTypes.Concrete.TypeBase>> loadTypeFunc)
+        {
+            this.loadTypeFunc = loadTypeFunc;
+        }
+
+        public AzResourceTypeProvider()
+            : this(TypeLoader.LoadTypes)
+        {
+        }
 
         public ResourceType GetType(ResourceTypeReference typeReference)
         {
@@ -34,7 +45,7 @@ namespace Bicep.Core.TypeSystem.Az
 
             if (!typeFactories.TryGetValue(key, out var typeFactory))
             {
-                var types = TypeLoader.LoadTypes(typeReference.Namespace, typeReference.ApiVersion);
+                var types = loadTypeFunc(typeReference.Namespace, typeReference.ApiVersion);
                 typeFactory = types.Any() ? new AzResourceTypeFactory(types, typeReference.ApiVersion) : null;
                 typeFactories[key] = typeFactory;
             }
