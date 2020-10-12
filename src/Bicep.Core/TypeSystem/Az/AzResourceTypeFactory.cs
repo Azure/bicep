@@ -18,30 +18,30 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ResourceType GetResourceType(SerializedTypes.Concrete.ResourceType resourceType)
         {
-            var output = GetTypeSymbol(resourceType) as ResourceType;
+            var output = GetTypeSymbol(resourceType, false) as ResourceType;
 
             return output ?? throw new ArgumentException("Unable to deserialize resource type", nameof(resourceType));
         }
 
-        private TypeSymbol GetTypeSymbol(SerializedTypes.Concrete.TypeBase serializedType)
+        private TypeSymbol GetTypeSymbol(SerializedTypes.Concrete.TypeBase serializedType, bool isResourceBodyType)
         {
             if (!typeCache.TryGetValue(serializedType, out var typeSymbol))
             {
-                typeSymbol = ToTypeSymbol(serializedType);
+                typeSymbol = ToTypeSymbol(serializedType, isResourceBodyType);
                 typeCache[serializedType] = typeSymbol;
             }
 
             return typeSymbol;
         }
 
-        private ITypeReference GetTypeReference(SerializedTypes.Concrete.ITypeReference input)
-            => new DeferredTypeReference(() => GetTypeSymbol(input.Type));
+        private ITypeReference GetTypeReference(SerializedTypes.Concrete.ITypeReference input, bool isResourceBodyType)
+            => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType));
 
         private TypeProperty GetTypeProperty(string name, SerializedTypes.Concrete.ObjectProperty input)
         {
             var type = input.Type ?? throw new ArgumentException();
 
-            return new TypeProperty(name, GetTypeReference(type), GetTypePropertyFlags(input));
+            return new TypeProperty(name, GetTypeReference(type, false), GetTypePropertyFlags(input));
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(SerializedTypes.Concrete.ObjectProperty input)
@@ -68,7 +68,7 @@ namespace Bicep.Core.TypeSystem.Az
             return flags;
         }
 
-        private TypeSymbol ToTypeSymbol(SerializedTypes.Concrete.TypeBase typeBase)
+        private TypeSymbol ToTypeSymbol(SerializedTypes.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
             {
@@ -86,17 +86,17 @@ namespace Bicep.Core.TypeSystem.Az
                     };
                 case SerializedTypes.Concrete.ObjectType objectType:
                 {
-                    var name = objectType.Name ?? string.Empty; // TODO
+                    var name = objectType.Name ?? string.Empty;
                     var properties = objectType.Properties ?? new Dictionary<string, SerializedTypes.Concrete.ObjectProperty>();
-                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, false) : null;
 
-                    return new NamedObjectType(name, TypeSymbolValidationFlags.WarnOnTypeMismatch, properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+                    return new NamedObjectType(name, GetValidationFlags(isResourceBodyType), properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
                 }
                 case SerializedTypes.Concrete.ArrayType arrayType:
                 {
                     var itemType = arrayType.ItemType ?? throw new ArgumentException();
 
-                    return new TypedArrayType(GetTypeReference(itemType), TypeSymbolValidationFlags.WarnOnTypeMismatch);
+                    return new TypedArrayType(GetTypeReference(itemType, false), GetValidationFlags(isResourceBodyType));
                 }
                 case SerializedTypes.Concrete.ResourceType resourceType:
                 {
@@ -104,12 +104,12 @@ namespace Bicep.Core.TypeSystem.Az
                     var body = resourceType.Body ?? throw new ArgumentException();                    
                     var resourceTypeReference = ResourceTypeReference.Parse(name);
 
-                    return new ResourceType(resourceTypeReference, GetTypeReference(body), TypeSymbolValidationFlags.WarnOnTypeMismatch);
+                    return new ResourceType(resourceTypeReference, GetTypeReference(body, true), GetValidationFlags(true));
                 }
                 case SerializedTypes.Concrete.UnionType unionType:
                 {
                     var elements = unionType.Elements ?? throw new ArgumentException();
-                    return UnionType.Create(elements.Select(GetTypeReference));
+                    return UnionType.Create(elements.Select(x => GetTypeReference(x, false)));
                 }
                 case SerializedTypes.Concrete.StringLiteralType stringLiteralType:
                     var value = stringLiteralType.Value ?? throw new ArgumentException();
@@ -121,16 +121,16 @@ namespace Bicep.Core.TypeSystem.Az
                     var elements = discriminatedObjectType.Elements ?? throw new ArgumentException();
                     var baseProperties = discriminatedObjectType.BaseProperties ?? throw new ArgumentException();
 
-                    var elementReferences = elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value)));
+                    var elementReferences = elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                    return new DiscriminatedObjectType(name, TypeSymbolValidationFlags.WarnOnTypeMismatch, discriminator, elementReferences);
+                    return new DiscriminatedObjectType(name, GetValidationFlags(isResourceBodyType), discriminator, elementReferences);
                 }
                 default:
                     throw new ArgumentException();
             }
         }
 
-        private NamedObjectType ToCombinedType(IEnumerable<KeyValuePair<string, SerializedTypes.Concrete.ObjectProperty>> baseProperties, string name, SerializedTypes.Concrete.ITypeReference extendedType)
+        private NamedObjectType ToCombinedType(IEnumerable<KeyValuePair<string, SerializedTypes.Concrete.ObjectProperty>> baseProperties, string name, SerializedTypes.Concrete.ITypeReference extendedType, bool isResourceBodyType)
         {
             if (!(extendedType.Type is SerializedTypes.Concrete.ObjectType objectType))
             {
@@ -138,7 +138,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             var properties = objectType.Properties ?? throw new ArgumentException();
-            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, false) : null;
 
             var extendedProperties = properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
             foreach (var property in baseProperties.Where(x => !extendedProperties.ContainsKey(x.Key)))
@@ -146,7 +146,19 @@ namespace Bicep.Core.TypeSystem.Az
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new NamedObjectType(name, TypeSymbolValidationFlags.WarnOnTypeMismatch, extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+            return new NamedObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+        }
+
+        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)
+        {
+            if (isResourceBodyType)
+            {
+                // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform
+                return TypeSymbolValidationFlags.Default;
+            }
+
+            // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
+            return TypeSymbolValidationFlags.WarnOnTypeMismatch;
         }
     }
 }
