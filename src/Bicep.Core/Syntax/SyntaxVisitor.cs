@@ -81,6 +81,15 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Body);
         }
 
+        public virtual void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Body);
+        }
+
         public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             this.Visit(syntax.Keyword);

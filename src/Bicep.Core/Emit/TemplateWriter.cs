@@ -15,6 +15,9 @@ namespace Bicep.Core.Emit
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateWriter
     {
+        public const string NestedDeploymentResourceType = "Microsoft.Resources/deployments";
+        public const string NestedDeploymentResourceApiVersion = "2019-10-01";
+
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
         {
@@ -119,7 +122,7 @@ namespace Bicep.Core.Emit
                         this.emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
                     }
 
-                    this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
+                    this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue(LanguageConstants.ParameterDefaultPropertyName));
                     this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
                     
                     break;
@@ -159,6 +162,11 @@ namespace Bicep.Core.Emit
                 this.EmitResource(resourceSymbol);
             }
 
+            foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
+            {
+                this.EmitModule(moduleSymbol);
+            }
+
             writer.WriteEndArray();
         }
 
@@ -179,9 +187,76 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-        private void EmitDependsOn(ResourceSymbol resourceSymbol)
+        private void EmitModule(ModuleSymbol moduleSymbol)
         {
-            var dependencies = context.ResourceDependencies[resourceSymbol];
+            writer.WriteStartObject();
+
+            // TODO: "name" implementation may change based on https://github.com/Azure/bicep/issues/614
+            this.emitter.EmitPropertyValue("name", moduleSymbol.Name);
+            this.emitter.EmitPropertyValue("type", NestedDeploymentResourceType);
+            this.emitter.EmitPropertyValue("apiVersion", NestedDeploymentResourceApiVersion);
+
+            writer.WritePropertyName("properties");
+            {
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("expressionEvaluationOptions");
+                {
+                    writer.WriteStartObject();
+                    this.emitter.EmitPropertyValue("scope", "inner");
+                    writer.WriteEndObject();
+                }
+
+                this.emitter.EmitPropertyValue("mode", "Incremental");
+
+                writer.WritePropertyName("parameters");
+                {
+                    writer.WriteStartObject();
+
+                    var moduleBody = (ObjectSyntax)moduleSymbol.Body;
+                    foreach (var propertySyntax in moduleBody.Properties)
+                    {
+                        if (!(propertySyntax.TryGetKeyText() is string keyName))
+                        {
+                            // TODO improve this, add earlier validation.
+                            throw new ArgumentException("Disallowed interpolation in module parameter");
+                        }
+
+                        writer.WritePropertyName(keyName);
+                        {
+                            writer.WriteStartObject();
+                            this.emitter.EmitPropertyExpression("value", propertySyntax.Value);
+                            writer.WriteEndObject();
+                        }                        
+                    }
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WritePropertyName("template");
+                {
+                    var moduleSemanticModel = moduleSymbol.TryGetSemanticModel(out _);
+                    if (moduleSemanticModel == null)
+                    {
+                        // this should have already been checked during type assignment
+                        throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
+                    }
+
+                    var moduleWriter = new TemplateWriter(writer, moduleSemanticModel);
+                    moduleWriter.Write();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            this.EmitDependsOn(moduleSymbol);
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitDependsOn(DeclaredSymbol declaredSymbol)
+        {
+            var dependencies = context.ResourceDependencies[declaredSymbol];
             if (!dependencies.Any())
             {
                 return;
@@ -192,8 +267,18 @@ namespace Bicep.Core.Emit
             // need to put dependencies in a deterministic order to generate a deterministic template
             foreach (var dependency in dependencies.OrderBy(x => x.Name))
             {
-                var typeReference = EmitHelpers.GetTypeReference(dependency);
-                emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);
+                switch (dependency)
+                {
+                    case ResourceSymbol resourceDependency:
+                        var typeReference = EmitHelpers.GetTypeReference(resourceDependency);
+                        emitter.EmitResourceIdReference(resourceDependency.DeclaringResource, typeReference);
+                        break;
+                    case ModuleSymbol moduleDependency:
+                        emitter.EmitModuleResourceIdExpression(moduleDependency);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");
+                }
             }
             writer.WriteEndArray();
         }

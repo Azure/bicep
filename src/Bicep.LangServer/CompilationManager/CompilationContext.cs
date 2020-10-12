@@ -3,19 +3,21 @@
 using System.Collections.Immutable;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
     public class CompilationContext
     {
-        public CompilationContext(Compilation compilation, ImmutableArray<int> lineStarts)
+        public CompilationContext(Compilation compilation)
         {
             this.Compilation = compilation;
-            this.LineStarts = lineStarts;
         }
 
         public Compilation Compilation { get; }
 
-        public ImmutableArray<int> LineStarts { get; }
+        public ProgramSyntax ProgramSyntax => Compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+
+        public ImmutableArray<int> LineStarts => Compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
     }
 }

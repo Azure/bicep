@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -14,41 +15,46 @@ namespace Bicep.Core.SemanticModel
     public class Compilation
     {
         private readonly IResourceTypeProvider resourceTypeProvider;
-        private readonly Lazy<SemanticModel> lazySemanticModel;
+        private readonly ImmutableDictionary<SyntaxTree, Lazy<SemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, ProgramSyntax programSyntax)
+        public SyntaxTreeGrouping SyntaxTreeGrouping { get; }
+
+        public Compilation(IResourceTypeProvider resourceTypeProvider, SyntaxTreeGrouping syntaxTreeGrouping)
         {
+            this.SyntaxTreeGrouping = syntaxTreeGrouping;
             this.resourceTypeProvider = resourceTypeProvider;
-            this.ProgramSyntax = programSyntax;
-
-            this.lazySemanticModel = new Lazy<SemanticModel>(this.GetSemanticModelInternal, LazyThreadSafetyMode.PublicationOnly);
+            this.lazySemanticModelLookup = syntaxTreeGrouping.SyntaxTrees.ToImmutableDictionary(
+                syntaxTree => syntaxTree,
+                syntaxTree => new Lazy<SemanticModel>(() => GetSemanticModelInternal(syntaxTree)));
         }
 
-        public ProgramSyntax ProgramSyntax { get; }
+        public SemanticModel GetEntrypointSemanticModel()
+            => GetSemanticModel(SyntaxTreeGrouping.EntryPoint);
 
-        public SemanticModel GetSemanticModel() => this.lazySemanticModel.Value;
+        public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
+            => this.lazySemanticModelLookup[syntaxTree].Value;
 
-        private SemanticModel GetSemanticModelInternal()
+        private SemanticModel GetSemanticModelInternal(SyntaxTree syntaxTree)
         {
             var builtinNamespaces = 
                 new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol() }
                 .ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
+            var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
             
             var hierarchy = new SyntaxHierarchy();
-            hierarchy.AddRoot(this.ProgramSyntax);
+            hierarchy.AddRoot(syntaxTree.ProgramSyntax);
             
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySyntax, hierarchy), bindings);
+            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySymbol, hierarchy), bindings, this);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
             var declarationVisitor = new DeclarationVisitor(symbolContext, declarations);
-            declarationVisitor.Visit(this.ProgramSyntax);
+            declarationVisitor.Visit(syntaxTree.ProgramSyntax);
 
             // in cases of duplicate declarations we will see multiple declaration symbols in the result list
             // for simplicitly we will bind to the first one
@@ -59,28 +65,47 @@ namespace Bicep.Core.SemanticModel
 
             // bind identifiers to declarations
             var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtinNamespaces);
-            binder.Visit(this.ProgramSyntax);
+            binder.Visit(syntaxTree.ProgramSyntax);
 
-            var shortestCycleBySyntax = CyclicCheckVisitor.FindCycles(this.ProgramSyntax, uniqueDeclarations, bindings);
-            foreach (var kvp in shortestCycleBySyntax)
+            var shortestCycleBySymbol = CyclicCheckVisitor.FindCycles(syntaxTree.ProgramSyntax, uniqueDeclarations, bindings);
+            foreach (var kvp in shortestCycleBySymbol)
             {
-                cyclesBySyntax.Add(kvp.Key, kvp.Value);
+                cyclesBySymbol.Add(kvp.Key, kvp.Value);
             }
+
+            // TODO: Avoid looping 5 times?
+            var file = new FileSymbol(
+                syntaxTree.FilePath,
+                syntaxTree.ProgramSyntax,
+                builtinNamespaces,
+                declarations.OfType<ParameterSymbol>(),
+                declarations.OfType<VariableSymbol>(),
+                declarations.OfType<ResourceSymbol>(),
+                declarations.OfType<ModuleSymbol>(),
+                declarations.OfType<OutputSymbol>());
 
             // name binding is done
             // allow type queries now
             symbolContext.Unlock();
 
-            // TODO: Avoid looping 4 times?
-            var file = new FileSymbol("main",
-                this.ProgramSyntax,
-                builtinNamespaces,
-                declarations.OfType<ParameterSymbol>(),
-                declarations.OfType<VariableSymbol>(),
-                declarations.OfType<ResourceSymbol>(),
-                declarations.OfType<OutputSymbol>());
-
             return new SemanticModel(file, symbolContext.TypeManager, bindings);
+        }
+
+        public bool EmitDiagnosticsAndCheckSuccess(Action<SyntaxTree, Diagnostic> onDiagnostic)
+        {
+            var success = true;
+            foreach (var syntaxTree in SyntaxTreeGrouping.SyntaxTrees)
+            {
+                var semanticModel = GetSemanticModel(syntaxTree);
+
+                foreach (var diagnostic in semanticModel.GetAllDiagnostics())
+                {
+                    success &= diagnostic.Level != DiagnosticLevel.Error;
+                    onDiagnostic(syntaxTree, diagnostic);
+                }
+            }
+
+            return success;
         }
     }
 }

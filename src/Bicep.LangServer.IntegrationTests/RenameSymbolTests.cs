@@ -124,7 +124,7 @@ namespace Bicep.LangServer.IntegrationTests
                 .ToLookup(pair => pair.Value, pair => pair.Key);
 
             var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.ProgramSyntax,
+                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {

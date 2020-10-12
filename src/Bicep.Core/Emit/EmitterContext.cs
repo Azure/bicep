@@ -20,6 +20,6 @@ namespace Bicep.Core.Emit
 
         public ImmutableArray<VariableSymbol> VariablesToInline { get; }
 
-        public ImmutableDictionary<ResourceSymbol, ImmutableHashSet<ResourceSymbol>> ResourceDependencies { get; }
+        public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> ResourceDependencies { get; }
     }
 }

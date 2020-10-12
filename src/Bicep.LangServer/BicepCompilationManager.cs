@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                var context = this.provider.Create(text);
+                var context = this.provider.Create(uri, text);
 
                 // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
                 this.activeContexts[uri] = context;
@@ -92,7 +92,7 @@ namespace Bicep.LanguageServer
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors
-        private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetSemanticModel().GetAllDiagnostics();
+        private IEnumerable<Core.Diagnostics.Diagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic> diagnostics)
         {

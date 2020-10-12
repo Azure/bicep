@@ -16,6 +16,7 @@ namespace Bicep.Core.SemanticModel
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
+            IEnumerable<ModuleSymbol> moduleDeclarations,
             IEnumerable<OutputSymbol> outputDeclarations)
             : base(name)
         {
@@ -24,6 +25,7 @@ namespace Bicep.Core.SemanticModel
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
+            this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
@@ -31,6 +33,7 @@ namespace Bicep.Core.SemanticModel
             .Concat<Symbol>(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
+            .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
@@ -44,6 +47,8 @@ namespace Bicep.Core.SemanticModel
         public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
 
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
+
+        public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
         

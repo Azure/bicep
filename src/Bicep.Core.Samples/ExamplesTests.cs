@@ -99,7 +99,7 @@ namespace Bicep.Core.Samples
         public void ExampleIsValid(ExampleData example)
         {
             var compilation = new Compilation(new AzResourceTypeProvider(), SyntaxFactory.CreateFromText(example.BicepContents));
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             using var stream = new MemoryStream();
             var result = emitter.Emit(stream);

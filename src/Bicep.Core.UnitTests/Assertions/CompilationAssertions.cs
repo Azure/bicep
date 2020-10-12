@@ -27,21 +27,21 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<CompilationAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            Subject.GetSemanticModel().GetAllDiagnostics().Should().ContainDiagnostic(code, level, message, because, becauseArgs);
+            Subject.GetEntrypointSemanticModel().GetAllDiagnostics().Should().ContainDiagnostic(code, level, message, because, becauseArgs);
 
             return new AndConstraint<CompilationAssertions>(this);
         }
 
         public AndConstraint<CompilationAssertions> ContainSingleDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            Subject.GetSemanticModel().GetAllDiagnostics().Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
+            Subject.GetEntrypointSemanticModel().GetAllDiagnostics().Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
 
             return new AndConstraint<CompilationAssertions>(this);
         }
 
         public AndConstraint<CompilationAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> diagnostics, string because = "", params object[] becauseArgs)
         {
-            Subject.GetSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(diagnostics, because, becauseArgs);
+            Subject.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(diagnostics, because, becauseArgs);
 
             return new AndConstraint<CompilationAssertions>(this);
         }

@@ -1,5 +1,4 @@
 # Module
-> **Note**: Module is not implemented yet. 
 
 ## Definition
 

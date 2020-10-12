@@ -112,6 +112,16 @@ namespace Bicep.Core.Emit
                         }
                     }
 
+                    if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccessModule && 
+                        context.SemanticModel.GetSymbolInfo(propVariableAccessModule) is ModuleSymbol moduleSymbol)
+                    {
+                        return AppendProperty(
+                            AppendProperty(
+                                GetModuleReferenceExpression(moduleSymbol),
+                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName)),
+                            new JTokenExpression("value"));
+                    }
+
                     return AppendProperty(
                         ToFunctionExpression(propertyAccess.BaseExpression),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
@@ -171,6 +181,33 @@ namespace Bicep.Core.Emit
                 Array.Empty<LanguageExpression>());
         }
 
+        public FunctionExpression GetModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        {
+            return new FunctionExpression(
+                "resourceId",
+                new LanguageExpression[]
+                {
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceType),
+                    new JTokenExpression(moduleSymbol.Name),
+                },
+                Array.Empty<LanguageExpression>());
+        }
+        
+        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol)
+        {
+            return new FunctionExpression(
+                "reference",
+                new LanguageExpression[]
+                {
+                    GetModuleResourceIdExpression(moduleSymbol),
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion),
+                },
+                new LanguageExpression[]
+                {
+                    new JTokenExpression("outputs"),
+                });
+        }
+
         public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference, bool full)
         {
             // full gives access to top-level resource properties, but generates a longer statement
@@ -219,6 +256,9 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resourceSymbol:
                     var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
                     return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
+
+                case ModuleSymbol moduleSymbol:
+                    return GetModuleReferenceExpression(moduleSymbol);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

@@ -70,6 +70,7 @@ namespace Bicep.Core.Parser
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
@@ -180,6 +181,23 @@ namespace Bicep.Core.Parser
             var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
+        }
+
+        private SyntaxBase ModuleDeclaration()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ModuleKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+
+            // TODO: Unify StringSyntax with TypeSyntax
+            var path = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new ModuleDeclarationSyntax(keyword, name, path, assignment, body);
         }
 
         private Token? NewLineOrEof()

@@ -36,7 +36,7 @@ namespace Bicep.LangServer.IntegrationTests
             // construct a parallel compilation
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
-            var fixables = compilation.GetSemanticModel().GetAllDiagnostics().OfType<IFixable>();
+            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
 
             foreach (IFixable fixable in fixables)
             {
@@ -92,7 +92,7 @@ namespace Bicep.LangServer.IntegrationTests
             // construct a parallel compilation
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
-            var nonFixables = compilation.GetSemanticModel().GetAllDiagnostics().Where(diagnostic => !(diagnostic is IFixable));
+            var nonFixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Where(diagnostic => !(diagnostic is IFixable));
 
             foreach (var nonFixable in nonFixables)
             {

@@ -28,7 +28,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var model = compilation.GetSemanticModel();
+            var model = compilation.GetEntrypointSemanticModel();
 
             string getLoggingString(Diagnostic diagnostic)
             {
@@ -50,7 +50,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText("parameter "));
-            compilation.GetSemanticModel().GetParseDiagnostics();
+            compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
         [DataTestMethod]
@@ -58,7 +58,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var model = compilation.GetSemanticModel();
+            var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
@@ -87,12 +87,12 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             
-            var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
+            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
 
-            var model = compilation.GetSemanticModel();
+            var model = compilation.GetEntrypointSemanticModel();
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
                 var symbol = model.GetSymbolInfo(symbolReference);
@@ -142,16 +142,16 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
 
-            var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
+            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
-                .Select(symRef => compilation.GetSemanticModel().GetSymbolInfo(symRef))
+                .Select(symRef => compilation.GetEntrypointSemanticModel().GetSymbolInfo(symRef))
                 .Distinct();
 
             symbols.Should().NotContainNulls();
 
             var foundReferences = symbols
-                .SelectMany(s => compilation.GetSemanticModel().FindReferences(s!))
+                .SelectMany(s => compilation.GetEntrypointSemanticModel().FindReferences(s!))
                 .Where(refSyntax => !(refSyntax is IDeclarationSyntax));
 
             foundReferences.Should().BeEquivalentTo(symbolReferences);

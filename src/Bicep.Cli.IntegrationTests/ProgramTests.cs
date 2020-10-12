@@ -311,8 +311,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().ContainAll(diagnosticsFromAllFiles);
         }
 
-        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Received failure ""Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Received failure ""Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
@@ -326,8 +326,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().MatchRegex(expectedErrorRegex);
         }
 
-        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Received failure ""Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Received failure ""Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
@@ -368,7 +368,7 @@ namespace Bicep.Cli.IntegrationTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(text));
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            return compilation.GetSemanticModel()
+            return compilation.GetEntrypointSemanticModel()
                 .GetAllDiagnostics()
                 .Select(d =>
                 {

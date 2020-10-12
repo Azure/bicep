@@ -21,10 +21,12 @@ namespace Bicep.Core
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
+        public const string ModuleKeyword = "module";
 
-        public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
 
         public const string ParameterAllowedPropertyName = "allowed";
+        public const string ParameterDefaultPropertyName = "default";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
@@ -81,7 +83,7 @@ namespace Bicep.Core
             }
 
             // default value is allowed to have expressions
-            yield return new TypeProperty("default", allowedValuesType);
+            yield return new TypeProperty(ParameterDefaultPropertyName, allowedValuesType);
 
             yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default), TypePropertyFlags.Constant);
 

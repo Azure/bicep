@@ -10,5 +10,7 @@ namespace Bicep.Core.SemanticModel
         ITypeManager TypeManager { get; }
 
         IReadOnlyDictionary<SyntaxBase, Symbol> Bindings { get; }
+
+        Compilation Compilation { get; }
     }
 }

@@ -109,7 +109,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
             var unboundNodes = SyntaxAggregator.Aggregate(
-                source: compilation.ProgramSyntax,
+                source: compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 seed: new List<SyntaxBase>(),
                 function: (accumulated, syntax) =>
                 {

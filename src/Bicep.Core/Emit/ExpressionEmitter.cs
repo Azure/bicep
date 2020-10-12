@@ -97,6 +97,14 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
+        public void EmitModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        {
+            var resourceIdExpression = converter.GetModuleResourceIdExpression(moduleSymbol);
+            var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
+
+            writer.WriteValue(serialized);
+        }
+
         public void EmitLanguageExpression(SyntaxBase syntax)
         {
             var symbol = context.SemanticModel.GetSymbolInfo(syntax);

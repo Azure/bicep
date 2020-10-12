@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
-            return context.Compilation.GetSemanticModel().Root.AllDeclarations
+            return context.Compilation.GetEntrypointSemanticModel().Root.AllDeclarations
                 .OrderBy(symbol=>symbol.DeclaringSyntax.Span.Position)
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
         }

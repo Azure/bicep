@@ -5,6 +5,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -16,10 +17,11 @@ namespace Bicep.LangServer.UnitTests
         {
             var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create());
 
-            var context = provider.Create(DataSets.Parameters_LF.Bicep);
+            var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
+            var context = provider.Create(fileUri, DataSets.Parameters_LF.Bicep);
 
             context.Compilation.Should().NotBeNull();
-            context.Compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

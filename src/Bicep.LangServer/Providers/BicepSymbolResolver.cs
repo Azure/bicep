@@ -38,7 +38,7 @@ namespace Bicep.LanguageServer.Providers
             int offset = PositionHelper.GetOffset(context.LineStarts, position);
 
             // locate the most specific node that intersects with the text coordinate that isn't an identifier
-            SyntaxBase? node = context.Compilation.ProgramSyntax.TryFindMostSpecificNodeInclusive(offset, n => !(n is IdentifierSyntax) && !(n is Token));
+            SyntaxBase? node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(offset, n => !(n is IdentifierSyntax) && !(n is Token));
             if (node == null)
             {
                 // the program node must enclose all locations in the file, so this should not happen
@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Providers
             }
 
             // resolve symbol (if any)
-            Symbol? symbol = context.Compilation.GetSemanticModel().GetSymbolInfo(node);
+            Symbol? symbol = context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(node);
             if (symbol == null)
             {
                 // not a symbol

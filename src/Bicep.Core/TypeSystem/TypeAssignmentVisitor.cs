@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -38,7 +39,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly TypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-        private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
+        private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly IDictionary<SyntaxBase, TypeAssignment> declaredTypes;
         private readonly SyntaxHierarchy hierarchy;
@@ -47,7 +48,7 @@ namespace Bicep.Core.TypeSystem
             IResourceTypeProvider resourceTypeProvider,
             TypeManager typeManager,
             IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
-            IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax,
+            IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol,
             SyntaxHierarchy hierarchy)
         {
             this.resourceTypeProvider = resourceTypeProvider;
@@ -56,7 +57,7 @@ namespace Bicep.Core.TypeSystem
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.bindings = bindings;
-            this.cyclesBySyntax = cyclesBySyntax;
+            this.cyclesBySymbol = cyclesBySymbol;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.declaredTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.hierarchy = hierarchy;
@@ -133,22 +134,26 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
         {
-            if (cyclesBySyntax.TryGetValue(syntax, out var cycle))
+            if (!(bindings.TryGetValue(syntax, out var symbol) && (symbol is DeclaredSymbol declaredSymbol)))
+            {
+                return null;
+            }
+
+            if (declaredSymbol.DeclaringSyntax == syntax)
+            {
+                // Report cycle errors on accesses to cyclic symbols, not on the declaration itself
+                return null;
+            }
+
+            if (cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle))
             {
                 // there's a cycle. stop visiting now or we never will!
                 if (cycle.Length == 1)
                 {
-                    return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicSelfReference());
+                    return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpressionSelfReference());
                 }
 
-                var syntaxBinding = bindings[syntax];
-                
-                // show the cycle as originating from the current syntax symbol
-                var cycleSuffix = cycle.TakeWhile(x => x != syntaxBinding);
-                var cyclePrefix = cycle.Skip(cycleSuffix.Count());
-                var orderedCycle = cyclePrefix.Concat(cycleSuffix);
-
-                return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpression(orderedCycle.Select(x => x.Name)));
+                return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpression(cycle.Select(x => x.Name)));
             }
 
             return null;
@@ -189,6 +194,50 @@ namespace Bicep.Core.TypeSystem
                 }
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
+            });
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                if (!(bindings.TryGetValue(syntax, out var symbol) && symbol is ModuleSymbol moduleSymbol))
+                {
+                    // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                    return UnassignableTypeSymbol.CreateErrors(Enumerable.Empty<ErrorDiagnostic>());
+                }
+
+                var moduleSemanticModel = moduleSymbol.TryGetSemanticModel(out var failureDiagnostic);
+                if (moduleSemanticModel == null)
+                {
+                    // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureDiagnostic is non-null:
+                    // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
+                    var concreteFailureDiagnostic = failureDiagnostic ?? throw new InvalidOperationException($"Expected {nameof(moduleSymbol.TryGetSemanticModel)} to provide failure diagnostics");
+                    return UnassignableTypeSymbol.CreateErrors(concreteFailureDiagnostic);
+                }
+
+                var typeProperties = new List<TypeProperty>();
+                foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
+                {
+                    var typePropertyFlags = TypePropertyFlags.WriteOnly;
+                    if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
+                    {
+                        // if there's no default value, it must be specified
+                        typePropertyFlags |= TypePropertyFlags.Required;
+                    }
+
+                    typeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+                }
+
+                foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
+                {
+                    typeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                }
+
+                var expectedType = new NamedObjectType(
+                    syntax.Name.IdentifierName,
+                    TypeSymbolValidationFlags.Default,
+                    typeProperties,
+                    null);
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, expectedType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -698,6 +747,9 @@ namespace Bicep.Core.TypeSystem
                         // resource bodies can participate in cycles
                         // need to explicitly force a type check on the body
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, resource));
+
+                    case ModuleSymbol module:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, module));
 
                     case ParameterSymbol parameter:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, parameter));

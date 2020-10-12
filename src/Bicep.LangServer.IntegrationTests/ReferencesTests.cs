@@ -121,7 +121,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
             var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.ProgramSyntax,
+                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {

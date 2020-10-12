@@ -6,6 +6,7 @@ statement ->
   parameterDecl | 
   variableDecl |
   resourceDecl |
+  moduleDecl |
   outputDecl |
   NL
 
@@ -15,6 +16,8 @@ parameterDefaultValue -> "=" expression
 variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
 resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "=" object NL
+
+moduleDecl -> "module" IDENTIFIER(name) interpString(type) "=" object NL
 
 outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 

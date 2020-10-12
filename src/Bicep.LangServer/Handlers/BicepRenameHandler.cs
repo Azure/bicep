@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new WorkspaceEdit());
             }
 
-            var textEdits = result.Context.Compilation.GetSemanticModel()
+            var textEdits = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
                 .Select(GetIdentifier)
                 .Where(identifierSyntax => identifierSyntax != null && identifierSyntax.IsValid)

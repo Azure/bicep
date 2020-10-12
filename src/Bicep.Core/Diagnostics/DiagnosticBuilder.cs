@@ -427,7 +427,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP078",
                 $"The property \"{propertyName}\" requires a value of type \"{expectedType}\", but none was supplied.");
 
-            public ErrorDiagnostic CyclicSelfReference() => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicExpressionSelfReference() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
@@ -475,6 +475,52 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP087",
                 "Array and object literals are not allowed here.");
+
+            public ErrorDiagnostic UnableToFindPathForModule() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP088",
+                "Unable to find file path for module.");
+
+            public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP089",
+                $"An error occurred loading the module. Received failure \"{failureMessage}\".");
+
+            public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP090",
+                "String interpolation is unsupported for specifying the module path.");
+
+            public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP091",
+                $"Module \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
+
+            public ErrorDiagnostic CyclicModuleSelfReference() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP092",
+                "This module references its own declaring file, which is not allowed.");
+
+            public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP093",
+                $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
+
+            public Diagnostic UnableToOpenFile(string fileName, string exceptionMessage) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP094",
+                $"Loading file \"{fileName}\" failed with message \"{exceptionMessage}\".");
+
+            public ErrorDiagnostic ExpectedModuleIdentifier() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP095",
+                "Expected a module identifier at this location.");
+
+            public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP096",
+                "Expected a module path string.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
