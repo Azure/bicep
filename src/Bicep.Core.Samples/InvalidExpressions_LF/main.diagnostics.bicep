@@ -342,7 +342,15 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[41:48) [BCP053 (Error)] The type "object" does not contain property "fakeArr". Available properties include "anotherStr", "otherArr". |fakeArr|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[50:61) [BCP043 (Error)] This is not a valid expression. |a.b.c.bar()|
+//@[50:51) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[36:47) [BCP043 (Error)] This is not a valid expression. |a.b.c.bar()|
+//@[36:37) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
+var invalidInstanceFunctionCall = az.az()
+//@[37:39) [BCP086 (Error)] The function "az" does not exist in namespace "az". |az|
+var invalidPropertyAccessOnAzNamespace = az.az
+//@[44:46) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+var invalidPropertyAccessOnSysNamespace = sys.az
+//@[46:48) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+var invalidOperands = 1 + az
+//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "namespace". |1 + az|
 

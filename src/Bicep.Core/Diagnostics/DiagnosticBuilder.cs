@@ -457,6 +457,21 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?");
+
+            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP084",
+                $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
+
+            public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP085",
+                $"The variable value cannot be assigned, make sure it is not a namespace value.");
+
+            public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP086",
+                $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

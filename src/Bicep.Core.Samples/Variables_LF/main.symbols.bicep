@@ -105,8 +105,8 @@ var myArrWithObjects = [
 ]
 
 var expressionIndexOnAny = any({
-//@[4:24) Variable expressionIndexOnAny. Type: any. Declaration start char: 0, length: 61
-})[resourceGroup().location]
+//@[4:24) Variable expressionIndexOnAny. Type: any. Declaration start char: 0, length: 64
+})[az.resourceGroup().location]
 
 var anyIndexOnAny = any(true)[any(false)]
 //@[4:17) Variable anyIndexOnAny. Type: any. Declaration start char: 0, length: 41
@@ -146,7 +146,7 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
 var previousEmitLimit = [
-//@[4:21) Variable previousEmitLimit. Type: array. Declaration start char: 0, length: 296
+//@[4:21) Variable previousEmitLimit. Type: array. Declaration start char: 0, length: 299
   concat('s')
   '${4}'
   {
@@ -158,7 +158,7 @@ var previousEmitLimit = [
         !true
         'hello'
       ])
-      d: resourceGroup().location
+      d: az.resourceGroup().location
       e: concat([
         true
       ])
@@ -193,3 +193,20 @@ var _0a_1b = true
 //@[4:10) Variable _0a_1b. Type: bool. Declaration start char: 0, length: 17
 var _1_ = _0a_1b || (__ + _ % 2 == 0)
 //@[4:7) Variable _1_. Type: bool. Declaration start char: 0, length: 37
+
+// fully qualified access
+var resourceGroup = 'something'
+//@[4:17) Variable resourceGroup. Type: 'something'. Declaration start char: 0, length: 31
+var resourceGroupName = az.resourceGroup().name
+//@[4:21) Variable resourceGroupName. Type: any. Declaration start char: 0, length: 47
+var resourceGroupObject = az.resourceGroup()
+//@[4:23) Variable resourceGroupObject. Type: object. Declaration start char: 0, length: 44
+var propertyAccessFromObject = resourceGroupObject.name
+//@[4:28) Variable propertyAccessFromObject. Type: any. Declaration start char: 0, length: 55
+var isTrue = sys.add(1, 2) == 3
+//@[4:10) Variable isTrue. Type: bool. Declaration start char: 0, length: 31
+var isFalse = !isTrue
+//@[4:11) Variable isFalse. Type: bool. Declaration start char: 0, length: 21
+var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
+//@[4:12) Variable someText. Type: 'someText' | string. Declaration start char: 0, length: 74
+

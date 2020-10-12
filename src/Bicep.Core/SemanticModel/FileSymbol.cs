@@ -12,7 +12,7 @@ namespace Bicep.Core.SemanticModel
     {
         public FileSymbol(string name,
             ProgramSyntax syntax,
-            IEnumerable<NamespaceSymbol> importedNamespaces,
+            ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
@@ -20,14 +20,14 @@ namespace Bicep.Core.SemanticModel
             : base(name)
         {
             this.Syntax = syntax;
-            this.ImportedNamespaces = importedNamespaces.ToImmutableArray();
+            this.ImportedNamespaces = importedNamespaces;
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
         }
 
-        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces
+        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
             .Concat<Symbol>(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
@@ -37,7 +37,7 @@ namespace Bicep.Core.SemanticModel
 
         public ProgramSyntax Syntax { get; }
 
-        public ImmutableArray<NamespaceSymbol> ImportedNamespaces { get; }
+        public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
@@ -46,7 +46,7 @@ namespace Bicep.Core.SemanticModel
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
-
+        
         public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
@@ -61,13 +61,27 @@ namespace Bicep.Core.SemanticModel
                 .Where(decl => decl.NameSyntax.IsValid)
                 .GroupBy(decl => decl.Name)
                 .Where(group => group.Count() > 1);
-            
+
             foreach (IGrouping<string, DeclaredSymbol> group in duplicateSymbols)
             {
                 foreach (DeclaredSymbol duplicatedSymbol in group)
                 {
                     yield return this.CreateError(duplicatedSymbol.NameSyntax, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
                 }
+            }
+
+            var namespaceKeys = this.ImportedNamespaces.Keys;
+            var reservedSymbols = this.AllDeclarations
+                .Where(decl => decl.NameSyntax.IsValid)
+                .Where(decl => namespaceKeys.Contains(decl.Name));
+
+            foreach (DeclaredSymbol reservedSymbol in reservedSymbols)
+            {
+                yield return this.CreateError(
+                    reservedSymbol.NameSyntax, 
+                    b => b.SymbolicNameCannotUseReservedNamespaceName(
+                        reservedSymbol.Name,
+                        namespaceKeys));
             }
         }
     }

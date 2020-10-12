@@ -101,24 +101,26 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 if (dataSet.IsValid)
                 {
                     // valid cases should not return error symbols for any symbol reference node
-                    symbol.Should().NotBeOfType<ErrorSymbol>();
+                    symbol.Should().NotBeOfType<UnassignableSymbol>();
                     symbol.Should().Match(s =>
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
                 else
                 {
                     // invalid files may return errors
                     symbol.Should().Match(s =>
-                        s is ErrorSymbol ||
+                        s is UnassignableSymbol ||
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
 
                 var foundRefs = model.FindReferences(symbol!);

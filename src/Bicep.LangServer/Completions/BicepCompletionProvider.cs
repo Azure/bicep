@@ -128,8 +128,7 @@ namespace Bicep.LanguageServer.Completions
                 .Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
 
             AddAccessibleSymbols(accessibleSymbols, model.Root.ImportedNamespaces
-                .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>()));
-
+                .SelectMany(kvp => kvp.Value.Descendants.OfType<FunctionSymbol>()));
             return accessibleSymbols.Values;
         }
 

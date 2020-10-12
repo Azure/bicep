@@ -75,6 +75,7 @@ namespace Bicep.Core.Emit
                 case BinaryOperationSyntax _:
                 case TernaryOperationSyntax _:
                 case StringSyntax _:
+                case InstanceFunctionCallSyntax _:
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:

@@ -8,11 +8,11 @@ namespace Bicep.Core.SemanticModel
     /// <summary>
     /// Represents a name binding failure.
     /// </summary>
-    public class ErrorSymbol : Symbol
+    public class UnassignableSymbol : Symbol
     {
         private readonly ErrorDiagnostic error;
 
-        public ErrorSymbol(ErrorDiagnostic error) : base(error.Code)
+        public UnassignableSymbol(ErrorDiagnostic error) : base(error.Code)
         {
             this.error = error;
         }
