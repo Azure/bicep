@@ -10,27 +10,17 @@ namespace Bicep.Core.TypeSystem.Az
     public class AzResourceTypeFactory
     {
         private readonly Dictionary<SerializedTypes.Concrete.TypeBase, TypeSymbol> typeCache;
-        private readonly IReadOnlyDictionary<string, SerializedTypes.Concrete.ResourceType> resourceTypes;
-        private readonly string apiVersion;
 
-        public AzResourceTypeFactory(IEnumerable<SerializedTypes.Concrete.TypeBase> serializedTypes, string apiVersion)
+        public AzResourceTypeFactory()
         {
             typeCache = new Dictionary<SerializedTypes.Concrete.TypeBase, TypeSymbol>();
-            resourceTypes = serializedTypes.OfType<SerializedTypes.Concrete.ResourceType>()
-                .GroupBy(x => x.Name ?? throw new ArgumentException())
-                .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
-            this.apiVersion = apiVersion;
         }
 
-        public ResourceType? TryGetResourceType(ResourceTypeReference resourceTypeReference)
+        public ResourceType GetResourceType(SerializedTypes.Concrete.ResourceType resourceType)
         {
-            var typeKey = $"{resourceTypeReference.FullyQualifiedType}@{resourceTypeReference.ApiVersion}";
-            if (!resourceTypes.TryGetValue(typeKey, out var resourceType))
-            {
-                return null;
-            }
+            var output = GetTypeSymbol(resourceType, false) as ResourceType;
 
-            return GetTypeSymbol(resourceType, false) as ResourceType;
+            return output ?? throw new ArgumentException("Unable to deserialize resource type", nameof(resourceType));
         }
 
         private TypeSymbol GetTypeSymbol(SerializedTypes.Concrete.TypeBase serializedType, bool isResourceBodyType)

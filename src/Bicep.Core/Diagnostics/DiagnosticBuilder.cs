@@ -445,7 +445,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available");
+                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available.");
 
             public ErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new ErrorDiagnostic(
                 TextSpan,
