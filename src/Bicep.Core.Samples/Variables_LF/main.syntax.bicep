@@ -586,12 +586,12 @@ var myArrWithObjects = [
 //@[1:3) NewLine |\n\n|
 
 var expressionIndexOnAny = any({
-//@[0:61) VariableDeclarationSyntax
+//@[0:64) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:24)  IdentifierSyntax
 //@[4:24)   Identifier |expressionIndexOnAny|
 //@[25:26)  Assignment |=|
-//@[27:61)  ArrayAccessSyntax
+//@[27:64)  ArrayAccessSyntax
 //@[27:35)   FunctionCallSyntax
 //@[27:30)    IdentifierSyntax
 //@[27:30)     Identifier |any|
@@ -600,21 +600,25 @@ var expressionIndexOnAny = any({
 //@[31:34)     ObjectSyntax
 //@[31:32)      LeftBrace |{|
 //@[32:33)      NewLine |\n|
-})[resourceGroup().location]
+})[az.resourceGroup().location]
 //@[0:1)      RightBrace |}|
 //@[1:2)    RightParen |)|
 //@[2:3)   LeftSquare |[|
-//@[3:27)   PropertyAccessSyntax
-//@[3:18)    FunctionCallSyntax
-//@[3:16)     IdentifierSyntax
-//@[3:16)      Identifier |resourceGroup|
-//@[16:17)     LeftParen |(|
-//@[17:18)     RightParen |)|
-//@[18:19)    Dot |.|
-//@[19:27)    IdentifierSyntax
-//@[19:27)     Identifier |location|
-//@[27:28)   RightSquare |]|
-//@[28:30) NewLine |\n\n|
+//@[3:30)   PropertyAccessSyntax
+//@[3:21)    InstanceFunctionCallSyntax
+//@[3:5)     VariableAccessSyntax
+//@[3:5)      IdentifierSyntax
+//@[3:5)       Identifier |az|
+//@[5:6)     Dot |.|
+//@[6:19)     IdentifierSyntax
+//@[6:19)      Identifier |resourceGroup|
+//@[19:20)     LeftParen |(|
+//@[20:21)     RightParen |)|
+//@[21:22)    Dot |.|
+//@[22:30)    IdentifierSyntax
+//@[22:30)     Identifier |location|
+//@[30:31)   RightSquare |]|
+//@[31:33) NewLine |\n\n|
 
 var anyIndexOnAny = any(true)[any(false)]
 //@[0:41) VariableDeclarationSyntax
@@ -861,12 +865,12 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 // previously this was not possible to emit correctly
 //@[53:54) NewLine |\n|
 var previousEmitLimit = [
-//@[0:296) VariableDeclarationSyntax
+//@[0:299) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:21)  IdentifierSyntax
 //@[4:21)   Identifier |previousEmitLimit|
 //@[22:23)  Assignment |=|
-//@[24:296)  ArraySyntax
+//@[24:299)  ArraySyntax
 //@[24:25)   LeftSquare |[|
 //@[25:26)   NewLine |\n|
   concat('s')
@@ -889,16 +893,16 @@ var previousEmitLimit = [
 //@[6:8)     StringRightPiece |}'|
 //@[8:9)    NewLine |\n|
   {
-//@[2:246)   ArrayItemSyntax
-//@[2:245)    ObjectSyntax
+//@[2:249)   ArrayItemSyntax
+//@[2:248)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     a: {
-//@[4:238)     ObjectPropertySyntax
+//@[4:241)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
-//@[7:237)      ObjectSyntax
+//@[7:240)      ObjectSyntax
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       b: base64('s')
@@ -960,21 +964,25 @@ var previousEmitLimit = [
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
 //@[8:9)        NewLine |\n|
-      d: resourceGroup().location
-//@[6:34)       ObjectPropertySyntax
+      d: az.resourceGroup().location
+//@[6:37)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |d|
 //@[7:8)        Colon |:|
-//@[9:33)        PropertyAccessSyntax
-//@[9:24)         FunctionCallSyntax
-//@[9:22)          IdentifierSyntax
-//@[9:22)           Identifier |resourceGroup|
-//@[22:23)          LeftParen |(|
-//@[23:24)          RightParen |)|
-//@[24:25)         Dot |.|
-//@[25:33)         IdentifierSyntax
-//@[25:33)          Identifier |location|
-//@[33:34)        NewLine |\n|
+//@[9:36)        PropertyAccessSyntax
+//@[9:27)         InstanceFunctionCallSyntax
+//@[9:11)          VariableAccessSyntax
+//@[9:11)           IdentifierSyntax
+//@[9:11)            Identifier |az|
+//@[11:12)          Dot |.|
+//@[12:25)          IdentifierSyntax
+//@[12:25)           Identifier |resourceGroup|
+//@[25:26)          LeftParen |(|
+//@[26:27)          RightParen |)|
+//@[27:28)         Dot |.|
+//@[28:36)         IdentifierSyntax
+//@[28:36)          Identifier |location|
+//@[36:37)        NewLine |\n|
       e: concat([
 //@[6:40)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
@@ -1201,4 +1209,152 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 //@[35:36)     NumericLiteralSyntax
 //@[35:36)      Number |0|
 //@[36:37)    RightParen |)|
-//@[37:37) EndOfFile ||
+//@[37:39) NewLine |\n\n|
+
+// fully qualified access
+//@[25:26) NewLine |\n|
+var resourceGroup = 'something'
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |resourceGroup|
+//@[18:19)  Assignment |=|
+//@[20:31)  StringSyntax
+//@[20:31)   StringComplete |'something'|
+//@[31:32) NewLine |\n|
+var resourceGroupName = az.resourceGroup().name
+//@[0:47) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |resourceGroupName|
+//@[22:23)  Assignment |=|
+//@[24:47)  PropertyAccessSyntax
+//@[24:42)   InstanceFunctionCallSyntax
+//@[24:26)    VariableAccessSyntax
+//@[24:26)     IdentifierSyntax
+//@[24:26)      Identifier |az|
+//@[26:27)    Dot |.|
+//@[27:40)    IdentifierSyntax
+//@[27:40)     Identifier |resourceGroup|
+//@[40:41)    LeftParen |(|
+//@[41:42)    RightParen |)|
+//@[42:43)   Dot |.|
+//@[43:47)   IdentifierSyntax
+//@[43:47)    Identifier |name|
+//@[47:48) NewLine |\n|
+var resourceGroupObject = az.resourceGroup()
+//@[0:44) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |resourceGroupObject|
+//@[24:25)  Assignment |=|
+//@[26:44)  InstanceFunctionCallSyntax
+//@[26:28)   VariableAccessSyntax
+//@[26:28)    IdentifierSyntax
+//@[26:28)     Identifier |az|
+//@[28:29)   Dot |.|
+//@[29:42)   IdentifierSyntax
+//@[29:42)    Identifier |resourceGroup|
+//@[42:43)   LeftParen |(|
+//@[43:44)   RightParen |)|
+//@[44:45) NewLine |\n|
+var propertyAccessFromObject = resourceGroupObject.name
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:28)  IdentifierSyntax
+//@[4:28)   Identifier |propertyAccessFromObject|
+//@[29:30)  Assignment |=|
+//@[31:55)  PropertyAccessSyntax
+//@[31:50)   VariableAccessSyntax
+//@[31:50)    IdentifierSyntax
+//@[31:50)     Identifier |resourceGroupObject|
+//@[50:51)   Dot |.|
+//@[51:55)   IdentifierSyntax
+//@[51:55)    Identifier |name|
+//@[55:56) NewLine |\n|
+var isTrue = sys.add(1, 2) == 3
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:10)  IdentifierSyntax
+//@[4:10)   Identifier |isTrue|
+//@[11:12)  Assignment |=|
+//@[13:31)  BinaryOperationSyntax
+//@[13:26)   InstanceFunctionCallSyntax
+//@[13:16)    VariableAccessSyntax
+//@[13:16)     IdentifierSyntax
+//@[13:16)      Identifier |sys|
+//@[16:17)    Dot |.|
+//@[17:20)    IdentifierSyntax
+//@[17:20)     Identifier |add|
+//@[20:21)    LeftParen |(|
+//@[21:23)    FunctionArgumentSyntax
+//@[21:22)     NumericLiteralSyntax
+//@[21:22)      Number |1|
+//@[22:23)     Comma |,|
+//@[24:25)    FunctionArgumentSyntax
+//@[24:25)     NumericLiteralSyntax
+//@[24:25)      Number |2|
+//@[25:26)    RightParen |)|
+//@[27:29)   Equals |==|
+//@[30:31)   NumericLiteralSyntax
+//@[30:31)    Number |3|
+//@[31:32) NewLine |\n|
+var isFalse = !isTrue
+//@[0:21) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:11)  IdentifierSyntax
+//@[4:11)   Identifier |isFalse|
+//@[12:13)  Assignment |=|
+//@[14:21)  UnaryOperationSyntax
+//@[14:15)   Exclamation |!|
+//@[15:21)   VariableAccessSyntax
+//@[15:21)    IdentifierSyntax
+//@[15:21)     Identifier |isTrue|
+//@[21:22) NewLine |\n|
+var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
+//@[0:74) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:12)  IdentifierSyntax
+//@[4:12)   Identifier |someText|
+//@[13:14)  Assignment |=|
+//@[15:74)  TernaryOperationSyntax
+//@[15:21)   VariableAccessSyntax
+//@[15:21)    IdentifierSyntax
+//@[15:21)     Identifier |isTrue|
+//@[22:23)   Question |?|
+//@[24:61)   InstanceFunctionCallSyntax
+//@[24:27)    VariableAccessSyntax
+//@[24:27)     IdentifierSyntax
+//@[24:27)      Identifier |sys|
+//@[27:28)    Dot |.|
+//@[28:34)    IdentifierSyntax
+//@[28:34)     Identifier |concat|
+//@[34:35)    LeftParen |(|
+//@[35:39)    FunctionArgumentSyntax
+//@[35:38)     StringSyntax
+//@[35:38)      StringComplete |'a'|
+//@[38:39)     Comma |,|
+//@[40:60)    FunctionArgumentSyntax
+//@[40:60)     InstanceFunctionCallSyntax
+//@[40:43)      VariableAccessSyntax
+//@[40:43)       IdentifierSyntax
+//@[40:43)        Identifier |sys|
+//@[43:44)      Dot |.|
+//@[44:50)      IdentifierSyntax
+//@[44:50)       Identifier |concat|
+//@[50:51)      LeftParen |(|
+//@[51:55)      FunctionArgumentSyntax
+//@[51:54)       StringSyntax
+//@[51:54)        StringComplete |'b'|
+//@[54:55)       Comma |,|
+//@[56:59)      FunctionArgumentSyntax
+//@[56:59)       StringSyntax
+//@[56:59)        StringComplete |'c'|
+//@[59:60)      RightParen |)|
+//@[60:61)    RightParen |)|
+//@[62:63)   Colon |:|
+//@[64:74)   StringSyntax
+//@[64:74)    StringComplete |'someText'|
+//@[74:75) NewLine |\n|
+
+//@[0:0) EndOfFile ||

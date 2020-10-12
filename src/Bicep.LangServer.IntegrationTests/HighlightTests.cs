@@ -48,7 +48,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var highlights = await client.RequestDocumentHighlight(new DocumentHighlightParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // calculate expected highlights
@@ -92,7 +92,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var highlights = await client.RequestDocumentHighlight(new DocumentHighlightParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 highlights.Should().BeEmpty();

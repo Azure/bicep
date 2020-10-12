@@ -56,7 +56,7 @@ namespace Bicep.Core.SemanticModel
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitErrorSymbol(ErrorSymbol symbol)
+        public virtual void VisitErrorSymbol(UnassignableSymbol symbol)
         {
             VisitDescendants(symbol);
         }

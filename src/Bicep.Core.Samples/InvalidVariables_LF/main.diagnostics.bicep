@@ -120,3 +120,17 @@ var objWithInterp = {
   'ab${nonExistentIdentifier}cd': true
 //@[7:28) [BCP057 (Error)] The name "nonExistentIdentifier" does not exist in the current context. |nonExistentIdentifier|
 }
+
+// invalid fully qualified function access
+var mySum = az.add(1,2)
+//@[15:18) [BCP086 (Error)] The function "add" does not exist in namespace "az". |add|
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+//@[34:40) [BCP086 (Error)] The function "concat" does not exist in namespace "az". |concat|
+
+var resourceGroup = ''
+var rgName = resourceGroup().name
+//@[13:26) [BCP059 (Error)] The name "resourceGroup" is not a function. |resourceGroup|
+
+// invalid use of reserved namespace
+var az = 1
+//@[4:6) [BCP084 (Error)] The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys". |az|

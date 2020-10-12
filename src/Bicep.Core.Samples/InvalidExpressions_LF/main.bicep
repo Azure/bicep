@@ -210,3 +210,7 @@ var badIndexer = sampleObject.myStr['s']
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 var invalidInstanceFunctionAccess = a.b.c.bar()
+var invalidInstanceFunctionCall = az.az()
+var invalidPropertyAccessOnAzNamespace = az.az
+var invalidPropertyAccessOnSysNamespace = sys.az
+var invalidOperands = 1 + az

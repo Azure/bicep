@@ -446,7 +446,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available");
+                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available.");
 
             public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new FixableErrorDiagnostic(
                 TextSpan,
@@ -460,6 +460,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+
+            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP084",
+                $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
+
+            public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP085",
+                $"The variable value cannot be assigned, make sure it is not a namespace value.");
+
+            public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP086",
+                $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -73,3 +73,13 @@ var testDupe = {
 var objWithInterp = {
   'ab${nonExistentIdentifier}cd': true
 }
+
+// invalid fully qualified function access
+var mySum = az.add(1,2)
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+
+var resourceGroup = ''
+var rgName = resourceGroup().name
+
+// invalid use of reserved namespace
+var az = 1

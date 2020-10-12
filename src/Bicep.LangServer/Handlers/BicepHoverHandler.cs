@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,17 +71,23 @@ namespace Bicep.LanguageServer.Handlers
                 case OutputSymbol output:
                     return $"```bicep\noutput {output.Name}: {output.Type}\n```";
 
+                case NamespaceSymbol namespaceSymbol:
+                    return $"```bicep\n{namespaceSymbol.Name} namespace\n```";
+
                 case FunctionSymbol function when result.Origin is FunctionCallSyntax functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
                     // but this simplifies the checks
-                    return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetSemanticModel());
+                    return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetSemanticModel());
+
+                case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
+                    return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetSemanticModel());
 
                 default:
                     return null;
             }
         }
 
-        private static string GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntax functionCall, SemanticModel model)
+        private static string GetFunctionMarkdown(FunctionSymbol function, ImmutableArray<FunctionArgumentSyntax> arguments, SyntaxBase functionCall, SemanticModel model)
         {
             var buffer = new StringBuilder();
             buffer.Append($"```bicep\nfunction ");
@@ -88,7 +95,7 @@ namespace Bicep.LanguageServer.Handlers
             buffer.Append('(');
 
             const string argumentSeparator = ", ";
-            foreach (FunctionArgumentSyntax argumentSyntax in functionCall.Arguments)
+            foreach (FunctionArgumentSyntax argumentSyntax in arguments)
             {
                 var argumentType = model.GetTypeInfo(argumentSyntax);
                 buffer.Append(argumentType);
@@ -97,7 +104,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // remove trailing argument separator (if any)
-            if (functionCall.Arguments.Length > 0)
+            if (arguments.Length > 0)
             {
                 buffer.Remove(buffer.Length - argumentSeparator.Length, argumentSeparator.Length);
             }

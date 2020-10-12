@@ -486,6 +486,24 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "isFalse",
+    "kind": "variable",
+    "detail": "isFalse",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isFalse",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "isTrue",
+    "kind": "variable",
+    "detail": "isTrue",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isTrue",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json",
@@ -801,6 +819,15 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "propertyAccessFromObject",
+    "kind": "variable",
+    "detail": "propertyAccessFromObject",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "propertyAccessFromObject",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "providers",
     "kind": "function",
     "detail": "providers",
@@ -838,11 +865,29 @@
   },
   {
     "label": "resourceGroup",
-    "kind": "function",
+    "kind": "variable",
     "detail": "resourceGroup",
     "deprecated": false,
     "preselect": false,
     "insertText": "resourceGroup",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "resourceGroupName",
+    "kind": "variable",
+    "detail": "resourceGroupName",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resourceGroupName",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "resourceGroupObject",
+    "kind": "variable",
+    "detail": "resourceGroupObject",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resourceGroupObject",
     "insertTextFormat": "plainText"
   },
   {
@@ -870,6 +915,15 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "skip",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "someText",
+    "kind": "variable",
+    "detail": "someText",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "someText",
     "insertTextFormat": "plainText"
   },
   {

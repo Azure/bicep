@@ -83,6 +83,12 @@ namespace Bicep.LanguageServer
             base.VisitFunctionCallSyntax(syntax);
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            AddTokenType(syntax.Name, SemanticTokenType.Function);
+            base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             base.VisitIdentifierSyntax(syntax);

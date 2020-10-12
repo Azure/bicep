@@ -38,7 +38,7 @@ namespace Bicep.Core.TypeSystem
         /// <returns>Returns true if values of the specified source type are assignable to the target type. Returns false otherwise or null if assignability cannot be determined.</returns>
         public static bool? AreTypesAssignable(TypeSymbol? sourceType, TypeSymbol? targetType)
         {
-            if (sourceType == null || targetType == null || sourceType is ErrorTypeSymbol || targetType is ErrorTypeSymbol)
+            if (sourceType == null || targetType == null || sourceType is UnassignableTypeSymbol || targetType is UnassignableTypeSymbol)
             {
                 return null;
             }
@@ -150,7 +150,7 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
-            if (skipTypeErrors == false && expressionType is ErrorTypeSymbol)
+            if (skipTypeErrors == false && expressionType is UnassignableTypeSymbol)
             {
                 diagnostics.AddRange(expressionType.GetDiagnostics());
             }

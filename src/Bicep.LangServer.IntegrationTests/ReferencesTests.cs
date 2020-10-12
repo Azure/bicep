@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = true
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -90,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -143,7 +144,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 locations.Should().BeEmpty();
