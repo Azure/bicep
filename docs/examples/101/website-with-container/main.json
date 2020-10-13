@@ -21,11 +21,19 @@
     "dockerImageAndTag": {
       "type": "string",
       "defaultValue": "app/frontend:latest"
+    },
+    "acrResourceGroup": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "acrSubscription": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
     }
   },
   "functions": [],
   "variables": {
-    "containerRegistryId": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
+    "containerRegistryId": "[resourceId(parameters('acrSubscription'), parameters('acrResourceGroup'), 'Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
     "acrApiVersion": "2019-05-01",
     "websiteName": "[format('{0}-site', parameters('name'))]",
     "farmName": "[format('{0}-farm', parameters('name'))]"

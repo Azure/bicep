@@ -4,9 +4,11 @@ param location string = resourceGroup().location
 param acrName string = 'myAcr'
 param dockerUsername string = 'adminUser'
 param dockerImageAndTag string = 'app/frontend:latest'
+param acrResourceGroup string = resourceGroup().name
+param acrSubscription string = subscription().subscriptionId
 
 // external ACR info
-var containerRegistryId = resourceId('Microsoft.ContainerRegistry/registries', acrName)
+var containerRegistryId = resourceId(acrSubscription, acrResourceGroup, 'Microsoft.ContainerRegistry/registries', acrName)
 var acrApiVersion = '2019-05-01'
 
 var websiteName = '${name}-site'
