@@ -43,6 +43,44 @@ namespace Bicep.Core.UnitTests.Diagnostics
             }
         }
 
+        [TestMethod]
+        public void UnknownPropertyWithSuggestion_ProducesPreferredPropertyReplacementCodeFix()
+        {
+            var builder = DiagnosticBuilder.ForPosition(new TextSpan(0, 10));
+
+            var diagnostic = builder.UnknownPropertyWithSuggestion(false, new PrimitiveType("testType", TypeSymbolValidationFlags.Default), "networkACLs", "networkAcls");
+            diagnostic.Fixes.Should().NotBeNull();
+            diagnostic.Fixes.Should().HaveCount(1);
+
+            var fix = diagnostic.Fixes.First();
+            fix.IsPreferred.Should().BeTrue();
+            fix.Replacements.Should().NotBeNull();
+            fix.Replacements.Should().HaveCount(1);
+
+            var replacement = fix.Replacements.First();
+            replacement.Span.Should().Be(diagnostic.Span);
+            replacement.Text.Should().Be("networkAcls");
+        }
+
+        [TestMethod]
+        public void SymbolicNameDoesNotExistWithSuggestion_ProducesPreferredNameReplacementCodeFix()
+        {
+            var builder = DiagnosticBuilder.ForPosition(new TextSpan(0, 10));
+
+            var diagnostic = builder.SymbolicNameDoesNotExistWithSuggestion("hellO", "hello");
+            diagnostic.Fixes.Should().NotBeNull();
+            diagnostic.Fixes.Should().HaveCount(1);
+
+            var fix = diagnostic.Fixes.First();
+            fix.IsPreferred.Should().BeTrue();
+            fix.Replacements.Should().NotBeNull();
+            fix.Replacements.Should().HaveCount(1);
+
+            var replacement = fix.Replacements.First();
+            replacement.Span.Should().Be(diagnostic.Span);
+            replacement.Text.Should().Be("hello");
+        }
+
         private static object CreateMockParameter(ParameterInfo parameter, int index)
         {
             if (parameter.ParameterType == typeof(TypeSymbol))
