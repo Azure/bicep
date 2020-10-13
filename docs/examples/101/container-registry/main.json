@@ -39,9 +39,7 @@
     }
   },
   "functions": [],
-  "variables": {
-    "tag": ""
-  },
+  "variables": {},
   "resources": [
     {
       "type": "Microsoft.ContainerRegistry/registries",
@@ -53,8 +51,7 @@
         "tier": "[parameters('acrSku')]"
       },
       "properties": {
-        "adminUserEnabled": "[parameters('acrAdminUserEnabled')]",
-        "tag": "[variables('tag')]"
+        "adminUserEnabled": "[parameters('acrAdminUserEnabled')]"
       }
     }
   ],
