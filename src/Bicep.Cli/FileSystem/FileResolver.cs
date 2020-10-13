@@ -46,7 +46,7 @@ namespace Bicep.Cli.FileSystem
                 return GetNormalizedFileName(Path.GetFullPath(childFileName, parentDirectoryName));
             }
 
-            return null;
+            return GetNormalizedFileName(Path.Combine(parentDirectoryName, childFileName));
         }
     }
 }

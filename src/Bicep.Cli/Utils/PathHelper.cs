@@ -23,10 +23,10 @@ namespace Bicep.Cli.Utils
         {
             if (Path.IsPathFullyQualified(path))
             {
-                return path;
+                return Path.GetFullPath(path);
             }
 
-            return Path.Combine(Environment.CurrentDirectory, path);
+            return Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, path));
         }
 
         public static string GetDefaultOutputPath(string path)

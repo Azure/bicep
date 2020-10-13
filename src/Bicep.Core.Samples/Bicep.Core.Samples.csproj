@@ -22,8 +22,15 @@
     <EmbeddedResource Include="**\main.diagnostics.bicep" />
     <EmbeddedResource Include="**\main.tokens.bicep" />
     <EmbeddedResource Include="**\main.syntax.bicep" />
-    <EmbeddedResource Include="..\..\docs\examples\**\*.json" LinkBase="DocsExamples" />
-    <EmbeddedResource Include="..\..\docs\examples\**\*.bicep" LinkBase="DocsExamples" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../../docs/examples/**/*.bicep" Link="examples/%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../docs/examples/**/*.json" Link="examples/%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -68,6 +75,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
   </ItemGroup>
