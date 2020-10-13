@@ -37,7 +37,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' = {
   location: location
   sku: {
       name: acrSku
-      tier: acrSku
   }
   properties: {
       adminUserEnabled: acrAdminUserEnabled
