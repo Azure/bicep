@@ -80,7 +80,7 @@ var myArrWithObjects = [
 ]
 
 var expressionIndexOnAny = any({
-})[resourceGroup().location]
+})[az.resourceGroup().location]
 
 var anyIndexOnAny = any(true)[any(false)]
 
@@ -121,7 +121,7 @@ var previousEmitLimit = [
         !true
         'hello'
       ])
-      d: resourceGroup().location
+      d: az.resourceGroup().location
       e: concat([
         true
       ])
@@ -148,3 +148,13 @@ var _ = 3
 var __ = 10 * _
 var _0a_1b = true
 var _1_ = _0a_1b || (__ + _ % 2 == 0)
+
+// fully qualified access
+var resourceGroup = 'something'
+var resourceGroupName = az.resourceGroup().name
+var resourceGroupObject = az.resourceGroup()
+var propertyAccessFromObject = resourceGroupObject.name
+var isTrue = sys.add(1, 2) == 3
+var isFalse = !isTrue
+var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
+

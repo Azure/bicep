@@ -38,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
             var textEdits = result.Context.Compilation.GetSemanticModel()
                 .FindReferences(result.Symbol)
                 .Select(GetIdentifier)
-                .Where(identifierSyntax => identifierSyntax != null)
+                .Where(identifierSyntax => identifierSyntax != null && identifierSyntax.IsValid)
                 .Select(identifierSyntax => new TextEdit
                 {
                     Range = identifierSyntax!.ToRange(result.Context.LineStarts),

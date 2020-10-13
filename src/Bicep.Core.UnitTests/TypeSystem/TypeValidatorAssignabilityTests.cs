@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -169,21 +170,52 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.String, literalVal1).Should().BeFalse();
         }
 
+        [TestMethod]
+        public void Generic_strings_can_be_assigned_to_string_literals_with_loose_assignment()
+        {
+            var literalVal1 = new StringLiteralType("evie");
+            var literalVal2 = new StringLiteralType("casper");
+            var literalUnion = UnionType.Create(literalVal1, literalVal2);
+
+            var genericString = LanguageConstants.String;
+            var looseString = LanguageConstants.LooseString;
+
+            // both should be treated as equivalent
+            TypeValidator.AreTypesAssignable(genericString, looseString).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(looseString, genericString).Should().BeTrue();
+
+            // normal string cannot be assigned to string literal or union type of literals
+            TypeValidator.AreTypesAssignable(genericString, literalVal1).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(genericString, literalUnion).Should().BeFalse();
+
+            // loose string can be assigned to string literal and a union type of literals!
+            TypeValidator.AreTypesAssignable(looseString, literalVal1).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(looseString, literalUnion).Should().BeTrue();
+
+            // assignment from string literal works in both cases
+            TypeValidator.AreTypesAssignable(literalVal1, genericString).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(literalVal1, looseString).Should().BeTrue();
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), @object, LanguageConstants.Object).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Object, diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int).ToList();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);
 
-            errors.Should().HaveCount(1);
-            errors.Single().Message.Should().Be("Expected a value of type int but the provided value is of type object.");
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
         }
 
         [TestMethod]
@@ -191,7 +223,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int)).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -203,12 +238,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateString("foo"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+
+            diagnostics
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<string>. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.",
-                    "The property 'extra2' is not allowed on objects of type ParameterModifier<string>. Permissible properties include 'allowed', 'default', 'maxLength', 'metadata', 'minLength', 'secure'.");
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".",
+                    "The property \"extra2\" is not allowed on objects of type \"ParameterModifier<string>\". Permissible properties include \"allowed\", \"default\", \"maxLength\", \"metadata\", \"minLength\", \"secure\".");
         }
 
         [TestMethod]
@@ -219,7 +257,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -235,7 +276,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -256,12 +299,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType())
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The enclosing array expected an item of type string, but the provided item was of type bool.",
-                    "The property 'managedByExtended' expected a value of type string[] but the provided value is of type 'not an array'.",
-                    "The enclosing array expected an item of type string, but the provided item was of type int.");
+                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\".",
+                    "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\".",
+                    "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\".");
         }
 
         [TestMethod]
@@ -269,11 +315,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType()).ToList();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
 
-            errors.Should().HaveCount(1);
-
-            errors.Single().Message.Should().Be("The specified object is missing the following required properties: name.");
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -285,7 +331,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -301,12 +350,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType())
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'wrongTagType' expected a value of type string but the provided value is of type bool.",
-                    "The property 'wrongTagType2' expected a value of type string but the provided value is of type int.");
+                    "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\".",
+                    "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\".");
         }
 
         [TestMethod]
@@ -322,7 +374,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType()).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -350,7 +405,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object)).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -380,7 +438,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType)).Should().BeEmpty();
+
+            var diagnostics = new List<Diagnostic>();
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -399,9 +461,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+
+            diagnostics
                 .Should().SatisfyRespectively(
-                    x => x.Message.Should().Be("The property 'default' expected a value of type 'One' | 'Two' but the provided value is of type 'Three'."));
+                    x => x.Message.Should().Be("The property \"default\" expected a value of type \"'One' | 'Two'\" but the provided value is of type \"'Three'\"."));
         }
 
         [TestMethod]
@@ -428,7 +493,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int)).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -452,7 +520,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool)).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -482,7 +553,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array)).Should().BeEmpty();
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+
+            diagnostics.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -515,18 +589,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type string but the provided value is of type bool.",
-                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
-                    //"The property 'minValue' expected a value of type int but the provided value is of type bool.",
-                    //"The property 'maxValue' expected a value of type int but the provided value is of type string.",
-                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
-                    "The property 'allowed' expected a value of type string[] but the provided value is of type object.",
-                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<string>.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.");
+                    "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\".",
+                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
+                    //"The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    //"The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"string\".",
+                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\".",
+                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".");
         }
 
         [TestMethod]
@@ -559,18 +636,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'allowed' expected a value of type int[] but the provided value is of type object.",
-                    "The property 'minValue' expected a value of type int but the provided value is of type bool.",
-                    "The property 'default' expected a value of type int but the provided value is of type bool.",
-                    "The property 'maxValue' expected a value of type int but the provided value is of type '11'.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<int>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<int>.");
+                    "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\".",
+                    "The property \"minValue\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\".");
         }
 
         [TestMethod]
@@ -606,18 +686,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
-                    "The property 'default' expected a value of type bool but the provided value is of type int.",
-                    "The enclosing array expected an item of type bool, but the provided item was of type int.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<bool>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<bool>.");
+                    "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\".");
         }
 
         [TestMethod]
@@ -650,19 +733,22 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'secure' expected a value of type bool but the provided value is of type int.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'allowed' expected a value of type object[] but the provided value is of type object.",
-                    "The property 'default' expected a value of type object but the provided value is of type bool.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'minLength' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'maxLength' is not allowed on objects of type ParameterModifier<object>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<object>.");
+                    "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\".",
+                    "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\".");
         }
 
         [TestMethod]
@@ -695,19 +781,22 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
-            TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array))
+            var diagnostics = new List<Diagnostic>();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+
+            diagnostics
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
-                    "The property 'default' expected a value of type array but the provided value is of type bool.",
-                    "The property 'maxLength' expected a value of type int but the provided value is of type bool.",
-                    "The property 'allowed' expected a value of type array[] but the provided value is of type object.",
-                    "The property 'minLength' expected a value of type int but the provided value is of type object.",
-                    "The property 'description' expected a value of type string but the provided value is of type int.",
-                    "The property 'secure' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'minValue' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'maxValue' is not allowed on objects of type ParameterModifier<array>.",
-                    "The property 'extra' is not allowed on objects of type ParameterModifier<array>.");
+                    "The property \"default\" expected a value of type \"array\" but the provided value is of type \"bool\".",
+                    "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
+                    "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\".",
+                    "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
+                    "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
+                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
+                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\".");
         }
 
         [TestMethod]
@@ -715,79 +804,183 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var discriminatedType = new DiscriminatedObjectType(
                 "discObj",
+                TypeSymbolValidationFlags.Default,
                 "myDiscriminator",
                 new []
                 {
-                    new NamedObjectType("typeA", new []
+                    new NamedObjectType("typeA", TypeSymbolValidationFlags.Default, new []
                     { 
                         new TypeProperty("myDiscriminator", new StringLiteralType("valA")),
                         new TypeProperty("fieldA", LanguageConstants.Any, TypePropertyFlags.Required),
                     }, null),
-                    new NamedObjectType("typeB", new []
+                    new NamedObjectType("typeB", TypeSymbolValidationFlags.Default, new []
                     { 
                         new TypeProperty("myDiscriminator", new StringLiteralType("valB")),
                         new TypeProperty("fieldB", LanguageConstants.Any, TypePropertyFlags.Required),
                     }, null),
                 });
 
-            // no discriminator field supplied
-            var obj = TestSyntaxFactory.CreateObject(new []
             {
-                TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
-            });
+                // no discriminator field supplied
+                var obj = TestSyntaxFactory.CreateObject(new []
+                {
+                    TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
+                });
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
 
-            var errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
-            errors.Should().SatisfyRespectively(
-                x => {
-                    x.Message.Should().Be("The property 'myDiscriminator' requires a value of type 'valA' | 'valB', but none was supplied.");
+                diagnostics.Should().SatisfyRespectively(
+                    x => {
+                        x.Message.Should().Be("The property \"myDiscriminator\" requires a value of type \"'valA' | 'valB'\", but none was supplied.");
+                    });
+                narrowedType.Should().BeOfType<AnyType>();
+            }
+
+            {
+                // incorrect type specified for the discriminator field
+                var obj = TestSyntaxFactory.CreateObject(new []
+                {
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
+                    TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
-            // incorrect type specified for the discriminator field
-            obj = TestSyntaxFactory.CreateObject(new []
-            {
-                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>())),
-                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
-            });
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
 
-            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
-            errors.Should().SatisfyRespectively(
-                x => {
-                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type object.");
+                diagnostics.Should().SatisfyRespectively(
+                    x => {
+                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"object\".");
+                    });
+                narrowedType.Should().BeOfType<AnyType>();
+            }
+
+            {
+                // discriminator value that matches neither option supplied
+                var obj = TestSyntaxFactory.CreateObject(new []
+                {
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
                 });
 
-            // discriminator value that matches neither option supplied
-            obj = TestSyntaxFactory.CreateObject(new []
-            {
-                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
-            });
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
 
-            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
-            errors.Should().SatisfyRespectively(
-                x => {
-                    x.Message.Should().Be("The property 'myDiscriminator' expected a value of type 'valA' | 'valB' but the provided value is of type 'valC'.");
+                diagnostics.Should().SatisfyRespectively(
+                    x => {
+                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\".");
+                    });
+                narrowedType.Should().BeOfType<AnyType>();
+            }
+
+            {
+                // missing required property for the 'valB' branch
+                var obj = TestSyntaxFactory.CreateObject(new []
+                {
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
                 });
 
-            // missing required property for the 'valB' branch
-            obj = TestSyntaxFactory.CreateObject(new []
-            {
-                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
-            });
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
 
-            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
-            errors.Should().SatisfyRespectively(
-                x => {
-                    x.Message.Should().Be("The specified object is missing the following required properties: fieldB.");
+                diagnostics.Should().SatisfyRespectively(
+                    x => {
+                        x.Message.Should().Be("The specified object is missing the following required properties: \"fieldB\".");
+                    });
+
+                // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
+                narrowedType.Should().BeOfType<NamedObjectType>();
+                var discriminatorProperty = (narrowedType as NamedObjectType)!.Properties["myDiscriminator"];
+
+                // verify we've got the expected key
+                discriminatorProperty.TypeReference.Type.Should().BeOfType<StringLiteralType>();
+                (discriminatorProperty.TypeReference.Type as StringLiteralType)!.Name.Should().Be("'valB'");
+            }
+
+            {
+                // supplied the required property for the 'valB' branch
+                var obj = TestSyntaxFactory.CreateObject(new []
+                {
+                    TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
+                    TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
-            // supplied the required property for the 'valB' branch
-            obj = TestSyntaxFactory.CreateObject(new []
-            {
-                TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
-                TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
-            });
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
 
-            errors = TypeValidator.GetExpressionAssignmentDiagnostics(CreateTypeManager(), obj, discriminatedType);
-            errors.Should().BeEmpty();
+                diagnostics.Should().BeEmpty();
+                narrowedType.Should().BeOfType<NamedObjectType>();
+
+                // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
+                narrowedType.Should().BeOfType<NamedObjectType>();
+                var discriminatorProperty = (narrowedType as NamedObjectType)!.Properties["myDiscriminator"];
+
+                // verify we've got the expected key
+                discriminatorProperty.TypeReference.Type.Should().BeOfType<StringLiteralType>();
+                (discriminatorProperty.TypeReference.Type as StringLiteralType)!.Name.Should().Be("'valB'");
+            }
+        }
+
+        [TestMethod]
+        public void UnionType_narrowing_and_diagnostics_provides_expected_results()
+        {
+            var unionType = UnionType.Create(
+                LanguageConstants.String,
+                LanguageConstants.Int,
+                LanguageConstants.Bool);
+
+            {
+                // pick a valid path (int) - we should narrow the union type to just int
+                var intSyntax = TestSyntaxFactory.CreateInt(1234);
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), intSyntax, unionType, diagnostics);
+                
+                diagnostics.Should().BeEmpty();
+                narrowedType.Should().Be(LanguageConstants.Int);
+            }
+
+            {
+                // pick an invalid path (object) - we should get diagnostics
+                var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), objectSyntax, unionType, diagnostics);
+                
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
+                narrowedType.Should().Be(unionType);
+            }
+
+            {
+                // try narrowing with a string
+                var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, unionType, diagnostics);
+                
+                diagnostics.Should().BeEmpty();
+                narrowedType.Should().Be(LanguageConstants.String);
+            }
+
+            var stringLiteralUnionType = UnionType.Create(
+                new StringLiteralType("dave"),
+                new StringLiteralType("nora"));
+
+            {
+                // union of string literals with matching type
+                var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                
+                diagnostics.Should().BeEmpty();
+                narrowedType.Should().BeOfType<StringLiteralType>();
+                (narrowedType as StringLiteralType)!.Name.Should().Be("'nora'");
+            }
+
+            {
+                // union of string literals with non-matching type
+                var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
+                var diagnostics = new List<Diagnostic>();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                
+                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
+                narrowedType.Should().Be(stringLiteralUnionType);
+            }
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)
@@ -832,9 +1025,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
+            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.CreateRegistrar(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
     }
 }

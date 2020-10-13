@@ -8,9 +8,32 @@ wrong
 param myInt int
 param
 
+param 3
+param % string
+param % string 3 = 's'
+
 param myBool bool
 
 param missingType
+
+// space after identifier #completionTest(32) -> paramTypes
+param missingTypeWithSpaceAfter 
+
+// tab after identifier #completionTest(30) -> paramTypes
+param missingTypeWithTabAfter	
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+param partialType str
+
+param malformedType 44
+
+// malformed type but type check should still happen
+param malformedType2 44 = f
+
+// malformed type but type check should still happen
+param malformedModifier 44 {
+  secure: 's'
+}
 
 param myString2 string = 'string value'
 

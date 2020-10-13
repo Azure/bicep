@@ -80,7 +80,7 @@
       }
     },
     {
-      "type": "Microsoft.Web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",
@@ -88,9 +88,7 @@
         "name": "[parameters('appServicePlanTier')]",
         "capacity": "[parameters('appServicePlanInstances')]"
       },
-      "properties": {
-        "name": "[variables('hostingPlanName')]"
-      }
+      "properties": {}
     },
     {
       "type": "Microsoft.Web/sites",
@@ -121,14 +119,14 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       ]
     },
     {
       "type": "Microsoft.Web/sites/sourcecontrols",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', variables('websiteName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "repoUrl": "[parameters('repositoryUrl')]",
         "branch": "[parameters('branch')]",

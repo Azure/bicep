@@ -121,7 +121,7 @@
         "name": "[parameters('pricingTier')]"
       },
       "properties": {
-        "ManagedResourceGroupId": "[variables('managedResourceGroupId')]",
+        "managedResourceGroupId": "[variables('managedResourceGroupId')]",
         "parameters": {
           "customVirtualNetworkId": {
             "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"

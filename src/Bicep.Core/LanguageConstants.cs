@@ -35,24 +35,26 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol ResourceRef = new ResourceRefType();
-        public static readonly TypeSymbol String = new PrimitiveType("string");
+        public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
+        // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
+        public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
         public static readonly TypeSymbol Object = new ObjectType("object");
-        public static readonly TypeSymbol Int = new PrimitiveType("int");
-        public static readonly TypeSymbol Bool = new PrimitiveType("bool");
-        public static readonly TypeSymbol Null = new PrimitiveType("null");
+        public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Null = new PrimitiveType("null", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type
-        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
+        public static readonly TypeSymbol ParameterModifierMetadata = new NamedObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
-        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
+        public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
-        public static TypeSymbol? TryGetDeclarationType(string typeName)
+        public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
-            if (DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
+            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
             {
                 return primitiveType;
             }
@@ -60,16 +62,19 @@ namespace Bicep.Core
             return null;
         }
 
-        public static readonly string DeclarationTypesString = LanguageConstants.DeclarationTypes.Keys.ConcatString(ListSeparator);
-
         public static TypeSymbol CreateParameterModifierType(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
+            return new NamedObjectType($"ParameterModifier<{allowedValuesType.Name}>", TypeSymbolValidationFlags.Default, CreateParameterModifierProperties(primitiveType, allowedValuesType), additionalPropertiesType: null);
         }
 
         private static IEnumerable<TypeProperty> CreateParameterModifierProperties(TypeSymbol primitiveType, TypeSymbol allowedValuesType)
         {
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object))
+            /*
+             * The primitiveType may be set to "any" when there's a parse error in the declared type syntax node.
+             * In that case, we cannot determine which modifier properties are allowed, so we allow them all.
+             */
+
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Object) || ReferenceEquals(primitiveType, Any))
             {
                 // only string and object types have secure equivalents
                 yield return new TypeProperty("secure", Bool, TypePropertyFlags.Constant);
@@ -78,16 +83,16 @@ namespace Bicep.Core
             // default value is allowed to have expressions
             yield return new TypeProperty("default", allowedValuesType);
 
-            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType), TypePropertyFlags.Constant);
+            yield return new TypeProperty(ParameterAllowedPropertyName, new TypedArrayType(allowedValuesType, TypeSymbolValidationFlags.Default), TypePropertyFlags.Constant);
 
-            if (ReferenceEquals(primitiveType, Int))
+            if (ReferenceEquals(primitiveType, Int) || ReferenceEquals(primitiveType, Any))
             {
                 // value constraints are valid on integer parameters only
                 yield return new TypeProperty("minValue", Int, TypePropertyFlags.Constant);
                 yield return new TypeProperty("maxValue", Int, TypePropertyFlags.Constant);
             }
 
-            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array))
+            if (ReferenceEquals(primitiveType, String) || ReferenceEquals(primitiveType, Array) || ReferenceEquals(primitiveType, Any))
             {
                 // strings and arrays can have length constraints
                 yield return new TypeProperty("minLength", Int, TypePropertyFlags.Constant);
@@ -102,6 +107,14 @@ namespace Bicep.Core
             yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
+        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
+        {
+            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+        }
+
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
         {
             /*
@@ -112,13 +125,10 @@ namespace Bicep.Core
              * - apiVersion - included in resource type on resource declarations
              */
 
-            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("type", new StringLiteralType(resourceTypeReference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
-
-            yield return new TypeProperty("apiVersion", new StringLiteralType(resourceTypeReference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
+            {
+                yield return prop;
+            }
 
             // TODO: Model type fully
             yield return new TypeProperty("sku", Object);
@@ -126,7 +136,7 @@ namespace Bicep.Core
             yield return new TypeProperty("kind", String);
             yield return new TypeProperty("managedBy", String);
 
-            var stringArray = new TypedArrayType(String);
+            var stringArray = new TypedArrayType(String, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("managedByExtended", stringArray);
 
             yield return new TypeProperty("location", String);
@@ -150,7 +160,7 @@ namespace Bicep.Core
 
             yield return new TypeProperty("properties", Object);
 
-            var resourceRefArray = new TypedArrayType(ResourceRef);
+            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly);
         }
     }

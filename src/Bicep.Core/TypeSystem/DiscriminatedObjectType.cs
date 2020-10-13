@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class DiscriminatedObjectType : TypeSymbol
     {
-        public DiscriminatedObjectType(string name, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
+        public DiscriminatedObjectType(string name, TypeSymbolValidationFlags validationFlags, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
             : base(name)
         {
             var unionMembersByKey = new Dictionary<string, ITypeReference>();
@@ -36,6 +36,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
+            this.ValidationFlags = validationFlags;
             this.DiscriminatorKey = discriminatorKey;
             this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
         }
@@ -43,6 +44,8 @@ namespace Bicep.Core.TypeSystem
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
         public ImmutableDictionary<string, ITypeReference> UnionMembersByKey { get; }
+
+        public override TypeSymbolValidationFlags ValidationFlags { get; }
 
         public string DiscriminatorKey { get; }
 

@@ -81,18 +81,6 @@
     "insertTextFormat": "plainText"
   },
   {
-    "label": "array",
-    "kind": "class",
-    "detail": "array",
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "array",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
-  },
-  {
     "label": "base64",
     "kind": "function",
     "detail": "base64",
@@ -127,18 +115,6 @@
     "preselect": false,
     "insertText": "bool",
     "insertTextFormat": "plainText"
-  },
-  {
-    "label": "bool",
-    "kind": "class",
-    "detail": "bool",
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "bool",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
   },
   {
     "label": "bracketAtBeginning",
@@ -447,18 +423,6 @@
     "insertTextFormat": "plainText"
   },
   {
-    "label": "int",
-    "kind": "class",
-    "detail": "int",
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "int",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
-  },
-  {
     "label": "interp1",
     "kind": "variable",
     "detail": "interp1",
@@ -519,6 +483,24 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "intIndexer",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "isFalse",
+    "kind": "variable",
+    "detail": "isFalse",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isFalse",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "isTrue",
+    "kind": "variable",
+    "detail": "isTrue",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "isTrue",
     "insertTextFormat": "plainText"
   },
   {
@@ -792,18 +774,6 @@
     "insertTextFormat": "plainText"
   },
   {
-    "label": "object",
-    "kind": "class",
-    "detail": "object",
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "object",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
-  },
-  {
     "label": "objWithInterp",
     "kind": "variable",
     "detail": "objWithInterp",
@@ -849,6 +819,15 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "propertyAccessFromObject",
+    "kind": "variable",
+    "detail": "propertyAccessFromObject",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "propertyAccessFromObject",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "providers",
     "kind": "function",
     "detail": "providers",
@@ -886,11 +865,29 @@
   },
   {
     "label": "resourceGroup",
-    "kind": "function",
+    "kind": "variable",
     "detail": "resourceGroup",
     "deprecated": false,
     "preselect": false,
     "insertText": "resourceGroup",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "resourceGroupName",
+    "kind": "variable",
+    "detail": "resourceGroupName",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resourceGroupName",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "resourceGroupObject",
+    "kind": "variable",
+    "detail": "resourceGroupObject",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "resourceGroupObject",
     "insertTextFormat": "plainText"
   },
   {
@@ -921,6 +918,15 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "someText",
+    "kind": "variable",
+    "detail": "someText",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "someText",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "split",
     "kind": "function",
     "detail": "split",
@@ -946,18 +952,6 @@
     "preselect": false,
     "insertText": "string",
     "insertTextFormat": "plainText"
-  },
-  {
-    "label": "string",
-    "kind": "class",
-    "detail": "string",
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "string",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
   },
   {
     "label": "sub",

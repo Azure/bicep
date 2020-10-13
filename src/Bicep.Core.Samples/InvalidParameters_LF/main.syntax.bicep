@@ -25,9 +25,43 @@ param myInt int
 //@[12:15)   Identifier |int|
 //@[15:16) NewLine |\n|
 param
-//@[0:5) SkippedTriviaSyntax
+//@[0:5) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
+//@[5:5)  IdentifierSyntax
+//@[5:5)   SkippedTriviaSyntax
+//@[5:5)  SkippedTriviaSyntax
 //@[5:7) NewLine |\n\n|
+
+param 3
+//@[0:7) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Number |3|
+//@[7:7)  SkippedTriviaSyntax
+//@[7:8) NewLine |\n|
+param % string
+//@[0:14) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Modulo |%|
+//@[8:14)  TypeSyntax
+//@[8:14)   Identifier |string|
+//@[14:15) NewLine |\n|
+param % string 3 = 's'
+//@[0:22) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:7)  IdentifierSyntax
+//@[6:7)   SkippedTriviaSyntax
+//@[6:7)    Modulo |%|
+//@[8:14)  TypeSyntax
+//@[8:14)   Identifier |string|
+//@[15:22)  SkippedTriviaSyntax
+//@[15:16)   Number |3|
+//@[17:18)   Assignment |=|
+//@[19:22)   StringComplete |'s'|
+//@[22:24) NewLine |\n\n|
 
 param myBool bool
 //@[0:17) ParameterDeclarationSyntax
@@ -39,10 +73,92 @@ param myBool bool
 //@[17:19) NewLine |\n\n|
 
 param missingType
-//@[0:17) SkippedTriviaSyntax
+//@[0:17) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:17)  Identifier |missingType|
+//@[6:17)  IdentifierSyntax
+//@[6:17)   Identifier |missingType|
+//@[17:17)  SkippedTriviaSyntax
 //@[17:19) NewLine |\n\n|
+
+// space after identifier #completionTest(32) -> paramTypes
+//@[59:60) NewLine |\n|
+param missingTypeWithSpaceAfter 
+//@[0:32) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:31)  IdentifierSyntax
+//@[6:31)   Identifier |missingTypeWithSpaceAfter|
+//@[32:32)  SkippedTriviaSyntax
+//@[32:34) NewLine |\n\n|
+
+// tab after identifier #completionTest(30) -> paramTypes
+//@[57:58) NewLine |\n|
+param missingTypeWithTabAfter	
+//@[0:30) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:29)  IdentifierSyntax
+//@[6:29)   Identifier |missingTypeWithTabAfter|
+//@[30:30)  SkippedTriviaSyntax
+//@[30:32) NewLine |\n\n|
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+//@[61:62) NewLine |\n|
+param partialType str
+//@[0:21) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:17)  IdentifierSyntax
+//@[6:17)   Identifier |partialType|
+//@[18:21)  TypeSyntax
+//@[18:21)   Identifier |str|
+//@[21:23) NewLine |\n\n|
+
+param malformedType 44
+//@[0:22) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:19)  IdentifierSyntax
+//@[6:19)   Identifier |malformedType|
+//@[20:22)  SkippedTriviaSyntax
+//@[20:22)   Number |44|
+//@[22:24) NewLine |\n\n|
+
+// malformed type but type check should still happen
+//@[52:53) NewLine |\n|
+param malformedType2 44 = f
+//@[0:27) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:20)  IdentifierSyntax
+//@[6:20)   Identifier |malformedType2|
+//@[21:23)  SkippedTriviaSyntax
+//@[21:23)   Number |44|
+//@[24:27)  ParameterDefaultValueSyntax
+//@[24:25)   Assignment |=|
+//@[26:27)   VariableAccessSyntax
+//@[26:27)    IdentifierSyntax
+//@[26:27)     Identifier |f|
+//@[27:29) NewLine |\n\n|
+
+// malformed type but type check should still happen
+//@[52:53) NewLine |\n|
+param malformedModifier 44 {
+//@[0:44) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |malformedModifier|
+//@[24:26)  SkippedTriviaSyntax
+//@[24:26)   Number |44|
+//@[27:44)  ObjectSyntax
+//@[27:28)   LeftBrace |{|
+//@[28:29)   NewLine |\n|
+  secure: 's'
+//@[2:14)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |secure|
+//@[8:9)    Colon |:|
+//@[10:13)    StringSyntax
+//@[10:13)     StringComplete |'s'|
+//@[13:14)    NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
 
 param myString2 string = 'string value'
 //@[0:39) ParameterDeclarationSyntax
@@ -83,11 +199,14 @@ param myInt2 int = 42
 //@[19:21)    Number |42|
 //@[21:22) NewLine |\n|
 param noValueAfterColon int =   
-//@[0:29) SkippedTriviaSyntax
+//@[0:29) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:23)  Identifier |noValueAfterColon|
-//@[24:27)  Identifier |int|
-//@[28:29)  Assignment |=|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |noValueAfterColon|
+//@[24:27)  TypeSyntax
+//@[24:27)   Identifier |int|
+//@[28:29)  SkippedTriviaSyntax
+//@[28:29)   Assignment |=|
 //@[32:34) NewLine |\n\n|
 
 param myTruth bool = 'not a boolean'
@@ -116,12 +235,15 @@ param myFalsehood bool = 'false'
 //@[32:34) NewLine |\n\n|
 
 param wrongAssignmentToken string: 'hello'
-//@[0:42) SkippedTriviaSyntax
+//@[0:42) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
-//@[6:26)  Identifier |wrongAssignmentToken|
-//@[27:33)  Identifier |string|
-//@[33:34)  Colon |:|
-//@[35:42)  StringComplete |'hello'|
+//@[6:26)  IdentifierSyntax
+//@[6:26)   Identifier |wrongAssignmentToken|
+//@[27:33)  TypeSyntax
+//@[27:33)   Identifier |string|
+//@[33:42)  SkippedTriviaSyntax
+//@[33:34)   Colon |:|
+//@[35:42)   StringComplete |'hello'|
 //@[42:44) NewLine |\n\n|
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'

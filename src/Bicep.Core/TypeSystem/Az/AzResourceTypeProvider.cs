@@ -1,62 +1,62 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
+using Bicep.SerializedTypes.Az;
 
 namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
-            => new []
-            {
-                new TypeProperty("id", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-                new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining),
-            };
+        private readonly ITypeLoader typeLoader;
+        private readonly AzResourceTypeFactory resourceTypeFactory;
+        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
+        private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
 
-        private static (ResourceTypeReference, Func<ResourceType>) Get_Microsoft_Resources_resourceGroups_2020_06_01()
+        public AzResourceTypeProvider()
+            : this(new TypeLoader())
         {
-            // hand crafted from https://github.com/Azure/azure-resource-manager-schemas/blob/1beac911/schemas/2020-06-01/Microsoft.Resources.json
-            var reference = ResourceTypeReference.Parse("Microsoft.Resources/resourceGroups@2020-06-01");
+        }
 
-            return (reference, () => new ResourceType(
-                reference,
-                new NamedObjectType(
-                    reference.FormatName(),
-                        GetCommonResourceProperties(reference).Concat(
-                        new TypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
-                        new TypeProperty("tags", LanguageConstants.Tags, TypePropertyFlags.None)
-                    ),
-                    null)));
+        public AzResourceTypeProvider(ITypeLoader typeLoader)
+        {
+            this.typeLoader = typeLoader;
+            this.resourceTypeFactory = new AzResourceTypeFactory();
+            this.availableResourceTypes = typeLoader.ListAllAvailableTypes().ToDictionary(
+                kvp => ResourceTypeReference.Parse(kvp.Key),
+                kvp => kvp.Value,
+                ResourceTypeReferenceComparer.Instance);
+            this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
         }
 
         public ResourceType GetType(ResourceTypeReference typeReference)
         {
-            var resourceType = TryGetResource(typeReference);
-
-            if (resourceType != null)
+            if (loadedTypeCache.TryGetValue(typeReference, out var resourceType))
             {
                 return resourceType;
             }
 
-            // TODO move default definition into types assembly
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), LanguageConstants.CreateResourceProperties(typeReference), null));
+            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
+            {
+                // It's important to cache this result because LoadResourceType is an expensive operation, and
+                // duplicating types means the resourceTypeFactor won't be able to use its cache.
+                var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
+                resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
+            }
+            else
+            {
+                resourceType = new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
+            }
+
+            loadedTypeCache[typeReference] = resourceType;
+            return resourceType;
         }
 
         public bool HasType(ResourceTypeReference typeReference)
-            => TryGetResource(typeReference) != null;
+            => availableResourceTypes.ContainsKey(typeReference);
 
-        private readonly IReadOnlyDictionary<ResourceTypeReference, Func<ResourceType>> manualTypeDefinitions = new []
-        {
-            Get_Microsoft_Resources_resourceGroups_2020_06_01(),
-        }.ToDictionary(kvp => kvp.Item1, kvp => kvp.Item2, ResourceTypeReferenceComparer.Instance);
-
-        private ResourceType? TryGetResource(ResourceTypeReference typeReference)
-            => manualTypeDefinitions.TryGetValue(typeReference, out var builderFunc) ? builderFunc() : null;
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
+            => availableResourceTypes.Keys;
     }
 }

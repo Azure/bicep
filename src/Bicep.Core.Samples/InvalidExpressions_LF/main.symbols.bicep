@@ -4,22 +4,35 @@
 
 // bad expressions
 var bad = a+
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 12
 var bad = *
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 11
 var bad = /
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 11
 var bad = %
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 11
 var bad = 33-
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 13
 var bad = --33
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 14
 var bad = 3 * 4 /
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 17
 var bad = 222222222222222222222222222222222222222222 * 4
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 56
 var bad = (null) ?
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 18
 var bad = (null) ? :
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 20
 var bad = (null) ? !
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 20
 var bad = (null)!
 //@[4:7) Variable bad. Type: null. Declaration start char: 0, length: 16
 var bad = (null)[0]
 //@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 19
 var bad = ()
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 12
 var bad = 
+//@[4:7) Variable bad. Type: error. Declaration start char: 0, length: 10
 
 // variables not supported
 var x = a + 2
@@ -41,9 +54,11 @@ var not = !{
 
 // unary not chaining will be added in the future
 var not = !!!!!!!true
+//@[4:7) Variable not. Type: error. Declaration start char: 0, length: 21
 
 // unary minus chaining will not be supported (to reserve -- in case we need it)
 var minus = ------12
+//@[4:9) Variable minus. Type: error. Declaration start char: 0, length: 20
 
 // unary minus
 var minus = -true
@@ -264,6 +279,8 @@ var sampleObject = {
 
 var badProperty = sampleObject.myFake
 //@[4:15) Variable badProperty. Type: error. Declaration start char: 0, length: 37
+var badSpelling = sampleObject.myNul
+//@[4:15) Variable badSpelling. Type: error. Declaration start char: 0, length: 36
 var badPropertyIndexer = sampleObject['fake']
 //@[4:22) Variable badPropertyIndexer. Type: error. Declaration start char: 0, length: 45
 var badType = sampleObject.myStr / 32
@@ -284,4 +301,12 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[4:47) Variable invalidPropertyCallOnInstanceFunctionAccess. Type: error. Declaration start char: 0, length: 65
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[4:33) Variable invalidInstanceFunctionAccess. Type: error. Declaration start char: 0, length: 47
+var invalidInstanceFunctionCall = az.az()
+//@[4:31) Variable invalidInstanceFunctionCall. Type: error. Declaration start char: 0, length: 41
+var invalidPropertyAccessOnAzNamespace = az.az
+//@[4:38) Variable invalidPropertyAccessOnAzNamespace. Type: error. Declaration start char: 0, length: 46
+var invalidPropertyAccessOnSysNamespace = sys.az
+//@[4:39) Variable invalidPropertyAccessOnSysNamespace. Type: error. Declaration start char: 0, length: 48
+var invalidOperands = 1 + az
+//@[4:19) Variable invalidOperands. Type: error. Declaration start char: 0, length: 28
 

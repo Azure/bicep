@@ -128,7 +128,9 @@ var subnetName =  'default'
 var virtualNetwork = {
   name: replace(metadata.longName, '{0}', 'vnet')
   location: location
-  addressPrefixes: virtualNetworkAddressPrefix
+  addressPrefixes: [
+    virtualNetworkAddressPrefix
+  ]
   subnets: [
     {
       name: subnetName

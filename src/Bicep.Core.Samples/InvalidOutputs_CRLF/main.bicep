@@ -5,8 +5,28 @@ bad
 // incomplete
 output 
 
-// missing type
 output foo
+
+// space after identifier #completionTest(20) -> outputTypes
+output spaceAfterId 
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+output partialType obj
+
+// malformed identifier
+output 2
+
+// malformed type
+output malformedType 3
+
+// malformed type but type check should still happen
+output malformedType2 3 = 2 + null
+
+// malformed type assignment
+output malformedAssignment 2 = 2
+
+// malformed type before assignment
+output lol 2 = true
 
 // wrong type + missing value
 output foo fluffy

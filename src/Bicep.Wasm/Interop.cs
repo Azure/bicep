@@ -18,6 +18,8 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
+        private static readonly IResourceTypeProvider resourceTypeProvider = new AzResourceTypeProvider();
+
         private readonly IJSRuntime jsRuntime;
 
         public Interop(IJSRuntime jsRuntime)
@@ -114,8 +116,7 @@ namespace Bicep.Wasm
 
         private static Compilation GetCompilation(string text)
         {
-            var resourceTypeRegistrar = new ResourceTypeRegistrar(new AzResourceTypeProvider());
-            return new Compilation(resourceTypeRegistrar, SyntaxFactory.CreateFromText(text));
+            return new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
         }
 
         private static string ReadStreamToEnd(Stream stream)

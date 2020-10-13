@@ -26,12 +26,12 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationSnippetsShouldBeValid()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.Declaration));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -90,12 +90,12 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.Declaration));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -144,7 +144,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextInEmptyFileShouldReturnFunctionCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
@@ -162,7 +162,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(@"
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
 param p string
 var v = true
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
@@ -211,7 +211,7 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(@"
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
@@ -258,15 +258,54 @@ output length int = 42
         }
 
         [TestMethod]
-        public void NonDeclarationContextShouldReturnDeclarationTypeCompletions()
+        public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(string.Empty));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None));
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.OutputType));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
-            declarationTypeCompletions.Should().SatisfyRespectively(
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
+        {
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var provider = new BicepCompletionProvider();
+
+            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.ParameterType));
+            var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
+
+            AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
+
+            completions.Where(c => c.Kind == CompletionItemKind.Snippet).Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("secureObject");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().StartWith("object");
+                    c.InsertText.Should().Contain("secure: true");
+                    c.Detail.Should().Be("Secure object");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("secureString");
+                    c.Kind.Should().Be(CompletionItemKind.Snippet);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().StartWith("string");
+                    c.InsertText.Should().Contain("secure: true");
+                    c.Detail.Should().Be("Secure string");
+                });
+        }
+
+        private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
+        {
+            completions.Should().SatisfyRespectively(
                 c =>
                 {
                     const string expected = "array";

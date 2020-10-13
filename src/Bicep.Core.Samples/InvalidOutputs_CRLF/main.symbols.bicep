@@ -4,18 +4,50 @@ bad
 
 // incomplete
 output 
+//@[7:7) Output <missing>. Type: any. Declaration start char: 0, length: 7
 
-// missing type
 output foo
+//@[7:10) Output foo. Type: any. Declaration start char: 0, length: 10
+
+// space after identifier #completionTest(20) -> outputTypes
+output spaceAfterId 
+//@[7:19) Output spaceAfterId. Type: any. Declaration start char: 0, length: 20
+
+// partial type #completionTest(19, 20, 21, 22) -> outputTypes
+output partialType obj
+//@[7:18) Output partialType. Type: error. Declaration start char: 0, length: 22
+
+// malformed identifier
+output 2
+//@[7:8) Output <error>. Type: any. Declaration start char: 0, length: 8
+
+// malformed type
+output malformedType 3
+//@[7:20) Output malformedType. Type: any. Declaration start char: 0, length: 22
+
+// malformed type but type check should still happen
+output malformedType2 3 = 2 + null
+//@[7:21) Output malformedType2. Type: any. Declaration start char: 0, length: 34
+
+// malformed type assignment
+output malformedAssignment 2 = 2
+//@[7:26) Output malformedAssignment. Type: any. Declaration start char: 0, length: 32
+
+// malformed type before assignment
+output lol 2 = true
+//@[7:10) Output lol. Type: any. Declaration start char: 0, length: 19
 
 // wrong type + missing value
 output foo fluffy
+//@[7:10) Output foo. Type: error. Declaration start char: 0, length: 17
 
 // missing value
 output foo string
+//@[7:10) Output foo. Type: string. Declaration start char: 0, length: 17
 
 // missing value
 output foo string =
+//@[7:10) Output foo. Type: string. Declaration start char: 0, length: 19
 
 // wrong string output values
 output str string = true
@@ -40,6 +72,7 @@ output i int = [
 //@[7:8) Output i. Type: int. Declaration start char: 0, length: 19
 ]
 output i int = }
+//@[7:8) Output i. Type: int. Declaration start char: 0, length: 16
 }
 output i int = 'test'
 //@[7:8) Output i. Type: int. Declaration start char: 0, length: 21

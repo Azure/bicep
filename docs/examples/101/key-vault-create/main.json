@@ -2,13 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "name": {
+    "vaultName": {
       "type": "string",
-      "defaultValue": "bicepKeyVaultTutorial"
+      "defaultValue": "[format('keyVault{0}', uniqueString(resourceGroup().id))]"
     },
     "location": {
       "type": "string",
-      "defaultValue": "westuS"
+      "defaultValue": "[resourceGroup().location]"
     },
     "sku": {
       "type": "string",
@@ -23,7 +23,7 @@
       "defaultValue": [
         {
           "tenantId": "[parameters('tenant')]",
-          "objectId": "414d10da-615f-49a7-90a0-a7008fb31cd3",
+          "objectId": "caeebed6-cfa8-45ff-9d8a-03dba4ef9a7d",
           "permissions": {
             "keys": [
               "Get",
@@ -82,31 +82,39 @@
       "type": "bool",
       "defaultValue": false
     },
-    "enableSoftDelete": {
-      "type": "bool",
-      "defaultValue": true
-    },
     "softDeleteRetentionInDays": {
       "type": "int",
       "defaultValue": 90
     },
+    "keyName": {
+      "type": "string",
+      "defaultValue": "prodKey"
+    },
+    "secretName": {
+      "type": "string",
+      "defaultValue": "bankAccountPassword"
+    },
+    "secretValue": {
+      "type": "string",
+      "defaultValue": "12345"
+    },
     "networkAcls": {
       "type": "object",
       "defaultValue": {
-        "bypass": "AzureServices",
-        "defaultAction": "allow",
         "ipRules": [],
         "virtualNetworkRules": []
       }
     }
   },
   "functions": [],
-  "variables": {},
+  "variables": {
+    "keySize": 4096
+  },
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
-      "name": "[parameters('name')]",
+      "name": "[parameters('vaultName')]",
       "location": "[parameters('location')]",
       "properties": {
         "tenantId": "[parameters('tenant')]",
@@ -118,12 +126,46 @@
         "enabledForDeployment": "[parameters('enabledForDeployment')]",
         "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
         "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
-        "enableSoftDelete": "[parameters('enableSoftDelete')]",
         "softDeleteRetentionInDays": "[parameters('softDeleteRetentionInDays')]",
         "enableRbacAuthorization": "[parameters('enableRbacAuthorization')]",
         "networkAcls": "[parameters('networkAcls')]"
       }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/keys",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', parameters('vaultName'), parameters('keyName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "kty": "RSA",
+        "keyOps": [
+          "encrypt",
+          "decrypt"
+        ],
+        "keySize": "[if(equals(variables('keySize'), -1), json('null'), variables('keySize'))]",
+        "curveName": ""
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2018-02-14",
+      "name": "[format('{0}/{1}', parameters('vaultName'), parameters('secretName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "value": "[parameters('secretValue')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
+      ]
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "proxyKey": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[0], split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[1]), '2019-09-01', 'full')]"
+    }
+  }
 }

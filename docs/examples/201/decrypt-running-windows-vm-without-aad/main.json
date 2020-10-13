@@ -22,7 +22,7 @@
   "variables": {},
   "resources": [
     {
-      "type": "Microsoft.Compute/virtualMachines",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/AzureDiskEncryption', parameters('vmName'))]",
       "location": "[parameters('location')]",

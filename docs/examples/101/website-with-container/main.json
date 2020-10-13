@@ -32,12 +32,11 @@
   },
   "resources": [
     {
-      "type": "microsoft.web/sites",
+      "type": "Microsoft.Web/sites",
       "apiVersion": "2020-06-01",
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
-        "name": "[variables('websiteName')]",
         "siteConfig": {
           "appSettings": [
             {
@@ -59,14 +58,14 @@
           ],
           "linuxFxVersion": "[format('DOCKER|{0}.azurecr.io/{1}', parameters('acrName'), parameters('dockerImageAndTag'))]"
         },
-        "serverFarmId": "[resourceId('microsoft.web/serverFarms', variables('farmName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('farmName'))]"
       },
       "dependsOn": [
-        "[resourceId('microsoft.web/serverFarms', variables('farmName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('farmName'))]"
       ]
     },
     {
-      "type": "microsoft.web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('farmName')]",
       "location": "[parameters('location')]",
@@ -76,10 +75,8 @@
       },
       "kind": "linux",
       "properties": {
-        "name": "[variables('farmName')]",
-        "workerSize": "0",
-        "workerSizeId": "0",
-        "numberOfWorkers": "1",
+        "targetWorkerSizeId": 0,
+        "targetWorkerCount": 1,
         "reserved": true
       }
     }
@@ -87,11 +84,11 @@
   "outputs": {
     "publicUrl": {
       "type": "string",
-      "value": "[reference(resourceId('microsoft.web/sites', variables('websiteName'))).defaultHostName]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName'))).defaultHostName]"
     },
     "ftpUser": {
       "type": "string",
-      "value": "[reference(resourceId('microsoft.web/sites', variables('websiteName'))).ftpUsername]"
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('websiteName'))).ftpUsername]"
     }
   }
 }

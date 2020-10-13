@@ -33,10 +33,12 @@ resource sqlServer 'Microsoft.Sql/servers@2020-02-02-preview' = {
 resource db 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
   name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, but dependsOn was not automatically added
   location: location
+  sku: {
+    name: databaseServiceObjectiveName
+    tier: databaseEdition
+  }
   properties: {
-    edition: databaseEdition
     collation: databaseCollation
-    requestedServiceObjectiveName: databaseServiceObjectiveName
   }
 }
 

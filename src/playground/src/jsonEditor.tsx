@@ -1,3 +1,4 @@
+import * as monacoEditor from 'monaco-editor';
 import React, { useRef } from 'react';
 import MonacoEditor from 'react-monaco-editor';
 
@@ -6,7 +7,8 @@ interface JsonEditorProps {
 }
 
 export const JsonEditor : React.FC<JsonEditorProps> = props=> {
-  const options = {
+  const options: monacoEditor.editor.IStandaloneEditorConstructionOptions = {
+    scrollBeyondLastLine: false,
     automaticLayout: true,
     minimap: {
       enabled: false,

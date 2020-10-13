@@ -46,10 +46,12 @@
       "apiVersion": "2020-02-02-preview",
       "name": "[format('{0}/{1}', variables('sqlServerName'), variables('databaseName'))]",
       "location": "[parameters('location')]",
+      "sku": {
+        "name": "[variables('databaseServiceObjectiveName')]",
+        "tier": "[variables('databaseEdition')]"
+      },
       "properties": {
-        "edition": "[variables('databaseEdition')]",
-        "collation": "[variables('databaseCollation')]",
-        "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+        "collation": "[variables('databaseCollation')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"

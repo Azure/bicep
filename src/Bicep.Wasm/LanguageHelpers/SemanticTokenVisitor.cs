@@ -79,6 +79,12 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitFunctionCallSyntax(syntax);
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            AddTokenType(syntax.Name, SemanticTokenType.Function);
+            base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             base.VisitIdentifierSyntax(syntax);
@@ -116,14 +122,14 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.OutputKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitOutputDeclarationSyntax(syntax);
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.ParameterKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitParameterDeclarationSyntax(syntax);
         }
@@ -151,7 +157,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.ResourceKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitResourceDeclarationSyntax(syntax);
         }
@@ -256,7 +262,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            AddTokenType(syntax.VariableKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }

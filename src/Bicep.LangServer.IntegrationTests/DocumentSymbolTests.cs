@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,6 +14,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DocumentSymbolTests
     {
         [TestMethod]
@@ -20,7 +23,7 @@ namespace Bicep.LangServer.IntegrationTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnection(options => 
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options => 
             {
                 options.OnPublishDiagnostics(diags => {
                     diagsReceived.SetResult(diags);

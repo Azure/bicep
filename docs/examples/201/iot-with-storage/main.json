@@ -17,12 +17,12 @@
       "defaultValue": "S1"
     },
     "skuUnits": {
-      "type": "string",
-      "defaultValue": "1"
+      "type": "int",
+      "defaultValue": 1
     },
     "d2cPartitions": {
-      "type": "string",
-      "defaultValue": "4"
+      "type": "int",
+      "defaultValue": 4
     }
   },
   "functions": [],
@@ -35,7 +35,7 @@
   },
   "resources": [
     {
-      "type": "microsoft.storage/storageAccounts",
+      "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
       "location": "[parameters('location')]",
@@ -45,18 +45,18 @@
       "kind": "Storage"
     },
     {
-      "type": "microsoft.storage/storageAccounts/blobServices/containers",
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('storageContainerName'))]",
       "properties": {
         "publicAccess": "None"
       },
       "dependsOn": [
-        "[resourceId('microsoft.storage/storageAccounts', variables('storageAccountName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
     {
-      "type": "microsoft.devices/iotHubs",
+      "type": "Microsoft.Devices/IotHubs",
       "apiVersion": "2020-03-01",
       "name": "[variables('iotHubName')]",
       "location": "[parameters('location')]",
@@ -75,12 +75,12 @@
           "endpoints": {
             "storageContainers": [
               {
-                "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('microsoft.storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]",
+                "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]",
                 "containerName": "[variables('storageContainerName')]",
                 "fileNameFormat": "{iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}",
                 "batchFrequencyInSeconds": 100,
                 "maxChunkSizeInBytes": 104857600,
-                "encoding": "json",
+                "encoding": "JSON",
                 "name": "[variables('storageEndpoint')]"
               }
             ]
@@ -125,7 +125,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('microsoft.storage/storageAccounts', variables('storageAccountName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     }
   ],

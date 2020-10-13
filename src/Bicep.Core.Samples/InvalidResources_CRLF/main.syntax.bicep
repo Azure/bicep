@@ -10,33 +10,53 @@ bad
 // incomplete
 //@[13:15) NewLine |\r\n|
 resource 
-//@[0:8) SkippedTriviaSyntax
+//@[0:9) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
+//@[9:9)  IdentifierSyntax
+//@[9:9)   SkippedTriviaSyntax
+//@[9:9)  SkippedTriviaSyntax
+//@[9:9)  SkippedTriviaSyntax
+//@[9:9)  SkippedTriviaSyntax
 //@[9:11) NewLine |\r\n|
 resource foo
-//@[0:12) SkippedTriviaSyntax
+//@[0:12) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:12)  Identifier |foo|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[12:12)  SkippedTriviaSyntax
+//@[12:12)  SkippedTriviaSyntax
+//@[12:12)  SkippedTriviaSyntax
 //@[12:14) NewLine |\r\n|
 resource fo/o
-//@[0:13) SkippedTriviaSyntax
+//@[0:13) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:11)  Identifier |fo|
-//@[11:12)  Slash |/|
-//@[12:13)  Identifier |o|
+//@[9:11)  IdentifierSyntax
+//@[9:11)   Identifier |fo|
+//@[11:13)  SkippedTriviaSyntax
+//@[11:12)   Slash |/|
+//@[12:13)   Identifier |o|
+//@[13:13)  SkippedTriviaSyntax
+//@[13:13)  SkippedTriviaSyntax
 //@[13:15) NewLine |\r\n|
 resource foo 'ddd'
-//@[0:18) SkippedTriviaSyntax
+//@[0:18) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:12)  Identifier |foo|
-//@[13:18)  StringComplete |'ddd'|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:18)  StringSyntax
+//@[13:18)   StringComplete |'ddd'|
+//@[18:18)  SkippedTriviaSyntax
+//@[18:18)  SkippedTriviaSyntax
 //@[18:20) NewLine |\r\n|
 resource foo 'ddd'=
-//@[0:19) SkippedTriviaSyntax
+//@[0:19) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
-//@[9:12)  Identifier |foo|
-//@[13:18)  StringComplete |'ddd'|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:18)  StringSyntax
+//@[13:18)   StringComplete |'ddd'|
 //@[18:19)  Assignment |=|
+//@[19:19)  SkippedTriviaSyntax
 //@[19:23) NewLine |\r\n\r\n|
 
 // wrong resource type

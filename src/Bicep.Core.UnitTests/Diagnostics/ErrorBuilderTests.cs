@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
+using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
@@ -36,46 +37,60 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 
                 var diagnostic = diagnosticMethod.Invoke(builder, mockParams.ToArray()) as Diagnostic;
 
-                if (mockParams.Any())
-                {
-                    // verify that all the params are actually being written in the message
-                    diagnostic!.Message.Should().ContainAll(CollectExpectedStrings(mockParams), $"method {diagnosticMethod.Name} should use all of its parameters in the format string.");
-                }
-
                 // verify that the Code is unique
                 definedCodes.Should().NotContain(diagnostic!.Code, $"Method {diagnosticMethod.Name} should be assigned a unique error code.");
                 definedCodes.Add(diagnostic!.Code);
             }
         }
 
-        private static IEnumerable<string> CollectExpectedStrings(IEnumerable<object> mockParameters)
+        [TestMethod]
+        public void UnknownPropertyWithSuggestion_ProducesPreferredPropertyReplacementCodeFix()
         {
-            foreach (object mockParameter in mockParameters)
-            {
-                if (mockParameter is IEnumerable<object> enumerable)
-                {
-                    foreach (object inner in enumerable)
-                    {
-                        yield return inner.ToString()!;
-                    }
+            var builder = DiagnosticBuilder.ForPosition(new TextSpan(0, 10));
 
-                    continue;
-                }
+            var diagnostic = builder.UnknownPropertyWithSuggestion(false, new PrimitiveType("testType", TypeSymbolValidationFlags.Default), "networkACLs", "networkAcls");
+            diagnostic.Fixes.Should().NotBeNull();
+            diagnostic.Fixes.Should().HaveCount(1);
 
-                yield return mockParameter.ToString()!;
-            }
+            var fix = diagnostic.Fixes.First();
+            fix.IsPreferred.Should().BeTrue();
+            fix.Replacements.Should().NotBeNull();
+            fix.Replacements.Should().HaveCount(1);
+
+            var replacement = fix.Replacements.First();
+            replacement.Span.Should().Be(diagnostic.Span);
+            replacement.Text.Should().Be("networkAcls");
+        }
+
+        [TestMethod]
+        public void SymbolicNameDoesNotExistWithSuggestion_ProducesPreferredNameReplacementCodeFix()
+        {
+            var builder = DiagnosticBuilder.ForPosition(new TextSpan(0, 10));
+
+            var diagnostic = builder.SymbolicNameDoesNotExistWithSuggestion("hellO", "hello");
+            diagnostic.Fixes.Should().NotBeNull();
+            diagnostic.Fixes.Should().HaveCount(1);
+
+            var fix = diagnostic.Fixes.First();
+            fix.IsPreferred.Should().BeTrue();
+            fix.Replacements.Should().NotBeNull();
+            fix.Replacements.Should().HaveCount(1);
+
+            var replacement = fix.Replacements.First();
+            replacement.Span.Should().Be(diagnostic.Span);
+            replacement.Text.Should().Be("hello");
         }
 
         private static object CreateMockParameter(ParameterInfo parameter, int index)
         {
             if (parameter.ParameterType == typeof(TypeSymbol))
             {
-                return new PrimitiveType($"<type_{index}>");
+                return new PrimitiveType($"<type_{index}>", TypeSymbolValidationFlags.Default);
             }
 
             if (parameter.ParameterType == typeof(IList<TypeSymbol>))
             {
-                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>")};
+                return new List<TypeSymbol> {new PrimitiveType($"<list_type_{index}>", TypeSymbolValidationFlags.Default)};
             }
 
             if (parameter.ParameterType == typeof(IEnumerable<string>))
@@ -88,19 +103,24 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> {$"<value_{index}"};
             }
 
-            if (parameter.ParameterType == typeof(int))
+            if (parameter.ParameterType == typeof(int) || parameter.ParameterType == typeof(int?))
             {
                 return 0;
             }
 
-            if (parameter.ParameterType == typeof(int?))
+            if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
             {
-                return 0;
+                return false;
             }
 
             if (parameter.ParameterType == typeof(SymbolKind))
             {
                 return SymbolKind.Variable;
+            }
+
+            if (parameter.ParameterType == typeof(ResourceTypeReference))
+            {
+                return ResourceTypeReference.Parse("Mock.ErrorParam/mockResources@2020-01-01");
             }
 
             return $"<param_{index}>";

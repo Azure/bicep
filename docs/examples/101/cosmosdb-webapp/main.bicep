@@ -65,7 +65,6 @@ resource farm 'Microsoft.Web/serverFarms@2020-06-01' = {
     capacity: appServicePlanInstances
   }
   properties: {
-    name: hostingPlanName
   }
 }
 
@@ -73,7 +72,7 @@ resource website 'Microsoft.Web/sites@2020-06-01' = {
   name: websiteName
   location: location
   properties: {
-    serverFarmId: resourceId('Microsoft.Web/serverfarms', hostingPlanName)
+    serverFarmId: farm.id
     siteConfig: {
       appSettings: [
         {
@@ -99,7 +98,6 @@ resource website 'Microsoft.Web/sites@2020-06-01' = {
 
 resource srcCtrl 'Microsoft.Web/sites/sourcecontrols@2020-06-01' = {
   name: '${website.name}/web'
-  location: location
   properties: {
     repoUrl: repositoryUrl
     branch: branch

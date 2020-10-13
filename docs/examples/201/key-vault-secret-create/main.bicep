@@ -65,10 +65,10 @@ param secretsPermissions array {
 }
 
 param skuName string {
-  default: 'Standard'
+  default: 'standard'
   allowed: [
-    'Standard'
-    'Premium'
+    'standard'
+    'premium'
   ]
   metadata: {
     description: 'Specifies whether the key vault is a standard vault or a premium vault.'

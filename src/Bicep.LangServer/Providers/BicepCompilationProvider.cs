@@ -15,11 +15,11 @@ namespace Bicep.LanguageServer.Providers
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
     public class BicepCompilationProvider: ICompilationProvider
     {
-        private readonly ResourceTypeRegistrar resourceTypeRegistrar;
+        private readonly IResourceTypeProvider resourceTypeProvider;
 
-        public BicepCompilationProvider(ResourceTypeRegistrar resourceTypeRegistrar)
+        public BicepCompilationProvider(IResourceTypeProvider resourceTypeProvider)
         {
-            this.resourceTypeRegistrar = resourceTypeRegistrar;
+            this.resourceTypeProvider = resourceTypeProvider;
         }
 
         public CompilationContext Create(string text)
@@ -29,7 +29,7 @@ namespace Bicep.LanguageServer.Providers
             var parser = new Parser(text);
             var program = parser.Program();
 
-            var compilation = new Compilation(resourceTypeRegistrar, program);
+            var compilation = new Compilation(resourceTypeProvider, program);
 
             return new CompilationContext(compilation, lineStarts);
         }

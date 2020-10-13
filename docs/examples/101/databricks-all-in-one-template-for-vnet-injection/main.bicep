@@ -83,7 +83,7 @@ resource ws 'Microsoft.Databricks/workspaces@2018-04-01' = {
   }
   properties: {
     // TODO: improve once we have scoping functions
-    ManagedResourceGroupId: managedResourceGroupId
+    managedResourceGroupId: managedResourceGroupId
     parameters: {
       customVirtualNetworkId: {
         value: vnet.id

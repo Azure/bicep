@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
@@ -24,6 +25,7 @@ using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class HoverTests
     {
         [DataTestMethod]
@@ -31,10 +33,10 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -69,7 +71,9 @@ namespace Bicep.LangServer.IntegrationTests
 
                 switch (symbol!.Kind)
                 {
-                    case SymbolKind.Error:
+                    // when a namespace value is not found, instance function call contains a null hover range
+                    case SymbolKind.Error when  (symbolReference is InstanceFunctionCallSyntax && hover.Range == null):
+                    case SymbolKind.Error when !(symbolReference is InstanceFunctionCallSyntax):
                         // error symbol
                         ValidateEmptyHover(hover);
                         break;
@@ -79,6 +83,14 @@ namespace Bicep.LangServer.IntegrationTests
                         ValidateEmptyHover(hover);
                         break;
 
+                    // when a namespace value is found and there was an error with the function call or
+                    // is a valid function call or namespace access, all these cases will have a hover range
+                    // with some text
+                    case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax:
+                    case SymbolKind.Function when symbolReference is InstanceFunctionCallSyntax:
+                    case SymbolKind.Namespace:
+                        ValidateInstanceFunctionCallHover(hover);
+                        break;
                     default:
                         ValidateHover(hover, symbol);
                         break;
@@ -94,10 +106,10 @@ namespace Bicep.LangServer.IntegrationTests
             bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -169,6 +181,21 @@ namespace Bicep.LangServer.IntegrationTests
                 default:
                     throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
             }
+        }
+
+        private static void ValidateInstanceFunctionCallHover(Hover hover)
+        {
+            hover.Range.Should().NotBeNull();
+            hover.Contents.Should().NotBeNull();
+
+            hover.Contents.HasMarkedStrings.Should().BeFalse();
+            hover.Contents.HasMarkupContent.Should().BeTrue();
+            hover.Contents.MarkedStrings.Should().BeNull();
+            hover.Contents.MarkupContent.Should().NotBeNull();
+
+            hover.Contents.MarkupContent.Kind.Should().Be(MarkupKind.Markdown);
+            hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
+            hover.Contents.MarkupContent.Value.Should().EndWith("```");
         }
 
         private void ValidateEmptyHover(Hover hover)

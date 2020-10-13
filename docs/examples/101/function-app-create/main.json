@@ -13,6 +13,9 @@
     "appNamePrefix": {
       "type": "string",
       "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "workspaceResourceId": {
+      "type": "string"
     }
   },
   "functions": [],
@@ -60,10 +63,6 @@
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/default', variables('storageAccountName'))]",
-      "sku": {
-        "name": "Standard_LRS",
-        "tier": "Standard"
-      },
       "properties": {
         "cors": {
           "corsRules": []
@@ -85,14 +84,14 @@
       "kind": "web",
       "properties": {
         "Application_Type": "web",
-        "RetentionInDays": 90,
+        "WorkspaceResourceId": "[parameters('workspaceResourceId')]",
         "publicNetworkAccessForIngestion": "Enabled",
         "publicNetworkAccessForQuery": "Enabled"
       },
       "tags": "[variables('appTags')]"
     },
     {
-      "type": "Microsoft.Web/serverFarms",
+      "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('appServiceName')]",
       "location": "[parameters('location')]",
@@ -136,7 +135,7 @@
             "hostType": "Standard"
           }
         ],
-        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appServiceName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
         "reserved": false,
         "isXenon": false,
         "hyperV": false,
@@ -152,7 +151,7 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
@@ -172,14 +171,14 @@
         "clientAffinityEnabled": false,
         "clientCertEnabled": false,
         "hostNamesDisabled": false,
-        "dailyMemoryTimeQuote": 0,
+        "dailyMemoryTimeQuota": 0,
         "httpsOnly": true,
         "redundancyMode": "None"
       },
       "tags": "[variables('appTags')]",
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
-        "[resourceId('Microsoft.Web/serverFarms', variables('appServiceName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServiceName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
@@ -187,7 +186,6 @@
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', variables('functionAppName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "numberOfWorkers": -1,
         "defaultDocuments": [
@@ -269,7 +267,6 @@
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}.azurewebsites.net', variables('functionAppName'), variables('functionAppName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "siteName": "[variables('functionAppName')]",
         "hostNameType": "Verified"

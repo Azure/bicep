@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
@@ -23,6 +25,7 @@ using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class ReferencesTests
     {
         [DataTestMethod]
@@ -31,8 +34,8 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -49,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = true
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -70,8 +73,8 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -88,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 // all URIs should be the same in the results
@@ -113,8 +116,8 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
             var wrongNodes = SyntaxAggregator.Aggregate(
@@ -141,7 +144,7 @@ namespace Bicep.LangServer.IntegrationTests
                     {
                         IncludeDeclaration = false
                     },
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 locations.Should().BeEmpty();

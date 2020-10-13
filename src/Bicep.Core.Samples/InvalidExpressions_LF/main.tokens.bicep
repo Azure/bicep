@@ -1136,6 +1136,14 @@ var badProperty = sampleObject.myFake
 //@[30:31) Dot |.|
 //@[31:37) Identifier |myFake|
 //@[37:38) NewLine |\n|
+var badSpelling = sampleObject.myNul
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |badSpelling|
+//@[16:17) Assignment |=|
+//@[18:30) Identifier |sampleObject|
+//@[30:31) Dot |.|
+//@[31:36) Identifier |myNul|
+//@[36:37) NewLine |\n|
 var badPropertyIndexer = sampleObject['fake']
 //@[0:3) Identifier |var|
 //@[4:22) Identifier |badPropertyIndexer|
@@ -1255,5 +1263,39 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[45:46) LeftParen |(|
 //@[46:47) RightParen |)|
 //@[47:48) NewLine |\n|
+var invalidInstanceFunctionCall = az.az()
+//@[0:3) Identifier |var|
+//@[4:31) Identifier |invalidInstanceFunctionCall|
+//@[32:33) Assignment |=|
+//@[34:36) Identifier |az|
+//@[36:37) Dot |.|
+//@[37:39) Identifier |az|
+//@[39:40) LeftParen |(|
+//@[40:41) RightParen |)|
+//@[41:42) NewLine |\n|
+var invalidPropertyAccessOnAzNamespace = az.az
+//@[0:3) Identifier |var|
+//@[4:38) Identifier |invalidPropertyAccessOnAzNamespace|
+//@[39:40) Assignment |=|
+//@[41:43) Identifier |az|
+//@[43:44) Dot |.|
+//@[44:46) Identifier |az|
+//@[46:47) NewLine |\n|
+var invalidPropertyAccessOnSysNamespace = sys.az
+//@[0:3) Identifier |var|
+//@[4:39) Identifier |invalidPropertyAccessOnSysNamespace|
+//@[40:41) Assignment |=|
+//@[42:45) Identifier |sys|
+//@[45:46) Dot |.|
+//@[46:48) Identifier |az|
+//@[48:49) NewLine |\n|
+var invalidOperands = 1 + az
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |invalidOperands|
+//@[20:21) Assignment |=|
+//@[22:23) Number |1|
+//@[24:25) Plus |+|
+//@[26:28) Identifier |az|
+//@[28:29) NewLine |\n|
 
 //@[0:0) EndOfFile ||

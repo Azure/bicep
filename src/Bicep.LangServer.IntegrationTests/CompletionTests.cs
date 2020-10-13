@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
         public TestContext? TestContext { get; set; }
@@ -34,7 +36,7 @@ namespace Bicep.LangServer.IntegrationTests
             const string expectedSetName = "declarations";
             var uri = DocumentUri.From($"/{this.TestContext!.TestName}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(string.Empty, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
 
             var actual = await GetActualCompletions(client, uri, new Position(0, 0));
             var actualLocation = FileHelper.SaveResultFile(this.TestContext!, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
@@ -56,7 +58,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             var intermediate = new List<(Position position, JToken actual)>();
 

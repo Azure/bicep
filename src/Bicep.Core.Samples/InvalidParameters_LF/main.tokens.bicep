@@ -21,6 +21,24 @@ param
 //@[0:5) Identifier |param|
 //@[5:7) NewLine |\n\n|
 
+param 3
+//@[0:5) Identifier |param|
+//@[6:7) Number |3|
+//@[7:8) NewLine |\n|
+param % string
+//@[0:5) Identifier |param|
+//@[6:7) Modulo |%|
+//@[8:14) Identifier |string|
+//@[14:15) NewLine |\n|
+param % string 3 = 's'
+//@[0:5) Identifier |param|
+//@[6:7) Modulo |%|
+//@[8:14) Identifier |string|
+//@[15:16) Number |3|
+//@[17:18) Assignment |=|
+//@[19:22) StringComplete |'s'|
+//@[22:24) NewLine |\n\n|
+
 param myBool bool
 //@[0:5) Identifier |param|
 //@[6:12) Identifier |myBool|
@@ -31,6 +49,61 @@ param missingType
 //@[0:5) Identifier |param|
 //@[6:17) Identifier |missingType|
 //@[17:19) NewLine |\n\n|
+
+// space after identifier #completionTest(32) -> paramTypes
+//@[59:60) NewLine |\n|
+param missingTypeWithSpaceAfter 
+//@[0:5) Identifier |param|
+//@[6:31) Identifier |missingTypeWithSpaceAfter|
+//@[32:34) NewLine |\n\n|
+
+// tab after identifier #completionTest(30) -> paramTypes
+//@[57:58) NewLine |\n|
+param missingTypeWithTabAfter	
+//@[0:5) Identifier |param|
+//@[6:29) Identifier |missingTypeWithTabAfter|
+//@[30:32) NewLine |\n\n|
+
+// partial type #completionTest(18, 19, 20, 21) -> paramTypes
+//@[61:62) NewLine |\n|
+param partialType str
+//@[0:5) Identifier |param|
+//@[6:17) Identifier |partialType|
+//@[18:21) Identifier |str|
+//@[21:23) NewLine |\n\n|
+
+param malformedType 44
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |malformedType|
+//@[20:22) Number |44|
+//@[22:24) NewLine |\n\n|
+
+// malformed type but type check should still happen
+//@[52:53) NewLine |\n|
+param malformedType2 44 = f
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |malformedType2|
+//@[21:23) Number |44|
+//@[24:25) Assignment |=|
+//@[26:27) Identifier |f|
+//@[27:29) NewLine |\n\n|
+
+// malformed type but type check should still happen
+//@[52:53) NewLine |\n|
+param malformedModifier 44 {
+//@[0:5) Identifier |param|
+//@[6:23) Identifier |malformedModifier|
+//@[24:26) Number |44|
+//@[27:28) LeftBrace |{|
+//@[28:29) NewLine |\n|
+  secure: 's'
+//@[2:8) Identifier |secure|
+//@[8:9) Colon |:|
+//@[10:13) StringComplete |'s'|
+//@[13:14) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
 
 param myString2 string = 'string value'
 //@[0:5) Identifier |param|

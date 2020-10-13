@@ -11,8 +11,8 @@
     "sshRSAPublicKey": {
       "type": "string"
     },
-    "servcePrincipalClientId": {
-      "type": "secureString"
+    "servicePrincipalClientId": {
+      "type": "string"
     },
     "servicePrincipalClientSecret": {
       "type": "secureString"
@@ -58,8 +58,7 @@
             "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
             "count": "[parameters('agentCount')]",
             "vmSize": "[parameters('agentVMSize')]",
-            "osType": "Linux",
-            "storageProfile": "ManagedDisks"
+            "osType": "Linux"
           }
         ],
         "linuxProfile": {
@@ -73,7 +72,7 @@
           }
         },
         "servicePrincipalProfile": {
-          "clientId": "[parameters('servcePrincipalClientId')]",
+          "clientId": "[parameters('servicePrincipalClientId')]",
           "secret": "[parameters('servicePrincipalClientSecret')]"
         }
       }

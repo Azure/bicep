@@ -22,6 +22,19 @@ bicep --help
 ```
 
 ### macOS
+
+#### Installing via homebrew
+
+```sh
+# Add the tap for bicep
+brew tap azure/bicep https://github.com/azure/bicep
+
+# Install the tool
+brew install azure/bicep/bicep
+```
+
+#### Manual install
+
 ```sh
 # Fetch the latest Bicep CLI binary
 curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-osx-x64

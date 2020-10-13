@@ -1,0 +1,62 @@
+[
+  {
+    "label": "array",
+    "kind": "class",
+    "detail": "array",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "array",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "bool",
+    "kind": "class",
+    "detail": "bool",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "bool",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "int",
+    "kind": "class",
+    "detail": "int",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "int",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "object",
+    "kind": "class",
+    "detail": "object",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "object",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  },
+  {
+    "label": "string",
+    "kind": "class",
+    "detail": "string",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "string",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " "
+    ]
+  }
+]

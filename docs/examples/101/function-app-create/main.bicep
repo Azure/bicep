@@ -6,6 +6,7 @@ param location string = resourceGroup().location
 param functionRuntime string = 'dotnet'
 
 param appNamePrefix string = uniqueString(resourceGroup().id)
+param workspaceResourceId string
 
 var functionAppName = '${appNamePrefix}-functionapp'
 var appServiceName = '${appNamePrefix}-appservice'
@@ -51,10 +52,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 // Blob Services for Storage Account
 resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2019-06-01' = {
   name: '${storageAccount.name}/default'
-  sku: {
-    name: 'Standard_LRS'
-    tier: 'Standard'
-  }
   properties: {
     cors: {
       corsRules: []
@@ -73,7 +70,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
   kind: 'web'
   properties: {
     Application_Type: 'web'
-    RetentionInDays: 90
+    WorkspaceResourceId: workspaceResourceId
     publicNetworkAccessForIngestion: 'Enabled'
     publicNetworkAccessForQuery: 'Enabled'
   }
@@ -160,7 +157,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
     clientAffinityEnabled: false
     clientCertEnabled: false
     hostNamesDisabled: false
-    dailyMemoryTimeQuote: 0
+    dailyMemoryTimeQuota: 0
     httpsOnly: true
     redundancyMode: 'None'
   }
@@ -170,7 +167,6 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
 // Function App Config
 resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${functionApp.name}/web'
-  location: location
   properties: {
     numberOfWorkers: -1
     defaultDocuments: [
@@ -249,7 +245,6 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
 // Function App Binding
 resource functionAppBinding 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
   name: '${functionApp.name}/${functionApp.name}.azurewebsites.net'
-  location: location
   properties: {
     siteName: functionAppName
     hostNameType: 'Verified'

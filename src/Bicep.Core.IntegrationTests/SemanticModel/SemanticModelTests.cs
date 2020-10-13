@@ -27,7 +27,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
 
             string getLoggingString(Diagnostic diagnostic)
@@ -49,7 +49,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText("parameter "));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText("parameter "));
             compilation.GetSemanticModel().GetParseDiagnostics();
         }
 
@@ -57,7 +57,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var model = compilation.GetSemanticModel();
 
             var symbols = SymbolCollector
@@ -85,7 +85,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void NameBindingsShouldBeConsistent(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             
             var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
 
@@ -101,24 +101,26 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 if (dataSet.IsValid)
                 {
                     // valid cases should not return error symbols for any symbol reference node
-                    symbol.Should().NotBeOfType<ErrorSymbol>();
+                    symbol.Should().NotBeOfType<UnassignableSymbol>();
                     symbol.Should().Match(s =>
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
                 else
                 {
                     // invalid files may return errors
                     symbol.Should().Match(s =>
-                        s is ErrorSymbol ||
+                        s is UnassignableSymbol ||
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is OutputSymbol ||
-                        s is FunctionSymbol);
+                        s is FunctionSymbol ||
+                        s is NamespaceSymbol);
                 }
 
                 var foundRefs = model.FindReferences(symbol!);
@@ -138,7 +140,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
 
             var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
 

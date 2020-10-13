@@ -12,6 +12,19 @@ var
 //@[0:3) Identifier |var|
 //@[3:5) NewLine |\n\n|
 
+// incomplete keyword
+//@[21:22) NewLine |\n|
+// #completionTest(0,1) -> declarations
+//@[39:40) NewLine |\n|
+v
+//@[0:1) Identifier |v|
+//@[1:2) NewLine |\n|
+// #completionTest(0,1,2) -> declarations
+//@[41:42) NewLine |\n|
+va
+//@[0:2) Identifier |va|
+//@[2:4) NewLine |\n\n|
+
 // unassigned variable
 //@[22:23) NewLine |\n|
 var foo
@@ -19,12 +32,55 @@ var foo
 //@[4:7) Identifier |foo|
 //@[7:9) NewLine |\n\n|
 
+// malformed identifier
+//@[23:24) NewLine |\n|
+var 2 
+//@[0:3) Identifier |var|
+//@[4:5) Number |2|
+//@[6:7) NewLine |\n|
+var $ = 23
+//@[0:3) Identifier |var|
+//@[4:5) Unrecognized |$|
+//@[6:7) Assignment |=|
+//@[8:10) Number |23|
+//@[10:11) NewLine |\n|
+var # 33 = 43
+//@[0:3) Identifier |var|
+//@[4:5) Unrecognized |#|
+//@[6:8) Number |33|
+//@[9:10) Assignment |=|
+//@[11:13) Number |43|
+//@[13:15) NewLine |\n\n|
+
 // no value assigned
 //@[20:21) NewLine |\n|
 var foo =
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |foo|
 //@[8:9) Assignment |=|
+//@[9:11) NewLine |\n\n|
+
+// bad =
+//@[8:9) NewLine |\n|
+var badEquals 2
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |badEquals|
+//@[14:15) Number |2|
+//@[15:16) NewLine |\n|
+var badEquals2 3 true
+//@[0:3) Identifier |var|
+//@[4:14) Identifier |badEquals2|
+//@[15:16) Number |3|
+//@[17:21) TrueKeyword |true|
+//@[21:23) NewLine |\n\n|
+
+// malformed identifier but type check should happen regardless
+//@[63:64) NewLine |\n|
+var 2 = x
+//@[0:3) Identifier |var|
+//@[4:5) Number |2|
+//@[6:7) Assignment |=|
+//@[8:9) Identifier |x|
 //@[9:11) NewLine |\n\n|
 
 // bad token value
@@ -205,4 +261,66 @@ var objWithInterp = {
 //@[38:39) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// invalid fully qualified function access
+//@[42:43) NewLine |\n|
+var mySum = az.add(1,2)
+//@[0:3) Identifier |var|
+//@[4:9) Identifier |mySum|
+//@[10:11) Assignment |=|
+//@[12:14) Identifier |az|
+//@[14:15) Dot |.|
+//@[15:18) Identifier |add|
+//@[18:19) LeftParen |(|
+//@[19:20) Number |1|
+//@[20:21) Comma |,|
+//@[21:22) Number |2|
+//@[22:23) RightParen |)|
+//@[23:24) NewLine |\n|
+var myConcat = sys.concat('a', az.concat('b', 'c'))
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |myConcat|
+//@[13:14) Assignment |=|
+//@[15:18) Identifier |sys|
+//@[18:19) Dot |.|
+//@[19:25) Identifier |concat|
+//@[25:26) LeftParen |(|
+//@[26:29) StringComplete |'a'|
+//@[29:30) Comma |,|
+//@[31:33) Identifier |az|
+//@[33:34) Dot |.|
+//@[34:40) Identifier |concat|
+//@[40:41) LeftParen |(|
+//@[41:44) StringComplete |'b'|
+//@[44:45) Comma |,|
+//@[46:49) StringComplete |'c'|
+//@[49:50) RightParen |)|
+//@[50:51) RightParen |)|
+//@[51:53) NewLine |\n\n|
+
+var resourceGroup = ''
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |resourceGroup|
+//@[18:19) Assignment |=|
+//@[20:22) StringComplete |''|
+//@[22:23) NewLine |\n|
+var rgName = resourceGroup().name
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |rgName|
+//@[11:12) Assignment |=|
+//@[13:26) Identifier |resourceGroup|
+//@[26:27) LeftParen |(|
+//@[27:28) RightParen |)|
+//@[28:29) Dot |.|
+//@[29:33) Identifier |name|
+//@[33:35) NewLine |\n\n|
+
+// invalid use of reserved namespace
+//@[36:37) NewLine |\n|
+var az = 1
+//@[0:3) Identifier |var|
+//@[4:6) Identifier |az|
+//@[7:8) Assignment |=|
+//@[9:10) Number |1|
+//@[10:10) EndOfFile ||

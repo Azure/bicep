@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
@@ -25,6 +26,7 @@ using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class RenameSymbolTests
     {
         [DataTestMethod]
@@ -33,8 +35,8 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -45,7 +47,10 @@ namespace Bicep.LangServer.IntegrationTests
             var validVariableAccessPairs = symbolTable
                 .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is IDeclarationSyntax)
                                && pair.Value.Kind != SymbolKind.Error
-                               && pair.Value.Kind != SymbolKind.Function);
+                               && pair.Value.Kind != SymbolKind.Function
+                               && pair.Value.Kind != SymbolKind.Namespace
+                               // symbols whose identifiers have parse errors will have a name like <error> or <missing>
+                               && pair.Value.Name.Contains("<") == false);
 
             const string expectedNewText = "NewIdentifier";
             foreach (var (syntax, symbol) in validVariableAccessPairs)
@@ -54,7 +59,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = expectedNewText,
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();
@@ -77,8 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -92,7 +97,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = "NewIdentifier",
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();
@@ -109,8 +114,8 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithText(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.CreateRegistrar(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
 
@@ -139,7 +144,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     NewName = "NewIdentifier",
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, syntax.Span.Position)
+                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
                 edit.DocumentChanges.Should().BeNullOrEmpty();

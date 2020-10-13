@@ -16,8 +16,8 @@ param mySqlPassword string {
 
 param location string = resourceGroup().location
 
-var cpuCores = '0.5'
-var memoryInGb = '0.7'
+var cpuCores = any('0.5') // TODO: workaround for https://github.com/Azure/bicep/issues/486
+var memoryInGb = any('0.7') // TODO: workaround for https://github.com/Azure/bicep/issues/486
 var scriptName = 'createFileShare'
 var wpShareName = 'wordpress-share'
 var sqlShareName = 'mysql-share'
@@ -35,7 +35,6 @@ resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-previe
     properties: {
         roleDefinitionId: roleDefinitionId
         principalId: mi.properties.principalId
-        scope: resourceGroup().id
         principalType: 'ServicePrincipal'
     }
 }
@@ -43,13 +42,11 @@ resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-previe
 var uamiId = resourceId(mi.type, mi.name)
 
 resource stg 'microsoft.storage/storageAccounts@2019-06-01' = {
+    dependsOn: [
+      miRoleAssign
+    ]
     name: storageAccountName
     location: location
-    tags: {
-      // todo: switch to dependsOn
-      // in quickstart template, they set a manual dependsOn to give time for the role assignment
-      fakeDependsOn: miRoleAssign.id
-    }
     sku: {
         name: storageAccountType
     }
@@ -65,9 +62,7 @@ resource dScriptWp 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = 
     identity: {
         type: 'UserAssigned'
         userAssignedIdentities: {
-            // todo - add expression once properties can be set as strings
-            replaceWithId: {
-            }
+            '${uamiId}': {}
         }
     }
     properties: {
@@ -92,9 +87,7 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
     identity: {
         type: 'UserAssigned'
         userAssignedIdentities: {
-            // todo - add expression once properties can be set as strings
-            replaceWithId: {
-            }
+            '${uamiId}': {}
         }
     }
     properties: {
@@ -112,13 +105,12 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
 }
 
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
+  dependsOn: [
+    dScriptSql
+    dScriptWp
+  ]
   name: 'wordpress-containerinstance'
   location: location
-  // todo - replace tags with dependsOn
-  tags: {
-    fakeDependsOn1: dScriptSql.id
-    fakeDependsOn2: dScriptWp.id
-  }
   properties: {
     containers: [
       {
@@ -127,7 +119,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
           image: 'wordpress:4.9-apache'
           ports: [
             {
-              protocol: 'Tcp'
+              protocol: 'TCP'
               port: 80
             }
           ]
@@ -150,7 +142,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
           resources: {
             requests: {
               cpu: cpuCores
-              memoryInGb: memoryInGb
+              memoryInGB: memoryInGb
             }
           }
         }
@@ -161,7 +153,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
           image: 'mysql:5.6'
           ports: [
             {
-              protocol: 'Tcp'
+              protocol: 'TCP'
               port: 3306
             }
           ]
@@ -180,7 +172,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
           resources: {
             requests: {
               cpu: cpuCores
-              memoryInGb: memoryInGb
+              memoryInGB: memoryInGb
             }
           }
         }
@@ -207,7 +199,7 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
     ipAddress: {
       ports: [
         {
-          protocol: 'Tcp'
+          protocol: 'TCP'
           port: 80
         }
       ]
