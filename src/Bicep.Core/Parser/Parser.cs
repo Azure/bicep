@@ -139,7 +139,7 @@ namespace Bicep.Core.Parser
         private SyntaxBase ParameterDefaultValue()
         {
             var assignmentToken = this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
-            SyntaxBase defaultValue = this.Expression();
+            SyntaxBase defaultValue = this.Expression(allowComplexLiterals: true);
 
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
         }
@@ -149,7 +149,7 @@ namespace Bicep.Core.Parser
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
@@ -160,7 +160,7 @@ namespace Bicep.Core.Parser
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
             var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
-            var value = this.WithRecovery(this.Expression, GetSuppressionFlag(assignment), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
         }
@@ -198,16 +198,16 @@ namespace Bicep.Core.Parser
             return Expect(TokenType.NewLine, b => b.ExpectedNewLine());
         }
 
-        public SyntaxBase Expression()
+        public SyntaxBase Expression(bool allowComplexLiterals)
         {
-            var candidate = this.BinaryExpression();
+            var candidate = this.BinaryExpression(allowComplexLiterals);
 
             if (this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
-                var trueExpression = this.Expression();
+                var trueExpression = this.Expression(allowComplexLiterals);
                 var colon = this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
-                var falseExpression = this.Expression();
+                var falseExpression = this.Expression(allowComplexLiterals);
 
                 return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
             }
@@ -215,9 +215,9 @@ namespace Bicep.Core.Parser
             return candidate;
         }
 
-        private SyntaxBase BinaryExpression(int precedence = 0)
+        private SyntaxBase BinaryExpression(bool allowComplexLiterals, int precedence = 0)
         {
-            var current = this.UnaryExpression();
+            var current = this.UnaryExpression(allowComplexLiterals);
 
             while (true)
             {
@@ -234,14 +234,14 @@ namespace Bicep.Core.Parser
 
                 this.reader.Read();
 
-                SyntaxBase rightExpression = this.BinaryExpression(operatorPrecedence);
+                SyntaxBase rightExpression = this.BinaryExpression(allowComplexLiterals, operatorPrecedence);
                 current = new BinaryOperationSyntax(current, candidateOperatorToken, rightExpression);
             }
 
             return current;
         }
 
-        private SyntaxBase UnaryExpression()
+        private SyntaxBase UnaryExpression(bool allowComplexLiterals)
         {
             Token operatorToken = this.reader.Peek();
 
@@ -249,16 +249,16 @@ namespace Bicep.Core.Parser
             {
                 this.reader.Read();
 
-                var expression = this.MemberExpression();
+                var expression = this.MemberExpression(allowComplexLiterals);
                 return new UnaryOperationSyntax(operatorToken, expression);
             }
 
-            return this.MemberExpression();
+            return this.MemberExpression(allowComplexLiterals);
         }
 
-        private SyntaxBase MemberExpression()
+        private SyntaxBase MemberExpression(bool allowComplexLiterals)
         {
-            var current = this.PrimaryExpression();
+            var current = this.PrimaryExpression(allowComplexLiterals);
 
             while (true)
             {
@@ -266,7 +266,7 @@ namespace Bicep.Core.Parser
                 {
                     // array indexer
                     Token openSquare = this.reader.Read();
-                    SyntaxBase indexExpression = this.Expression();
+                    SyntaxBase indexExpression = this.Expression(allowComplexLiterals);
                     Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
                     current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
@@ -282,7 +282,7 @@ namespace Bicep.Core.Parser
 
                     if (Check(TokenType.LeftParen))
                     {
-                        var functionCall = FunctionCallAccess(identifier);
+                        var functionCall = FunctionCallAccess(identifier, allowComplexLiterals);
 
                         // gets instance function call
                         current = new InstanceFunctionCallSyntax(
@@ -307,7 +307,7 @@ namespace Bicep.Core.Parser
             return current;
         }
 
-        private SyntaxBase PrimaryExpression()
+        private SyntaxBase PrimaryExpression(bool allowComplexLiterals)
         {
             Token nextToken = this.reader.Peek();
 
@@ -323,39 +323,43 @@ namespace Bicep.Core.Parser
                 case TokenType.StringLeftPiece:
                     return this.InterpolableString();
 
-                case TokenType.LeftBrace:
+                case TokenType.LeftBrace when allowComplexLiterals:
                     return this.Object();
 
-                case TokenType.LeftSquare:
+                case TokenType.LeftSquare when allowComplexLiterals:
                     return this.Array();
 
+                case TokenType.LeftBrace:
+                case TokenType.LeftSquare:
+                    throw new ExpectedTokenException(nextToken, b => b.ComplexLiteralsNotAllowed());
+
                 case TokenType.LeftParen:
-                    return this.ParenthesizedExpression();
+                    return this.ParenthesizedExpression(allowComplexLiterals);
 
                 case TokenType.Identifier:
-                    return this.FunctionCallOrVariableAccess();
+                    return this.FunctionCallOrVariableAccess(allowComplexLiterals);
 
                 default:
                     throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
             }
         }
 
-        private SyntaxBase ParenthesizedExpression()
+        private SyntaxBase ParenthesizedExpression(bool allowComplexLiterals)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expression = this.Expression();
+            var expression = this.Expression(allowComplexLiterals);
             var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
         }
 
-        private SyntaxBase FunctionCallOrVariableAccess()
+        private SyntaxBase FunctionCallOrVariableAccess(bool allowComplexLiterals)
         {
             var identifier = this.Identifier(b => b.ExpectedVariableOrFunctionName());
 
             if (Check(TokenType.LeftParen))
             {
-                var functionCall = FunctionCallAccess(identifier);
+                var functionCall = FunctionCallAccess(identifier, allowComplexLiterals);
 
                 return new FunctionCallSyntax(
                     functionCall.Identifier,
@@ -370,11 +374,11 @@ namespace Bicep.Core.Parser
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName)
+        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, bool allowComplexLiterals)
         {
            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
-            var argumentNodes = FunctionCallArguments();
+            var argumentNodes = FunctionCallArguments(allowComplexLiterals);
 
             var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
@@ -386,7 +390,8 @@ namespace Bicep.Core.Parser
         /// This method stops when a right paren is found without consuming it, a caller must
         /// consume the right paren token.
         /// </summary>
-        private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments()
+        /// <param name="allowComplexLiterals"></param>
+        private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(bool allowComplexLiterals)
         {
             if (this.Check(TokenType.RightParen))
             {
@@ -397,7 +402,7 @@ namespace Bicep.Core.Parser
 
             while (true)
             {
-                var expression = this.Expression();
+                var expression = this.Expression(allowComplexLiterals);
                 arguments.Add((expression, null));
 
                 if (this.Check(TokenType.RightParen))
@@ -522,7 +527,8 @@ namespace Bicep.Core.Parser
 
                     // Look for an expression syntax inside the interpolation 'hole' (between "${" and "}").
                     // The lexer doesn't allow an expression contained inside an interpolation to span multiple lines, so we can safely use recovery to look for a NewLine character.
-                    var interpExpression = WithRecovery(Expression, RecoveryFlags.None, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
+                    // We are also blocking complex literals (arrays and objects) from inside string interpolation
+                    var interpExpression = WithRecovery(() => Expression(allowComplexLiterals: false), RecoveryFlags.None, TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine);
                     if (!Check(TokenType.StringMiddlePiece, TokenType.StringRightPiece, TokenType.NewLine))
                     {
                         // We may have successfully parsed the expression, but have not reached the end of the expression hole. Skip to the end of the hole.
@@ -661,7 +667,7 @@ namespace Bicep.Core.Parser
         {
             return this.WithRecovery(() =>
             {
-                var value = this.Expression();
+                var value = this.Expression(allowComplexLiterals: true);
                 var newLines = this.NewLines();
 
                 return new ArrayItemSyntax(value, newLines);
@@ -676,42 +682,63 @@ namespace Bicep.Core.Parser
             {
                 // allow a close on the same line for an empty object
                 var emptyCloseBrace = reader.Read();
-                return new ObjectSyntax(openBrace, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBrace);
+                return new ObjectSyntax(openBrace, ImmutableArray<SyntaxBase>.Empty, emptyCloseBrace);
             }
 
-            var newLines = this.NewLines();
-
-            var properties = new List<SyntaxBase>();
-            while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightBrace)
+            var propertiesOrTokens = new List<SyntaxBase>();
+            while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightBrace)
             {
-                var property = this.ObjectProperty();
-                properties.Add(property);
+                // this produces a property node, skipped tokens node, or just a newline token
+                var propertyOrToken = this.ObjectProperty();
+                propertiesOrTokens.Add(propertyOrToken);
+
+                // if skipped tokens node is returned above, the newline is not consumed
+                // if newline token is returned, we must not expect another (could be beginning of a new property)
+                if (propertyOrToken is ObjectPropertySyntax)
+                {
+                    // properties must be followed by newlines
+                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+                    if (newLine != null)
+                    {
+                        propertiesOrTokens.Add(newLine);
+                    }
+                }
             }
 
             var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
 
-            return new ObjectSyntax(openBrace, newLines, properties, closeBrace);
+            return new ObjectSyntax(openBrace, propertiesOrTokens, closeBrace);
         }
 
         private SyntaxBase ObjectProperty()
         {
-            return this.WithRecovery(() =>
+            return this.WithRecovery<SyntaxBase>(() =>
             {
+                // TODO: Clean this up a bit
                 var current = this.reader.Peek();
-                var key = ThrowIfSkipped(() => 
-                    current.Type switch {
-                        TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
-                        TokenType.StringComplete => this.InterpolableString(),
-                        TokenType.StringLeftPiece => this.InterpolableString(),
-                        _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
-                    }, b => b.ExpectedPropertyName());
+                if (current.Type == TokenType.NewLine)
+                {
+                    return this.NewLine();
+                }
 
-                var colon = Expect(TokenType.Colon, b => b.ExpectedCharacter(":"));
-                var value = Expression();
-                var newLines = this.NewLines();
+                var key = this.WithRecovery(
+                    () => ThrowIfSkipped(
+                        () =>
+                            current.Type switch
+                            {
+                                TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                                TokenType.StringComplete => this.InterpolableString(),
+                                TokenType.StringLeftPiece => this.InterpolableString(),
+                                _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                            }, b => b.ExpectedPropertyName()),
+                    RecoveryFlags.None,
+                    TokenType.Colon, TokenType.NewLine);
 
-                return new ObjectPropertySyntax(key, colon, value, newLines);
-            }, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+                var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine);
+                var value = this.WithRecovery(() => Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.NewLine);
+
+                return new ObjectPropertySyntax(key, colon, value);
+            }, RecoveryFlags.None, TokenType.NewLine);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)

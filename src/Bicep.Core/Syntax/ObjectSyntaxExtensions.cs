@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
@@ -9,6 +10,9 @@ namespace Bicep.Core.Syntax
 {
     public static class ObjectSyntaxExtensions
     {
+        public static ImmutableHashSet<string> ToKnownPropertyNames(this ObjectSyntax syntax) => 
+            syntax.Properties.Select(p => p.TryGetKeyText()).ToImmutableHashSetExcludingNull(LanguageConstants.IdentifierComparer);
+
         /// <summary>
         /// Converts a valid object syntax node to a property dictionary. May throw if you provide a node with duplicate properties.
         /// </summary>

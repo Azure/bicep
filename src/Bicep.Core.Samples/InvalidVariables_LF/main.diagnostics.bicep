@@ -90,6 +90,7 @@ var y = {
 //@[4:5) [BCP028 (Error)] Identifier "y" is declared multiple times. Remove or rename the duplicates. |y|
   =
 //@[2:3) [BCP022 (Error)] Expected a property name at this location. |=|
+//@[3:3) [BCP018 (Error)] Expected the ":" character at this location. ||
   foo: !2
 //@[7:9) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". |!2|
 }

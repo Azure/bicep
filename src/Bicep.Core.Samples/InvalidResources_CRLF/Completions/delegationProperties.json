@@ -1,0 +1,53 @@
+[
+  {
+    "label": "id",
+    "kind": "property",
+    "detail": "id",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "id",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "name",
+    "kind": "property",
+    "detail": "name",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "name",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "properties",
+    "kind": "property",
+    "detail": "properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ServiceDelegationPropertiesFormat`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "properties",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  }
+]

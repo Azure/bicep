@@ -35,13 +35,13 @@ param servcePrincipalClientId string {
 //@[37:38)   LeftBrace |{|
 //@[38:39)   NewLine |\n|
     secure: true
-//@[4:17)   ObjectPropertySyntax
+//@[4:16)   ObjectPropertySyntax
 //@[4:10)    IdentifierSyntax
 //@[4:10)     Identifier |secure|
 //@[10:11)    Colon |:|
 //@[12:16)    BooleanLiteralSyntax
 //@[12:16)     TrueKeyword |true|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
@@ -56,13 +56,13 @@ param servicePrincipalClientSecret string {
 //@[42:43)   LeftBrace |{|
 //@[43:44)   NewLine |\n|
     secure: true
-//@[4:17)   ObjectPropertySyntax
+//@[4:16)   ObjectPropertySyntax
 //@[4:10)    IdentifierSyntax
 //@[4:10)     Identifier |secure|
 //@[10:11)    Colon |:|
 //@[12:16)    BooleanLiteralSyntax
 //@[12:16)     TrueKeyword |true|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -111,29 +111,29 @@ param osDiskSizeGB int {
 //@[23:24)   LeftBrace |{|
 //@[24:25)   NewLine |\n|
     default: 0
-//@[4:15)   ObjectPropertySyntax
+//@[4:14)   ObjectPropertySyntax
 //@[4:11)    IdentifierSyntax
 //@[4:11)     Identifier |default|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |0|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
     minValue: 0
-//@[4:16)   ObjectPropertySyntax
+//@[4:15)   ObjectPropertySyntax
 //@[4:12)    IdentifierSyntax
 //@[4:12)     Identifier |minValue|
 //@[12:13)    Colon |:|
 //@[14:15)    NumericLiteralSyntax
 //@[14:15)     Number |0|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
     maxValue: 1023
-//@[4:19)   ObjectPropertySyntax
+//@[4:18)   ObjectPropertySyntax
 //@[4:12)    IdentifierSyntax
 //@[4:12)     Identifier |maxValue|
 //@[12:13)    Colon |:|
 //@[14:18)    NumericLiteralSyntax
 //@[14:18)     Number |1023|
-//@[18:19)    NewLine |\n|
+//@[18:19)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
@@ -148,29 +148,29 @@ param agentCount int {
 //@[21:22)   LeftBrace |{|
 //@[22:23)   NewLine |\n|
     default: 3
-//@[4:15)   ObjectPropertySyntax
+//@[4:14)   ObjectPropertySyntax
 //@[4:11)    IdentifierSyntax
 //@[4:11)     Identifier |default|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
     minValue: 1
-//@[4:16)   ObjectPropertySyntax
+//@[4:15)   ObjectPropertySyntax
 //@[4:12)    IdentifierSyntax
 //@[4:12)     Identifier |minValue|
 //@[12:13)    Colon |:|
 //@[14:15)    NumericLiteralSyntax
 //@[14:15)     Number |1|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
     maxValue: 50
-//@[4:17)   ObjectPropertySyntax
+//@[4:16)   ObjectPropertySyntax
 //@[4:12)    IdentifierSyntax
 //@[4:12)     Identifier |maxValue|
 //@[12:13)    Colon |:|
 //@[14:16)    NumericLiteralSyntax
 //@[14:16)     Number |50|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
@@ -201,25 +201,25 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[71:72)   LeftBrace |{|
 //@[72:73)   NewLine |\n|
     name: clusterName
-//@[4:22)   ObjectPropertySyntax
+//@[4:21)   ObjectPropertySyntax
 //@[4:8)    IdentifierSyntax
 //@[4:8)     Identifier |name|
 //@[8:9)    Colon |:|
 //@[10:21)    VariableAccessSyntax
 //@[10:21)     IdentifierSyntax
 //@[10:21)      Identifier |clusterName|
-//@[21:22)    NewLine |\n|
+//@[21:22)   NewLine |\n|
     location: location
-//@[4:23)   ObjectPropertySyntax
+//@[4:22)   ObjectPropertySyntax
 //@[4:12)    IdentifierSyntax
 //@[4:12)     Identifier |location|
 //@[12:13)    Colon |:|
 //@[14:22)    VariableAccessSyntax
 //@[14:22)     IdentifierSyntax
 //@[14:22)      Identifier |location|
-//@[22:23)    NewLine |\n|
+//@[22:23)   NewLine |\n|
     properties: {
-//@[4:706)   ObjectPropertySyntax
+//@[4:705)   ObjectPropertySyntax
 //@[4:14)    IdentifierSyntax
 //@[4:14)     Identifier |properties|
 //@[14:15)    Colon |:|
@@ -227,16 +227,16 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[16:17)     LeftBrace |{|
 //@[17:18)     NewLine |\n|
         dnsPrefix: dnsPrefix
-//@[8:29)     ObjectPropertySyntax
+//@[8:28)     ObjectPropertySyntax
 //@[8:17)      IdentifierSyntax
 //@[8:17)       Identifier |dnsPrefix|
 //@[17:18)      Colon |:|
 //@[19:28)      VariableAccessSyntax
 //@[19:28)       IdentifierSyntax
 //@[19:28)        Identifier |dnsPrefix|
-//@[28:29)      NewLine |\n|
+//@[28:29)     NewLine |\n|
         agentPoolProfiles: [
-//@[8:259)     ObjectPropertySyntax
+//@[8:258)     ObjectPropertySyntax
 //@[8:25)      IdentifierSyntax
 //@[8:25)       Identifier |agentPoolProfiles|
 //@[25:26)      Colon |:|
@@ -249,55 +249,55 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[12:13)         LeftBrace |{|
 //@[13:14)         NewLine |\n|
                 name: 'agentpool'
-//@[16:34)         ObjectPropertySyntax
+//@[16:33)         ObjectPropertySyntax
 //@[16:20)          IdentifierSyntax
 //@[16:20)           Identifier |name|
 //@[20:21)          Colon |:|
 //@[22:33)          StringSyntax
 //@[22:33)           StringComplete |'agentpool'|
-//@[33:34)          NewLine |\n|
+//@[33:34)         NewLine |\n|
                 osDiskSizeGB: osDiskSizeGB
-//@[16:43)         ObjectPropertySyntax
+//@[16:42)         ObjectPropertySyntax
 //@[16:28)          IdentifierSyntax
 //@[16:28)           Identifier |osDiskSizeGB|
 //@[28:29)          Colon |:|
 //@[30:42)          VariableAccessSyntax
 //@[30:42)           IdentifierSyntax
 //@[30:42)            Identifier |osDiskSizeGB|
-//@[42:43)          NewLine |\n|
+//@[42:43)         NewLine |\n|
                 vmSize: agentVMSize
-//@[16:36)         ObjectPropertySyntax
+//@[16:35)         ObjectPropertySyntax
 //@[16:22)          IdentifierSyntax
 //@[16:22)           Identifier |vmSize|
 //@[22:23)          Colon |:|
 //@[24:35)          VariableAccessSyntax
 //@[24:35)           IdentifierSyntax
 //@[24:35)            Identifier |agentVMSize|
-//@[35:36)          NewLine |\n|
+//@[35:36)         NewLine |\n|
                 osType: 'Linux'
-//@[16:32)         ObjectPropertySyntax
+//@[16:31)         ObjectPropertySyntax
 //@[16:22)          IdentifierSyntax
 //@[16:22)           Identifier |osType|
 //@[22:23)          Colon |:|
 //@[24:31)          StringSyntax
 //@[24:31)           StringComplete |'Linux'|
-//@[31:32)          NewLine |\n|
+//@[31:32)         NewLine |\n|
                 storageProfile: 'ManagedDisks'
-//@[16:47)         ObjectPropertySyntax
+//@[16:46)         ObjectPropertySyntax
 //@[16:30)          IdentifierSyntax
 //@[16:30)           Identifier |storageProfile|
 //@[30:31)          Colon |:|
 //@[32:46)          StringSyntax
 //@[32:46)           StringComplete |'ManagedDisks'|
-//@[46:47)          NewLine |\n|
+//@[46:47)         NewLine |\n|
             }
 //@[12:13)         RightBrace |}|
 //@[13:14)        NewLine |\n|
         ]
 //@[8:9)       RightSquare |]|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
         linuxProfile: {
-//@[8:254)     ObjectPropertySyntax
+//@[8:253)     ObjectPropertySyntax
 //@[8:20)      IdentifierSyntax
 //@[8:20)       Identifier |linuxProfile|
 //@[20:21)      Colon |:|
@@ -305,16 +305,16 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[22:23)       LeftBrace |{|
 //@[23:24)       NewLine |\n|
             adminUsername: linuxAdminUsername
-//@[12:46)       ObjectPropertySyntax
+//@[12:45)       ObjectPropertySyntax
 //@[12:25)        IdentifierSyntax
 //@[12:25)         Identifier |adminUsername|
 //@[25:26)        Colon |:|
 //@[27:45)        VariableAccessSyntax
 //@[27:45)         IdentifierSyntax
 //@[27:45)          Identifier |linuxAdminUsername|
-//@[45:46)        NewLine |\n|
+//@[45:46)       NewLine |\n|
             ssh: {
-//@[12:174)       ObjectPropertySyntax
+//@[12:173)       ObjectPropertySyntax
 //@[12:15)        IdentifierSyntax
 //@[12:15)         Identifier |ssh|
 //@[15:16)        Colon |:|
@@ -322,7 +322,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[17:18)         LeftBrace |{|
 //@[18:19)         NewLine |\n|
                 publicKeys: [
-//@[16:141)         ObjectPropertySyntax
+//@[16:140)         ObjectPropertySyntax
 //@[16:26)          IdentifierSyntax
 //@[16:26)           Identifier |publicKeys|
 //@[26:27)          Colon |:|
@@ -335,28 +335,28 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[20:21)             LeftBrace |{|
 //@[21:22)             NewLine |\n|
                         keyData: sshRSAPublicKey
-//@[24:49)             ObjectPropertySyntax
+//@[24:48)             ObjectPropertySyntax
 //@[24:31)              IdentifierSyntax
 //@[24:31)               Identifier |keyData|
 //@[31:32)              Colon |:|
 //@[33:48)              VariableAccessSyntax
 //@[33:48)               IdentifierSyntax
 //@[33:48)                Identifier |sshRSAPublicKey|
-//@[48:49)              NewLine |\n|
+//@[48:49)             NewLine |\n|
                     }
 //@[20:21)             RightBrace |}|
 //@[21:22)            NewLine |\n|
                 ]
 //@[16:17)           RightSquare |]|
-//@[17:18)          NewLine |\n|
+//@[17:18)         NewLine |\n|
             }
 //@[12:13)         RightBrace |}|
-//@[13:14)        NewLine |\n|
+//@[13:14)       NewLine |\n|
         }
 //@[8:9)       RightBrace |}|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
         servicePrincipalProfile: {
-//@[8:140)     ObjectPropertySyntax
+//@[8:139)     ObjectPropertySyntax
 //@[8:31)      IdentifierSyntax
 //@[8:31)       Identifier |servicePrincipalProfile|
 //@[31:32)      Colon |:|
@@ -364,29 +364,29 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[33:34)       LeftBrace |{|
 //@[34:35)       NewLine |\n|
             clientId: servcePrincipalClientId
-//@[12:46)       ObjectPropertySyntax
+//@[12:45)       ObjectPropertySyntax
 //@[12:20)        IdentifierSyntax
 //@[12:20)         Identifier |clientId|
 //@[20:21)        Colon |:|
 //@[22:45)        VariableAccessSyntax
 //@[22:45)         IdentifierSyntax
 //@[22:45)          Identifier |servcePrincipalClientId|
-//@[45:46)        NewLine |\n|
+//@[45:46)       NewLine |\n|
             secret: servicePrincipalClientSecret
-//@[12:49)       ObjectPropertySyntax
+//@[12:48)       ObjectPropertySyntax
 //@[12:18)        IdentifierSyntax
 //@[12:18)         Identifier |secret|
 //@[18:19)        Colon |:|
 //@[20:48)        VariableAccessSyntax
 //@[20:48)         IdentifierSyntax
 //@[20:48)          Identifier |servicePrincipalClientSecret|
-//@[48:49)        NewLine |\n|
+//@[48:49)       NewLine |\n|
         }
 //@[8:9)       RightBrace |}|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
     }
 //@[4:5)     RightBrace |}|
-//@[5:6)    NewLine |\n|
+//@[5:6)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

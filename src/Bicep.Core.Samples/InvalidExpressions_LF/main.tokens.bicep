@@ -1296,6 +1296,69 @@ var invalidOperands = 1 + az
 //@[22:23) Number |1|
 //@[24:25) Plus |+|
 //@[26:28) Identifier |az|
-//@[28:29) NewLine |\n|
+//@[28:30) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+var partialObject = {
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |partialObject|
+//@[18:19) Assignment |=|
+//@[20:21) LeftBrace |{|
+//@[21:22) NewLine |\n|
+  2: true
+//@[2:3) Number |2|
+//@[3:4) Colon |:|
+//@[5:9) TrueKeyword |true|
+//@[9:10) NewLine |\n|
+  +
+//@[2:3) Plus |+|
+//@[3:4) NewLine |\n|
+  3 : concat('s')
+//@[2:3) Number |3|
+//@[4:5) Colon |:|
+//@[6:12) Identifier |concat|
+//@[12:13) LeftParen |(|
+//@[13:16) StringComplete |'s'|
+//@[16:17) RightParen |)|
+//@[17:18) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
+  's' 
+//@[2:5) StringComplete |'s'|
+//@[6:7) NewLine |\n|
+  's' \
+//@[2:5) StringComplete |'s'|
+//@[6:7) Unrecognized |\|
+//@[7:8) NewLine |\n|
+  'e'   =
+//@[2:5) StringComplete |'e'|
+//@[8:9) Assignment |=|
+//@[9:10) NewLine |\n|
+  's' :
+//@[2:5) StringComplete |'s'|
+//@[6:7) Colon |:|
+//@[7:9) NewLine |\n\n|
+
+  a
+//@[2:3) Identifier |a|
+//@[3:4) NewLine |\n|
+  b $
+//@[2:3) Identifier |b|
+//@[4:5) Unrecognized |$|
+//@[5:6) NewLine |\n|
+  a # 22
+//@[2:3) Identifier |a|
+//@[4:5) Unrecognized |#|
+//@[6:8) Number |22|
+//@[8:9) NewLine |\n|
+  c :
+//@[2:3) Identifier |c|
+//@[4:5) Colon |:|
+//@[5:6) NewLine |\n|
+  d  : %
+//@[2:3) Identifier |d|
+//@[5:6) Colon |:|
+//@[7:8) Modulo |%|
+//@[8:9) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

@@ -1112,7 +1112,7 @@ param fakeFuncP string {
 //@[23:24)   LeftBrace |{|
 //@[24:25)   NewLine |\n|
   default: blue()
-//@[2:18)   ObjectPropertySyntax
+//@[2:17)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -1121,7 +1121,7 @@ param fakeFuncP string {
 //@[11:15)      Identifier |blue|
 //@[15:16)     LeftParen |(|
 //@[16:17)     RightParen |)|
-//@[17:18)    NewLine |\n|
+//@[17:18)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1369,7 +1369,7 @@ var emitLimit = [
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     a: {
-//@[4:265)     ObjectPropertySyntax
+//@[4:264)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
@@ -1377,7 +1377,7 @@ var emitLimit = [
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       b: base64('s')
-//@[6:21)       ObjectPropertySyntax
+//@[6:20)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |b|
 //@[7:8)        Colon |:|
@@ -1389,9 +1389,9 @@ var emitLimit = [
 //@[16:19)          StringSyntax
 //@[16:19)           StringComplete |'s'|
 //@[19:20)         RightParen |)|
-//@[20:21)        NewLine |\n|
+//@[20:21)       NewLine |\n|
       c: union({
-//@[6:91)       ObjectPropertySyntax
+//@[6:90)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |c|
 //@[7:8)        Colon |:|
@@ -1404,7 +1404,7 @@ var emitLimit = [
 //@[15:16)           LeftBrace |{|
 //@[16:17)           NewLine |\n|
         a: 12 + 3
-//@[8:18)           ObjectPropertySyntax
+//@[8:17)           ObjectPropertySyntax
 //@[8:9)            IdentifierSyntax
 //@[8:9)             Identifier |a|
 //@[9:10)            Colon |:|
@@ -1414,7 +1414,7 @@ var emitLimit = [
 //@[14:15)             Plus |+|
 //@[16:17)             NumericLiteralSyntax
 //@[16:17)              Number |3|
-//@[17:18)            NewLine |\n|
+//@[17:18)           NewLine |\n|
       }, {
 //@[6:7)           RightBrace |}|
 //@[7:8)          Comma |,|
@@ -1423,7 +1423,7 @@ var emitLimit = [
 //@[9:10)           LeftBrace |{|
 //@[10:11)           NewLine |\n|
         b: !true
-//@[8:17)           ObjectPropertySyntax
+//@[8:16)           ObjectPropertySyntax
 //@[8:9)            IdentifierSyntax
 //@[8:9)             Identifier |b|
 //@[9:10)            Colon |:|
@@ -1431,21 +1431,21 @@ var emitLimit = [
 //@[11:12)             Exclamation |!|
 //@[12:16)             BooleanLiteralSyntax
 //@[12:16)              TrueKeyword |true|
-//@[16:17)            NewLine |\n|
+//@[16:17)           NewLine |\n|
         c: 'hello'
-//@[8:19)           ObjectPropertySyntax
+//@[8:18)           ObjectPropertySyntax
 //@[8:9)            IdentifierSyntax
 //@[8:9)             Identifier |c|
 //@[9:10)            Colon |:|
 //@[11:18)            StringSyntax
 //@[11:18)             StringComplete |'hello'|
-//@[18:19)            NewLine |\n|
+//@[18:19)           NewLine |\n|
       })
 //@[6:7)           RightBrace |}|
 //@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[8:9)       NewLine |\n|
       d: resourceGroup().location
-//@[6:34)       ObjectPropertySyntax
+//@[6:33)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |d|
 //@[7:8)        Colon |:|
@@ -1458,9 +1458,9 @@ var emitLimit = [
 //@[24:25)         Dot |.|
 //@[25:33)         IdentifierSyntax
 //@[25:33)          Identifier |location|
-//@[33:34)        NewLine |\n|
+//@[33:34)       NewLine |\n|
       e: union({
-//@[6:46)       ObjectPropertySyntax
+//@[6:45)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |e|
 //@[7:8)        Colon |:|
@@ -1473,13 +1473,13 @@ var emitLimit = [
 //@[15:16)           LeftBrace |{|
 //@[16:17)           NewLine |\n|
         x: true
-//@[8:16)           ObjectPropertySyntax
+//@[8:15)           ObjectPropertySyntax
 //@[8:9)            IdentifierSyntax
 //@[8:9)             Identifier |x|
 //@[9:10)            Colon |:|
 //@[11:15)            BooleanLiteralSyntax
 //@[11:15)             TrueKeyword |true|
-//@[15:16)            NewLine |\n|
+//@[15:16)           NewLine |\n|
       }, {})
 //@[6:7)           RightBrace |}|
 //@[7:8)          Comma |,|
@@ -1488,9 +1488,9 @@ var emitLimit = [
 //@[9:10)           LeftBrace |{|
 //@[10:11)           RightBrace |}|
 //@[11:12)         RightParen |)|
-//@[12:13)        NewLine |\n|
+//@[12:13)       NewLine |\n|
       f: intersection({
-//@[6:58)       ObjectPropertySyntax
+//@[6:57)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |f|
 //@[7:8)        Colon |:|
@@ -1503,7 +1503,7 @@ var emitLimit = [
 //@[22:23)           LeftBrace |{|
 //@[23:24)           NewLine |\n|
         q: 's' == 12
-//@[8:21)           ObjectPropertySyntax
+//@[8:20)           ObjectPropertySyntax
 //@[8:9)            IdentifierSyntax
 //@[8:9)             Identifier |q|
 //@[9:10)            Colon |:|
@@ -1513,7 +1513,7 @@ var emitLimit = [
 //@[15:17)             Equals |==|
 //@[18:20)             NumericLiteralSyntax
 //@[18:20)              Number |12|
-//@[20:21)            NewLine |\n|
+//@[20:21)           NewLine |\n|
       }, {})
 //@[6:7)           RightBrace |}|
 //@[7:8)          Comma |,|
@@ -1522,10 +1522,10 @@ var emitLimit = [
 //@[9:10)           LeftBrace |{|
 //@[10:11)           RightBrace |}|
 //@[11:12)         RightParen |)|
-//@[12:13)        NewLine |\n|
+//@[12:13)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)    NewLine |\n|
@@ -1545,7 +1545,7 @@ var emitLimit2 = {
 //@[17:18)   LeftBrace |{|
 //@[18:19)   NewLine |\n|
   a: {
-//@[2:95)   ObjectPropertySyntax
+//@[2:94)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |a|
 //@[3:4)    Colon |:|
@@ -1553,7 +1553,7 @@ var emitLimit2 = {
 //@[5:6)     LeftBrace |{|
 //@[6:7)     NewLine |\n|
     b: {
-//@[4:54)     ObjectPropertySyntax
+//@[4:53)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |b|
 //@[5:6)      Colon |:|
@@ -1562,7 +1562,7 @@ var emitLimit2 = {
 //@[7:8)        LeftBrace |{|
 //@[8:9)        NewLine |\n|
       a: resourceGroup().location
-//@[6:34)        ObjectPropertySyntax
+//@[6:33)        ObjectPropertySyntax
 //@[6:7)         IdentifierSyntax
 //@[6:7)          Identifier |a|
 //@[7:8)         Colon |:|
@@ -1575,15 +1575,15 @@ var emitLimit2 = {
 //@[24:25)          Dot |.|
 //@[25:33)          IdentifierSyntax
 //@[25:33)           Identifier |location|
-//@[33:34)         NewLine |\n|
+//@[33:34)        NewLine |\n|
     } == 2
 //@[4:5)        RightBrace |}|
 //@[6:8)       Equals |==|
 //@[9:10)       NumericLiteralSyntax
 //@[9:10)        Number |2|
-//@[10:11)      NewLine |\n|
+//@[10:11)     NewLine |\n|
     c: concat([
-//@[4:30)     ObjectPropertySyntax
+//@[4:29)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |c|
 //@[5:6)      Colon |:|
@@ -1603,10 +1603,10 @@ var emitLimit2 = {
 //@[7:11)        BooleanLiteralSyntax
 //@[7:11)         TrueKeyword |true|
 //@[11:12)       RightParen |)|
-//@[12:13)      NewLine |\n|
+//@[12:13)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1621,39 +1621,39 @@ var sampleObject = {
 //@[19:20)   LeftBrace |{|
 //@[20:21)   NewLine |\n|
   myInt: 42
-//@[2:12)   ObjectPropertySyntax
+//@[2:11)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |myInt|
 //@[7:8)    Colon |:|
 //@[9:11)    NumericLiteralSyntax
 //@[9:11)     Number |42|
-//@[11:12)    NewLine |\n|
+//@[11:12)   NewLine |\n|
   myStr: 's'
-//@[2:13)   ObjectPropertySyntax
+//@[2:12)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |myStr|
 //@[7:8)    Colon |:|
 //@[9:12)    StringSyntax
 //@[9:12)     StringComplete |'s'|
-//@[12:13)    NewLine |\n|
+//@[12:13)   NewLine |\n|
   myBool: false
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |myBool|
 //@[8:9)    Colon |:|
 //@[10:15)    BooleanLiteralSyntax
 //@[10:15)     FalseKeyword |false|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
   myNull: null
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |myNull|
 //@[8:9)    Colon |:|
 //@[10:14)    NullLiteralSyntax
 //@[10:14)     NullKeyword |null|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   myInner: {
-//@[2:79)   ObjectPropertySyntax
+//@[2:78)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |myInner|
 //@[9:10)    Colon |:|
@@ -1661,15 +1661,15 @@ var sampleObject = {
 //@[11:12)     LeftBrace |{|
 //@[12:13)     NewLine |\n|
     anotherStr: 'a'
-//@[4:20)     ObjectPropertySyntax
+//@[4:19)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |anotherStr|
 //@[14:15)      Colon |:|
 //@[16:19)      StringSyntax
 //@[16:19)       StringComplete |'a'|
-//@[19:20)      NewLine |\n|
+//@[19:20)     NewLine |\n|
     otherArr: [
-//@[4:42)     ObjectPropertySyntax
+//@[4:41)     ObjectPropertySyntax
 //@[4:12)      IdentifierSyntax
 //@[4:12)       Identifier |otherArr|
 //@[12:13)      Colon |:|
@@ -1688,12 +1688,12 @@ var sampleObject = {
 //@[9:10)        NewLine |\n|
     ]
 //@[4:5)       RightSquare |]|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   myArr: [
-//@[2:33)   ObjectPropertySyntax
+//@[2:32)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |myArr|
 //@[7:8)    Colon |:|
@@ -1717,7 +1717,7 @@ var sampleObject = {
 //@[5:6)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -2016,6 +2016,118 @@ var invalidOperands = 1 + az
 //@[26:28)   VariableAccessSyntax
 //@[26:28)    IdentifierSyntax
 //@[26:28)     Identifier |az|
-//@[28:29) NewLine |\n|
+//@[28:30) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+var partialObject = {
+//@[0:126) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |partialObject|
+//@[18:19)  Assignment |=|
+//@[20:126)  ObjectSyntax
+//@[20:21)   LeftBrace |{|
+//@[21:22)   NewLine |\n|
+  2: true
+//@[2:9)   ObjectPropertySyntax
+//@[2:3)    SkippedTriviaSyntax
+//@[2:3)     Number |2|
+//@[3:4)    Colon |:|
+//@[5:9)    BooleanLiteralSyntax
+//@[5:9)     TrueKeyword |true|
+//@[9:10)   NewLine |\n|
+  +
+//@[2:3)   ObjectPropertySyntax
+//@[2:3)    SkippedTriviaSyntax
+//@[2:3)     Plus |+|
+//@[3:3)    SkippedTriviaSyntax
+//@[3:3)    SkippedTriviaSyntax
+//@[3:4)   NewLine |\n|
+  3 : concat('s')
+//@[2:17)   ObjectPropertySyntax
+//@[2:3)    SkippedTriviaSyntax
+//@[2:3)     Number |3|
+//@[4:5)    Colon |:|
+//@[6:17)    FunctionCallSyntax
+//@[6:12)     IdentifierSyntax
+//@[6:12)      Identifier |concat|
+//@[12:13)     LeftParen |(|
+//@[13:16)     FunctionArgumentSyntax
+//@[13:16)      StringSyntax
+//@[13:16)       StringComplete |'s'|
+//@[16:17)     RightParen |)|
+//@[17:18)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
+  's' 
+//@[2:6)   ObjectPropertySyntax
+//@[2:5)    StringSyntax
+//@[2:5)     StringComplete |'s'|
+//@[6:6)    SkippedTriviaSyntax
+//@[6:6)    SkippedTriviaSyntax
+//@[6:7)   NewLine |\n|
+  's' \
+//@[2:7)   ObjectPropertySyntax
+//@[2:5)    StringSyntax
+//@[2:5)     StringComplete |'s'|
+//@[6:7)    SkippedTriviaSyntax
+//@[6:7)     Unrecognized |\|
+//@[7:7)    SkippedTriviaSyntax
+//@[7:8)   NewLine |\n|
+  'e'   =
+//@[2:9)   ObjectPropertySyntax
+//@[2:5)    StringSyntax
+//@[2:5)     StringComplete |'e'|
+//@[8:9)    SkippedTriviaSyntax
+//@[8:9)     Assignment |=|
+//@[9:9)    SkippedTriviaSyntax
+//@[9:10)   NewLine |\n|
+  's' :
+//@[2:7)   ObjectPropertySyntax
+//@[2:5)    StringSyntax
+//@[2:5)     StringComplete |'s'|
+//@[6:7)    Colon |:|
+//@[7:7)    SkippedTriviaSyntax
+//@[7:9)   NewLine |\n\n|
+
+  a
+//@[2:3)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[3:3)    SkippedTriviaSyntax
+//@[3:3)    SkippedTriviaSyntax
+//@[3:4)   NewLine |\n|
+  b $
+//@[2:5)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |b|
+//@[4:5)    SkippedTriviaSyntax
+//@[4:5)     Unrecognized |$|
+//@[5:5)    SkippedTriviaSyntax
+//@[5:6)   NewLine |\n|
+  a # 22
+//@[2:8)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[4:8)    SkippedTriviaSyntax
+//@[4:5)     Unrecognized |#|
+//@[6:8)     Number |22|
+//@[8:8)    SkippedTriviaSyntax
+//@[8:9)   NewLine |\n|
+  c :
+//@[2:5)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |c|
+//@[4:5)    Colon |:|
+//@[5:5)    SkippedTriviaSyntax
+//@[5:6)   NewLine |\n|
+  d  : %
+//@[2:8)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |d|
+//@[5:6)    Colon |:|
+//@[7:8)    SkippedTriviaSyntax
+//@[7:8)     Modulo |%|
+//@[8:9)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

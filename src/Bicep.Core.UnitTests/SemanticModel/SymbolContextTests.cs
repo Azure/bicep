@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
-            var context = new SymbolContext(new TypeManager(TestResourceTypeProvider.Create(), bindings, cyclesBySyntax), bindings);
+            var context = new SymbolContext(new TypeManager(TestResourceTypeProvider.Create(), bindings, cyclesBySyntax, new SyntaxHierarchy()), bindings);
 
             Action byName = () =>
             {

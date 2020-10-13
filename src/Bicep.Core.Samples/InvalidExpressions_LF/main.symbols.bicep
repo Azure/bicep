@@ -310,3 +310,20 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
 //@[4:19) Variable invalidOperands. Type: error. Declaration start char: 0, length: 28
 
+var partialObject = {
+//@[4:17) Variable partialObject. Type: error. Declaration start char: 0, length: 126
+  2: true
+  +
+  3 : concat('s')
+  
+  's' 
+  's' \
+  'e'   =
+  's' :
+
+  a
+  b $
+  a # 22
+  c :
+  d  : %
+}

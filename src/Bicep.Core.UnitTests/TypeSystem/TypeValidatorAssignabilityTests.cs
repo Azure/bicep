@@ -201,8 +201,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(@object);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Object, diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Object, diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -211,8 +214,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(@object);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), @object, LanguageConstants.Int, diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Int, diagnostics);
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
@@ -222,9 +228,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void EmptyModifierIsValid()
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
+            
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -238,8 +247,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("extra2", TestSyntaxFactory.CreateString("foo"))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
 
             diagnostics
                 .Select(e => e.Message)
@@ -257,8 +269,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("name", TestSyntaxFactory.CreateString("test"))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -276,8 +291,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
             diagnostics.Should().BeEmpty();
         }
 
@@ -299,8 +317,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("managedByExtended", TestSyntaxFactory.CreateString("not an array"))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -315,8 +336,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var obj = TestSyntaxFactory.CreateObject(new ObjectPropertySyntax[0]);
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics.Should().HaveCount(1);
             diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
@@ -331,8 +355,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 TestSyntaxFactory.CreateProperty("dupe", TestSyntaxFactory.CreateString("a"))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -350,8 +377,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -374,8 +404,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, CreateDummyResourceType(), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
             
             diagnostics.Should().BeEmpty();
         }
@@ -405,8 +438,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -437,10 +473,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
             var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -459,10 +498,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 })),
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
 
             diagnostics
                 .Should().SatisfyRespectively(
@@ -493,8 +535,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -520,8 +565,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -553,8 +601,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
 
             diagnostics.Should().BeEmpty();
         }
@@ -589,8 +640,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -636,8 +690,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -686,8 +743,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -733,8 +793,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -781,8 +844,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 }))
             });
 
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
             var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
 
             diagnostics
                 .Select(d => d.Message)
@@ -826,8 +892,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 {
                     TestSyntaxFactory.CreateProperty("fieldA", TestSyntaxFactory.CreateString("someVal")),
                 });
+
+                var hierarchy = new SyntaxHierarchy();
+                hierarchy.AddRoot(obj);
+
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -844,8 +914,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
+                var hierarchy = new SyntaxHierarchy();
+                hierarchy.AddRoot(obj);
+
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -861,8 +934,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valC")),
                 });
 
+                var hierarchy = new SyntaxHierarchy();
+                hierarchy.AddRoot(obj);
+
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -878,8 +954,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("myDiscriminator", TestSyntaxFactory.CreateString("valB")),
                 });
 
+                var hierarchy = new SyntaxHierarchy();
+                hierarchy.AddRoot(obj);
+
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
@@ -903,8 +982,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TestSyntaxFactory.CreateProperty("fieldB", TestSyntaxFactory.CreateString("someVal")),
                 });
 
+                var hierarchy = new SyntaxHierarchy();
+                hierarchy.AddRoot(obj);
+
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), obj, discriminatedType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<NamedObjectType>();
@@ -927,11 +1009,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 LanguageConstants.Int,
                 LanguageConstants.Bool);
 
+            var hierarchy = new SyntaxHierarchy();
+
             {
                 // pick a valid path (int) - we should narrow the union type to just int
                 var intSyntax = TestSyntaxFactory.CreateInt(1234);
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), intSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), intSyntax, unionType, diagnostics);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.Int);
@@ -940,8 +1024,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // pick an invalid path (object) - we should get diagnostics
                 var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
+                hierarchy.AddRoot(objectSyntax);
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), objectSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), objectSyntax, unionType, diagnostics);
                 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
                 narrowedType.Should().Be(unionType);
@@ -951,7 +1036,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // try narrowing with a string
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, unionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, unionType, diagnostics);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.String);
@@ -965,7 +1050,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // union of string literals with matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
                 
                 diagnostics.Should().BeEmpty();
                 narrowedType.Should().BeOfType<StringLiteralType>();
@@ -976,7 +1061,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 // union of string literals with non-matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
                 var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
                 
                 diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
                 narrowedType.Should().Be(stringLiteralUnionType);
@@ -1028,6 +1113,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null), TypeSymbolValidationFlags.Default);
         }
 
-        private TypeManager CreateTypeManager() => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>());
+        private TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>(), hierarchy);
     }
 }

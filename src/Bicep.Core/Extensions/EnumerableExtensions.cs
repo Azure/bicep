@@ -27,6 +27,10 @@ namespace Bicep.Core.Extensions
         public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNull<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, Func<TSource, TValue> elementSelector, IEqualityComparer<TKey> keyComparer)
             where TKey : class
             => source.Where(x => keySelector(x) != null).ToImmutableDictionary(x => keySelector(x)!, elementSelector, keyComparer);
+
+        public static ImmutableHashSet<TSource> ToImmutableHashSetExcludingNull<TSource>(this IEnumerable<TSource?> source, IEqualityComparer<TSource> comparer)
+            where TSource : class
+            => source.Where(x => x != null).Select(x => x!).ToImmutableHashSet(comparer);
             
         public static IEnumerable<T> AsEnumerable<T>(this T single)
         {

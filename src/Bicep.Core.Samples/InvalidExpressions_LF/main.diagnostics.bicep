@@ -354,3 +354,44 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "namespace". |1 + az|
 
+var partialObject = {
+  2: true
+//@[2:3) [BCP022 (Error)] Expected a property name at this location. |2|
+  +
+//@[2:3) [BCP022 (Error)] Expected a property name at this location. |+|
+//@[3:3) [BCP018 (Error)] Expected the ":" character at this location. ||
+  3 : concat('s')
+//@[2:3) [BCP022 (Error)] Expected a property name at this location. |3|
+  
+  's' 
+//@[2:5) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. |'s'|
+//@[6:6) [BCP018 (Error)] Expected the ":" character at this location. ||
+  's' \
+//@[2:5) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. |'s'|
+//@[6:7) [BCP018 (Error)] Expected the ":" character at this location. |\|
+//@[6:7) [BCP001 (Error)] The following token is not recognized: "\". |\|
+//@[7:7) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  'e'   =
+//@[8:9) [BCP018 (Error)] Expected the ":" character at this location. |=|
+//@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  's' :
+//@[2:5) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. |'s'|
+//@[7:7) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+  a
+//@[2:3) [BCP025 (Error)] The property "a" is declared multiple times in this object. Remove or rename the duplicate properties. |a|
+//@[3:3) [BCP018 (Error)] Expected the ":" character at this location. ||
+  b $
+//@[4:5) [BCP018 (Error)] Expected the ":" character at this location. |$|
+//@[4:5) [BCP001 (Error)] The following token is not recognized: "$". |$|
+//@[5:5) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  a # 22
+//@[2:3) [BCP025 (Error)] The property "a" is declared multiple times in this object. Remove or rename the duplicate properties. |a|
+//@[4:5) [BCP018 (Error)] Expected the ":" character at this location. |#|
+//@[4:5) [BCP001 (Error)] The following token is not recognized: "#". |#|
+//@[8:8) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  c :
+//@[5:5) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  d  : %
+//@[7:8) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |%|
+}

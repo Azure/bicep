@@ -126,6 +126,27 @@ namespace Bicep.Core.UnitTests.Parser
             tokens.Select(t => t.Span.Length).Should().Equal(expectedTexts.Select(s => s.Length));
         }
 
+        [DataRow("a")]
+        [DataRow("ab")]
+        [DataRow("a0")]
+        [DataRow("resourceGroup")]
+        [DataTestMethod]
+        public void ValidIdentifier_IsValidIdentifier_ShouldReturnTrue(string value)
+        {
+            Lexer.IsValidIdentifier(value).Should().BeTrue();
+        }
+
+        [DataRow("")]
+        [DataRow("2")]
+        [DataRow("2a")]
+        [DataRow("a-b")]
+        [DataRow("abz-b")]
+        [DataTestMethod]
+        public void InvalidIdentifier_IsValidIdentifier_ShouldReturnFalse(string value)
+        {
+            Lexer.IsValidIdentifier(value).Should().BeFalse();
+        }
+
         private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)
         {
             expectedTokenText ??= text;

@@ -167,6 +167,29 @@ namespace Bicep.Core.Parser
             return buffer.ToString();
         }
 
+        /// <summary>
+        /// Determines if the specified string is a valid identifier. To be considered a valid identifier, the string must start
+        /// with the identifier start character and remaining characters must be identifier continuation characters.
+        /// </summary>
+        /// <param name="value">The value</param>
+        public static bool IsValidIdentifier(string value)
+        {
+            if (value.Length <= 0)
+            {
+                return false;
+            }
+
+            var result = IsIdentifierStart(value[0]);
+            var index = 1;
+            while (result && index < value.Length)
+            {
+                result = result && IsIdentifierContinuation(value[index]);
+                index++;
+            }
+
+            return result;
+        }
+
         private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
         {
             if (IsWhiteSpace(textWindow.Peek()))

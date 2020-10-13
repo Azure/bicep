@@ -522,4 +522,190 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[28:30) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:34) Identifier |missingTopLevelProperties|
+//@[35:89) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[90:91) Assignment |=|
+//@[92:93) LeftBrace |{|
+//@[93:95) NewLine |\r\n|
+  // #completionTest(0, 1, 2) -> topLevelProperties
+//@[51:55) NewLine |\r\n\r\n|
+
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:44) Identifier |missingTopLevelPropertiesExceptName|
+//@[45:99) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[100:101) Assignment |=|
+//@[102:103) LeftBrace |{|
+//@[103:105) NewLine |\r\n|
+  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+//@[60:62) NewLine |\r\n|
+  name: 'me'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:12) StringComplete |'me'|
+//@[12:14) NewLine |\r\n|
+  // do not remove whitespace before the closing curly
+//@[54:56) NewLine |\r\n|
+  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+//@[60:62) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:23) Identifier |unfinishedVnet|
+//@[24:70) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[71:72) Assignment |=|
+//@[73:74) LeftBrace |{|
+//@[74:76) NewLine |\r\n|
+  name: 'v'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringComplete |'v'|
+//@[11:13) NewLine |\r\n|
+  location: 'eastus'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'eastus'|
+//@[20:22) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    subnets: [
+//@[4:11) Identifier |subnets|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:9) NewLine |\r\n|
+        // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+//@[78:80) NewLine |\r\n|
+        properties: {
+//@[8:18) Identifier |properties|
+//@[18:19) Colon |:|
+//@[20:21) LeftBrace |{|
+//@[21:23) NewLine |\r\n|
+          delegations: [
+//@[10:21) Identifier |delegations|
+//@[21:22) Colon |:|
+//@[23:24) LeftSquare |[|
+//@[24:26) NewLine |\r\n|
+            {
+//@[12:13) LeftBrace |{|
+//@[13:15) NewLine |\r\n|
+              // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
+//@[92:94) NewLine |\r\n|
+              
+//@[14:16) NewLine |\r\n|
+            }
+//@[12:13) RightBrace |}|
+//@[13:15) NewLine |\r\n|
+          ]
+//@[10:11) RightSquare |]|
+//@[11:13) NewLine |\r\n|
+        }
+//@[8:9) RightBrace |}|
+//@[9:11) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:32) Identifier |discriminatorKeyMissing|
+//@[33:83) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[84:85) Assignment |=|
+//@[86:87) LeftBrace |{|
+//@[87:89) NewLine |\r\n|
+  // #completionTest(0,1,2) -> discriminatorProperty
+//@[52:54) NewLine |\r\n|
+  
+//@[2:4) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:31) Identifier |discriminatorKeySetOne|
+//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[83:84) Assignment |=|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  kind: 'AzureCLI'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:18) StringComplete |'AzureCLI'|
+//@[18:20) NewLine |\r\n|
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+//@[55:59) NewLine |\r\n\r\n|
+
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+//@[66:68) NewLine |\r\n|
+    
+//@[4:6) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:31) Identifier |discriminatorKeySetTwo|
+//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[83:84) Assignment |=|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  kind: 'AzurePowerShell'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:25) StringComplete |'AzurePowerShell'|
+//@[25:27) NewLine |\r\n|
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+//@[55:59) NewLine |\r\n\r\n|
+
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+//@[65:67) NewLine |\r\n|
+    
+//@[4:6) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||
