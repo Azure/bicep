@@ -66,18 +66,6 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        protected static void AssertIdentifierOrString(SyntaxBase syntax, [InvokerParameterName] string parameterName)
-        {
-            switch (syntax)
-            {
-                case StringSyntax _:
-                case IdentifierSyntax _:
-                    break;
-                default:
-                    throw new ArgumentException($"{parameterName} is of an unexpected type {syntax.GetType().Name}.");
-            }
-        }
-
         protected static void AssertSyntaxType(SyntaxBase? syntax, [InvokerParameterName] string parameterName, params Type[] expectedTypes)
         {
             if (syntax == null)

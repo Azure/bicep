@@ -37,10 +37,13 @@ namespace Bicep.Core.SemanticModel
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySyntax = new Dictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>>();
             
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(this.ProgramSyntax);
+            
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySyntax), bindings);
+            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySyntax, hierarchy), bindings);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();

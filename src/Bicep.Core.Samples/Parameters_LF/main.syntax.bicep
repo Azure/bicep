@@ -141,31 +141,31 @@ param foo object = {
 //@[19:20)    LeftBrace |{|
 //@[20:21)    NewLine |\n|
   enabled: true
-//@[2:16)    ObjectPropertySyntax
+//@[2:15)    ObjectPropertySyntax
 //@[2:9)     IdentifierSyntax
 //@[2:9)      Identifier |enabled|
 //@[9:10)     Colon |:|
 //@[11:15)     BooleanLiteralSyntax
 //@[11:15)      TrueKeyword |true|
-//@[15:16)     NewLine |\n|
+//@[15:16)    NewLine |\n|
   name: 'this is my object'
-//@[2:28)    ObjectPropertySyntax
+//@[2:27)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
 //@[2:6)      Identifier |name|
 //@[6:7)     Colon |:|
 //@[8:27)     StringSyntax
 //@[8:27)      StringComplete |'this is my object'|
-//@[27:28)     NewLine |\n|
+//@[27:28)    NewLine |\n|
   priority: 3
-//@[2:14)    ObjectPropertySyntax
+//@[2:13)    ObjectPropertySyntax
 //@[2:10)     IdentifierSyntax
 //@[2:10)      Identifier |priority|
 //@[10:11)     Colon |:|
 //@[12:13)     NumericLiteralSyntax
 //@[12:13)      Number |3|
-//@[13:14)     NewLine |\n|
+//@[13:14)    NewLine |\n|
   info: {
-//@[2:25)    ObjectPropertySyntax
+//@[2:24)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
 //@[2:6)      Identifier |info|
 //@[6:7)     Colon |:|
@@ -173,18 +173,18 @@ param foo object = {
 //@[8:9)      LeftBrace |{|
 //@[9:10)      NewLine |\n|
     a: 'b'
-//@[4:11)      ObjectPropertySyntax
+//@[4:10)      ObjectPropertySyntax
 //@[4:5)       IdentifierSyntax
 //@[4:5)        Identifier |a|
 //@[5:6)       Colon |:|
 //@[7:10)       StringSyntax
 //@[7:10)        StringComplete |'b'|
-//@[10:11)       NewLine |\n|
+//@[10:11)      NewLine |\n|
   }
 //@[2:3)      RightBrace |}|
-//@[3:4)     NewLine |\n|
+//@[3:4)    NewLine |\n|
   empty: {
-//@[2:15)    ObjectPropertySyntax
+//@[2:14)    ObjectPropertySyntax
 //@[2:7)     IdentifierSyntax
 //@[2:7)      Identifier |empty|
 //@[7:8)     Colon |:|
@@ -193,9 +193,9 @@ param foo object = {
 //@[10:11)      NewLine |\n|
   }
 //@[2:3)      RightBrace |}|
-//@[3:4)     NewLine |\n|
+//@[3:4)    NewLine |\n|
   array: [
-//@[2:112)    ObjectPropertySyntax
+//@[2:111)    ObjectPropertySyntax
 //@[2:7)     IdentifierSyntax
 //@[2:7)      Identifier |array|
 //@[7:8)     Colon |:|
@@ -241,21 +241,21 @@ param foo object = {
 //@[4:5)        LeftBrace |{|
 //@[5:6)        NewLine |\n|
       a: 'b'
-//@[6:13)        ObjectPropertySyntax
+//@[6:12)        ObjectPropertySyntax
 //@[6:7)         IdentifierSyntax
 //@[6:7)          Identifier |a|
 //@[7:8)         Colon |:|
 //@[9:12)         StringSyntax
 //@[9:12)          StringComplete |'b'|
-//@[12:13)         NewLine |\n|
+//@[12:13)        NewLine |\n|
     }
 //@[4:5)        RightBrace |}|
 //@[5:6)       NewLine |\n|
   ]
 //@[2:3)      RightSquare |]|
-//@[3:4)     NewLine |\n|
+//@[3:4)    NewLine |\n|
   test: {
-//@[2:56)    ObjectPropertySyntax
+//@[2:55)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
 //@[2:6)      Identifier |test|
 //@[6:7)     Colon |:|
@@ -263,7 +263,7 @@ param foo object = {
 //@[8:9)      LeftBrace |{|
 //@[9:10)      NewLine |\n|
     time: utcNow('u')
-//@[4:22)      ObjectPropertySyntax
+//@[4:21)      ObjectPropertySyntax
 //@[4:8)       IdentifierSyntax
 //@[4:8)        Identifier |time|
 //@[8:9)       Colon |:|
@@ -275,9 +275,9 @@ param foo object = {
 //@[17:20)         StringSyntax
 //@[17:20)          StringComplete |'u'|
 //@[20:21)        RightParen |)|
-//@[21:22)       NewLine |\n|
+//@[21:22)      NewLine |\n|
     guid: newGuid()
-//@[4:20)      ObjectPropertySyntax
+//@[4:19)      ObjectPropertySyntax
 //@[4:8)       IdentifierSyntax
 //@[4:8)        Identifier |guid|
 //@[8:9)       Colon |:|
@@ -286,10 +286,10 @@ param foo object = {
 //@[10:17)         Identifier |newGuid|
 //@[17:18)        LeftParen |(|
 //@[18:19)        RightParen |)|
-//@[19:20)       NewLine |\n|
+//@[19:20)      NewLine |\n|
   }
 //@[2:3)      RightBrace |}|
-//@[3:4)     NewLine |\n|
+//@[3:4)    NewLine |\n|
 }
 //@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -340,7 +340,7 @@ param myAlternativeArrayParam array {
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
   default: [
-//@[2:68)   ObjectPropertySyntax
+//@[2:67)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -380,7 +380,7 @@ param myAlternativeArrayParam array {
 //@[12:13)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -398,13 +398,13 @@ param password string {
 //@[22:23)   LeftBrace |{|
 //@[23:24)   NewLine |\n|
   secure: true
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:14)    BooleanLiteralSyntax
 //@[10:14)     TrueKeyword |true|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -422,13 +422,13 @@ param nonSecure string {
 //@[23:24)   LeftBrace |{|
 //@[24:25)   NewLine |\n|
   secure: false
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:15)    BooleanLiteralSyntax
 //@[10:15)     FalseKeyword |false|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -446,13 +446,13 @@ param secretObject object {
 //@[26:27)   LeftBrace |{|
 //@[27:28)   NewLine |\n|
   secure: true
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:14)    BooleanLiteralSyntax
 //@[10:14)     TrueKeyword |true|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -470,7 +470,7 @@ param storageSku string {
 //@[24:25)   LeftBrace |{|
 //@[25:26)   NewLine |\n|
   allowed: [
-//@[2:55)   ObjectPropertySyntax
+//@[2:54)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -489,7 +489,7 @@ param storageSku string {
 //@[18:19)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -507,21 +507,21 @@ param storageName string {
 //@[25:26)   LeftBrace |{|
 //@[26:27)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   maxLength: 24
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:15)    NumericLiteralSyntax
 //@[13:15)     Number |24|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -539,21 +539,21 @@ param someArray array {
 //@[22:23)   LeftBrace |{|
 //@[23:24)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   maxLength: 24
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:15)    NumericLiteralSyntax
 //@[13:15)     Number |24|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -571,7 +571,7 @@ param emptyMetadata string {
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   metadata: {
-//@[2:18)   ObjectPropertySyntax
+//@[2:17)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
@@ -580,7 +580,7 @@ param emptyMetadata string {
 //@[13:14)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -598,7 +598,7 @@ param description string {
 //@[25:26)   LeftBrace |{|
 //@[26:27)   NewLine |\n|
   metadata: {
-//@[2:52)   ObjectPropertySyntax
+//@[2:51)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
@@ -606,16 +606,16 @@ param description string {
 //@[12:13)     LeftBrace |{|
 //@[13:14)     NewLine |\n|
     description: 'my description'
-//@[4:34)     ObjectPropertySyntax
+//@[4:33)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |description|
 //@[15:16)      Colon |:|
 //@[17:33)      StringSyntax
 //@[17:33)       StringComplete |'my description'|
-//@[33:34)      NewLine |\n|
+//@[33:34)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -633,7 +633,7 @@ param additionalMetadata string {
 //@[32:33)   LeftBrace |{|
 //@[33:34)   NewLine |\n|
   metadata: {
-//@[2:121)   ObjectPropertySyntax
+//@[2:120)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
@@ -641,31 +641,31 @@ param additionalMetadata string {
 //@[12:13)     LeftBrace |{|
 //@[13:14)     NewLine |\n|
     description: 'my description'
-//@[4:34)     ObjectPropertySyntax
+//@[4:33)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |description|
 //@[15:16)      Colon |:|
 //@[17:33)      StringSyntax
 //@[17:33)       StringComplete |'my description'|
-//@[33:34)      NewLine |\n|
+//@[33:34)     NewLine |\n|
     a: 1
-//@[4:9)     ObjectPropertySyntax
+//@[4:8)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
 //@[7:8)      NumericLiteralSyntax
 //@[7:8)       Number |1|
-//@[8:9)      NewLine |\n|
+//@[8:9)     NewLine |\n|
     b: true
-//@[4:12)     ObjectPropertySyntax
+//@[4:11)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |b|
 //@[5:6)      Colon |:|
 //@[7:11)      BooleanLiteralSyntax
 //@[7:11)       TrueKeyword |true|
-//@[11:12)      NewLine |\n|
+//@[11:12)     NewLine |\n|
     c: [
-//@[4:15)     ObjectPropertySyntax
+//@[4:14)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |c|
 //@[5:6)      Colon |:|
@@ -674,9 +674,9 @@ param additionalMetadata string {
 //@[8:9)       NewLine |\n|
     ]
 //@[4:5)       RightSquare |]|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     d: {
-//@[4:33)     ObjectPropertySyntax
+//@[4:32)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |d|
 //@[5:6)      Colon |:|
@@ -684,19 +684,19 @@ param additionalMetadata string {
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       test: 'abc'
-//@[6:18)       ObjectPropertySyntax
+//@[6:17)       ObjectPropertySyntax
 //@[6:10)        IdentifierSyntax
 //@[6:10)         Identifier |test|
 //@[10:11)        Colon |:|
 //@[12:17)        StringSyntax
 //@[12:17)         StringComplete |'abc'|
-//@[17:18)        NewLine |\n|
+//@[17:18)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -714,39 +714,39 @@ param someParameter string {
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   secure: true
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:14)    BooleanLiteralSyntax
 //@[10:14)     TrueKeyword |true|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   maxLength: 24
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:15)    NumericLiteralSyntax
 //@[13:15)     Number |24|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
   default: 'one'
-//@[2:17)   ObjectPropertySyntax
+//@[2:16)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:16)    StringSyntax
 //@[11:16)     StringComplete |'one'|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
   allowed: [
-//@[2:49)   ObjectPropertySyntax
+//@[2:48)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -770,9 +770,9 @@ param someParameter string {
 //@[11:12)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   metadata: {
-//@[2:65)   ObjectPropertySyntax
+//@[2:64)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
@@ -780,16 +780,16 @@ param someParameter string {
 //@[12:13)     LeftBrace |{|
 //@[13:14)     NewLine |\n|
     description: 'Name of the storage account'
-//@[4:47)     ObjectPropertySyntax
+//@[4:46)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |description|
 //@[15:16)      Colon |:|
 //@[17:46)      StringSyntax
 //@[17:46)       StringComplete |'Name of the storage account'|
-//@[46:47)      NewLine |\n|
+//@[46:47)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -805,7 +805,7 @@ param defaultValueExpression int {
 //@[33:34)   LeftBrace |{|
 //@[34:35)   NewLine |\n|
   default: true ? 4 + 2*3 : 0
-//@[2:30)   ObjectPropertySyntax
+//@[2:29)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -826,7 +826,7 @@ param defaultValueExpression int {
 //@[26:27)     Colon |:|
 //@[28:29)     NumericLiteralSyntax
 //@[28:29)      Number |0|
-//@[29:30)    NewLine |\n|
+//@[29:30)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

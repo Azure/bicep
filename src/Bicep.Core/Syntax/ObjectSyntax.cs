@@ -8,21 +8,17 @@ namespace Bicep.Core.Syntax
 {
     public class ObjectSyntax : SyntaxBase, IExpressionSyntax
     {
-        public ObjectSyntax(Token openBrace, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBrace)
+        public ObjectSyntax(Token openBrace, IEnumerable<SyntaxBase> children, Token closeBrace)
         {
             AssertTokenType(openBrace, nameof(openBrace), TokenType.LeftBrace);
-            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 0);
             AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
             this.OpenBrace = openBrace;
-            this.NewLines = newLines.ToImmutableArray();
             this.Children = children.ToImmutableArray();
             this.CloseBrace = closeBrace;
         }
 
         public Token OpenBrace { get; }
-
-        public ImmutableArray<Token> NewLines { get; }
 
         /// <summary>
         /// Gets the child syntax nodes. May return nodes that aren't valid object properties.

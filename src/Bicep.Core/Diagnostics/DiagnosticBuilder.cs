@@ -475,6 +475,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP086",
                 $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
+
+            public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP087",
+                "Array and object literals are not allowed here.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

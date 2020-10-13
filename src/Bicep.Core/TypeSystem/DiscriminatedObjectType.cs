@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -37,8 +36,8 @@ namespace Bicep.Core.TypeSystem
 
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.ValidationFlags = validationFlags;
-            this.DiscriminatorKey = discriminatorKey;
             this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
+            this.DiscriminatorProperty = new TypeProperty(discriminatorKey, this.DiscriminatorKeysUnionType, TypePropertyFlags.Required);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
@@ -47,7 +46,9 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        public string DiscriminatorKey { get; }
+        public TypeProperty DiscriminatorProperty { get; }
+
+        public string DiscriminatorKey => this.DiscriminatorProperty.Name;
 
         public TypeSymbol DiscriminatorKeysUnionType { get; }
     }

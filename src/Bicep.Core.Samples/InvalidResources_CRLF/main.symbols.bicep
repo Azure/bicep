@@ -149,3 +149,67 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
   '${undefinedSymbol}': true
 }
+
+resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
+  // #completionTest(0, 1, 2) -> topLevelProperties
+
+}
+
+resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[9:44) Resource missingTopLevelPropertiesExceptName. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 304
+  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+  name: 'me'
+  // do not remove whitespace before the closing curly
+  // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+  
+}
+
+resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[9:23) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 468
+  name: 'v'
+  location: 'eastus'
+  properties: {
+    subnets: [
+      {
+        // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
+        properties: {
+          delegations: [
+            {
+              // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
+              
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:32) Resource discriminatorKeyMissing. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 148
+  // #completionTest(0,1,2) -> discriminatorProperty
+  
+}
+
+resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:31) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 264
+  kind: 'AzureCLI'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+    
+  }
+}
+
+resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:31) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 270
+  kind: 'AzurePowerShell'
+  // #completionTest(0,1,2) -> deploymentScriptTopLevel
+
+  properties: {
+    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+    
+  }
+}

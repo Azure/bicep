@@ -282,15 +282,15 @@ var myObj = {
 //@[12:13)   LeftBrace |{|
 //@[13:14)   NewLine |\n|
   a: 'a'
-//@[2:9)   ObjectPropertySyntax
+//@[2:8)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |a|
 //@[3:4)    Colon |:|
 //@[5:8)    StringSyntax
 //@[5:8)     StringComplete |'a'|
-//@[8:9)    NewLine |\n|
+//@[8:9)   NewLine |\n|
   b: -12
-//@[2:9)   ObjectPropertySyntax
+//@[2:8)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |b|
 //@[3:4)    Colon |:|
@@ -298,17 +298,17 @@ var myObj = {
 //@[5:6)     Minus |-|
 //@[6:8)     NumericLiteralSyntax
 //@[6:8)      Number |12|
-//@[8:9)    NewLine |\n|
+//@[8:9)   NewLine |\n|
   c: true
-//@[2:10)   ObjectPropertySyntax
+//@[2:9)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |c|
 //@[3:4)    Colon |:|
 //@[5:9)    BooleanLiteralSyntax
 //@[5:9)     TrueKeyword |true|
-//@[9:10)    NewLine |\n|
+//@[9:10)   NewLine |\n|
   d: !true
-//@[2:11)   ObjectPropertySyntax
+//@[2:10)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |d|
 //@[3:4)    Colon |:|
@@ -316,9 +316,9 @@ var myObj = {
 //@[5:6)     Exclamation |!|
 //@[6:10)     BooleanLiteralSyntax
 //@[6:10)      TrueKeyword |true|
-//@[10:11)    NewLine |\n|
+//@[10:11)   NewLine |\n|
   list: [
-//@[2:103)   ObjectPropertySyntax
+//@[2:102)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |list|
 //@[6:7)    Colon |:|
@@ -350,7 +350,7 @@ var myObj = {
 //@[4:5)       LeftBrace |{|
 //@[5:6)       NewLine |\n|
       test: 144 > 33 && true || 99 <= 199
-//@[6:42)       ObjectPropertySyntax
+//@[6:41)       ObjectPropertySyntax
 //@[6:10)        IdentifierSyntax
 //@[6:10)         Identifier |test|
 //@[10:11)        Colon |:|
@@ -372,7 +372,7 @@ var myObj = {
 //@[35:37)          LessThanOrEqual |<=|
 //@[38:41)          NumericLiteralSyntax
 //@[38:41)           Number |199|
-//@[41:42)        NewLine |\n|
+//@[41:42)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
 //@[5:6)      NewLine |\n|
@@ -387,9 +387,9 @@ var myObj = {
 //@[14:15)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   obj: {
-//@[2:47)   ObjectPropertySyntax
+//@[2:46)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |obj|
 //@[5:6)    Colon |:|
@@ -397,7 +397,7 @@ var myObj = {
 //@[7:8)     LeftBrace |{|
 //@[8:9)     NewLine |\n|
     nested: [
-//@[4:34)     ObjectPropertySyntax
+//@[4:33)     ObjectPropertySyntax
 //@[4:10)      IdentifierSyntax
 //@[4:10)       Identifier |nested|
 //@[10:11)      Colon |:|
@@ -411,10 +411,10 @@ var myObj = {
 //@[13:14)        NewLine |\n|
     ]
 //@[4:5)       RightSquare |]|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -429,7 +429,7 @@ var objWithInterp = {
 //@[20:21)   LeftBrace |{|
 //@[21:22)   NewLine |\n|
   '${myStr}': 1
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:12)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
 //@[5:10)     VariableAccessSyntax
@@ -439,9 +439,9 @@ var objWithInterp = {
 //@[12:13)    Colon |:|
 //@[14:15)    NumericLiteralSyntax
 //@[14:15)     Number |1|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
   'abc${myStr}def': 2
-//@[2:22)   ObjectPropertySyntax
+//@[2:21)   ObjectPropertySyntax
 //@[2:18)    StringSyntax
 //@[2:8)     StringLeftPiece |'abc${|
 //@[8:13)     VariableAccessSyntax
@@ -451,9 +451,9 @@ var objWithInterp = {
 //@[18:19)    Colon |:|
 //@[20:21)    NumericLiteralSyntax
 //@[20:21)     Number |2|
-//@[21:22)    NewLine |\n|
+//@[21:22)   NewLine |\n|
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'
-//@[2:55)   ObjectPropertySyntax
+//@[2:54)   ObjectPropertySyntax
 //@[2:27)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
 //@[5:12)     VariableAccessSyntax
@@ -475,7 +475,7 @@ var objWithInterp = {
 //@[45:52)      IdentifierSyntax
 //@[45:52)       Identifier |interp2|
 //@[52:54)     StringRightPiece |}'|
-//@[54:55)    NewLine |\n|
+//@[54:55)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -527,21 +527,21 @@ var myArrWithObjects = [
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     name: 'one'
-//@[4:16)     ObjectPropertySyntax
+//@[4:15)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:15)      StringSyntax
 //@[10:15)       StringComplete |'one'|
-//@[15:16)      NewLine |\n|
+//@[15:16)     NewLine |\n|
     enable: true
-//@[4:17)     ObjectPropertySyntax
+//@[4:16)     ObjectPropertySyntax
 //@[4:10)      IdentifierSyntax
 //@[4:10)       Identifier |enable|
 //@[10:11)      Colon |:|
 //@[12:16)      BooleanLiteralSyntax
 //@[12:16)       TrueKeyword |true|
-//@[16:17)      NewLine |\n|
+//@[16:17)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)    NewLine |\n|
@@ -551,15 +551,15 @@ var myArrWithObjects = [
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     name: 'two'
-//@[4:16)     ObjectPropertySyntax
+//@[4:15)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:15)      StringSyntax
 //@[10:15)       StringComplete |'two'|
-//@[15:16)      NewLine |\n|
+//@[15:16)     NewLine |\n|
     enable: false && false || 'two' !~ 'three'
-//@[4:47)     ObjectPropertySyntax
+//@[4:46)     ObjectPropertySyntax
 //@[4:10)      IdentifierSyntax
 //@[4:10)       Identifier |enable|
 //@[10:11)      Colon |:|
@@ -577,7 +577,7 @@ var myArrWithObjects = [
 //@[36:38)        NotEqualsInsensitive |!~|
 //@[39:46)        StringSyntax
 //@[39:46)         StringComplete |'three'|
-//@[46:47)      NewLine |\n|
+//@[46:47)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)    NewLine |\n|
@@ -658,13 +658,13 @@ var namedPropertyIndexer = {
 //@[27:28)    LeftBrace |{|
 //@[28:29)    NewLine |\n|
   foo: 's'
-//@[2:11)    ObjectPropertySyntax
+//@[2:10)    ObjectPropertySyntax
 //@[2:5)     IdentifierSyntax
 //@[2:5)      Identifier |foo|
 //@[5:6)     Colon |:|
 //@[7:10)     StringSyntax
 //@[7:10)      StringComplete |'s'|
-//@[10:11)     NewLine |\n|
+//@[10:11)    NewLine |\n|
 }['foo']
 //@[0:1)    RightBrace |}|
 //@[1:2)   LeftSquare |[|
@@ -898,7 +898,7 @@ var previousEmitLimit = [
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
     a: {
-//@[4:241)     ObjectPropertySyntax
+//@[4:240)     ObjectPropertySyntax
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
@@ -906,7 +906,7 @@ var previousEmitLimit = [
 //@[7:8)       LeftBrace |{|
 //@[8:9)       NewLine |\n|
       b: base64('s')
-//@[6:21)       ObjectPropertySyntax
+//@[6:20)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |b|
 //@[7:8)        Colon |:|
@@ -918,9 +918,9 @@ var previousEmitLimit = [
 //@[16:19)          StringSyntax
 //@[16:19)           StringComplete |'s'|
 //@[19:20)         RightParen |)|
-//@[20:21)        NewLine |\n|
+//@[20:21)       NewLine |\n|
       c: concat([
-//@[6:83)       ObjectPropertySyntax
+//@[6:82)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |c|
 //@[7:8)        Colon |:|
@@ -963,9 +963,9 @@ var previousEmitLimit = [
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[8:9)       NewLine |\n|
       d: az.resourceGroup().location
-//@[6:37)       ObjectPropertySyntax
+//@[6:36)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |d|
 //@[7:8)        Colon |:|
@@ -982,9 +982,9 @@ var previousEmitLimit = [
 //@[27:28)         Dot |.|
 //@[28:36)         IdentifierSyntax
 //@[28:36)          Identifier |location|
-//@[36:37)        NewLine |\n|
+//@[36:37)       NewLine |\n|
       e: concat([
-//@[6:40)       ObjectPropertySyntax
+//@[6:39)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |e|
 //@[7:8)        Colon |:|
@@ -1004,9 +1004,9 @@ var previousEmitLimit = [
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[8:9)       NewLine |\n|
       f: concat([
-//@[6:45)       ObjectPropertySyntax
+//@[6:44)       ObjectPropertySyntax
 //@[6:7)        IdentifierSyntax
 //@[6:7)         Identifier |f|
 //@[7:8)        Colon |:|
@@ -1030,10 +1030,10 @@ var previousEmitLimit = [
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
-//@[8:9)        NewLine |\n|
+//@[8:9)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)    NewLine |\n|
@@ -1068,14 +1068,14 @@ var myVar2 = any({
 //@[17:18)     LeftBrace |{|
 //@[18:19)     NewLine |\n|
   something: myVar
-//@[2:19)     ObjectPropertySyntax
+//@[2:18)     ObjectPropertySyntax
 //@[2:11)      IdentifierSyntax
 //@[2:11)       Identifier |something|
 //@[11:12)      Colon |:|
 //@[13:18)      VariableAccessSyntax
 //@[13:18)       IdentifierSyntax
 //@[13:18)        Identifier |myVar|
-//@[18:19)      NewLine |\n|
+//@[18:19)     NewLine |\n|
 })
 //@[0:1)     RightBrace |}|
 //@[1:2)   RightParen |)|
@@ -1100,14 +1100,14 @@ var myVar3 = any(any({
 //@[21:22)       LeftBrace |{|
 //@[22:23)       NewLine |\n|
   something: myVar
-//@[2:19)       ObjectPropertySyntax
+//@[2:18)       ObjectPropertySyntax
 //@[2:11)        IdentifierSyntax
 //@[2:11)         Identifier |something|
 //@[11:12)        Colon |:|
 //@[13:18)        VariableAccessSyntax
 //@[13:18)         IdentifierSyntax
 //@[13:18)          Identifier |myVar|
-//@[18:19)        NewLine |\n|
+//@[18:19)       NewLine |\n|
 }))
 //@[0:1)       RightBrace |}|
 //@[1:2)     RightParen |)|

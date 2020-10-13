@@ -12,21 +12,21 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[71:72)   LeftBrace |{|
 //@[72:74)   NewLine |\r\n|
   name: 'basicblobs'
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:20)    StringSyntax
 //@[8:20)     StringComplete |'basicblobs'|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
   location: 'westus'
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:20)    StringSyntax
 //@[12:20)     StringComplete |'westus'|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -43,21 +43,21 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 //@[59:60)   LeftBrace |{|
 //@[60:62)   NewLine |\r\n|
   name: 'myZone'
-//@[2:18)   ObjectPropertySyntax
+//@[2:16)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:16)    StringSyntax
 //@[8:16)     StringComplete |'myZone'|
-//@[16:18)    NewLine |\r\n|
+//@[16:18)   NewLine |\r\n|
   location: 'global'
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:20)    StringSyntax
 //@[12:20)     StringComplete |'global'|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -74,23 +74,23 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[75:76)   LeftBrace |{|
 //@[76:78)   NewLine |\r\n|
   name: 'myencryptedone'
-//@[2:26)   ObjectPropertySyntax
+//@[2:24)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:24)    StringSyntax
 //@[8:24)     StringComplete |'myencryptedone'|
-//@[24:26)    NewLine |\r\n|
+//@[24:26)   NewLine |\r\n|
   location: 'eastus2'
-//@[2:23)   ObjectPropertySyntax
+//@[2:21)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:21)    StringSyntax
 //@[12:21)     StringComplete |'eastus2'|
-//@[21:23)    NewLine |\r\n|
+//@[21:23)   NewLine |\r\n|
   properties: {
-//@[2:279)   ObjectPropertySyntax
+//@[2:277)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -98,23 +98,23 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     supportsHttpsTrafficOnly: true
-//@[4:36)     ObjectPropertySyntax
+//@[4:34)     ObjectPropertySyntax
 //@[4:28)      IdentifierSyntax
 //@[4:28)       Identifier |supportsHttpsTrafficOnly|
 //@[28:29)      Colon |:|
 //@[30:34)      BooleanLiteralSyntax
 //@[30:34)       TrueKeyword |true|
-//@[34:36)      NewLine |\r\n|
+//@[34:36)     NewLine |\r\n|
     accessTier: 'Hot'
-//@[4:23)     ObjectPropertySyntax
+//@[4:21)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |accessTier|
 //@[14:15)      Colon |:|
 //@[16:21)      StringSyntax
 //@[16:21)       StringComplete |'Hot'|
-//@[21:23)      NewLine |\r\n|
+//@[21:23)     NewLine |\r\n|
     encryption: {
-//@[4:198)     ObjectPropertySyntax
+//@[4:196)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |encryption|
 //@[14:15)      Colon |:|
@@ -122,15 +122,15 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[16:17)       LeftBrace |{|
 //@[17:19)       NewLine |\r\n|
       keySource: 'Microsoft.Storage'
-//@[6:38)       ObjectPropertySyntax
+//@[6:36)       ObjectPropertySyntax
 //@[6:15)        IdentifierSyntax
 //@[6:15)         Identifier |keySource|
 //@[15:16)        Colon |:|
 //@[17:36)        StringSyntax
 //@[17:36)         StringComplete |'Microsoft.Storage'|
-//@[36:38)        NewLine |\r\n|
+//@[36:38)       NewLine |\r\n|
       services: {
-//@[6:134)       ObjectPropertySyntax
+//@[6:132)       ObjectPropertySyntax
 //@[6:14)        IdentifierSyntax
 //@[6:14)         Identifier |services|
 //@[14:15)        Colon |:|
@@ -138,7 +138,7 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[16:17)         LeftBrace |{|
 //@[17:19)         NewLine |\r\n|
         blob: {
-//@[8:53)         ObjectPropertySyntax
+//@[8:51)         ObjectPropertySyntax
 //@[8:12)          IdentifierSyntax
 //@[8:12)           Identifier |blob|
 //@[12:13)          Colon |:|
@@ -146,18 +146,18 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)           LeftBrace |{|
 //@[15:17)           NewLine |\r\n|
           enabled: true
-//@[10:25)           ObjectPropertySyntax
+//@[10:23)           ObjectPropertySyntax
 //@[10:17)            IdentifierSyntax
 //@[10:17)             Identifier |enabled|
 //@[17:18)            Colon |:|
 //@[19:23)            BooleanLiteralSyntax
 //@[19:23)             TrueKeyword |true|
-//@[23:25)            NewLine |\r\n|
+//@[23:25)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
         file: {
-//@[8:53)         ObjectPropertySyntax
+//@[8:51)         ObjectPropertySyntax
 //@[8:12)          IdentifierSyntax
 //@[8:12)           Identifier |file|
 //@[12:13)          Colon |:|
@@ -165,35 +165,35 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)           LeftBrace |{|
 //@[15:17)           NewLine |\r\n|
           enabled: true
-//@[10:25)           ObjectPropertySyntax
+//@[10:23)           ObjectPropertySyntax
 //@[10:17)            IdentifierSyntax
 //@[10:17)             Identifier |enabled|
 //@[17:18)            Colon |:|
 //@[19:23)            BooleanLiteralSyntax
 //@[19:23)             TrueKeyword |true|
-//@[23:25)            NewLine |\r\n|
+//@[23:25)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
       }
 //@[6:7)         RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:21)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |kind|
 //@[6:7)    Colon |:|
 //@[8:19)    StringSyntax
 //@[8:19)     StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[19:21)   NewLine |\r\n|
   sku: {
-//@[2:41)   ObjectPropertySyntax
+//@[2:39)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |sku|
 //@[5:6)    Colon |:|
@@ -201,16 +201,16 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[7:8)     LeftBrace |{|
 //@[8:10)     NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:26)     ObjectPropertySyntax
+//@[4:24)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:24)      StringSyntax
 //@[10:24)       StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[24:26)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -227,23 +227,23 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[74:75)   LeftBrace |{|
 //@[75:77)   NewLine |\r\n|
   name: 'myencryptedone'
-//@[2:26)   ObjectPropertySyntax
+//@[2:24)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:24)    StringSyntax
 //@[8:24)     StringComplete |'myencryptedone'|
-//@[24:26)    NewLine |\r\n|
+//@[24:26)   NewLine |\r\n|
   location: 'eastus2'
-//@[2:23)   ObjectPropertySyntax
+//@[2:21)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:21)    StringSyntax
 //@[12:21)     StringComplete |'eastus2'|
-//@[21:23)    NewLine |\r\n|
+//@[21:23)   NewLine |\r\n|
   properties: {
-//@[2:306)   ObjectPropertySyntax
+//@[2:304)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -251,7 +251,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     supportsHttpsTrafficOnly: !false
-//@[4:38)     ObjectPropertySyntax
+//@[4:36)     ObjectPropertySyntax
 //@[4:28)      IdentifierSyntax
 //@[4:28)       Identifier |supportsHttpsTrafficOnly|
 //@[28:29)      Colon |:|
@@ -259,9 +259,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[30:31)       Exclamation |!|
 //@[31:36)       BooleanLiteralSyntax
 //@[31:36)        FalseKeyword |false|
-//@[36:38)      NewLine |\r\n|
+//@[36:38)     NewLine |\r\n|
     accessTier: true ? 'Hot' : 'Cold'
-//@[4:39)     ObjectPropertySyntax
+//@[4:37)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |accessTier|
 //@[14:15)      Colon |:|
@@ -274,9 +274,9 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[29:30)       Colon |:|
 //@[31:37)       StringSyntax
 //@[31:37)        StringComplete |'Cold'|
-//@[37:39)      NewLine |\r\n|
+//@[37:39)     NewLine |\r\n|
     encryption: {
-//@[4:207)     ObjectPropertySyntax
+//@[4:205)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |encryption|
 //@[14:15)      Colon |:|
@@ -284,15 +284,15 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[16:17)       LeftBrace |{|
 //@[17:19)       NewLine |\r\n|
       keySource: 'Microsoft.Storage'
-//@[6:38)       ObjectPropertySyntax
+//@[6:36)       ObjectPropertySyntax
 //@[6:15)        IdentifierSyntax
 //@[6:15)         Identifier |keySource|
 //@[15:16)        Colon |:|
 //@[17:36)        StringSyntax
 //@[17:36)         StringComplete |'Microsoft.Storage'|
-//@[36:38)        NewLine |\r\n|
+//@[36:38)       NewLine |\r\n|
       services: {
-//@[6:143)       ObjectPropertySyntax
+//@[6:141)       ObjectPropertySyntax
 //@[6:14)        IdentifierSyntax
 //@[6:14)         Identifier |services|
 //@[14:15)        Colon |:|
@@ -300,7 +300,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[16:17)         LeftBrace |{|
 //@[17:19)         NewLine |\r\n|
         blob: {
-//@[8:62)         ObjectPropertySyntax
+//@[8:60)         ObjectPropertySyntax
 //@[8:12)          IdentifierSyntax
 //@[8:12)           Identifier |blob|
 //@[12:13)          Colon |:|
@@ -308,7 +308,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)           LeftBrace |{|
 //@[15:17)           NewLine |\r\n|
           enabled: true || false
-//@[10:34)           ObjectPropertySyntax
+//@[10:32)           ObjectPropertySyntax
 //@[10:17)            IdentifierSyntax
 //@[10:17)             Identifier |enabled|
 //@[17:18)            Colon |:|
@@ -318,12 +318,12 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[24:26)             LogicalOr ||||
 //@[27:32)             BooleanLiteralSyntax
 //@[27:32)              FalseKeyword |false|
-//@[32:34)            NewLine |\r\n|
+//@[32:34)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
         file: {
-//@[8:53)         ObjectPropertySyntax
+//@[8:51)         ObjectPropertySyntax
 //@[8:12)          IdentifierSyntax
 //@[8:12)           Identifier |file|
 //@[12:13)          Colon |:|
@@ -331,35 +331,35 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[14:15)           LeftBrace |{|
 //@[15:17)           NewLine |\r\n|
           enabled: true
-//@[10:25)           ObjectPropertySyntax
+//@[10:23)           ObjectPropertySyntax
 //@[10:17)            IdentifierSyntax
 //@[10:17)             Identifier |enabled|
 //@[17:18)            Colon |:|
 //@[19:23)            BooleanLiteralSyntax
 //@[19:23)             TrueKeyword |true|
-//@[23:25)            NewLine |\r\n|
+//@[23:25)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
       }
 //@[6:7)         RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:21)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |kind|
 //@[6:7)    Colon |:|
 //@[8:19)    StringSyntax
 //@[8:19)     StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[19:21)   NewLine |\r\n|
   sku: {
-//@[2:41)   ObjectPropertySyntax
+//@[2:39)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |sku|
 //@[5:6)    Colon |:|
@@ -367,18 +367,18 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[7:8)     LeftBrace |{|
 //@[8:10)     NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:26)     ObjectPropertySyntax
+//@[4:24)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:24)      StringSyntax
 //@[10:24)       StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[24:26)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
   dependsOn: [
-//@[2:43)   ObjectPropertySyntax
+//@[2:41)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |dependsOn|
 //@[11:12)    Colon |:|
@@ -393,7 +393,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[20:22)      NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -485,25 +485,25 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
 //@[86:88)   NewLine |\r\n|
   name: hostingPlanName
-//@[2:25)   ObjectPropertySyntax
+//@[2:23)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:23)    VariableAccessSyntax
 //@[8:23)     IdentifierSyntax
 //@[8:23)      Identifier |hostingPlanName|
-//@[23:25)    NewLine |\r\n|
+//@[23:25)   NewLine |\r\n|
   location: location
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:20)    VariableAccessSyntax
 //@[12:20)     IdentifierSyntax
 //@[12:20)      Identifier |location|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
   sku: {
-//@[2:84)   ObjectPropertySyntax
+//@[2:82)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |sku|
 //@[5:6)    Colon |:|
@@ -511,28 +511,28 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[7:8)     LeftBrace |{|
 //@[8:10)     NewLine |\r\n|
     name: appServicePlanTier
-//@[4:30)     ObjectPropertySyntax
+//@[4:28)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:28)      VariableAccessSyntax
 //@[10:28)       IdentifierSyntax
 //@[10:28)        Identifier |appServicePlanTier|
-//@[28:30)      NewLine |\r\n|
+//@[28:30)     NewLine |\r\n|
     capacity: appServicePlanInstances
-//@[4:39)     ObjectPropertySyntax
+//@[4:37)     ObjectPropertySyntax
 //@[4:12)      IdentifierSyntax
 //@[4:12)       Identifier |capacity|
 //@[12:13)      Colon |:|
 //@[14:37)      VariableAccessSyntax
 //@[14:37)       IdentifierSyntax
 //@[14:37)        Identifier |appServicePlanInstances|
-//@[37:39)      NewLine |\r\n|
+//@[37:39)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
   properties: {
-//@[2:93)   ObjectPropertySyntax
+//@[2:91)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -540,17 +540,17 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:71)     ObjectPropertySyntax
+//@[4:25)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |name|
 //@[8:9)      Colon |:|
 //@[10:25)      VariableAccessSyntax
 //@[10:25)       IdentifierSyntax
 //@[10:25)        Identifier |hostingPlanName|
-//@[69:71)      NewLine |\r\n|
+//@[69:71)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -647,25 +647,25 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[49:50)   LeftBrace |{|
 //@[50:52)   NewLine |\r\n|
   name: webSiteName
-//@[2:21)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:19)    VariableAccessSyntax
 //@[8:19)     IdentifierSyntax
 //@[8:19)      Identifier |webSiteName|
-//@[19:21)    NewLine |\r\n|
+//@[19:21)   NewLine |\r\n|
   location: location
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |location|
 //@[10:11)    Colon |:|
 //@[12:20)    VariableAccessSyntax
 //@[12:20)     IdentifierSyntax
 //@[12:20)      Identifier |location|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
   properties: {
-//@[2:593)   ObjectPropertySyntax
+//@[2:591)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -675,7 +675,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
     // not yet supported // serverFarmId: farm.id
 //@[49:51)     NewLine |\r\n|
     siteConfig: {
-//@[4:520)     ObjectPropertySyntax
+//@[4:518)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |siteConfig|
 //@[14:15)      Colon |:|
@@ -683,7 +683,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[16:17)       LeftBrace |{|
 //@[17:19)       NewLine |\r\n|
       appSettings: [
-//@[6:494)       ObjectPropertySyntax
+//@[6:492)       ObjectPropertySyntax
 //@[6:17)        IdentifierSyntax
 //@[6:17)         Identifier |appSettings|
 //@[17:18)        Colon |:|
@@ -696,15 +696,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
           name: 'CosmosDb:Account'
-//@[10:36)           ObjectPropertySyntax
+//@[10:34)           ObjectPropertySyntax
 //@[10:14)            IdentifierSyntax
 //@[10:14)             Identifier |name|
 //@[14:15)            Colon |:|
 //@[16:34)            StringSyntax
 //@[16:34)             StringComplete |'CosmosDb:Account'|
-//@[34:36)            NewLine |\r\n|
+//@[34:36)           NewLine |\r\n|
           value: reference(cosmosDbResourceId).documentEndpoint
-//@[10:65)           ObjectPropertySyntax
+//@[10:63)           ObjectPropertySyntax
 //@[10:15)            IdentifierSyntax
 //@[10:15)             Identifier |value|
 //@[15:16)            Colon |:|
@@ -721,7 +721,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[46:47)             Dot |.|
 //@[47:63)             IdentifierSyntax
 //@[47:63)              Identifier |documentEndpoint|
-//@[63:65)            NewLine |\r\n|
+//@[63:65)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
 //@[9:11)          NewLine |\r\n|
@@ -731,15 +731,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
           name: 'CosmosDb:Key'
-//@[10:32)           ObjectPropertySyntax
+//@[10:30)           ObjectPropertySyntax
 //@[10:14)            IdentifierSyntax
 //@[10:14)             Identifier |name|
 //@[14:15)            Colon |:|
 //@[16:30)            StringSyntax
 //@[16:30)             StringComplete |'CosmosDb:Key'|
-//@[30:32)            NewLine |\r\n|
+//@[30:32)           NewLine |\r\n|
           value: listKeys(cosmosDbResourceId, '2020-04-01').primaryMasterKey
-//@[10:78)           ObjectPropertySyntax
+//@[10:76)           ObjectPropertySyntax
 //@[10:15)            IdentifierSyntax
 //@[10:15)             Identifier |value|
 //@[15:16)            Colon |:|
@@ -760,7 +760,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[59:60)             Dot |.|
 //@[60:76)             IdentifierSyntax
 //@[60:76)              Identifier |primaryMasterKey|
-//@[76:78)            NewLine |\r\n|
+//@[76:78)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
 //@[9:11)          NewLine |\r\n|
@@ -770,15 +770,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
           name: 'CosmosDb:DatabaseName'
-//@[10:41)           ObjectPropertySyntax
+//@[10:39)           ObjectPropertySyntax
 //@[10:14)            IdentifierSyntax
 //@[10:14)             Identifier |name|
 //@[14:15)            Colon |:|
 //@[16:39)            StringSyntax
 //@[16:39)             StringComplete |'CosmosDb:DatabaseName'|
-//@[39:41)            NewLine |\r\n|
+//@[39:41)           NewLine |\r\n|
           value: cosmosDb.databaseName
-//@[10:40)           ObjectPropertySyntax
+//@[10:38)           ObjectPropertySyntax
 //@[10:15)            IdentifierSyntax
 //@[10:15)             Identifier |value|
 //@[15:16)            Colon |:|
@@ -789,7 +789,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[25:26)             Dot |.|
 //@[26:38)             IdentifierSyntax
 //@[26:38)              Identifier |databaseName|
-//@[38:40)            NewLine |\r\n|
+//@[38:40)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
 //@[9:11)          NewLine |\r\n|
@@ -799,15 +799,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
           name: 'CosmosDb:ContainerName'
-//@[10:42)           ObjectPropertySyntax
+//@[10:40)           ObjectPropertySyntax
 //@[10:14)            IdentifierSyntax
 //@[10:14)             Identifier |name|
 //@[14:15)            Colon |:|
 //@[16:40)            StringSyntax
 //@[16:40)             StringComplete |'CosmosDb:ContainerName'|
-//@[40:42)            NewLine |\r\n|
+//@[40:42)           NewLine |\r\n|
           value: cosmosDb.containerName
-//@[10:41)           ObjectPropertySyntax
+//@[10:39)           ObjectPropertySyntax
 //@[10:15)            IdentifierSyntax
 //@[10:15)             Identifier |value|
 //@[15:16)            Colon |:|
@@ -818,19 +818,19 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[25:26)             Dot |.|
 //@[26:39)             IdentifierSyntax
 //@[26:39)              Identifier |containerName|
-//@[39:41)            NewLine |\r\n|
+//@[39:41)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
 //@[9:11)          NewLine |\r\n|
       ]
 //@[6:7)         RightSquare |]|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -909,15 +909,15 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[63:64)   LeftBrace |{|
 //@[64:66)   NewLine |\r\n|
   name: 'nestedTemplate1'
-//@[2:27)   ObjectPropertySyntax
+//@[2:25)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:25)    StringSyntax
 //@[8:25)     StringComplete |'nestedTemplate1'|
-//@[25:27)    NewLine |\r\n|
+//@[25:27)   NewLine |\r\n|
   properties: {
-//@[2:260)   ObjectPropertySyntax
+//@[2:258)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -925,15 +925,15 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     mode: 'Incremental'
-//@[4:25)     ObjectPropertySyntax
+//@[4:23)     ObjectPropertySyntax
 //@[4:8)      IdentifierSyntax
 //@[4:8)       Identifier |mode|
 //@[8:9)      Colon |:|
 //@[10:23)      StringSyntax
 //@[10:23)       StringComplete |'Incremental'|
-//@[23:25)      NewLine |\r\n|
+//@[23:25)     NewLine |\r\n|
     template: {
-//@[4:213)     ObjectPropertySyntax
+//@[4:211)     ObjectPropertySyntax
 //@[4:12)      IdentifierSyntax
 //@[4:12)       Identifier |template|
 //@[12:13)      Colon |:|
@@ -943,23 +943,23 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
       // string key value
 //@[25:27)       NewLine |\r\n|
       '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
-//@[6:100)       ObjectPropertySyntax
+//@[6:98)       ObjectPropertySyntax
 //@[6:15)        StringSyntax
 //@[6:15)         StringComplete |'$schema'|
 //@[15:16)        Colon |:|
 //@[17:98)        StringSyntax
 //@[17:98)         StringComplete |'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'|
-//@[98:100)        NewLine |\r\n|
+//@[98:100)       NewLine |\r\n|
       contentVersion: '1.0.0.0'
-//@[6:33)       ObjectPropertySyntax
+//@[6:31)       ObjectPropertySyntax
 //@[6:20)        IdentifierSyntax
 //@[6:20)         Identifier |contentVersion|
 //@[20:21)        Colon |:|
 //@[22:31)        StringSyntax
 //@[22:31)         StringComplete |'1.0.0.0'|
-//@[31:33)        NewLine |\r\n|
+//@[31:33)       NewLine |\r\n|
       resources: [
-//@[6:29)       ObjectPropertySyntax
+//@[6:27)       ObjectPropertySyntax
 //@[6:15)        IdentifierSyntax
 //@[6:15)         Identifier |resources|
 //@[15:16)        Colon |:|
@@ -968,13 +968,13 @@ resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
 //@[18:20)         NewLine |\r\n|
       ]
 //@[6:7)         RightSquare |]|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -993,15 +993,15 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[71:72)   LeftBrace |{|
 //@[72:74)   NewLine |\r\n|
   name: 'nestedTemplate1'
-//@[2:27)   ObjectPropertySyntax
+//@[2:25)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:25)    StringSyntax
 //@[8:25)     StringComplete |'nestedTemplate1'|
-//@[25:27)    NewLine |\r\n|
+//@[25:27)   NewLine |\r\n|
   properties: {
-//@[2:182)   ObjectPropertySyntax
+//@[2:180)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -1009,7 +1009,7 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     otherId: nested.id
-//@[4:24)     ObjectPropertySyntax
+//@[4:22)     ObjectPropertySyntax
 //@[4:11)      IdentifierSyntax
 //@[4:11)       Identifier |otherId|
 //@[11:12)      Colon |:|
@@ -1020,9 +1020,9 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[19:20)       Dot |.|
 //@[20:22)       IdentifierSyntax
 //@[20:22)        Identifier |id|
-//@[22:24)      NewLine |\r\n|
+//@[22:24)     NewLine |\r\n|
     otherName: nested.name
-//@[4:28)     ObjectPropertySyntax
+//@[4:26)     ObjectPropertySyntax
 //@[4:13)      IdentifierSyntax
 //@[4:13)       Identifier |otherName|
 //@[13:14)      Colon |:|
@@ -1033,9 +1033,9 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[21:22)       Dot |.|
 //@[22:26)       IdentifierSyntax
 //@[22:26)        Identifier |name|
-//@[26:28)      NewLine |\r\n|
+//@[26:28)     NewLine |\r\n|
     otherVersion: nested.apiVersion
-//@[4:37)     ObjectPropertySyntax
+//@[4:35)     ObjectPropertySyntax
 //@[4:16)      IdentifierSyntax
 //@[4:16)       Identifier |otherVersion|
 //@[16:17)      Colon |:|
@@ -1046,9 +1046,9 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[24:25)       Dot |.|
 //@[25:35)       IdentifierSyntax
 //@[25:35)        Identifier |apiVersion|
-//@[35:37)      NewLine |\r\n|
+//@[35:37)     NewLine |\r\n|
     otherType: nested.type
-//@[4:30)     ObjectPropertySyntax
+//@[4:26)     ObjectPropertySyntax
 //@[4:13)      IdentifierSyntax
 //@[4:13)       Identifier |otherType|
 //@[13:14)      Colon |:|
@@ -1059,10 +1059,10 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[21:22)       Dot |.|
 //@[22:26)       IdentifierSyntax
 //@[22:26)        Identifier |type|
-//@[26:30)      NewLine |\r\n\r\n|
+//@[26:30)     NewLine |\r\n\r\n|
 
     otherThings: nested.properties.mode
-//@[4:41)     ObjectPropertySyntax
+//@[4:39)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |otherThings|
 //@[15:16)      Colon |:|
@@ -1077,10 +1077,10 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[34:35)       Dot |.|
 //@[35:39)       IdentifierSyntax
 //@[35:39)        Identifier |mode|
-//@[39:41)      NewLine |\r\n|
+//@[39:41)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1097,13 +1097,13 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 //@[46:47)   LeftBrace |{|
 //@[47:49)   NewLine |\r\n|
   name: 'resourceA'
-//@[2:21)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:19)    StringSyntax
 //@[8:19)     StringComplete |'resourceA'|
-//@[19:21)    NewLine |\r\n|
+//@[19:21)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1120,7 +1120,7 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[52:53)   LeftBrace |{|
 //@[53:55)   NewLine |\r\n|
   name: '${resourceA.name}/myName'
-//@[2:36)   ObjectPropertySyntax
+//@[2:34)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
@@ -1134,7 +1134,7 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[21:25)      IdentifierSyntax
 //@[21:25)       Identifier |name|
 //@[25:34)     StringRightPiece |}/myName'|
-//@[34:36)    NewLine |\r\n|
+//@[34:36)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1151,7 +1151,7 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[52:53)   LeftBrace |{|
 //@[53:55)   NewLine |\r\n|
   name: '${resourceA.name}/myName'
-//@[2:36)   ObjectPropertySyntax
+//@[2:34)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
@@ -1165,9 +1165,9 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[21:25)      IdentifierSyntax
 //@[21:25)       Identifier |name|
 //@[25:34)     StringRightPiece |}/myName'|
-//@[34:36)    NewLine |\r\n|
+//@[34:36)   NewLine |\r\n|
   properties: {
-//@[2:177)   ObjectPropertySyntax
+//@[2:175)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -1175,7 +1175,7 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     aId: resourceA.id
-//@[4:23)     ObjectPropertySyntax
+//@[4:21)     ObjectPropertySyntax
 //@[4:7)      IdentifierSyntax
 //@[4:7)       Identifier |aId|
 //@[7:8)      Colon |:|
@@ -1186,9 +1186,9 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[18:19)       Dot |.|
 //@[19:21)       IdentifierSyntax
 //@[19:21)        Identifier |id|
-//@[21:23)      NewLine |\r\n|
+//@[21:23)     NewLine |\r\n|
     aType: resourceA.type
-//@[4:27)     ObjectPropertySyntax
+//@[4:25)     ObjectPropertySyntax
 //@[4:9)      IdentifierSyntax
 //@[4:9)       Identifier |aType|
 //@[9:10)      Colon |:|
@@ -1199,9 +1199,9 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[20:21)       Dot |.|
 //@[21:25)       IdentifierSyntax
 //@[21:25)        Identifier |type|
-//@[25:27)      NewLine |\r\n|
+//@[25:27)     NewLine |\r\n|
     aName: resourceA.name
-//@[4:27)     ObjectPropertySyntax
+//@[4:25)     ObjectPropertySyntax
 //@[4:9)      IdentifierSyntax
 //@[4:9)       Identifier |aName|
 //@[9:10)      Colon |:|
@@ -1212,9 +1212,9 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[20:21)       Dot |.|
 //@[21:25)       IdentifierSyntax
 //@[21:25)        Identifier |name|
-//@[25:27)      NewLine |\r\n|
+//@[25:27)     NewLine |\r\n|
     aApiVersion: resourceA.apiVersion
-//@[4:39)     ObjectPropertySyntax
+//@[4:37)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |aApiVersion|
 //@[15:16)      Colon |:|
@@ -1225,9 +1225,9 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[26:27)       Dot |.|
 //@[27:37)       IdentifierSyntax
 //@[27:37)        Identifier |apiVersion|
-//@[37:39)      NewLine |\r\n|
+//@[37:39)     NewLine |\r\n|
     bProperties: resourceB.properties
-//@[4:39)     ObjectPropertySyntax
+//@[4:37)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |bProperties|
 //@[15:16)      Colon |:|
@@ -1238,10 +1238,10 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[26:27)       Dot |.|
 //@[27:37)       IdentifierSyntax
 //@[27:37)        Identifier |properties|
-//@[37:39)      NewLine |\r\n|
+//@[37:39)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1256,7 +1256,7 @@ var varARuntime = {
 //@[18:19)   LeftBrace |{|
 //@[19:21)   NewLine |\r\n|
   bId: resourceB.id
-//@[2:21)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |bId|
 //@[5:6)    Colon |:|
@@ -1267,9 +1267,9 @@ var varARuntime = {
 //@[16:17)     Dot |.|
 //@[17:19)     IdentifierSyntax
 //@[17:19)      Identifier |id|
-//@[19:21)    NewLine |\r\n|
+//@[19:21)   NewLine |\r\n|
   bType: resourceB.type
-//@[2:25)   ObjectPropertySyntax
+//@[2:23)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |bType|
 //@[7:8)    Colon |:|
@@ -1280,9 +1280,9 @@ var varARuntime = {
 //@[18:19)     Dot |.|
 //@[19:23)     IdentifierSyntax
 //@[19:23)      Identifier |type|
-//@[23:25)    NewLine |\r\n|
+//@[23:25)   NewLine |\r\n|
   bName: resourceB.name
-//@[2:25)   ObjectPropertySyntax
+//@[2:23)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |bName|
 //@[7:8)    Colon |:|
@@ -1293,9 +1293,9 @@ var varARuntime = {
 //@[18:19)     Dot |.|
 //@[19:23)     IdentifierSyntax
 //@[19:23)      Identifier |name|
-//@[23:25)    NewLine |\r\n|
+//@[23:25)   NewLine |\r\n|
   bApiVersion: resourceB.apiVersion
-//@[2:37)   ObjectPropertySyntax
+//@[2:35)   ObjectPropertySyntax
 //@[2:13)    IdentifierSyntax
 //@[2:13)     Identifier |bApiVersion|
 //@[13:14)    Colon |:|
@@ -1306,9 +1306,9 @@ var varARuntime = {
 //@[24:25)     Dot |.|
 //@[25:35)     IdentifierSyntax
 //@[25:35)      Identifier |apiVersion|
-//@[35:37)    NewLine |\r\n|
+//@[35:37)   NewLine |\r\n|
   aKind: resourceA.kind
-//@[2:25)   ObjectPropertySyntax
+//@[2:23)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |aKind|
 //@[7:8)    Colon |:|
@@ -1319,7 +1319,7 @@ var varARuntime = {
 //@[18:19)     Dot |.|
 //@[19:23)     IdentifierSyntax
 //@[19:23)      Identifier |kind|
-//@[23:25)    NewLine |\r\n|
+//@[23:25)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1353,7 +1353,7 @@ var resourceCRef = {
 //@[19:20)   LeftBrace |{|
 //@[20:22)   NewLine |\r\n|
   id: resourceC.id
-//@[2:20)   ObjectPropertySyntax
+//@[2:18)   ObjectPropertySyntax
 //@[2:4)    IdentifierSyntax
 //@[2:4)     Identifier |id|
 //@[4:5)    Colon |:|
@@ -1364,7 +1364,7 @@ var resourceCRef = {
 //@[15:16)     Dot |.|
 //@[16:18)     IdentifierSyntax
 //@[16:18)      Identifier |id|
-//@[18:20)    NewLine |\r\n|
+//@[18:20)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\r\n|
@@ -1390,15 +1390,15 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[46:47)   LeftBrace |{|
 //@[47:49)   NewLine |\r\n|
   name: 'constant'
-//@[2:20)   ObjectPropertySyntax
+//@[2:18)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:18)    StringSyntax
 //@[8:18)     StringComplete |'constant'|
-//@[18:20)    NewLine |\r\n|
+//@[18:20)   NewLine |\r\n|
   properties: {
-//@[2:161)   ObjectPropertySyntax
+//@[2:159)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -1406,18 +1406,18 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     runtime: varBRuntime
-//@[4:86)     ObjectPropertySyntax
+//@[4:24)     ObjectPropertySyntax
 //@[4:11)      IdentifierSyntax
 //@[4:11)       Identifier |runtime|
 //@[11:12)      Colon |:|
 //@[13:24)      VariableAccessSyntax
 //@[13:24)       IdentifierSyntax
 //@[13:24)        Identifier |varBRuntime|
-//@[24:26)      NewLine |\r\n|
+//@[24:26)     NewLine |\r\n|
     // repro for https://github.com/Azure/bicep/issues/316
-//@[58:60)      NewLine |\r\n|
+//@[58:60)     NewLine |\r\n|
     repro316: setResourceCRef ? resourceCRef : null
-//@[4:53)     ObjectPropertySyntax
+//@[4:51)     ObjectPropertySyntax
 //@[4:12)      IdentifierSyntax
 //@[4:12)       Identifier |repro316|
 //@[12:13)      Colon |:|
@@ -1432,10 +1432,10 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[45:46)       Colon |:|
 //@[47:51)       NullLiteralSyntax
 //@[47:51)        NullKeyword |null|
-//@[51:53)      NewLine |\r\n|
+//@[51:53)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1461,15 +1461,15 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[56:57)   LeftBrace |{|
 //@[57:59)   NewLine |\r\n|
   name: 'interpTest'
-//@[2:22)   ObjectPropertySyntax
+//@[2:20)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:20)    StringSyntax
 //@[8:20)     StringComplete |'interpTest'|
-//@[20:22)    NewLine |\r\n|
+//@[20:22)   NewLine |\r\n|
   properties: {
-//@[2:120)   ObjectPropertySyntax
+//@[2:118)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -1477,7 +1477,7 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:17)     NewLine |\r\n|
     '${myInterpKey}': 1
-//@[4:25)     ObjectPropertySyntax
+//@[4:23)     ObjectPropertySyntax
 //@[4:20)      StringSyntax
 //@[4:7)       StringLeftPiece |'${|
 //@[7:18)       VariableAccessSyntax
@@ -1487,9 +1487,9 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[20:21)      Colon |:|
 //@[22:23)      NumericLiteralSyntax
 //@[22:23)       Number |1|
-//@[23:25)      NewLine |\r\n|
+//@[23:25)     NewLine |\r\n|
     'abc${myInterpKey}def': 2
-//@[4:31)     ObjectPropertySyntax
+//@[4:29)     ObjectPropertySyntax
 //@[4:26)      StringSyntax
 //@[4:10)       StringLeftPiece |'abc${|
 //@[10:21)       VariableAccessSyntax
@@ -1499,9 +1499,9 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[26:27)      Colon |:|
 //@[28:29)      NumericLiteralSyntax
 //@[28:29)       Number |2|
-//@[29:31)      NewLine |\r\n|
+//@[29:31)     NewLine |\r\n|
     '${myInterpKey}abc${myInterpKey}': 3
-//@[4:42)     ObjectPropertySyntax
+//@[4:40)     ObjectPropertySyntax
 //@[4:37)      StringSyntax
 //@[4:7)       StringLeftPiece |'${|
 //@[7:18)       VariableAccessSyntax
@@ -1515,10 +1515,10 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[37:38)      Colon |:|
 //@[39:40)      NumericLiteralSyntax
 //@[39:40)       Number |3|
-//@[40:42)      NewLine |\r\n|
+//@[40:42)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

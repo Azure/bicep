@@ -1,0 +1,36 @@
+[
+  {
+    "label": "id",
+    "kind": "property",
+    "detail": "id",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "id",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "name",
+    "kind": "property",
+    "detail": "name",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "name",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  }
+]

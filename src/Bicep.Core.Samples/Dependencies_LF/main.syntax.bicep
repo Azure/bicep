@@ -29,7 +29,7 @@ var dependentVar = {
 //@[19:20)   LeftBrace |{|
 //@[20:21)   NewLine |\n|
   dependencies: [
-//@[2:60)   ObjectPropertySyntax
+//@[2:59)   ObjectPropertySyntax
 //@[2:14)    IdentifierSyntax
 //@[2:14)     Identifier |dependencies|
 //@[14:15)    Colon |:|
@@ -50,7 +50,7 @@ var dependentVar = {
 //@[19:20)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -65,7 +65,7 @@ var resourceDependency = {
 //@[25:26)   LeftBrace |{|
 //@[26:27)   NewLine |\n|
   dependenciesA: [
-//@[2:108)   ObjectPropertySyntax
+//@[2:107)   ObjectPropertySyntax
 //@[2:15)    IdentifierSyntax
 //@[2:15)     Identifier |dependenciesA|
 //@[15:16)    Colon |:|
@@ -128,7 +128,7 @@ var resourceDependency = {
 //@[13:14)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -161,15 +161,15 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[50:51)   LeftBrace |{|
 //@[51:52)   NewLine |\n|
   name: 'resA'
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:14)    StringSyntax
 //@[8:14)     StringComplete |'resA'|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   properties: {
-//@[2:49)   ObjectPropertySyntax
+//@[2:48)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -177,25 +177,25 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:16)     NewLine |\n|
     deployTime: dependentVar
-//@[4:29)     ObjectPropertySyntax
+//@[4:28)     ObjectPropertySyntax
 //@[4:14)      IdentifierSyntax
 //@[4:14)       Identifier |deployTime|
 //@[14:15)      Colon |:|
 //@[16:28)      VariableAccessSyntax
 //@[16:28)       IdentifierSyntax
 //@[16:28)        Identifier |dependentVar|
-//@[28:29)      NewLine |\n|
+//@[28:29)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   eTag: '1234'
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |eTag|
 //@[6:7)    Colon |:|
 //@[8:14)    StringSyntax
 //@[8:14)     StringComplete |'1234'|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -228,15 +228,15 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@[50:51)   LeftBrace |{|
 //@[51:52)   NewLine |\n|
   name: 'resB'
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:14)    StringSyntax
 //@[8:14)     StringComplete |'resB'|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   properties: {
-//@[2:57)   ObjectPropertySyntax
+//@[2:56)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -244,17 +244,17 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:16)     NewLine |\n|
     dependencies: resourceDependency
-//@[4:37)     ObjectPropertySyntax
+//@[4:36)     ObjectPropertySyntax
 //@[4:16)      IdentifierSyntax
 //@[4:16)       Identifier |dependencies|
 //@[16:17)      Colon |:|
 //@[18:36)      VariableAccessSyntax
 //@[18:36)       IdentifierSyntax
 //@[18:36)        Identifier |resourceDependency|
-//@[36:37)      NewLine |\n|
+//@[36:37)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -269,7 +269,7 @@ var resourceIds = {
 //@[18:19)   LeftBrace |{|
 //@[19:20)   NewLine |\n|
   a: resA.id
-//@[2:13)   ObjectPropertySyntax
+//@[2:12)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |a|
 //@[3:4)    Colon |:|
@@ -280,9 +280,9 @@ var resourceIds = {
 //@[9:10)     Dot |.|
 //@[10:12)     IdentifierSyntax
 //@[10:12)      Identifier |id|
-//@[12:13)    NewLine |\n|
+//@[12:13)   NewLine |\n|
   b: resB.id
-//@[2:13)   ObjectPropertySyntax
+//@[2:12)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |b|
 //@[3:4)    Colon |:|
@@ -293,7 +293,7 @@ var resourceIds = {
 //@[9:10)     Dot |.|
 //@[10:12)     IdentifierSyntax
 //@[10:12)      Identifier |id|
-//@[12:13)    NewLine |\n|
+//@[12:13)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -310,15 +310,15 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 //@[50:51)   LeftBrace |{|
 //@[51:52)   NewLine |\n|
   name: 'resC'
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:14)    StringSyntax
 //@[8:14)     StringComplete |'resC'|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   properties: {
-//@[2:49)   ObjectPropertySyntax
+//@[2:48)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -326,17 +326,17 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:16)     NewLine |\n|
     resourceIds: resourceIds
-//@[4:29)     ObjectPropertySyntax
+//@[4:28)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |resourceIds|
 //@[15:16)      Colon |:|
 //@[17:28)      VariableAccessSyntax
 //@[17:28)       IdentifierSyntax
 //@[17:28)        Identifier |resourceIds|
-//@[28:29)      NewLine |\n|
+//@[28:29)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -353,7 +353,7 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[60:61)   LeftBrace |{|
 //@[61:62)   NewLine |\n|
   name: '${resC.name}/resD'
-//@[2:28)   ObjectPropertySyntax
+//@[2:27)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
@@ -367,9 +367,9 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[16:20)      IdentifierSyntax
 //@[16:20)       Identifier |name|
 //@[20:27)     StringRightPiece |}/resD'|
-//@[27:28)    NewLine |\n|
+//@[27:28)   NewLine |\n|
   properties: {
-//@[2:20)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -378,7 +378,7 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[15:16)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -395,15 +395,15 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[60:61)   LeftBrace |{|
 //@[61:62)   NewLine |\n|
   name: 'resC/resD'
-//@[2:20)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:19)    StringSyntax
 //@[8:19)     StringComplete |'resC/resD'|
-//@[19:20)    NewLine |\n|
+//@[19:20)   NewLine |\n|
   properties: {
-//@[2:41)   ObjectPropertySyntax
+//@[2:40)   ObjectPropertySyntax
 //@[2:12)    IdentifierSyntax
 //@[2:12)     Identifier |properties|
 //@[12:13)    Colon |:|
@@ -411,7 +411,7 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[14:15)     LeftBrace |{|
 //@[15:16)     NewLine |\n|
     resDRef: resD.id
-//@[4:21)     ObjectPropertySyntax
+//@[4:20)     ObjectPropertySyntax
 //@[4:11)      IdentifierSyntax
 //@[4:11)       Identifier |resDRef|
 //@[11:12)      Colon |:|
@@ -422,10 +422,10 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[17:18)       Dot |.|
 //@[18:20)       IdentifierSyntax
 //@[18:20)        Identifier |id|
-//@[20:21)      NewLine |\n|
+//@[20:21)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

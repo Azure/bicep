@@ -214,3 +214,20 @@ var invalidInstanceFunctionCall = az.az()
 var invalidPropertyAccessOnAzNamespace = az.az
 var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
+
+var partialObject = {
+  2: true
+  +
+  3 : concat('s')
+  
+  's' 
+  's' \
+  'e'   =
+  's' :
+
+  a
+  b $
+  a # 22
+  c :
+  d  : %
+}

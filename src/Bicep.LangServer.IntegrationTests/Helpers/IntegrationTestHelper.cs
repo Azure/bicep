@@ -15,18 +15,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
 using System.Collections.Immutable;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, Func<IResourceTypeProvider>? typeProviderBuilder = null)
         {
+            typeProviderBuilder ??= TestResourceTypeProvider.Create;
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
-            var server = new Server(serverPipe.Reader, clientPipe.Writer, () => TestResourceTypeProvider.Create());
+            var server = new Server(serverPipe.Reader, clientPipe.Writer, typeProviderBuilder);
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options => 
@@ -58,14 +60,14 @@ namespace Bicep.LangServer.IntegrationTests
             return await task;
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null, Func<IResourceTypeProvider>? typeProviderBuilder = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options =>
             {
                 onClientOptions?.Invoke(options);
                 options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
-            });
+            }, typeProviderBuilder);
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(uri, text, 0));
