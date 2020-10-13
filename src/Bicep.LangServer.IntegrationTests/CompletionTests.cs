@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.Samples;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
@@ -28,6 +29,8 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
+        private static AzResourceTypeProvider typeProvider = new AzResourceTypeProvider();
+
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
@@ -58,7 +61,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, typeProviderBuilder: () => typeProvider);
 
             var intermediate = new List<(Position position, JToken actual)>();
 

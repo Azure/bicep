@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Utils
             return program;
         }
 
-        public static SyntaxBase ParseExpression(string text) => new Core.Parser.Parser(text).Expression();
+        public static SyntaxBase ParseExpression(string text, bool allowComplexLiterals = true) => new Core.Parser.Parser(text).Expression(allowComplexLiterals);
     }
 }
 

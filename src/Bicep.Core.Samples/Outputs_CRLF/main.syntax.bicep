@@ -116,39 +116,39 @@ output obj object = {
 //@[20:21)   LeftBrace |{|
 //@[21:23)   NewLine |\r\n|
   a: 'a'
-//@[2:10)   ObjectPropertySyntax
+//@[2:8)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |a|
 //@[3:4)    Colon |:|
 //@[5:8)    StringSyntax
 //@[5:8)     StringComplete |'a'|
-//@[8:10)    NewLine |\r\n|
+//@[8:10)   NewLine |\r\n|
   b: 12
-//@[2:9)   ObjectPropertySyntax
+//@[2:7)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |b|
 //@[3:4)    Colon |:|
 //@[5:7)    NumericLiteralSyntax
 //@[5:7)     Number |12|
-//@[7:9)    NewLine |\r\n|
+//@[7:9)   NewLine |\r\n|
   c: true
-//@[2:11)   ObjectPropertySyntax
+//@[2:9)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |c|
 //@[3:4)    Colon |:|
 //@[5:9)    BooleanLiteralSyntax
 //@[5:9)     TrueKeyword |true|
-//@[9:11)    NewLine |\r\n|
+//@[9:11)   NewLine |\r\n|
   d: null
-//@[2:11)   ObjectPropertySyntax
+//@[2:9)   ObjectPropertySyntax
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |d|
 //@[3:4)    Colon |:|
 //@[5:9)    NullLiteralSyntax
 //@[5:9)     NullKeyword |null|
-//@[9:11)    NewLine |\r\n|
+//@[9:11)   NewLine |\r\n|
   list: [
-//@[2:61)   ObjectPropertySyntax
+//@[2:59)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |list|
 //@[6:7)    Colon |:|
@@ -185,9 +185,9 @@ output obj object = {
 //@[5:7)      NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
   obj: {
-//@[2:52)   ObjectPropertySyntax
+//@[2:50)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |obj|
 //@[5:6)    Colon |:|
@@ -195,7 +195,7 @@ output obj object = {
 //@[7:8)     LeftBrace |{|
 //@[8:10)     NewLine |\r\n|
     nested: [
-//@[4:37)     ObjectPropertySyntax
+//@[4:35)     ObjectPropertySyntax
 //@[4:10)      IdentifierSyntax
 //@[4:10)       Identifier |nested|
 //@[10:11)      Colon |:|
@@ -209,10 +209,10 @@ output obj object = {
 //@[13:15)        NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -324,7 +324,7 @@ output expressionBasedIndexer string = {
 //@[39:40)     LeftBrace |{|
 //@[40:42)     NewLine |\r\n|
   eastus: {
-//@[2:33)     ObjectPropertySyntax
+//@[2:31)     ObjectPropertySyntax
 //@[2:8)      IdentifierSyntax
 //@[2:8)       Identifier |eastus|
 //@[8:9)      Colon |:|
@@ -332,18 +332,18 @@ output expressionBasedIndexer string = {
 //@[10:11)       LeftBrace |{|
 //@[11:13)       NewLine |\r\n|
     foo: true
-//@[4:15)       ObjectPropertySyntax
+//@[4:13)       ObjectPropertySyntax
 //@[4:7)        IdentifierSyntax
 //@[4:7)         Identifier |foo|
 //@[7:8)        Colon |:|
 //@[9:13)        BooleanLiteralSyntax
 //@[9:13)         TrueKeyword |true|
-//@[13:15)        NewLine |\r\n|
+//@[13:15)       NewLine |\r\n|
   }
 //@[2:3)       RightBrace |}|
-//@[3:5)      NewLine |\r\n|
+//@[3:5)     NewLine |\r\n|
   westus: {
-//@[2:34)     ObjectPropertySyntax
+//@[2:32)     ObjectPropertySyntax
 //@[2:8)      IdentifierSyntax
 //@[2:8)       Identifier |westus|
 //@[8:9)      Colon |:|
@@ -351,16 +351,16 @@ output expressionBasedIndexer string = {
 //@[10:11)       LeftBrace |{|
 //@[11:13)       NewLine |\r\n|
     foo: false
-//@[4:16)       ObjectPropertySyntax
+//@[4:14)       ObjectPropertySyntax
 //@[4:7)        IdentifierSyntax
 //@[4:7)         Identifier |foo|
 //@[7:8)        Colon |:|
 //@[9:14)        BooleanLiteralSyntax
 //@[9:14)         FalseKeyword |false|
-//@[14:16)        NewLine |\r\n|
+//@[14:16)       NewLine |\r\n|
   }
 //@[2:3)       RightBrace |}|
-//@[3:5)      NewLine |\r\n|
+//@[3:5)     NewLine |\r\n|
 }[resourceGroup().location].foo
 //@[0:1)     RightBrace |}|
 //@[1:2)    LeftSquare |[|

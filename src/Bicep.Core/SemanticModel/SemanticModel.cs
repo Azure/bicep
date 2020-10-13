@@ -59,6 +59,8 @@ namespace Bicep.Core.SemanticModel
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
 
+        public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.typeManager.GetDeclaredType(syntax);
+
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.

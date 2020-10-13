@@ -39,9 +39,16 @@ namespace Bicep.Core.TypeSystem
         private readonly TypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
-        private IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
+        private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
+        private readonly IDictionary<SyntaxBase, TypeAssignment> declaredTypes;
+        private readonly SyntaxHierarchy hierarchy;
 
-        public TypeAssignmentVisitor(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public TypeAssignmentVisitor(
+            IResourceTypeProvider resourceTypeProvider,
+            TypeManager typeManager,
+            IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
+            IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax,
+            SyntaxHierarchy hierarchy)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
@@ -51,6 +58,8 @@ namespace Bicep.Core.TypeSystem
             this.bindings = bindings;
             this.cyclesBySyntax = cyclesBySyntax;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            this.declaredTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            this.hierarchy = hierarchy;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -65,8 +74,23 @@ namespace Bicep.Core.TypeSystem
             return typeAssignment;
         }
 
+        private TypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
+        {
+            // causes stack overflow Visit(syntax);
+
+            if (declaredTypes.TryGetValue(syntax, out var typeAssignment))
+            {
+                return typeAssignment;
+            }
+
+            return null;
+        }
+
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => GetTypeAssignment(syntax).Reference.Type;
+
+        public TypeSymbol? GetDeclaredType(SyntaxBase syntax)
+            => GetDeclaredTypeAssignment(syntax)?.Reference.Type;
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => assignedTypes.Values.SelectMany(x => x.Diagnostics);
@@ -86,6 +110,14 @@ namespace Bicep.Core.TypeSystem
             }
 
             assignedTypes[syntax] = assignFunc();
+        }
+
+        private void AssignDeclaredType(SyntaxBase syntax, ITypeReference? typeReference)
+        {
+            if (typeReference != null)
+            {
+                this.declaredTypes[syntax] = new TypeAssignment(typeReference);
+            }
         }
 
         private void AssignType(SyntaxBase syntax, Func<ITypeReference> assignFunc)
@@ -147,6 +179,9 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var declaredType = resourceTypeProvider.GetType(typeReference);
+                
+                // just established the declared type - assign it!
+                AssignDeclaredType(syntax, declaredType);
 
                 if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
@@ -169,25 +204,12 @@ namespace Bicep.Core.TypeSystem
                 {
                     return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
                 }
-                
-                var assignedType = declaredType;
-                if (object.ReferenceEquals(assignedType, LanguageConstants.String))
-                {
-                    var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
-                        .Select(item => typeManager.GetTypeInfo(item));
 
-                    if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
-                    {
-                        assignedType = UnionType.Create(allowedItemTypes);
-                    }
-                    else
-                    {
-                        // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
-                        // we need to relax the validation for string parameters without 'allowed' values specified.
-                        assignedType = LanguageConstants.LooseString;
-                    }
-                }
-                
+                // just established the declared type
+                AssignDeclaredType(syntax, declaredType);
+
+                var assignedType = GetParameterAssignedType(syntax, declaredType);
+
                 switch (syntax.Modifier)
                 {
                     case ParameterDefaultValueSyntax defaultValueSyntax:
@@ -274,6 +296,9 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
             => AssignType(syntax, () => {
+                // assigning declared type depends on parent and nothing in the object itself
+                // so do it immediately
+                AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
                 var errors = new List<ErrorDiagnostic>();
 
                 var propertyTypes = new List<TypeSymbol>();
@@ -305,7 +330,10 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-            => AssignType(syntax, () => {
+            => AssignType(syntax, () =>
+            {
+                 AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+
                 var errors = new List<ErrorDiagnostic>();
                 var types = new List<TypeSymbol>();
 
@@ -329,7 +357,11 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitArrayItemSyntax(ArrayItemSyntax syntax)
-            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Value));
+            => AssignType(syntax, () =>
+            {
+                AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+                return typeManager.GetTypeInfo(syntax.Value);
+            });
 
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
             => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
@@ -338,7 +370,10 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
 
         public override void VisitArraySyntax(ArraySyntax syntax)
-            => AssignType(syntax, () => {
+            => AssignType(syntax, () =>
+            {
+                AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+                
                 var errors = new List<ErrorDiagnostic>();
 
                 var itemTypes = new List<TypeSymbol>(syntax.Children.Length);
@@ -908,6 +943,196 @@ namespace Bicep.Core.TypeSystem
                     return accumulated;
                 },
                 accumulated => accumulated);
+        }
+
+        private TypeSymbol GetParameterAssignedType(ParameterDeclarationSyntax syntax, TypeSymbol declaredType)
+        {
+            var assignedType = declaredType;
+            if (object.ReferenceEquals(assignedType, LanguageConstants.String))
+            {
+                var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
+                    .Select(item => typeManager.GetTypeInfo(item));
+
+                if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
+                {
+                    assignedType = UnionType.Create(allowedItemTypes);
+                }
+                else
+                {
+                    // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
+                    // we need to relax the validation for string parameters without 'allowed' values specified.
+                    assignedType = LanguageConstants.LooseString;
+                }
+            }
+
+            return assignedType;
+        }
+
+        private TypeSymbol? GetDeclaredTypeInternal(ArraySyntax syntax)
+        {
+            var parent = this.hierarchy.GetParent(syntax);
+            switch (parent)
+            {
+                // we are only handling paths in the AST that are going to produce a declared type
+                // arrays can exist under a variable declaration, but variables don't have declared types,
+                // so we don't need to check that case
+                case ObjectPropertySyntax _:
+                    // this array is a value of the property
+                    // the declared type should be the same as the array
+                    return GetDeclaredTypeAssignment(parent)?.Reference.Type;
+            }
+            
+            return null;
+        }
+
+        private TypeSymbol? GetDeclaredTypeInternal(ArrayItemSyntax syntax)
+        {
+            var parent = this.hierarchy.GetParent(syntax);
+            switch (parent)
+            {
+                case ArraySyntax _:
+                    // array items can only have array parents
+                    // use the declared item type
+                    var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
+                    if (parentType is ArrayType arrayType)
+                    {
+                        return arrayType.Item.Type;
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
+
+        private TypeSymbol? GetDeclaredTypeInternal(ObjectSyntax syntax)
+        {
+            var parent = this.hierarchy.GetParent(syntax);
+            if (parent == null)
+            {
+                return null;
+            }
+
+            var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
+            if (parentType == null)
+            {
+                return null;
+            }
+
+            switch (parent)
+            {
+                case ResourceDeclarationSyntax _ when parentType is ResourceType resourceType:
+                    // the object literal's parent is a resource declaration, which makes this the body of the resource
+                    // the declared type will be the same as the parent
+                    return ResolveDiscriminatedObjects(resourceType.Body.Type, syntax);
+
+                case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
+                    // the object is a modifier of a parameter type
+                    // the declared type should be the appropriate modifier type
+                    // however we need the parameter's assigned type to determine the modifier type
+                    var parameterAssignedType = GetParameterAssignedType(parameterDeclaration, parentType.Type.Type);
+                    return LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType);
+
+                case ObjectPropertySyntax _:
+                    // the object is the value of a property of another object
+                    // use the declared type of the property
+                    return ResolveDiscriminatedObjects(parentType, syntax);
+
+                case ArrayItemSyntax _:
+                    // the object is an item in an array
+                    // use the item's type
+                    return ResolveDiscriminatedObjects(parentType, syntax);
+            }
+
+            return null;
+        }
+
+        private TypeSymbol? GetDeclaredTypeInternal(ObjectPropertySyntax syntax)
+        {
+            var propertyName = syntax.TryGetKeyText();
+            var parent = this.hierarchy.GetParent(syntax);
+            if (propertyName == null || parent == null)
+            {
+                // the property name is an interpolated string (expression) OR the parent is missing
+                // cannot establish declared type
+                // TODO: Improve this when we have constant folding
+                return null;
+            }
+
+            var assignment = GetDeclaredTypeAssignment(parent);
+            switch (assignment?.Reference.Type)
+            {
+                case ObjectType objectType:
+                    // lookup declared property
+                    if (objectType.Properties.TryGetValue(propertyName, out var property))
+                    {
+                        return property.TypeReference.Type;
+                    }
+
+                    // if there are additional properties, try those
+                    if (objectType.AdditionalPropertiesType != null)
+                    {
+                        return objectType.AdditionalPropertiesType.Type;
+                    }
+
+                    break;
+
+                case DiscriminatedObjectType discriminated:
+                    if (string.Equals(propertyName, discriminated.DiscriminatorProperty.Name, LanguageConstants.IdentifierComparison))
+                    {
+                        // the property is the discriminator property - use its type
+                        return discriminated.DiscriminatorProperty.TypeReference.Type;
+                    }
+
+                    break;
+            }
+
+            return null;
+        }
+
+        private TypeSymbol? ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
+        {
+            if (!(type is DiscriminatedObjectType discriminated))
+            {
+                // not a discriminated object type - return as-is
+                return type;
+            }
+
+            var discriminatorProperties = syntax.Properties
+                .Where(p => string.Equals(p.TryGetKeyText(), discriminated.DiscriminatorKey, LanguageConstants.IdentifierComparison))
+                .ToList();
+
+            if (discriminatorProperties.Count != 1)
+            {
+                // the object has duplicate properties with name matching the discriminator key
+                // don't select any of the union members
+                return type;
+            }
+
+            // calling the type check here would prevent the declared type from being assigned to the property
+            // because we haven't yet assigned the declared type to the object
+            // for the purposes of resolving the discriminated object, we just need to check if it's a literal string
+            // which doesn't require the full type check, so we're fine
+            var discriminatorProperty = discriminatorProperties.Single();
+            if (!(discriminatorProperty.Value is StringSyntax stringSyntax))
+            {
+                // the discriminator property value is not a string
+                return type;
+            }
+
+            var discriminatorValue = stringSyntax.TryGetLiteralValue();
+            if (discriminatorValue == null)
+            {
+                // the string value was interpolated
+                return type;
+            }
+
+            // discriminator values are stored in the dictionary as bicep literal string text for some reason
+            // we must escape the literal value to successfully retrieve a match
+            var matchingObjectType = discriminated.UnionMembersByKey.TryGetValue(StringUtils.EscapeBicepString(discriminatorValue));
+
+            // return the match if we have it
+            return matchingObjectType?.Type;
         }
     }
 }

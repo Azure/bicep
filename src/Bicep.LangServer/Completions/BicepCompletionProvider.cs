@@ -1,9 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Bicep.Core;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -12,11 +17,14 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionProvider : ICompletionProvider
     {
+        private const string MarkdownNewLine = "  \n";
+
         public IEnumerable<CompletionItem> GetFilteredCompletions(SemanticModel model, BicepCompletionContext context)
         {
             return GetDeclarationCompletions(context)
                 .Concat(GetSymbolCompletions(model, context))
-                .Concat(GetDeclarationTypeCompletions(context));
+                .Concat(GetDeclarationTypeCompletions(context))
+                .Concat(GetObjectPropertyCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext completionContext)
@@ -96,7 +104,7 @@ namespace Bicep.LanguageServer.Completions
             return Enumerable.Empty<CompletionItem>();
         }
 
-        
+
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets()
         {
             yield return CreateSnippetCompletion("secureObject", "Secure object", @"object {
@@ -130,6 +138,97 @@ namespace Bicep.LanguageServer.Completions
             AddAccessibleSymbols(accessibleSymbols, model.Root.ImportedNamespaces
                 .SelectMany(kvp => kvp.Value.Descendants.OfType<FunctionSymbol>()));
             return accessibleSymbols.Values;
+        }
+
+        private IEnumerable<CompletionItem> GetObjectPropertyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyName) == false || context.Object == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            // in order to provide completions for property names,
+            // we need to establish the type of the object first
+            var type = model.GetTypeInfo(context.Object);
+
+            var declaredType = model.GetDeclaredType(context.Object);
+            if (declaredType == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var specifiedPropertyNames = context.Object.ToKnownPropertyNames();
+
+            // exclude read-only properties as they can't be set
+            // exclude properties whose name has been specified in the object already
+            return GetProperties(declaredType)
+                .Where(p => p.Flags.HasFlag(TypePropertyFlags.ReadOnly) == false && specifiedPropertyNames.Contains(p.Name) == false)
+                .Select(CreatePropertyCompletion);
+        }
+
+        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol type)
+        {
+            switch (type)
+            {
+                case ObjectType objectType:
+                    return objectType.Properties.Values;
+
+                case DiscriminatedObjectType discriminated:
+                    return discriminated.DiscriminatorProperty.AsEnumerable();
+
+                default:
+                    return Enumerable.Empty<TypeProperty>();
+            }
+        }
+
+        private static CompletionItem CreatePropertyCompletion(TypeProperty property)
+        {
+            return new CompletionItem
+            {
+                Kind = CompletionItemKind.Property,
+                Label = property.Name,
+                InsertTextFormat = InsertTextFormat.PlainText,
+                // property names containg spaces need to be escaped
+                InsertText = Lexer.IsValidIdentifier(property.Name) ? property.Name : StringUtils.EscapeBicepString(property.Name),
+                CommitCharacters = new Container<string>(" ", ":"),
+                Detail = FormatPropertyDetail(property),
+                Documentation = new StringOrMarkupContent(new MarkupContent
+                {
+                    Kind = MarkupKind.Markdown,
+                    Value = FormatPropertyDocumentation(property)
+                })
+            };
+        }
+
+        private static string FormatPropertyDetail(TypeProperty property) =>
+            property.Flags.HasFlag(TypePropertyFlags.Required)
+                ? $"{property.Name} (Required)"
+                : property.Name;
+
+        private static string FormatPropertyDocumentation(TypeProperty property)
+        {
+            var buffer = new StringBuilder();
+
+            buffer.Append($"Type: `{property.TypeReference.Type}`{MarkdownNewLine}");
+
+            if (property.Flags.HasFlag(TypePropertyFlags.ReadOnly))
+            {
+                // this case will be used for dot property access completions
+                // this flag is not possible in property name completions
+                buffer.Append($"Read-only property{MarkdownNewLine}");
+            }
+
+            if (property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+            {
+                buffer.Append($"Write-only property{MarkdownNewLine}");
+            }
+
+            if (property.Flags.HasFlag(TypePropertyFlags.Constant))
+            {
+                buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
+            }
+
+            return buffer.ToString();
         }
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail) =>

@@ -143,7 +143,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[6:15) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. |wrongType|
 //@[16:27) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |fluffyBunny|
-//@[34:38) [BCP019 (Error)] Expected a new line character at this location. |this|
+//@[33:34) [BCP087 (Error)] Array and object literals are not allowed here. |{|
 //@[53:54) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. |'|
 //@[54:54) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. ||
 

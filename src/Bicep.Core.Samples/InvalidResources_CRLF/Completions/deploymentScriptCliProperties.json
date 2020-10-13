@@ -1,0 +1,206 @@
+[
+  {
+    "label": "arguments",
+    "kind": "property",
+    "detail": "arguments",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "arguments",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "azCliVersion",
+    "kind": "property",
+    "detail": "azCliVersion (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "azCliVersion",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "cleanupPreference",
+    "kind": "property",
+    "detail": "cleanupPreference",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "cleanupPreference",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "containerSettings",
+    "kind": "property",
+    "detail": "containerSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ContainerConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "containerSettings",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "environmentVariables",
+    "kind": "property",
+    "detail": "environmentVariables",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `EnvironmentVariable[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "environmentVariables",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "forceUpdateTag",
+    "kind": "property",
+    "detail": "forceUpdateTag",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "forceUpdateTag",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "primaryScriptUri",
+    "kind": "property",
+    "detail": "primaryScriptUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "primaryScriptUri",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "retentionInterval",
+    "kind": "property",
+    "detail": "retentionInterval (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "retentionInterval",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "scriptContent",
+    "kind": "property",
+    "detail": "scriptContent",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "scriptContent",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "storageAccountSettings",
+    "kind": "property",
+    "detail": "storageAccountSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageAccountConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "storageAccountSettings",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "supportingScriptUris",
+    "kind": "property",
+    "detail": "supportingScriptUris",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "supportingScriptUris",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "timeout",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "timeout",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  }
+]

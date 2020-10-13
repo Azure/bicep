@@ -149,13 +149,13 @@ param malformedModifier 44 {
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   secure: 's'
-//@[2:14)   ObjectPropertySyntax
+//@[2:13)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:13)    StringSyntax
 //@[10:13)     StringComplete |'s'|
-//@[13:14)    NewLine |\n|
+//@[13:14)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -573,21 +573,21 @@ param someArray arra {
 //@[21:22)   LeftBrace |{|
 //@[22:23)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   maxLength: 24
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:15)    NumericLiteralSyntax
 //@[13:15)     Number |24|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -605,21 +605,21 @@ param duplicatedModifierProperty string {
 //@[40:41)   LeftBrace |{|
 //@[41:42)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   minLength: 24
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:15)    NumericLiteralSyntax
 //@[13:15)     Number |24|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -637,29 +637,29 @@ param secureInt int {
 //@[20:21)   LeftBrace |{|
 //@[21:22)   NewLine |\n|
   secure: true
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |secure|
 //@[8:9)    Colon |:|
 //@[10:14)    BooleanLiteralSyntax
 //@[10:14)     TrueKeyword |true|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   minLength: 3
-//@[2:15)   ObjectPropertySyntax
+//@[2:14)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
 //@[13:14)    NumericLiteralSyntax
 //@[13:14)     Number |3|
-//@[14:15)    NewLine |\n|
+//@[14:15)   NewLine |\n|
   maxLength: 123
-//@[2:17)   ObjectPropertySyntax
+//@[2:16)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:16)    NumericLiteralSyntax
 //@[13:16)     Number |123|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -677,15 +677,15 @@ param wrongIntModifier int {
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   default: true
-//@[2:16)   ObjectPropertySyntax
+//@[2:15)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:15)    BooleanLiteralSyntax
 //@[11:15)     TrueKeyword |true|
-//@[15:16)    NewLine |\n|
+//@[15:16)   NewLine |\n|
   allowed: [
-//@[2:37)   ObjectPropertySyntax
+//@[2:36)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -704,9 +704,9 @@ param wrongIntModifier int {
 //@[8:9)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   minValue: {
-//@[2:18)   ObjectPropertySyntax
+//@[2:17)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |minValue|
 //@[10:11)    Colon |:|
@@ -715,9 +715,9 @@ param wrongIntModifier int {
 //@[13:14)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   maxValue: [
-//@[2:18)   ObjectPropertySyntax
+//@[2:17)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |maxValue|
 //@[10:11)    Colon |:|
@@ -726,15 +726,15 @@ param wrongIntModifier int {
 //@[13:14)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   metadata: 'wrong'
-//@[2:20)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
 //@[12:19)    StringSyntax
 //@[12:19)     StringComplete |'wrong'|
-//@[19:20)    NewLine |\n|
+//@[19:20)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -752,7 +752,7 @@ param wrongMetadataSchema string {
 //@[33:34)   LeftBrace |{|
 //@[34:35)   NewLine |\n|
   metadata: {
-//@[2:40)   ObjectPropertySyntax
+//@[2:39)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
 //@[2:10)     Identifier |metadata|
 //@[10:11)    Colon |:|
@@ -760,16 +760,16 @@ param wrongMetadataSchema string {
 //@[12:13)     LeftBrace |{|
 //@[13:14)     NewLine |\n|
     description: true
-//@[4:22)     ObjectPropertySyntax
+//@[4:21)     ObjectPropertySyntax
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |description|
 //@[15:16)      Colon |:|
 //@[17:21)      BooleanLiteralSyntax
 //@[17:21)       TrueKeyword |true|
-//@[21:22)      NewLine |\n|
+//@[21:22)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -787,7 +787,7 @@ param expressionInModifier string {
 //@[34:35)   LeftBrace |{|
 //@[35:36)   NewLine |\n|
   default: 2 + 3
-//@[2:17)   ObjectPropertySyntax
+//@[2:16)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -797,9 +797,9 @@ param expressionInModifier string {
 //@[13:14)     Plus |+|
 //@[15:16)     NumericLiteralSyntax
 //@[15:16)      Number |3|
-//@[16:17)    NewLine |\n|
+//@[16:17)   NewLine |\n|
   maxLength: a + 2
-//@[2:19)   ObjectPropertySyntax
+//@[2:18)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
@@ -810,9 +810,9 @@ param expressionInModifier string {
 //@[15:16)     Plus |+|
 //@[17:18)     NumericLiteralSyntax
 //@[17:18)      Number |2|
-//@[18:19)    NewLine |\n|
+//@[18:19)   NewLine |\n|
   minLength: foo()
-//@[2:19)   ObjectPropertySyntax
+//@[2:18)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
@@ -821,9 +821,9 @@ param expressionInModifier string {
 //@[13:16)      Identifier |foo|
 //@[16:17)     LeftParen |(|
 //@[17:18)     RightParen |)|
-//@[18:19)    NewLine |\n|
+//@[18:19)   NewLine |\n|
   allowed: [
-//@[2:23)   ObjectPropertySyntax
+//@[2:22)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -838,7 +838,7 @@ param expressionInModifier string {
 //@[5:6)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -901,14 +901,14 @@ param paramModifierOneCycle string {
 //@[35:36)   LeftBrace |{|
 //@[36:37)   NewLine |\n|
   default: paramModifierOneCycle
-//@[2:33)   ObjectPropertySyntax
+//@[2:32)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:32)    VariableAccessSyntax
 //@[11:32)     IdentifierSyntax
 //@[11:32)      Identifier |paramModifierOneCycle|
-//@[32:33)    NewLine |\n|
+//@[32:33)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -926,7 +926,7 @@ param paramModifierSelfCycle string {
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
   allowed: [
-//@[2:44)   ObjectPropertySyntax
+//@[2:43)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -941,7 +941,7 @@ param paramModifierSelfCycle string {
 //@[26:27)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -959,14 +959,14 @@ param paramModifierTwoCycle1 string {
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
   default: paramModifierTwoCycle2
-//@[2:34)   ObjectPropertySyntax
+//@[2:33)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:33)    VariableAccessSyntax
 //@[11:33)     IdentifierSyntax
 //@[11:33)      Identifier |paramModifierTwoCycle2|
-//@[33:34)    NewLine |\n|
+//@[33:34)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
@@ -981,14 +981,14 @@ param paramModifierTwoCycle2 string {
 //@[36:37)   LeftBrace |{|
 //@[37:38)   NewLine |\n|
   default: paramModifierTwoCycle1
-//@[2:34)   ObjectPropertySyntax
+//@[2:33)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:33)    VariableAccessSyntax
 //@[11:33)     IdentifierSyntax
 //@[11:33)      Identifier |paramModifierTwoCycle1|
-//@[33:34)    NewLine |\n|
+//@[33:34)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1019,14 +1019,14 @@ param paramMixedTwoCycle2 string {
 //@[33:34)   LeftBrace |{|
 //@[34:35)   NewLine |\n|
   default: paramMixedTwoCycle1
-//@[2:31)   ObjectPropertySyntax
+//@[2:30)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:30)    VariableAccessSyntax
 //@[11:30)     IdentifierSyntax
 //@[11:30)      Identifier |paramMixedTwoCycle1|
-//@[30:31)    NewLine |\n|
+//@[30:31)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1054,13 +1054,13 @@ resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
 //@[58:59)   LeftBrace |{|
 //@[59:60)   NewLine |\n|
   name: 'foo'
-//@[2:14)   ObjectPropertySyntax
+//@[2:13)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
 //@[8:13)    StringSyntax
 //@[8:13)     StringComplete |'foo'|
-//@[13:14)    NewLine |\n|
+//@[13:14)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|
@@ -1110,7 +1110,7 @@ param paramAccessingVar2 string {
 //@[32:33)   LeftBrace |{|
 //@[33:34)   NewLine |\n|
   default: 'foo ${sampleVar} foo'
-//@[2:34)   ObjectPropertySyntax
+//@[2:33)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -1120,7 +1120,7 @@ param paramAccessingVar2 string {
 //@[18:27)      IdentifierSyntax
 //@[18:27)       Identifier |sampleVar|
 //@[27:33)     StringRightPiece |} foo'|
-//@[33:34)    NewLine |\n|
+//@[33:34)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1149,7 +1149,7 @@ param paramAccessingResource2 string {
 //@[37:38)   LeftBrace |{|
 //@[38:39)   NewLine |\n|
   default: base64(sampleResource.properties.foo)
-//@[2:49)   ObjectPropertySyntax
+//@[2:48)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
@@ -1170,7 +1170,7 @@ param paramAccessingResource2 string {
 //@[44:47)       IdentifierSyntax
 //@[44:47)        Identifier |foo|
 //@[47:48)     RightParen |)|
-//@[48:49)    NewLine |\n|
+//@[48:49)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1199,14 +1199,14 @@ param paramAccessingOutput2 string {
 //@[35:36)   LeftBrace |{|
 //@[36:37)   NewLine |\n|
   default: sampleOutput
-//@[2:24)   ObjectPropertySyntax
+//@[2:23)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:23)    VariableAccessSyntax
 //@[11:23)     IdentifierSyntax
 //@[11:23)      Identifier |sampleOutput|
-//@[23:24)    NewLine |\n|
+//@[23:24)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1222,7 +1222,7 @@ param stringLiteral string {
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
   allowed: [
-//@[2:27)   ObjectPropertySyntax
+//@[2:26)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -1236,7 +1236,7 @@ param stringLiteral string {
 //@[9:10)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1252,7 +1252,7 @@ param stringLiteral2 string {
 //@[28:29)   LeftBrace |{|
 //@[29:30)   NewLine |\n|
   allowed: [
-//@[2:37)   ObjectPropertySyntax
+//@[2:36)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -1271,16 +1271,16 @@ param stringLiteral2 string {
 //@[9:10)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   default: stringLiteral
-//@[2:25)   ObjectPropertySyntax
+//@[2:24)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:24)    VariableAccessSyntax
 //@[11:24)     IdentifierSyntax
 //@[11:24)      Identifier |stringLiteral|
-//@[24:25)    NewLine |\n|
+//@[24:25)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1296,7 +1296,7 @@ param stringLiteral3 string {
 //@[28:29)   LeftBrace |{|
 //@[29:30)   NewLine |\n|
   allowed: [
-//@[2:27)   ObjectPropertySyntax
+//@[2:26)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |allowed|
 //@[9:10)    Colon |:|
@@ -1310,16 +1310,16 @@ param stringLiteral3 string {
 //@[9:10)      NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   default: stringLiteral2
-//@[2:26)   ObjectPropertySyntax
+//@[2:25)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:25)    VariableAccessSyntax
 //@[11:25)     IdentifierSyntax
 //@[11:25)      Identifier |stringLiteral2|
-//@[25:26)    NewLine |\n|
+//@[25:26)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

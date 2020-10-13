@@ -257,11 +257,14 @@ var y = {
 //@[8:9)   LeftBrace |{|
 //@[9:10)   NewLine |\n|
   =
-//@[2:4)   SkippedTriviaSyntax
-//@[2:3)    Assignment |=|
-//@[3:4)    NewLine |\n|
+//@[2:3)   ObjectPropertySyntax
+//@[2:3)    SkippedTriviaSyntax
+//@[2:3)     Assignment |=|
+//@[3:3)    SkippedTriviaSyntax
+//@[3:3)    SkippedTriviaSyntax
+//@[3:4)   NewLine |\n|
   foo: !2
-//@[2:10)   ObjectPropertySyntax
+//@[2:9)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |foo|
 //@[5:6)    Colon |:|
@@ -269,7 +272,7 @@ var y = {
 //@[7:8)     Exclamation |!|
 //@[8:9)     NumericLiteralSyntax
 //@[8:9)      Number |2|
-//@[9:10)    NewLine |\n|
+//@[9:10)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -316,11 +319,13 @@ var test3 = {
 //@[12:13)   LeftBrace |{|
 //@[13:14)   NewLine |\n|
   'bad\escape': true
-//@[2:21)   SkippedTriviaSyntax
-//@[2:14)    StringComplete |'bad\escape'|
+//@[2:20)   ObjectPropertySyntax
+//@[2:14)    SkippedTriviaSyntax
+//@[2:14)     StringComplete |'bad\escape'|
 //@[14:15)    Colon |:|
-//@[16:20)    TrueKeyword |true|
-//@[20:21)    NewLine |\n|
+//@[16:20)    BooleanLiteralSyntax
+//@[16:20)     TrueKeyword |true|
+//@[20:21)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -337,21 +342,21 @@ var testDupe = {
 //@[15:16)   LeftBrace |{|
 //@[16:17)   NewLine |\n|
   'duplicate': true
-//@[2:20)   ObjectPropertySyntax
+//@[2:19)   ObjectPropertySyntax
 //@[2:13)    StringSyntax
 //@[2:13)     StringComplete |'duplicate'|
 //@[13:14)    Colon |:|
 //@[15:19)    BooleanLiteralSyntax
 //@[15:19)     TrueKeyword |true|
-//@[19:20)    NewLine |\n|
+//@[19:20)   NewLine |\n|
   duplicate: true
-//@[2:18)   ObjectPropertySyntax
+//@[2:17)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |duplicate|
 //@[11:12)    Colon |:|
 //@[13:17)    BooleanLiteralSyntax
 //@[13:17)     TrueKeyword |true|
-//@[17:18)    NewLine |\n|
+//@[17:18)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -368,7 +373,7 @@ var objWithInterp = {
 //@[20:21)   LeftBrace |{|
 //@[21:22)   NewLine |\n|
   'ab${nonExistentIdentifier}cd': true
-//@[2:39)   ObjectPropertySyntax
+//@[2:38)   ObjectPropertySyntax
 //@[2:32)    StringSyntax
 //@[2:7)     StringLeftPiece |'ab${|
 //@[7:28)     VariableAccessSyntax
@@ -378,7 +383,7 @@ var objWithInterp = {
 //@[32:33)    Colon |:|
 //@[34:38)    BooleanLiteralSyntax
 //@[34:38)     TrueKeyword |true|
-//@[38:39)    NewLine |\n|
+//@[38:39)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

@@ -142,7 +142,6 @@ namespace Bicep.Core.Syntax
         public virtual void VisitObjectSyntax(ObjectSyntax syntax)
         {
             this.Visit(syntax.OpenBrace);
-            this.VisitTokens(syntax.NewLines);
             this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseBrace);
         }
@@ -152,7 +151,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Key);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Value);
-            this.VisitTokens(syntax.NewLines);
         }
 
         public virtual void VisitArraySyntax(ArraySyntax syntax)

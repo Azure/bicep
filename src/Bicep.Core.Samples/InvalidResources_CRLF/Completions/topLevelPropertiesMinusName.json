@@ -1,0 +1,138 @@
+[
+  {
+    "label": "dependsOn",
+    "kind": "property",
+    "detail": "dependsOn",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resource[]`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "dependsOn",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "extendedLocation",
+    "kind": "property",
+    "detail": "extendedLocation",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ExtendedLocation`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "extendedLocation",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "identity",
+    "kind": "property",
+    "detail": "identity",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Identity`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "identity",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "kind",
+    "kind": "property",
+    "detail": "kind (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "kind",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "location",
+    "kind": "property",
+    "detail": "location (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "location",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "properties",
+    "kind": "property",
+    "detail": "properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageAccountPropertiesCreateParameters`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "properties",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "sku",
+    "kind": "property",
+    "detail": "sku (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Sku`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "sku",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  },
+  {
+    "label": "tags",
+    "kind": "property",
+    "detail": "tags",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Dictionary<string,String>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "tags",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      " ",
+      ":"
+    ]
+  }
+]
