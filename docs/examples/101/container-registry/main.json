@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "acrName": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 50,
+      "metadata": {
+        "description": "Specifies the name of the azure container registry."
+      },
+      "defaultValue": "[format('acrwest001{0}', uniqueString(resourceGroup().id))]"
+    },
+    "acrAdminUserEnabled": {
+      "type": "bool",
+      "metadata": {
+        "description": "Enable admin user that have push / pull permission to the registry."
+      },
+      "defaultValue": false
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "acrSku": {
+      "type": "string",
+      "metadata": {
+        "description": "Tier of your Azure Container Registry."
+      },
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "tag": ""
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-12-01-preview",
+      "name": "[parameters('acrName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('acrSku')]",
+        "tier": "[parameters('acrSku')]"
+      },
+      "properties": {
+        "adminUserEnabled": "[parameters('acrAdminUserEnabled')]",
+        "tag": "[variables('tag')]"
+      }
+    }
+  ],
+  "outputs": {
+    "acrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))).loginServer]"
+    }
+  }
+}
