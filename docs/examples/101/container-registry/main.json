@@ -49,8 +49,7 @@
       "name": "[parameters('acrName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "[parameters('acrSku')]",
-        "tier": "[parameters('acrSku')]"
+        "name": "[parameters('acrSku')]"
       },
       "properties": {
         "adminUserEnabled": "[parameters('acrAdminUserEnabled')]",
