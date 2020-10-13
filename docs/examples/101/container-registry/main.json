@@ -9,7 +9,7 @@
       "metadata": {
         "description": "Specifies the name of the azure container registry."
       },
-      "defaultValue": "[format('acrwest001{0}', uniqueString(resourceGroup().id))]"
+      "defaultValue": "[format('acr001{0}', uniqueString(resourceGroup().id))]"
     },
     "acrAdminUserEnabled": {
       "type": "bool",
