@@ -1,6 +1,6 @@
 // params
 param acrName string {
-  default : 'acrwest001${uniqueString(resourceGroup().id)}' // must be globally unique
+  default : 'acr001${uniqueString(resourceGroup().id)}' // must be globally unique
   metadata: {
     description: 'Specifies the name of the azure container registry.'
   }
