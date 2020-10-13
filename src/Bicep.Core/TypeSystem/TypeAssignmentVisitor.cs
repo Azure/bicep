@@ -1127,7 +1127,7 @@ namespace Bicep.Core.TypeSystem
                 return type;
             }
 
-            // discriminator values are stored in the dictionary as bicep literal string text for some reason
+            // discriminator values are stored in the dictionary as bicep literal string text
             // we must escape the literal value to successfully retrieve a match
             var matchingObjectType = discriminated.UnionMembersByKey.TryGetValue(StringUtils.EscapeBicepString(discriminatorValue));
 
