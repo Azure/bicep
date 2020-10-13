@@ -169,7 +169,7 @@
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2017-10-01",
+      "apiVersion": "2019-06-01",
       "name": "[variables('storageAccount').name]",
       "location": "[variables('storageAccount').location]",
       "kind": "StorageV2",
@@ -179,7 +179,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('publicIp').name]",
       "location": "[variables('publicIp').location]",
       "properties": {
@@ -191,7 +191,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('networkSecurityGroup').name]",
       "location": "[variables('networkSecurityGroup').location]",
       "properties": {
@@ -200,7 +200,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('virtualNetwork').name]",
       "location": "[variables('virtualNetwork').location]",
       "properties": {
@@ -215,7 +215,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2018-07-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('networkInterface').name]",
       "location": "[variables('networkInterface').location]",
       "properties": {
@@ -228,7 +228,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('virtualMachine').name]",
       "location": "[variables('virtualMachine').location]",
       "properties": {
@@ -271,7 +271,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2018-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('virtualMachineExtensionCustomScript').name]",
       "location": "[variables('virtualMachineExtensionCustomScript').location]",
       "properties": {

@@ -17,7 +17,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
-      "apiVersion": "2019-11-01",
+      "apiVersion": "2020-05-01",
       "name": "[format('{0}/peering-to-remote-vnet', parameters('localVnetName'))]",
       "properties": {
         "allowVirtualNetworkAccess": true,

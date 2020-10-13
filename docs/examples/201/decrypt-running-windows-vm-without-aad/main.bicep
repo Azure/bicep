@@ -3,7 +3,7 @@ param volumeType string = 'All'
 param forceUpdateTag string = uniqueString(resourceGroup().id, deployment().name)
 param location string = resourceGroup().location
 
-resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2018-10-01' = {
+resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   name: '${vmName}/AzureDiskEncryption'
   location: location
   properties: {

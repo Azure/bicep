@@ -20,7 +20,7 @@ var databaseServiceObjectiveName = 'Basic'
 
 var sqlServerName = 'sqlserver${uniqueString(resourceGroup().id)}'
 
-resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2020-02-02-preview' = {
   name: sqlServerName
   location: location
   properties: {
@@ -30,8 +30,8 @@ resource sqlServer 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 }
 
-resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
-  name: '${sqlServer.name}/${databaseName}'
+resource db 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
+  name: '${sqlServer.name}/${databaseName}' // originally using sqlServerName param, but dependsOn was not automatically added
   location: location
   sku: {
     name: databaseServiceObjectiveName
@@ -43,8 +43,8 @@ resource db 'Microsoft.Sql/servers/databases@2019-06-01-preview' = {
 }
 
 // very long type...
-resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2014-04-01' = {
-  name: '${db.name}/current'
+resource tde 'Microsoft.Sql/servers/databases/transparentDataEncryption@2017-03-01-preview' = {
+  name: '${db.name}/current' // had to change databaseName => db.name to get dependsOn working
   properties: {
     status: transparentDataEncryption
   }

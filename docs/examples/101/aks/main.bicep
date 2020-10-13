@@ -23,7 +23,7 @@ param agentCount int {
 param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
-resource aks 'Microsoft.ContainerService/managedClusters@2017-08-31' = {
+resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   name: clusterName
   location: location
   properties: {
@@ -35,7 +35,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2017-08-31' = {
         count: agentCount
         vmSize: agentVMSize
         osType: 'Linux'
-        storageProfile: 'ManagedDisks'
       }
     ]
     linuxProfile: {
@@ -51,7 +50,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2017-08-31' = {
     servicePrincipalProfile: {
       clientId: servicePrincipalClientId
       secret: servicePrincipalClientSecret
-    } 
+    }
   }
 }
 

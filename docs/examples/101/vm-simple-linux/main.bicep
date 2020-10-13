@@ -63,7 +63,7 @@ var linuxConfiguration = {
     }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
     name: networkInterfaceName
     location: location
     properties: {
@@ -87,7 +87,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-10-01' = {
     }
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
     name: networkSecurityGroupName
     location: location
     properties: {
@@ -109,7 +109,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
     }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     name: virtualNetworkName
     location: location
     properties: {
@@ -131,7 +131,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
     }
 }
 
-resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
+resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
     name: publicIPAddressName
     location: location
     properties: {
@@ -147,7 +147,7 @@ resource publicIP 'Microsoft.Network/publicIPAddresses@2019-02-01' = {
     }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     name: vmName
     location: location
     properties: {

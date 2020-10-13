@@ -47,7 +47,7 @@
   "resources": [
     {
       "type": "Microsoft.ContainerService/managedClusters",
-      "apiVersion": "2017-08-31",
+      "apiVersion": "2020-09-01",
       "name": "[parameters('clusterName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -58,8 +58,7 @@
             "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
             "count": "[parameters('agentCount')]",
             "vmSize": "[parameters('agentVMSize')]",
-            "osType": "Linux",
-            "storageProfile": "ManagedDisks"
+            "osType": "Linux"
           }
         ],
         "linuxProfile": {

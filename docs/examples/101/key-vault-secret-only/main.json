@@ -22,7 +22,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
-      "apiVersion": "2018-02-14",
+      "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('existingKeyVaultName'), parameters('secretName'))]",
       "location": "[parameters('location')]",
       "properties": {

@@ -78,7 +78,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02-preview' = {
 }
 
 // App Service
-resource appService 'Microsoft.Web/serverFarms@2019-08-01' = {
+resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
   name: appServiceName
   location: location
   kind: 'functionapp'
@@ -103,7 +103,7 @@ resource appService 'Microsoft.Web/serverFarms@2019-08-01' = {
 }
 
 // Function App
-resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
+resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   name: functionAppName
   location: location
   kind: 'functionapp'
@@ -165,7 +165,7 @@ resource functionApp 'Microsoft.Web/sites@2018-11-01' = {
 }
 
 // Function App Config
-resource functionAppConfig 'Microsoft.Web/sites/config@2018-11-01' = {
+resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${functionApp.name}/web'
   properties: {
     numberOfWorkers: -1
@@ -237,13 +237,13 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2018-11-01' = {
     http20Enabled: true
     minTlsVersion: '1.2'
     ftpsState: 'AllAllowed'
-    reservedInstanceCount: 0
+    PreWarmedInstanceCount: 0
   }
   tags: appTags
 }
 
 // Function App Binding
-resource functionAppBinding 'Microsoft.Web/sites/hostNameBindings@2018-11-01' = {
+resource functionAppBinding 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
   name: '${functionApp.name}/${functionApp.name}.azurewebsites.net'
   properties: {
     siteName: functionAppName

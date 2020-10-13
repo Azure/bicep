@@ -81,7 +81,7 @@
     },
     {
       "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('hostingPlanName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -92,7 +92,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('websiteName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -125,7 +125,7 @@
     },
     {
       "type": "Microsoft.Web/sites/sourcecontrols",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', variables('websiteName'))]",
       "properties": {
         "repoUrl": "[parameters('repositoryUrl')]",

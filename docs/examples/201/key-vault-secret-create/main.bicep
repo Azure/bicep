@@ -86,7 +86,7 @@ param secretsObject object {
   }
 }
 
-resource vault 'Microsoft.KeyVault/vaults@2018-02-14' = {
+resource vault 'Microsoft.KeyVault/vaults@2019-06-01' = {
   name: keyVaultName
   location: location
   tags: {
@@ -122,7 +122,7 @@ resource vault 'Microsoft.KeyVault/vaults@2018-02-14' = {
 var firstSecretName = first(secretsObject.secrets).secretName
 var firstSecretValue = first(secretsObject.secrets).secretValue
 
-resource secret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
+resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
   name: '${vault.name}/${firstSecretName}'
   properties: {
     value: firstSecretValue

@@ -96,7 +96,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2018-02-14",
+      "apiVersion": "2019-06-01",
       "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -129,7 +129,7 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
-      "apiVersion": "2018-02-14",
+      "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('firstSecretName'))]",
       "properties": {
         "value": "[variables('firstSecretValue')]"

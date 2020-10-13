@@ -57,7 +57,7 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
   }
 }
 
-resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
+resource farm 'Microsoft.Web/serverFarms@2020-06-01' = {
   name: hostingPlanName
   location: location
   sku: {
@@ -68,7 +68,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
-resource website 'Microsoft.Web/sites@2019-08-01' = {
+resource website 'Microsoft.Web/sites@2020-06-01' = {
   name: websiteName
   location: location
   properties: {
@@ -96,7 +96,7 @@ resource website 'Microsoft.Web/sites@2019-08-01' = {
   }
 }
 
-resource srcCtrl 'Microsoft.Web/sites/sourcecontrols@2019-08-01' = {
+resource srcCtrl 'Microsoft.Web/sites/sourcecontrols@2020-06-01' = {
   name: '${website.name}/web'
   properties: {
     repoUrl: repositoryUrl

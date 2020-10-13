@@ -4,14 +4,16 @@ param location string = resourceGroup().location
 param acrName string = 'myAcr'
 param dockerUsername string = 'adminUser'
 param dockerImageAndTag string = 'app/frontend:latest'
+param acrResourceGroup string = resourceGroup().name
+param acrSubscription string = subscription().subscriptionId
 
 // external ACR info
-var containerRegistryId = resourceId('Microsoft.ContainerRegistry/registries', acrName)
+var containerRegistryId = resourceId(acrSubscription, acrResourceGroup, 'Microsoft.ContainerRegistry/registries', acrName)
 var acrApiVersion = '2019-05-01'
 
 var websiteName = '${name}-site'
 
-resource site 'microsoft.web/sites@2018-11-01' = {
+resource site 'microsoft.web/sites@2020-06-01' = {
   name: websiteName
   location: location
   properties: {
@@ -42,7 +44,7 @@ resource site 'microsoft.web/sites@2018-11-01' = {
 
 var farmName = '${name}-farm'
 
-resource farm 'microsoft.web/serverFarms@2018-11-01' = {
+resource farm 'microsoft.web/serverFarms@2020-06-01' = {
   name: farmName
   location: location
   sku: {
@@ -51,10 +53,8 @@ resource farm 'microsoft.web/serverFarms@2018-11-01' = {
   }
   kind: 'linux'
   properties: {
-    name: farmName
-    workerSize: '0'
-    workerSizeId: '0'
-    numberOfWorkers: '1'
+    targetWorkerSizeId: 0
+    targetWorkerCount: 1
     reserved: true
   }
 }
