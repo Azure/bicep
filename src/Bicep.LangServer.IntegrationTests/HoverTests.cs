@@ -170,6 +170,10 @@ namespace Bicep.LangServer.IntegrationTests
                     hover.Contents.MarkupContent.Value.Should().Contain(resource.Type.Name);
                     break;
 
+                case ModuleSymbol module:
+                    hover.Contents.MarkupContent.Value.Should().Contain($"module {module.Name}");
+                    break;
+
                 case OutputSymbol output:
                     hover.Contents.MarkupContent.Value.Should().Contain($"output {output.Name}: {output.Type}");
                     break;

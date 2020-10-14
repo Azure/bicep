@@ -506,21 +506,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP093",
                 $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public Diagnostic UnableToOpenFile(string fileName, string exceptionMessage) => new Diagnostic(
-                TextSpan,
-                DiagnosticLevel.Error,
-                "BCP094",
-                $"Loading file \"{fileName}\" failed with message \"{exceptionMessage}\".");
-
             public ErrorDiagnostic ExpectedModuleIdentifier() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP095",
+                "BCP094",
                 "Expected a module identifier at this location.");
 
             public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP096",
+                "BCP095",
                 "Expected a module path string.");
+
+            public ErrorDiagnostic GenericModuleLoadFailure() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP096",
+                "Failed to load module.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

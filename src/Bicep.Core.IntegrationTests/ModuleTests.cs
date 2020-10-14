@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var files = new Dictionary<string, string>
             {
-                ["main.bicep"] = @"
+                ["/main.bicep"] = @"
 param inputa string
 param inputb string
 
@@ -46,13 +46,13 @@ module moduleb 'moduleb.bicep' = {
 output outputa string = modulea.outputa
 output outputb string = moduleb.outputb
 ",
-                ["modulea.bicep"] = @"
+                ["/modulea.bicep"] = @"
 param inputa string
 param inputb string
 
 output outputa string = '${inputa}-${inputb}'
 ",
-                ["moduleb.bicep"] = @"
+                ["/moduleb.bicep"] = @"
 param inputa string
 param inputb string
 
@@ -61,7 +61,7 @@ output outputb string = '${inputa}-${inputb}'
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Should().BeEmpty();
@@ -74,7 +74,7 @@ output outputb string = '${inputa}-${inputb}'
         {
             var files = new Dictionary<string, string>
             {
-                ["main.bicep"] = @"
+                ["/main.bicep"] = @"
 param inputa string
 param inputb string
 
@@ -86,11 +86,11 @@ module modulea 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "main.bicep" });
-            diagnosticsByFile["main.bicep"].Should().HaveDiagnostics(new [] {
+            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep" });
+            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
                 ("BCP092", DiagnosticLevel.Error, "This module references its own declaring file, which is not allowed."),
             });
 
@@ -102,7 +102,7 @@ module modulea 'main.bicep' = {
         {
             var files = new Dictionary<string, string>
             {
-                ["main.bicep"] = @"
+                ["/main.bicep"] = @"
 param inputa string
 param inputb string
 
@@ -111,20 +111,20 @@ module modulea 'modulea.bicep' = {
   inputb: inputb
 }
 ",
-                ["modulea.bicep"] = @"
+                ["/modulea.bicep"] = @"
 param inputa string
 param inputb string
 
-module modulea 'moduleb.bicep' = {
+module moduleb 'moduleb.bicep' = {
   inputa: inputa
   inputb: inputb
 }
 ",
-                ["moduleb.bicep"] = @"
+                ["/moduleb.bicep"] = @"
 param inputa string
 param inputb string
 
-module moduleb 'main.bicep' = {
+module main 'main.bicep' = {
   inputa: inputa
   inputb: inputb
 }
@@ -132,18 +132,18 @@ module moduleb 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "main.bicep", "modulea.bicep", "moduleb.bicep" });
-            diagnosticsByFile["main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"modulea.bicep\" -> \"moduleb.bicep\" -> \"main.bicep\")."),
+            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep", "/modulea.bicep", "/moduleb.bicep" });
+            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
+                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
-            diagnosticsByFile["modulea.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"moduleb.bicep\" -> \"main.bicep\" -> \"modulea.bicep\")."),
+            diagnosticsByFile["/modulea.bicep"].Should().HaveDiagnostics(new [] {
+                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
-            diagnosticsByFile["moduleb.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"main.bicep\" -> \"modulea.bicep\" -> \"moduleb.bicep\")."),
+            diagnosticsByFile["/moduleb.bicep"].Should().HaveDiagnostics(new [] {
+                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
         }

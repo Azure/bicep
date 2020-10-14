@@ -20,7 +20,7 @@ namespace Bicep.Cli.UnitTests
             return buffer.ToString();
         }
 
-        public static (string, string) InvokeWriterAction(Action<TextWriter, TextWriter> action)
+        public static (string output, string error, int result) InvokeWriterAction(Func<TextWriter, TextWriter, int> action)
         {
             var firstBuffer = new StringBuilder();
             using var firstWriter = new StringWriter(firstBuffer);
@@ -28,12 +28,12 @@ namespace Bicep.Cli.UnitTests
             var secondBuffer = new StringBuilder();
             using var secondWriter = new StringWriter(secondBuffer);
 
-            action(firstWriter, secondWriter);
+            var result = action(firstWriter, secondWriter);
 
             firstWriter.Flush();
             secondWriter.Flush();
 
-            return (firstBuffer.ToString(), secondBuffer.ToString());
+            return (firstBuffer.ToString(), secondBuffer.ToString(), result);
         }
     }
 }

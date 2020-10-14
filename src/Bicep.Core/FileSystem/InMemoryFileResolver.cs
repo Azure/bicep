@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using Bicep.Core.FileSystem;
+using System.IO;
 
-namespace Bicep.Wasm.LanguageHelpers
+namespace Bicep.Core.FileSystem
 {
     public class InMemoryFileResolver : IFileResolver
     {
@@ -15,14 +15,14 @@ namespace Bicep.Wasm.LanguageHelpers
             this.fileLookup = fileLookup;
         }
 
-        public string GetNormalizedFileName(string fileName)
-            => fileName;
+        public string GetNormalizedFileName(string filePath)
+            => filePath;
 
-        public string? TryRead(string fileName, out string? failureMessage)
+        public string? TryRead(string filePath, out string? failureMessage)
         {
-            if (!fileLookup.TryGetValue(fileName, out var fileContents))
+            if (!fileLookup.TryGetValue(filePath, out var fileContents))
             {
-                failureMessage = $"Failed to find {fileName}";
+                failureMessage = $"Could not find file {filePath}";
                 return null;
             }
 
@@ -31,8 +31,8 @@ namespace Bicep.Wasm.LanguageHelpers
         }
 
         public string? TryResolveModulePath(string parentFileName, string childFileName)
-            => childFileName;
+            => Path.Combine(Path.GetDirectoryName(parentFileName), childFileName).Replace(Path.DirectorySeparatorChar, '/');
 
-        public StringComparer PathComparer => StringComparer.OrdinalIgnoreCase;
+        public StringComparer PathComparer => StringComparer.Ordinal;
     }
 }

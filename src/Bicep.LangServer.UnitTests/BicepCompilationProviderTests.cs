@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Providers;
@@ -12,10 +14,13 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompilationProviderTests
     {
+        private static IFileResolver CreateEmptyFileResolver()
+            => new InMemoryFileResolver(new Dictionary<string, string>());
+
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
         {
-            var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create(), TestFileResolver.CreateEmpty());
+            var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
             var context = provider.Create(fileUri, DataSets.Parameters_LF.Bicep);

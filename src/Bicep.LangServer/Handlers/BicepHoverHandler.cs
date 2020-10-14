@@ -68,6 +68,9 @@ namespace Bicep.LanguageServer.Handlers
                 case ResourceSymbol resource:
                     return $"```bicep\nresource {resource.Name}\n{resource.Type}\n```";
 
+                case ModuleSymbol module:
+                    return $"```bicep\nmodule {module.Name}\n{module.Type}\n```";
+
                 case OutputSymbol output:
                     return $"```bicep\noutput {output.Name}: {output.Type}\n```";
 

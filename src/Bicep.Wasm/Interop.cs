@@ -13,6 +13,7 @@ using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Wasm
 {

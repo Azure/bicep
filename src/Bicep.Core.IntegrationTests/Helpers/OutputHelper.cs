@@ -61,6 +61,6 @@ namespace Bicep.Core.IntegrationTests
         }
 
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
-            => Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, fileName);
+            => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
     }
 }

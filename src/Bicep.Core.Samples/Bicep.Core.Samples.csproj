@@ -7,60 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="**\main.bicep" />
-    <None Remove="**\main.json" />
-    <None Remove="**\main.symbols.bicep" />
-    <None Remove="**\main.diagnostics.bicep" />
-    <None Remove="**\main.tokens.bicep" />
-    <None Remove="**\main.syntax.bicep" />
+    <None Remove="./Files/**/*.json" />
+    <None Remove="./Files/**/*.bicep" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="**\main.bicep" />
-    <EmbeddedResource Include="**\main.json" />
-    <EmbeddedResource Include="**\main.symbols.bicep" />
-    <EmbeddedResource Include="**\main.diagnostics.bicep" />
-    <EmbeddedResource Include="**\main.tokens.bicep" />
-    <EmbeddedResource Include="**\main.syntax.bicep" />
-  </ItemGroup>
+    <!-- Bicep.Core.Samples -->
+    <EmbeddedResource Include="./Files/**/*.json" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Files/**/*.bicep" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
 
-  <ItemGroup>
-    <Content Include="../../docs/examples/**/*.bicep" Link="examples/%(RecursiveDir)%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="../../docs/examples/**/*.json" Link="examples/%(RecursiveDir)%(Filename)%(Extension)">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Completions\declarations.json" />
-    <None Remove="Completions\outputTypes.json" />
-    <None Remove="Completions\paramTypes.json" />
-    <None Remove="InvalidResources_CRLF\Completions\delegationProperties.json" />
-    <None Remove="InvalidResources_CRLF\Completions\deploymentScriptCliProperties.json" />
-    <None Remove="InvalidResources_CRLF\Completions\deploymentScriptPSProperties.json" />
-    <None Remove="InvalidResources_CRLF\Completions\deploymentScriptTopLevel.json" />
-    <None Remove="InvalidResources_CRLF\Completions\discriminatorProperty.json" />
-    <None Remove="InvalidResources_CRLF\Completions\subnetPropertiesMinusProperties.json" />
-    <None Remove="InvalidResources_CRLF\Completions\topLevelProperties.json" />
-    <None Remove="InvalidResources_CRLF\Completions\topLevelPropertiesMinusName.json" />
-    <None Remove="Variables_LF\completions.declarations.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Completions\declarations.json" />
-    <EmbeddedResource Include="Completions\outputTypes.json" />
-    <EmbeddedResource Include="Completions\paramTypes.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\deploymentScriptTopLevel.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\deploymentScriptCliProperties.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\deploymentScriptPSProperties.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\discriminatorProperty.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\subnetPropertiesMinusProperties.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\delegationProperties.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\topLevelPropertiesMinusName.json" />
-    <EmbeddedResource Include="InvalidResources_CRLF\Completions\topLevelProperties.json" />
-    <EmbeddedResource Include="Variables_LF\Completions\symbolsPlusTypes.json" />
+    <!-- Path prefix: docs/examples -->
+    <EmbeddedResource Include="../../docs/examples/**/*.json" LogicalName="$([System.String]::new('docs/examples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="../../docs/examples/**/*.bicep" LogicalName="$([System.String]::new('docs/examples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>

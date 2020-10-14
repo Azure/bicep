@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -21,24 +23,30 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
     [TestClass]
     public class SemanticModelTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), Path.Combine(outputDirectory, DataSet.TestFileMain));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
             var model = compilation.GetEntrypointSemanticModel();
 
             string getLoggingString(Diagnostic diagnostic)
             {
                 var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
+                var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}");
 
-                return $"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message} |{spanText}|";
+                return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
             }
             
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainDiagnostics), sourceTextWithDiags);
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
+            File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Diagnostics,
@@ -57,7 +65,10 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), Path.Combine(outputDirectory, DataSet.TestFileMain));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
             var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
@@ -73,7 +84,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             }
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainSymbols), sourceTextWithDiags);
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
+            File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Symbols,

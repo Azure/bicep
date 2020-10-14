@@ -235,8 +235,7 @@ namespace Bicep.Core.Emit
 
                 writer.WritePropertyName("template");
                 {
-                    var moduleSemanticModel = moduleSymbol.TryGetSemanticModel(out _);
-                    if (moduleSemanticModel == null)
+                    if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
                     {
                         // this should have already been checked during type assignment
                         throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");

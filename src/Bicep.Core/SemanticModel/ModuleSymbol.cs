@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Bicep.Core.Syntax;
 using Bicep.Core.Diagnostics;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.SemanticModel
 {
@@ -23,18 +24,25 @@ namespace Bicep.Core.SemanticModel
 
         public override SymbolKind Kind => SymbolKind.Module;
 
-        public SemanticModel? TryGetSemanticModel(out ErrorDiagnostic? failureDiagnostic)
-        {
+        public bool TryGetSemanticModel([NotNullWhen(true)] out SemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
+        {            
             if (Context.Compilation.SyntaxTreeGrouping.ModuleFailureLookup.TryGetValue(this.DeclaringModule, out var moduleFailureDiagnostic))
             {
                 failureDiagnostic = moduleFailureDiagnostic(DiagnosticBuilder.ForPosition(this.DeclaringModule.Path));
-                return null;
+                semanticModel = null;
+                return false;
             }
 
-            var syntaxTree = Context.Compilation.SyntaxTreeGrouping.ModuleLookup[this.DeclaringModule];
+            if (!Context.Compilation.SyntaxTreeGrouping.ModuleLookup.TryGetValue(this.DeclaringModule, out var syntaxTree))
+            {
+                failureDiagnostic = DiagnosticBuilder.ForPosition(this.DeclaringModule.Path).GenericModuleLoadFailure();
+                semanticModel = null;
+                return false;
+            }
 
             failureDiagnostic = null;
-            return Context.Compilation.GetSemanticModel(syntaxTree);
+            semanticModel = Context.Compilation.GetSemanticModel(syntaxTree);
+            return true;
         }
 
         public override IEnumerable<Symbol> Descendants

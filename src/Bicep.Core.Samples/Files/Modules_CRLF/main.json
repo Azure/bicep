@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [
+    {
+      "name": "modATest",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamB": {
+            "value": "hello!"
+          },
+          "objParam": {
+            "value": {
+              "a": "b"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "a": "b"
+              },
+              "abc"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Microsoft.Network/dnszones",
+              "apiVersion": "2018-05-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Microsoft.Storage/storageAccounts', 'basicblobs')]",
+                "[resourceId('Microsoft.Network/dnszones', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

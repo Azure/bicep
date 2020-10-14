@@ -204,13 +204,9 @@ namespace Bicep.Core.TypeSystem
                     return UnassignableTypeSymbol.CreateErrors(Enumerable.Empty<ErrorDiagnostic>());
                 }
 
-                var moduleSemanticModel = moduleSymbol.TryGetSemanticModel(out var failureDiagnostic);
-                if (moduleSemanticModel == null)
+                if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
                 {
-                    // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureDiagnostic is non-null:
-                    // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                    var concreteFailureDiagnostic = failureDiagnostic ?? throw new InvalidOperationException($"Expected {nameof(moduleSymbol.TryGetSemanticModel)} to provide failure diagnostics");
-                    return UnassignableTypeSymbol.CreateErrors(concreteFailureDiagnostic);
+                    return UnassignableTypeSymbol.CreateErrors(failureDiagnostic);
                 }
 
                 var typeProperties = new List<TypeProperty>();

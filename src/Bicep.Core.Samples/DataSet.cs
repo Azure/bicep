@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
 {
@@ -20,10 +22,10 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainCompiled = "main.json";
-        public const string TestCompletionsPrefix = TestCompletionsDirectory + ".";
+        public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestCompletionsDirectory = "Completions";
 
-        public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '.';
+        public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
 
         private readonly Lazy<string> lazyBicep;
 
@@ -85,7 +87,9 @@ namespace Bicep.Core.Samples
 
         private string ReadDataSetFile(string fileName) => ReadFile(GetStreamName(fileName));
 
-        private string GetStreamName(string fileName) => $"{Prefix}{this.Name}.{fileName}";
+        private string GetStreamName(string fileName) => $"{GetStreamPrefix()}/{fileName}";
+
+        private string GetStreamPrefix() => $"{Prefix}{this.Name}";
 
         public static string ReadFile(string streamName)
         {
@@ -113,5 +117,8 @@ namespace Bicep.Core.Samples
 
             return builder.ToImmutable();
         }
+
+        public string SaveFilesToTestDirectory(TestContext testContext, string parentDirName)
+            => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, parentDirName, GetStreamPrefix());
     }
 }
