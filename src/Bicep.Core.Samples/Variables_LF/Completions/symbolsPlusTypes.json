@@ -819,6 +819,24 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "previousEmitLimit2",
+    "kind": "variable",
+    "detail": "previousEmitLimit2",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "previousEmitLimit2",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "previousEmitLimit3",
+    "kind": "variable",
+    "detail": "previousEmitLimit3",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "previousEmitLimit3",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "propertyAccessFromObject",
     "kind": "variable",
     "detail": "propertyAccessFromObject",

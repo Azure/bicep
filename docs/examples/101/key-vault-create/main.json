@@ -142,7 +142,7 @@
           "encrypt",
           "decrypt"
         ],
-        "keySize": "[if(equals(variables('keySize'), -1), json('null'), variables('keySize'))]",
+        "keySize": "[if(equals(variables('keySize'), -1), null(), variables('keySize'))]",
         "curveName": ""
       },
       "dependsOn": [

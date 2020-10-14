@@ -45,7 +45,7 @@
         "parameters": {
           "listOfAllowedLocations": {
             "type": "Array",
-            "metadata": "[json('{\"description\":\"The List of Allowed Locations for Resource Groups and Resources.\",\"strongtype\":\"location\",\"displayName\":\"Allowed Locations\"}')]"
+            "metadata": "[createObject('description', 'The List of Allowed Locations for Resource Groups and Resources.', 'strongtype', 'location', 'displayName', 'Allowed Locations')]"
           },
           "listOfAllowedSKUs": {
             "type": "Array",

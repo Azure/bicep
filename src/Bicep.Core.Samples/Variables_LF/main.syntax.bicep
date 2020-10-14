@@ -1041,6 +1041,300 @@ var previousEmitLimit = [
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
 
+// previously this was not possible to emit correctly
+//@[53:54) NewLine |\n|
+var previousEmitLimit2 = [
+//@[0:327) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |previousEmitLimit2|
+//@[23:24)  Assignment |=|
+//@[25:327)  ArraySyntax
+//@[25:26)   LeftSquare |[|
+//@[26:27)   NewLine |\n|
+  concat('s')
+//@[2:14)   ArrayItemSyntax
+//@[2:13)    FunctionCallSyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |concat|
+//@[8:9)     LeftParen |(|
+//@[9:12)     FunctionArgumentSyntax
+//@[9:12)      StringSyntax
+//@[9:12)       StringComplete |'s'|
+//@[12:13)     RightParen |)|
+//@[13:14)    NewLine |\n|
+  '${4}'
+//@[2:9)   ArrayItemSyntax
+//@[2:8)    StringSyntax
+//@[2:5)     StringLeftPiece |'${|
+//@[5:6)     NumericLiteralSyntax
+//@[5:6)      Number |4|
+//@[6:8)     StringRightPiece |}'|
+//@[8:9)    NewLine |\n|
+  {
+//@[2:276)   ArrayItemSyntax
+//@[2:275)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    a: {
+//@[4:267)     ObjectPropertySyntax
+//@[4:5)      IdentifierSyntax
+//@[4:5)       Identifier |a|
+//@[5:6)      Colon |:|
+//@[7:267)      ObjectSyntax
+//@[7:8)       LeftBrace |{|
+//@[8:9)       NewLine |\n|
+      b: base64('s')
+//@[6:20)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |b|
+//@[7:8)        Colon |:|
+//@[9:20)        FunctionCallSyntax
+//@[9:15)         IdentifierSyntax
+//@[9:15)          Identifier |base64|
+//@[15:16)         LeftParen |(|
+//@[16:19)         FunctionArgumentSyntax
+//@[16:19)          StringSyntax
+//@[16:19)           StringComplete |'s'|
+//@[19:20)         RightParen |)|
+//@[20:21)       NewLine |\n|
+      c: union({
+//@[6:90)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |c|
+//@[7:8)        Colon |:|
+//@[9:90)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:43)         FunctionArgumentSyntax
+//@[15:42)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        a: 12 + 3
+//@[8:17)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |a|
+//@[9:10)            Colon |:|
+//@[11:17)            BinaryOperationSyntax
+//@[11:13)             NumericLiteralSyntax
+//@[11:13)              Number |12|
+//@[14:15)             Plus |+|
+//@[16:17)             NumericLiteralSyntax
+//@[16:17)              Number |3|
+//@[17:18)           NewLine |\n|
+      }, {
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:54)         FunctionArgumentSyntax
+//@[9:54)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           NewLine |\n|
+        b: !true
+//@[8:16)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |b|
+//@[9:10)            Colon |:|
+//@[11:16)            UnaryOperationSyntax
+//@[11:12)             Exclamation |!|
+//@[12:16)             BooleanLiteralSyntax
+//@[12:16)              TrueKeyword |true|
+//@[16:17)           NewLine |\n|
+        c: 'hello'
+//@[8:18)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |c|
+//@[9:10)            Colon |:|
+//@[11:18)            StringSyntax
+//@[11:18)             StringComplete |'hello'|
+//@[18:19)           NewLine |\n|
+      })
+//@[6:7)           RightBrace |}|
+//@[7:8)         RightParen |)|
+//@[8:9)       NewLine |\n|
+      d: az.resourceGroup().location
+//@[6:36)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |d|
+//@[7:8)        Colon |:|
+//@[9:36)        PropertyAccessSyntax
+//@[9:27)         InstanceFunctionCallSyntax
+//@[9:11)          VariableAccessSyntax
+//@[9:11)           IdentifierSyntax
+//@[9:11)            Identifier |az|
+//@[11:12)          Dot |.|
+//@[12:25)          IdentifierSyntax
+//@[12:25)           Identifier |resourceGroup|
+//@[25:26)          LeftParen |(|
+//@[26:27)          RightParen |)|
+//@[27:28)         Dot |.|
+//@[28:36)         IdentifierSyntax
+//@[28:36)          Identifier |location|
+//@[36:37)       NewLine |\n|
+      e: union({
+//@[6:45)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |e|
+//@[7:8)        Colon |:|
+//@[9:45)        FunctionCallSyntax
+//@[9:14)         IdentifierSyntax
+//@[9:14)          Identifier |union|
+//@[14:15)         LeftParen |(|
+//@[15:41)         FunctionArgumentSyntax
+//@[15:40)          ObjectSyntax
+//@[15:16)           LeftBrace |{|
+//@[16:17)           NewLine |\n|
+        x: true
+//@[8:15)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |x|
+//@[9:10)            Colon |:|
+//@[11:15)            BooleanLiteralSyntax
+//@[11:15)             TrueKeyword |true|
+//@[15:16)           NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)       NewLine |\n|
+      f: intersection({
+//@[6:57)       ObjectPropertySyntax
+//@[6:7)        IdentifierSyntax
+//@[6:7)         Identifier |f|
+//@[7:8)        Colon |:|
+//@[9:57)        FunctionCallSyntax
+//@[9:21)         IdentifierSyntax
+//@[9:21)          Identifier |intersection|
+//@[21:22)         LeftParen |(|
+//@[22:53)         FunctionArgumentSyntax
+//@[22:52)          ObjectSyntax
+//@[22:23)           LeftBrace |{|
+//@[23:24)           NewLine |\n|
+        q: 's' == 12
+//@[8:20)           ObjectPropertySyntax
+//@[8:9)            IdentifierSyntax
+//@[8:9)             Identifier |q|
+//@[9:10)            Colon |:|
+//@[11:20)            BinaryOperationSyntax
+//@[11:14)             StringSyntax
+//@[11:14)              StringComplete |'s'|
+//@[15:17)             Equals |==|
+//@[18:20)             NumericLiteralSyntax
+//@[18:20)              Number |12|
+//@[20:21)           NewLine |\n|
+      }, {})
+//@[6:7)           RightBrace |}|
+//@[7:8)          Comma |,|
+//@[9:11)         FunctionArgumentSyntax
+//@[9:11)          ObjectSyntax
+//@[9:10)           LeftBrace |{|
+//@[10:11)           RightBrace |}|
+//@[11:12)         RightParen |)|
+//@[12:13)       NewLine |\n|
+    }
+//@[4:5)       RightBrace |}|
+//@[5:6)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)    NewLine |\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+// previously this was not possible to emit correctly
+//@[53:54) NewLine |\n|
+var previousEmitLimit3 = {
+//@[0:140) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |previousEmitLimit3|
+//@[23:24)  Assignment |=|
+//@[25:140)  ObjectSyntax
+//@[25:26)   LeftBrace |{|
+//@[26:27)   NewLine |\n|
+  a: {
+//@[2:111)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[3:4)    Colon |:|
+//@[5:111)    ObjectSyntax
+//@[5:6)     LeftBrace |{|
+//@[6:7)     NewLine |\n|
+    b: {
+//@[4:56)     ObjectPropertySyntax
+//@[4:5)      IdentifierSyntax
+//@[4:5)       Identifier |b|
+//@[5:6)      Colon |:|
+//@[7:56)      BinaryOperationSyntax
+//@[7:51)       ObjectSyntax
+//@[7:8)        LeftBrace |{|
+//@[8:9)        NewLine |\n|
+      a: az.resourceGroup().location
+//@[6:36)        ObjectPropertySyntax
+//@[6:7)         IdentifierSyntax
+//@[6:7)          Identifier |a|
+//@[7:8)         Colon |:|
+//@[9:36)         PropertyAccessSyntax
+//@[9:27)          InstanceFunctionCallSyntax
+//@[9:11)           VariableAccessSyntax
+//@[9:11)            IdentifierSyntax
+//@[9:11)             Identifier |az|
+//@[11:12)           Dot |.|
+//@[12:25)           IdentifierSyntax
+//@[12:25)            Identifier |resourceGroup|
+//@[25:26)           LeftParen |(|
+//@[26:27)           RightParen |)|
+//@[27:28)          Dot |.|
+//@[28:36)          IdentifierSyntax
+//@[28:36)           Identifier |location|
+//@[36:37)        NewLine |\n|
+    } == 2
+//@[4:5)        RightBrace |}|
+//@[6:8)       Equals |==|
+//@[9:10)       NumericLiteralSyntax
+//@[9:10)        Number |2|
+//@[10:11)     NewLine |\n|
+    c: concat([
+//@[4:43)     ObjectPropertySyntax
+//@[4:5)      IdentifierSyntax
+//@[4:5)       Identifier |c|
+//@[5:6)      Colon |:|
+//@[7:43)      FunctionCallSyntax
+//@[7:13)       IdentifierSyntax
+//@[7:13)        Identifier |concat|
+//@[13:14)       LeftParen |(|
+//@[14:23)       FunctionArgumentSyntax
+//@[14:22)        ArraySyntax
+//@[14:15)         LeftSquare |[|
+//@[15:17)         NewLine |\n\n|
+
+    ], [
+//@[4:5)         RightSquare |]|
+//@[5:6)        Comma |,|
+//@[7:25)       FunctionArgumentSyntax
+//@[7:25)        ArraySyntax
+//@[7:8)         LeftSquare |[|
+//@[8:9)         NewLine |\n|
+      true
+//@[6:11)         ArrayItemSyntax
+//@[6:10)          BooleanLiteralSyntax
+//@[6:10)           TrueKeyword |true|
+//@[10:11)          NewLine |\n|
+    ])
+//@[4:5)         RightSquare |]|
+//@[5:6)       RightParen |)|
+//@[6:7)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // #completionTest(0) -> declarations
 //@[37:39) NewLine |\n\n|
 

@@ -219,44 +219,6 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 var test3 = list('abcd', '2020-01-01')
 //@[4:9) Variable test3. Type: error. Declaration start char: 0, length: 38
 
-// cannot compile an expression like this
-var emitLimit = [
-//@[4:13) Variable emitLimit. Type: array. Declaration start char: 0, length: 315
-  concat('s')
-  '${4}'
-  {
-    a: {
-      b: base64('s')
-      c: union({
-        a: 12 + 3
-      }, {
-        b: !true
-        c: 'hello'
-      })
-      d: resourceGroup().location
-      e: union({
-        x: true
-      }, {})
-      f: intersection({
-        q: 's' == 12
-      }, {})
-    }
-  }
-]
-
-// cannot compile an expression like this
-var emitLimit2 = {
-//@[4:14) Variable emitLimit2. Type: error. Declaration start char: 0, length: 115
-  a: {
-    b: {
-      a: resourceGroup().location
-    } == 2
-    c: concat([
-
-    ], true)
-  }
-}
-
 var sampleObject = {
 //@[4:16) Variable sampleObject. Type: object. Declaration start char: 0, length: 190
   myInt: 42
