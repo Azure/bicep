@@ -261,47 +261,6 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 var test3 = list('abcd', '2020-01-01')
 //@[12:16) [BCP082 (Error)] The name "list" does not exist in the current context. Did you mean "last"? |list|
 
-// cannot compile an expression like this
-var emitLimit = [
-  concat('s')
-  '${4}'
-  {
-    a: {
-      b: base64('s')
-      c: union({
-        a: 12 + 3
-//@[11:17) [BCP069 (Error)] The expression is inside an object literal that is itself part of another expression. This is not currently supported. |12 + 3|
-      }, {
-        b: !true
-//@[11:16) [BCP069 (Error)] The expression is inside an object literal that is itself part of another expression. This is not currently supported. |!true|
-        c: 'hello'
-      })
-      d: resourceGroup().location
-      e: union({
-        x: true
-      }, {})
-      f: intersection({
-        q: 's' == 12
-//@[11:20) [BCP069 (Error)] The expression is inside an object literal that is itself part of another expression. This is not currently supported. |'s' == 12|
-      }, {})
-    }
-  }
-]
-
-// cannot compile an expression like this
-var emitLimit2 = {
-  a: {
-    b: {
-      a: resourceGroup().location
-//@[9:33) [BCP069 (Error)] The expression is inside an object literal that is itself part of another expression. This is not currently supported. |resourceGroup().location|
-    } == 2
-    c: concat([
-
-    ], true)
-//@[7:11) [BCP070 (Error)] Argument of type "bool" is not assignable to parameter of type "array". |true|
-  }
-}
-
 var sampleObject = {
   myInt: 42
   myStr: 's'

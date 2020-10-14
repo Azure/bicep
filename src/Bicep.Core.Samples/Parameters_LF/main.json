@@ -149,11 +149,11 @@
     },
     "defaultValueExpression": {
       "type": "int",
-      "defaultValue": "[if(json('true'), add(4, mul(2, 3)), 0)]"
+      "defaultValue": "[if(true(), add(4, mul(2, 3)), 0)]"
     },
     "defaultExpression": {
       "type": "bool",
-      "defaultValue": "[not(equals(18, or(json('true'), json('false'))))]"
+      "defaultValue": "[not(equals(18, or(true(), false())))]"
     }
   },
   "functions": [],

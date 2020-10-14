@@ -20,7 +20,7 @@
     },
     "myBool": {
       "type": "bool",
-      "value": "[not(json('false'))]"
+      "value": "[not(false())]"
     },
     "myOtherBool": {
       "type": "bool",
@@ -60,7 +60,7 @@
       "value": [
         "pirates",
         "say",
-        "[if(json('false'), 'arr2', 'arr')]"
+        "[if(false(), 'arr2', 'arr')]"
       ]
     },
     "rgLocation": {
@@ -69,11 +69,11 @@
     },
     "crossRegion": {
       "type": "bool",
-      "value": "[if(equals(resourceGroup().location, deployment().location), json('false'), json('true'))]"
+      "value": "[if(equals(resourceGroup().location, deployment().location), false(), true())]"
     },
     "expressionBasedIndexer": {
       "type": "string",
-      "value": "[json('{\"eastus\":{\"foo\":true},\"westus\":{\"foo\":false}}')[resourceGroup().location].foo]"
+      "value": "[createObject('eastus', createObject('foo', true()), 'westus', createObject('foo', false()))[resourceGroup().location].foo]"
     },
     "primaryKey": {
       "type": "string",

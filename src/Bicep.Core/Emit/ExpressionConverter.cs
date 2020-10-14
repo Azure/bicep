@@ -1,15 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Arm.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -33,7 +29,7 @@ namespace Bicep.Core.Emit
             switch (expression)
             {
                 case BooleanLiteralSyntax boolSyntax:
-                    return CreateJsonFunctionCall(boolSyntax.Value);
+                    return CreateParameterlessFunction(boolSyntax.Value ? "true" : "false");
                     
                 case NumericLiteralSyntax numericSyntax:
                     return new JTokenExpression(numericSyntax.Value);
@@ -44,10 +40,10 @@ namespace Bicep.Core.Emit
                     return ConvertString(stringSyntax);
                     
                 case NullLiteralSyntax _:
-                    return CreateJsonFunctionCall(JValue.CreateNull());
+                    return CreateParameterlessFunction("null");
 
-                case ObjectSyntax _:
-                    return ConvertComplexLiteral(expression);
+                case ObjectSyntax @object:
+                    return ConvertObject(@object);
 
                 case ArraySyntax array:
                     return ConvertArray(array);
@@ -311,28 +307,32 @@ namespace Bicep.Core.Emit
         private FunctionExpression ConvertArray(ArraySyntax syntax)
         {
             // we are using the createArray() function as a proxy for an array literal
-            // unfortunately the function requires at least one argument to be passed in
-            // we will use json('[]') to represent an empty array as a workaround
-            return syntax.Items.Any()
-                ? new FunctionExpression(
-                    "createArray",
-                    syntax.Items.Select(item => ConvertExpression(item.Value)).ToArray(),
-                    Array.Empty<LanguageExpression>())
-                : CreateJsonFunctionCall(new JArray());
+            return new FunctionExpression(
+                "createArray",
+                syntax.Items.Select(item => ConvertExpression(item.Value)).ToArray(),
+                Array.Empty<LanguageExpression>());
         }
 
-        private FunctionExpression ConvertComplexLiteral(SyntaxBase syntax)
+        private FunctionExpression ConvertObject(ObjectSyntax syntax)
         {
-            // the tree node here should not contain any expressions inside
-            // if it does, the emitted json expressions will not evaluate as expected due to IL limitations
-            // there is a check elsewhere that will generate an error before we get this far in those cases
-            var buffer = new StringBuilder();
-            using (var writer = new JsonTextWriter(new StringWriter(buffer)) {Formatting = Formatting.None})
+            // need keys and values in one array of parameters
+            var parameters = new LanguageExpression[syntax.Properties.Count() * 2];
+
+            int index = 0;
+            foreach (var propertySyntax in syntax.Properties)
             {
-                new ExpressionEmitter(writer, context).EmitExpression(syntax);
+                parameters[index] = new JTokenExpression(propertySyntax.TryGetKeyText());
+                index++;
+
+                parameters[index] = ConvertExpression(propertySyntax.Value);
+                index++;
             }
 
-            return CreateJsonFunctionCall(JToken.Parse(buffer.ToString()));
+            // we are using the createObject() funciton as a proy for an object literal
+            return new FunctionExpression(
+                "createObject",
+                parameters,
+                Array.Empty<LanguageExpression>());
         }
 
         private LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
@@ -430,14 +430,14 @@ namespace Bicep.Core.Emit
             // until we have evidence that it is needed
             new FunctionExpression(function.Function, function.Parameters, function.Properties.Append(newProperty).ToArray());
 
+        private static FunctionExpression CreateParameterlessFunction(string function) =>
+            new FunctionExpression(function, Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>());
+
         private static FunctionExpression CreateUnaryFunction(string function, LanguageExpression operand) => 
             new FunctionExpression(function, new[] {operand}, Array.Empty<LanguageExpression>());
 
         private static FunctionExpression CreateBinaryFunction(string name, LanguageExpression operand1, LanguageExpression operand2) =>
             new FunctionExpression(name, new[] {operand1, operand2}, Array.Empty<LanguageExpression>());
-
-        private static FunctionExpression CreateJsonFunctionCall(JToken value) =>
-            CreateUnaryFunction("json", new JTokenExpression(value.ToString(Formatting.None)));
 
         protected static void Assert(bool predicate, string message)
         {
