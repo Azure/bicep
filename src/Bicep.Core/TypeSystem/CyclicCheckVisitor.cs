@@ -33,8 +33,8 @@ namespace Bicep.Core.TypeSystem
         private ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles()
         {
             var symbolGraph = declarationAccessDict
-                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<DeclaredSymbol>().Select(x => (x, kvp.Key)))
-                .ToLookup(x => x.Item1, x => x.Key);
+                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<DeclaredSymbol>().Select(x => (kvp.Key, x)))
+                .ToLookup(x => x.Item1, x => x.Item2);
 
             return CycleDetector<DeclaredSymbol>.FindCycles(symbolGraph);
         }

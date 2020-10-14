@@ -38,9 +38,13 @@ namespace Bicep.Core.Utils
 			return shortestCycleByNode.ToImmutableDictionary(
 				x => x.Key,
 				x => {
-					// return the cycle as originating from the current key
-					var cycleSuffix = x.Value.TakeWhile(y => y != x.Key);
-					var cyclePrefix = x.Value.Skip(cycleSuffix.Count());
+                    // cycles are returned by FindCycleDfs in reverse order
+                    var cycle = x.Value.Reverse();
+                    
+					// return the cycle as originating from the current key (e.g. a cycle 5 -> 6 -> 7 for key 6 should be displayed as 6 -> 7 -> 5)
+					var cycleSuffix = cycle.TakeWhile(y => y != x.Key);
+					var cyclePrefix = cycle.Skip(cycleSuffix.Count());
+
 					return cyclePrefix.Concat(cycleSuffix).ToImmutableArray();
 				});
         }
