@@ -88,7 +88,7 @@ module modulea 'main.bicep' = {
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Should().SatisfyRespectively(
-                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error)
+                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP092", DiagnosticLevel.Error)
             );
             success.Should().BeFalse();
         }
@@ -123,8 +123,8 @@ module modulea 'main.bicep' = {
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Should().SatisfyRespectively(
-                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP092", DiagnosticLevel.Error),
-                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP092", DiagnosticLevel.Error)
+                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP093", DiagnosticLevel.Error),
+                x => x.diagnostic.Should().HaveCodeAndSeverity("BCP093", DiagnosticLevel.Error)
             );
             success.Should().BeFalse();
         }

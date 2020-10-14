@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
 
@@ -29,7 +30,9 @@ namespace Bicep.Wasm.LanguageHelpers
             return fileContents;
         }
 
-        public string? TryResolveModulePath(string childFileName, string parentFileName)
+        public string? TryResolveModulePath(string parentFileName, string childFileName)
             => childFileName;
+
+        public StringComparer PathComparer => StringComparer.OrdinalIgnoreCase;
     }
 }

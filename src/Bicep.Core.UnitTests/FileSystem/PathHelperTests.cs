@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Bicep.Cli.Utils;
+using Bicep.Core.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Cli.UnitTests
+namespace Bicep.Core.UnitTests.FileSystem
 {
     /// <summary>
     /// Some of the tests in this class are specific to Windows or Unix file systems and require to be run on a machine with that type of OS.

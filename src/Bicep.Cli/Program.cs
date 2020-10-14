@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
-using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -15,8 +14,8 @@ using Newtonsoft.Json;
 using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem;
-using Bicep.Cli.FileSystem;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli
 {

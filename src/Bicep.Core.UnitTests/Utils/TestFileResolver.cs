@@ -19,6 +19,9 @@ namespace Bicep.Core.UnitTests.Utils
         public static IFileResolver CreateForSingleFile(string fileName, string fileContents)
             => new TestFileResolver(new Dictionary<string, string> { [fileName] = fileContents });
 
+        public static IFileResolver CreateEmpty()
+            => new TestFileResolver(new Dictionary<string, string>());
+
         public string GetNormalizedFileName(string fileName)
             => fileName.Replace('\\', '/');
 
@@ -34,7 +37,7 @@ namespace Bicep.Core.UnitTests.Utils
             return fileContents;
         }
 
-        public string? TryResolveModulePath(string childFileName, string parentFileName)
+        public string? TryResolveModulePath(string parentFileName, string childFileName)
         {
             if (Path.IsPathRooted(childFileName))
             {
@@ -44,5 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
             var parentDirName = Path.GetDirectoryName(parentFileName) ?? throw new ArgumentException($"Unable to resolve parent directory from path \"{parentFileName}\"");
             return GetNormalizedFileName(Path.Combine(parentDirName, childFileName));
         }
+
+        public StringComparer PathComparer => StringComparer.OrdinalIgnoreCase;
     }
 }

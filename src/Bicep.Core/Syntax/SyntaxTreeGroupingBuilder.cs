@@ -30,6 +30,15 @@ namespace Bicep.Core.Syntax
         public static SyntaxTreeGrouping Build(IFileResolver fileResolver, string entryFileName)
             => new SyntaxTreeGroupingBuilder(fileResolver).Build(entryFileName);
 
+        public static SyntaxTreeGrouping BuildWithPreloadedFile(IFileResolver fileResolver, string entryFileName, string fileContents)
+        {
+            var builder = new SyntaxTreeGroupingBuilder(fileResolver);
+            var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
+            builder.AddSyntaxTree(normalizedFileName, fileContents);
+
+            return builder.Build(entryFileName);
+        }
+
         private SyntaxTreeGrouping Build(string entryFileName)
         {
             var entryPoint = PopulateRecursive(entryFileName, out var entryPointLoadFailureBuilder);
@@ -74,10 +83,15 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            syntaxTree = SyntaxTree.Create(normalizedFileName, fileContents);
+            failureBuilder = null;
+            return AddSyntaxTree(normalizedFileName, fileContents);
+        }
+
+        private SyntaxTree AddSyntaxTree(string normalizedFileName, string fileContents)
+        {
+            var syntaxTree = SyntaxTree.Create(normalizedFileName, fileContents);
             syntaxTrees[normalizedFileName] = syntaxTree;
 
-            failureBuilder = null;
             return syntaxTree;
         }
 
@@ -136,7 +150,7 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            var fullPath = fileResolver.TryResolveModulePath(pathName, parentFileName);
+            var fullPath = fileResolver.TryResolveModulePath(parentFileName, pathName);
             if (fullPath == null)
             {
                 failureBuilder = x => x.ModulePathCouldNotBeResolved(pathName, parentFileName);
