@@ -28,7 +28,12 @@ namespace Bicep.Core.Syntax
         }
 
         public static SyntaxTreeGrouping Build(IFileResolver fileResolver, string entryFileName)
-            => new SyntaxTreeGroupingBuilder(fileResolver).Build(entryFileName);
+        {
+            var builder = new SyntaxTreeGroupingBuilder(fileResolver);
+            var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
+
+            return builder.Build(normalizedFileName);
+        }
 
         public static SyntaxTreeGrouping BuildWithPreloadedFile(IFileResolver fileResolver, string entryFileName, string fileContents)
         {
@@ -36,7 +41,7 @@ namespace Bicep.Core.Syntax
             var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
             builder.AddSyntaxTree(normalizedFileName, fileContents);
 
-            return builder.Build(entryFileName);
+            return builder.Build(normalizedFileName);
         }
 
         private SyntaxTreeGrouping Build(string entryFileName)
