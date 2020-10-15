@@ -4,6 +4,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -227,6 +228,21 @@ namespace Bicep.Core.TypeSystem
             {
                 // object doesn't contain the discriminator field
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+
+                var propertyKeys = expression.Properties
+                    .Select(x => x.TryGetKeyText())
+                    .Where(key => !string.IsNullOrEmpty(key))
+                    .Select(key => key!);
+
+                // do a reverse lookup to check if there's any misspelled discriminator key
+                var misspelledDiscriminatorKey = SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, propertyKeys);
+
+                if (misspelledDiscriminatorKey != null)
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(expression).DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                }
+
+
                 return LanguageConstants.Any;
             }
 
@@ -244,7 +260,15 @@ namespace Bicep.Core.TypeSystem
             if (!targetType.UnionMembersByKey.TryGetValue(stringLiteralDiscriminator.Name, out var selectedObjectReference))
             {
                 // no matches
-                diagnostics.Add(DiagnosticBuilder.ForPosition(discriminatorProperty.Value).PropertyTypeMismatch(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
+                string? suggestedDiscriminator = SpellChecker.GetSpellingSuggestion(stringLiteralDiscriminator.Name, discriminatorCandidates);
+                var builder = DiagnosticBuilder.ForPosition(discriminatorProperty.Value);
+                bool shouldWarn = ShouldWarn(targetType);
+
+                diagnostics.Add(suggestedDiscriminator != null
+                    ? builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestedDiscriminator)
+                    : builder.PropertyTypeMismatch(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+
                 return LanguageConstants.Any;
             }
 
@@ -304,6 +328,35 @@ namespace Bicep.Core.TypeSystem
                         diagnostics.Add(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
                     }
 
+                    TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) =>
+                    {
+                        var builder = DiagnosticBuilder.ForPosition(errorExpression);
+                        var shouldWarn = ShouldWarn(targetType);
+
+                        if (actualType is StringLiteralType)
+                        {
+                            string? suggestedStringLiteral = null;
+
+                            if (expectedType is StringLiteralType)
+                            {
+                                suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, expectedType.Name.AsEnumerable());
+                            }
+
+                            if (expectedType is UnionType unionType && unionType.Members.All(typeReference => typeReference.Type is StringLiteralType))
+                            {
+                                var stringLiteralCandidates = unionType.Members.Select(typeReference => typeReference.Type.Name).OrderBy(x => x);
+                                suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, stringLiteralCandidates);
+                            }
+
+                            if (suggestedStringLiteral != null)
+                            {
+                                return builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, declaredProperty.Name, expectedType, actualType.Name, suggestedStringLiteral);
+                            }
+                        }
+
+                        return builder.PropertyTypeMismatch(shouldWarn, declaredProperty.Name, expectedType, actualType);
+                    };
+
                     // declared property is specified in the value object
                     // validate type
                     var narrowedType = NarrowTypeInternal(
@@ -311,7 +364,7 @@ namespace Bicep.Core.TypeSystem
                         declaredPropertySyntax.Value,
                         declaredProperty.TypeReference.Type,
                         diagnostics,
-                        (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(ShouldWarn(targetType), declaredProperty.Name, expectedType, actualType),
+                        typeMismatchErrorFactory,
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
                         
@@ -329,9 +382,9 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType.AdditionalPropertiesType == null)
             {
+                bool shouldWarn = ShouldWarn(targetType);
                 var validUnspecifiedProperties = targetType.Properties.Values
-                    .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
-                    .Where(p => !namedPropertyMap.ContainsKey(p.Name))
+                    .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
                     .OrderBy(x => x);
 
@@ -339,17 +392,26 @@ namespace Bicep.Core.TypeSystem
                 foreach (var extraProperty in extraProperties)
                 {
                     Diagnostic error;
+                    var builder = DiagnosticBuilder.ForPosition(extraProperty.Key);
+
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedPropertyWithPermissibleProperties(ShouldWarn(targetType), keyName, targetType, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedProperty(ShouldWarn(targetType), keyName, targetType);
+                        error = validUnspecifiedProperties.Any() switch
+                        {
+                            true => SpellChecker.GetSpellingSuggestion(keyName, validUnspecifiedProperties) switch
+                            {
+                                string suggestedKeyName when suggestedKeyName != null
+                                    => builder.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName),
+                                _ => builder.DisallowedPropertyWithPermissibleProperties(shouldWarn, keyName, targetType, validUnspecifiedProperties)
+                            },
+                            _ => builder.DisallowedProperty(shouldWarn, keyName, targetType)
+                        };
                     }
                     else
                     {
                         error = validUnspecifiedProperties.Any() ? 
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyPropertyWithPermissibleProperties(ShouldWarn(targetType), targetType, validUnspecifiedProperties) :
-                            DiagnosticBuilder.ForPosition(extraProperty.Key).DisallowedInterpolatedKeyProperty(ShouldWarn(targetType), targetType);
+                            builder.DisallowedInterpolatedKeyPropertyWithPermissibleProperties(shouldWarn, targetType, validUnspecifiedProperties) :
+                            builder.DisallowedInterpolatedKeyProperty(shouldWarn, targetType);
                     }
 
                     diagnostics.AddRange(error.AsEnumerable());
@@ -375,7 +437,34 @@ namespace Bicep.Core.TypeSystem
                     TypeMismatchErrorFactory typeMismatchErrorFactory;
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) => DiagnosticBuilder.ForPosition(errorExpression).PropertyTypeMismatch(ShouldWarn(targetType), keyName, expectedType, actualType);
+                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) =>
+                        {
+                            var builder = DiagnosticBuilder.ForPosition(errorExpression);
+                            var shouldWarn = ShouldWarn(targetType);
+
+                            if (actualType is StringLiteralType)
+                            {
+                                string? suggestedStringLiteral = null;
+
+                                if (expectedType is StringLiteralType)
+                                {
+                                    suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, expectedType.Name.AsEnumerable());
+                                }
+
+                                if (expectedType is UnionType unionType && unionType.Members.All(typeReference => typeReference.Type is StringLiteralType))
+                                {
+                                    var stringLiteralCandidates = unionType.Members.Select(typeReference => typeReference.Type.Name).OrderBy(s => s);
+                                    suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, stringLiteralCandidates);
+                                }
+
+                                if (suggestedStringLiteral != null)
+                                {
+                                    return builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, keyName, expectedType, actualType.Name, suggestedStringLiteral);
+                                }
+                            }
+
+                            return builder.PropertyTypeMismatch(shouldWarn, keyName, expectedType, actualType);
+                        };
                     }
                     else
                     {

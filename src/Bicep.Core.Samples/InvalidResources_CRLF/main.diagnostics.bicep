@@ -244,3 +244,13 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+
+resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
+  kind: 'AzureCLI'
+
+  propertes: {
+//@[2:11) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "Microsoft.Resources/deploymentScripts@2020-10-01". Did you mean "properties"? |propertes|
+  }
+}
+
