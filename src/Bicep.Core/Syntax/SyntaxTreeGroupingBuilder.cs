@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
             this.fileResolver = fileResolver;
             this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, SyntaxTree>();
             this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
-            this.syntaxTrees = new Dictionary<string, SyntaxTree?>();
+            this.syntaxTrees = new Dictionary<string, SyntaxTree?>(fileResolver.PathComparer);
         }
 
         public static SyntaxTreeGrouping Build(IFileResolver fileResolver, string entryFileName)
