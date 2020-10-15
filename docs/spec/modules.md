@@ -10,7 +10,7 @@ Here is an example bicep file (`publicIpAddress.bicep`) that we will later consu
 ```bicep
 // Input parameters must be specified by the module consumer
 param publicIpResourceName string
-param publicIpDnsLabel string = publicIpResourceName
+param publicIpDnsLabel string = '${publicIpResourceName}-${newGuid()}'
 param location string = resourceGroup().location
 param dynamicAllocation bool
 
@@ -26,7 +26,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
 }
 
 // Set an output which can be accessed by the module consumer
-output ipAddress string = publicIp.properties.ipAddress
+output ipFqdn string = publicIp.properties.dnsSettings.fqdn
 ```
 
 ### Notes
@@ -38,17 +38,19 @@ To consume a module, we use the `module` keyword. The path to the module in this
 
 Here is an example consumption of a module. This will deploy the resource(s) defined in the module file being referenced:
 ```bicep
-module publicIp '../publicIpAddress.bicep' = {
+param publicIpName string = 'mypublicip'
+
+module publicIp './publicIpAddress.bicep' = {
   name: 'publicIp'
   params: {
-    publicIpResourceName: 'myPublicIp'
+    publicIpResourceName: publicIpName
     dynamicAllocation: true
     // Parameters with default values may be omitted.
   }
 }
 
 // To reference module outputs
-var assignedIp = publicIp.outputs.ipAddress
+output ipFqdn string = publicIp.outputs.ipFqdn
 ```
 
 ### Notes

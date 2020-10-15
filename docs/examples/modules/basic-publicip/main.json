@@ -1,7 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "publicIpName": {
+      "type": "string",
+      "defaultValue": "mypublicip"
+    }
+  },
   "functions": [],
   "variables": {},
   "resources": [
@@ -16,7 +21,7 @@
         "mode": "Incremental",
         "parameters": {
           "publicIpResourceName": {
-            "value": "myPublicIp"
+            "value": "[parameters('publicIpName')]"
           },
           "dynamicAllocation": {
             "value": true
@@ -31,7 +36,7 @@
             },
             "publicIpDnsLabel": {
               "type": "string",
-              "defaultValue": "[parameters('publicIpResourceName')]"
+              "defaultValue": "[format('{0}-{1}', parameters('publicIpResourceName'), newGuid())]"
             },
             "location": {
               "type": "string",
@@ -58,9 +63,9 @@
             }
           ],
           "outputs": {
-            "ipAddress": {
+            "ipFqdn": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).ipAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
             }
           }
         }
@@ -68,9 +73,9 @@
     }
   ],
   "outputs": {
-    "assignedIp": {
+    "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipAddress.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
     }
   }
 }

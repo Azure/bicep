@@ -7,7 +7,7 @@
     },
     "publicIpDnsLabel": {
       "type": "string",
-      "defaultValue": "[parameters('publicIpResourceName')]"
+      "defaultValue": "[format('{0}-{1}', parameters('publicIpResourceName'), newGuid())]"
     },
     "location": {
       "type": "string",
@@ -34,9 +34,9 @@
     }
   ],
   "outputs": {
-    "ipAddress": {
+    "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
     }
   }
 }

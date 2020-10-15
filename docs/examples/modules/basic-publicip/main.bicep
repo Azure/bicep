@@ -1,11 +1,13 @@
+param publicIpName string = 'mypublicip'
+
 module publicIp './publicIpAddress.bicep' = {
   name: 'publicIp'
   params: {
-    publicIpResourceName: 'myPublicIp'
+    publicIpResourceName: publicIpName
     dynamicAllocation: true
     // Parameters with default values may be omitted.
   }
 }
 
 // To reference module outputs
-output assignedIp string = publicIp.outputs.ipAddress
+output ipFqdn string = publicIp.outputs.ipFqdn
