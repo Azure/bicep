@@ -1,12 +1,12 @@
 # Modules
 
-A module is an opaque set of one or more resources to be deployed together. It only exposes parameters and outputs as contract to other bicep files, hiding details on how internal resources are defined. This allows you to abstract away complex details of the raw resource declaration from the end user who now only needs to be concerned about the module contract. Parameters and outputs are optional.
+A module is an opaque set of one or more resources to be deployed together. It only exposes parameters and outputs as contract to other Bicep files, hiding details on how internal resources are defined. This allows you to abstract away complex details of the raw resource declaration from the end user who now only needs to be concerned about the module contract. Parameters and outputs are optional.
 
 ## Defining a module
 
-Any bicep file can be consumed as a module, so there is no specific syntax for defining a module.
+Every Bicep file can be consumed as a module, so there is no specific syntax for defining a module.
 
-Here is an example bicep file (`publicIpAddress.bicep`) that we will later consume as a module:
+Here is an example Bicep file (`publicIpAddress.bicep`) that we will later consume as a module:
 ```bicep
 // Input parameters must be specified by the module consumer
 param publicIpResourceName string

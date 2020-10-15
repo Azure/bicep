@@ -48,7 +48,7 @@ namespace Bicep.Core.Syntax
             var pathSyntax = moduleDeclarationSyntax.TryGetPath();
             if (pathSyntax == null)
             {
-                failureBuilder = x => x.UnableToFindPathForModule();
+                failureBuilder = x => x.ModulePathHasNotBeenSpecified();
                 return null;
             }
 

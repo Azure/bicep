@@ -70,7 +70,7 @@ output outputb string = '${inputa}-${inputb}'
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Should().BeEmpty();
+            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
             GetTemplate(compilation).Should().NotBeEmpty();
         }
@@ -98,9 +98,8 @@ module mainRecursive 'main.bicep' = {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep" });
-            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP094", DiagnosticLevel.Error, "This module references its own declaring file, which is not allowed."),
+            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new[] {
+                ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
 
             success.Should().BeFalse();
@@ -150,14 +149,13 @@ module main 'main.bicep' = {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep", "/modulea.bicep", "/moduleb.bicep" });
-            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
+            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
-            diagnosticsByFile["/modulea.bicep"].Should().HaveDiagnostics(new [] {
+            diagnosticsByFile["/modulea.bicep"].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
-            diagnosticsByFile["/moduleb.bicep"].Should().HaveDiagnostics(new [] {
+            diagnosticsByFile["/moduleb.bicep"].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
@@ -176,7 +174,7 @@ module main 'main.bicep' = {
 
             Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep");
             buildAction.Should().Throw<ErrorDiagnosticException>()
-                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Received failure \"Mock read failure!\".");
+                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Mock read failure!");
         }
 
         [TestMethod]
@@ -206,9 +204,8 @@ module modulea 'modulea.bicep' = {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/path/to/main.bicep" });
-            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "Module \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
+            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {
+                ("BCP093", DiagnosticLevel.Error, "Module path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
         }
 
@@ -241,9 +238,8 @@ module modulea 'modulea.bicep' = {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/path/to/main.bicep" });
-            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP091", DiagnosticLevel.Error, "An error occurred loading the module. Received failure \"Mock read failure!\"."),
+            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {
+                ("BCP091", DiagnosticLevel.Error, "An error occurred loading the module. Mock read failure!"),
             });
         }
 
@@ -271,11 +267,10 @@ module modulea 'modulea.bicep' = {
 
         private static (bool success, IDictionary<string, IEnumerable<Diagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
-            var diagnosticsByFile = compilation.SyntaxTreeGrouping.SyntaxTrees.ToDictionary(x => x, x => new List<Diagnostic>());
-            var success = compilation.EmitDiagnosticsAndCheckSuccess(
-                (syntaxTree, diagnostic) => diagnosticsByFile[syntaxTree].Add(diagnostic));
+            var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FilePath, kvp => kvp.Value);
+            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
-            return (success, GetDiagnosticsByFile(diagnosticsByFile).GroupBy(x => x.file).ToDictionary(x => x.Key.FilePath, x => x.Select(y => y.diagnostic)));
+            return (success, diagnosticsByFile);
         }
     }
 }

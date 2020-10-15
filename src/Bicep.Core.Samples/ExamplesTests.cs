@@ -100,32 +100,22 @@ namespace Bicep.Core.Samples
             var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
-            var diagnosticsBySyntaxTree = syntaxTreeGrouping.SyntaxTrees.ToDictionary(x => x, x => new List<Diagnostic>());
-            compilation.EmitDiagnosticsAndCheckSuccess(
-                (syntaxTree, diagnostic) => {
-                    if (IsPermittedMissingTypeDiagnostic(diagnostic))
-                    {
-                        // we allow certain 'missing type' diagnostics in examples
-                        return;
-                    }
-
-                    diagnosticsBySyntaxTree[syntaxTree].Add(diagnostic);
-                });
-
-            using var stream = new MemoryStream();
-            var result = emitter.Emit(stream);
-            
             // group assertion failures using AssertionScope, rather than reporting the first failure
             using (new AssertionScope())
             {
-                foreach (var syntaxTree in syntaxTreeGrouping.SyntaxTrees)
+                foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
                 {
-                    diagnosticsBySyntaxTree[syntaxTree].Should().BeEmpty($"{Path.GetRelativePath(Directory.GetCurrentDirectory(), syntaxTree.FilePath)} should not have warnings or errors");
+                    var nonPermittedDiagnostics = diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x));
+
+                    nonPermittedDiagnostics.Should().BeEmpty($"{Path.GetRelativePath(Directory.GetCurrentDirectory(), syntaxTree.FilePath)} should not have warnings or errors");
                 }
 
                 var exampleExists = File.Exists(jsonFileName);
                 exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
+                using var stream = new MemoryStream();
+                var result = emitter.Emit(stream);
+            
                 result.Status.Should().Be(EmitStatus.Succeeded);
 
                 if (result.Status == EmitStatus.Succeeded && exampleExists)

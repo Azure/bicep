@@ -329,8 +329,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().ContainAll(diagnosticsFromAllFiles);
         }
 
-        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Received failure ""Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Received failure ""Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
@@ -345,8 +345,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().MatchRegex(expectedErrorRegex);
         }
 
-        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Received failure ""Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Received failure ""Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
@@ -390,12 +390,14 @@ namespace Bicep.Cli.IntegrationTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
 
             var output = new List<string>();
-            compilation.EmitDiagnosticsAndCheckSuccess(
-                (syntaxTree, diagnostic) => 
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            {
+                foreach (var diagnostic in diagnostics)
                 {
                     var (line, character) = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, diagnostic.Span.Position);
                     output.Add($"{syntaxTree.FilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}");
-                });
+                }
+            }
 
             return output;
         }

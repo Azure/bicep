@@ -490,30 +490,30 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
-            public ErrorDiagnostic UnableToFindPathForModule() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP090",
-                "Unable to find file path for module.");
+                "This module declaration is missing a file path reference.");
 
             public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP091",
-                $"An error occurred loading the module. Received failure \"{failureMessage}\".");
+                $"An error occurred loading the module. {failureMessage}");
 
             public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP092",
-                "String interpolation is unsupported for specifying the module path.");
+                "String interpolation is not supported in module paths.");
 
             public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP093",
-                $"Module \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
+                $"Module path \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
 
             public ErrorDiagnostic CyclicModuleSelfReference() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP094",
-                "This module references its own declaring file, which is not allowed.");
+                "This module references itself, which is not allowed.");
 
             public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new ErrorDiagnostic(
                 TextSpan,
@@ -528,7 +528,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP097",
-                "Expected a module path string.");
+                "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
             public ErrorDiagnostic GenericModuleLoadFailure() => new ErrorDiagnostic(
                 TextSpan,

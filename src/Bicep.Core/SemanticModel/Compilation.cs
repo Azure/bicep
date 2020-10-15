@@ -91,21 +91,9 @@ namespace Bicep.Core.SemanticModel
             return new SemanticModel(file, symbolContext.TypeManager, bindings);
         }
 
-        public bool EmitDiagnosticsAndCheckSuccess(Action<SyntaxTree, Diagnostic> onDiagnostic)
-        {
-            var success = true;
-            foreach (var syntaxTree in SyntaxTreeGrouping.SyntaxTrees)
-            {
-                var semanticModel = GetSemanticModel(syntaxTree);
-
-                foreach (var diagnostic in semanticModel.GetAllDiagnostics())
-                {
-                    success &= diagnostic.Level != DiagnosticLevel.Error;
-                    onDiagnostic(syntaxTree, diagnostic);
-                }
-            }
-
-            return success;
-        }
+        public IReadOnlyDictionary<SyntaxTree, IEnumerable<Diagnostic>> GetAllDiagnosticsBySyntaxTree()
+            => SyntaxTreeGrouping.SyntaxTrees.ToDictionary(
+                syntaxTree => syntaxTree,
+                syntaxTree => GetSemanticModel(syntaxTree).GetAllDiagnostics());
     }
 }

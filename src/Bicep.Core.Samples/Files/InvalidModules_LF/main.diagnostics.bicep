@@ -1,11 +1,11 @@
 module moduleWithMissingPath './nonExistent.bicep' = {
-//@[29:50) [BCP091 (Error)] An error occurred loading the module. Received failure "Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'.". |'./nonExistent.bicep'|
+//@[29:50) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 module moduleWithoutPath = {
-//@[25:26) [BCP097 (Error)] Expected a module path string. |=|
-//@[25:28) [BCP090 (Error)] Unable to find file path for module. |= {|
+//@[25:26) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |=|
+//@[25:28) [BCP090 (Error)] This module declaration is missing a file path reference. |= {|
 //@[28:28) [BCP018 (Error)] Expected the "=" character at this location. ||
 
 }
@@ -13,18 +13,18 @@ module moduleWithoutPath = {
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
-//@[28:47) [BCP092 (Error)] String interpolation is unsupported for specifying the module path. |'./${interp}.bicep'|
+//@[28:47) [BCP092 (Error)] String interpolation is not supported in module paths. |'./${interp}.bicep'|
 
 }
 
 module moduleWithSelfCycle './main.bicep' = {
-//@[27:41) [BCP094 (Error)] This module references its own declaring file, which is not allowed. |'./main.bicep'|
+//@[27:41) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
 
 }
 
 module './main.bicep' = {
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
-//@[7:21) [BCP094 (Error)] This module references its own declaring file, which is not allowed. |'./main.bicep'|
+//@[7:21) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
 
 }
 

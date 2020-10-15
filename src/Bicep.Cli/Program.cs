@@ -112,14 +112,27 @@ namespace Bicep.Cli
             }
         }
 
+        private bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
+        {
+            var success = true;
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            {
+                foreach (var diagnostic in diagnostics)
+                {
+                    logger.LogDiagnostic(syntaxTree.FilePath, diagnostic, syntaxTree.LineStarts);
+                    success &= diagnostic.Level != DiagnosticLevel.Error;
+                }
+            }
+
+            return success;
+        }
+
         private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-            var success = compilation.EmitDiagnosticsAndCheckSuccess(
-                (syntaxTree, diagnostic) => logger.LogDiagnostic(syntaxTree.FilePath, diagnostic, syntaxTree.LineStarts));
-
+            var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
             if (success)
             {
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
@@ -144,9 +157,7 @@ namespace Bicep.Cli
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-                var success = compilation.EmitDiagnosticsAndCheckSuccess(
-                    (syntaxTree, diagnostic) => logger.LogDiagnostic(syntaxTree.FilePath, diagnostic, syntaxTree.LineStarts));
-
+                var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
                 if (success)
                 {
                     var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
