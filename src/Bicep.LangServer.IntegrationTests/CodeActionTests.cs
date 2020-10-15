@@ -82,32 +82,6 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task RequestingCodeActionWithNonFixableDiagnosticsShouldProduceEmptyQuickFixes(DataSet dataSet)
-        {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-
-            // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
-            var nonFixables = compilation.GetSemanticModel().GetAllDiagnostics().Where(diagnostic => !(diagnostic is IFixable));
-
-            foreach (var nonFixable in nonFixables)
-            {
-                CommandOrCodeActionContainer? quickFixes = await client.RequestCodeAction(new CodeActionParams
-                {
-                    TextDocument = new TextDocumentIdentifier(uri),
-                    Range = nonFixable.Span.ToRange(lineStarts)
-                });
-
-                // Assert.
-                quickFixes.Should().NotBeNull();
-                quickFixes.Should().BeEmpty();
-            }
-        }
-
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)
         {
             // Same span.
