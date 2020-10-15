@@ -228,6 +228,21 @@ namespace Bicep.Core.TypeSystem
             {
                 // object doesn't contain the discriminator field
                 diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperty(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+
+                var propertyKeys = expression.Properties
+                    .Select(x => x.TryGetKeyText())
+                    .Where(key => !string.IsNullOrEmpty(key))
+                    .Select(key => key!);
+
+                // do a reverse lookup to check if there's any misspelled discriminator key
+                var misspelledDiscriminatorKey = SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, propertyKeys);
+
+                if (misspelledDiscriminatorKey != null)
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(expression).DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                }
+
+
                 return LanguageConstants.Any;
             }
 

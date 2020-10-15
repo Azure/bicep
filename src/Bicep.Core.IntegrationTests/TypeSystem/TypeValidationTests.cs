@@ -223,6 +223,26 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
             }
 
             {
+                // incorrect discriminator key case
+                var program = @"
+resource myRes 'My.Rp/myType@2020-01-01' = {
+  name: 'steve'
+  properties: {
+    myDisc1: {
+      DiscKey: 'choiceA'
+    }
+  }
+}
+";
+
+                var model = GetSemanticModelForTest(program, customTypes);
+                model.GetAllDiagnostics().Should().SatisfyRespectively(
+                    x => x.Should().HaveCodeAndSeverity("BCP078", expectedDiagnosticLevel).And.HaveMessage("The property \"discKey\" requires a value of type \"'choiceA' | 'choiceB'\", but none was supplied."),
+                    x => x.Should().HaveCodeAndSeverity("BCP089", expectedDiagnosticLevel).And.HaveMessage("The property \"DiscKey\" is not allowed on objects of type \"'choiceA' | 'choiceB'\". Did you mean \"discKey\"?")
+                );
+            }
+
+            {
                 // incorrect discriminator key
                 var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
