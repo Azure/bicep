@@ -190,16 +190,18 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleParameters(ModuleSymbol moduleSymbol)
         {
-            writer.WriteStartObject();
-
             var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
             var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
 
             if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
             {
-                // should have been caught by earlier validation
-                throw new ArgumentException("Unsupported syntax for specifying module params");
+                // 'params' is optional if the module has no required params
+                return;
             }
+
+            writer.WritePropertyName("parameters");
+
+            writer.WriteStartObject();
 
             foreach (var propertySyntax in paramsObjectSyntax.Properties)
             {
@@ -245,7 +247,6 @@ namespace Bicep.Core.Emit
 
                 this.emitter.EmitPropertyValue("mode", "Incremental");
 
-                writer.WritePropertyName("parameters");
                 EmitModuleParameters(moduleSymbol);
 
                 writer.WritePropertyName("template");

@@ -143,6 +143,180 @@
           }
         }
       }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "abc"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "outputs": {

@@ -133,6 +133,131 @@ module modB './child/moduleb.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module optionalWithNoParams1 './child/optionalParams.bicep'= {
+//@[0:98) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |optionalWithNoParams1|
+//@[29:59)  StringSyntax
+//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
+//@[59:60)  Assignment |=|
+//@[61:98)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'optionalWithNoParams1'
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:31)    StringSyntax
+//@[8:31)     StringComplete |'optionalWithNoParams1'|
+//@[31:33)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module optionalWithNoParams2 './child/optionalParams.bicep'= {
+//@[0:116) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |optionalWithNoParams2|
+//@[29:59)  StringSyntax
+//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
+//@[59:60)  Assignment |=|
+//@[61:116)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'optionalWithNoParams2'
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:31)    StringSyntax
+//@[8:31)     StringComplete |'optionalWithNoParams2'|
+//@[31:33)   NewLine |\r\n|
+  params: {
+//@[2:16)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:16)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module optionalWithAllParams './child/optionalParams.bicep'= {
+//@[0:210) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |optionalWithAllParams|
+//@[29:59)  StringSyntax
+//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
+//@[59:60)  Assignment |=|
+//@[61:210)  ObjectSyntax
+//@[61:62)   LeftBrace |{|
+//@[62:64)   NewLine |\r\n|
+  name: 'optionalWithNoParams2'
+//@[2:31)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:31)    StringSyntax
+//@[8:31)     StringComplete |'optionalWithNoParams2'|
+//@[31:33)   NewLine |\r\n|
+  params: {
+//@[2:110)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:110)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+    optionalString: 'abc'
+//@[4:25)     ObjectPropertySyntax
+//@[4:18)      IdentifierSyntax
+//@[4:18)       Identifier |optionalString|
+//@[18:19)      Colon |:|
+//@[20:25)      StringSyntax
+//@[20:25)       StringComplete |'abc'|
+//@[25:27)     NewLine |\r\n|
+    optionalInt: 42
+//@[4:19)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalInt|
+//@[15:16)      Colon |:|
+//@[17:19)      NumericLiteralSyntax
+//@[17:19)       Number |42|
+//@[19:21)     NewLine |\r\n|
+    optionalObj: { }
+//@[4:20)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalObj|
+//@[15:16)      Colon |:|
+//@[17:20)      ObjectSyntax
+//@[17:18)       LeftBrace |{|
+//@[19:20)       RightBrace |}|
+//@[20:22)     NewLine |\r\n|
+    optionalArray: [ ]
+//@[4:22)     ObjectPropertySyntax
+//@[4:17)      IdentifierSyntax
+//@[4:17)       Identifier |optionalArray|
+//@[17:18)      Colon |:|
+//@[19:22)      ArraySyntax
+//@[19:20)       LeftSquare |[|
+//@[21:22)       RightSquare |]|
+//@[22:24)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[0:193) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|

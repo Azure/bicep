@@ -217,7 +217,7 @@ namespace Bicep.Core.TypeSystem
                 outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
             }
 
-            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, "module");
+            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, typeName);
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)

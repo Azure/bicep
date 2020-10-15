@@ -21,6 +21,26 @@ module modB './child/moduleb.bicep' = {
   }
 }
 
+module optionalWithNoParams1 './child/optionalParams.bicep'= {
+  name: 'optionalWithNoParams1'
+}
+
+module optionalWithNoParams2 './child/optionalParams.bicep'= {
+  name: 'optionalWithNoParams2'
+  params: {
+  }
+}
+
+module optionalWithAllParams './child/optionalParams.bicep'= {
+  name: 'optionalWithNoParams2'
+  params: {
+    optionalString: 'abc'
+    optionalInt: 42
+    optionalObj: { }
+    optionalArray: [ ]
+  }
+}
+
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   name: 'harry'
   properties: {

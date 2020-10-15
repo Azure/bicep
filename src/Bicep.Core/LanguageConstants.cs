@@ -124,6 +124,8 @@ namespace Bicep.Core
         public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, string typeName)
         {
             var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
+            // If none of the params are reqired, we can allow the 'params' declaration to be ommitted entirely
+            var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
@@ -133,7 +135,7 @@ namespace Bicep.Core
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                    new TypeProperty(ModuleParamsPropertyName, paramsType, TypePropertyFlags.Required | TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                 },
                 null);
