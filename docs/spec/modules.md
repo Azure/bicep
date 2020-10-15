@@ -1,52 +1,55 @@
-# Module
-
-## Definition
+# Modules
 
 A module is an opaque set of one or more resources to be deployed together. It only exposes parameters and outputs as contract to other bicep files, hiding details on how internal resources are defined. This allows you to abstract away complex details of the raw resource declaration from the end user who now only needs to be concerned about the module contract. Parameters and outputs are optional.
 
-## Declare a module
+## Defining a module
 
-Any bicep file is itself a module, so there is no specific syntax for defining a module. A module can be a single file or a directory. If a module references a directory, all root files in that directory will be combined. Here is an example bicep file (`sqlDatabases.bicep`) that we will consume as a module:
+Any bicep file can be consumed as a module, so there is no specific syntax for defining a module.
 
-```
-param accountName string
+Here is an example bicep file (`publicIpAddress.bicep`) that we will later consume as a module:
+```bicep
+// Input parameters must be specified by the module consumer
+param publicIpResourceName string
+param publicIpDnsLabel string = publicIpResourceName
+param location string = resourceGroup().location
+param dynamicAllocation bool
 
-param databaseNames array {
-    default: [ "name1", "name2" ]
+resource publicIp 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
+  name: publicIpResourceName
+  location: location
+  properties: {
+    publicIPAllocationMethod: dynamicAllocation ? 'Dynamic' : 'Static'
+    dnsSettings: {
+      domainNameLabel: publicIpDnsLabel
+    }
+  }
 }
 
-resource[] sqlDatabases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-03-01'= [
-    for databaseName in databaseNames: {
-        name: '{accountName}/{databaseName}'
-        properties: {
-            resource: {
-                id: databaseName
-            }
-            options: {
-            }
-        }
-    }
-]
-
-output sqlDatabases array = [
-    for database in sqlDatabases: { database.id }
-]
+// Set an output which can be accessed by the module consumer
+output ipAddress string = publicIp.properties.ipAddress
 ```
 
-## Usage
+### Notes
+* The `name` property is required when consuming a module. When Bicep generates the template IL, this field is used as the name of the nested deployment resource which is generated for the module.
 
-`module` is a keyword in bicep. The module location is specified using relative path (`../sqlDatabases` in the below example). Both `\` and `/` are supported.
+## Consuming a module
 
-Here is an example consumption of a module
+To consume a module, we use the `module` keyword. The path to the module in this example is specified using a relative path (`../publicIpAddress.bicep`).
 
-```
-module databases '../sqlDatabases' {
-    accountName: 'fooAccount'
-    // parameter with default value can be omitted.
+Here is an example consumption of a module. This will deploy the resource(s) defined in the module file being referenced:
+```bicep
+module publicIp '../publicIpAddress.bicep' = {
+  name: 'publicIp'
+  params: {
+    publicIpResourceName: 'myPublicIp'
+    dynamicAllocation: true
+    // Parameters with default values may be omitted.
+  }
 }
 
 // To reference module outputs
-var myArray array = databases.outputs.sqlDatabases
+var assignedIp = publicIp.outputs.ipAddress
 ```
 
-A bicep module can reference another Bicep file or directory of bicep files as a module. This means the module name may refer to either a file or directory. For directory, all files under the directory will be loaded. It is a compiler error if a file and directory with the same name exist under the path.
+### Notes
+* All paths in Bicep must be specified using the forward slash (`/`) directory separator to ensure consistent compilation cross-platform. The Windows backslash (`\`) character is unsupported.

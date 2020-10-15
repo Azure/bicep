@@ -19,18 +19,32 @@ module './main.bicep' = {
 
 }
 
+module modANoName './modulea.bicep' = {
+
+}
+
 module modANoInputs './modulea.bicep' = {
-  
+  name: 'modANoInputs'
+}
+
+module modAEmptyInputs './modulea.bicep' = {
+  name: 'modANoInputs'
+  params: {
+
+  }
 }
 
 module modAUnspecifiedInputs './modulea.bicep' = {
-  stringParamB: ''
-  objParam: {}
-  objArray: []
-  unspecifiedInput: ''
+  name: 'modAUnspecifiedInputs'
+  params: {
+    stringParamB: ''
+    objParam: {}
+    objArray: []
+    unspecifiedInput: ''
+  }
 }
 
-var unspecifiedOutput = modAUnspecifiedInputs.test
+var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
 module moduleWithBackslash 'child\\file.bicep' = {
   

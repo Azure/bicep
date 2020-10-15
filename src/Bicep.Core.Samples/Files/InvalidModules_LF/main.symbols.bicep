@@ -25,21 +25,37 @@ module './main.bicep' = {
 
 }
 
+module modANoName './modulea.bicep' = {
+//@[7:17) Module modANoName. Type: module. Declaration start char: 0, length: 42
+
+}
+
 module modANoInputs './modulea.bicep' = {
-//@[7:19) Module modANoInputs. Type: modANoInputs. Declaration start char: 0, length: 46
-  
+//@[7:19) Module modANoInputs. Type: module. Declaration start char: 0, length: 66
+  name: 'modANoInputs'
+}
+
+module modAEmptyInputs './modulea.bicep' = {
+//@[7:22) Module modAEmptyInputs. Type: module. Declaration start char: 0, length: 86
+  name: 'modANoInputs'
+  params: {
+
+  }
 }
 
 module modAUnspecifiedInputs './modulea.bicep' = {
-//@[7:28) Module modAUnspecifiedInputs. Type: modAUnspecifiedInputs. Declaration start char: 0, length: 124
-  stringParamB: ''
-  objParam: {}
-  objArray: []
-  unspecifiedInput: ''
+//@[7:28) Module modAUnspecifiedInputs. Type: module. Declaration start char: 0, length: 180
+  name: 'modAUnspecifiedInputs'
+  params: {
+    stringParamB: ''
+    objParam: {}
+    objArray: []
+    unspecifiedInput: ''
+  }
 }
 
-var unspecifiedOutput = modAUnspecifiedInputs.test
-//@[4:21) Variable unspecifiedOutput. Type: error. Declaration start char: 0, length: 50
+var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
+//@[4:21) Variable unspecifiedOutput. Type: error. Declaration start char: 0, length: 58
 
 module moduleWithBackslash 'child\\file.bicep' = {
 //@[7:26) Module moduleWithBackslash. Type: error. Declaration start char: 0, length: 55

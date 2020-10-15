@@ -112,13 +112,14 @@ namespace Bicep.Core.Emit
                         }
                     }
 
-                    if (propertyAccess.BaseExpression is VariableAccessSyntax propVariableAccessModule && 
-                        context.SemanticModel.GetSymbolInfo(propVariableAccessModule) is ModuleSymbol moduleSymbol)
+                    var moduleAccess = TryGetModulePropertyAccess(propertyAccess);
+                    if (moduleAccess != null)
                     {
+                        var (moduleSymbol, outputName) = moduleAccess.Value;
                         return AppendProperty(
                             AppendProperty(
-                                GetModuleReferenceExpression(moduleSymbol),
-                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName)),
+                                GetModuleOutputsReferenceExpression(moduleSymbol),
+                                new JTokenExpression(outputName)),
                             new JTokenExpression("value"));
                     }
 
@@ -132,6 +133,23 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
+        }
+
+        private (ModuleSymbol moduleSymbol, string outputName)? TryGetModulePropertyAccess(PropertyAccessSyntax propertyAccess)
+        {
+            // is this a (<child>.outputs).<prop> propertyAccess?
+            if (!(propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess) || childPropertyAccess.PropertyName.IdentifierName != LanguageConstants.ModuleOutputsPropertyName)
+            {
+                return null;
+            }
+
+            // is <child> a variable which points to a module symbol?
+            if (!(childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildVariableAccess) || !(context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol moduleSymbol))
+            {
+                return null;
+            }
+
+            return (moduleSymbol, propertyAccess.PropertyName.IdentifierName);
         }
 
         private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
@@ -193,7 +211,7 @@ namespace Bicep.Core.Emit
                 Array.Empty<LanguageExpression>());
         }
         
-        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol)
+        public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol)
         {
             return new FunctionExpression(
                 "reference",
@@ -258,7 +276,7 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
-                    return GetModuleReferenceExpression(moduleSymbol);
+                    return GetModuleOutputsReferenceExpression(moduleSymbol);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

@@ -6,9 +6,22 @@
   "variables": {},
   "resources": [
     {
-      "name": "modATest",
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "harry",
+      "properties": {
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
+        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
+        "[resourceId('Microsoft.Resources/deployments', 'modB')]"
+      ]
+    },
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
+      "name": "modATest",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -54,14 +67,14 @@
           "variables": {},
           "resources": [
             {
-              "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2019-06-01",
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
             {
-              "type": "Microsoft.Network/dnszones",
-              "apiVersion": "2018-05-01",
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
@@ -77,13 +90,13 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
             },
             "arrayOutput": {
               "type": "array",
               "value": [
-                "[resourceId('Microsoft.Storage/storageAccounts', 'basicblobs')]",
-                "[resourceId('Microsoft.Network/dnszones', 'myZone')]"
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
               ]
             }
           }
@@ -91,9 +104,9 @@
       }
     },
     {
-      "name": "modB",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
+      "name": "modB",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -122,10 +135,32 @@
               "location": "[parameters('location')]"
             }
           ],
-          "outputs": {}
+          "outputs": {
+            "myResourceId": {
+              "type": "string",
+              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+            }
+          }
         }
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "stringOutputA": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
+    },
+    "stringOutputB": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
+    },
+    "objOutput": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
+    },
+    "arrayOutput": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+    }
+  }
 }

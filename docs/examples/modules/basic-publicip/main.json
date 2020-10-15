@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "publicIp",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "publicIpResourceName": {
+            "value": "myPublicIp"
+          },
+          "dynamicAllocation": {
+            "value": true
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "publicIpResourceName": {
+              "type": "string"
+            },
+            "publicIpDnsLabel": {
+              "type": "string",
+              "defaultValue": "[parameters('publicIpResourceName')]"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "dynamicAllocation": {
+              "type": "bool"
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('publicIpResourceName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publicIPAllocationMethod": "[if(parameters('dynamicAllocation'), 'Dynamic', 'Static')]",
+                "dnsSettings": {
+                  "domainNameLabel": "[parameters('publicIpDnsLabel')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "ipAddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).ipAddress]"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "assignedIp": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipAddress.value]"
+    }
+  }
+}

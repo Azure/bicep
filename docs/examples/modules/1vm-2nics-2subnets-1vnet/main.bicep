@@ -17,13 +17,16 @@ var networkSecurityGroupName = 'NSG'
 var networkSecurityGroupName2 = concat(subnet2Name, '-nsg')
 
 module vmMod './vm.bicep' = {
-  adminUsername: adminUsername
-  adminPassword: adminPassword
-  virtualMachineSize: virtualMachineSize
-  virtualMachineName: 'VM-MultiNic'
-  nic1Id: nic1.id
-  nic2Id: nic2.id
-  diagsStorageUri: diagsAccount.properties.primaryEndpoints.blob
+  name: 'vmMod'
+  params: {
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    virtualMachineSize: virtualMachineSize
+    virtualMachineName: 'VM-MultiNic'
+    nic1Id: nic1.id
+    nic2Id: nic2.id
+    diagsStorageUri: diagsAccount.properties.primaryEndpoints.blob
+  }
 }
 
 resource diagsAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = {

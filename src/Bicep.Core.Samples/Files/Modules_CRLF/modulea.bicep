@@ -3,12 +3,12 @@ param stringParamB string
 param objParam object
 param arrayParam array
 
-resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource basicStorage 'Mock.Rp/mockResource@2020-01-01' = {
   name: 'basicblobs'
   location: stringParamA
 }
 
-resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
+resource dnsZone 'Mock.Rp/mockResource@2020-01-01' = {
   name: 'myZone'
   location: stringParamB
 }

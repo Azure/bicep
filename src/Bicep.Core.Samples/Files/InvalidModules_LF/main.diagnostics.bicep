@@ -28,23 +28,39 @@ module './main.bicep' = {
 
 }
 
+module modANoName './modulea.bicep' = {
+//@[38:42) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n\n}|
+
+}
+
 module modANoInputs './modulea.bicep' = {
-//@[40:46) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n  \n}|
-  
+//@[40:66) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n}|
+  name: 'modANoInputs'
+}
+
+module modAEmptyInputs './modulea.bicep' = {
+  name: 'modANoInputs'
+  params: {
+//@[10:16) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n\n  }|
+
+  }
 }
 
 module modAUnspecifiedInputs './modulea.bicep' = {
-//@[49:124) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n  stringParamB: ''\n  objParam: {}\n  objArray: []\n  unspecifiedInput: ''\n}|
-  stringParamB: ''
-  objParam: {}
-  objArray: []
-//@[2:10) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "modAUnspecifiedInputs". Permissible properties include "arrayParam", "stringParamA". |objArray|
-  unspecifiedInput: ''
-//@[2:18) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "modAUnspecifiedInputs". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+  name: 'modAUnspecifiedInputs'
+  params: {
+//@[10:95) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n    stringParamB: ''\n    objParam: {}\n    objArray: []\n    unspecifiedInput: ''\n  }|
+    stringParamB: ''
+    objParam: {}
+    objArray: []
+//@[4:12) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |objArray|
+    unspecifiedInput: ''
+//@[4:20) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "params". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+  }
 }
 
-var unspecifiedOutput = modAUnspecifiedInputs.test
-//@[46:50) [BCP053 (Error)] The type "modAUnspecifiedInputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
+var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
+//@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
 module moduleWithBackslash 'child\\file.bicep' = {
 //@[27:46) [BCP097 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|

@@ -34,17 +34,23 @@ param inputa string
 param inputb string
 
 module modulea 'modulea.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 
 module moduleb 'moduleb.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'moduleb'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 
-output outputa string = modulea.outputa
-output outputb string = moduleb.outputb
+output outputa string = modulea.outputs.outputa
+output outputb string = moduleb.outputs.outputb
 ",
                 ["/modulea.bicep"] = @"
 param inputa string
@@ -78,9 +84,12 @@ output outputb string = '${inputa}-${inputb}'
 param inputa string
 param inputb string
 
-module modulea 'main.bicep' = {
-  inputa: inputa
-  inputb: inputb
+module mainRecursive 'main.bicep' = {
+  name: 'mainRecursive'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 ",
             };
@@ -107,8 +116,11 @@ param inputa string
 param inputb string
 
 module modulea 'modulea.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 ",
                 ["/modulea.bicep"] = @"
@@ -116,8 +128,11 @@ param inputa string
 param inputb string
 
 module moduleb 'moduleb.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'moduleb'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 ",
                 ["/moduleb.bicep"] = @"
@@ -172,8 +187,11 @@ param inputa string
 param inputb string
 
 module modulea 'modulea.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 ";
 
@@ -202,8 +220,11 @@ param inputa string
 param inputb string
 
 module modulea 'modulea.bicep' = {
-  inputa: inputa
-  inputb: inputb
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
 }
 ";
 

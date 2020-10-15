@@ -45,7 +45,7 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitModuleDeclarationSyntax(syntax);
 
-            var symbol = new ModuleSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Body);
+            var symbol = new ModuleSymbol(this.context, syntax.Name.IdentifierName, syntax);
             this.declaredSymbols.Add(symbol);
         }
 

@@ -28,6 +28,10 @@ namespace Bicep.Core
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterDefaultPropertyName = "default";
 
+        public const string ModuleNamePropertyName = "name";
+        public const string ModuleParamsPropertyName = "params";
+        public const string ModuleOutputsPropertyName = "outputs";
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
@@ -115,6 +119,24 @@ namespace Bicep.Core
             yield return new TypeProperty("name", String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining);
             yield return new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
             yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
+        }
+
+        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, string typeName)
+        {
+            var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
+
+            var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
+
+            return new NamedObjectType(
+                typeName,
+                TypeSymbolValidationFlags.Default,
+                new []
+                {
+                    new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
+                    new TypeProperty(ModuleParamsPropertyName, paramsType, TypePropertyFlags.Required | TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
+                },
+                null);
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)

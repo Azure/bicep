@@ -64,6 +64,18 @@ module './main.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module modANoName './modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:17) Identifier |modANoName|
+//@[18:35) StringComplete |'./modulea.bicep'|
+//@[36:37) Assignment |=|
+//@[38:39) LeftBrace |{|
+//@[39:41) NewLine |\n\n|
+
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 module modANoInputs './modulea.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:19) Identifier |modANoInputs|
@@ -71,8 +83,36 @@ module modANoInputs './modulea.bicep' = {
 //@[38:39) Assignment |=|
 //@[40:41) LeftBrace |{|
 //@[41:42) NewLine |\n|
-  
-//@[2:3) NewLine |\n|
+  name: 'modANoInputs'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'modANoInputs'|
+//@[22:23) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module modAEmptyInputs './modulea.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:22) Identifier |modAEmptyInputs|
+//@[23:40) StringComplete |'./modulea.bicep'|
+//@[41:42) Assignment |=|
+//@[43:44) LeftBrace |{|
+//@[44:45) NewLine |\n|
+  name: 'modANoInputs'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'modANoInputs'|
+//@[22:23) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\n\n|
+
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -84,40 +124,55 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 //@[47:48) Assignment |=|
 //@[49:50) LeftBrace |{|
 //@[50:51) NewLine |\n|
-  stringParamB: ''
-//@[2:14) Identifier |stringParamB|
-//@[14:15) Colon |:|
-//@[16:18) StringComplete |''|
-//@[18:19) NewLine |\n|
-  objParam: {}
-//@[2:10) Identifier |objParam|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:14) RightBrace |}|
-//@[14:15) NewLine |\n|
-  objArray: []
-//@[2:10) Identifier |objArray|
-//@[10:11) Colon |:|
-//@[12:13) LeftSquare |[|
-//@[13:14) RightSquare |]|
-//@[14:15) NewLine |\n|
-  unspecifiedInput: ''
-//@[2:18) Identifier |unspecifiedInput|
-//@[18:19) Colon |:|
-//@[20:22) StringComplete |''|
-//@[22:23) NewLine |\n|
+  name: 'modAUnspecifiedInputs'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:31) StringComplete |'modAUnspecifiedInputs'|
+//@[31:32) NewLine |\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+    stringParamB: ''
+//@[4:16) Identifier |stringParamB|
+//@[16:17) Colon |:|
+//@[18:20) StringComplete |''|
+//@[20:21) NewLine |\n|
+    objParam: {}
+//@[4:12) Identifier |objParam|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) RightBrace |}|
+//@[16:17) NewLine |\n|
+    objArray: []
+//@[4:12) Identifier |objArray|
+//@[12:13) Colon |:|
+//@[14:15) LeftSquare |[|
+//@[15:16) RightSquare |]|
+//@[16:17) NewLine |\n|
+    unspecifiedInput: ''
+//@[4:20) Identifier |unspecifiedInput|
+//@[20:21) Colon |:|
+//@[22:24) StringComplete |''|
+//@[24:25) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-var unspecifiedOutput = modAUnspecifiedInputs.test
+var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[0:3) Identifier |var|
 //@[4:21) Identifier |unspecifiedOutput|
 //@[22:23) Assignment |=|
 //@[24:45) Identifier |modAUnspecifiedInputs|
 //@[45:46) Dot |.|
-//@[46:50) Identifier |test|
-//@[50:52) NewLine |\n\n|
+//@[46:53) Identifier |outputs|
+//@[53:54) Dot |.|
+//@[54:58) Identifier |test|
+//@[58:60) NewLine |\n\n|
 
 module moduleWithBackslash 'child\\file.bicep' = {
 //@[0:6) Identifier |module|

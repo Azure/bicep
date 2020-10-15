@@ -10,15 +10,12 @@ namespace Bicep.Core.SemanticModel
 {
     public class ModuleSymbol : DeclaredSymbol
     {
-        public ModuleSymbol(ISymbolContext context, string name, ModuleDeclarationSyntax declaringSyntax, SyntaxBase body)
+        public ModuleSymbol(ISymbolContext context, string name, ModuleDeclarationSyntax declaringSyntax)
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.Body = body;
         }
 
         public ModuleDeclarationSyntax DeclaringModule => (ModuleDeclarationSyntax) this.DeclaringSyntax;
-
-        public SyntaxBase Body { get; }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitModuleSymbol(this);
 

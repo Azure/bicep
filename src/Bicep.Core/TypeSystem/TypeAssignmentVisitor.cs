@@ -196,6 +196,30 @@ namespace Bicep.Core.TypeSystem
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
+        private static TypeSymbol GetDeclaredModuleType(SemanticModel.SemanticModel moduleSemanticModel, string typeName)
+        {
+            var paramTypeProperties = new List<TypeProperty>();
+            foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
+            {
+                var typePropertyFlags = TypePropertyFlags.WriteOnly;
+                if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
+                {
+                    // if there's no default value, it must be specified
+                    typePropertyFlags |= TypePropertyFlags.Required;
+                }
+
+                paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+            }
+
+            var outputTypeProperties = new List<TypeProperty>();
+            foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
+            {
+                outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+            }
+
+            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, "module");
+        }
+
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 if (!(bindings.TryGetValue(syntax, out var symbol) && symbol is ModuleSymbol moduleSymbol))
@@ -209,31 +233,12 @@ namespace Bicep.Core.TypeSystem
                     return UnassignableTypeSymbol.CreateErrors(failureDiagnostic);
                 }
 
-                var typeProperties = new List<TypeProperty>();
-                foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
-                {
-                    var typePropertyFlags = TypePropertyFlags.WriteOnly;
-                    if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
-                    {
-                        // if there's no default value, it must be specified
-                        typePropertyFlags |= TypePropertyFlags.Required;
-                    }
+                var declaredType = GetDeclaredModuleType(moduleSemanticModel, "module");
+                
+                // just established the declared type - assign it!
+                AssignDeclaredType(syntax, declaredType);
 
-                    typeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
-                }
-
-                foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
-                {
-                    typeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
-                }
-
-                var expectedType = new NamedObjectType(
-                    syntax.Name.IdentifierName,
-                    TypeSymbolValidationFlags.Default,
-                    typeProperties,
-                    null);
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, expectedType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)

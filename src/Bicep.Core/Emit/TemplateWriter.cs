@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
@@ -187,14 +188,49 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
+        private void EmitModuleParameters(ModuleSymbol moduleSymbol)
+        {
+            writer.WriteStartObject();
+
+            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
+            var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
+
+            if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
+            {
+                // should have been caught by earlier validation
+                throw new ArgumentException("Unsupported syntax for specifying module params");
+            }
+
+            foreach (var propertySyntax in paramsObjectSyntax.Properties)
+            {
+                if (!(propertySyntax.TryGetKeyText() is string keyName))
+                {
+                    // should have been caught by earlier validation
+                    throw new ArgumentException("Disallowed interpolation in module parameter");
+                }
+
+                writer.WritePropertyName(keyName);
+                {
+                    writer.WriteStartObject();
+                    this.emitter.EmitPropertyExpression("value", propertySyntax.Value);
+                    writer.WriteEndObject();
+                }                        
+            }
+
+            writer.WriteEndObject();
+        }
+
         private void EmitModule(ModuleSymbol moduleSymbol)
         {
             writer.WriteStartObject();
 
-            // TODO: "name" implementation may change based on https://github.com/Azure/bicep/issues/614
-            this.emitter.EmitPropertyValue("name", moduleSymbol.Name);
             this.emitter.EmitPropertyValue("type", NestedDeploymentResourceType);
             this.emitter.EmitPropertyValue("apiVersion", NestedDeploymentResourceApiVersion);
+
+            // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
+            // params requires special handling (see below).
+            var topLevelPropertiesToOmit = new HashSet<string> { LanguageConstants.ModuleParamsPropertyName };
+            this.emitter.EmitObjectProperties((ObjectSyntax) moduleSymbol.DeclaringModule.Body, topLevelPropertiesToOmit);
 
             writer.WritePropertyName("properties");
             {
@@ -210,28 +246,7 @@ namespace Bicep.Core.Emit
                 this.emitter.EmitPropertyValue("mode", "Incremental");
 
                 writer.WritePropertyName("parameters");
-                {
-                    writer.WriteStartObject();
-
-                    var moduleBody = (ObjectSyntax)moduleSymbol.Body;
-                    foreach (var propertySyntax in moduleBody.Properties)
-                    {
-                        if (!(propertySyntax.TryGetKeyText() is string keyName))
-                        {
-                            // TODO improve this, add earlier validation.
-                            throw new ArgumentException("Disallowed interpolation in module parameter");
-                        }
-
-                        writer.WritePropertyName(keyName);
-                        {
-                            writer.WriteStartObject();
-                            this.emitter.EmitPropertyExpression("value", propertySyntax.Value);
-                            writer.WriteEndObject();
-                        }                        
-                    }
-
-                    writer.WriteEndObject();
-                }
+                EmitModuleParameters(moduleSymbol);
 
                 writer.WritePropertyName("template");
                 {

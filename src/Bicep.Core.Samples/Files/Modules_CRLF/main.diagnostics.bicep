@@ -1,16 +1,35 @@
 module modATest './modulea.bicep' = {
-  stringParamB: 'hello!'
-  objParam: {
-    a: 'b'
-  }
-  arrayParam: [
-    {
+  name: 'modATest'
+  params: {
+    stringParamB: 'hello!'
+    objParam: {
       a: 'b'
     }
-    'abc'
-  ]
+    arrayParam: [
+      {
+        a: 'b'
+      }
+      'abc'
+    ]
+  }
 }
 
 module modB './child/moduleb.bicep' = {
-  location: 'West US'
+  name: 'modB'
+  params: {
+    location: 'West US'
+  }
 }
+
+resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'harry'
+  properties: {
+    modADep: modATest.outputs.stringOutputA
+    modBDep: modB.outputs.myResourceId
+  }
+}
+
+output stringOutputA string = modATest.outputs.stringOutputA
+output stringOutputB string = modATest.outputs.stringOutputB
+output objOutput object = modATest.outputs.objOutput
+output arrayOutput array = modATest.outputs.arrayOutput
