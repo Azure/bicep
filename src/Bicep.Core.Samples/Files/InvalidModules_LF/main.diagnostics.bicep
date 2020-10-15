@@ -33,6 +33,24 @@ module modANoInputs './modulea.bicep' = {
   
 }
 
+module modAUnspecifiedInputs './modulea.bicep' = {
+//@[49:124) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n  stringParamB: ''\n  objParam: {}\n  objArray: []\n  unspecifiedInput: ''\n}|
+  stringParamB: ''
+  objParam: {}
+  objArray: []
+//@[2:10) [BCP038 (Error)] The property "objArray" is not allowed on objects of type "modAUnspecifiedInputs". Permissible properties include "arrayParam", "stringParamA". |objArray|
+  unspecifiedInput: ''
+//@[2:18) [BCP038 (Error)] The property "unspecifiedInput" is not allowed on objects of type "modAUnspecifiedInputs". Permissible properties include "arrayParam", "stringParamA". |unspecifiedInput|
+}
+
+var unspecifiedOutput = modAUnspecifiedInputs.test
+//@[46:50) [BCP053 (Error)] The type "modAUnspecifiedInputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[27:46) [BCP097 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|
+  
+}
+
 module modCycle './cycle.bicep' = {
 //@[16:31) [BCP093 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}cycle.bicep" -> "${TEST_OUTPUT_DIR}main.bicep"). |'./cycle.bicep'|
   

@@ -9,10 +9,12 @@ namespace Bicep.Core.FileSystem
     public class InMemoryFileResolver : IFileResolver
     {
         private readonly IReadOnlyDictionary<string, string> fileLookup;
+        private readonly Func<string, string> missingFileFailureBuilder;
 
-        public InMemoryFileResolver(IReadOnlyDictionary<string, string> fileLookup)
+        public InMemoryFileResolver(IReadOnlyDictionary<string, string> fileLookup, Func<string, string>? missingFileFailureBuilder = null)
         {
             this.fileLookup = fileLookup;
+            this.missingFileFailureBuilder = missingFileFailureBuilder ?? (filePath => $"Could not find file {filePath}");
         }
 
         public string GetNormalizedFileName(string filePath)
@@ -22,7 +24,7 @@ namespace Bicep.Core.FileSystem
         {
             if (!fileLookup.TryGetValue(filePath, out var fileContents))
             {
-                failureMessage = $"Could not find file {filePath}";
+                failureMessage = missingFileFailureBuilder(filePath);
                 return null;
             }
 

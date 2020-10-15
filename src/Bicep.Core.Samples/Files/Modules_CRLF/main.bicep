@@ -10,3 +10,7 @@
     'abc'
   ]
 }
+
+module modB './child/moduleb.bicep' = {
+  location: 'West US'
+}

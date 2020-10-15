@@ -27,6 +27,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DefinitionTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task GoToDefinitionRequestOnValidSymbolReferenceShouldReturnLocationOfDeclaredSymbol(DataSet dataSet)
@@ -34,9 +37,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             // filter out symbols that don't have locations
             var declaredSymbolBindings = symbolTable
@@ -74,9 +77,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var undeclaredSymbolBindings = symbolTable.Where(pair => !(pair.Value is DeclaredSymbol));
 
@@ -104,9 +107,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var unboundNodes = SyntaxAggregator.Aggregate(
                 source: compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,

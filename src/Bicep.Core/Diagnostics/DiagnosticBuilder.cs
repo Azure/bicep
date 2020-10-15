@@ -520,6 +520,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP096",
                 "Failed to load module.");
+
+            public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP097",
+                "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -89,6 +89,42 @@
           }
         }
       }
+    },
+    {
+      "name": "modB",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "West US"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "mockResource",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {}
+        }
+      }
     }
   ],
   "outputs": {}

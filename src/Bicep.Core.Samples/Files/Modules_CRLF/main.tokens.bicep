@@ -47,4 +47,20 @@ module modATest './modulea.bicep' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module modB './child/moduleb.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:11) Identifier |modB|
+//@[12:35) StringComplete |'./child/moduleb.bicep'|
+//@[36:37) Assignment |=|
+//@[38:39) LeftBrace |{|
+//@[39:41) NewLine |\r\n|
+  location: 'West US'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:21) StringComplete |'West US'|
+//@[21:23) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

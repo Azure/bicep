@@ -89,7 +89,7 @@ namespace Bicep.Core.Samples
 
         private string GetStreamName(string fileName) => $"{GetStreamPrefix()}/{fileName}";
 
-        private string GetStreamPrefix() => $"{Prefix}{this.Name}";
+        public string GetStreamPrefix() => $"{Prefix}{this.Name}";
 
         public static string ReadFile(string streamName)
         {
@@ -117,8 +117,5 @@ namespace Bicep.Core.Samples
 
             return builder.ToImmutable();
         }
-
-        public string SaveFilesToTestDirectory(TestContext testContext, string parentDirName)
-            => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, parentDirName, GetStreamPrefix());
     }
 }

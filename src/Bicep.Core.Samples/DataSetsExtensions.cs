@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Bicep.Core.FileSystem;
+using Bicep.Core.SemanticModel;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
 {
@@ -13,6 +19,17 @@ namespace Bicep.Core.Samples
 
         public static bool HasCrLfNewlines(this DataSet dataSet)
             => dataSet.Name.EndsWith("_CRLF");
+            
+        public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext, string parentDirName)
+            => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, parentDirName, dataSet.GetStreamPrefix());
+
+        public static Compilation CopyFilesAndCreateCompilation(this DataSet dataSet, TestContext testContext, out string outputDirectory)
+        {
+            outputDirectory = dataSet.SaveFilesToTestDirectory(testContext, dataSet.Name);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), Path.Combine(outputDirectory, DataSet.TestFileMain));
+
+            return new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
+        }
     }
 }
 

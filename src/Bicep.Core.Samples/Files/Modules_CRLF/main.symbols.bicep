@@ -11,3 +11,8 @@ module modATest './modulea.bicep' = {
     'abc'
   ]
 }
+
+module modB './child/moduleb.bicep' = {
+//@[7:11) Module modB. Type: modB. Declaration start char: 0, length: 65
+  location: 'West US'
+}

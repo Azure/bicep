@@ -117,7 +117,7 @@ namespace Bicep.Wasm
         private static Compilation GetCompilation(string text)
         {
             var fileName = "/main.bicep";
-            var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [fileName] = text });
+            var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [fileName] = text }, filePath => "Modules are not supported in the Bicep Playground");
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, fileName);
 
             return new Compilation(resourceTypeProvider, syntaxTreeGrouping);

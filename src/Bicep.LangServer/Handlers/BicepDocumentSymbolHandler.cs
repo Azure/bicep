@@ -81,6 +81,9 @@ namespace Bicep.LanguageServer.Handlers
                 case ResourceSymbol resource:
                     return SymbolKind.Object;
 
+                case ModuleSymbol module:
+                    return SymbolKind.Object;
+
                 case OutputSymbol output:
                     return SymbolKind.Interface;
                 
@@ -101,6 +104,9 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ResourceSymbol resource:
                     return resource.Type.Name;
+
+                case ModuleSymbol module:
+                    return module.Type.Name;
 
                 case OutputSymbol output:
                     return output.Type.Name;

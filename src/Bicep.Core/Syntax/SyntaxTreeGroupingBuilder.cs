@@ -155,6 +155,13 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
+            if (pathName.Contains('\\'))
+            {
+                // enforce '/' rather than '\' for module paths for cross-platform compatibility
+                failureBuilder = x => x.ModulePathBackslashUnsupported();
+                return null;
+            }
+
             var fullPath = fileResolver.TryResolveModulePath(parentFileName, pathName);
             if (fullPath == null)
             {

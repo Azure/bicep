@@ -10,3 +10,7 @@ module modATest './modulea.bicep' = {
     'abc'
   ]
 }
+
+module modB './child/moduleb.bicep' = {
+  location: 'West US'
+}

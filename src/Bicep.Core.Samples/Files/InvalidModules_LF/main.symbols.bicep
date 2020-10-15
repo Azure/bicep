@@ -30,6 +30,22 @@ module modANoInputs './modulea.bicep' = {
   
 }
 
+module modAUnspecifiedInputs './modulea.bicep' = {
+//@[7:28) Module modAUnspecifiedInputs. Type: modAUnspecifiedInputs. Declaration start char: 0, length: 124
+  stringParamB: ''
+  objParam: {}
+  objArray: []
+  unspecifiedInput: ''
+}
+
+var unspecifiedOutput = modAUnspecifiedInputs.test
+//@[4:21) Variable unspecifiedOutput. Type: error. Declaration start char: 0, length: 50
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[7:26) Module moduleWithBackslash. Type: error. Declaration start char: 0, length: 55
+  
+}
+
 module modCycle './cycle.bicep' = {
 //@[7:15) Module modCycle. Type: error. Declaration start char: 0, length: 40
   

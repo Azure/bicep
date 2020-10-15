@@ -109,6 +109,87 @@ module modANoInputs './modulea.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module modAUnspecifiedInputs './modulea.bicep' = {
+//@[0:124) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |modAUnspecifiedInputs|
+//@[29:46)  StringSyntax
+//@[29:46)   StringComplete |'./modulea.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:124)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+  stringParamB: ''
+//@[2:18)   ObjectPropertySyntax
+//@[2:14)    IdentifierSyntax
+//@[2:14)     Identifier |stringParamB|
+//@[14:15)    Colon |:|
+//@[16:18)    StringSyntax
+//@[16:18)     StringComplete |''|
+//@[18:19)   NewLine |\n|
+  objParam: {}
+//@[2:14)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |objParam|
+//@[10:11)    Colon |:|
+//@[12:14)    ObjectSyntax
+//@[12:13)     LeftBrace |{|
+//@[13:14)     RightBrace |}|
+//@[14:15)   NewLine |\n|
+  objArray: []
+//@[2:14)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |objArray|
+//@[10:11)    Colon |:|
+//@[12:14)    ArraySyntax
+//@[12:13)     LeftSquare |[|
+//@[13:14)     RightSquare |]|
+//@[14:15)   NewLine |\n|
+  unspecifiedInput: ''
+//@[2:22)   ObjectPropertySyntax
+//@[2:18)    IdentifierSyntax
+//@[2:18)     Identifier |unspecifiedInput|
+//@[18:19)    Colon |:|
+//@[20:22)    StringSyntax
+//@[20:22)     StringComplete |''|
+//@[22:23)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var unspecifiedOutput = modAUnspecifiedInputs.test
+//@[0:50) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |unspecifiedOutput|
+//@[22:23)  Assignment |=|
+//@[24:50)  PropertyAccessSyntax
+//@[24:45)   VariableAccessSyntax
+//@[24:45)    IdentifierSyntax
+//@[24:45)     Identifier |modAUnspecifiedInputs|
+//@[45:46)   Dot |.|
+//@[46:50)   IdentifierSyntax
+//@[46:50)    Identifier |test|
+//@[50:52) NewLine |\n\n|
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[0:55) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |moduleWithBackslash|
+//@[27:46)  StringSyntax
+//@[27:46)   StringComplete |'child\\file.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:55)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 module modCycle './cycle.bicep' = {
 //@[0:40) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|

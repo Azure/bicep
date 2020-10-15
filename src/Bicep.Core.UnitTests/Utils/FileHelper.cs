@@ -31,31 +31,24 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string outputDirName, string manifestFilePrefix)
-            => SaveEmbeddedResourcesToDisk(testContext, containingAssembly, outputDirName, file => file.StartsWith(manifestFilePrefix));
-
-        private static string SaveEmbeddedResourcesToDisk(TestContext testContext, Assembly containingAssembly, string outputDirName, Func<string, bool> manifestFileMatchFunc)
         {
             string outputDirectory = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, outputDirName);
-            Directory.CreateDirectory(outputDirectory);
 
             var filesSaved = false;
-            var uniqueNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(manifestFileMatchFunc))
+            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix)))
             {
-                var fileName = Path.GetFileName(embeddedResourceName);
-                if (uniqueNames.Contains(fileName))
-                {
-                    throw new ArgumentException($"Embedded resource {embeddedResourceName} must have a unique file name");
-                }
-                uniqueNames.Add(fileName);
-                
+                var relativePath = embeddedResourceName.Substring(manifestFilePrefix.Length).TrimStart('/');
                 var manifestStream = containingAssembly.GetManifestResourceStream(embeddedResourceName);
                 if (manifestStream == null)
                 {
                     throw new ArgumentException($"Failed to load stream for manifest resource {embeddedResourceName}");
                 }
 
-                var fileStream = File.Create(Path.Combine(outputDirectory, fileName));
+                var filePath = Path.Combine(outputDirectory, relativePath);
+                var directoryPath = Path.GetDirectoryName(filePath);
+                Directory.CreateDirectory(directoryPath);
+
+                var fileStream = File.Create(filePath);
                 manifestStream.Seek(0, SeekOrigin.Begin);
                 manifestStream.CopyTo(fileStream);
                 fileStream.Close();

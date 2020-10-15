@@ -23,6 +23,19 @@ module modANoInputs './modulea.bicep' = {
   
 }
 
+module modAUnspecifiedInputs './modulea.bicep' = {
+  stringParamB: ''
+  objParam: {}
+  objArray: []
+  unspecifiedInput: ''
+}
+
+var unspecifiedOutput = modAUnspecifiedInputs.test
+
+module moduleWithBackslash 'child\\file.bicep' = {
+  
+}
+
 module modCycle './cycle.bicep' = {
   
 }
