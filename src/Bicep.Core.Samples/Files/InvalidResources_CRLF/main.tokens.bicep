@@ -708,4 +708,31 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:31) Identifier |incorrectPropertiesKey|
+//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[83:84) Assignment |=|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  kind: 'AzureCLI'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:18) StringComplete |'AzureCLI'|
+//@[18:22) NewLine |\r\n\r\n|
+
+  propertes: {
+//@[2:11) Identifier |propertes|
+//@[11:12) Colon |:|
+//@[13:14) LeftBrace |{|
+//@[14:16) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

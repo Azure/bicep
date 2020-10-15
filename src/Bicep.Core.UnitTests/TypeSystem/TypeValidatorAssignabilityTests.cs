@@ -942,7 +942,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnostics.Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\".");
+                        x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\". Did you mean \"'valA'\"?");
                     });
                 narrowedType.Should().BeOfType<AnyType>();
             }

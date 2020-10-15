@@ -100,7 +100,7 @@ module mainRecursive 'main.bicep' = {
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep" });
             diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP092", DiagnosticLevel.Error, "This module references its own declaring file, which is not allowed."),
+                ("BCP094", DiagnosticLevel.Error, "This module references its own declaring file, which is not allowed."),
             });
 
             success.Should().BeFalse();
@@ -152,13 +152,13 @@ module main 'main.bicep' = {
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/main.bicep", "/modulea.bicep", "/moduleb.bicep" });
             diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
             diagnosticsByFile["/modulea.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
             diagnosticsByFile["/moduleb.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP093", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
         }
@@ -176,7 +176,7 @@ module main 'main.bicep' = {
 
             Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep");
             buildAction.Should().Throw<ErrorDiagnosticException>()
-                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP089", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Received failure \"Mock read failure!\".");
+                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Received failure \"Mock read failure!\".");
         }
 
         [TestMethod]
@@ -208,7 +208,7 @@ module modulea 'modulea.bicep' = {
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/path/to/main.bicep" });
             diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP091", DiagnosticLevel.Error, "Module \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
+                ("BCP093", DiagnosticLevel.Error, "Module \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
         }
 
@@ -243,7 +243,7 @@ module modulea 'modulea.bicep' = {
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Keys.Should().BeEquivalentTo(new [] { "/path/to/main.bicep" });
             diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new [] {
-                ("BCP089", DiagnosticLevel.Error, "An error occurred loading the module. Received failure \"Mock read failure!\"."),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred loading the module. Received failure \"Mock read failure!\"."),
             });
         }
 

@@ -476,54 +476,68 @@ namespace Bicep.Core.Diagnostics
                 "BCP087",
                 "Array and object literals are not allowed here.");
 
+            public FixableDiagnostic PropertyStringLiteralMismatchWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol expectedType, string actualStringLiteral, string suggestedStringLiteral) => new FixableDiagnostic(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP088",
+                $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
+                new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
+
+            public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new FixableDiagnostic(
+                TextSpan,
+                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP089",
+                $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
+                new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+
             public ErrorDiagnostic UnableToFindPathForModule() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP088",
+                "BCP090",
                 "Unable to find file path for module.");
 
             public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
                 TextSpan,
-                "BCP089",
+                "BCP091",
                 $"An error occurred loading the module. Received failure \"{failureMessage}\".");
 
             public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP090",
+                "BCP092",
                 "String interpolation is unsupported for specifying the module path.");
 
             public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new ErrorDiagnostic(
                 TextSpan,
-                "BCP091",
+                "BCP093",
                 $"Module \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
 
             public ErrorDiagnostic CyclicModuleSelfReference() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP092",
+                "BCP094",
                 "This module references its own declaring file, which is not allowed.");
 
             public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new ErrorDiagnostic(
                 TextSpan,
-                "BCP093",
+                "BCP095",
                 $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
             public ErrorDiagnostic ExpectedModuleIdentifier() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP094",
+                "BCP096",
                 "Expected a module identifier at this location.");
 
             public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP095",
+                "BCP097",
                 "Expected a module path string.");
 
             public ErrorDiagnostic GenericModuleLoadFailure() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP096",
+                "BCP098",
                 "Failed to load module.");
 
             public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP097",
+                "BCP099",
                 "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
         }
 

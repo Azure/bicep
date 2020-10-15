@@ -213,3 +213,12 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+
+resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:31) Resource incorrectPropertiesKey. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 132
+  kind: 'AzureCLI'
+
+  propertes: {
+  }
+}
+

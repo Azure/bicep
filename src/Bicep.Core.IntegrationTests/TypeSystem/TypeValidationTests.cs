@@ -224,7 +224,46 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
             }
 
             {
+                // incorrect discriminator key case
+                var program = @"
+resource myRes 'My.Rp/myType@2020-01-01' = {
+  name: 'steve'
+  properties: {
+    myDisc1: {
+      DiscKey: 'choiceA'
+    }
+  }
+}
+";
+
+                var model = GetSemanticModelForTest(program, customTypes);
+                model.GetAllDiagnostics().Should().SatisfyRespectively(
+                    x => x.Should().HaveCodeAndSeverity("BCP078", expectedDiagnosticLevel).And.HaveMessage("The property \"discKey\" requires a value of type \"'choiceA' | 'choiceB'\", but none was supplied."),
+                    x => x.Should().HaveCodeAndSeverity("BCP089", expectedDiagnosticLevel).And.HaveMessage("The property \"DiscKey\" is not allowed on objects of type \"'choiceA' | 'choiceB'\". Did you mean \"discKey\"?")
+                );
+            }
+
+            {
                 // incorrect discriminator key
+                var program = @"
+resource myRes 'My.Rp/myType@2020-01-01' = {
+  name: 'steve'
+  properties: {
+    myDisc1: {
+      discKey: 'foo'
+    }
+  }
+}
+";
+
+                var model = GetSemanticModelForTest(program, customTypes);
+                model.GetAllDiagnostics().Should().SatisfyRespectively(
+                    x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"discKey\" expected a value of type \"'choiceA' | 'choiceB'\" but the provided value is of type \"'foo'\".")
+                );
+            }
+
+            {
+                // incorrect discriminator key with suggestion
                 var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
   name: 'steve'
@@ -238,7 +277,7 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
 
                 var model = GetSemanticModelForTest(program, customTypes);
                 model.GetAllDiagnostics().Should().SatisfyRespectively(
-                    x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"discKey\" expected a value of type \"'choiceA' | 'choiceB'\" but the provided value is of type \"'choiceC'\".")
+                    x => x.Should().HaveCodeAndSeverity("BCP088", expectedDiagnosticLevel).And.HaveMessage("The property \"discKey\" expected a value of type \"'choiceA' | 'choiceB'\" but the provided value is of type \"'choiceC'\". Did you mean \"'choiceA'\"?")
                 );
             }
 
@@ -262,7 +301,28 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
             }
 
             {
-                // all good
+                // discriminator key supplied, case of required property is incorrect
+                var program = @"
+resource myRes 'My.Rp/myType@2020-01-01' = {
+  name: 'steve'
+  properties: {
+    myDisc1: {
+      discKey: 'choiceA'
+      ValueA: 'hello'
+    }
+  }
+}
+";
+
+                var model = GetSemanticModelForTest(program, customTypes);
+                model.GetAllDiagnostics().Should().SatisfyRespectively(
+                    x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified object is missing the following required properties: \"valueA\"."),
+                    x => x.Should().HaveCodeAndSeverity("BCP089", expectedDiagnosticLevel).And.HaveMessage("The property \"ValueA\" is not allowed on objects of type \"choiceA\". Did you mean \"valueA\"?")
+                );
+            }
+
+            {
+                // all good, incorrect property access
                 var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
   name: 'steve'
@@ -285,7 +345,7 @@ output valueB string = myRes.properties.myDisc1.valuuuueB
             }
 
             {
-                // all good
+                // all good, incorrect property access with suggestion
                 var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
   name: 'steve'
