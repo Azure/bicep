@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
@@ -38,7 +39,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly TypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-        private readonly IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
+        private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly IDictionary<SyntaxBase, TypeAssignment> declaredTypes;
         private readonly SyntaxHierarchy hierarchy;
@@ -47,7 +48,7 @@ namespace Bicep.Core.TypeSystem
             IResourceTypeProvider resourceTypeProvider,
             TypeManager typeManager,
             IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
-            IReadOnlyDictionary<SyntaxBase, ImmutableArray<DeclaredSymbol>> cyclesBySyntax,
+            IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol,
             SyntaxHierarchy hierarchy)
         {
             this.resourceTypeProvider = resourceTypeProvider;
@@ -56,7 +57,7 @@ namespace Bicep.Core.TypeSystem
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.bindings = bindings;
-            this.cyclesBySyntax = cyclesBySyntax;
+            this.cyclesBySymbol = cyclesBySymbol;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.declaredTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.hierarchy = hierarchy;
@@ -133,22 +134,26 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
         {
-            if (cyclesBySyntax.TryGetValue(syntax, out var cycle))
+            if (!(bindings.TryGetValue(syntax, out var symbol) && (symbol is DeclaredSymbol declaredSymbol)))
+            {
+                return null;
+            }
+
+            if (declaredSymbol.DeclaringSyntax == syntax)
+            {
+                // Report cycle errors on accesses to cyclic symbols, not on the declaration itself
+                return null;
+            }
+
+            if (cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle))
             {
                 // there's a cycle. stop visiting now or we never will!
                 if (cycle.Length == 1)
                 {
-                    return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicSelfReference());
+                    return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpressionSelfReference());
                 }
 
-                var syntaxBinding = bindings[syntax];
-                
-                // show the cycle as originating from the current syntax symbol
-                var cycleSuffix = cycle.TakeWhile(x => x != syntaxBinding);
-                var cyclePrefix = cycle.Skip(cycleSuffix.Count());
-                var orderedCycle = cyclePrefix.Concat(cycleSuffix);
-
-                return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpression(orderedCycle.Select(x => x.Name)));
+                return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(syntax).CyclicExpression(cycle.Select(x => x.Name)));
             }
 
             return null;
@@ -188,6 +193,51 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
             
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
+            });
+
+        private static TypeSymbol GetDeclaredModuleType(SemanticModel.SemanticModel moduleSemanticModel, string typeName)
+        {
+            var paramTypeProperties = new List<TypeProperty>();
+            foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
+            {
+                var typePropertyFlags = TypePropertyFlags.WriteOnly;
+                if (SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null)
+                {
+                    // if there's no default value, it must be specified
+                    typePropertyFlags |= TypePropertyFlags.Required;
+                }
+
+                paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+            }
+
+            var outputTypeProperties = new List<TypeProperty>();
+            foreach (var output in moduleSemanticModel.Root.OutputDeclarations)
+            {
+                outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+            }
+
+            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, typeName);
+        }
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                if (!(bindings.TryGetValue(syntax, out var symbol) && symbol is ModuleSymbol moduleSymbol))
+                {
+                    // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                    return UnassignableTypeSymbol.CreateErrors(Enumerable.Empty<ErrorDiagnostic>());
+                }
+
+                if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
+                {
+                    return UnassignableTypeSymbol.CreateErrors(failureDiagnostic);
+                }
+
+                var declaredType = GetDeclaredModuleType(moduleSemanticModel, "module");
+                
+                // just established the declared type - assign it!
+                AssignDeclaredType(syntax, declaredType);
+
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
@@ -699,6 +749,9 @@ namespace Bicep.Core.TypeSystem
                         // need to explicitly force a type check on the body
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, resource));
 
+                    case ModuleSymbol module:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, module));
+
                     case ParameterSymbol parameter:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, parameter));
 
@@ -1025,6 +1078,11 @@ namespace Bicep.Core.TypeSystem
                     // the object literal's parent is a resource declaration, which makes this the body of the resource
                     // the declared type will be the same as the parent
                     return ResolveDiscriminatedObjects(resourceType.Body.Type, syntax);
+
+                case ModuleDeclarationSyntax _ when parentType is ObjectType objectType:
+                    // the object literal's parent is a module declaration, which makes this the body of the module
+                    // the declared type will be the same as the parent
+                    return ResolveDiscriminatedObjects(objectType, syntax);
 
                 case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
                     // the object is a modifier of a parameter type

@@ -28,6 +28,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class HoverTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
@@ -36,12 +39,12 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var symbolReferences = SyntaxAggregator.Aggregate(
-                compilation.ProgramSyntax,
+                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
@@ -109,12 +112,12 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var nonHoverableNodes = SyntaxAggregator.Aggregate(
-                compilation.ProgramSyntax,
+                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
@@ -168,6 +171,10 @@ namespace Bicep.LangServer.IntegrationTests
                 case ResourceSymbol resource:
                     hover.Contents.MarkupContent.Value.Should().Contain($"resource {resource.Name}");
                     hover.Contents.MarkupContent.Value.Should().Contain(resource.Type.Name);
+                    break;
+
+                case ModuleSymbol module:
+                    hover.Contents.MarkupContent.Value.Should().Contain($"module {module.Name}");
                     break;
 
                 case OutputSymbol output:

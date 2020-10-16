@@ -93,7 +93,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
-            var program = SyntaxFactory.CreateFromText(dataSet.Bicep);
+            var program = ParserHelper.Parse(dataSet.Bicep);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
 
             string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
@@ -126,7 +126,7 @@ namespace Bicep.Core.IntegrationTests
 
         private static void RunRoundTripTest(string contents)
         {
-            var program = SyntaxFactory.CreateFromText(contents);
+            var program = ParserHelper.Parse(contents);
             program.Should().BeOfType<ProgramSyntax>();
 
             var buffer = new StringBuilder();
@@ -139,7 +139,7 @@ namespace Bicep.Core.IntegrationTests
 
         private static void RunSpanConsistencyTest(string text)
         {
-            var program = SyntaxFactory.CreateFromText(text);
+            var program = ParserHelper.Parse(text);
             program.Should().BeOfType<ProgramSyntax>();
 
             var visitor = new SpanConsistencyVisitor();

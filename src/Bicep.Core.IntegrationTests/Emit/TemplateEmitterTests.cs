@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -19,16 +21,19 @@ namespace Bicep.Core.IntegrationTests.Emit
     [TestClass]
     public class TemplateEmitterTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(dataSet.Bicep, compiledFilePath);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), compiledFilePath);
             result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
 
@@ -36,17 +41,18 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             actual.Should().EqualWithJsonDiffOutput(
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
-            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, "main.json");
+            var syntaxTreeGrouping = SyntaxFactory.CreateFromText("");
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful
-            var result = this.EmitTemplate("", compiledFilePath);
+            var result = this.EmitTemplate(syntaxTreeGrouping, compiledFilePath);
             result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
 
@@ -61,21 +67,23 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             MemoryStream memoryStream = new MemoryStream();
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(dataSet.Bicep, memoryStream);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), memoryStream);
             result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
             // normalizing the formatting in case there are differences in indentation
             // this way the diff between actual and expected will be clean
             var actual = JToken.ReadFrom(new JsonTextReader(new StreamReader(new MemoryStream(memoryStream.ToArray()))));
-            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
+            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
             actual.Should().EqualWithJsonDiffOutput(
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -83,27 +91,29 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
-            string filePath = FileHelper.GetResultFilePath(this.TestContext!, $"{dataSet.Name}_Compiled_Original.json");
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            string filePath = FileHelper.GetResultFilePath(this.TestContext, $"{dataSet.Name}_Compiled_Original.json");
 
             // emitting the template should fail
-            var result = this.EmitTemplate(dataSet.Bicep, filePath);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), filePath);
             result.Status.Should().Be(EmitStatus.Failed);
             result.Diagnostics.Should().NotBeEmpty();
         }
 
-        private EmitResult EmitTemplate(string text, string filePath)
+        private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(text));
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);
         }
 
-        private EmitResult EmitTemplate(string text, MemoryStream memoryStream)
+        private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, MemoryStream memoryStream)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(text));
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             TextWriter tw = new StreamWriter(memoryStream);
             return emitter.Emit(tw);

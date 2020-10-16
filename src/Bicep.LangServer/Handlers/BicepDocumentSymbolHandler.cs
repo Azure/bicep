@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
-            return context.Compilation.GetSemanticModel().Root.AllDeclarations
+            return context.Compilation.GetEntrypointSemanticModel().Root.AllDeclarations
                 .OrderBy(symbol=>symbol.DeclaringSyntax.Span.Position)
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
         }
@@ -81,6 +81,9 @@ namespace Bicep.LanguageServer.Handlers
                 case ResourceSymbol resource:
                     return SymbolKind.Object;
 
+                case ModuleSymbol module:
+                    return SymbolKind.Module;
+
                 case OutputSymbol output:
                     return SymbolKind.Interface;
                 
@@ -101,6 +104,9 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ResourceSymbol resource:
                     return resource.Type.Name;
+
+                case ModuleSymbol module:
+                    return module.Type.Name;
 
                 case OutputSymbol output:
                     return output.Type.Name;

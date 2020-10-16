@@ -34,9 +34,12 @@ namespace Bicep.LangServer.IntegrationTests
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, @"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
-  name = 'test'
-  }
-  output myOutput string = 'myOutput'
+  name: 'test'
+}
+module myMod './module.bicep' = {
+  name: 'test' 
+}
+output myOutput string = 'myOutput'
 ", 0));
 
             // client requests symbols
@@ -52,17 +55,18 @@ resource myRes 'myRp/provider@2019-01-01' = {
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myParam");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Field);
-                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (1, 29));
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myRes");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Object);
-                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (4, 3));
+                },
+                x => {
+                    x.DocumentSymbol.Name.Should().Be("myMod");
+                    x.DocumentSymbol.Kind.Should().Be(SymbolKind.Module);
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myOutput");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Interface);
-                    x.DocumentSymbol.Range.Should().HaveRange((5, 2), (5, 37));
                 }
             );
 
@@ -70,8 +74,11 @@ resource myRes 'myRp/provider@2019-01-01' = {
             client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(documentUri, @"
 param myParam string = 'test'
 resource myRenamedRes 'myRp/provider@2019-01-01' = {
-  name = 'test'
-  }
+  name: 'test'
+}
+module myMod './module.bicep' = {
+  name: 'test'
+}
 ", 1));
 
             // client requests symbols
@@ -87,12 +94,14 @@ resource myRenamedRes 'myRp/provider@2019-01-01' = {
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myParam");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Field);
-                    x.DocumentSymbol.Range.Should().HaveRange((1, 0), (1, 29));
                 },
                 x => {
                     x.DocumentSymbol.Name.Should().Be("myRenamedRes");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Object);
-                    x.DocumentSymbol.Range.Should().HaveRange((2, 0), (4, 3));
+                },
+                x => {
+                    x.DocumentSymbol.Name.Should().Be("myMod");
+                    x.DocumentSymbol.Kind.Should().Be(SymbolKind.Module);
                 }
             );
         }

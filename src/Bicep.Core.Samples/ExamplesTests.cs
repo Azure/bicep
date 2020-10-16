@@ -8,12 +8,14 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.UnitTests.Json;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,42 +29,32 @@ namespace Bicep.Core.Samples
 
         public class ExampleData
         {
-            public ExampleData(string jsonContents, string bicepContents, string bicepFileName)
+            public ExampleData(string bicepStreamName, string jsonStreamName)
             {
-                JsonContents = jsonContents;
-                BicepContents = bicepContents;
-                BicepFileName = bicepFileName;
+                BicepStreamName = bicepStreamName;
+                JsonStreamName = jsonStreamName;
             }
 
-            public string JsonContents { get; }
+            public string BicepStreamName { get; }
 
-            public string BicepContents { get; }
+            public string JsonStreamName { get; }
 
-            public string BicepFileName { get; }
-
-            public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).BicepFileName!;
+            public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).BicepStreamName!;
         }
 
         private static IEnumerable<object[]> GetExampleData()
         {
-            const string resourcePrefix = "Bicep.Core.Samples.DocsExamples.";
-            const string bicepExtension = ".bicep";
-            const string jsonExtension = ".json";
-
-            var bicepResources = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(name => name.StartsWith(resourcePrefix) && name.EndsWith(bicepExtension));
-            bicepResources.Should().NotBeEmpty("examples should be included for tests");
-
-            foreach (var bicepResource in bicepResources)
+            foreach (var streamName in typeof(ExamplesTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith("docs/examples/")))
             {
-                var jsonResource = bicepResource.Substring(0, bicepResource.Length - bicepExtension.Length) + jsonExtension;
-                
-                var example = new ExampleData(
-                    jsonContents: DataSet.ReadFile(jsonResource),
-                    bicepContents: DataSet.ReadFile(bicepResource),
-                    bicepFileName: bicepResource.Substring(resourcePrefix.Length)
-                );
+                var extension = Path.GetExtension(streamName);
+                if (!StringComparer.OrdinalIgnoreCase.Equals(extension, ".bicep"))
+                {
+                    continue;
+                }
 
-                yield return new object[] { example };
+                var exampleData = new ExampleData(streamName, Path.ChangeExtension(streamName, "json"));
+
+                yield return new object[] { exampleData };
             }
         }
 
@@ -98,29 +90,48 @@ namespace Bicep.Core.Samples
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void ExampleIsValid(ExampleData example)
         {
-            var compilation = new Compilation(new AzResourceTypeProvider(), SyntaxFactory.CreateFromText(example.BicepContents));
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
-
-            using var stream = new MemoryStream();
-            var result = emitter.Emit(stream);
-
-            // allow 'type not available' warnings for examples
-            var diagnostics = result.Diagnostics.Where(x => !(IsPermittedMissingTypeDiagnostic(x)));
+            // save all the files in the containing directory to disk so that we can test module resolution
+            var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext!, typeof(ExamplesTests).Assembly, "example", parentStream);
+            var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
+            var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
-            diagnostics.Should().BeEmpty();
-            result.Status.Should().Be(EmitStatus.Succeeded);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFileName);
+            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
-            stream.Position = 0;
-            var generated = new StreamReader(stream).ReadToEnd();
+            // group assertion failures using AssertionScope, rather than reporting the first failure
+            using (new AssertionScope())
+            {
+                foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+                {
+                    var nonPermittedDiagnostics = diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x));
 
-            var actual = JToken.Parse(generated);
-            FileHelper.SaveResultFile(this.TestContext!, $"{example.BicepFileName}_Compiled_Actual.json", actual.ToString(Formatting.Indented));
+                    nonPermittedDiagnostics.Should().BeEmpty($"{Path.GetRelativePath(Directory.GetCurrentDirectory(), syntaxTree.FilePath)} should not have warnings or errors");
+                }
 
-            var expected = JToken.Parse(example.JsonContents!);
-            FileHelper.SaveResultFile(this.TestContext!, $"{example.BicepFileName}_Compiled_Expected.json", expected.ToString(Formatting.Indented));
+                var exampleExists = File.Exists(jsonFileName);
+                exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, $"{example.BicepFileName}_Compiled_Delta.json");
+                using var stream = new MemoryStream();
+                var result = emitter.Emit(stream);
+            
+                result.Status.Should().Be(EmitStatus.Succeeded);
+
+                if (result.Status == EmitStatus.Succeeded && exampleExists)
+                {
+                    stream.Position = 0;
+                    var generated = new StreamReader(stream).ReadToEnd();
+
+                    var actual = JToken.Parse(generated);
+                    File.WriteAllText(jsonFileName + ".actual", generated);
+
+                    actual.Should().EqualWithJsonDiffOutput(
+                        JToken.Parse(File.ReadAllText(jsonFileName)),
+                        jsonFileName,
+                        jsonFileName + ".actual");
+                }
+            }
         }
     }
 }
-

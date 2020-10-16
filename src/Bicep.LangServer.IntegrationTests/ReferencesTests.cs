@@ -28,6 +28,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class ReferencesTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task FindReferencesWithDeclarationsShouldProduceCorrectResults(DataSet dataSet)
@@ -35,9 +38,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var symbolToSyntaxLookup = symbolTable
                 .Where(pair => pair.Value.Kind != SymbolKind.Error)
@@ -74,9 +77,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var symbolToSyntaxLookup = symbolTable
                 .Where(pair => pair.Value.Kind != SymbolKind.Error)
@@ -117,11 +120,11 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
             var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.ProgramSyntax,
+                compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax,
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {

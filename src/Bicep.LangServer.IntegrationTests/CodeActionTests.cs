@@ -26,6 +26,9 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CodeActionTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
@@ -34,9 +37,9 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
 
             // construct a parallel compilation
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
-            var fixables = compilation.GetSemanticModel().GetAllDiagnostics().OfType<IFixable>();
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
+            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
 
             foreach (IFixable fixable in fixables)
             {

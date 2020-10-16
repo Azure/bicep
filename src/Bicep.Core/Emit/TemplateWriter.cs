@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
@@ -15,6 +16,9 @@ namespace Bicep.Core.Emit
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateWriter
     {
+        public const string NestedDeploymentResourceType = "Microsoft.Resources/deployments";
+        public const string NestedDeploymentResourceApiVersion = "2019-10-01";
+
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
         {
@@ -119,7 +123,7 @@ namespace Bicep.Core.Emit
                         this.emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
                     }
 
-                    this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue("default"));
+                    this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue(LanguageConstants.ParameterDefaultPropertyName));
                     this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
                     
                     break;
@@ -159,6 +163,11 @@ namespace Bicep.Core.Emit
                 this.EmitResource(resourceSymbol);
             }
 
+            foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
+            {
+                this.EmitModule(moduleSymbol);
+            }
+
             writer.WriteEndArray();
         }
 
@@ -179,9 +188,90 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-        private void EmitDependsOn(ResourceSymbol resourceSymbol)
+        private void EmitModuleParameters(ModuleSymbol moduleSymbol)
         {
-            var dependencies = context.ResourceDependencies[resourceSymbol];
+            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
+            var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
+
+            if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
+            {
+                // 'params' is optional if the module has no required params
+                return;
+            }
+
+            writer.WritePropertyName("parameters");
+
+            writer.WriteStartObject();
+
+            foreach (var propertySyntax in paramsObjectSyntax.Properties)
+            {
+                if (!(propertySyntax.TryGetKeyText() is string keyName))
+                {
+                    // should have been caught by earlier validation
+                    throw new ArgumentException("Disallowed interpolation in module parameter");
+                }
+
+                writer.WritePropertyName(keyName);
+                {
+                    writer.WriteStartObject();
+                    this.emitter.EmitPropertyExpression("value", propertySyntax.Value);
+                    writer.WriteEndObject();
+                }                        
+            }
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitModule(ModuleSymbol moduleSymbol)
+        {
+            writer.WriteStartObject();
+
+            this.emitter.EmitPropertyValue("type", NestedDeploymentResourceType);
+            this.emitter.EmitPropertyValue("apiVersion", NestedDeploymentResourceApiVersion);
+
+            // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
+            // params requires special handling (see below).
+            var topLevelPropertiesToOmit = new HashSet<string> { LanguageConstants.ModuleParamsPropertyName };
+            this.emitter.EmitObjectProperties((ObjectSyntax) moduleSymbol.DeclaringModule.Body, topLevelPropertiesToOmit);
+
+            writer.WritePropertyName("properties");
+            {
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("expressionEvaluationOptions");
+                {
+                    writer.WriteStartObject();
+                    this.emitter.EmitPropertyValue("scope", "inner");
+                    writer.WriteEndObject();
+                }
+
+                this.emitter.EmitPropertyValue("mode", "Incremental");
+
+                EmitModuleParameters(moduleSymbol);
+
+                writer.WritePropertyName("template");
+                {
+                    if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
+                    {
+                        // this should have already been checked during type assignment
+                        throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
+                    }
+
+                    var moduleWriter = new TemplateWriter(writer, moduleSemanticModel);
+                    moduleWriter.Write();
+                }
+
+                writer.WriteEndObject();
+            }
+
+            this.EmitDependsOn(moduleSymbol);
+
+            writer.WriteEndObject();
+        }
+
+        private void EmitDependsOn(DeclaredSymbol declaredSymbol)
+        {
+            var dependencies = context.ResourceDependencies[declaredSymbol];
             if (!dependencies.Any())
             {
                 return;
@@ -192,8 +282,18 @@ namespace Bicep.Core.Emit
             // need to put dependencies in a deterministic order to generate a deterministic template
             foreach (var dependency in dependencies.OrderBy(x => x.Name))
             {
-                var typeReference = EmitHelpers.GetTypeReference(dependency);
-                emitter.EmitResourceIdReference(dependency.DeclaringResource, typeReference);
+                switch (dependency)
+                {
+                    case ResourceSymbol resourceDependency:
+                        var typeReference = EmitHelpers.GetTypeReference(resourceDependency);
+                        emitter.EmitResourceIdReference(resourceDependency.DeclaringResource, typeReference);
+                        break;
+                    case ModuleSymbol moduleDependency:
+                        emitter.EmitModuleResourceIdExpression(moduleDependency);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");
+                }
             }
             writer.WriteEndArray();
         }

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
-using Bicep.Cli.Utils;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -15,6 +14,8 @@ using Newtonsoft.Json;
 using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli
 {
@@ -78,6 +79,11 @@ namespace Bicep.Cli
                     this.errorWriter.WriteLine(exception.Message);
                     return 1;
                 }
+                catch (ErrorDiagnosticException exception)
+                {
+                    this.errorWriter.WriteLine(exception.Message);
+                    return 1;
+                }
             }
         }
 
@@ -106,21 +112,33 @@ namespace Bicep.Cli
             }
         }
 
+        private bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
+        {
+            var success = true;
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            {
+                foreach (var diagnostic in diagnostics)
+                {
+                    logger.LogDiagnostic(syntaxTree.FilePath, diagnostic, syntaxTree.LineStarts);
+                    success &= diagnostic.Level != DiagnosticLevel.Error;
+                }
+            }
+
+            return success;
+        }
+
         private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            string text = ReadFile(bicepPath);
-            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
+            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-            var compilation = new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
-
-            var emitter = new TemplateEmitter(compilation.GetSemanticModel());
-
-            using var outputStream = CreateFileStream(outputPath);
-            var result = emitter.Emit(outputStream);
-
-            foreach (var diagnostic in result.Diagnostics)
+            var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
+            if (success)
             {
-                logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+
+                using var outputStream = CreateFileStream(outputPath);
+                emitter.Emit(outputStream);
             }
         }
 
@@ -136,18 +154,15 @@ namespace Bicep.Cli
             }
             foreach(var bicepPath in bicepPaths)
             {
-                string text = ReadFile(bicepPath);
-                var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
+                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
-                var compilation = new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
-
-                var emitter = new TemplateEmitter(compilation.GetSemanticModel());
-
-                var result = emitter.Emit(writer);
-
-                foreach (var diagnostic in result.Diagnostics)
+                var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
+                if (success)
                 {
-                    logger.LogDiagnostic(bicepPath, diagnostic, lineStarts);
+                    var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+
+                    emitter.Emit(writer);
                 }
             }
             if (bicepPaths.Length > 1) {

@@ -9,13 +9,11 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class ParserHelper
     {
-        public static ProgramSyntax Parse(string text, Action<IEnumerable<Diagnostic>> onDiagnosticsFunc)
+        public static ProgramSyntax Parse(string text)
         {
-            var program = SyntaxFactory.CreateFromText(text);
-            var diagnostics = program.GetParseDiagnostics();
-            onDiagnosticsFunc(diagnostics);
+            var parser = new Core.Parser.Parser(text);
 
-            return program;
+            return parser.Program();
         }
 
         public static SyntaxBase ParseExpression(string text, bool allowComplexLiterals = true) => new Core.Parser.Parser(text).Expression(allowComplexLiterals);

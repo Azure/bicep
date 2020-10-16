@@ -14,6 +14,30 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "build-cli",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Bicep.Cli/Bicep.Cli.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-langserver",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Bicep.LangServer/Bicep.LangServer.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "vscodeext-build",
             "command": "npm",
             "args": ["run", "compile", "--loglevel", "silent"],
@@ -23,18 +47,8 @@
                 "cwd": "${workspaceFolder}/src/vscode-bicep"
             },
             "dependsOn": [
-                "build",
-                "vscodeext-install"
+                "build-langserver"
             ]
-        },
-        {
-            "label": "vscodeext-install",
-            "command": "npm",
-            "args": ["install"],
-            "type": "shell",
-            "options": {
-                "cwd": "${workspaceFolder}/src/vscode-bicep"
-            }
         },
         {
             "label": "playground-build-wasm",

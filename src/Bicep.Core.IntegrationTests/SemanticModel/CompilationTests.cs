@@ -13,13 +13,13 @@ namespace Bicep.Core.IntegrationTests
     public class CompilationTests
     {
         [TestMethod]
-        public void EmptyProgram_SyntaxNodeShouldBePersisted()
+        public void EmptyProgram_SyntaxTreeGrouping_should_be_persisted()
         {
             var program = SyntaxFactory.CreateFromText(DataSets.Empty.Bicep);
             var compilation = new Compilation(TestResourceTypeProvider.Create(), program);
 
-            compilation.ProgramSyntax.Should().BeSameAs(program);
-            compilation.GetSemanticModel().Should().NotBeNull();
+            compilation.SyntaxTreeGrouping.Should().BeSameAs(program);
+            compilation.GetEntrypointSemanticModel().Should().NotBeNull();
         }
     }
 }

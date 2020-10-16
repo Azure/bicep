@@ -27,11 +27,11 @@ namespace Bicep.LangServer.UnitTests
         public void DeclarationSnippetsShouldBeValid()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
-            compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -91,11 +91,11 @@ namespace Bicep.LangServer.UnitTests
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
-            compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.DeclarationStart));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -145,11 +145,11 @@ namespace Bicep.LangServer.UnitTests
         public void NonDeclarationContextInEmptyFileShouldReturnFunctionCompletions()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
-            compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
 
             completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
@@ -170,10 +170,10 @@ resource r 'Microsoft.Foo/foos@2020-09-01' = {
 }
 output o int = 42
 "));
-            compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
             
             AssertExpectedFunctions(completions);
 
@@ -219,10 +219,10 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' = {
 }
 output length int = 42
 "));
-            compilation.GetSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
 
             AssertExpectedFunctions(completions, new[] {"concat", "resourceGroup", "base64"});
 
@@ -263,7 +263,7 @@ output length int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.OutputType));
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.OutputType));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -277,7 +277,7 @@ output length int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation.GetSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.ParameterType));
+            var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.ParameterType));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);

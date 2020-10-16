@@ -19,16 +19,16 @@ namespace Bicep.Wasm.LanguageHelpers
             this.tokens = new List<(IPositionable, SemanticTokenType)>();
         }
 
-        public static IEnumerable<SemanticToken> BuildSemanticTokens(ProgramSyntax programSyntax, ImmutableArray<int> lineStarts)
+        public static IEnumerable<SemanticToken> BuildSemanticTokens(SyntaxTree syntaxTree)
         {
             var visitor = new SemanticTokenVisitor();
 
-            visitor.Visit(programSyntax);
+            visitor.Visit(syntaxTree.ProgramSyntax);
 
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRanges = positionable.ToRangeSpanningLines(lineStarts);
+                var tokenRanges = positionable.ToRangeSpanningLines(syntaxTree.LineStarts);
                 foreach (var tokenRange in tokenRanges)
                 {
                     yield return new SemanticToken(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType);
@@ -160,6 +160,13 @@ namespace Bicep.Wasm.LanguageHelpers
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitResourceDeclarationSyntax(syntax);
+        }
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitModuleDeclarationSyntax(syntax);
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)

@@ -59,6 +59,13 @@ namespace Bicep.Core.SemanticModel
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.RequiresInlining;
+            base.VisitModuleDeclarationSyntax(syntax);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.RequiresInlining;

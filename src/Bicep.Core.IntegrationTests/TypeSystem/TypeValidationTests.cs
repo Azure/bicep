@@ -9,6 +9,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
                 .Returns<ResourceTypeReference>(x => registeredTypes.ContainsKey(x));
 
             var compilation = new Compilation(typeRegistrarMock.Object, SyntaxFactory.CreateFromText(programText));
-            return compilation.GetSemanticModel();
+            return compilation.GetEntrypointSemanticModel();
         }
 
         public static ResourceType CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)

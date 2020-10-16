@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -15,7 +16,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
     {
         public static IList<CompletionTrigger> GetTriggers(string text)
         {
-            var program = SyntaxFactory.CreateFromText(text);
+            var program = ParserHelper.Parse(text);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
             var triggers = new List<CompletionTrigger>();
             

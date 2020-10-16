@@ -427,7 +427,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP078",
                 $"The property \"{propertyName}\" requires a value of type \"{expectedType}\", but none was supplied.");
 
-            public ErrorDiagnostic CyclicSelfReference() => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicExpressionSelfReference() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
@@ -490,6 +490,50 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
+            public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP090",
+                "This module declaration is missing a file path reference.");
+
+            public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP091",
+                $"An error occurred loading the module. {failureMessage}");
+
+            public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP092",
+                "String interpolation is not supported in module paths.");
+
+            public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP093",
+                $"Module path \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
+
+            public ErrorDiagnostic CyclicModuleSelfReference() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP094",
+                "This module references itself, which is not allowed.");
+
+            public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP095",
+                $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
+
+            public ErrorDiagnostic ExpectedModuleIdentifier() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP096",
+                "Expected a module identifier at this location.");
+
+            public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP097",
+                "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+
+            public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP098",
+                "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -112,6 +112,17 @@ namespace Bicep.Core.Emit
                         }
                     }
 
+                    var moduleAccess = TryGetModulePropertyAccess(propertyAccess);
+                    if (moduleAccess != null)
+                    {
+                        var (moduleSymbol, outputName) = moduleAccess.Value;
+                        return AppendProperty(
+                            AppendProperty(
+                                GetModuleOutputsReferenceExpression(moduleSymbol),
+                                new JTokenExpression(outputName)),
+                            new JTokenExpression("value"));
+                    }
+
                     return AppendProperty(
                         ToFunctionExpression(propertyAccess.BaseExpression),
                         new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
@@ -122,6 +133,23 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
+        }
+
+        private (ModuleSymbol moduleSymbol, string outputName)? TryGetModulePropertyAccess(PropertyAccessSyntax propertyAccess)
+        {
+            // is this a (<child>.outputs).<prop> propertyAccess?
+            if (!(propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess) || childPropertyAccess.PropertyName.IdentifierName != LanguageConstants.ModuleOutputsPropertyName)
+            {
+                return null;
+            }
+
+            // is <child> a variable which points to a module symbol?
+            if (!(childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildVariableAccess) || !(context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol moduleSymbol))
+            {
+                return null;
+            }
+
+            return (moduleSymbol, propertyAccess.PropertyName.IdentifierName);
         }
 
         private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
@@ -169,6 +197,33 @@ namespace Bicep.Core.Emit
                     new JTokenExpression(typeReference.FullyQualifiedType),
                 }.Concat(nameSegments).ToArray(),
                 Array.Empty<LanguageExpression>());
+        }
+
+        public FunctionExpression GetModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        {
+            return new FunctionExpression(
+                "resourceId",
+                new LanguageExpression[]
+                {
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceType),
+                    new JTokenExpression(moduleSymbol.Name),
+                },
+                Array.Empty<LanguageExpression>());
+        }
+        
+        public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol)
+        {
+            return new FunctionExpression(
+                "reference",
+                new LanguageExpression[]
+                {
+                    GetModuleResourceIdExpression(moduleSymbol),
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion),
+                },
+                new LanguageExpression[]
+                {
+                    new JTokenExpression("outputs"),
+                });
         }
 
         public FunctionExpression GetReferenceExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference, bool full)
@@ -219,6 +274,9 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resourceSymbol:
                     var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
                     return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
+
+                case ModuleSymbol moduleSymbol:
+                    return GetModuleOutputsReferenceExpression(moduleSymbol);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

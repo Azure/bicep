@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
-using Bicep.Cli.Utils;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -15,6 +16,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,6 +26,7 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class ProgramTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
@@ -34,12 +37,13 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void BicepVersionShouldPrintVersionInformation()
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] {"--version"}).Should().Be(0);
+                return p.Run(new[] {"--version"});
             });
 
+            result.Should().Be(0);
             error.Should().BeEmpty();
 
             output.Should().NotBeEmpty();
@@ -49,12 +53,13 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void BicepHelpShouldPrintHelp()
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "--help" }).Should().Be(0);
+                return p.Run(new[] { "--help" });
             });
 
+            result.Should().Be(0);
             error.Should().BeEmpty();
             
             output.Should().NotBeEmpty();
@@ -77,12 +82,13 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void WrongArgumentsShouldProduceError()
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] {"wrong", "fake", "broken"}).Should().Be(1);
+                return p.Run(new[] {"wrong", "fake", "broken"});
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
@@ -92,12 +98,13 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void ZeroFilesToBuildShouldProduceError()
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "build" }).Should().Be(1);
+                return p.Run(new[] { "build" });
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
@@ -108,25 +115,30 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMain), dataSet.Bicep);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "build", bicepFilePath }).Should().Be(0);
+                return p.Run(new[] { "build", bicepFilePath });
             });
 
-            output.Should().BeEmpty();
-            error.Should().BeEmpty();
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
 
-            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
             actual.Should().EqualWithJsonDiffOutput(
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -134,25 +146,30 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileToStdOutShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMain), dataSet.Bicep);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] {"build", "--stdout", bicepFilePath}).Should().Be(0);
+                return p.Run(new[] {"build", "--stdout", bicepFilePath});
             });
 
-            error.Should().BeEmpty();
-            output.Should().NotBeEmpty();
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                error.Should().BeEmpty();
+                output.Should().NotBeEmpty();
+            }
 
-            var compiledFilePath = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), output);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
 
             actual.Should().EqualWithJsonDiffOutput(
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -160,32 +177,37 @@ namespace Bicep.Cli.IntegrationTests
         public void BuildManyFilesShouldProduceExpectedTemplate()
         {
             var validDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid).ToList();
+            var outputDirectories = validDataSets.ToDictionary(ds => ds, ds => ds.SaveFilesToTestDirectory(TestContext, ds.Name));
 
-            var bicepFiles = validDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, Path.Combine(ds.Name, DataSet.TestFileMain), ds.Bicep))
-                .ToList();
-
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var bicepFiles = outputDirectories.Values.Select(dir => Path.Combine(dir, DataSet.TestFileMain));
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
 
                 string[] args = "build".AsEnumerable().Concat(bicepFiles).ToArray();
-                p.Run(args).Should().Be(0);
+                return p.Run(args);
             });
 
-            output.Should().BeEmpty();
-            error.Should().BeEmpty();
-
-            foreach (var dataSet in validDataSets)
+            using (new AssertionScope())
             {
-                var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+
+            foreach (var kvp in outputDirectories)
+            {
+                var outputDirectory = kvp.Value;
+                var dataSet = kvp.Key;
+
+                var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
                 File.Exists(compiledFilePath).Should().BeTrue();
 
                 var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
                 actual.Should().EqualWithJsonDiffOutput(
                     JToken.Parse(dataSet.Compiled!),
-                    expectedLocation: Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestFileMainCompiled),
+                    expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                     actualLocation: compiledFilePath);
             }
         }
@@ -194,47 +216,51 @@ namespace Bicep.Cli.IntegrationTests
         public void BuildManyFilesToStdOutShouldProduceExpectedTemplate()
         {
             var validDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid).ToList();
+            var outputDirectories = validDataSets.ToDictionary(ds => ds, ds => ds.SaveFilesToTestDirectory(TestContext, ds.Name));
 
-            var bicepFiles = validDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, Path.Combine(ds.Name, DataSet.TestFileMain), ds.Bicep))
-                .ToList();
-
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var bicepFiles = outputDirectories.Values.Select(dir => Path.Combine(dir, DataSet.TestFileMain));
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
 
                 string[] args = new[] {"build", "--stdout"}.Concat(bicepFiles).ToArray();
-                p.Run(args).Should().Be(0);
+                return p.Run(args);
             });
 
-            error.Should().BeEmpty();
-            output.Should().NotBeEmpty();
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                error.Should().BeEmpty();
+                output.Should().NotBeEmpty();
+            }
 
             var actual = JArray.Parse(output);
             var expected = new JArray(validDataSets.Select(ds => JToken.Parse(ds.Compiled!)));
 
-            FileHelper.SaveResultFile(this.TestContext!, "Combined_Compiled_Actual.json", output);
-            FileHelper.SaveResultFile(this.TestContext!, "Combined_Compiled_Expected.json", expected.ToString(Formatting.Indented));
+            FileHelper.SaveResultFile(this.TestContext, "Combined_Compiled_Actual.json", output);
+            FileHelper.SaveResultFile(this.TestContext, "Combined_Compiled_Expected.json", expected.ToString(Formatting.Indented));
 
-            JsonAssert.AreEqual(expected, actual, this.TestContext!, "Combined_Compiled_Delta.json");
+            JsonAssert.AreEqual(expected, actual, this.TestContext, "Combined_Compiled_Delta.json");
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileShouldProduceExpectedErrors(DataSet dataSet)
         {
-            string bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Bicep.bicep", dataSet.Bicep);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "build", bicepFilePath }).Should().Be(1);
+                return p.Run(new[] { "build", bicepFilePath });
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
 
-            var diagnostics = GetAllDiagnostics(dataSet.Bicep, bicepFilePath);
+            var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
         }
 
@@ -242,44 +268,41 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void BuildSingleFileToStdOutShouldProduceExpectedErrors(DataSet dataSet)
         {
-            string bicepFilePath = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_Bicep.bicep", dataSet.Bicep);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext, dataSet.Name);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] {"build", "--stdout", bicepFilePath}).Should().Be(1);
+                return p.Run(new[] {"build", "--stdout", bicepFilePath});
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
 
-            var diagnostics = GetAllDiagnostics(dataSet.Bicep, bicepFilePath);
+            var diagnostics = GetAllDiagnostics(bicepFilePath);
             error.Should().ContainAll(diagnostics);
         }
 
         [TestMethod]
         public void BuildManyFilesShouldProduceExpectedErrors()
         {
-            var invalidDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid == false).ToList();
+            var invalidDataSets = DataSets.AllDataSets.Where(ds => !ds.IsValid).ToList();
+            var outputDirectories = invalidDataSets.ToDictionary(ds => ds, ds => ds.SaveFilesToTestDirectory(TestContext, ds.Name));
 
-            var bicepFiles = invalidDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, $"{ds.Name}_Bicep.bicep", ds.Bicep))
-                .ToList();
-
-            invalidDataSets.Should().HaveCount(bicepFiles.Count);
-
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var bicepFiles = outputDirectories.Values.Select(dir => Path.Combine(dir, DataSet.TestFileMain));
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run("build".AsEnumerable().Concat(bicepFiles).ToArray()).Should().Be(1);
+                return p.Run("build".AsEnumerable().Concat(bicepFiles).ToArray());
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
 
-            var diagnosticsFromAllFiles = invalidDataSets
-                .Zip(bicepFiles, (ds, file) => GetAllDiagnostics(ds.Bicep, file))
-                .SelectMany(e => e);
+            var diagnosticsFromAllFiles = bicepFiles.SelectMany(file => GetAllDiagnostics(file));
 
             error.Should().ContainAll(diagnosticsFromAllFiles);
         }
@@ -287,56 +310,53 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void BuildManyFilesToStdOutShouldProduceExpectedErrors()
         {
-            var invalidDataSets = DataSets.AllDataSets.Where(ds => ds.IsValid == false).ToList();
+            var invalidDataSets = DataSets.AllDataSets.Where(ds => !ds.IsValid).ToList();
+            var outputDirectories = invalidDataSets.ToDictionary(ds => ds, ds => ds.SaveFilesToTestDirectory(TestContext, ds.Name));
 
-            var bicepFiles = invalidDataSets
-                .Select(ds => FileHelper.SaveResultFile(this.TestContext!, $"{ds.Name}_Bicep.bicep", ds.Bicep))
-                .ToList();
-
-            invalidDataSets.Should().HaveCount(bicepFiles.Count);
-
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var bicepFiles = outputDirectories.Values.Select(dir => Path.Combine(dir, DataSet.TestFileMain));
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "build", "--stdout" }.Concat(bicepFiles).ToArray()).Should().Be(1);
+                return p.Run(new[] { "build", "--stdout" }.Concat(bicepFiles).ToArray());
             });
 
+            result.Should().Be(1);
             output.Should().Be("[]");
             error.Should().NotBeEmpty();
 
-            var diagnosticsFromAllFiles = invalidDataSets
-                .Zip(bicepFiles, (ds, file) => GetAllDiagnostics(ds.Bicep, file))
-                .SelectMany(e => e);
+            var diagnosticsFromAllFiles = bicepFiles.SelectMany(file => GetAllDiagnostics(file));
 
             error.Should().ContainAll(diagnosticsFromAllFiles);
         }
 
-        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] {"build", badPath}).Should().Be(1);
+                return p.Run(new[] {"build", badPath});
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().MatchRegex(expectedErrorRegex);
         }
 
-        [DataRow("DoesNotExist.bicep", @"Could not find file '.+DoesNotExist.bicep'")]
-        [DataRow("WrongDir\\Fake.bicep", @"Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
+        [DataRow("DoesNotExist.bicep", @"An error occurred loading the module. Could not find file '.+DoesNotExist.bicep'")]
+        [DataRow("WrongDir\\Fake.bicep", @"An error occurred loading the module. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
         public void BuildInvalidInputPathsToStdOutShouldProduceExpectedError(string badPath, string expectedErrorRegex)
         {
-            var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+            var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
             {
                 var p = CreateProgram(@out, err);
-                p.Run(new[] { "build", "--stdout", badPath }).Should().Be(1);
+                return p.Run(new[] { "build", "--stdout", badPath });
             });
 
+            result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().MatchRegex(expectedErrorRegex);
         }
@@ -344,7 +364,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public void LockedOutputFileShouldProduceExpectedError()
         {
-            var inputFile = FileHelper.SaveResultFile(this.TestContext!, "Empty.bicep", DataSets.Empty.Bicep);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
             var outputFile = PathHelper.GetDefaultOutputPath(inputFile);
 
             // ReSharper disable once ConvertToUsingDeclaration
@@ -352,29 +372,34 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                var (output, error) = TextWriterHelper.InvokeWriterAction((@out, err) =>
+                var (output, error, result) = TextWriterHelper.InvokeWriterAction((@out, err) =>
                 {
                     var p = CreateProgram(@out, err);
-                    p.Run(new[] { "build", inputFile }).Should().Be(1);
+                    return p.Run(new[] { "build", inputFile });
                 });
 
+                result.Should().Be(1);
                 output.Should().BeEmpty();
                 error.Should().Contain("Empty.json");
             }
         }
 
-        private IEnumerable<string> GetAllDiagnostics(string text, string bicepFilePath)
+        private IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(text));
-            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
 
-            return compilation.GetSemanticModel()
-                .GetAllDiagnostics()
-                .Select(d =>
+            var output = new List<string>();
+            foreach (var (syntaxTree, diagnostics) in compilation.GetAllDiagnosticsBySyntaxTree())
+            {
+                foreach (var diagnostic in diagnostics)
                 {
-                    var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, d.Span.Position);
-                    return $"{bicepFilePath}({line + 1},{character + 1}) : {d.Level} {d.Code}: {d.Message}";
-                });
+                    var (line, character) = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, diagnostic.Span.Position);
+                    output.Add($"{syntaxTree.FilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}");
+                }
+            }
+
+            return output;
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

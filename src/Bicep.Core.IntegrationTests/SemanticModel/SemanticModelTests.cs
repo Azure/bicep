@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
@@ -21,24 +23,27 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
     [TestClass]
     public class SemanticModelTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var model = compilation.GetSemanticModel();
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var model = compilation.GetEntrypointSemanticModel();
 
             string getLoggingString(Diagnostic diagnostic)
             {
                 var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
+                var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}");
 
-                return $"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message} |{spanText}|";
+                return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
             }
             
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainDiagnostics), sourceTextWithDiags);
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
+            File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Diagnostics,
@@ -50,21 +55,21 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText("parameter "));
-            compilation.GetSemanticModel().GetParseDiagnostics();
+            compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            var model = compilation.GetSemanticModel();
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
+            var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
                 .OfType<DeclaredSymbol>();
 
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
             string getLoggingString(DeclaredSymbol symbol)
             {
                 (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
@@ -73,7 +78,8 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             }
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainSymbols), sourceTextWithDiags);
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
+            File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 dataSet.Symbols,
@@ -85,14 +91,13 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void NameBindingsShouldBeConsistent(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-            
-            var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
 
-            var model = compilation.GetSemanticModel();
+            var model = compilation.GetEntrypointSemanticModel();
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
                 var symbol = model.GetSymbolInfo(symbolReference);
@@ -106,6 +111,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
+                        s is ModuleSymbol ||
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is NamespaceSymbol);
@@ -118,6 +124,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
+                        s is ModuleSymbol ||
                         s is OutputSymbol ||
                         s is FunctionSymbol ||
                         s is NamespaceSymbol);
@@ -140,18 +147,17 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(dataSet.Bicep));
-
-            var symbolReferences = GetSymbolReferences(compilation.ProgramSyntax);
+            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
+            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
-                .Select(symRef => compilation.GetSemanticModel().GetSymbolInfo(symRef))
+                .Select(symRef => compilation.GetEntrypointSemanticModel().GetSymbolInfo(symRef))
                 .Distinct();
 
             symbols.Should().NotContainNulls();
 
             var foundReferences = symbols
-                .SelectMany(s => compilation.GetSemanticModel().FindReferences(s!))
+                .SelectMany(s => compilation.GetEntrypointSemanticModel().FindReferences(s!))
                 .Where(refSyntax => !(refSyntax is IDeclarationSyntax));
 
             foundReferences.Should().BeEquivalentTo(symbolReferences);

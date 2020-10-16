@@ -59,6 +59,6 @@ cp {1} {2}
 ", string.Join('\n', lineLogs), actualLocation, expectedLocation);
 
             return new AndConstraint<StringAssertions>(instance);
-        } 
+        }
     }
 }

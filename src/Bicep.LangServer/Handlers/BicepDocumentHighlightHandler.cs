@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new DocumentHighlightContainer());
             }
 
-            var highlights = result.Context.Compilation.GetSemanticModel()
+            var highlights = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
                 .Select(referenceSyntax => new DocumentHighlight
                 {

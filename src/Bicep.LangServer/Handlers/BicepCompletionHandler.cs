@@ -32,8 +32,8 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation.ProgramSyntax, offset);
-            var completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation.GetSemanticModel(), completionContext);
+            var completionContext = BicepCompletionContext.Create(compilationContext.ProgramSyntax, offset);
+            var completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation.GetEntrypointSemanticModel(), completionContext);
             
             return Task.FromResult(new CompletionList(completions, isIncomplete: false));
         }

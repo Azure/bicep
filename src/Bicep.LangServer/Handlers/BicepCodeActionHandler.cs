@@ -38,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
                 ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
                 : requestStartOffset;
 
-            var quickFixes = compilationContext.Compilation.GetSemanticModel().GetAllDiagnostics()
+            var quickFixes = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics()
                 .Where(fixable =>
                     fixable.Span.ContainsInclusive(requestStartOffset) ||
                     fixable.Span.ContainsInclusive(requestEndOffset) ||

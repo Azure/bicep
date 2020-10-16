@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult(new LocationContainer());
             }
 
-            var references = result.Context.Compilation.GetSemanticModel()
+            var references = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
                 .Where(referenceSyntax => request.Context.IncludeDeclaration || !(referenceSyntax is IDeclarationSyntax))
                 .Select(referenceSyntax => new Location

@@ -10,6 +10,7 @@ namespace Bicep.Core.SemanticModel
         Parameter,
         Variable,
         Resource,
+        Module,
         Output,
         Namespace,
         Function

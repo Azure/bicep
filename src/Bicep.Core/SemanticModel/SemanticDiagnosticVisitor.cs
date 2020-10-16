@@ -45,6 +45,12 @@ namespace Bicep.Core.SemanticModel
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitModuleSymbol(ModuleSymbol symbol)
+        {
+            base.VisitModuleSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         public override void VisitOutputSymbol(OutputSymbol symbol)
         {
             base.VisitOutputSymbol(symbol);

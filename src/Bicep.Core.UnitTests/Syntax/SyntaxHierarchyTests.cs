@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Syntax
         public void EmptyFile_GetProgramParent_ShouldReturnNull()
         {
             var hierarchy = new SyntaxHierarchy();
-            var program = SyntaxFactory.CreateFromText(string.Empty);
+            var program = ParserHelper.Parse(string.Empty);
             hierarchy.AddRoot(program);
 
             hierarchy.GetParent(program).Should().BeNull();
@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Syntax
         public void NonEmtyFile_GetParent_ShouldReturnExpectedNode()
         {
             var hierarchy = new SyntaxHierarchy();
-            var program = SyntaxFactory.CreateFromText("param foo string\r\nvar bar = 42");
+            var program = ParserHelper.Parse("param foo string\r\nvar bar = 42");
 
             hierarchy.AddRoot(program);
             hierarchy.GetParent(program).Should().BeNull();

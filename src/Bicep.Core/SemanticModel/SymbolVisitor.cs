@@ -36,6 +36,11 @@ namespace Bicep.Core.SemanticModel
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitModuleSymbol(ModuleSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitOutputSymbol(OutputSymbol symbol)
         {
             VisitDescendants(symbol);

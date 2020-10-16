@@ -13,6 +13,7 @@ using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Wasm
 {
@@ -54,9 +55,8 @@ namespace Bicep.Wasm
         [JSInvokable]
         public object GetSemanticTokens(string content)
         {
-            var lineStarts = TextCoordinateConverter.GetLineStarts(content);
             var compilation = GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.ProgramSyntax, lineStarts);
+            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SyntaxTreeGrouping.EntryPoint);
 
             var data = new List<int>();
             SemanticToken? prevToken = null;
@@ -92,7 +92,7 @@ namespace Bicep.Wasm
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
                 var compilation = GetCompilation(content);
-                var emitter = new TemplateEmitter(compilation.GetSemanticModel());
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();
@@ -116,7 +116,11 @@ namespace Bicep.Wasm
 
         private static Compilation GetCompilation(string text)
         {
-            return new Compilation(resourceTypeProvider, SyntaxFactory.CreateFromText(text));
+            var fileName = "/main.bicep";
+            var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [fileName] = text }, filePath => "Modules are not supported in the Bicep Playground");
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, fileName);
+
+            return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
         }
 
         private static string ReadStreamToEnd(Stream stream)

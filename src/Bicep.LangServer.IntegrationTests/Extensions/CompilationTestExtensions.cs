@@ -13,9 +13,9 @@ namespace Bicep.LangServer.IntegrationTests.Extensions
     {
         public static IDictionary<SyntaxBase, Symbol> ReconstructSymbolTable(this Compilation compilation)
         {
-            var model = compilation.GetSemanticModel();
+            var model = compilation.GetEntrypointSemanticModel();
 
-            var syntaxNodes = SyntaxAggregator.Aggregate(compilation.ProgramSyntax, new List<SyntaxBase>(), (accumulated, node) =>
+            var syntaxNodes = SyntaxAggregator.Aggregate(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, new List<SyntaxBase>(), (accumulated, node) =>
             {
                 accumulated.Add(node);
                 return accumulated;

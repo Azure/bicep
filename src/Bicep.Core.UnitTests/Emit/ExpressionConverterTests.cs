@@ -58,7 +58,7 @@ namespace Bicep.Core.UnitTests.Emit
 
             var parsed = ParserHelper.ParseExpression(text);
 
-            var converter = new ExpressionConverter(new EmitterContext(compilation.GetSemanticModel()));
+            var converter = new ExpressionConverter(new EmitterContext(compilation.GetEntrypointSemanticModel()));
             var converted = converter.ConvertExpression(parsed);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings

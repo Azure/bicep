@@ -1,0 +1,340 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "functions": [],
+  "variables": {},
+  "resources": [
+    {
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "harry",
+      "properties": {
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
+        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
+        "[resourceId('Microsoft.Resources/deployments', 'modB')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "modATest",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamB": {
+            "value": "hello!"
+          },
+          "objParam": {
+            "value": {
+              "a": "b"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "a": "b"
+              },
+              "abc"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          ],
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "modB",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "West US"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [
+            {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "mockResource",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "myResourceId": {
+              "type": "string",
+              "value": "[resourceId('Mock.Rp/mockResource', 'mockResource')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {},
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithNoParams2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "abc"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "variables": {},
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "stringOutputA": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
+    },
+    "stringOutputB": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
+    },
+    "objOutput": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
+    },
+    "arrayOutput": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+    }
+  }
+}

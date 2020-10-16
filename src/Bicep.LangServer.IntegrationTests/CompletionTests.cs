@@ -112,14 +112,14 @@ namespace Bicep.LangServer.IntegrationTests
             var expected = expectedInfo.Value.content;
             var expectedLocation = expectedInfo.Value.scope switch
             {
-                ExpectedCompletionsScope.DataSet => Path.Combine("src", "Bicep.Core.Samples", dataSet.Name, DataSet.TestCompletionsDirectory, GetFullSetName(setName)),
+                ExpectedCompletionsScope.DataSet => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestCompletionsDirectory, GetFullSetName(setName)),
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
             actual.Should().EqualWithJsonDiffOutput(expected, expectedLocation, actualLocation, "because ");
         }
 
-        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
+        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
         public static string GetDisplayName(MethodInfo info, object[] row)
         {

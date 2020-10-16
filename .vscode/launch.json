@@ -33,7 +33,7 @@
             "name": "Bicep CLI",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build-cli",
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/netcoreapp3.1/Bicep.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Bicep.Cli",

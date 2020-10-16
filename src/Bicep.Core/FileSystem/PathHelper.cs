@@ -3,7 +3,7 @@
 using System;
 using System.IO;
 
-namespace Bicep.Cli.Utils
+namespace Bicep.Core.FileSystem
 {
     public static class PathHelper
     {
@@ -27,6 +27,17 @@ namespace Bicep.Cli.Utils
             }
 
             return Path.Combine(Environment.CurrentDirectory, path);
+        }
+
+        /// <summary>
+        /// Returns a normalized absolute path. Relative paths are converted to absolute paths relative to current directory prior to normalization.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        public static string ResolveAndNormalizePath(string path)
+        {
+            var resolvedPath = ResolvePath(path);
+
+            return Path.GetFullPath(resolvedPath);
         }
 
         public static string GetDefaultOutputPath(string path)

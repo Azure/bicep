@@ -10,13 +10,14 @@ namespace Bicep.Core.SemanticModel
     {
         private readonly ITypeManager typeManager;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-
+        private readonly Compilation compilation;
         private bool unlocked;
 
-        public SymbolContext(ITypeManager typeManager, IReadOnlyDictionary<SyntaxBase,Symbol> bindings)
+        public SymbolContext(ITypeManager typeManager, IReadOnlyDictionary<SyntaxBase,Symbol> bindings, Compilation compilation)
         {
             this.typeManager = typeManager;
             this.bindings = bindings;
+            this.compilation = compilation;
         }
 
         public ITypeManager TypeManager
@@ -34,6 +35,15 @@ namespace Bicep.Core.SemanticModel
             {
                 this.CheckLock();
                 return this.bindings;
+            }
+        }
+
+        public Compilation Compilation
+        {
+            get
+            {
+                this.CheckLock();
+                return this.compilation;
             }
         }
 

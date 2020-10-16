@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,6 +29,39 @@ namespace Bicep.Core.UnitTests.Utils
 
             return filePath;
         }
+
+        public static string SaveEmbeddedResourcesWithPathPrefix(TestContext testContext, Assembly containingAssembly, string outputDirName, string manifestFilePrefix)
+        {
+            string outputDirectory = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, outputDirName);
+
+            var filesSaved = false;
+            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix)))
+            {
+                var relativePath = embeddedResourceName.Substring(manifestFilePrefix.Length).TrimStart('/');
+                var manifestStream = containingAssembly.GetManifestResourceStream(embeddedResourceName);
+                if (manifestStream == null)
+                {
+                    throw new ArgumentException($"Failed to load stream for manifest resource {embeddedResourceName}");
+                }
+
+                var filePath = Path.Combine(outputDirectory, relativePath);
+                var directoryPath = Path.GetDirectoryName(filePath);
+                Directory.CreateDirectory(directoryPath);
+
+                var fileStream = File.Create(filePath);
+                manifestStream.Seek(0, SeekOrigin.Begin);
+                manifestStream.CopyTo(fileStream);
+                fileStream.Close();
+
+                filesSaved = true;
+            }
+
+            if (!filesSaved)
+            {
+                throw new InvalidOperationException($"Failed to find any manifest files to save in assembly {containingAssembly}");
+            }
+
+            return outputDirectory;
+        }
     }
 }
-
