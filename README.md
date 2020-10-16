@@ -1,4 +1,4 @@
-![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg) [![codecov](https://codecov.io/gh/Azure/bicep/branch/master/graph/badge.svg)](https://codecov.io/gh/Azure/bicep)
+![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg) [![codecov](https://codecov.io/gh/Azure/bicep/branch/main/graph/badge.svg)](https://codecov.io/gh/Azure/bicep)
 
 # Project Bicep - an ARM DSL
 
