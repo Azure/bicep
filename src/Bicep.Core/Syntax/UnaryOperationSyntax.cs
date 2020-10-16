@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class UnaryOperationSyntax : SyntaxBase, IExpressionSyntax
+    public class UnaryOperationSyntax : SyntaxBase
     {
         public UnaryOperationSyntax(Token operatorToken, SyntaxBase expression)
         {
@@ -27,7 +27,5 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitUnaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(OperatorToken, Expression);
-        
-        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

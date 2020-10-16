@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class PropertyAccessSyntax : SyntaxBase, IExpressionSyntax
+    public class PropertyAccessSyntax : SyntaxBase
     {
         public PropertyAccessSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax propertyName)
         {
@@ -24,7 +24,5 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, PropertyName);
-
-        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

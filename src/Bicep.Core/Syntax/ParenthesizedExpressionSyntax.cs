@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParenthesizedExpressionSyntax : SyntaxBase, IExpressionSyntax
+    public class ParenthesizedExpressionSyntax : SyntaxBase
     {
         public ParenthesizedExpressionSyntax(Token openParen, SyntaxBase expression, Token closeParen)
         {
@@ -26,8 +26,6 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitParenthesizedExpressionSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.OpenParen, this.CloseParen);
-
-        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
 

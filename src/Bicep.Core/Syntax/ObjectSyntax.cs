@@ -6,7 +6,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectSyntax : SyntaxBase, IExpressionSyntax
+    public class ObjectSyntax : SyntaxBase
     {
         public ObjectSyntax(Token openBrace, IEnumerable<SyntaxBase> children, Token closeBrace)
         {
@@ -37,7 +37,5 @@ namespace Bicep.Core.Syntax
         /// Gets the object properties. May return duplicate properties.
         /// </summary>
         public IEnumerable<ObjectPropertySyntax> Properties => this.Children.OfType<ObjectPropertySyntax>();
-
-        public ExpressionKind ExpressionKind => ExpressionKind.ObjectLiteral;
     }
 }

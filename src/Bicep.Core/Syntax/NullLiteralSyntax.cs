@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class NullLiteralSyntax : SyntaxBase, IExpressionSyntax
+    public class NullLiteralSyntax : SyntaxBase
     {
         public NullLiteralSyntax(Token nullKeyword)
         {
@@ -18,7 +18,5 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitNullLiteralSyntax(this);
 
         public override TextSpan Span => this.NullKeyword.Span;
-        
-        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }

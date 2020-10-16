@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class TernaryOperationSyntax : SyntaxBase, IExpressionSyntax
+    public class TernaryOperationSyntax : SyntaxBase
     {
         public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, Token colon, SyntaxBase falseExpression)
         {
@@ -31,8 +31,6 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitTernaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.ConditionExpression, this.FalseExpression);
-
-        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }
 
