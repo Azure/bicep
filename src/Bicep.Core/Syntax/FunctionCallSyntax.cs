@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionCallSyntax : SyntaxBase, IExpressionSyntax, ISymbolReference
+    public class FunctionCallSyntax : SyntaxBase, ISymbolReference
     {
         public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {
@@ -31,7 +31,5 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Name, CloseParen);
-
-        public ExpressionKind ExpressionKind => ExpressionKind.Operator;
     }
 }

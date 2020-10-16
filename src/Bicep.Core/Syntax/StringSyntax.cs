@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class StringSyntax : SyntaxBase, IExpressionSyntax
+    public class StringSyntax : SyntaxBase
     {
         public StringSyntax(IEnumerable<Token> stringTokens, IEnumerable<SyntaxBase> expressions, IEnumerable<string> segmentValues)
         {
@@ -27,7 +27,5 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span
             => TextSpan.Between(StringTokens.First(), StringTokens.Last());
-
-        public ExpressionKind ExpressionKind => this.IsInterpolated() ? ExpressionKind.Operator : ExpressionKind.SimpleLiteral;
     }
 }

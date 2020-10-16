@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class BooleanLiteralSyntax : SyntaxBase, IExpressionSyntax
+    public class BooleanLiteralSyntax : SyntaxBase
     {
         public BooleanLiteralSyntax(Token literal, bool value)
         {
@@ -21,7 +21,5 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span
             => TextSpan.Between(Literal, Literal);
-
-        public ExpressionKind ExpressionKind => ExpressionKind.SimpleLiteral;
     }
 }
