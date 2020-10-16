@@ -1079,6 +1079,11 @@ namespace Bicep.Core.TypeSystem
                     // the declared type will be the same as the parent
                     return ResolveDiscriminatedObjects(resourceType.Body.Type, syntax);
 
+                case ModuleDeclarationSyntax _ when parentType is ObjectType objectType:
+                    // the object literal's parent is a module declaration, which makes this the body of the module
+                    // the declared type will be the same as the parent
+                    return ResolveDiscriminatedObjects(objectType, syntax);
+
                 case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
                     // the object is a modifier of a parameter type
                     // the declared type should be the appropriate modifier type

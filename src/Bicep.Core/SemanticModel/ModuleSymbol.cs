@@ -30,12 +30,9 @@ namespace Bicep.Core.SemanticModel
                 return false;
             }
 
-            if (!Context.Compilation.SyntaxTreeGrouping.ModuleLookup.TryGetValue(this.DeclaringModule, out var syntaxTree))
-            {
-                failureDiagnostic = DiagnosticBuilder.ForPosition(this.DeclaringModule.Path).GenericModuleLoadFailure();
-                semanticModel = null;
-                return false;
-            }
+            // SyntaxTreeGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
+            // So it is safe to assume that this lookup will succeed without throwing an exception.
+            var syntaxTree = Context.Compilation.SyntaxTreeGrouping.ModuleLookup[this.DeclaringModule];
 
             failureDiagnostic = null;
             semanticModel = Context.Compilation.GetSemanticModel(syntaxTree);

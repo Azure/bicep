@@ -69,7 +69,13 @@ namespace Bicep.LanguageServer.Handlers
                     return $"```bicep\nresource {resource.Name}\n{resource.Type}\n```";
 
                 case ModuleSymbol module:
-                    return $"```bicep\nmodule {module.Name}\n{module.Type}\n```";
+                    var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
+                    if (filePath != null)
+                    {
+                        return $"```bicep\nmodule {module.Name}\n{filePath}\n```";
+                    }
+
+                    return $"```bicep\nmodule {module.Name}\n```";
 
                 case OutputSymbol output:
                     return $"```bicep\noutput {output.Name}: {output.Type}\n```";

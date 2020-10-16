@@ -1,10 +1,38 @@
-module moduleWithMissingPath './nonExistent.bicep' = {
+module nonExistentFileRef './nonExistent.bicep' = {
 //@[0:6) Identifier |module|
-//@[7:28) Identifier |moduleWithMissingPath|
-//@[29:50) StringComplete |'./nonExistent.bicep'|
-//@[51:52) Assignment |=|
-//@[53:54) LeftBrace |{|
-//@[54:56) NewLine |\n\n|
+//@[7:25) Identifier |nonExistentFileRef|
+//@[26:47) StringComplete |'./nonExistent.bicep'|
+//@[48:49) Assignment |=|
+//@[50:51) LeftBrace |{|
+//@[51:53) NewLine |\n\n|
+
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// we should only look this file up once, but should still return the same failure
+//@[82:83) NewLine |\n|
+module nonExistentFileRefDuplicate './nonExistent.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:34) Identifier |nonExistentFileRefDuplicate|
+//@[35:56) StringComplete |'./nonExistent.bicep'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:62) NewLine |\n\n|
+
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// we should only look this file up once, but should still return the same failure
+//@[82:83) NewLine |\n|
+module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:39) Identifier |nonExistentFileRefEquivalentPath|
+//@[40:73) StringComplete |'abc/def/../../nonExistent.bicep'|
+//@[74:75) Assignment |=|
+//@[76:77) LeftBrace |{|
+//@[77:79) NewLine |\n\n|
 
 }
 //@[0:1) RightBrace |}|

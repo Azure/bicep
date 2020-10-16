@@ -1,5 +1,17 @@
-module moduleWithMissingPath './nonExistent.bicep' = {
-//@[7:28) Module moduleWithMissingPath. Type: error. Declaration start char: 0, length: 57
+module nonExistentFileRef './nonExistent.bicep' = {
+//@[7:25) Module nonExistentFileRef. Type: error. Declaration start char: 0, length: 54
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefDuplicate './nonExistent.bicep' = {
+//@[7:34) Module nonExistentFileRefDuplicate. Type: error. Declaration start char: 0, length: 63
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
+//@[7:39) Module nonExistentFileRefEquivalentPath. Type: error. Declaration start char: 0, length: 80
 
 }
 

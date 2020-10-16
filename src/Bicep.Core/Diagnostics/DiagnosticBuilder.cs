@@ -530,14 +530,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic GenericModuleLoadFailure() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP098",
-                "Failed to load module.");
-
             public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP099",
+                "BCP098",
                 "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
         }
 

@@ -1,4 +1,14 @@
-﻿module moduleWithMissingPath './nonExistent.bicep' = {
+﻿module nonExistentFileRef './nonExistent.bicep' = {
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefDuplicate './nonExistent.bicep' = {
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
 
 }
 

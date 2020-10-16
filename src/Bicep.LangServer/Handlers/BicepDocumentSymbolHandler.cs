@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
                     return SymbolKind.Object;
 
                 case ModuleSymbol module:
-                    return SymbolKind.Object;
+                    return SymbolKind.Module;
 
                 case OutputSymbol output:
                     return SymbolKind.Interface;

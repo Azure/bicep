@@ -1,5 +1,17 @@
-module moduleWithMissingPath './nonExistent.bicep' = {
-//@[29:50) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+module nonExistentFileRef './nonExistent.bicep' = {
+//@[26:47) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefDuplicate './nonExistent.bicep' = {
+//@[35:56) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+
+}
+
+// we should only look this file up once, but should still return the same failure
+module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
+//@[40:73) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
 
 }
 
@@ -63,7 +75,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
 module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP099 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|
+//@[27:46) [BCP098 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|
   
 }
 

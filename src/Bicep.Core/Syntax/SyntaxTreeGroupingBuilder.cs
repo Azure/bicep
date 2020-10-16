@@ -17,14 +17,16 @@ namespace Bicep.Core.Syntax
         private readonly IFileResolver fileResolver;
         private readonly IDictionary<ModuleDeclarationSyntax, SyntaxTree> moduleLookup;
         private readonly IDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup;
-        private readonly IDictionary<string, SyntaxTree?> syntaxTrees;
+        private readonly IDictionary<string, SyntaxTree> syntaxTrees;
+        private readonly IDictionary<string, DiagnosticBuilder.ErrorBuilderDelegate> syntaxTreeLoadFailures;
 
         private SyntaxTreeGroupingBuilder(IFileResolver fileResolver)
         {
             this.fileResolver = fileResolver;
             this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, SyntaxTree>();
             this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
-            this.syntaxTrees = new Dictionary<string, SyntaxTree?>(fileResolver.PathComparer);
+            this.syntaxTrees = new Dictionary<string, SyntaxTree>(fileResolver.PathComparer);
+            this.syntaxTreeLoadFailures = new Dictionary<string, DiagnosticBuilder.ErrorBuilderDelegate>(fileResolver.PathComparer);
         }
 
         public static SyntaxTreeGrouping Build(IFileResolver fileResolver, string entryFileName)
@@ -76,6 +78,11 @@ namespace Bicep.Core.Syntax
                 return syntaxTree;
             }
 
+            if (syntaxTreeLoadFailures.TryGetValue(normalizedFileName, out failureBuilder))
+            {
+                return null;
+            }
+
             var fileContents = fileResolver.TryRead(normalizedFileName, out var failureMessage);
             if (fileContents == null)
             {
@@ -83,8 +90,8 @@ namespace Bicep.Core.Syntax
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
                 var concreteFailureMessage = failureMessage ?? throw new InvalidOperationException($"Expected {nameof(fileResolver.TryRead)} to provide failure diagnostics");
 
-                syntaxTrees[normalizedFileName] = null;
                 failureBuilder = x => x.ErrorOccurredLoadingModule(concreteFailureMessage);
+                syntaxTreeLoadFailures[normalizedFileName] = failureBuilder;
                 return null;
             }
 
