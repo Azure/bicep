@@ -33,7 +33,7 @@
         "color": "E7F1FA",
         "theme": "light"
     },
-    "homepage": "https://github.com/Azure/bicep/blob/master/README.md",
+    "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
     "activationEvents": [
         "onLanguage:bicep"
     ],

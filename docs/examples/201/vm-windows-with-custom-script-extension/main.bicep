@@ -55,7 +55,7 @@ param virtualMachineSku string {
   default: '20h1-pro-g2'
 }
 // The URI of the PowerShell Custom Script.
-param virtualMachineExtensionCustomScriptUri string = 'https://raw.githubusercontent.com/Azure/bicep/master/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1'
+param virtualMachineExtensionCustomScriptUri string = 'https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1'
 
 var metadata = {
   longName: '{0}-${name}-${coalesce(suffix, '') == '' ? '': concat('-', suffix)}'

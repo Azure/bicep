@@ -66,7 +66,7 @@
     },
     "virtualMachineExtensionCustomScriptUri": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/Azure/bicep/master/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1"
+      "defaultValue": "https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1"
     }
   },
   "functions": [],
