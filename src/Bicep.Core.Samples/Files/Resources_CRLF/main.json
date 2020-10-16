@@ -227,6 +227,14 @@
         "[format('abc{0}def', variables('myInterpKey'))]": 2,
         "[format('{0}abc{1}', variables('myInterpKey'), variables('myInterpKey'))]": 3
       }
+    },
+    {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "test",
+      "properties": {
+        "[[resourceGroup().location]": "[[resourceGroup().location]"
+      }
     }
   ],
   "outputs": {

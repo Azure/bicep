@@ -237,3 +237,12 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
     '${myInterpKey}abc${myInterpKey}': 3
   }
 }
+
+resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
+//@[9:29) Resource resourceWithEscaping. Type: My.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 234
+  name: 'test'
+  properties: {
+    // both key and value should be escaped in template output
+    '[resourceGroup().location]': '[resourceGroup().location]'
+  }
+}

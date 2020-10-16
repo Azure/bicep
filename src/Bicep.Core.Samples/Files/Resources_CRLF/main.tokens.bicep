@@ -970,4 +970,35 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:29) Identifier |resourceWithEscaping|
+//@[30:61) StringComplete |'My.Rp/mockResource@2020-01-01'|
+//@[62:63) Assignment |=|
+//@[64:65) LeftBrace |{|
+//@[65:67) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    // both key and value should be escaped in template output
+//@[62:64) NewLine |\r\n|
+    '[resourceGroup().location]': '[resourceGroup().location]'
+//@[4:32) StringComplete |'[resourceGroup().location]'|
+//@[32:33) Colon |:|
+//@[34:62) StringComplete |'[resourceGroup().location]'|
+//@[62:64) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

@@ -160,39 +160,50 @@ namespace Bicep.Core.Emit
                         continue;
                     }
 
-                    EmitPropertyExpression(keyName, propertySyntax.Value);
+                    EmitProperty(keyName, propertySyntax.Value);
                 }
                 else
                 {
-                    EmitPropertyExpressionWithExpressionKey(propertySyntax.Key, propertySyntax.Value);
+                    EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
             }
         }
 
-        public void EmitPropertyValue(string name, string value)
+        public void EmitProperty(string name, Action valueFunc)
+            => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
+
+        public void EmitProperty(string name, string value)
+            => EmitPropertyInternal(new JTokenExpression(name), value);
+
+        public void EmitProperty(string name, SyntaxBase expressionValue)
+            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
+
+        public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
+            => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
+
+        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
         {
-            writer.WritePropertyName(name);
-            writer.WriteValue(value);
+            var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
+            writer.WritePropertyName(serializedName);
+
+            valueFunc();
         }
 
-        public void EmitPropertyExpression(string name, SyntaxBase expression)
-        {
-            writer.WritePropertyName(name);
-            EmitExpression(expression);
-        }
+        private void EmitPropertyInternal(LanguageExpression expressionKey, string value)
+            => EmitPropertyInternal(expressionKey, () =>
+            {
+                var propertyValue = ExpressionSerializer.SerializeExpression(new JTokenExpression(value));
+                writer.WriteValue(propertyValue);
+            });
 
-        public void EmitPropertyExpressionWithExpressionKey(SyntaxBase expressionKey, SyntaxBase expressionValue)
-        {
-            var keyExpression = converter.ConvertExpression(expressionKey);
-            var keyText = ExpressionSerializer.SerializeExpression(keyExpression);
-            EmitPropertyExpression(keyText, expressionValue);
-        }
+        private void EmitPropertyInternal(LanguageExpression expressionKey, SyntaxBase syntaxValue)
+            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue));
 
         public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {
             if (expression != null)
             {
-                EmitPropertyExpression(name, expression);
+                EmitProperty(name, expression);
             }
         }
     }
