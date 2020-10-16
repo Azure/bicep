@@ -49,9 +49,9 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             // TODO: Select by scope type
-            this.emitter.EmitPropertyValue("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
+            this.emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
 
-            this.emitter.EmitPropertyValue("contentVersion", "1.0.0.0");
+            this.emitter.EmitProperty("contentVersion", "1.0.0.0");
 
             writer.WritePropertyName("parameters");
             this.EmitParameters();
@@ -101,13 +101,13 @@ namespace Bicep.Core.Emit
             switch (parameterSymbol.Modifier)
             {
                 case null:
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, secure: false));
+                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
 
                     break;
 
                 case ParameterDefaultValueSyntax defaultValueSyntax:
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, secure: false));
-                    this.emitter.EmitPropertyExpression("defaultValue", defaultValueSyntax.DefaultValue);
+                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
+                    this.emitter.EmitProperty("defaultValue", defaultValueSyntax.DefaultValue);
 
                     break;
 
@@ -115,7 +115,7 @@ namespace Bicep.Core.Emit
                     // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
                     var properties = modifierSyntax.ToKnownPropertyValueDictionary();
 
-                    this.emitter.EmitPropertyValue("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
+                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
 
                     // relying on validation here as well (not all of the properties are valid in all contexts)
                     foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
@@ -177,8 +177,8 @@ namespace Bicep.Core.Emit
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
 
-            this.emitter.EmitPropertyValue("type", typeReference.FullyQualifiedType);
-            this.emitter.EmitPropertyValue("apiVersion", typeReference.ApiVersion);
+            this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
+            this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
             this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
@@ -214,7 +214,7 @@ namespace Bicep.Core.Emit
                 writer.WritePropertyName(keyName);
                 {
                     writer.WriteStartObject();
-                    this.emitter.EmitPropertyExpression("value", propertySyntax.Value);
+                    this.emitter.EmitProperty("value", propertySyntax.Value);
                     writer.WriteEndObject();
                 }                        
             }
@@ -226,8 +226,8 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            this.emitter.EmitPropertyValue("type", NestedDeploymentResourceType);
-            this.emitter.EmitPropertyValue("apiVersion", NestedDeploymentResourceApiVersion);
+            this.emitter.EmitProperty("type", NestedDeploymentResourceType);
+            this.emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
@@ -241,11 +241,11 @@ namespace Bicep.Core.Emit
                 writer.WritePropertyName("expressionEvaluationOptions");
                 {
                     writer.WriteStartObject();
-                    this.emitter.EmitPropertyValue("scope", "inner");
+                    this.emitter.EmitProperty("scope", "inner");
                     writer.WriteEndObject();
                 }
 
-                this.emitter.EmitPropertyValue("mode", "Incremental");
+                this.emitter.EmitProperty("mode", "Incremental");
 
                 EmitModuleParameters(moduleSymbol);
 
@@ -315,8 +315,8 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            this.emitter.EmitPropertyValue("type", outputSymbol.Type.Name);
-            this.emitter.EmitPropertyExpression("value", outputSymbol.Value);
+            this.emitter.EmitProperty("type", outputSymbol.Type.Name);
+            this.emitter.EmitProperty("value", outputSymbol.Value);
 
             writer.WriteEndObject();
         }
