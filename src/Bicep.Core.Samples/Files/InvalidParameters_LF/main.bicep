@@ -131,6 +131,14 @@ param expressionInModifier string {
   ]
 }
 
+param emptyAllowedString string {
+  allowed: []
+}
+
+param emptyAllowedInt int {
+  allowed: []
+}
+
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
 

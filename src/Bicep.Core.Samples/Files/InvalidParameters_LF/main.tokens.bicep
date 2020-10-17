@@ -545,6 +545,38 @@ param expressionInModifier string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+param emptyAllowedString string {
+//@[0:5) Identifier |param|
+//@[6:24) Identifier |emptyAllowedString|
+//@[25:31) Identifier |string|
+//@[32:33) LeftBrace |{|
+//@[33:34) NewLine |\n|
+  allowed: []
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) RightSquare |]|
+//@[13:14) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param emptyAllowedInt int {
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |emptyAllowedInt|
+//@[22:25) Identifier |int|
+//@[26:27) LeftBrace |{|
+//@[27:28) NewLine |\n|
+  allowed: []
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) RightSquare |]|
+//@[13:14) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // 1-cycle in params
 //@[20:21) NewLine |\n|
 param paramDefaultOneCycle string = paramDefaultOneCycle

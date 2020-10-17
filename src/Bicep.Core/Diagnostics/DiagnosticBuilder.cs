@@ -534,6 +534,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP098",
                 "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
+
+            public ErrorDiagnostic AllowedMustContainItems() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP099",
+                $"The \"{LanguageConstants.ParameterAllowedPropertyName}\" array must contain one or more items.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
