@@ -1,0 +1,121 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "kubernetesVersion": {
+      "type": "string",
+      "defaultValue": "1.19.0"
+    },
+    "dnsPrefix": {
+      "type": "string",
+      "defaultValue": "cl01"
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "aks101"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "agentCount": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 50,
+      "defaultValue": 1
+    },
+    "agentVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2_v3"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "subnetRef": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnetName'))]",
+    "addressPrefix": "20.0.0.0/16",
+    "subnetName": "Subnet01",
+    "subnetPrefix": "20.0.0.0/24",
+    "virtualNetworkName": "MyVNET01",
+    "nodeResourceGroup": "[format('rg-{0}-{1}', parameters('dnsPrefix'), parameters('clusterName'))]",
+    "tags": {
+      "environment": "production",
+      "projectCode": "xyz"
+    },
+    "agentPoolName": "agentpool01"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2020-09-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "kubernetesVersion": "[parameters('kubernetesVersion')]",
+        "enableRBAC": true,
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "agentPoolProfiles": [
+          {
+            "name": "[variables('agentPoolName')]",
+            "count": "[parameters('agentCount')]",
+            "mode": "System",
+            "vmSize": "[parameters('agentVMSize')]",
+            "type": "VirtualMachineScaleSets",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "enableAutoScaling": false,
+            "vnetSubnetID": "[variables('subnetRef')]"
+          }
+        ],
+        "servicePrincipalProfile": {
+          "clientId": "msi"
+        },
+        "nodeResourceGroup": "[variables('nodeResourceGroup')]",
+        "network_profile": [
+          {
+            "network_plugin": "azure",
+            "load_balancer_sku": "standard"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+    },
+    "apiServerAddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
+    }
+  }
+}
