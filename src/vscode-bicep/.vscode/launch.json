@@ -1,41 +1,53 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
-    "version": "0.1.0",
-    "configurations": [
-        {
-            "name": "Launch Extension",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--enable-proposed-api",
-                "--extensionDevelopmentPath=${workspaceRoot}"
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
-            "preLaunchTask": "npm",
-            "env": {
-              "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
-            }
-        },
-        {
-            "name": "Launch Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--disable-extensions",
-                "--extensionDevelopmentPath=${workspaceRoot}",
-                "--extensionTestsPath=${workspaceRoot}/out/test"
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/out/test/**/*.js"],
-            "preLaunchTask": "npm",
-            "env": {
-              "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
-            }
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceRoot}"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+      }
+    },
+    {
+      "name": "Launch Tests: E2E",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
+      ],
+      "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
+      "preLaunchTask": "${defaultBuildTask}",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+      }
+    },
+    {
+      "name": "Launch Tests: Unit",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
+      ],
+      "outFiles": ["${workspaceRoot}/out/test/unit/**/*.js"],
+      "preLaunchTask": "npm: watch",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+      }
+    }
+  ]
 }

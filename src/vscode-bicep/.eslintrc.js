@@ -9,6 +9,7 @@ module.exports = {
   },
   plugins: ["header"],
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
+  ignorePatterns: ["/out/**/*"],
   rules: {
     "header/header": [
       2,
@@ -29,7 +30,7 @@ module.exports = {
     },
     {
       files: ["*.js"],
-      env: { commonjs: true },
+      env: { node: true },
     },
   ],
 };
