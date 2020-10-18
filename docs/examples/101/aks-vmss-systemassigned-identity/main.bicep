@@ -65,7 +65,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
         vmSize: agentVMSize
         type: 'VirtualMachineScaleSets'
         osType: 'Linux'
-        storageProfile: 'ManagedDisks'
         enableAutoScaling: false
         vnetSubnetID: subnetRef
       }
@@ -74,12 +73,10 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
         clientId: 'msi'
       }
     nodeResourceGroup: nodeResourceGroup
-    networkProfile: [
-      {
+    networkProfile: {
         networkPlugin: 'azure'
         loadBalancerSku: 'standard'
       }
-    ]
   }
 }
 

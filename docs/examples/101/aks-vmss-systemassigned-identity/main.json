@@ -87,7 +87,6 @@
             "vmSize": "[parameters('agentVMSize')]",
             "type": "VirtualMachineScaleSets",
             "osType": "Linux",
-            "storageProfile": "ManagedDisks",
             "enableAutoScaling": false,
             "vnetSubnetID": "[variables('subnetRef')]"
           }
