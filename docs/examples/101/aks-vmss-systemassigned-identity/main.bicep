@@ -74,10 +74,10 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
         clientId: 'msi'
       }
     nodeResourceGroup: nodeResourceGroup
-    network_profile: [
+    networkProfile: [
       {
-        network_plugin: 'azure'
-        load_balancer_sku: 'standard'
+        networkPlugin: 'azure'
+        loadBalancerSku: 'standard'
       }
     ]
   }
