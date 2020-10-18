@@ -95,12 +95,10 @@
           "clientId": "msi"
         },
         "nodeResourceGroup": "[variables('nodeResourceGroup')]",
-        "networkProfile": [
-          {
-            "networkPlugin": "azure",
-            "loadBalancerSku": "standard"
-          }
-        ]
+        "networkProfile": {
+          "networkPlugin": "azure",
+          "loadBalancerSku": "standard"
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
