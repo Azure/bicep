@@ -2,35 +2,47 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "kubernetesVersion": {
-      "type": "string",
-      "defaultValue": "1.19.0"
-    },
     "dnsPrefix": {
       "type": "string",
+      "metadata": {
+        "description": "The DNS prefix to use with hosted Kubernetes API server FQDN."
+      },
       "defaultValue": "cl01"
     },
     "clusterName": {
       "type": "string",
+      "metadata": {
+        "description": "The name of the Managed Cluster resource."
+      },
       "defaultValue": "aks101"
     },
     "location": {
       "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      },
       "defaultValue": "[resourceGroup().location]"
     },
     "agentCount": {
       "type": "int",
       "minValue": 1,
       "maxValue": 50,
+      "metadata": {
+        "description": "The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production"
+      },
       "defaultValue": 1
     },
     "agentVMSize": {
       "type": "string",
+      "metadata": {
+        "description": "The size of the Virtual Machine."
+      },
       "defaultValue": "Standard_D2_v3"
     }
   },
   "functions": [],
   "variables": {
+    "kubernetesVersion": "1.19.0",
     "subnetRef": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnetName'))]",
     "addressPrefix": "20.0.0.0/16",
     "subnetName": "Subnet01",
@@ -76,7 +88,7 @@
         "type": "SystemAssigned"
       },
       "properties": {
-        "kubernetesVersion": "[parameters('kubernetesVersion')]",
+        "kubernetesVersion": "[variables('kubernetesVersion')]",
         "enableRBAC": true,
         "dnsPrefix": "[parameters('dnsPrefix')]",
         "agentPoolProfiles": [
