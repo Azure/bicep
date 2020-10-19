@@ -26,7 +26,18 @@ module.exports = {
       extends: [
         "plugin:@typescript-eslint/recommended",
         "prettier/@typescript-eslint",
+        "plugin:jest/all",
       ],
+      rules: {
+        "jest/no-hooks": "off",
+        "jest/prefer-expect-assertions": "off",
+        "jest/expect-expect": [
+          "error",
+          {
+            assertFunctionNames: ["expect*"],
+          },
+        ],
+      },
     },
     {
       files: ["*.js"],

@@ -11,10 +11,10 @@ import {
   sleep,
 } from "../utils";
 
-describe("Hover tests", (): void => {
+describe("hover", (): void => {
   let document: vscode.TextDocument;
 
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     const content = readExampleFile("101", "vm-simple-linux");
     document = await vscode.workspace.openTextDocument({
       language: "bicep",
@@ -23,14 +23,13 @@ describe("Hover tests", (): void => {
 
     await vscode.window.showTextDocument(document);
     await sleep(6000); // Wait for the language server to be ready.
-    done();
   }, 8000);
 
   afterAll(async () => {
     await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
   });
 
-  test("hovering over a parameter name should reveal the type signature of the parameter", async () => {
+  it("should should reveal type signature when hovering over a parameter name", async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       document.uri,
@@ -46,7 +45,7 @@ describe("Hover tests", (): void => {
     });
   });
 
-  test("hovering over a variable name should reveal the type signature of the variable", async () => {
+  it("should reveal type signature when hovering over a variable name", async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       document.uri,
@@ -62,7 +61,7 @@ describe("Hover tests", (): void => {
     });
   });
 
-  test("hovering over a resource symbolic name should reveal the type signature of the resource", async () => {
+  it("should reveal type signature when hovering over a resource symbolic name", async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       document.uri,
@@ -78,7 +77,7 @@ describe("Hover tests", (): void => {
     });
   });
 
-  test("hovering over an output name should reveal the type signature of the output", async () => {
+  it("should reveal type signature when hovering over an output name", async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       document.uri,
@@ -94,7 +93,7 @@ describe("Hover tests", (): void => {
     });
   });
 
-  test("hovering over a function name should reveal the type signature of the function", async () => {
+  it("should reveal type signature when hovering over a function name", async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       "vscode.executeHoverProvider",
       document.uri,
