@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 import * as vscode from "vscode";
 
-export function normalizeMarkedString(marked: vscode.MarkedString): string {
-  return typeof marked === "string" ? marked : marked.value;
+export function normalizeMarkedString(
+  markedString: vscode.MarkedString
+): string {
+  return typeof markedString === "string" ? markedString : markedString.value;
 }
 
-export function marked(value: string): string {
-  return "```bicep\n" + value + "\n```";
+export function marked(rawString: string): string {
+  return "```bicep\n" + rawString + "\n```";
 }

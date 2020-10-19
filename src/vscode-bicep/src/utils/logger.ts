@@ -97,3 +97,7 @@ export function getLogger(): Logger {
 
   return logger;
 }
+
+if (process.env.NODE_ENV === "test") {
+  exports.resetLogger = () => (logger = undefined);
+}

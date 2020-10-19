@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 module.exports = {
-  modulePaths: ["<rootDir>"],
+  roots: ["<rootDir>/out/test/unit"],
   testMatch: ["<rootDir>/out/test/unit/**/*.test.js"],
   verbose: true,
+  setupFilesAfterEnv: ["<rootDir>/out/test/unit/setup.js"],
 };
