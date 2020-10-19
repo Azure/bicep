@@ -2,11 +2,11 @@
 We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Example Files](#example-files), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
 
 ## Getting Started
-* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) 3.1 (or later) and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
+* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) core sdk 3.1 (or later) and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
 * You are free to work on Bicep on any platform using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
 * Fork this repo (see [this forking guide](https://guides.github.com/activities/forking/) for more information).
 * Checkout the repo locally with `git clone git@github.com:{your_username}/bicep.git`.
-* Build the .NET solution with `dotnet build`.
+* Build the .NET solution with `dotnet build`. If this fails try running `git submodule upddate --init --recursive` first.
 
 ## Developing
 ### Components
@@ -24,9 +24,9 @@ The Bicep solution is comprised of the following main components:
 
 ### Running the Bicep VSCode extension
 * On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:
-    * `cd src/bicep-vscode`
+    * `cd src/vscode-bicep`
     * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes.
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, set `BICEP_LANGUAGE_SERVER_PATH` environment variable found in `launch.json` manually following [WSL environment setup scripts](https://code.visualstudio.com/docs/remote/wsl#_advanced-environment-setup-script).
 * If you want the ability to put breakpoints and step through the C# code, you can also use the "Attach" run configuration once the extension host has launched, and select the Bicep LanguageServer process by searching for "bicep".
 
 ### Running the Bicep CLI
