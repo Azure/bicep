@@ -77,6 +77,8 @@
         "watch": "tsc -watch -p ./",
         "lint": "eslint src --ext ts",
         "lint:fix": "eslint src --ext ts --fix",
+        "test:e2e": "node ./out/test/runTests.js e2e",
+        "test:unit": "node ./out/test/runTests.js unit",
         "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },
     "devDependencies": {

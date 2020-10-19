@@ -145,6 +145,12 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
+          
+      - name: Run unit tests
+        run: xvfb-run -a npm run test:unit
+        
+      - name: Run E2E tests
+        run: xvfb-run -a npm run test:e2e
 
       - name: Create VSIX
         run: npm run package

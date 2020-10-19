@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import * as path from "path";
 
+// eslint-disable-next-line jest/no-jest-import
 import { runCLI } from "jest";
 import { WriteStream } from "tty";
 
