@@ -375,7 +375,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP069",
                 $"The function \"{function}\" is not supported. Use the \"{@operator}\" operator instead.");
-            
+
             public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP070",
@@ -573,7 +573,8 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic DoubleQuoteToken() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP103",
-                $"Strings are defined using single quotes in bicep.");
+                "Strings are defined using single quotes in bicep.");
+        }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
             => new DiagnosticBuilderInternal(span);
