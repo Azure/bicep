@@ -21,8 +21,5 @@ namespace Bicep.Core.SemanticModel
 
         public static BannedFunction CreateForOperator(string name, string @operator) => 
             new BannedFunction(name, builder => builder.FunctionNotSupportedOperatorAvailable(name, @operator));
-
-        public static BannedFunction CreateForKeyword(string name, string keyword) =>
-            new BannedFunction(name, builder => builder.FunctionNotSupportedKeywordAvailable(name, keyword));
     }
 }

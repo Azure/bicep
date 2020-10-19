@@ -560,19 +560,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP100",
                 "The \"if\" function is not supported. Use the ternary conditional operator instead.");
 
-            public ErrorDiagnostic FunctionNotSupportedKeywordAvailable(string function, string keyword) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP101",
-                $"The \"{function}\" is not supported. Use the \"{keyword}\" keyword instead.");
-
             public ErrorDiagnostic CreateArrayFunctionNotSupported() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP102",
+                "BCP101",
                 "The \"createArray\" function is not supported. Construct an array literal using [].");
 
             public ErrorDiagnostic CreateObjectFunctionNotSupported() => new ErrorDiagnostic(
                 TextSpan,
-                "BCP103",
+                "BCP102",
                 "The \"createObject\" function is not supported. Construct an object literal using {}.");
         }
 

@@ -2017,6 +2017,45 @@ var bannedFunctions = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// keywords can't be called like functions
+//@[42:43) NewLine |\n|
+var nullness = null()
+//@[0:19) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:12)  IdentifierSyntax
+//@[4:12)   Identifier |nullness|
+//@[13:14)  Assignment |=|
+//@[15:19)  NullLiteralSyntax
+//@[15:19)   NullKeyword |null|
+//@[19:22) SkippedTriviaSyntax
+//@[19:20)  LeftParen |(|
+//@[20:21)  RightParen |)|
+//@[21:22)  NewLine |\n|
+var truth = true()
+//@[0:16) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:9)  IdentifierSyntax
+//@[4:9)   Identifier |truth|
+//@[10:11)  Assignment |=|
+//@[12:16)  BooleanLiteralSyntax
+//@[12:16)   TrueKeyword |true|
+//@[16:19) SkippedTriviaSyntax
+//@[16:17)  LeftParen |(|
+//@[17:18)  RightParen |)|
+//@[18:19)  NewLine |\n|
+var falsehood = false()
+//@[0:21) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |falsehood|
+//@[14:15)  Assignment |=|
+//@[16:21)  BooleanLiteralSyntax
+//@[16:21)   FalseKeyword |false|
+//@[21:25) SkippedTriviaSyntax
+//@[21:22)  LeftParen |(|
+//@[22:23)  RightParen |)|
+//@[23:25)  NewLine |\n\n|
+
 var partialObject = {
 //@[0:126) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

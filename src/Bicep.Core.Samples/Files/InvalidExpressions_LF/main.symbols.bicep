@@ -285,6 +285,14 @@ var bannedFunctions = {
   bool: sys.not() || sys.and() || sys.or()
 }
 
+// keywords can't be called like functions
+var nullness = null()
+//@[4:12) Variable nullness. Type: null. Declaration start char: 0, length: 19
+var truth = true()
+//@[4:9) Variable truth. Type: bool. Declaration start char: 0, length: 16
+var falsehood = false()
+//@[4:13) Variable falsehood. Type: bool. Declaration start char: 0, length: 21
+
 var partialObject = {
 //@[4:17) Variable partialObject. Type: error. Declaration start char: 0, length: 126
   2: true

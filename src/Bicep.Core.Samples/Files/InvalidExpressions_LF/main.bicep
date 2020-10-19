@@ -191,6 +191,11 @@ var bannedFunctions = {
   bool: sys.not() || sys.and() || sys.or()
 }
 
+// keywords can't be called like functions
+var nullness = null()
+var truth = true()
+var falsehood = false()
+
 var partialObject = {
   2: true
   +

@@ -321,9 +321,9 @@ var bannedFunctions = {
   if: sys.if(null,null)
 //@[10:12) [BCP100 (Error)] The "if" function is not supported. Use the ternary conditional operator instead. |if|
   obj: sys.createArray()
-//@[11:22) [BCP102 (Error)] The "createArray" function is not supported. Construct an array literal using []. |createArray|
+//@[11:22) [BCP101 (Error)] The "createArray" function is not supported. Construct an array literal using []. |createArray|
   arr: sys.createObject()
-//@[11:23) [BCP103 (Error)] The "createObject" function is not supported. Construct an object literal using {}. |createObject|
+//@[11:23) [BCP102 (Error)] The "createObject" function is not supported. Construct an object literal using {}. |createObject|
   numeric: sys.add(1) + sys.sub(2,3) + sys.mul(8,'s') + sys.div(true) + sys.mod(null, false)
 //@[15:18) [BCP069 (Error)] The function "add" is not supported. Use the "+" operator instead. |add|
 //@[28:31) [BCP069 (Error)] The function "sub" is not supported. Use the "-" operator instead. |sub|
@@ -342,6 +342,14 @@ var bannedFunctions = {
 //@[25:28) [BCP069 (Error)] The function "and" is not supported. Use the "&&" operator instead. |and|
 //@[38:40) [BCP069 (Error)] The function "or" is not supported. Use the "||" operator instead. |or|
 }
+
+// keywords can't be called like functions
+var nullness = null()
+//@[19:20) [BCP019 (Error)] Expected a new line character at this location. |(|
+var truth = true()
+//@[16:17) [BCP019 (Error)] Expected a new line character at this location. |(|
+var falsehood = false()
+//@[21:22) [BCP019 (Error)] Expected a new line character at this location. |(|
 
 var partialObject = {
   2: true
