@@ -116,7 +116,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("base64", LanguageConstants.String, LanguageConstants.String);
 
             //vararg function
-            yield return CreateRow("or", LanguageConstants.Bool, LanguageConstants.Bool, LanguageConstants.Bool, LanguageConstants.Bool);
+            yield return CreateRow("union", LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object);
 
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Any);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.String);
@@ -151,7 +151,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             yield return CreateRow("concat", Tuple.Create(1, (int?)null));
             yield return CreateRow("resourceGroup", Tuple.Create(0, (int?)0), LanguageConstants.Int);
-            yield return CreateRow("add", Tuple.Create(2, (int?)2), LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
+            yield return CreateRow("toUpper", Tuple.Create(1, (int?)1), LanguageConstants.String, LanguageConstants.String, LanguageConstants.String);
             yield return CreateRow("padLeft", Tuple.Create(2, (int?)3));
         }
 
@@ -163,15 +163,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 string displayName = $"{functionName}({argumentTypes.Select(a => a.ToString()).ConcatString(", ")})";
                 return new object[] { displayName, functionName, parameterTypeAtIndexOverloads, argumentTypes };
             }
-
-            yield return CreateRow(
-                "add",
-                new List<Tuple<int, TypeSymbol>>
-                {
-                    Tuple.Create(1, LanguageConstants.Int)
-                },
-                LanguageConstants.Int,
-                LanguageConstants.Bool);
 
             yield return CreateRow(
                 "union",

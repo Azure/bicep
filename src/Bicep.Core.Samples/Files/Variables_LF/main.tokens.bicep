@@ -930,6 +930,160 @@ var myVar4 = length(any(concat('s','a')))
 //@[40:41) RightParen |)|
 //@[41:43) NewLine |\n\n|
 
+// verify that unqualified banned function identifiers can be used as declaration identifiers
+//@[93:94) NewLine |\n|
+var variables = true
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |variables|
+//@[14:15) Assignment |=|
+//@[16:20) TrueKeyword |true|
+//@[20:21) NewLine |\n|
+param parameters bool = true
+//@[0:5) Identifier |param|
+//@[6:16) Identifier |parameters|
+//@[17:21) Identifier |bool|
+//@[22:23) Assignment |=|
+//@[24:28) TrueKeyword |true|
+//@[28:29) NewLine |\n|
+var if = true
+//@[0:3) Identifier |var|
+//@[4:6) Identifier |if|
+//@[7:8) Assignment |=|
+//@[9:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+var createArray = true
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |createArray|
+//@[16:17) Assignment |=|
+//@[18:22) TrueKeyword |true|
+//@[22:23) NewLine |\n|
+var createObject = true
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |createObject|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[23:24) NewLine |\n|
+var add = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |add|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+var sub = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |sub|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+var mul = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |mul|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+var div = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |div|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+param mod bool = true
+//@[0:5) Identifier |param|
+//@[6:9) Identifier |mod|
+//@[10:14) Identifier |bool|
+//@[15:16) Assignment |=|
+//@[17:21) TrueKeyword |true|
+//@[21:22) NewLine |\n|
+var less = true
+//@[0:3) Identifier |var|
+//@[4:8) Identifier |less|
+//@[9:10) Assignment |=|
+//@[11:15) TrueKeyword |true|
+//@[15:16) NewLine |\n|
+var lessOrEquals = true
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |lessOrEquals|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[23:24) NewLine |\n|
+var greater = true
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |greater|
+//@[12:13) Assignment |=|
+//@[14:18) TrueKeyword |true|
+//@[18:19) NewLine |\n|
+var greaterOrEquals = true
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |greaterOrEquals|
+//@[20:21) Assignment |=|
+//@[22:26) TrueKeyword |true|
+//@[26:27) NewLine |\n|
+param equals bool = true
+//@[0:5) Identifier |param|
+//@[6:12) Identifier |equals|
+//@[13:17) Identifier |bool|
+//@[18:19) Assignment |=|
+//@[20:24) TrueKeyword |true|
+//@[24:25) NewLine |\n|
+var not = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |not|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+var and = true
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |and|
+//@[8:9) Assignment |=|
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+var or = true
+//@[0:3) Identifier |var|
+//@[4:6) Identifier |or|
+//@[7:8) Assignment |=|
+//@[9:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+var I_WANT_IT_ALL = variables && parameters && if && createArray && createObject && add && sub && mul && div && mod && less && lessOrEquals && greater && greaterOrEquals && equals && not && and && or
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |I_WANT_IT_ALL|
+//@[18:19) Assignment |=|
+//@[20:29) Identifier |variables|
+//@[30:32) LogicalAnd |&&|
+//@[33:43) Identifier |parameters|
+//@[44:46) LogicalAnd |&&|
+//@[47:49) Identifier |if|
+//@[50:52) LogicalAnd |&&|
+//@[53:64) Identifier |createArray|
+//@[65:67) LogicalAnd |&&|
+//@[68:80) Identifier |createObject|
+//@[81:83) LogicalAnd |&&|
+//@[84:87) Identifier |add|
+//@[88:90) LogicalAnd |&&|
+//@[91:94) Identifier |sub|
+//@[95:97) LogicalAnd |&&|
+//@[98:101) Identifier |mul|
+//@[102:104) LogicalAnd |&&|
+//@[105:108) Identifier |div|
+//@[109:111) LogicalAnd |&&|
+//@[112:115) Identifier |mod|
+//@[116:118) LogicalAnd |&&|
+//@[119:123) Identifier |less|
+//@[124:126) LogicalAnd |&&|
+//@[127:139) Identifier |lessOrEquals|
+//@[140:142) LogicalAnd |&&|
+//@[143:150) Identifier |greater|
+//@[151:153) LogicalAnd |&&|
+//@[154:169) Identifier |greaterOrEquals|
+//@[170:172) LogicalAnd |&&|
+//@[173:179) Identifier |equals|
+//@[180:182) LogicalAnd |&&|
+//@[183:186) Identifier |not|
+//@[187:189) LogicalAnd |&&|
+//@[190:193) Identifier |and|
+//@[194:196) LogicalAnd |&&|
+//@[197:199) Identifier |or|
+//@[199:201) NewLine |\n\n|
+
 // identifiers can have underscores
 //@[35:36) NewLine |\n|
 var _ = 3
@@ -1007,13 +1161,13 @@ var propertyAccessFromObject = resourceGroupObject.name
 //@[50:51) Dot |.|
 //@[51:55) Identifier |name|
 //@[55:56) NewLine |\n|
-var isTrue = sys.add(1, 2) == 3
+var isTrue = sys.max(1, 2) == 3
 //@[0:3) Identifier |var|
 //@[4:10) Identifier |isTrue|
 //@[11:12) Assignment |=|
 //@[13:16) Identifier |sys|
 //@[16:17) Dot |.|
-//@[17:20) Identifier |add|
+//@[17:20) Identifier |max|
 //@[20:21) LeftParen |(|
 //@[21:22) Number |1|
 //@[22:23) Comma |,|

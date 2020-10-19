@@ -272,6 +272,27 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
 //@[4:19) Variable invalidOperands. Type: error. Declaration start char: 0, length: 28
 
+var bannedFunctions = {
+//@[4:19) Variable bannedFunctions. Type: error. Declaration start char: 0, length: 393
+  var: variables()
+  param: parameters() + 2
+  if: sys.if(null,null)
+  obj: sys.createArray()
+  arr: sys.createObject()
+  numeric: sys.add(1) + sys.sub(2,3) + sys.mul(8,'s') + sys.div(true) + sys.mod(null, false)
+  relational: sys.less() && sys.lessOrEquals() && sys.greater() && sys.greaterOrEquals()
+  equals: sys.equals()
+  bool: sys.not() || sys.and() || sys.or()
+}
+
+// keywords can't be called like functions
+var nullness = null()
+//@[4:12) Variable nullness. Type: null. Declaration start char: 0, length: 19
+var truth = true()
+//@[4:9) Variable truth. Type: bool. Declaration start char: 0, length: 16
+var falsehood = false()
+//@[4:13) Variable falsehood. Type: bool. Declaration start char: 0, length: 21
+
 var partialObject = {
 //@[4:17) Variable partialObject. Type: error. Declaration start char: 0, length: 126
   2: true

@@ -10,7 +10,7 @@ var q = base64(q, !q)
 //2-cycle
 var a = b
 //@[8:9) [BCP080 (Error)] The expression is involved in a cycle ("b" -> "a"). |b|
-var b = add(a,1)
+var b = max(a,1)
 //@[12:13) [BCP080 (Error)] The expression is involved in a cycle ("a" -> "b"). |a|
 
 //3-cycle

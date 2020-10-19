@@ -21,6 +21,7 @@ namespace Bicep.Core.TypeSystem
             new BinaryOperatorInfo(BinaryOperator.NotEqualsInsensitive, LanguageConstants.String, LanguageConstants.Bool),
 
             // relational (int)
+            // TODO: Needs number type
             new BinaryOperatorInfo(BinaryOperator.LessThan, LanguageConstants.Int, LanguageConstants.Bool),
             new BinaryOperatorInfo(BinaryOperator.LessThanOrEqual, LanguageConstants.Int, LanguageConstants.Bool),
             new BinaryOperatorInfo(BinaryOperator.GreaterThan, LanguageConstants.Int, LanguageConstants.Bool),

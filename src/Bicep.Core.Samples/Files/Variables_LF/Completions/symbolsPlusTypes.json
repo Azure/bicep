@@ -37,7 +37,7 @@
   },
   {
     "label": "add",
-    "kind": "function",
+    "kind": "variable",
     "detail": "add",
     "deprecated": false,
     "preselect": false,
@@ -46,7 +46,7 @@
   },
   {
     "label": "and",
-    "kind": "function",
+    "kind": "variable",
     "detail": "and",
     "deprecated": false,
     "preselect": false,
@@ -172,11 +172,20 @@
   },
   {
     "label": "createArray",
-    "kind": "function",
+    "kind": "variable",
     "detail": "createArray",
     "deprecated": false,
     "preselect": false,
     "insertText": "createArray",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "createObject",
+    "kind": "variable",
+    "detail": "createObject",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "createObject",
     "insertTextFormat": "plainText"
   },
   {
@@ -235,7 +244,7 @@
   },
   {
     "label": "div",
-    "kind": "function",
+    "kind": "variable",
     "detail": "div",
     "deprecated": false,
     "preselect": false,
@@ -298,7 +307,7 @@
   },
   {
     "label": "equals",
-    "kind": "function",
+    "kind": "field",
     "detail": "equals",
     "deprecated": false,
     "preselect": false,
@@ -370,7 +379,7 @@
   },
   {
     "label": "greater",
-    "kind": "function",
+    "kind": "variable",
     "detail": "greater",
     "deprecated": false,
     "preselect": false,
@@ -379,7 +388,7 @@
   },
   {
     "label": "greaterOrEquals",
-    "kind": "function",
+    "kind": "variable",
     "detail": "greaterOrEquals",
     "deprecated": false,
     "preselect": false,
@@ -396,8 +405,17 @@
     "insertTextFormat": "plainText"
   },
   {
+    "label": "I_WANT_IT_ALL",
+    "kind": "variable",
+    "detail": "I_WANT_IT_ALL",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "I_WANT_IT_ALL",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "if",
-    "kind": "function",
+    "kind": "variable",
     "detail": "if",
     "deprecated": false,
     "preselect": false,
@@ -541,7 +559,7 @@
   },
   {
     "label": "less",
-    "kind": "function",
+    "kind": "variable",
     "detail": "less",
     "deprecated": false,
     "preselect": false,
@@ -550,7 +568,7 @@
   },
   {
     "label": "lessOrEquals",
-    "kind": "function",
+    "kind": "variable",
     "detail": "lessOrEquals",
     "deprecated": false,
     "preselect": false,
@@ -586,7 +604,7 @@
   },
   {
     "label": "mod",
-    "kind": "function",
+    "kind": "field",
     "detail": "mod",
     "deprecated": false,
     "preselect": false,
@@ -595,7 +613,7 @@
   },
   {
     "label": "mul",
-    "kind": "function",
+    "kind": "variable",
     "detail": "mul",
     "deprecated": false,
     "preselect": false,
@@ -766,7 +784,7 @@
   },
   {
     "label": "not",
-    "kind": "function",
+    "kind": "variable",
     "detail": "not",
     "deprecated": false,
     "preselect": false,
@@ -784,7 +802,7 @@
   },
   {
     "label": "or",
-    "kind": "function",
+    "kind": "variable",
     "detail": "or",
     "deprecated": false,
     "preselect": false,
@@ -798,6 +816,15 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "padLeft",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "parameters",
+    "kind": "field",
+    "detail": "parameters",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "parameters",
     "insertTextFormat": "plainText"
   },
   {
@@ -973,7 +1000,7 @@
   },
   {
     "label": "sub",
-    "kind": "function",
+    "kind": "variable",
     "detail": "sub",
     "deprecated": false,
     "preselect": false,
@@ -1122,6 +1149,15 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "utcNow",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "variables",
+    "kind": "variable",
+    "detail": "variables",
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "variables",
     "insertTextFormat": "plainText"
   }
 ]
