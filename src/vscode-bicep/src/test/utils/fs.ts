@@ -7,13 +7,14 @@ const examplesRoot = path.resolve(__dirname, "../../../../../docs/examples");
 
 export function readExampleFile(
   exampleCategory: string,
-  exampleName: string
+  exampleFolder: string,
+  exampleFile = "main.bicep"
 ): string {
   const exampleFilePath = path.join(
     examplesRoot,
     exampleCategory,
-    exampleName,
-    "main.bicep"
+    exampleFolder,
+    exampleFile
   );
 
   return readFileSync(exampleFilePath, { encoding: "utf-8", flag: "r" });
