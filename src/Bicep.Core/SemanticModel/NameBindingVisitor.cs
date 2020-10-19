@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -148,6 +147,9 @@ namespace Bicep.Core.SemanticModel
                 return @namespace;
             }
 
+            static Symbol? TryGetSymbolFromNamespace(NamespaceSymbol @namespace, string name, TextSpan span) => 
+                @namespace.TryGetBannedFunction(name, span) ?? @namespace.TryGetFunctionSymbol(name);
+
             Symbol? foundSymbol;
             if (@namespace == null)
             {
@@ -172,7 +174,7 @@ namespace Bicep.Core.SemanticModel
 
                 // attempt to find function in all imported namespaces
                 var foundSymbols = this.namespaces
-                    .Select(kvp => kvp.Value.TryGetFunctionSymbol(name))
+                    .Select(kvp => TryGetSymbolFromNamespace(kvp.Value, name, span))
                     .Where(symbol => symbol != null)
                     .ToList();
 
@@ -201,7 +203,7 @@ namespace Bicep.Core.SemanticModel
             }
             else
             {
-                foundSymbol = @namespace.TryGetFunctionSymbol(name);
+                foundSymbol = TryGetSymbolFromNamespace(@namespace, name, span);
 
                 if (foundSymbol == null)
                 {

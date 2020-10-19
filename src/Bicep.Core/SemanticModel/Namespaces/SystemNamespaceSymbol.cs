@@ -8,7 +8,6 @@ namespace Bicep.Core.SemanticModel.Namespaces
 {
     public class SystemNamespaceSymbol : NamespaceSymbol
     {
-        // TODO: Banned functions: variables, parameters, copyIndex (add test to prevent anyone from adding them in the future)
         private static readonly ImmutableArray<FunctionOverload> SystemOverloads = new[]
         {
             FunctionOverload.CreateFixed("any", LanguageConstants.Any, LanguageConstants.Any),
@@ -29,11 +28,6 @@ namespace Bicep.Core.SemanticModel.Namespaces
             FunctionOverload.CreateFixed("toUpper", LanguageConstants.String, LanguageConstants.String),
             FunctionOverload.CreateFixed("length", LanguageConstants.Int, UnionType.Create(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array)),
             FunctionOverload.CreateFixed("split", LanguageConstants.Array, LanguageConstants.String, UnionType.Create(LanguageConstants.String, LanguageConstants.Array)),
-            FunctionOverload.CreateFixed("add", LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
-            FunctionOverload.CreateFixed("sub", LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
-            FunctionOverload.CreateFixed("mul", LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
-            FunctionOverload.CreateFixed("div", LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
-            FunctionOverload.CreateFixed("mod", LanguageConstants.Int, LanguageConstants.Int, LanguageConstants.Int),
             FunctionOverload.CreateFixed("string", LanguageConstants.String, LanguageConstants.Any),
             FunctionOverload.CreateFixed("int", LanguageConstants.Int, UnionType.Create(LanguageConstants.String, LanguageConstants.Int)),
             FunctionOverload.CreateWithVarArgs("uniqueString", LanguageConstants.String, 1, LanguageConstants.String),
@@ -78,7 +72,6 @@ namespace Bicep.Core.SemanticModel.Namespaces
             FunctionOverload.CreateFixed("dataUriToString", LanguageConstants.String, LanguageConstants.String),
             FunctionOverload.CreateFixed("dataUri", LanguageConstants.String, LanguageConstants.Any),
             FunctionOverload.CreateFixed("array", LanguageConstants.Array, LanguageConstants.Any),
-            FunctionOverload.CreateWithVarArgs("createArray", LanguageConstants.Array, 1, LanguageConstants.Any),
             FunctionOverload.CreateWithVarArgs("coalesce", LanguageConstants.Any, 1, LanguageConstants.Any),
 
             // TODO: Requires number type
@@ -86,31 +79,8 @@ namespace Bicep.Core.SemanticModel.Namespaces
 
             FunctionOverload.CreateFixed("bool", LanguageConstants.Bool, LanguageConstants.Any),
 
-            // TODO: Needs number type
-            FunctionOverload.CreateFixed("less", LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.String),
-            FunctionOverload.CreateFixed("less", LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Int),
-
-            // TODO: Needs number type
-            FunctionOverload.CreateFixed("lessOrEquals", LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.String),
-            FunctionOverload.CreateFixed("lessOrEquals", LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Int),
-
-            // TODO: Needs number type
-            FunctionOverload.CreateFixed("greater", LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.String),
-            FunctionOverload.CreateFixed("greater", LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Int),
-
-            // TODO: Needs number type
-            FunctionOverload.CreateFixed("greaterOrEquals", LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.String),
-            FunctionOverload.CreateFixed("greaterOrEquals", LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.Int),
-
-            FunctionOverload.CreateFixed("equals", LanguageConstants.Bool, LanguageConstants.Any, LanguageConstants.Any),
             FunctionOverload.CreateFixed("json", LanguageConstants.Any, LanguageConstants.String),
-            FunctionOverload.CreateFixed("not", LanguageConstants.Bool, LanguageConstants.Bool),
-            FunctionOverload.CreateWithVarArgs("and", LanguageConstants.Bool, 2, LanguageConstants.Bool),
-            FunctionOverload.CreateWithVarArgs("or", LanguageConstants.Bool, 2, LanguageConstants.Bool),
-
-            // TODO: Return type should be a type tranformation
-            FunctionOverload.CreateFixed("if", LanguageConstants.Any, LanguageConstants.Bool, LanguageConstants.Any, LanguageConstants.Any),
-
+            
             new FunctionOverload("dateTimeAdd", LanguageConstants.String, 2, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
 
             // newGuid and utcNow are only allowed in parameter default values
@@ -118,7 +88,36 @@ namespace Bicep.Core.SemanticModel.Namespaces
             new FunctionOverload("newGuid", LanguageConstants.String, 0, 0, Enumerable.Empty<TypeSymbol>(), null, FunctionFlags.ParamDefaultsOnly),
         }.ToImmutableArray();
 
-        public SystemNamespaceSymbol() : base("sys", SystemOverloads)
+        // TODO: Add copyIndex here when we support loops.
+        private static readonly ImmutableArray<BannedFunction> BannedFunctions = new[]
+        {
+            /*
+             * The true(), false(), and null() functions are not included in this list because
+             * we parse true, false and null as keywords in the lexer, so they can't be used as functions anyway.
+             */
+
+            new BannedFunction("variables", builder => builder.VariablesFunctionNotSupported()),
+            new BannedFunction("parameters", builder => builder.ParametersFunctionNotSupported()),
+            new BannedFunction("if", builder => builder.IfFunctionNotSupported()),
+            new BannedFunction("createArray", builder => builder.CreateArrayFunctionNotSupported()),
+            new BannedFunction("createObject", builder => builder.CreateObjectFunctionNotSupported()),
+
+            BannedFunction.CreateForOperator("add", "+"),
+            BannedFunction.CreateForOperator("sub", "-"),
+            BannedFunction.CreateForOperator("mul", "*"),
+            BannedFunction.CreateForOperator("div", "/"),
+            BannedFunction.CreateForOperator("mod", "%"),
+            BannedFunction.CreateForOperator("less", "<"),
+            BannedFunction.CreateForOperator("lessOrEquals", "<="),
+            BannedFunction.CreateForOperator("greater", ">"),
+            BannedFunction.CreateForOperator("greaterOrEquals", ">="),
+            BannedFunction.CreateForOperator("equals", "=="),
+            BannedFunction.CreateForOperator("not", "!"),
+            BannedFunction.CreateForOperator("and", "&&"),
+            BannedFunction.CreateForOperator("or", "||")
+        }.ToImmutableArray();
+
+        public SystemNamespaceSymbol() : base("sys", SystemOverloads, BannedFunctions)
         {
         }
     }

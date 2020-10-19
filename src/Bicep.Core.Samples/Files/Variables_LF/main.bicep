@@ -181,6 +181,27 @@ var myVar3 = any(any({
 }))
 var myVar4 = length(any(concat('s','a')))
 
+// verify that unqualified banned function identifiers can be used as declaration identifiers
+var variables = true
+param parameters bool = true
+var if = true
+var createArray = true
+var createObject = true
+var add = true
+var sub = true
+var mul = true
+var div = true
+param mod bool = true
+var less = true
+var lessOrEquals = true
+var greater = true
+var greaterOrEquals = true
+param equals bool = true
+var not = true
+var and = true
+var or = true
+var I_WANT_IT_ALL = variables && parameters && if && createArray && createObject && add && sub && mul && div && mod && less && lessOrEquals && greater && greaterOrEquals && equals && not && and && or
+
 // identifiers can have underscores
 var _ = 3
 var __ = 10 * _
@@ -192,6 +213,6 @@ var resourceGroup = 'something'
 var resourceGroupName = az.resourceGroup().name
 var resourceGroupObject = az.resourceGroup()
 var propertyAccessFromObject = resourceGroupObject.name
-var isTrue = sys.add(1, 2) == 3
+var isTrue = sys.max(1, 2) == 3
 var isFalse = !isTrue
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'

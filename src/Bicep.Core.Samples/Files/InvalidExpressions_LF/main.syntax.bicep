@@ -1740,6 +1740,322 @@ var invalidOperands = 1 + az
 //@[26:28)     Identifier |az|
 //@[28:30) NewLine |\n\n|
 
+var bannedFunctions = {
+//@[0:393) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |bannedFunctions|
+//@[20:21)  Assignment |=|
+//@[22:393)  ObjectSyntax
+//@[22:23)   LeftBrace |{|
+//@[23:24)   NewLine |\n|
+  var: variables()
+//@[2:18)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |var|
+//@[5:6)    Colon |:|
+//@[7:18)    FunctionCallSyntax
+//@[7:16)     IdentifierSyntax
+//@[7:16)      Identifier |variables|
+//@[16:17)     LeftParen |(|
+//@[17:18)     RightParen |)|
+//@[18:19)   NewLine |\n|
+  param: parameters() + 2
+//@[2:25)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |param|
+//@[7:8)    Colon |:|
+//@[9:25)    BinaryOperationSyntax
+//@[9:21)     FunctionCallSyntax
+//@[9:19)      IdentifierSyntax
+//@[9:19)       Identifier |parameters|
+//@[19:20)      LeftParen |(|
+//@[20:21)      RightParen |)|
+//@[22:23)     Plus |+|
+//@[24:25)     NumericLiteralSyntax
+//@[24:25)      Number |2|
+//@[25:26)   NewLine |\n|
+  if: sys.if(null,null)
+//@[2:23)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |if|
+//@[4:5)    Colon |:|
+//@[6:23)    InstanceFunctionCallSyntax
+//@[6:9)     VariableAccessSyntax
+//@[6:9)      IdentifierSyntax
+//@[6:9)       Identifier |sys|
+//@[9:10)     Dot |.|
+//@[10:12)     IdentifierSyntax
+//@[10:12)      Identifier |if|
+//@[12:13)     LeftParen |(|
+//@[13:18)     FunctionArgumentSyntax
+//@[13:17)      NullLiteralSyntax
+//@[13:17)       NullKeyword |null|
+//@[17:18)      Comma |,|
+//@[18:22)     FunctionArgumentSyntax
+//@[18:22)      NullLiteralSyntax
+//@[18:22)       NullKeyword |null|
+//@[22:23)     RightParen |)|
+//@[23:24)   NewLine |\n|
+  obj: sys.createArray()
+//@[2:24)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |obj|
+//@[5:6)    Colon |:|
+//@[7:24)    InstanceFunctionCallSyntax
+//@[7:10)     VariableAccessSyntax
+//@[7:10)      IdentifierSyntax
+//@[7:10)       Identifier |sys|
+//@[10:11)     Dot |.|
+//@[11:22)     IdentifierSyntax
+//@[11:22)      Identifier |createArray|
+//@[22:23)     LeftParen |(|
+//@[23:24)     RightParen |)|
+//@[24:25)   NewLine |\n|
+  arr: sys.createObject()
+//@[2:25)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |arr|
+//@[5:6)    Colon |:|
+//@[7:25)    InstanceFunctionCallSyntax
+//@[7:10)     VariableAccessSyntax
+//@[7:10)      IdentifierSyntax
+//@[7:10)       Identifier |sys|
+//@[10:11)     Dot |.|
+//@[11:23)     IdentifierSyntax
+//@[11:23)      Identifier |createObject|
+//@[23:24)     LeftParen |(|
+//@[24:25)     RightParen |)|
+//@[25:26)   NewLine |\n|
+  numeric: sys.add(1) + sys.sub(2,3) + sys.mul(8,'s') + sys.div(true) + sys.mod(null, false)
+//@[2:92)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |numeric|
+//@[9:10)    Colon |:|
+//@[11:92)    BinaryOperationSyntax
+//@[11:69)     BinaryOperationSyntax
+//@[11:53)      BinaryOperationSyntax
+//@[11:36)       BinaryOperationSyntax
+//@[11:21)        InstanceFunctionCallSyntax
+//@[11:14)         VariableAccessSyntax
+//@[11:14)          IdentifierSyntax
+//@[11:14)           Identifier |sys|
+//@[14:15)         Dot |.|
+//@[15:18)         IdentifierSyntax
+//@[15:18)          Identifier |add|
+//@[18:19)         LeftParen |(|
+//@[19:20)         FunctionArgumentSyntax
+//@[19:20)          NumericLiteralSyntax
+//@[19:20)           Number |1|
+//@[20:21)         RightParen |)|
+//@[22:23)        Plus |+|
+//@[24:36)        InstanceFunctionCallSyntax
+//@[24:27)         VariableAccessSyntax
+//@[24:27)          IdentifierSyntax
+//@[24:27)           Identifier |sys|
+//@[27:28)         Dot |.|
+//@[28:31)         IdentifierSyntax
+//@[28:31)          Identifier |sub|
+//@[31:32)         LeftParen |(|
+//@[32:34)         FunctionArgumentSyntax
+//@[32:33)          NumericLiteralSyntax
+//@[32:33)           Number |2|
+//@[33:34)          Comma |,|
+//@[34:35)         FunctionArgumentSyntax
+//@[34:35)          NumericLiteralSyntax
+//@[34:35)           Number |3|
+//@[35:36)         RightParen |)|
+//@[37:38)       Plus |+|
+//@[39:53)       InstanceFunctionCallSyntax
+//@[39:42)        VariableAccessSyntax
+//@[39:42)         IdentifierSyntax
+//@[39:42)          Identifier |sys|
+//@[42:43)        Dot |.|
+//@[43:46)        IdentifierSyntax
+//@[43:46)         Identifier |mul|
+//@[46:47)        LeftParen |(|
+//@[47:49)        FunctionArgumentSyntax
+//@[47:48)         NumericLiteralSyntax
+//@[47:48)          Number |8|
+//@[48:49)         Comma |,|
+//@[49:52)        FunctionArgumentSyntax
+//@[49:52)         StringSyntax
+//@[49:52)          StringComplete |'s'|
+//@[52:53)        RightParen |)|
+//@[54:55)      Plus |+|
+//@[56:69)      InstanceFunctionCallSyntax
+//@[56:59)       VariableAccessSyntax
+//@[56:59)        IdentifierSyntax
+//@[56:59)         Identifier |sys|
+//@[59:60)       Dot |.|
+//@[60:63)       IdentifierSyntax
+//@[60:63)        Identifier |div|
+//@[63:64)       LeftParen |(|
+//@[64:68)       FunctionArgumentSyntax
+//@[64:68)        BooleanLiteralSyntax
+//@[64:68)         TrueKeyword |true|
+//@[68:69)       RightParen |)|
+//@[70:71)     Plus |+|
+//@[72:92)     InstanceFunctionCallSyntax
+//@[72:75)      VariableAccessSyntax
+//@[72:75)       IdentifierSyntax
+//@[72:75)        Identifier |sys|
+//@[75:76)      Dot |.|
+//@[76:79)      IdentifierSyntax
+//@[76:79)       Identifier |mod|
+//@[79:80)      LeftParen |(|
+//@[80:85)      FunctionArgumentSyntax
+//@[80:84)       NullLiteralSyntax
+//@[80:84)        NullKeyword |null|
+//@[84:85)       Comma |,|
+//@[86:91)      FunctionArgumentSyntax
+//@[86:91)       BooleanLiteralSyntax
+//@[86:91)        FalseKeyword |false|
+//@[91:92)      RightParen |)|
+//@[92:93)   NewLine |\n|
+  relational: sys.less() && sys.lessOrEquals() && sys.greater() && sys.greaterOrEquals()
+//@[2:88)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |relational|
+//@[12:13)    Colon |:|
+//@[14:88)    BinaryOperationSyntax
+//@[14:63)     BinaryOperationSyntax
+//@[14:46)      BinaryOperationSyntax
+//@[14:24)       InstanceFunctionCallSyntax
+//@[14:17)        VariableAccessSyntax
+//@[14:17)         IdentifierSyntax
+//@[14:17)          Identifier |sys|
+//@[17:18)        Dot |.|
+//@[18:22)        IdentifierSyntax
+//@[18:22)         Identifier |less|
+//@[22:23)        LeftParen |(|
+//@[23:24)        RightParen |)|
+//@[25:27)       LogicalAnd |&&|
+//@[28:46)       InstanceFunctionCallSyntax
+//@[28:31)        VariableAccessSyntax
+//@[28:31)         IdentifierSyntax
+//@[28:31)          Identifier |sys|
+//@[31:32)        Dot |.|
+//@[32:44)        IdentifierSyntax
+//@[32:44)         Identifier |lessOrEquals|
+//@[44:45)        LeftParen |(|
+//@[45:46)        RightParen |)|
+//@[47:49)      LogicalAnd |&&|
+//@[50:63)      InstanceFunctionCallSyntax
+//@[50:53)       VariableAccessSyntax
+//@[50:53)        IdentifierSyntax
+//@[50:53)         Identifier |sys|
+//@[53:54)       Dot |.|
+//@[54:61)       IdentifierSyntax
+//@[54:61)        Identifier |greater|
+//@[61:62)       LeftParen |(|
+//@[62:63)       RightParen |)|
+//@[64:66)     LogicalAnd |&&|
+//@[67:88)     InstanceFunctionCallSyntax
+//@[67:70)      VariableAccessSyntax
+//@[67:70)       IdentifierSyntax
+//@[67:70)        Identifier |sys|
+//@[70:71)      Dot |.|
+//@[71:86)      IdentifierSyntax
+//@[71:86)       Identifier |greaterOrEquals|
+//@[86:87)      LeftParen |(|
+//@[87:88)      RightParen |)|
+//@[88:89)   NewLine |\n|
+  equals: sys.equals()
+//@[2:22)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |equals|
+//@[8:9)    Colon |:|
+//@[10:22)    InstanceFunctionCallSyntax
+//@[10:13)     VariableAccessSyntax
+//@[10:13)      IdentifierSyntax
+//@[10:13)       Identifier |sys|
+//@[13:14)     Dot |.|
+//@[14:20)     IdentifierSyntax
+//@[14:20)      Identifier |equals|
+//@[20:21)     LeftParen |(|
+//@[21:22)     RightParen |)|
+//@[22:23)   NewLine |\n|
+  bool: sys.not() || sys.and() || sys.or()
+//@[2:42)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |bool|
+//@[6:7)    Colon |:|
+//@[8:42)    BinaryOperationSyntax
+//@[8:30)     BinaryOperationSyntax
+//@[8:17)      InstanceFunctionCallSyntax
+//@[8:11)       VariableAccessSyntax
+//@[8:11)        IdentifierSyntax
+//@[8:11)         Identifier |sys|
+//@[11:12)       Dot |.|
+//@[12:15)       IdentifierSyntax
+//@[12:15)        Identifier |not|
+//@[15:16)       LeftParen |(|
+//@[16:17)       RightParen |)|
+//@[18:20)      LogicalOr ||||
+//@[21:30)      InstanceFunctionCallSyntax
+//@[21:24)       VariableAccessSyntax
+//@[21:24)        IdentifierSyntax
+//@[21:24)         Identifier |sys|
+//@[24:25)       Dot |.|
+//@[25:28)       IdentifierSyntax
+//@[25:28)        Identifier |and|
+//@[28:29)       LeftParen |(|
+//@[29:30)       RightParen |)|
+//@[31:33)     LogicalOr ||||
+//@[34:42)     InstanceFunctionCallSyntax
+//@[34:37)      VariableAccessSyntax
+//@[34:37)       IdentifierSyntax
+//@[34:37)        Identifier |sys|
+//@[37:38)      Dot |.|
+//@[38:40)      IdentifierSyntax
+//@[38:40)       Identifier |or|
+//@[40:41)      LeftParen |(|
+//@[41:42)      RightParen |)|
+//@[42:43)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// keywords can't be called like functions
+//@[42:43) NewLine |\n|
+var nullness = null()
+//@[0:19) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:12)  IdentifierSyntax
+//@[4:12)   Identifier |nullness|
+//@[13:14)  Assignment |=|
+//@[15:19)  NullLiteralSyntax
+//@[15:19)   NullKeyword |null|
+//@[19:22) SkippedTriviaSyntax
+//@[19:20)  LeftParen |(|
+//@[20:21)  RightParen |)|
+//@[21:22)  NewLine |\n|
+var truth = true()
+//@[0:16) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:9)  IdentifierSyntax
+//@[4:9)   Identifier |truth|
+//@[10:11)  Assignment |=|
+//@[12:16)  BooleanLiteralSyntax
+//@[12:16)   TrueKeyword |true|
+//@[16:19) SkippedTriviaSyntax
+//@[16:17)  LeftParen |(|
+//@[17:18)  RightParen |)|
+//@[18:19)  NewLine |\n|
+var falsehood = false()
+//@[0:21) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |falsehood|
+//@[14:15)  Assignment |=|
+//@[16:21)  BooleanLiteralSyntax
+//@[16:21)   FalseKeyword |false|
+//@[21:25) SkippedTriviaSyntax
+//@[21:22)  LeftParen |(|
+//@[22:23)  RightParen |)|
+//@[23:25)  NewLine |\n\n|
+
 var partialObject = {
 //@[0:126) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
