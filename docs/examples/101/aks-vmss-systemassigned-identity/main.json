@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dnsPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The DNS prefix to use with hosted Kubernetes API server FQDN."
+      },
+      "defaultValue": "cl01"
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Managed Cluster resource."
+      },
+      "defaultValue": "aks101"
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "agentCount": {
+      "type": "int",
+      "minValue": 1,
+      "maxValue": 50,
+      "metadata": {
+        "description": "The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production"
+      },
+      "defaultValue": 1
+    },
+    "agentVMSize": {
+      "type": "string",
+      "metadata": {
+        "description": "The size of the Virtual Machine."
+      },
+      "defaultValue": "Standard_D2_v3"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "kubernetesVersion": "1.19.0",
+    "subnetRef": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnetName'))]",
+    "addressPrefix": "20.0.0.0/16",
+    "subnetName": "Subnet01",
+    "subnetPrefix": "20.0.0.0/24",
+    "virtualNetworkName": "MyVNET01",
+    "nodeResourceGroup": "[format('rg-{0}-{1}', parameters('dnsPrefix'), parameters('clusterName'))]",
+    "tags": {
+      "environment": "production",
+      "projectCode": "xyz"
+    },
+    "agentPoolName": "agentpool01"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2020-09-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "kubernetesVersion": "[variables('kubernetesVersion')]",
+        "enableRBAC": true,
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "agentPoolProfiles": [
+          {
+            "name": "[variables('agentPoolName')]",
+            "count": "[parameters('agentCount')]",
+            "mode": "System",
+            "vmSize": "[parameters('agentVMSize')]",
+            "type": "VirtualMachineScaleSets",
+            "osType": "Linux",
+            "enableAutoScaling": false,
+            "vnetSubnetID": "[variables('subnetRef')]"
+          }
+        ],
+        "servicePrincipalProfile": {
+          "clientId": "msi"
+        },
+        "nodeResourceGroup": "[variables('nodeResourceGroup')]",
+        "networkProfile": {
+          "networkPlugin": "azure",
+          "loadBalancerSku": "standard"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))]"
+    },
+    "apiServerAddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
+    }
+  }
+}
