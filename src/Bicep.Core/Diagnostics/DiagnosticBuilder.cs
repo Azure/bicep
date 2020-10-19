@@ -542,7 +542,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic DoubleQuoteToken() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP100",
-                $"Double quotes are not allowed in bicep.");
+                $"Strings are defined using single quotes in bicep.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
