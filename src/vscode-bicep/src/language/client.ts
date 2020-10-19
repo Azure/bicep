@@ -99,8 +99,6 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
 }
 
 function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
-    
-  console.log(`BICEP_LANGUAGE_SERVER_PATH: ${​​​​​​​process.env.BICEP_LANGUAGE_SERVER_PATH}​​​​​​​`);
   const languageServerPath =
     process.env.BICEP_LANGUAGE_SERVER_PATH ?? // Local server for debugging.
     context.asAbsolutePath(packagedServerPath); // Packaged server.
