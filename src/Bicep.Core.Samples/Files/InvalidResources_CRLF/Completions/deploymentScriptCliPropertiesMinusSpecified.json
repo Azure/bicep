@@ -1,79 +1,95 @@
 [
   {
-    "label": "dependsOn",
+    "label": "arguments",
     "kind": "property",
-    "detail": "dependsOn",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `resource[]`  \nWrite-only property  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "dependsOn",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
-    "label": "identity",
-    "kind": "property",
-    "detail": "identity",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `ManagedServiceIdentity`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "identity",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
-    "label": "location",
-    "kind": "property",
-    "detail": "location (Required)",
+    "detail": "arguments",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "location",
+    "insertText": "arguments",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "name",
+    "label": "containerSettings",
     "kind": "property",
-    "detail": "name (Required)",
+    "detail": "containerSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ContainerConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "containerSettings",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "forceUpdateTag",
+    "kind": "property",
+    "detail": "forceUpdateTag",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "name",
+    "insertText": "forceUpdateTag",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "tags",
+    "label": "primaryScriptUri",
     "kind": "property",
-    "detail": "tags",
+    "detail": "primaryScriptUri",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Dictionary<string,String>`  \n"
+      "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "tags",
+    "insertText": "primaryScriptUri",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scriptContent",
+    "kind": "property",
+    "detail": "scriptContent",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "scriptContent",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "timeout",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "timeout",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"

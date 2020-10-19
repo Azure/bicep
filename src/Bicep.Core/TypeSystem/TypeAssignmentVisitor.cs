@@ -41,7 +41,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
-        private readonly IDictionary<SyntaxBase, TypeAssignment> declaredTypes;
+        private readonly IDictionary<SyntaxBase, DeclaredTypeAssignment> declaredTypes;
         private readonly SyntaxHierarchy hierarchy;
 
         public TypeAssignmentVisitor(
@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem
             this.bindings = bindings;
             this.cyclesBySymbol = cyclesBySymbol;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
-            this.declaredTypes = new Dictionary<SyntaxBase, TypeAssignment>();
+            this.declaredTypes = new Dictionary<SyntaxBase, DeclaredTypeAssignment>();
             this.hierarchy = hierarchy;
         }
 
@@ -75,7 +75,7 @@ namespace Bicep.Core.TypeSystem
             return typeAssignment;
         }
 
-        private TypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
+        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
         {
             // causes stack overflow Visit(syntax);
 
@@ -117,7 +117,15 @@ namespace Bicep.Core.TypeSystem
         {
             if (typeReference != null)
             {
-                this.declaredTypes[syntax] = new TypeAssignment(typeReference);
+                AssignDeclaredType(syntax, new DeclaredTypeAssignment(typeReference));
+            }
+        }
+
+        private void AssignDeclaredType(SyntaxBase syntax, DeclaredTypeAssignment? assignment)
+        {
+            if (assignment != null)
+            {
+                this.declaredTypes[syntax] = assignment;
             }
         }
 
@@ -348,7 +356,7 @@ namespace Bicep.Core.TypeSystem
             => AssignType(syntax, () => {
                 // assigning declared type depends on parent and nothing in the object itself
                 // so do it immediately
-                AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+                AssignDeclaredType(syntax, GetDeclaredTypeAssignmentInternal(syntax));
                 var errors = new List<ErrorDiagnostic>();
 
                 var propertyTypes = new List<TypeSymbol>();
@@ -382,7 +390,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             => AssignType(syntax, () =>
             {
-                 AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+                 AssignDeclaredType(syntax, GetDeclaredTypeAssignmentInternal(syntax));
 
                 var errors = new List<ErrorDiagnostic>();
                 var types = new List<TypeSymbol>();
@@ -422,12 +430,12 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArraySyntax(ArraySyntax syntax)
             => AssignType(syntax, () =>
             {
-                AssignDeclaredType(syntax, GetDeclaredTypeInternal(syntax));
+                AssignDeclaredType(syntax, GetDeclaredTypeAssignmentInternal(syntax));
                 
                 var errors = new List<ErrorDiagnostic>();
 
                 var itemTypes = new List<TypeSymbol>(syntax.Children.Length);
-                foreach (var arrayItem in syntax.Children)
+                foreach (var arrayItem in syntax.Items)
                 {
                     var itemType = typeManager.GetTypeInfo(arrayItem);
                     itemTypes.Add(itemType);
@@ -1027,20 +1035,20 @@ namespace Bicep.Core.TypeSystem
             return assignedType;
         }
 
-        private TypeSymbol? GetDeclaredTypeInternal(ArraySyntax syntax)
+        private DeclaredTypeAssignment? GetDeclaredTypeAssignmentInternal(ArraySyntax syntax)
         {
             var parent = this.hierarchy.GetParent(syntax);
-            switch (parent)
+
+            // we are only handling paths in the AST that are going to produce a declared type
+            // arrays can exist under a variable declaration, but variables don't have declared types,
+            // so we don't need to check that case
+            if (parent is ObjectPropertySyntax)
             {
-                // we are only handling paths in the AST that are going to produce a declared type
-                // arrays can exist under a variable declaration, but variables don't have declared types,
-                // so we don't need to check that case
-                case ObjectPropertySyntax _:
-                    // this array is a value of the property
-                    // the declared type should be the same as the array
-                    return GetDeclaredTypeAssignment(parent)?.Reference.Type;
+                // this array is a value of the property
+                // the declared type should be the same as the array and we should propagate the flags
+                return GetDeclaredTypeAssignment(parent);
             }
-            
+
             return null;
         }
 
@@ -1064,55 +1072,65 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private TypeSymbol? GetDeclaredTypeInternal(ObjectSyntax syntax)
+        private DeclaredTypeAssignment? GetDeclaredTypeAssignmentInternal(ObjectSyntax syntax)
         {
+            // local function
+            DeclaredTypeAssignment? CreateAssignment(ITypeReference? typeRef, DeclaredTypeFlags flags = DeclaredTypeFlags.None) => typeRef == null
+                ? null
+                : new DeclaredTypeAssignment(typeRef, flags);
+
             var parent = this.hierarchy.GetParent(syntax);
             if (parent == null)
             {
                 return null;
             }
 
-            var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
-            if (parentType == null)
+            var parentTypeAssignment = GetDeclaredTypeAssignment(parent);
+            if (parentTypeAssignment == null)
             {
                 return null;
             }
+
+            var parentType = parentTypeAssignment.Reference.Type;
 
             switch (parent)
             {
                 case ResourceDeclarationSyntax _ when parentType is ResourceType resourceType:
                     // the object literal's parent is a resource declaration, which makes this the body of the resource
                     // the declared type will be the same as the parent
-                    return ResolveDiscriminatedObjects(resourceType.Body.Type, syntax);
+                    return CreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, syntax));
 
                 case ModuleDeclarationSyntax _ when parentType is ObjectType objectType:
                     // the object literal's parent is a module declaration, which makes this the body of the module
                     // the declared type will be the same as the parent
-                    return ResolveDiscriminatedObjects(objectType, syntax);
+                    return CreateAssignment(ResolveDiscriminatedObjects(objectType, syntax));
 
                 case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
                     // the object is a modifier of a parameter type
                     // the declared type should be the appropriate modifier type
                     // however we need the parameter's assigned type to determine the modifier type
                     var parameterAssignedType = GetParameterAssignedType(parameterDeclaration, parentType.Type.Type);
-                    return LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType);
+                    return CreateAssignment(LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType));
 
                 case ObjectPropertySyntax _:
                     // the object is the value of a property of another object
-                    // use the declared type of the property
-                    return ResolveDiscriminatedObjects(parentType, syntax);
+                    // use the declared type of the property and propagate the flags
+                    return CreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), parentTypeAssignment.Flags);
 
                 case ArrayItemSyntax _:
                     // the object is an item in an array
-                    // use the item's type
-                    return ResolveDiscriminatedObjects(parentType, syntax);
+                    // use the item's type and propagate flags
+                    return CreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), parentTypeAssignment.Flags);
             }
 
             return null;
         }
 
-        private TypeSymbol? GetDeclaredTypeInternal(ObjectPropertySyntax syntax)
+        private DeclaredTypeAssignment? GetDeclaredTypeAssignmentInternal(ObjectPropertySyntax syntax)
         {
+            // local function
+            DeclaredTypeFlags ConvertFlags(TypePropertyFlags flags) => flags.HasFlag(TypePropertyFlags.Constant) ? DeclaredTypeFlags.Constant : DeclaredTypeFlags.None;
+
             var propertyName = syntax.TryGetKeyText();
             var parent = this.hierarchy.GetParent(syntax);
             if (propertyName == null || parent == null)
@@ -1130,13 +1148,13 @@ namespace Bicep.Core.TypeSystem
                     // lookup declared property
                     if (objectType.Properties.TryGetValue(propertyName, out var property))
                     {
-                        return property.TypeReference.Type;
+                        return new DeclaredTypeAssignment(property.TypeReference.Type, ConvertFlags(property.Flags));
                     }
 
                     // if there are additional properties, try those
                     if (objectType.AdditionalPropertiesType != null)
                     {
-                        return objectType.AdditionalPropertiesType.Type;
+                        return new DeclaredTypeAssignment(objectType.AdditionalPropertiesType.Type, ConvertFlags(objectType.AdditionalPropertiesFlags));
                     }
 
                     break;
@@ -1145,7 +1163,7 @@ namespace Bicep.Core.TypeSystem
                     if (string.Equals(propertyName, discriminated.DiscriminatorProperty.Name, LanguageConstants.IdentifierComparison))
                     {
                         // the property is the discriminator property - use its type
-                        return discriminated.DiscriminatorProperty.TypeReference.Type;
+                        return new DeclaredTypeAssignment(discriminated.DiscriminatorProperty.TypeReference.Type);
                     }
 
                     break;

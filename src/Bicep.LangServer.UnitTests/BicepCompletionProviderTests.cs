@@ -109,7 +109,6 @@ namespace Bicep.LangServer.UnitTests
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().Be("output");
-                    c.CommitCharacters.Should().OnlyContain(s => string.Equals(s, " "));
                     c.Detail.Should().Be("Output keyword");
                 },
                 c =>
@@ -118,7 +117,6 @@ namespace Bicep.LangServer.UnitTests
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().Be("param");
-                    c.CommitCharacters.Should().OnlyContain(s => string.Equals(s, " "));
                     c.Detail.Should().Be("Parameter keyword");
                 },
                 c =>
@@ -127,7 +125,6 @@ namespace Bicep.LangServer.UnitTests
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().Be("resource");
-                    c.CommitCharacters.Should().OnlyContain(s => string.Equals(s, " "));
                     c.Detail.Should().Be("Resource keyword");
                 },
                 c =>
@@ -136,7 +133,6 @@ namespace Bicep.LangServer.UnitTests
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().Be("var");
-                    c.CommitCharacters.Should().OnlyContain(s => string.Equals(s, " "));
                     c.Detail.Should().Be("Variable keyword");
                 });
         }

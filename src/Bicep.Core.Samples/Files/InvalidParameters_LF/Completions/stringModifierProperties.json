@@ -1,0 +1,98 @@
+[
+  {
+    "label": "allowed",
+    "kind": "property",
+    "detail": "allowed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string[]`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "allowed",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "default",
+    "kind": "property",
+    "detail": "default",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "default",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "maxLength",
+    "kind": "property",
+    "detail": "maxLength",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "maxLength",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "metadata",
+    "kind": "property",
+    "detail": "metadata",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ParameterModifierMetadata`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "metadata",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "minLength",
+    "kind": "property",
+    "detail": "minLength",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "minLength",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "secure",
+    "kind": "property",
+    "detail": "secure",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "secure",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

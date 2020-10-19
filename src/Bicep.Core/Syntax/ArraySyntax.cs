@@ -8,21 +8,17 @@ namespace Bicep.Core.Syntax
 {
     public class ArraySyntax : SyntaxBase
     {
-        public ArraySyntax(Token openBracket, IEnumerable<Token> newLines, IEnumerable<SyntaxBase> children, Token closeBracket)
+        public ArraySyntax(Token openBracket, IEnumerable<SyntaxBase> children, Token closeBracket)
         {
             AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
-            AssertTokenTypeList(newLines, nameof(newLines), TokenType.NewLine, 0);
             AssertTokenType(closeBracket, nameof(closeBracket), TokenType.RightSquare);
 
             this.OpenBracket = openBracket;
-            this.NewLines = newLines.ToImmutableArray();
             this.Children = children.ToImmutableArray();
             this.CloseBracket = closeBracket;
         }
 
         public Token OpenBracket { get; }
-
-        public ImmutableArray<Token> NewLines { get; }
 
         /// <summary>
         /// Gets the list of child nodes. Children may not necessarily be array item nodes.

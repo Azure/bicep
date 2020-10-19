@@ -1,24 +1,8 @@
 [
   {
-    "label": "id",
-    "kind": "property",
-    "detail": "id",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `string`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "insertText": "id",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
     "label": "name",
     "kind": "property",
-    "detail": "name",
+    "detail": "name (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
@@ -32,16 +16,32 @@
     ]
   },
   {
-    "label": "properties",
+    "label": "secureValue",
     "kind": "property",
-    "detail": "properties",
+    "detail": "secureValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ServiceDelegationPropertiesFormat`  \n"
+      "value": "Type: `string`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "properties",
+    "insertText": "secureValue",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "value",
+    "kind": "property",
+    "detail": "value",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "insertText": "value",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"

@@ -3,100 +3,104 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionProvider : ICompletionProvider
     {
-        private const string MarkdownNewLine = "  \n";
-
         public IEnumerable<CompletionItem> GetFilteredCompletions(SemanticModel model, BicepCompletionContext context)
         {
             return GetDeclarationCompletions(context)
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
-                .Concat(GetObjectPropertyCompletions(model, context));
+                .Concat(GetObjectPropertyNameCompletions(model, context))
+                .Concat(GetPropertyValueCompletions(model, context))
+                .Concat(GetArrayItemCompletions(model, context));
         }
 
-        private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext completionContext)
+        private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
         {
-            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
             {
-                yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword");
-                yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}");
-                yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}");
-                yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
+                yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
   default: $3
   allowed: [
     $4
   ]
 }");
-                yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with options", @"param ${1:Identifier} ${2:Type} {
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with options", @"param ${1:Identifier} ${2:Type} {
   $0
 }");
-                yield return CreateSnippetCompletion(LanguageConstants.ParameterKeyword, "Secure string parameter", @"param ${1:Identifier} string {
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Secure string parameter", @"param ${1:Identifier} string {
   secure: true
 }");
 
-                yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword");
-                yield return CreateSnippetCompletion(LanguageConstants.VariableKeyword, "Variable declaration", "var ${1:Identifier} = $0");
+                yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.VariableKeyword, "Variable declaration", "var ${1:Identifier} = $0");
 
-                yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword");
-                yield return CreateSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
+                yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
   name: $5
   location: $6
   properties: {
     $0
   }
 }");
-                yield return CreateSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource with defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
   name: $6
   properties: {
     $0
   }
 }");
-                yield return CreateSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
   name: $5
   $0
 }
 ");
-                yield return CreateSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ResourceKeyword, "Child Resource without defaults", @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {
   name: $6
   $0
 }");
 
-                yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword");
-                yield return CreateSnippetCompletion(LanguageConstants.OutputKeyword, "Output declaration", "output ${1:Identifier} ${2:Type} = $0");
+                yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.OutputKeyword, "Output declaration", "output ${1:Identifier} ${2:Type} = $0");
             }
         }
 
-        private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext completionContext) =>
-            completionContext.Kind == BicepCompletionContextKind.None
-                ? GetAccessibleSymbols(model).Select(sym => sym.ToCompletionItem())
-                : Enumerable.Empty<CompletionItem>();
+        private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind != BicepCompletionContextKind.None)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
 
-        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext completionContext)
+            // when we're inside an expression that is inside a property that expects a compile-time constant value,
+            // we should not be emitting accessible symbol completions
+            return GetAccessibleSymbols(model, context).Select(SymbolExtensions.ToCompletionItem);
+        }
+
+        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext context)
         {
             // local function
             IEnumerable<CompletionItem> GetPrimitiveTypeCompletions() =>
-                LanguageConstants.DeclarationTypes.Values.Select(CreateTypeCompletion);
+                LanguageConstants.DeclarationTypes.Values.Select(CompletionItemFactory.CreateTypeCompletion);
 
 
-            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
                 return GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets());
             }
 
-            if (completionContext.Kind.HasFlag(BicepCompletionContextKind.OutputType))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
                 return GetPrimitiveTypeCompletions();
             }
@@ -107,28 +111,44 @@ namespace Bicep.LanguageServer.Completions
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets()
         {
-            yield return CreateSnippetCompletion("secureObject", "Secure object", @"object {
+            yield return CompletionItemFactory.CreateContextualSnippetCompletion("secureObject", "Secure object", @"object {
   secure: true
 }");
 
-            yield return CreateSnippetCompletion("secureString", "Secure string", @"string {
+            yield return CompletionItemFactory.CreateContextualSnippetCompletion("secureString", "Secure string", @"string {
   secure: true
 }");
         }
 
-        private static IEnumerable<Symbol> GetAccessibleSymbols(SemanticModel model)
+        private static IEnumerable<Symbol> GetAccessibleSymbols(SemanticModel model, BicepCompletionContext context)
         {
             var accessibleSymbols = new Dictionary<string, Symbol>();
+
+            var enclosingDeclarationSymbol = context.EnclosingDeclaration == null 
+                ? null
+                : model.GetSymbolInfo(context.EnclosingDeclaration);
 
             // local function
             void AddAccessibleSymbols(IDictionary<string, Symbol> result, IEnumerable<Symbol> symbols)
             {
-                foreach (var declaration in symbols)
+                foreach (var symbol in symbols)
                 {
-                    if (result.ContainsKey(declaration.Name) == false)
+                    if (result.ContainsKey(symbol.Name))
                     {
-                        result.Add(declaration.Name, declaration);
+                        // a local declaration has the same name as a function
+                        // we should leave the completions for local symbol but should not include the completions for the function
+                        continue;
                     }
+
+                    if (ReferenceEquals(symbol, enclosingDeclarationSymbol))
+                    {
+                        // the symbol is the same as the symbol of the enclosing declaration
+                        // if we produce a completion with the matching identifier and the user selects it,
+                        // this will cause a cycle. even thought the type checker will catch it, let's not suggest it to the user
+                        continue;
+                    }
+
+                    result.Add(symbol.Name, symbol);
                 }
             }
 
@@ -140,7 +160,7 @@ namespace Bicep.LanguageServer.Completions
             return accessibleSymbols.Values;
         }
 
-        private IEnumerable<CompletionItem> GetObjectPropertyCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyName) == false || context.Object == null)
             {
@@ -149,8 +169,6 @@ namespace Bicep.LanguageServer.Completions
 
             // in order to provide completions for property names,
             // we need to establish the type of the object first
-            var type = model.GetTypeInfo(context.Object);
-
             var declaredType = model.GetDeclaredType(context.Object);
             if (declaredType == null)
             {
@@ -163,7 +181,7 @@ namespace Bicep.LanguageServer.Completions
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.ReadOnly) == false && specifiedPropertyNames.Contains(p.Name) == false)
-                .Select(CreatePropertyCompletion);
+                .Select(CompletionItemFactory.CreatePropertyNameCompletion);
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol type)
@@ -181,93 +199,88 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyCompletion(TypeProperty property)
+        private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
+            ? null
+            : model.GetDeclaredTypeAssignment(syntax);
+
+        private IEnumerable<CompletionItem> GetPropertyValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            return new CompletionItem
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue))
             {
-                Kind = CompletionItemKind.Property,
-                Label = property.Name,
-                InsertTextFormat = InsertTextFormat.PlainText,
-                // property names containg spaces need to be escaped
-                InsertText = Lexer.IsValidIdentifier(property.Name) ? property.Name : StringUtils.EscapeBicepString(property.Name),
-                CommitCharacters = new Container<string>(" ", ":"),
-                Detail = FormatPropertyDetail(property),
-                Documentation = new StringOrMarkupContent(new MarkupContent
-                {
-                    Kind = MarkupKind.Markdown,
-                    Value = FormatPropertyDocumentation(property)
-                })
-            };
-        }
-
-        private static string FormatPropertyDetail(TypeProperty property) =>
-            property.Flags.HasFlag(TypePropertyFlags.Required)
-                ? $"{property.Name} (Required)"
-                : property.Name;
-
-        private static string FormatPropertyDocumentation(TypeProperty property)
-        {
-            var buffer = new StringBuilder();
-
-            buffer.Append($"Type: `{property.TypeReference.Type}`{MarkdownNewLine}");
-
-            if (property.Flags.HasFlag(TypePropertyFlags.ReadOnly))
-            {
-                // this case will be used for dot property access completions
-                // this flag is not possible in property name completions
-                buffer.Append($"Read-only property{MarkdownNewLine}");
+                return Enumerable.Empty<CompletionItem>();
             }
 
-            if (property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+            var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Property);
+            if(declaredTypeAssignment == null)
             {
-                buffer.Append($"Write-only property{MarkdownNewLine}");
+                return Enumerable.Empty<CompletionItem>();
             }
 
-            if (property.Flags.HasFlag(TypePropertyFlags.Constant))
-            {
-                buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
-            }
-
-            return buffer.ToString();
+            return GetValueCompletions(model, context, declaredTypeAssignment.Reference.Type, declaredTypeAssignment.Flags);
         }
 
-        private static CompletionItem CreateKeywordCompletion(string keyword, string detail) =>
-            new CompletionItem
-            {
-                Kind = CompletionItemKind.Keyword,
-                Label = keyword,
-                InsertTextFormat = InsertTextFormat.PlainText,
-                InsertText = keyword,
-                CommitCharacters = new Container<string>(" "),
-                Detail = detail
-            };
-
-        private static CompletionItem CreateSnippetCompletion(string label, string detail, string snippet)
+        private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            return new CompletionItem
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayItem))
             {
-                Kind = CompletionItemKind.Snippet,
-                Label = label,
-                InsertTextFormat = InsertTextFormat.Snippet,
-                InsertText = snippet,
-                Detail = detail,
-                Documentation = new StringOrMarkupContent(new MarkupContent
-                {
-                    Kind = MarkupKind.Markdown,
-                    Value = $"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```"
-                })
-            };
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Array);
+            if (declaredTypeAssignment == null || !(declaredTypeAssignment.Reference.Type is ArrayType arrayType))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            return GetValueCompletions(model, context, arrayType.Item.Type, declaredTypeAssignment.Flags);
         }
 
-        private static CompletionItem CreateTypeCompletion(TypeSymbol type) =>
-            new CompletionItem
+        private static IEnumerable<CompletionItem> GetValueCompletions(SemanticModel model, BicepCompletionContext context, TypeSymbol type, DeclaredTypeFlags flags)
+        {
+            var completions = GetValueCompletionsForType(type);
+
+            if (flags != DeclaredTypeFlags.Constant)
             {
-                Kind = CompletionItemKind.Class,
-                Label = type.Name,
-                InsertTextFormat = InsertTextFormat.PlainText,
-                InsertText = type.Name,
-                CommitCharacters = new Container<string>(" "),
-                Detail = type.Name
-            };
+                completions = completions.Concat(GetAccessibleSymbols(model, context).Select(SymbolExtensions.ToCompletionItem));
+            }
+
+            return completions;
+        }
+
+        private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? propertyType)
+        {
+            switch (propertyType)
+            {
+                case PrimitiveType _ when ReferenceEquals(propertyType, LanguageConstants.Bool):
+                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword);
+                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword);
+                    
+                    break;
+
+                case StringLiteralType stringLiteral:
+                    yield return CompletionItemFactory.CreatePlaintextCompletion(CompletionItemKind.EnumMember, stringLiteral.Name, stringLiteral.Name);
+                    
+                    break;
+
+                case ArrayType _:
+                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "[]", "[$0]", "[]");
+                    
+                    break;
+
+                case ObjectType _:
+                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "{}", "{$0}", "{}");
+                    
+                    break;
+
+                case UnionType union:
+                    var aggregatedCompletions = union.Members.SelectMany(typeRef => GetValueCompletionsForType(typeRef.Type));
+                    foreach (var completion in aggregatedCompletions)
+                    {
+                        yield return completion;
+                    }
+
+                    break;
+            }
+        }
     }
 }

@@ -1,79 +1,79 @@
 [
   {
-    "label": "dependsOn",
+    "label": "allowed",
     "kind": "property",
-    "detail": "dependsOn",
+    "detail": "allowed",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `resource[]`  \nWrite-only property  \n"
+      "value": "Type: `int[]`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "dependsOn",
+    "insertText": "allowed",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "identity",
+    "label": "default",
     "kind": "property",
-    "detail": "identity",
+    "detail": "default",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ManagedServiceIdentity`  \n"
+      "value": "Type: `int`  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "identity",
+    "insertText": "default",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "location",
+    "label": "maxValue",
     "kind": "property",
-    "detail": "location (Required)",
+    "detail": "maxValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "location",
+    "insertText": "maxValue",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "name",
+    "label": "metadata",
     "kind": "property",
-    "detail": "name (Required)",
+    "detail": "metadata",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `ParameterModifierMetadata`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "name",
+    "insertText": "metadata",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "tags",
+    "label": "minValue",
     "kind": "property",
-    "detail": "tags",
+    "detail": "minValue",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Dictionary<string,String>`  \n"
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "tags",
+    "insertText": "minValue",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"

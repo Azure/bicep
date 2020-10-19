@@ -1,15 +1,15 @@
 [
   {
-    "label": "kind",
+    "label": "description",
     "kind": "property",
-    "detail": "kind (Required)",
+    "detail": "description",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'AzureCLI' | 'AzurePowerShell'`  \n"
+      "value": "Type: `string`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "insertText": "kind",
+    "insertText": "description",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"

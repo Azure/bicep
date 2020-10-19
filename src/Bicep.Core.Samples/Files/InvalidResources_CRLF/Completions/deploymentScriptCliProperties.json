@@ -12,7 +12,6 @@
     "insertText": "arguments",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -29,7 +28,6 @@
     "insertText": "azCliVersion",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -46,7 +44,6 @@
     "insertText": "cleanupPreference",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -63,7 +60,6 @@
     "insertText": "containerSettings",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -80,7 +76,6 @@
     "insertText": "environmentVariables",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -97,7 +92,6 @@
     "insertText": "forceUpdateTag",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -114,7 +108,6 @@
     "insertText": "primaryScriptUri",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -131,7 +124,6 @@
     "insertText": "retentionInterval",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -148,7 +140,6 @@
     "insertText": "scriptContent",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -165,7 +156,6 @@
     "insertText": "storageAccountSettings",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -182,7 +172,6 @@
     "insertText": "supportingScriptUris",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -199,7 +188,6 @@
     "insertText": "timeout",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   }

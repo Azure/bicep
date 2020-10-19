@@ -6,10 +6,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "array",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "bool",
@@ -18,10 +15,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "bool",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "int",
@@ -30,10 +24,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "int",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "object",
@@ -42,10 +33,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "object",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "secureObject",
@@ -80,9 +68,6 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "string",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   }
 ]

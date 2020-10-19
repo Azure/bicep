@@ -12,7 +12,6 @@
     "insertText": "dependsOn",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -29,7 +28,6 @@
     "insertText": "extendedLocation",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -46,7 +44,6 @@
     "insertText": "identity",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -63,7 +60,6 @@
     "insertText": "kind",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -80,7 +76,6 @@
     "insertText": "location",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -97,7 +92,6 @@
     "insertText": "properties",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -114,7 +108,6 @@
     "insertText": "sku",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -131,7 +124,6 @@
     "insertText": "tags",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   }

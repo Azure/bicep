@@ -11,13 +11,13 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestSyntaxFactory
     {
-        public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties) => new ObjectSyntax(CreateToken(TokenType.LeftBrace), CreatePropertiesWithNewLines(properties), CreateToken(TokenType.RightBrace));
+        public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties) => new ObjectSyntax(CreateToken(TokenType.LeftBrace), CreateChildrenWithNewLines(properties), CreateToken(TokenType.RightBrace));
 
-        public static ArraySyntax CreateArray(IEnumerable<ArrayItemSyntax> items) => new ArraySyntax(CreateToken(TokenType.LeftSquare), CreateNewLines(), items, CreateToken(TokenType.RightSquare));
+        public static ArraySyntax CreateArray(IEnumerable<ArrayItemSyntax> items) => new ArraySyntax(CreateToken(TokenType.LeftSquare), CreateChildrenWithNewLines(items), CreateToken(TokenType.RightSquare));
 
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> itemValues) => CreateArray(itemValues.Select(CreateArrayItem));
 
-        public static ArrayItemSyntax CreateArrayItem(SyntaxBase value) => new ArrayItemSyntax(value, CreateNewLines());
+        public static ArrayItemSyntax CreateArrayItem(SyntaxBase value) => new ArrayItemSyntax(value);
 
         // TODO: Escape string correctly
         public static StringSyntax CreateString(string value)
@@ -42,14 +42,12 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static Token CreateToken(TokenType type, string text = "") => new Token(type, new TextSpan(0, 0), text, ImmutableArray.Create<SyntaxTrivia>(), ImmutableArray.Create<SyntaxTrivia>());
 
-        private static Token[] CreateNewLines() => new[] {CreateToken(TokenType.NewLine)};
-
-        private static IEnumerable<SyntaxBase> CreatePropertiesWithNewLines(IEnumerable<ObjectPropertySyntax> properties)
+        private static IEnumerable<SyntaxBase> CreateChildrenWithNewLines(IEnumerable<SyntaxBase> children)
         {
             var result = new List<SyntaxBase>();
-            foreach (var property in properties)
+            foreach (var child in children)
             {
-                result.Add(property);
+                result.Add(child);
                 result.Add(CreateToken(TokenType.NewLine));
             }
 

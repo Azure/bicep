@@ -37,17 +37,17 @@ var dependentVar = {
 //@[16:17)     LeftSquare |[|
 //@[17:18)     NewLine |\n|
     deployTimeVar
-//@[4:18)     ArrayItemSyntax
+//@[4:17)     ArrayItemSyntax
 //@[4:17)      VariableAccessSyntax
 //@[4:17)       IdentifierSyntax
 //@[4:17)        Identifier |deployTimeVar|
-//@[17:18)      NewLine |\n|
+//@[17:18)     NewLine |\n|
     deployTimeParam
-//@[4:20)     ArrayItemSyntax
+//@[4:19)     ArrayItemSyntax
 //@[4:19)      VariableAccessSyntax
 //@[4:19)       IdentifierSyntax
 //@[4:19)        Identifier |deployTimeParam|
-//@[19:20)      NewLine |\n|
+//@[19:20)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -73,7 +73,7 @@ var resourceDependency = {
 //@[17:18)     LeftSquare |[|
 //@[18:19)     NewLine |\n|
     resA.id
-//@[4:12)     ArrayItemSyntax
+//@[4:11)     ArrayItemSyntax
 //@[4:11)      PropertyAccessSyntax
 //@[4:8)       VariableAccessSyntax
 //@[4:8)        IdentifierSyntax
@@ -81,9 +81,9 @@ var resourceDependency = {
 //@[8:9)       Dot |.|
 //@[9:11)       IdentifierSyntax
 //@[9:11)        Identifier |id|
-//@[11:12)      NewLine |\n|
+//@[11:12)     NewLine |\n|
     resA.name
-//@[4:14)     ArrayItemSyntax
+//@[4:13)     ArrayItemSyntax
 //@[4:13)      PropertyAccessSyntax
 //@[4:8)       VariableAccessSyntax
 //@[4:8)        IdentifierSyntax
@@ -91,9 +91,9 @@ var resourceDependency = {
 //@[8:9)       Dot |.|
 //@[9:13)       IdentifierSyntax
 //@[9:13)        Identifier |name|
-//@[13:14)      NewLine |\n|
+//@[13:14)     NewLine |\n|
     resA.type
-//@[4:14)     ArrayItemSyntax
+//@[4:13)     ArrayItemSyntax
 //@[4:13)      PropertyAccessSyntax
 //@[4:8)       VariableAccessSyntax
 //@[4:8)        IdentifierSyntax
@@ -101,9 +101,9 @@ var resourceDependency = {
 //@[8:9)       Dot |.|
 //@[9:13)       IdentifierSyntax
 //@[9:13)        Identifier |type|
-//@[13:14)      NewLine |\n|
+//@[13:14)     NewLine |\n|
     resA.properties.deployTime
-//@[4:31)     ArrayItemSyntax
+//@[4:30)     ArrayItemSyntax
 //@[4:30)      PropertyAccessSyntax
 //@[4:19)       PropertyAccessSyntax
 //@[4:8)        VariableAccessSyntax
@@ -115,9 +115,9 @@ var resourceDependency = {
 //@[19:20)       Dot |.|
 //@[20:30)       IdentifierSyntax
 //@[20:30)        Identifier |deployTime|
-//@[30:31)      NewLine |\n|
+//@[30:31)     NewLine |\n|
     resA.eTag
-//@[4:14)     ArrayItemSyntax
+//@[4:13)     ArrayItemSyntax
 //@[4:13)      PropertyAccessSyntax
 //@[4:8)       VariableAccessSyntax
 //@[4:8)        IdentifierSyntax
@@ -125,7 +125,7 @@ var resourceDependency = {
 //@[8:9)       Dot |.|
 //@[9:13)       IdentifierSyntax
 //@[9:13)        Identifier |eTag|
-//@[13:14)      NewLine |\n|
+//@[13:14)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|

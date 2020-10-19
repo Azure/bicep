@@ -6,10 +6,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "output",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "output",
@@ -31,10 +28,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "param",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "param",
@@ -108,10 +102,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "resource",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "resource",
@@ -172,10 +163,7 @@
     "deprecated": false,
     "preselect": false,
     "insertText": "var",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "var",
