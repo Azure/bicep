@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 module.exports = {
+  roots: ["<rootDir>/out/test"],
   testMatch: ["<rootDir>/out/test/e2e/**/*.test.js"],
   runInBand: true,
   verbose: true,

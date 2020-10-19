@@ -5,9 +5,9 @@ import * as vscode from "vscode";
 import {
   expectDefined,
   expectRange,
-  getExampleBicepFilePath,
   marked,
   normalizeMarkedString,
+  readExampleFile,
   sleep,
 } from "../utils";
 
@@ -15,12 +15,14 @@ describe("Hover tests", (): void => {
   let document: vscode.TextDocument;
 
   beforeAll(async (done) => {
-    const exampleFilePath = getExampleBicepFilePath("101", "vm-simple-linux");
-    document = await vscode.workspace.openTextDocument(exampleFilePath);
-    await vscode.window.showTextDocument(document);
+    const content = readExampleFile("101", "vm-simple-linux");
+    document = await vscode.workspace.openTextDocument({
+      language: "bicep",
+      content,
+    });
 
-    // Wait for language server to be ready.
-    await sleep(6000);
+    await vscode.window.showTextDocument(document);
+    await sleep(6000); // Wait for the language server to be ready.
     done();
   }, 8000);
 
