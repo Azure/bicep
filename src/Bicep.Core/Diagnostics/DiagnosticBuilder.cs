@@ -570,10 +570,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP102",
                 "The \"createObject\" function is not supported. Construct an object literal using {}.");
 
-            public ErrorDiagnostic DoubleQuoteToken() => new ErrorDiagnostic(
+            public ErrorDiagnostic DoubleQuoteToken(string token) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP103",
-                "Strings are defined using single quotes in bicep.");
+                $"The following token is not recognized: \"{token}\". Strings are defined using single quotes in bicep.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

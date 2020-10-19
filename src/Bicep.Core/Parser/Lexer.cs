@@ -248,9 +248,12 @@ namespace Bicep.Core.Parser
             
             if (tokenType == TokenType.Unrecognized)
             {
-                if (tokenText == "\"") {
-                    AddDiagnostic(b => b.DoubleQuoteToken());
-                } else {
+                if (tokenText == "\"")
+                {
+                    AddDiagnostic(b => b.DoubleQuoteToken(tokenText));
+                } 
+                else 
+                {
                     AddDiagnostic(b => b.UnrecognizedToken(tokenText));
                 }
             }

@@ -131,8 +131,8 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 // invalid string using double quotes
 var doubleString = "bad string"
 //@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |"|
-//@[19:20) [BCP100 (Error)] Strings are defined using single quotes in bicep. |"|
-//@[30:31) [BCP100 (Error)] Strings are defined using single quotes in bicep. |"|
+//@[19:20) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. |"|
+//@[30:31) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. |"|
 
 var resourceGroup = ''
 var rgName = resourceGroup().name
