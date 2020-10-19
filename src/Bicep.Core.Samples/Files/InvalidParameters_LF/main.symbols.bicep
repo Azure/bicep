@@ -176,6 +176,16 @@ param expressionInModifier string {
   ]
 }
 
+param emptyAllowedString string {
+//@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 49
+  allowed: []
+}
+
+param emptyAllowedInt int {
+//@[6:21) Parameter emptyAllowedInt. Type: error. Declaration start char: 0, length: 43
+  allowed: []
+}
+
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
 //@[6:26) Parameter paramDefaultOneCycle. Type: string. Declaration start char: 0, length: 56

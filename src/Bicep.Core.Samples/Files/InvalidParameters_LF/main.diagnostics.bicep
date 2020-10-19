@@ -227,6 +227,16 @@ param expressionInModifier string {
   ]
 }
 
+param emptyAllowedString string {
+  allowed: []
+//@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
+}
+
+param emptyAllowedInt int {
+  allowed: []
+//@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
+}
+
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
 //@[36:56) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramDefaultOneCycle|

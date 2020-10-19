@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
         private static SyntaxBase? TryGetObjectProperty(ObjectSyntax objectSyntax, string propertyName)
             => objectSyntax.Properties.SingleOrDefault(p => p.TryGetKeyText() == propertyName)?.Value;
 
-        public static IEnumerable<SyntaxBase>? TryGetAllowedItems(ParameterDeclarationSyntax parameterDeclarationSyntax)
+        public static ArraySyntax? TryGetAllowedSyntax(ParameterDeclarationSyntax parameterDeclarationSyntax)
         {
             if (!(parameterDeclarationSyntax.Modifier is ObjectSyntax modifierObject))
             {
@@ -25,7 +25,7 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            return allowedArraySyntax.Items.Select(i => i.Value);
+            return allowedArraySyntax;
         }
 
         public static SyntaxBase? TryGetDefaultValue(ParameterDeclarationSyntax parameterDeclarationSyntax)

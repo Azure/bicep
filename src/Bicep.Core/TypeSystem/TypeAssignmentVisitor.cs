@@ -1001,10 +1001,16 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetParameterAssignedType(ParameterDeclarationSyntax syntax, TypeSymbol declaredType)
         {
             var assignedType = declaredType;
+
+            var allowedSyntax = SyntaxHelper.TryGetAllowedSyntax(syntax);
+            if (allowedSyntax != null && !allowedSyntax.Items.Any())
+            {
+                return UnassignableTypeSymbol.CreateErrors(DiagnosticBuilder.ForPosition(allowedSyntax).AllowedMustContainItems());
+            }
+
             if (object.ReferenceEquals(assignedType, LanguageConstants.String))
             {
-                var allowedItemTypes = SyntaxHelper.TryGetAllowedItems(syntax)?
-                    .Select(item => typeManager.GetTypeInfo(item));
+                var allowedItemTypes = allowedSyntax?.Items.Select(typeManager.GetTypeInfo);
 
                 if (allowedItemTypes != null && allowedItemTypes.All(itemType => itemType is StringLiteralType))
                 {
