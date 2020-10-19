@@ -103,13 +103,6 @@ resource extension 'Microsoft.MockExtension/extension@2020-01-01 = {
 ## Allowed combinations of scopes
 This feature will be limited to the same scoping constraints that exist within ARM Deployments today. We will prevent successful compilation of a template that cannot be deployed, with an error message explaining the constraint.
 
-## Compatibility with upcoming features
-
-### Defaults
-With the introduction of defaults, we may decide to modify the [target scope declaration syntax](#declaring-the-target-scopes) to align.
-
-[arm-scopes]: https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/overview#understand-scope
-
 ## Possible Extensions
 
 ### Parent-child syntax
@@ -125,3 +118,5 @@ resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
   name: 'myChild' // don't require the full name to be formatted with '/' characters
 }
 ```
+
+[arm-scopes]: https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/overview#understand-scope
