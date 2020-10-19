@@ -224,6 +224,46 @@ var myVar3 = any(any({
 var myVar4 = length(any(concat('s','a')))
 //@[4:10) Variable myVar4. Type: int. Declaration start char: 0, length: 41
 
+// verify that unqualified banned function identifiers can be used as declaration identifiers
+var variables = true
+//@[4:13) Variable variables. Type: bool. Declaration start char: 0, length: 20
+param parameters bool = true
+//@[6:16) Parameter parameters. Type: bool. Declaration start char: 0, length: 28
+var if = true
+//@[4:6) Variable if. Type: bool. Declaration start char: 0, length: 13
+var createArray = true
+//@[4:15) Variable createArray. Type: bool. Declaration start char: 0, length: 22
+var createObject = true
+//@[4:16) Variable createObject. Type: bool. Declaration start char: 0, length: 23
+var add = true
+//@[4:7) Variable add. Type: bool. Declaration start char: 0, length: 14
+var sub = true
+//@[4:7) Variable sub. Type: bool. Declaration start char: 0, length: 14
+var mul = true
+//@[4:7) Variable mul. Type: bool. Declaration start char: 0, length: 14
+var div = true
+//@[4:7) Variable div. Type: bool. Declaration start char: 0, length: 14
+param mod bool = true
+//@[6:9) Parameter mod. Type: bool. Declaration start char: 0, length: 21
+var less = true
+//@[4:8) Variable less. Type: bool. Declaration start char: 0, length: 15
+var lessOrEquals = true
+//@[4:16) Variable lessOrEquals. Type: bool. Declaration start char: 0, length: 23
+var greater = true
+//@[4:11) Variable greater. Type: bool. Declaration start char: 0, length: 18
+var greaterOrEquals = true
+//@[4:19) Variable greaterOrEquals. Type: bool. Declaration start char: 0, length: 26
+param equals bool = true
+//@[6:12) Parameter equals. Type: bool. Declaration start char: 0, length: 24
+var not = true
+//@[4:7) Variable not. Type: bool. Declaration start char: 0, length: 14
+var and = true
+//@[4:7) Variable and. Type: bool. Declaration start char: 0, length: 14
+var or = true
+//@[4:6) Variable or. Type: bool. Declaration start char: 0, length: 13
+var I_WANT_IT_ALL = variables && parameters && if && createArray && createObject && add && sub && mul && div && mod && less && lessOrEquals && greater && greaterOrEquals && equals && not && and && or
+//@[4:17) Variable I_WANT_IT_ALL. Type: bool. Declaration start char: 0, length: 199
+
 // identifiers can have underscores
 var _ = 3
 //@[4:5) Variable _. Type: int. Declaration start char: 0, length: 9
@@ -243,7 +283,7 @@ var resourceGroupObject = az.resourceGroup()
 //@[4:23) Variable resourceGroupObject. Type: object. Declaration start char: 0, length: 44
 var propertyAccessFromObject = resourceGroupObject.name
 //@[4:28) Variable propertyAccessFromObject. Type: any. Declaration start char: 0, length: 55
-var isTrue = sys.add(1, 2) == 3
+var isTrue = sys.max(1, 2) == 3
 //@[4:10) Variable isTrue. Type: bool. Declaration start char: 0, length: 31
 var isFalse = !isTrue
 //@[4:11) Variable isFalse. Type: bool. Declaration start char: 0, length: 21

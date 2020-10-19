@@ -313,6 +313,36 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "namespace". |1 + az|
 
+var bannedFunctions = {
+  var: variables()
+//@[7:16) [BCP060 (Error)] The "variables" function is not supported. Directly reference variables by their symbolic names. |variables|
+  param: parameters() + 2
+//@[9:19) [BCP061 (Error)] The "parameters" function is not supported. Directly reference parameters by their symbolic names. |parameters|
+  if: sys.if(null,null)
+//@[10:12) [BCP100 (Error)] The "if" function is not supported. Use the ternary conditional operator instead. |if|
+  obj: sys.createArray()
+//@[11:22) [BCP102 (Error)] The "createArray" function is not supported. Construct an array literal using []. |createArray|
+  arr: sys.createObject()
+//@[11:23) [BCP103 (Error)] The "createObject" function is not supported. Construct an object literal using {}. |createObject|
+  numeric: sys.add(1) + sys.sub(2,3) + sys.mul(8,'s') + sys.div(true) + sys.mod(null, false)
+//@[15:18) [BCP069 (Error)] The function "add" is not supported. Use the "+" operator instead. |add|
+//@[28:31) [BCP069 (Error)] The function "sub" is not supported. Use the "-" operator instead. |sub|
+//@[43:46) [BCP069 (Error)] The function "mul" is not supported. Use the "*" operator instead. |mul|
+//@[60:63) [BCP069 (Error)] The function "div" is not supported. Use the "/" operator instead. |div|
+//@[76:79) [BCP069 (Error)] The function "mod" is not supported. Use the "%" operator instead. |mod|
+  relational: sys.less() && sys.lessOrEquals() && sys.greater() && sys.greaterOrEquals()
+//@[18:22) [BCP069 (Error)] The function "less" is not supported. Use the "<" operator instead. |less|
+//@[32:44) [BCP069 (Error)] The function "lessOrEquals" is not supported. Use the "<=" operator instead. |lessOrEquals|
+//@[54:61) [BCP069 (Error)] The function "greater" is not supported. Use the ">" operator instead. |greater|
+//@[71:86) [BCP069 (Error)] The function "greaterOrEquals" is not supported. Use the ">=" operator instead. |greaterOrEquals|
+  equals: sys.equals()
+//@[14:20) [BCP069 (Error)] The function "equals" is not supported. Use the "==" operator instead. |equals|
+  bool: sys.not() || sys.and() || sys.or()
+//@[12:15) [BCP069 (Error)] The function "not" is not supported. Use the "!" operator instead. |not|
+//@[25:28) [BCP069 (Error)] The function "and" is not supported. Use the "&&" operator instead. |and|
+//@[38:40) [BCP069 (Error)] The function "or" is not supported. Use the "||" operator instead. |or|
+}
+
 var partialObject = {
   2: true
 //@[2:3) [BCP022 (Error)] Expected a property name at this location. |2|

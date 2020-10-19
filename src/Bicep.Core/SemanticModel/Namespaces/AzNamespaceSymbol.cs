@@ -41,7 +41,7 @@ namespace Bicep.Core.SemanticModel.Namespaces
             new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null, FunctionFlags.RequiresInlining),
             new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]+"), FunctionFlags.RequiresInlining), }.ToImmutableArray();
 
-        public AzNamespaceSymbol() : base("az", AzOverloads)
+        public AzNamespaceSymbol() : base("az", AzOverloads, ImmutableArray<BannedFunction>.Empty)
         {
         }
     }

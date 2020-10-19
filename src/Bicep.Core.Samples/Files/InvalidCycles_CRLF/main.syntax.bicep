@@ -48,7 +48,7 @@ var a = b
 //@[8:9)   IdentifierSyntax
 //@[8:9)    Identifier |b|
 //@[9:11) NewLine |\r\n|
-var b = add(a,1)
+var b = max(a,1)
 //@[0:16) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:5)  IdentifierSyntax
@@ -56,7 +56,7 @@ var b = add(a,1)
 //@[6:7)  Assignment |=|
 //@[8:16)  FunctionCallSyntax
 //@[8:11)   IdentifierSyntax
-//@[8:11)    Identifier |add|
+//@[8:11)    Identifier |max|
 //@[11:12)   LeftParen |(|
 //@[12:14)   FunctionArgumentSyntax
 //@[12:13)    VariableAccessSyntax

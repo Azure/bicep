@@ -1,7 +1,20 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "parameters": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "mod": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "equals": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
   "functions": [],
   "variables": {
     "myInt": 42,
@@ -114,6 +127,22 @@
       "something": "[variables('myVar')]"
     },
     "myVar4": "[length(concat('s', 'a'))]",
+    "variables": true,
+    "if": true,
+    "createArray": true,
+    "createObject": true,
+    "add": true,
+    "sub": true,
+    "mul": true,
+    "div": true,
+    "less": true,
+    "lessOrEquals": true,
+    "greater": true,
+    "greaterOrEquals": true,
+    "not": true,
+    "and": true,
+    "or": true,
+    "I_WANT_IT_ALL": "[and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(variables('variables'), parameters('parameters')), variables('if')), variables('createArray')), variables('createObject')), variables('add')), variables('sub')), variables('mul')), variables('div')), parameters('mod')), variables('less')), variables('lessOrEquals')), variables('greater')), variables('greaterOrEquals')), parameters('equals')), variables('not')), variables('and')), variables('or'))]",
     "_": 3,
     "__": "[mul(10, variables('_'))]",
     "_0a_1b": true,
@@ -122,7 +151,7 @@
     "resourceGroupName": "[resourceGroup().name]",
     "resourceGroupObject": "[resourceGroup()]",
     "propertyAccessFromObject": "[variables('resourceGroupObject').name]",
-    "isTrue": "[equals(add(1, 2), 3)]",
+    "isTrue": "[equals(max(1, 2), 3)]",
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]"
   },

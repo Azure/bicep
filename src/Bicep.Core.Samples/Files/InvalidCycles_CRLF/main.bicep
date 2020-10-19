@@ -5,7 +5,7 @@ var q = base64(q, !q)
 
 //2-cycle
 var a = b
-var b = add(a,1)
+var b = max(a,1)
 
 //3-cycle
 var e = f

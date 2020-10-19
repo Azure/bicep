@@ -8,7 +8,7 @@ var q = base64(q, !q)
 //2-cycle
 var a = b
 //@[4:5) Variable a. Type: error. Declaration start char: 0, length: 9
-var b = add(a,1)
+var b = max(a,1)
 //@[4:5) Variable b. Type: error. Declaration start char: 0, length: 16
 
 //3-cycle

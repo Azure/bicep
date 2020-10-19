@@ -331,6 +331,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP059",
                 $"The name \"{name}\" is not a function.");
 
+            public ErrorDiagnostic VariablesFunctionNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP060",
+                $"The \"variables\" function is not supported. Directly reference variables by their symbolic names.");
+
+            public ErrorDiagnostic ParametersFunctionNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP061",
+                $"The \"parameters\" function is not supported. Directly reference parameters by their symbolic names.");
+
             public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP062",
@@ -361,6 +371,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
 
+            public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP069",
+                $"The function \"{function}\" is not supported. Use the \"{@operator}\" operator instead.");
+            
             public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP070",
@@ -539,6 +554,26 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP099",
                 $"The \"{LanguageConstants.ParameterAllowedPropertyName}\" array must contain one or more items.");
+
+            public ErrorDiagnostic IfFunctionNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP100",
+                "The \"if\" function is not supported. Use the ternary conditional operator instead.");
+
+            public ErrorDiagnostic FunctionNotSupportedKeywordAvailable(string function, string keyword) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP101",
+                $"The \"{function}\" is not supported. Use the \"{keyword}\" keyword instead.");
+
+            public ErrorDiagnostic CreateArrayFunctionNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP102",
+                "The \"createArray\" function is not supported. Construct an array literal using [].");
+
+            public ErrorDiagnostic CreateObjectFunctionNotSupported() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP103",
+                "The \"createObject\" function is not supported. Construct an object literal using {}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

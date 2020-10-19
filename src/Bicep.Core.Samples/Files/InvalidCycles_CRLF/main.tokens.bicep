@@ -29,11 +29,11 @@ var a = b
 //@[6:7) Assignment |=|
 //@[8:9) Identifier |b|
 //@[9:11) NewLine |\r\n|
-var b = add(a,1)
+var b = max(a,1)
 //@[0:3) Identifier |var|
 //@[4:5) Identifier |b|
 //@[6:7) Assignment |=|
-//@[8:11) Identifier |add|
+//@[8:11) Identifier |max|
 //@[11:12) LeftParen |(|
 //@[12:13) Identifier |a|
 //@[13:14) Comma |,|
