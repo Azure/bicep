@@ -6,6 +6,18 @@ import * as vscode from "vscode";
 class VSCodeEnvironment extends NodeEnvironment {
   async setup(): Promise<void> {
     await super.setup();
+
+    const bicepExtension = vscode.extensions.getExtension("Azure.vscode-bicep");
+
+    if (!bicepExtension) {
+      throw Error("Extension not found.");
+    }
+
+    // Ensure the Bicep language server is ready.
+    if (!bicepExtension.isActive) {
+      await bicepExtension.activate();
+    }
+
     this.global.vscode = vscode;
   }
 
