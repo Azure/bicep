@@ -886,6 +886,96 @@ param stringLiteral3 string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+param stringModifierCompletions string {
+//@[0:5) Identifier |param|
+//@[6:31) Identifier |stringModifierCompletions|
+//@[32:38) Identifier |string|
+//@[39:40) LeftBrace |{|
+//@[40:41) NewLine |\n|
+  // #completionTest(0,1,2) -> stringModifierProperties
+//@[55:56) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param intModifierCompletions int {
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |intModifierCompletions|
+//@[29:32) Identifier |int|
+//@[33:34) LeftBrace |{|
+//@[34:35) NewLine |\n|
+  // #completionTest(0,1,2) -> intModifierProperties
+//@[52:53) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param defaultValueCompletions string {
+//@[0:5) Identifier |param|
+//@[6:29) Identifier |defaultValueCompletions|
+//@[30:36) Identifier |string|
+//@[37:38) LeftBrace |{|
+//@[38:39) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+    'one'
+//@[4:9) StringComplete |'one'|
+//@[9:10) NewLine |\n|
+    'two'
+//@[4:9) StringComplete |'two'|
+//@[9:10) NewLine |\n|
+    'three'
+//@[4:11) StringComplete |'three'|
+//@[11:12) NewLine |\n|
+    // #completionTest(0,1,2,3,4) -> oneTwoThree
+//@[48:49) NewLine |\n|
+    
+//@[4:5) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+  // #completionTest(10,11) -> oneTwoThreePlusSymbols
+//@[53:54) NewLine |\n|
+  default: 
+//@[2:9) Identifier |default|
+//@[9:10) Colon |:|
+//@[11:12) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
+  // #completionTest(9,10) -> booleanValues
+//@[43:44) NewLine |\n|
+  secure: 
+//@[2:8) Identifier |secure|
+//@[8:9) Colon |:|
+//@[10:12) NewLine |\n\n|
+
+  metadata: {
+//@[2:10) Identifier |metadata|
+//@[10:11) Colon |:|
+//@[12:13) LeftBrace |{|
+//@[13:14) NewLine |\n|
+    // #completionTest(0,1,2,3) -> description
+//@[46:47) NewLine |\n|
+    
+//@[4:5) NewLine |\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:4) NewLine |\n|
+  // #completionTest(0,1,2) -> stringLengthConstraints
+//@[54:55) NewLine |\n|
+  
+//@[2:3) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    

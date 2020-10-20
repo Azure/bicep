@@ -407,20 +407,20 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[7:8)       LeftSquare |[|
 //@[8:10)       NewLine |\r\n|
       a
-//@[6:9)       ArrayItemSyntax
+//@[6:7)       ArrayItemSyntax
 //@[6:7)        VariableAccessSyntax
 //@[6:7)         IdentifierSyntax
 //@[6:7)          Identifier |a|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
       !null
-//@[6:13)       ArrayItemSyntax
+//@[6:11)       ArrayItemSyntax
 //@[6:11)        UnaryOperationSyntax
 //@[6:7)         Exclamation |!|
 //@[7:11)         NullLiteralSyntax
 //@[7:11)          NullKeyword |null|
-//@[11:13)        NewLine |\r\n|
+//@[11:13)       NewLine |\r\n|
       true && true || true + -true * 4
-//@[6:40)       ArrayItemSyntax
+//@[6:38)       ArrayItemSyntax
 //@[6:38)        BinaryOperationSyntax
 //@[6:18)         BinaryOperationSyntax
 //@[6:10)          BooleanLiteralSyntax
@@ -441,7 +441,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[35:36)           Asterisk |*|
 //@[37:38)           NumericLiteralSyntax
 //@[37:38)            Number |4|
-//@[38:40)        NewLine |\r\n|
+//@[38:40)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:7)     NewLine |\r\n|
@@ -581,7 +581,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[13:14)     LeftSquare |[|
 //@[14:16)     NewLine |\r\n|
     baz.id
-//@[4:12)     ArrayItemSyntax
+//@[4:10)     ArrayItemSyntax
 //@[4:10)      PropertyAccessSyntax
 //@[4:7)       VariableAccessSyntax
 //@[4:7)        IdentifierSyntax
@@ -589,7 +589,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[7:8)       Dot |.|
 //@[8:10)       IdentifierSyntax
 //@[8:10)        Identifier |id|
-//@[10:12)      NewLine |\r\n|
+//@[10:12)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|
@@ -625,15 +625,15 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[13:14)     LeftSquare |[|
 //@[14:16)     NewLine |\r\n|
     'hello'
-//@[4:13)     ArrayItemSyntax
+//@[4:11)     ArrayItemSyntax
 //@[4:11)      StringSyntax
 //@[4:11)       StringComplete |'hello'|
-//@[11:13)      NewLine |\r\n|
+//@[11:13)     NewLine |\r\n|
     true
-//@[4:10)     ArrayItemSyntax
+//@[4:8)     ArrayItemSyntax
 //@[4:8)      BooleanLiteralSyntax
 //@[4:8)       TrueKeyword |true|
-//@[8:10)      NewLine |\r\n|
+//@[8:10)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|
@@ -692,11 +692,11 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[13:14)     LeftSquare |[|
 //@[14:16)     NewLine |\r\n|
     badDepends3
-//@[4:17)     ArrayItemSyntax
+//@[4:15)     ArrayItemSyntax
 //@[4:15)      VariableAccessSyntax
 //@[4:15)       IdentifierSyntax
 //@[4:15)        Identifier |badDepends3|
-//@[15:17)      NewLine |\r\n|
+//@[15:17)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|
@@ -889,7 +889,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[13:14)       LeftSquare |[|
 //@[14:16)       NewLine |\r\n|
       {
-//@[6:311)       ArrayItemSyntax
+//@[6:309)       ArrayItemSyntax
 //@[6:309)        ObjectSyntax
 //@[6:7)         LeftBrace |{|
 //@[7:9)         NewLine |\r\n|
@@ -912,7 +912,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[23:24)             LeftSquare |[|
 //@[24:26)             NewLine |\r\n|
             {
-//@[12:140)             ArrayItemSyntax
+//@[12:138)             ArrayItemSyntax
 //@[12:138)              ObjectSyntax
 //@[12:13)               LeftBrace |{|
 //@[13:15)               NewLine |\r\n|
@@ -922,7 +922,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[14:16)               NewLine |\r\n|
             }
 //@[12:13)               RightBrace |}|
-//@[13:15)              NewLine |\r\n|
+//@[13:15)             NewLine |\r\n|
           ]
 //@[10:11)             RightSquare |]|
 //@[11:13)           NewLine |\r\n|
@@ -931,7 +931,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[9:11)         NewLine |\r\n|
       }
 //@[6:7)         RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:7)     NewLine |\r\n|
@@ -957,6 +957,30 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[52:54)   NewLine |\r\n|
   
 //@[2:4)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:175) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:37)  IdentifierSyntax
+//@[9:37)   Identifier |discriminatorKeyValueMissing|
+//@[38:88)  StringSyntax
+//@[38:88)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[89:90)  Assignment |=|
+//@[91:175)  ObjectSyntax
+//@[91:92)   LeftBrace |{|
+//@[92:94)   NewLine |\r\n|
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
+//@[66:68)   NewLine |\r\n|
+  kind:   
+//@[2:10)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[10:10)    SkippedTriviaSyntax
+//@[10:12)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
@@ -1076,6 +1100,133 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:774) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:32)  IdentifierSyntax
+//@[9:32)   Identifier |incorrectPropertiesKey2|
+//@[33:83)  StringSyntax
+//@[33:83)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[84:85)  Assignment |=|
+//@[86:774)  ObjectSyntax
+//@[86:87)   LeftBrace |{|
+//@[87:89)   NewLine |\r\n|
+  kind: 'AzureCLI'
+//@[2:18)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:18)    StringSyntax
+//@[8:18)     StringComplete |'AzureCLI'|
+//@[18:20)   NewLine |\r\n|
+  name: 'test'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)   NewLine |\r\n|
+  location: ''
+//@[2:14)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:14)    StringSyntax
+//@[12:14)     StringComplete |''|
+//@[14:16)   NewLine |\r\n|
+  properties: {
+//@[2:630)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:630)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    azCliVersion: '2'
+//@[4:21)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |azCliVersion|
+//@[16:17)      Colon |:|
+//@[18:21)      StringSyntax
+//@[18:21)       StringComplete |'2'|
+//@[21:23)     NewLine |\r\n|
+    retentionInterval: 'PT1H'
+//@[4:29)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |retentionInterval|
+//@[21:22)      Colon |:|
+//@[23:29)      StringSyntax
+//@[23:29)       StringComplete |'PT1H'|
+//@[29:31)     NewLine |\r\n|
+    
+//@[4:6)     NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
+//@[80:82)     NewLine |\r\n|
+    
+//@[4:6)     NewLine |\r\n|
+    // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
+//@[62:64)     NewLine |\r\n|
+    cleanupPreference: 
+//@[4:23)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |cleanupPreference|
+//@[21:22)      Colon |:|
+//@[23:23)      SkippedTriviaSyntax
+//@[23:27)     NewLine |\r\n\r\n|
+
+    // #completionTest(25,26) -> arrayPlusSymbols
+//@[49:51)     NewLine |\r\n|
+    supportingScriptUris: 
+//@[4:26)     ObjectPropertySyntax
+//@[4:24)      IdentifierSyntax
+//@[4:24)       Identifier |supportingScriptUris|
+//@[24:25)      Colon |:|
+//@[26:26)      SkippedTriviaSyntax
+//@[26:30)     NewLine |\r\n\r\n|
+
+    // #completionTest(27,28) -> objectPlusSymbols
+//@[50:52)     NewLine |\r\n|
+    storageAccountSettings: 
+//@[4:28)     ObjectPropertySyntax
+//@[4:26)      IdentifierSyntax
+//@[4:26)       Identifier |storageAccountSettings|
+//@[26:27)      Colon |:|
+//@[28:28)      SkippedTriviaSyntax
+//@[28:32)     NewLine |\r\n\r\n|
+
+    environmentVariables: [
+//@[4:204)     ObjectPropertySyntax
+//@[4:24)      IdentifierSyntax
+//@[4:24)       Identifier |environmentVariables|
+//@[24:25)      Colon |:|
+//@[26:204)      ArraySyntax
+//@[26:27)       LeftSquare |[|
+//@[27:29)       NewLine |\r\n|
+      {
+//@[6:98)       ArrayItemSyntax
+//@[6:98)        ObjectSyntax
+//@[6:7)         LeftBrace |{|
+//@[7:9)         NewLine |\r\n|
+        // #completionTest(0,2,4,6,8) -> environmentVariableProperties
+//@[70:72)         NewLine |\r\n|
+        
+//@[8:10)         NewLine |\r\n|
+      }
+//@[6:7)         RightBrace |}|
+//@[7:9)       NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
+//@[60:62)       NewLine |\r\n|
+      
+//@[6:8)       NewLine |\r\n|
+    ]
+//@[4:5)       RightSquare |]|
+//@[5:7)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

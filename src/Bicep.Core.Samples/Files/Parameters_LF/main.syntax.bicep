@@ -203,40 +203,40 @@ param foo object = {
 //@[9:10)      LeftSquare |[|
 //@[10:11)      NewLine |\n|
     'string item'
-//@[4:18)      ArrayItemSyntax
+//@[4:17)      ArrayItemSyntax
 //@[4:17)       StringSyntax
 //@[4:17)        StringComplete |'string item'|
-//@[17:18)       NewLine |\n|
+//@[17:18)      NewLine |\n|
     12
-//@[4:7)      ArrayItemSyntax
+//@[4:6)      ArrayItemSyntax
 //@[4:6)       NumericLiteralSyntax
 //@[4:6)        Number |12|
-//@[6:7)       NewLine |\n|
+//@[6:7)      NewLine |\n|
     true
-//@[4:9)      ArrayItemSyntax
+//@[4:8)      ArrayItemSyntax
 //@[4:8)       BooleanLiteralSyntax
 //@[4:8)        TrueKeyword |true|
-//@[8:9)       NewLine |\n|
+//@[8:9)      NewLine |\n|
     [
-//@[4:38)      ArrayItemSyntax
+//@[4:37)      ArrayItemSyntax
 //@[4:37)       ArraySyntax
 //@[4:5)        LeftSquare |[|
 //@[5:6)        NewLine |\n|
       'inner'
-//@[6:14)        ArrayItemSyntax
+//@[6:13)        ArrayItemSyntax
 //@[6:13)         StringSyntax
 //@[6:13)          StringComplete |'inner'|
-//@[13:14)         NewLine |\n|
+//@[13:14)        NewLine |\n|
       false
-//@[6:12)        ArrayItemSyntax
+//@[6:11)        ArrayItemSyntax
 //@[6:11)         BooleanLiteralSyntax
 //@[6:11)          FalseKeyword |false|
-//@[11:12)         NewLine |\n|
+//@[11:12)        NewLine |\n|
     ]
 //@[4:5)        RightSquare |]|
-//@[5:6)       NewLine |\n|
+//@[5:6)      NewLine |\n|
     {
-//@[4:25)      ArrayItemSyntax
+//@[4:24)      ArrayItemSyntax
 //@[4:24)       ObjectSyntax
 //@[4:5)        LeftBrace |{|
 //@[5:6)        NewLine |\n|
@@ -250,7 +250,7 @@ param foo object = {
 //@[12:13)        NewLine |\n|
     }
 //@[4:5)        RightBrace |}|
-//@[5:6)       NewLine |\n|
+//@[5:6)      NewLine |\n|
   ]
 //@[2:3)      RightSquare |]|
 //@[3:4)    NewLine |\n|
@@ -309,20 +309,20 @@ param myArrayParam array = [
 //@[27:28)    LeftSquare |[|
 //@[28:29)    NewLine |\n|
   'a'
-//@[2:6)    ArrayItemSyntax
+//@[2:5)    ArrayItemSyntax
 //@[2:5)     StringSyntax
 //@[2:5)      StringComplete |'a'|
-//@[5:6)     NewLine |\n|
+//@[5:6)    NewLine |\n|
   'b'
-//@[2:6)    ArrayItemSyntax
+//@[2:5)    ArrayItemSyntax
 //@[2:5)     StringSyntax
 //@[2:5)      StringComplete |'b'|
-//@[5:6)     NewLine |\n|
+//@[5:6)    NewLine |\n|
   'c'
-//@[2:6)    ArrayItemSyntax
+//@[2:5)    ArrayItemSyntax
 //@[2:5)     StringSyntax
 //@[2:5)      StringComplete |'c'|
-//@[5:6)     NewLine |\n|
+//@[5:6)    NewLine |\n|
 ]
 //@[0:1)    RightSquare |]|
 //@[1:3) NewLine |\n\n|
@@ -348,36 +348,36 @@ param myAlternativeArrayParam array {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'a'
-//@[4:8)     ArrayItemSyntax
+//@[4:7)     ArrayItemSyntax
 //@[4:7)      StringSyntax
 //@[4:7)       StringComplete |'a'|
-//@[7:8)      NewLine |\n|
+//@[7:8)     NewLine |\n|
     'b'
-//@[4:8)     ArrayItemSyntax
+//@[4:7)     ArrayItemSyntax
 //@[4:7)      StringSyntax
 //@[4:7)       StringComplete |'b'|
-//@[7:8)      NewLine |\n|
+//@[7:8)     NewLine |\n|
     'c'
-//@[4:8)     ArrayItemSyntax
+//@[4:7)     ArrayItemSyntax
 //@[4:7)      StringSyntax
 //@[4:7)       StringComplete |'c'|
-//@[7:8)      NewLine |\n|
+//@[7:8)     NewLine |\n|
     newGuid()
-//@[4:14)     ArrayItemSyntax
+//@[4:13)     ArrayItemSyntax
 //@[4:13)      FunctionCallSyntax
 //@[4:11)       IdentifierSyntax
 //@[4:11)        Identifier |newGuid|
 //@[11:12)       LeftParen |(|
 //@[12:13)       RightParen |)|
-//@[13:14)      NewLine |\n|
+//@[13:14)     NewLine |\n|
     utcNow()
-//@[4:13)     ArrayItemSyntax
+//@[4:12)     ArrayItemSyntax
 //@[4:12)      FunctionCallSyntax
 //@[4:10)       IdentifierSyntax
 //@[4:10)        Identifier |utcNow|
 //@[10:11)       LeftParen |(|
 //@[11:12)       RightParen |)|
-//@[12:13)      NewLine |\n|
+//@[12:13)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -478,15 +478,15 @@ param storageSku string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'Standard_LRS'
-//@[4:19)     ArrayItemSyntax
+//@[4:18)     ArrayItemSyntax
 //@[4:18)      StringSyntax
 //@[4:18)       StringComplete |'Standard_LRS'|
-//@[18:19)      NewLine |\n|
+//@[18:19)     NewLine |\n|
     'Standard_GRS'
-//@[4:19)     ArrayItemSyntax
+//@[4:18)     ArrayItemSyntax
 //@[4:18)      StringSyntax
 //@[4:18)       StringComplete |'Standard_GRS'|
-//@[18:19)      NewLine |\n|
+//@[18:19)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -754,20 +754,20 @@ param someParameter string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'one'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'one'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
     'two'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'two'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
     'three'
-//@[4:12)     ArrayItemSyntax
+//@[4:11)     ArrayItemSyntax
 //@[4:11)      StringSyntax
 //@[4:11)       StringComplete |'three'|
-//@[11:12)      NewLine |\n|
+//@[11:12)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|

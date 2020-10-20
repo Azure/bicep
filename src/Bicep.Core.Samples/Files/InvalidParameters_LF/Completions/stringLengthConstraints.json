@@ -1,33 +1,33 @@
 [
   {
-    "label": "id",
+    "label": "maxLength",
     "kind": "property",
-    "detail": "id",
+    "detail": "maxLength",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_id",
-    "insertText": "id",
+    "sortText": "2_maxLength",
+    "insertText": "maxLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"
     ]
   },
   {
-    "label": "name",
+    "label": "minLength",
     "kind": "property",
-    "detail": "name",
+    "detail": "minLength",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_name",
-    "insertText": "name",
+    "sortText": "2_minLength",
+    "insertText": "minLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [
       ":"

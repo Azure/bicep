@@ -223,6 +223,12 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
   
 }
 
+resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
+  kind:   
+//@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+}
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
   kind: 'AzureCLI'
@@ -254,3 +260,35 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
   }
 }
 
+resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzureCLI'
+  name: 'test'
+  location: ''
+  properties: {
+    azCliVersion: '2'
+    retentionInterval: 'PT1H'
+    
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
+    
+    // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
+    cleanupPreference: 
+//@[23:23) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+    // #completionTest(25,26) -> arrayPlusSymbols
+    supportingScriptUris: 
+//@[26:26) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+    // #completionTest(27,28) -> objectPlusSymbols
+    storageAccountSettings: 
+//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+    environmentVariables: [
+      {
+        // #completionTest(0,2,4,6,8) -> environmentVariableProperties
+        
+      }
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
+      
+    ]
+  }
+}

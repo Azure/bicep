@@ -13,6 +13,8 @@ namespace Bicep.Core.SemanticModel
 
         TypeSymbol? GetDeclaredType(SyntaxBase syntax);
 
+        DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax);
+
         IEnumerable<Diagnostic> GetAllDiagnostics();
     }
 }

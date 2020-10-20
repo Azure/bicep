@@ -5,11 +5,9 @@
     "detail": "Output keyword",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_output",
     "insertText": "output",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "output",
@@ -21,6 +19,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_output",
     "insertText": "output ${1:Identifier} ${2:Type} = $0",
     "insertTextFormat": "snippet"
   },
@@ -30,11 +29,9 @@
     "detail": "Parameter keyword",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "param",
@@ -46,6 +43,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param ${1:Identifier} ${2:Type}",
     "insertTextFormat": "snippet"
   },
@@ -59,6 +57,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}",
     "insertTextFormat": "snippet"
   },
@@ -72,6 +71,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}",
     "insertTextFormat": "snippet"
   },
@@ -85,6 +85,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param ${1:Identifier} ${2:Type} {\n  $0\n}",
     "insertTextFormat": "snippet"
   },
@@ -98,6 +99,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_param",
     "insertText": "param ${1:Identifier} string {\n  secure: true\n}",
     "insertTextFormat": "snippet"
   },
@@ -107,11 +109,9 @@
     "detail": "Resource keyword",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resource",
     "insertText": "resource",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "resource",
@@ -123,6 +123,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resource",
     "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}",
     "insertTextFormat": "snippet"
   },
@@ -136,6 +137,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resource",
     "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}",
     "insertTextFormat": "snippet"
   },
@@ -149,6 +151,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resource",
     "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n",
     "insertTextFormat": "snippet"
   },
@@ -162,6 +165,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resource",
     "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}",
     "insertTextFormat": "snippet"
   },
@@ -171,11 +175,9 @@
     "detail": "Variable keyword",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_var",
     "insertText": "var",
-    "insertTextFormat": "plainText",
-    "commitCharacters": [
-      " "
-    ]
+    "insertTextFormat": "plainText"
   },
   {
     "label": "var",
@@ -187,6 +189,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_var",
     "insertText": "var ${1:Identifier} = $0",
     "insertTextFormat": "snippet"
   }

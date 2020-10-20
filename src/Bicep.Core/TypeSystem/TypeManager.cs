@@ -27,6 +27,9 @@ namespace Bicep.Core.TypeSystem
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax)
             => typeAssignmentVisitor.GetDeclaredType(syntax);
 
+        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
+            => typeAssignmentVisitor.GetDeclaredTypeAssignment(syntax);
+
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
     }

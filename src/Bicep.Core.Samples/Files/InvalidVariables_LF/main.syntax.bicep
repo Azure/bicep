@@ -222,25 +222,25 @@ var x = [
 //@[8:9)   LeftSquare |[|
 //@[9:10)   NewLine |\n|
   3 + 4
-//@[2:8)   ArrayItemSyntax
+//@[2:7)   ArrayItemSyntax
 //@[2:7)    BinaryOperationSyntax
 //@[2:3)     NumericLiteralSyntax
 //@[2:3)      Number |3|
 //@[4:5)     Plus |+|
 //@[6:7)     NumericLiteralSyntax
 //@[6:7)      Number |4|
-//@[7:8)    NewLine |\n|
+//@[7:8)   NewLine |\n|
   =
-//@[2:4)   SkippedTriviaSyntax
+//@[2:3)   SkippedTriviaSyntax
 //@[2:3)    Assignment |=|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   !null
-//@[2:8)   ArrayItemSyntax
+//@[2:7)   ArrayItemSyntax
 //@[2:7)    UnaryOperationSyntax
 //@[2:3)     Exclamation |!|
 //@[3:7)     NullLiteralSyntax
 //@[3:7)      NullKeyword |null|
-//@[7:8)    NewLine |\n|
+//@[7:8)   NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|

@@ -331,6 +331,40 @@ param stringLiteral3 string {
 //@[11:25) [BCP036 (Error)] The property "default" expected a value of type "'abc'" but the provided value is of type "'abc' | 'def'". |stringLiteral2|
 }
 
+param stringModifierCompletions string {
+  // #completionTest(0,1,2) -> stringModifierProperties
+  
+}
+
+param intModifierCompletions int {
+  // #completionTest(0,1,2) -> intModifierProperties
+  
+}
+
+param defaultValueCompletions string {
+  allowed: [
+    'one'
+    'two'
+    'three'
+    // #completionTest(0,1,2,3,4) -> oneTwoThree
+    
+  ]
+  // #completionTest(10,11) -> oneTwoThreePlusSymbols
+  default: 
+//@[11:11) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+  
+  // #completionTest(9,10) -> booleanValues
+  secure: 
+//@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+  metadata: {
+    // #completionTest(0,1,2,3) -> description
+    
+  }
+  // #completionTest(0,1,2) -> stringLengthConstraints
+  
+}
+
 // unterminated multi-line comment
 /*    
 //@[0:6) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |

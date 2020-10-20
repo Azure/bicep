@@ -61,7 +61,7 @@ module modATest './modulea.bicep' = {
 //@[16:17)       LeftSquare |[|
 //@[17:19)       NewLine |\r\n|
       {
-//@[6:34)       ArrayItemSyntax
+//@[6:32)       ArrayItemSyntax
 //@[6:32)        ObjectSyntax
 //@[6:7)         LeftBrace |{|
 //@[7:9)         NewLine |\r\n|
@@ -75,12 +75,12 @@ module modATest './modulea.bicep' = {
 //@[14:16)         NewLine |\r\n|
       }
 //@[6:7)         RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[7:9)       NewLine |\r\n|
       'abc'
-//@[6:13)       ArrayItemSyntax
+//@[6:11)       ArrayItemSyntax
 //@[6:11)        StringSyntax
 //@[6:11)         StringComplete |'abc'|
-//@[11:13)        NewLine |\r\n|
+//@[11:13)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:7)     NewLine |\r\n|

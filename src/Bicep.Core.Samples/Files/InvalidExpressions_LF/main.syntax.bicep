@@ -808,12 +808,12 @@ var errorInsideArrayAccess = [
 //@[29:30)    LeftSquare |[|
 //@[30:31)    NewLine |\n|
   !null
-//@[2:8)    ArrayItemSyntax
+//@[2:7)    ArrayItemSyntax
 //@[2:7)     UnaryOperationSyntax
 //@[2:3)      Exclamation |!|
 //@[3:7)      NullLiteralSyntax
 //@[3:7)       NullKeyword |null|
-//@[7:8)     NewLine |\n|
+//@[7:8)    NewLine |\n|
 ][!0]
 //@[0:1)    RightSquare |]|
 //@[1:2)   LeftSquare |[|
@@ -1399,15 +1399,15 @@ var sampleObject = {
 //@[14:15)       LeftSquare |[|
 //@[15:16)       NewLine |\n|
       's'
-//@[6:10)       ArrayItemSyntax
+//@[6:9)       ArrayItemSyntax
 //@[6:9)        StringSyntax
 //@[6:9)         StringComplete |'s'|
-//@[9:10)        NewLine |\n|
+//@[9:10)       NewLine |\n|
       'a'
-//@[6:10)       ArrayItemSyntax
+//@[6:9)       ArrayItemSyntax
 //@[6:9)        StringSyntax
 //@[6:9)         StringComplete |'a'|
-//@[9:10)        NewLine |\n|
+//@[9:10)       NewLine |\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:6)     NewLine |\n|
@@ -1423,20 +1423,20 @@ var sampleObject = {
 //@[9:10)     LeftSquare |[|
 //@[10:11)     NewLine |\n|
     1
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |1|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     2
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |2|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     3
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |3|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|

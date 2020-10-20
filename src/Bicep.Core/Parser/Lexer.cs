@@ -13,13 +13,6 @@ namespace Bicep.Core.Parser
 {
     public class Lexer
     {
-        private static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
-        {
-            ["true"] = TokenType.TrueKeyword,
-            ["false"] = TokenType.FalseKeyword,
-            ["null"] = TokenType.NullKeyword
-        }.ToImmutableDictionary();
-
         // maps the escape character (that follows the backslash) to its value
         private static readonly ImmutableSortedDictionary<char, char> CharacterEscapes = new Dictionary<char, char>
         {
@@ -441,7 +434,7 @@ namespace Bicep.Core.Parser
         {
             var identifier = textWindow.GetText();
 
-            if (Keywords.TryGetValue(identifier, out var tokenType))
+            if (LanguageConstants.Keywords.TryGetValue(identifier, out var tokenType))
             {
                 return tokenType;
             }

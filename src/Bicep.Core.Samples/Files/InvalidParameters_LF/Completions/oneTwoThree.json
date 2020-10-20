@@ -1,0 +1,32 @@
+[
+  {
+    "label": "'one'",
+    "kind": "enumMember",
+    "detail": "'one'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'one'",
+    "insertText": "'one'",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "'three'",
+    "kind": "enumMember",
+    "detail": "'three'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'three'",
+    "insertText": "'three'",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "'two'",
+    "kind": "enumMember",
+    "detail": "'two'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'two'",
+    "insertText": "'two'",
+    "insertTextFormat": "plainText"
+  }
+]
