@@ -29,8 +29,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
-    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
-      "vscode.executeHoverProvider",
+    const hovers = await executeHoverProviderCommand(
       document.uri,
       new vscode.Position(1, 7)
     );
@@ -45,8 +44,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a variable name", async () => {
-    const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
-      "vscode.executeHoverProvider",
+    const hovers = await executeHoverProviderCommand(
       document.uri,
       new vscode.Position(53, 10)
     );
