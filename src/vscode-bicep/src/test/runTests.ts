@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import { runTests } from "vscode-test";
+import * as cp from "child_process";
+import {
+  runTests,
+  downloadAndUnzipVSCode,
+  resolveCliPathFromVSCodeExecutablePath,
+} from "vscode-test";
 
 async function go() {
   const args = process.argv.slice(2);
@@ -21,7 +26,20 @@ async function go() {
   }
 
   try {
+    const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
+    const cliPath = resolveCliPathFromVSCodeExecutablePath(
+      vscodeExecutablePath
+    );
+
+    // Install .NET Install Tool as a dependency.
+    cp.spawnSync(
+      cliPath,
+      ["--install-extension", "ms-dotnettools.vscode-dotnet-runtime"],
+      { encoding: "utf-8", stdio: "inherit" }
+    );
+
     await runTests({
+      vscodeExecutablePath,
       extensionDevelopmentPath: path.resolve(__dirname, "../.."),
       extensionTestsPath: path.resolve(__dirname, testType, "index"),
       launchArgs: ["--enable-proposed-api"],

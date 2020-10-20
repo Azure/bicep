@@ -37,7 +37,7 @@ export function createTestRunner(configFile: string): TestRunner {
       async () => await runCLI({ _: [], $0: "", ...config }, [workspaceRoot])
     );
 
-    if (results.numFailedTests > 0) {
+    if (results.numFailedTestSuites > 0 || results.numFailedTests > 0) {
       throw new Error(`Tests failed.`);
     }
   };
