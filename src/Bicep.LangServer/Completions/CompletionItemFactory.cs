@@ -15,9 +15,8 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
-        public static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium)
-        {
-            return new CompletionItem
+        public static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+            new CompletionItem
             {
                 Kind = CompletionItemKind.Property,
                 Label = property.Name,
@@ -34,7 +33,6 @@ namespace Bicep.LanguageServer.Completions
                 Preselect = preselect,
                 SortText = GetSortText(property.Name, priority)
             };
-        }
 
         public static CompletionItem CreatePlaintextCompletion(CompletionItemKind kind, string insertText, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             new CompletionItem
@@ -51,9 +49,8 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion that inserts a snippet. The user may not necessarily know that a snippet is being inserted.
         /// </summary>
-        public static CompletionItem CreateSnippetCompletion(CompletionItemKind kind, string label, string snippet, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium)
-        {
-            return new CompletionItem
+        public static CompletionItem CreateSnippetCompletion(CompletionItemKind kind, string label, string snippet, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+            new CompletionItem
             {
                 Kind = kind,
                 Label = label,
@@ -63,7 +60,6 @@ namespace Bicep.LanguageServer.Completions
                 Preselect = preselect,
                 SortText = GetSortText(label, priority)
             };
-        }
 
         public static CompletionItem CreateKeywordCompletion(string keyword, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) => CreatePlaintextCompletion(CompletionItemKind.Keyword, keyword, detail, preselect, priority);
 
@@ -72,9 +68,8 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        public static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium)
-        {
-            return new CompletionItem
+        public static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+            new CompletionItem
             {
                 Kind = CompletionItemKind.Snippet,
                 Label = label,
@@ -89,11 +84,9 @@ namespace Bicep.LanguageServer.Completions
                 Preselect = preselect,
                 SortText = GetSortText(label, priority)
             };
-        }
 
-        public static CompletionItem CreateSymbolCompletion(Symbol symbol, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium)
-        {
-            return new CompletionItem
+        public static CompletionItem CreateSymbolCompletion(Symbol symbol, bool preselect = false) =>
+            new CompletionItem
             {
                 Label = symbol.Name,
                 Kind = GetCompletionItemKind(symbol),
@@ -101,13 +94,19 @@ namespace Bicep.LanguageServer.Completions
                 InsertText = symbol.Name,
                 InsertTextFormat = InsertTextFormat.PlainText,
                 Preselect = preselect,
-                SortText = GetSortText(symbol.Name, priority)
+                SortText = GetSortText(symbol.Name, GetCompletionPriority(symbol))
             };
-        }
 
-        private static CompletionItemKind GetCompletionItemKind(Symbol symbol)
-        {
-            return symbol.Kind switch
+        private static CompletionPriority GetCompletionPriority(Symbol symbol) =>
+            symbol.Kind switch
+            {
+                SymbolKind.Function => CompletionPriority.Low,
+                SymbolKind.Namespace => CompletionPriority.Low,
+                _ => CompletionPriority.Medium
+            };
+
+        private static CompletionItemKind GetCompletionItemKind(Symbol symbol) =>
+            symbol.Kind switch
             {
                 SymbolKind.Function => CompletionItemKind.Function,
                 SymbolKind.File => CompletionItemKind.File,
@@ -118,12 +117,9 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 _ => CompletionItemKind.Text
             };
-        }
 
-        private static bool IsPropertyNameEscapingRequired(TypeProperty property)
-        {
-            return !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
-        }
+        private static bool IsPropertyNameEscapingRequired(TypeProperty property) => 
+            !Lexer.IsValidIdentifier(property.Name) || LanguageConstants.Keywords.ContainsKey(property.Name);
 
         private static string FormatPropertyDetail(TypeProperty property) =>
             property.Flags.HasFlag(TypePropertyFlags.Required)
