@@ -135,6 +135,10 @@ jobs:
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
+        
+      - name: Compile
+        run: npm run compile
+        working-directory: ./src/vscode-bicep
 
       - name: Run lint
         run: npm run lint
