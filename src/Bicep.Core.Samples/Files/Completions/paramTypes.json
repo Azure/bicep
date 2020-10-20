@@ -5,6 +5,7 @@
     "detail": "array",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_array",
     "insertText": "array",
     "insertTextFormat": "plainText"
   },
@@ -14,6 +15,7 @@
     "detail": "bool",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_bool",
     "insertText": "bool",
     "insertTextFormat": "plainText"
   },
@@ -23,6 +25,7 @@
     "detail": "int",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_int",
     "insertText": "int",
     "insertTextFormat": "plainText"
   },
@@ -32,6 +35,7 @@
     "detail": "object",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_object",
     "insertText": "object",
     "insertTextFormat": "plainText"
   },
@@ -45,6 +49,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_secureObject",
     "insertText": "object {\n  secure: true\n}",
     "insertTextFormat": "snippet"
   },
@@ -58,6 +63,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_secureString",
     "insertText": "string {\n  secure: true\n}",
     "insertTextFormat": "snippet"
   },
@@ -67,6 +73,7 @@
     "detail": "string",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_string",
     "insertText": "string",
     "insertTextFormat": "plainText"
   }

@@ -135,11 +135,9 @@ namespace Bicep.LanguageServer.Completions
                         // the token at current position is inside a program node
                         // we're in a declaration if one of the following conditions is met:
                         // 1. the token is EOF
-                        // 2. the token is a newline and offset is 0 (file has content, but cursor is at the beginning)
-                        // 3. the token is a newline and offset is past the beginning position of the new line
-                        // (this prevents the end of a declaration from being considered a declaration context)
+                        // 2. the token is a newline
                         return token.Type == TokenType.EndOfFile || 
-                               token.Type == TokenType.NewLine && (offset > token.Span.Position || offset == 0);
+                               token.Type == TokenType.NewLine;
                     
                     case SkippedTriviaSyntax _:
                         // we are in a partial declaration

@@ -9,6 +9,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_name",
     "insertText": "name",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -25,6 +26,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_secureValue",
     "insertText": "secureValue",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -41,6 +43,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_value",
     "insertText": "value",
     "insertTextFormat": "plainText",
     "commitCharacters": [

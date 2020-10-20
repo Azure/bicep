@@ -4,7 +4,8 @@
     "kind": "keyword",
     "detail": "false",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "1_false",
     "insertText": "false",
     "insertTextFormat": "plainText"
   },
@@ -13,7 +14,8 @@
     "kind": "keyword",
     "detail": "true",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "1_true",
     "insertText": "true",
     "insertTextFormat": "plainText"
   }

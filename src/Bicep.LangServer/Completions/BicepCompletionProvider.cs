@@ -85,15 +85,14 @@ namespace Bicep.LanguageServer.Completions
 
             // when we're inside an expression that is inside a property that expects a compile-time constant value,
             // we should not be emitting accessible symbol completions
-            return GetAccessibleSymbols(model, context).Select(SymbolExtensions.ToCompletionItem);
+            return GetAccessibleSymbols(model, context).Select(symbol => CompletionItemFactory.CreateSymbolCompletion(symbol));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext context)
         {
             // local function
             IEnumerable<CompletionItem> GetPrimitiveTypeCompletions() =>
-                LanguageConstants.DeclarationTypes.Values.Select(CompletionItemFactory.CreateTypeCompletion);
-
+                LanguageConstants.DeclarationTypes.Values.Select(type => CompletionItemFactory.CreateTypeCompletion(type));
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
@@ -181,7 +180,7 @@ namespace Bicep.LanguageServer.Completions
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.ReadOnly) == false && specifiedPropertyNames.Contains(p.Name) == false)
-                .Select(CompletionItemFactory.CreatePropertyNameCompletion);
+                .Select(p => CompletionItemFactory.CreatePropertyNameCompletion(p));
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol type)
@@ -241,7 +240,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (flags != DeclaredTypeFlags.Constant)
             {
-                completions = completions.Concat(GetAccessibleSymbols(model, context).Select(SymbolExtensions.ToCompletionItem));
+                completions = completions.Concat(GetAccessibleSymbols(model, context).Select(symbol => CompletionItemFactory.CreateSymbolCompletion(symbol)));
             }
 
             return completions;
@@ -252,23 +251,23 @@ namespace Bicep.LanguageServer.Completions
             switch (propertyType)
             {
                 case PrimitiveType _ when ReferenceEquals(propertyType, LanguageConstants.Bool):
-                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword);
-                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword);
+                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, preselect: true, CompletionPriority.High);
+                    yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, preselect: true, CompletionPriority.High);
                     
                     break;
 
                 case StringLiteralType stringLiteral:
-                    yield return CompletionItemFactory.CreatePlaintextCompletion(CompletionItemKind.EnumMember, stringLiteral.Name, stringLiteral.Name);
+                    yield return CompletionItemFactory.CreatePlaintextCompletion(CompletionItemKind.EnumMember, stringLiteral.Name, stringLiteral.Name, preselect: true);
                     
                     break;
 
                 case ArrayType _:
-                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "[]", "[$0]", "[]");
+                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "[]", "[$0]", "[]", preselect: true, CompletionPriority.High);
                     
                     break;
 
                 case ObjectType _:
-                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "{}", "{$0}", "{}");
+                    yield return CompletionItemFactory.CreateSnippetCompletion(CompletionItemKind.Value, "{}", "{$0}", "{}", preselect: true, CompletionPriority.High);
                     
                     break;
 

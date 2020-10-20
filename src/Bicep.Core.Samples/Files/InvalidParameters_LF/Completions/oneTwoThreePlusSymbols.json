@@ -4,7 +4,8 @@
     "kind": "enumMember",
     "detail": "'one'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'one'",
     "insertText": "'one'",
     "insertTextFormat": "plainText"
   },
@@ -13,7 +14,8 @@
     "kind": "enumMember",
     "detail": "'three'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'three'",
     "insertText": "'three'",
     "insertTextFormat": "plainText"
   },
@@ -22,7 +24,8 @@
     "kind": "enumMember",
     "detail": "'two'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'two'",
     "insertText": "'two'",
     "insertTextFormat": "plainText"
   },
@@ -32,6 +35,7 @@
     "detail": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
     "insertText": "WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong",
     "insertTextFormat": "plainText"
   },
@@ -41,6 +45,7 @@
     "detail": "any",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_any",
     "insertText": "any",
     "insertTextFormat": "plainText"
   },
@@ -50,6 +55,7 @@
     "detail": "array",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_array",
     "insertText": "array",
     "insertTextFormat": "plainText"
   },
@@ -59,6 +65,7 @@
     "detail": "badInterpolatedString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_badInterpolatedString",
     "insertText": "badInterpolatedString",
     "insertTextFormat": "plainText"
   },
@@ -68,6 +75,7 @@
     "detail": "badInterpolatedString2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_badInterpolatedString2",
     "insertText": "badInterpolatedString2",
     "insertTextFormat": "plainText"
   },
@@ -77,6 +85,7 @@
     "detail": "base64",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_base64",
     "insertText": "base64",
     "insertTextFormat": "plainText"
   },
@@ -86,6 +95,7 @@
     "detail": "base64ToJson",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_base64ToJson",
     "insertText": "base64ToJson",
     "insertTextFormat": "plainText"
   },
@@ -95,6 +105,7 @@
     "detail": "base64ToString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_base64ToString",
     "insertText": "base64ToString",
     "insertTextFormat": "plainText"
   },
@@ -104,6 +115,7 @@
     "detail": "bool",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_bool",
     "insertText": "bool",
     "insertTextFormat": "plainText"
   },
@@ -113,6 +125,7 @@
     "detail": "coalesce",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_coalesce",
     "insertText": "coalesce",
     "insertTextFormat": "plainText"
   },
@@ -122,6 +135,7 @@
     "detail": "concat",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_concat",
     "insertText": "concat",
     "insertTextFormat": "plainText"
   },
@@ -131,6 +145,7 @@
     "detail": "contains",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_contains",
     "insertText": "contains",
     "insertTextFormat": "plainText"
   },
@@ -140,6 +155,7 @@
     "detail": "dataUri",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_dataUri",
     "insertText": "dataUri",
     "insertTextFormat": "plainText"
   },
@@ -149,6 +165,7 @@
     "detail": "dataUriToString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_dataUriToString",
     "insertText": "dataUriToString",
     "insertTextFormat": "plainText"
   },
@@ -158,6 +175,7 @@
     "detail": "dateTimeAdd",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_dateTimeAdd",
     "insertText": "dateTimeAdd",
     "insertTextFormat": "plainText"
   },
@@ -167,6 +185,7 @@
     "detail": "deployment",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_deployment",
     "insertText": "deployment",
     "insertTextFormat": "plainText"
   },
@@ -176,6 +195,7 @@
     "detail": "duplicatedModifierProperty",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_duplicatedModifierProperty",
     "insertText": "duplicatedModifierProperty",
     "insertTextFormat": "plainText"
   },
@@ -185,6 +205,7 @@
     "detail": "empty",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_empty",
     "insertText": "empty",
     "insertTextFormat": "plainText"
   },
@@ -194,6 +215,7 @@
     "detail": "emptyAllowedInt",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_emptyAllowedInt",
     "insertText": "emptyAllowedInt",
     "insertTextFormat": "plainText"
   },
@@ -203,6 +225,7 @@
     "detail": "emptyAllowedString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_emptyAllowedString",
     "insertText": "emptyAllowedString",
     "insertTextFormat": "plainText"
   },
@@ -212,6 +235,7 @@
     "detail": "endsWith",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_endsWith",
     "insertText": "endsWith",
     "insertTextFormat": "plainText"
   },
@@ -221,6 +245,7 @@
     "detail": "environment",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_environment",
     "insertText": "environment",
     "insertTextFormat": "plainText"
   },
@@ -230,6 +255,7 @@
     "detail": "expressionInModifier",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_expressionInModifier",
     "insertText": "expressionInModifier",
     "insertTextFormat": "plainText"
   },
@@ -239,6 +265,7 @@
     "detail": "extensionResourceId",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_extensionResourceId",
     "insertText": "extensionResourceId",
     "insertTextFormat": "plainText"
   },
@@ -248,6 +275,7 @@
     "detail": "first",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_first",
     "insertText": "first",
     "insertTextFormat": "plainText"
   },
@@ -257,6 +285,7 @@
     "detail": "format",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_format",
     "insertText": "format",
     "insertTextFormat": "plainText"
   },
@@ -266,6 +295,7 @@
     "detail": "guid",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_guid",
     "insertText": "guid",
     "insertTextFormat": "plainText"
   },
@@ -275,6 +305,7 @@
     "detail": "indexOf",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_indexOf",
     "insertText": "indexOf",
     "insertTextFormat": "plainText"
   },
@@ -284,6 +315,7 @@
     "detail": "int",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_int",
     "insertText": "int",
     "insertTextFormat": "plainText"
   },
@@ -293,6 +325,7 @@
     "detail": "intModifierCompletions",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_intModifierCompletions",
     "insertText": "intModifierCompletions",
     "insertTextFormat": "plainText"
   },
@@ -302,6 +335,7 @@
     "detail": "intersection",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_intersection",
     "insertText": "intersection",
     "insertTextFormat": "plainText"
   },
@@ -311,6 +345,7 @@
     "detail": "json",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_json",
     "insertText": "json",
     "insertTextFormat": "plainText"
   },
@@ -320,6 +355,7 @@
     "detail": "last",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_last",
     "insertText": "last",
     "insertTextFormat": "plainText"
   },
@@ -329,6 +365,7 @@
     "detail": "lastIndexOf",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_lastIndexOf",
     "insertText": "lastIndexOf",
     "insertTextFormat": "plainText"
   },
@@ -338,6 +375,7 @@
     "detail": "length",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_length",
     "insertText": "length",
     "insertTextFormat": "plainText"
   },
@@ -347,6 +385,7 @@
     "detail": "malformedModifier",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_malformedModifier",
     "insertText": "malformedModifier",
     "insertTextFormat": "plainText"
   },
@@ -356,6 +395,7 @@
     "detail": "malformedType",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_malformedType",
     "insertText": "malformedType",
     "insertTextFormat": "plainText"
   },
@@ -365,6 +405,7 @@
     "detail": "malformedType2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_malformedType2",
     "insertText": "malformedType2",
     "insertTextFormat": "plainText"
   },
@@ -374,6 +415,7 @@
     "detail": "max",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_max",
     "insertText": "max",
     "insertTextFormat": "plainText"
   },
@@ -383,6 +425,7 @@
     "detail": "min",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_min",
     "insertText": "min",
     "insertTextFormat": "plainText"
   },
@@ -392,6 +435,7 @@
     "detail": "missingType",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_missingType",
     "insertText": "missingType",
     "insertTextFormat": "plainText"
   },
@@ -401,6 +445,7 @@
     "detail": "missingTypeWithSpaceAfter",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_missingTypeWithSpaceAfter",
     "insertText": "missingTypeWithSpaceAfter",
     "insertTextFormat": "plainText"
   },
@@ -410,6 +455,7 @@
     "detail": "missingTypeWithTabAfter",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_missingTypeWithTabAfter",
     "insertText": "missingTypeWithTabAfter",
     "insertTextFormat": "plainText"
   },
@@ -419,6 +465,7 @@
     "detail": "myBool",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myBool",
     "insertText": "myBool",
     "insertTextFormat": "plainText"
   },
@@ -428,6 +475,7 @@
     "detail": "myFalsehood",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myFalsehood",
     "insertText": "myFalsehood",
     "insertTextFormat": "plainText"
   },
@@ -437,6 +485,7 @@
     "detail": "myInt",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myInt",
     "insertText": "myInt",
     "insertTextFormat": "plainText"
   },
@@ -446,6 +495,7 @@
     "detail": "myInt2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myInt2",
     "insertText": "myInt2",
     "insertTextFormat": "plainText"
   },
@@ -455,6 +505,7 @@
     "detail": "myString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myString",
     "insertText": "myString",
     "insertTextFormat": "plainText"
   },
@@ -464,6 +515,7 @@
     "detail": "myString2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myString2",
     "insertText": "myString2",
     "insertTextFormat": "plainText"
   },
@@ -473,6 +525,7 @@
     "detail": "myTruth",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_myTruth",
     "insertText": "myTruth",
     "insertTextFormat": "plainText"
   },
@@ -482,6 +535,7 @@
     "detail": "newGuid",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_newGuid",
     "insertText": "newGuid",
     "insertTextFormat": "plainText"
   },
@@ -491,6 +545,7 @@
     "detail": "noValueAfterColon",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_noValueAfterColon",
     "insertText": "noValueAfterColon",
     "insertTextFormat": "plainText"
   },
@@ -500,6 +555,7 @@
     "detail": "padLeft",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_padLeft",
     "insertText": "padLeft",
     "insertTextFormat": "plainText"
   },
@@ -509,6 +565,7 @@
     "detail": "paramAccessingOutput",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingOutput",
     "insertText": "paramAccessingOutput",
     "insertTextFormat": "plainText"
   },
@@ -518,6 +575,7 @@
     "detail": "paramAccessingOutput2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingOutput2",
     "insertText": "paramAccessingOutput2",
     "insertTextFormat": "plainText"
   },
@@ -527,6 +585,7 @@
     "detail": "paramAccessingResource",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingResource",
     "insertText": "paramAccessingResource",
     "insertTextFormat": "plainText"
   },
@@ -536,6 +595,7 @@
     "detail": "paramAccessingResource2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingResource2",
     "insertText": "paramAccessingResource2",
     "insertTextFormat": "plainText"
   },
@@ -545,6 +605,7 @@
     "detail": "paramAccessingVar",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingVar",
     "insertText": "paramAccessingVar",
     "insertTextFormat": "plainText"
   },
@@ -554,6 +615,7 @@
     "detail": "paramAccessingVar2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramAccessingVar2",
     "insertText": "paramAccessingVar2",
     "insertTextFormat": "plainText"
   },
@@ -563,6 +625,7 @@
     "detail": "paramDefaultOneCycle",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramDefaultOneCycle",
     "insertText": "paramDefaultOneCycle",
     "insertTextFormat": "plainText"
   },
@@ -572,6 +635,7 @@
     "detail": "paramDefaultTwoCycle1",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramDefaultTwoCycle1",
     "insertText": "paramDefaultTwoCycle1",
     "insertTextFormat": "plainText"
   },
@@ -581,6 +645,7 @@
     "detail": "paramDefaultTwoCycle2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramDefaultTwoCycle2",
     "insertText": "paramDefaultTwoCycle2",
     "insertTextFormat": "plainText"
   },
@@ -590,6 +655,7 @@
     "detail": "paramMixedTwoCycle1",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramMixedTwoCycle1",
     "insertText": "paramMixedTwoCycle1",
     "insertTextFormat": "plainText"
   },
@@ -599,6 +665,7 @@
     "detail": "paramMixedTwoCycle2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramMixedTwoCycle2",
     "insertText": "paramMixedTwoCycle2",
     "insertTextFormat": "plainText"
   },
@@ -608,6 +675,7 @@
     "detail": "paramModifierOneCycle",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramModifierOneCycle",
     "insertText": "paramModifierOneCycle",
     "insertTextFormat": "plainText"
   },
@@ -617,6 +685,7 @@
     "detail": "paramModifierSelfCycle",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramModifierSelfCycle",
     "insertText": "paramModifierSelfCycle",
     "insertTextFormat": "plainText"
   },
@@ -626,6 +695,7 @@
     "detail": "paramModifierTwoCycle1",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramModifierTwoCycle1",
     "insertText": "paramModifierTwoCycle1",
     "insertTextFormat": "plainText"
   },
@@ -635,6 +705,7 @@
     "detail": "paramModifierTwoCycle2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_paramModifierTwoCycle2",
     "insertText": "paramModifierTwoCycle2",
     "insertTextFormat": "plainText"
   },
@@ -644,6 +715,7 @@
     "detail": "partialType",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_partialType",
     "insertText": "partialType",
     "insertTextFormat": "plainText"
   },
@@ -653,6 +725,7 @@
     "detail": "pickZones",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_pickZones",
     "insertText": "pickZones",
     "insertTextFormat": "plainText"
   },
@@ -662,6 +735,7 @@
     "detail": "providers",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_providers",
     "insertText": "providers",
     "insertTextFormat": "plainText"
   },
@@ -671,6 +745,7 @@
     "detail": "range",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_range",
     "insertText": "range",
     "insertTextFormat": "plainText"
   },
@@ -680,6 +755,7 @@
     "detail": "reference",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_reference",
     "insertText": "reference",
     "insertTextFormat": "plainText"
   },
@@ -689,6 +765,7 @@
     "detail": "replace",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_replace",
     "insertText": "replace",
     "insertTextFormat": "plainText"
   },
@@ -698,6 +775,7 @@
     "detail": "resourceGroup",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resourceGroup",
     "insertText": "resourceGroup",
     "insertTextFormat": "plainText"
   },
@@ -707,6 +785,7 @@
     "detail": "resourceId",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_resourceId",
     "insertText": "resourceId",
     "insertTextFormat": "plainText"
   },
@@ -716,6 +795,7 @@
     "detail": "sampleResource",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_sampleResource",
     "insertText": "sampleResource",
     "insertTextFormat": "plainText"
   },
@@ -725,6 +805,7 @@
     "detail": "sampleVar",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_sampleVar",
     "insertText": "sampleVar",
     "insertTextFormat": "plainText"
   },
@@ -734,6 +815,7 @@
     "detail": "secureInt",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_secureInt",
     "insertText": "secureInt",
     "insertTextFormat": "plainText"
   },
@@ -743,6 +825,7 @@
     "detail": "skip",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_skip",
     "insertText": "skip",
     "insertTextFormat": "plainText"
   },
@@ -752,6 +835,7 @@
     "detail": "someArray",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_someArray",
     "insertText": "someArray",
     "insertTextFormat": "plainText"
   },
@@ -761,6 +845,7 @@
     "detail": "split",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_split",
     "insertText": "split",
     "insertTextFormat": "plainText"
   },
@@ -770,6 +855,7 @@
     "detail": "startsWith",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_startsWith",
     "insertText": "startsWith",
     "insertTextFormat": "plainText"
   },
@@ -779,6 +865,7 @@
     "detail": "string",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_string",
     "insertText": "string",
     "insertTextFormat": "plainText"
   },
@@ -788,6 +875,7 @@
     "detail": "stringLiteral",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_stringLiteral",
     "insertText": "stringLiteral",
     "insertTextFormat": "plainText"
   },
@@ -797,6 +885,7 @@
     "detail": "stringLiteral2",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_stringLiteral2",
     "insertText": "stringLiteral2",
     "insertTextFormat": "plainText"
   },
@@ -806,6 +895,7 @@
     "detail": "stringLiteral3",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_stringLiteral3",
     "insertText": "stringLiteral3",
     "insertTextFormat": "plainText"
   },
@@ -815,6 +905,7 @@
     "detail": "stringModifierCompletions",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_stringModifierCompletions",
     "insertText": "stringModifierCompletions",
     "insertTextFormat": "plainText"
   },
@@ -824,6 +915,7 @@
     "detail": "subscription",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_subscription",
     "insertText": "subscription",
     "insertTextFormat": "plainText"
   },
@@ -833,6 +925,7 @@
     "detail": "subscriptionResourceId",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_subscriptionResourceId",
     "insertText": "subscriptionResourceId",
     "insertTextFormat": "plainText"
   },
@@ -842,6 +935,7 @@
     "detail": "substring",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_substring",
     "insertText": "substring",
     "insertTextFormat": "plainText"
   },
@@ -851,6 +945,7 @@
     "detail": "take",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_take",
     "insertText": "take",
     "insertTextFormat": "plainText"
   },
@@ -860,6 +955,7 @@
     "detail": "tenantResourceId",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_tenantResourceId",
     "insertText": "tenantResourceId",
     "insertTextFormat": "plainText"
   },
@@ -869,6 +965,7 @@
     "detail": "toLower",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_toLower",
     "insertText": "toLower",
     "insertTextFormat": "plainText"
   },
@@ -878,6 +975,7 @@
     "detail": "toUpper",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_toUpper",
     "insertText": "toUpper",
     "insertTextFormat": "plainText"
   },
@@ -887,6 +985,7 @@
     "detail": "trim",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_trim",
     "insertText": "trim",
     "insertTextFormat": "plainText"
   },
@@ -896,6 +995,7 @@
     "detail": "union",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_union",
     "insertText": "union",
     "insertTextFormat": "plainText"
   },
@@ -905,6 +1005,7 @@
     "detail": "uniqueString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_uniqueString",
     "insertText": "uniqueString",
     "insertTextFormat": "plainText"
   },
@@ -914,6 +1015,7 @@
     "detail": "uri",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_uri",
     "insertText": "uri",
     "insertTextFormat": "plainText"
   },
@@ -923,6 +1025,7 @@
     "detail": "uriComponent",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_uriComponent",
     "insertText": "uriComponent",
     "insertTextFormat": "plainText"
   },
@@ -932,6 +1035,7 @@
     "detail": "uriComponentToString",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_uriComponentToString",
     "insertText": "uriComponentToString",
     "insertTextFormat": "plainText"
   },
@@ -941,6 +1045,7 @@
     "detail": "utcNow",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_utcNow",
     "insertText": "utcNow",
     "insertTextFormat": "plainText"
   },
@@ -950,6 +1055,7 @@
     "detail": "wrongAssignmentToken",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_wrongAssignmentToken",
     "insertText": "wrongAssignmentToken",
     "insertTextFormat": "plainText"
   },
@@ -959,6 +1065,7 @@
     "detail": "wrongDefaultValue",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_wrongDefaultValue",
     "insertText": "wrongDefaultValue",
     "insertTextFormat": "plainText"
   },
@@ -968,6 +1075,7 @@
     "detail": "wrongIntModifier",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_wrongIntModifier",
     "insertText": "wrongIntModifier",
     "insertTextFormat": "plainText"
   },
@@ -977,6 +1085,7 @@
     "detail": "wrongMetadataSchema",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_wrongMetadataSchema",
     "insertText": "wrongMetadataSchema",
     "insertTextFormat": "plainText"
   },
@@ -986,6 +1095,7 @@
     "detail": "wrongType",
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_wrongType",
     "insertText": "wrongType",
     "insertTextFormat": "plainText"
   }

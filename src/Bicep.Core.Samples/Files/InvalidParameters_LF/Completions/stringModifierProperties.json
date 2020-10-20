@@ -9,6 +9,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_allowed",
     "insertText": "allowed",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -25,6 +26,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_default",
     "insertText": "default",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -41,6 +43,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_maxLength",
     "insertText": "maxLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -57,6 +60,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_metadata",
     "insertText": "metadata",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -73,6 +77,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_minLength",
     "insertText": "minLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -89,6 +94,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_secure",
     "insertText": "secure",
     "insertTextFormat": "plainText",
     "commitCharacters": [

@@ -9,6 +9,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_maxLength",
     "insertText": "maxLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [
@@ -25,6 +26,7 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_minLength",
     "insertText": "minLength",
     "insertTextFormat": "plainText",
     "commitCharacters": [

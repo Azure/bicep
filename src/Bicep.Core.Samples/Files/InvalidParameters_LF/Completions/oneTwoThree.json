@@ -4,7 +4,8 @@
     "kind": "enumMember",
     "detail": "'one'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'one'",
     "insertText": "'one'",
     "insertTextFormat": "plainText"
   },
@@ -13,7 +14,8 @@
     "kind": "enumMember",
     "detail": "'three'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'three'",
     "insertText": "'three'",
     "insertTextFormat": "plainText"
   },
@@ -22,7 +24,8 @@
     "kind": "enumMember",
     "detail": "'two'",
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
+    "sortText": "2_'two'",
     "insertText": "'two'",
     "insertTextFormat": "plainText"
   }
