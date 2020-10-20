@@ -134,7 +134,7 @@ jobs:
 
       - name: npm ci
         run: npm ci
-        working-directory: ./src/vscode-bicep
+        working-directory: ./src/vscode-bicp
 
       - name: Run lint
         run: npm run lint
@@ -148,9 +148,11 @@ jobs:
           
       - name: Run unit tests
         run: xvfb-run -a npm run test:unit
+        working-directory: ./src/vscode-bicp
         
       - name: Run E2E tests
         run: xvfb-run -a npm run test:e2e
+        working-directory: ./src/vscode-bicp
 
       - name: Create VSIX
         run: npm run package
