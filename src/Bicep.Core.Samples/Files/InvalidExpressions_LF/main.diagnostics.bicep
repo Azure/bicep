@@ -307,11 +307,11 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 var invalidInstanceFunctionCall = az.az()
 //@[37:39) [BCP086 (Error)] The function "az" does not exist in namespace "az". |az|
 var invalidPropertyAccessOnAzNamespace = az.az
-//@[44:46) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+//@[41:43) [BCP063 (Error)] The name "az" is not a parameter or variable. |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
-//@[46:48) [BCP055 (Error)] Cannot access properties of type "namespace". An "object" type is required. |az|
+//@[42:45) [BCP063 (Error)] The name "sys" is not a parameter or variable. |sys|
 var invalidOperands = 1 + az
-//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "namespace". |1 + az|
+//@[26:28) [BCP063 (Error)] The name "az" is not a parameter or variable. |az|
 
 var bannedFunctions = {
   var: variables()

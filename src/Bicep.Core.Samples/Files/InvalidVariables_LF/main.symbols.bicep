@@ -110,3 +110,7 @@ var rgName = resourceGroup().name
 // invalid use of reserved namespace
 var az = 1
 //@[4:6) Variable az. Type: int. Declaration start char: 0, length: 10
+
+// cannot assign a variable to a namespace
+var invalidNamespaceAssignment = az
+//@[4:30) Variable invalidNamespaceAssignment. Type: error. Declaration start char: 0, length: 35

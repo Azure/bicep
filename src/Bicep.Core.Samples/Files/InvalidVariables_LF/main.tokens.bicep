@@ -323,4 +323,13 @@ var az = 1
 //@[4:6) Identifier |az|
 //@[7:8) Assignment |=|
 //@[9:10) Number |1|
-//@[10:10) EndOfFile ||
+//@[10:12) NewLine |\n\n|
+
+// cannot assign a variable to a namespace
+//@[42:43) NewLine |\n|
+var invalidNamespaceAssignment = az
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |invalidNamespaceAssignment|
+//@[31:32) Assignment |=|
+//@[33:35) Identifier |az|
+//@[35:35) EndOfFile ||
