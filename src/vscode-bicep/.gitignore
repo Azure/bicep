@@ -3,3 +3,4 @@ server
 node_modules
 *.vsix
 .vscode-test
+coverage

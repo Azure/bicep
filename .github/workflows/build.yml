@@ -158,6 +158,12 @@ jobs:
         run: xvfb-run -a npm run test:e2e
         working-directory: ./src/vscode-bicep
 
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          flags: typescript
+          directory: ./src/vscode-bicep/coverage
+
       - name: Create VSIX
         run: npm run package
         working-directory: ./src/vscode-bicep

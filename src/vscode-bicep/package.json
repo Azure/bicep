@@ -79,7 +79,7 @@
         "lint:fix": "eslint src --ext ts --fix",
         "test:e2e": "node ./out/test/e2e/runTests.js",
         "test:unit": "jest --config jest.config.unit.js",
-        "clean": "rimraf ./out",
+        "clean": "rimraf ./out ./coverage",
         "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },
     "devDependencies": {
