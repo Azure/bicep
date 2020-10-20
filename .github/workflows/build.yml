@@ -135,6 +135,10 @@ jobs:
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
+        
+      - name: Compile
+        run: npm run compile
+        working-directory: ./src/vscode-bicep
 
       - name: Run lint
         run: npm run lint
@@ -145,6 +149,20 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
+          
+      - name: Run unit tests
+        run: npm run test:unit
+        working-directory: ./src/vscode-bicep
+        
+      - name: Run E2E tests
+        run: xvfb-run -a npm run test:e2e
+        working-directory: ./src/vscode-bicep
+
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          flags: typescript
+          directory: ./src/vscode-bicep/coverage
 
       - name: Create VSIX
         run: npm run package

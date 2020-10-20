@@ -15,6 +15,14 @@ coverage:
           - dotnet
         paths:
           - src
+      
+      vscode-bicep:
+        target: auto
+        threshold: 1%
+        flags:
+          - typescript
+        paths:
+          - src/vscode-bicep
 
 comment:
   layout: "reach,diff,flags,tree"
