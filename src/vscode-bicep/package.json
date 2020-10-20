@@ -79,6 +79,7 @@
         "lint:fix": "eslint src --ext ts --fix",
         "test:e2e": "node ./out/test/runTests.js e2e",
         "test:unit": "node ./out/test/runTests.js unit",
+        "clean": "rimraf ./out",
         "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },
     "devDependencies": {
@@ -98,6 +99,7 @@
         "jest": "^26.5.3",
         "nerdbank-gitversioning": "^3.3.37",
         "prettier": "^2.1.2",
+        "rimraf": "^3.0.2",
         "typescript": "^4.0.3",
         "vsce": "^1.81.1",
         "vscode-test": "^1.4.0"
