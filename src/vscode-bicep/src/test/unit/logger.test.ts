@@ -14,7 +14,7 @@ import * as vscode from "vscode";
 import * as winston from "winston";
 
 import * as loggerModule from "../../utils/logger";
-import { expectDefined } from "../utils";
+import { expectDefined } from "../utils/assert";
 
 const mockWinstonLogger = ({
   clear: jest.fn(),

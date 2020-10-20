@@ -4,8 +4,9 @@ import * as vscode from "vscode";
 import { Range } from "vscode";
 import { Position } from "vscode";
 
-import { expectDefined, readExampleFile } from "../utils";
+import { readExampleFile } from "./examples";
 import { executeCompletionItemProviderCommand } from "./commands";
+import { expectDefined } from "../utils/assert";
 
 describe("completion", (): void => {
   let document: vscode.TextDocument;

@@ -3,14 +3,18 @@
 import * as path from "path";
 import { readFileSync } from "fs";
 
-const examplesRoot = path.resolve(__dirname, "../../../../../docs/examples");
+// Cannot use __dirname because the .bicep files won't be copied to /out.
+const examplesRoot = path.resolve(
+  __dirname,
+  "../../../../src/test/e2e/examples"
+);
 
 export function readExampleFile(
   exampleCategory: string,
   exampleFolder: string,
   exampleFile = "main.bicep"
 ): string {
-  const exampleFilePath = path.join(
+  const exampleFilePath = path.resolve(
     examplesRoot,
     exampleCategory,
     exampleFolder,

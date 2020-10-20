@@ -2,14 +2,9 @@
 // Licensed under the MIT License.
 import * as vscode from "vscode";
 
-import {
-  expectDefined,
-  expectRange,
-  marked,
-  normalizeMarkedString,
-  readExampleFile,
-} from "../utils";
+import { expectDefined, expectRange } from "../utils/assert";
 import { executeHoverProviderCommand } from "./commands";
+import { readExampleFile } from "./examples";
 
 describe("hover", (): void => {
   let document: vscode.TextDocument;
@@ -139,5 +134,13 @@ describe("hover", (): void => {
         );
       });
     });
+  }
+
+  function normalizeMarkedString(markedString: vscode.MarkedString): string {
+    return typeof markedString === "string" ? markedString : markedString.value;
+  }
+
+  function marked(rawString: string): string {
+    return "```bicep\n" + rawString + "\n```";
   }
 });
