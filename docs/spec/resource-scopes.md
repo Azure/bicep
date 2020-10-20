@@ -24,7 +24,7 @@ target = [
 ]
 ```
 
-The following strings are permitted for the `target` keyword: `'tenant'`, `'managementGroup'`, `'subscription'`, `'resourceGroup'`, `'extension'`. Expressions are not permitted.
+The following strings are permitted for the `target` keyword: `'tenant'`, `'managementGroup'`, `'subscription'`, `'resourceGroup'`. Expressions are not permitted.
 
 It is important to set the target scope because it allows Bicep to perform validation that the resources declared in the `.bicep` file are permitted at that scope, and it also ensures that the correct type of scope is passed to the module when the module is referenced.
 
