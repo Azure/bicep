@@ -7,14 +7,23 @@ export function expectDefined<T>(value: T | undefined): asserts value is T {
 }
 
 export function expectRange(
-  range: Range,
+  { start, end }: Range,
   startLine: number,
   startCharacter: number,
   endLine: number,
   endCharacter: number
 ): void {
-  expect(range.start.line).toBe(startLine);
-  expect(range.start.character).toBe(startCharacter);
-  expect(range.end.line).toBe(endLine);
-  expect(range.end.character).toBe(endCharacter);
+  const range = {
+    startLine: start.line,
+    startCharacter: start.character,
+    endLine: end.line,
+    endCharacter: end.character,
+  };
+
+  expect(range).toMatchObject({
+    startLine,
+    startCharacter,
+    endLine,
+    endCharacter,
+  });
 }

@@ -151,7 +151,7 @@ jobs:
           path: ./src/vscode-bicep/bicepLanguageServer
           
       - name: Run unit tests
-        run: xvfb-run -a npm run test:unit
+        run: npm run test:unit
         working-directory: ./src/vscode-bicep
         
       - name: Run E2E tests

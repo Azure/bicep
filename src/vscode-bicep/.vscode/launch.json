@@ -33,21 +33,6 @@
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
       }
-    },
-    {
-      "name": "Launch Tests: Unit",
-      "type": "extensionHost",
-      "request": "launch",
-      "args": [
-        "--enable-proposed-api",
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
-      ],
-      "outFiles": ["${workspaceRoot}/out/test/unit/**/*.js"],
-      "preLaunchTask": "npm: watch",
-      "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
-      }
     }
   ]
 }

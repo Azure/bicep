@@ -77,8 +77,8 @@
         "watch": "tsc -watch -p ./",
         "lint": "eslint src --ext ts",
         "lint:fix": "eslint src --ext ts --fix",
-        "test:e2e": "node ./out/test/runTests.js e2e",
-        "test:unit": "node ./out/test/runTests.js unit",
+        "test:e2e": "node ./out/test/e2e/runTests.js",
+        "test:unit": "jest --config jest.config.unit.js",
         "clean": "rimraf ./out",
         "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
     },

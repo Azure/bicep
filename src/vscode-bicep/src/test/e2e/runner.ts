@@ -31,7 +31,7 @@ async function captureWriteStreams<T>(
 
 export function createTestRunner(configFile: string): TestRunner {
   return async () => {
-    const workspaceRoot = path.resolve(__dirname, "../..");
+    const workspaceRoot = path.resolve(__dirname, "../../..");
     const config = require(path.join(workspaceRoot, configFile)); // eslint-disable-line @typescript-eslint/no-var-requires
     const { results } = await captureWriteStreams(
       async () => await runCLI({ _: [], $0: "", ...config }, [workspaceRoot])

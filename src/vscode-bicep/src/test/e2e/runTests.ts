@@ -9,22 +9,6 @@ import {
 } from "vscode-test";
 
 async function go() {
-  const args = process.argv.slice(2);
-
-  if (args.length === 0) {
-    console.error("Expect a test type parameter.");
-    process.exit(1);
-  }
-
-  const testType = args[0];
-
-  if (testType !== "e2e" && testType !== "unit") {
-    console.error(
-      `Invalid test type: "${testType}". Valid test types are: "e2e", "unit".`
-    );
-    process.exit(1);
-  }
-
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
     const cliPath = resolveCliPathFromVSCodeExecutablePath(
@@ -40,8 +24,8 @@ async function go() {
 
     await runTests({
       vscodeExecutablePath,
-      extensionDevelopmentPath: path.resolve(__dirname, "../.."),
-      extensionTestsPath: path.resolve(__dirname, testType, "index"),
+      extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
+      extensionTestsPath: path.resolve(__dirname, "index"),
       launchArgs: ["--enable-proposed-api"],
     });
   } catch (err) {
