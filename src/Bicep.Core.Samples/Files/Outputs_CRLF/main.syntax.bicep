@@ -156,33 +156,33 @@ output obj object = {
 //@[8:9)     LeftSquare |[|
 //@[9:11)     NewLine |\r\n|
     1
-//@[4:7)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |1|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
     2
-//@[4:7)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |2|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
     3
-//@[4:7)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |3|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
     null
-//@[4:10)     ArrayItemSyntax
+//@[4:8)     ArrayItemSyntax
 //@[4:8)      NullLiteralSyntax
 //@[4:8)       NullKeyword |null|
-//@[8:10)      NewLine |\r\n|
+//@[8:10)     NewLine |\r\n|
     {
-//@[4:14)     ArrayItemSyntax
+//@[4:12)     ArrayItemSyntax
 //@[4:12)      ObjectSyntax
 //@[4:5)       LeftBrace |{|
 //@[5:7)       NewLine |\r\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[5:7)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|
@@ -203,10 +203,10 @@ output obj object = {
 //@[12:13)       LeftSquare |[|
 //@[13:15)       NewLine |\r\n|
       'hello'
-//@[6:15)       ArrayItemSyntax
+//@[6:13)       ArrayItemSyntax
 //@[6:13)        StringSyntax
 //@[6:13)         StringComplete |'hello'|
-//@[13:15)        NewLine |\r\n|
+//@[13:15)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:7)     NewLine |\r\n|
@@ -229,17 +229,17 @@ output myArr array = [
 //@[21:22)   LeftSquare |[|
 //@[22:24)   NewLine |\r\n|
   'pirates'
-//@[2:13)   ArrayItemSyntax
+//@[2:11)   ArrayItemSyntax
 //@[2:11)    StringSyntax
 //@[2:11)     StringComplete |'pirates'|
-//@[11:13)    NewLine |\r\n|
+//@[11:13)   NewLine |\r\n|
   'say'
-//@[2:9)   ArrayItemSyntax
+//@[2:7)   ArrayItemSyntax
 //@[2:7)    StringSyntax
 //@[2:7)     StringComplete |'say'|
-//@[7:9)    NewLine |\r\n|
+//@[7:9)   NewLine |\r\n|
    false ? 'arr2' : 'arr'
-//@[3:27)   ArrayItemSyntax
+//@[3:25)   ArrayItemSyntax
 //@[3:25)    TernaryOperationSyntax
 //@[3:8)     BooleanLiteralSyntax
 //@[3:8)      FalseKeyword |false|
@@ -249,7 +249,7 @@ output myArr array = [
 //@[18:19)     Colon |:|
 //@[20:25)     StringSyntax
 //@[20:25)      StringComplete |'arr'|
-//@[25:27)    NewLine |\r\n|
+//@[25:27)   NewLine |\r\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:5) NewLine |\r\n\r\n|

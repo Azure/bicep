@@ -1,0 +1,87 @@
+[
+  {
+    "label": "allowed",
+    "kind": "property",
+    "detail": "allowed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int[]`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_allowed",
+    "insertText": "allowed",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "default",
+    "kind": "property",
+    "detail": "default",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_default",
+    "insertText": "default",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "maxValue",
+    "kind": "property",
+    "detail": "maxValue",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_maxValue",
+    "insertText": "maxValue",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "metadata",
+    "kind": "property",
+    "detail": "metadata",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ParameterModifierMetadata`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_metadata",
+    "insertText": "metadata",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "minValue",
+    "kind": "property",
+    "detail": "minValue",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_minValue",
+    "insertText": "minValue",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

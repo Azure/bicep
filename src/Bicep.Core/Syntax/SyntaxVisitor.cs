@@ -165,7 +165,6 @@ namespace Bicep.Core.Syntax
         public virtual void VisitArraySyntax(ArraySyntax syntax)
         {
             this.Visit(syntax.OpenBracket);
-            this.VisitTokens(syntax.NewLines);
             this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseBracket);
         }
@@ -173,7 +172,6 @@ namespace Bicep.Core.Syntax
         public virtual void VisitArrayItemSyntax(ArrayItemSyntax syntax)
         {
             this.Visit(syntax.Value);
-            this.VisitTokens(syntax.NewLines);
         }
 
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)

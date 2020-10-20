@@ -1,0 +1,19 @@
+[
+  {
+    "label": "description",
+    "kind": "property",
+    "detail": "description",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_description",
+    "insertText": "description",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

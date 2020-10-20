@@ -1,0 +1,36 @@
+[
+  {
+    "label": "maxLength",
+    "kind": "property",
+    "detail": "maxLength",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_maxLength",
+    "insertText": "maxLength",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "minLength",
+    "kind": "property",
+    "detail": "minLength",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \nRequires a compile-time constant value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_minLength",
+    "insertText": "minLength",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

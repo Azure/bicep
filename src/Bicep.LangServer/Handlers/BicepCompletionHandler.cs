@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Handlers
             DocumentSelector = DocumentSelectorFactory.Create(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>()
+            TriggerCharacters = new Container<string>(":", " ")
         };
     }
 }

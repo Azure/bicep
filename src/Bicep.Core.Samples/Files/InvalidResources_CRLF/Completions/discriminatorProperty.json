@@ -9,10 +9,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_kind",
     "insertText": "kind",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   }

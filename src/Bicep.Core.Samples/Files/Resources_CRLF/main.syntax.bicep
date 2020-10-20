@@ -386,11 +386,11 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[13:14)     LeftSquare |[|
 //@[14:16)     NewLine |\r\n|
     myStorageAccount
-//@[4:22)     ArrayItemSyntax
+//@[4:20)     ArrayItemSyntax
 //@[4:20)      VariableAccessSyntax
 //@[4:20)       IdentifierSyntax
 //@[4:20)        Identifier |myStorageAccount|
-//@[20:22)      NewLine |\r\n|
+//@[20:22)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|
@@ -691,7 +691,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[19:20)         LeftSquare |[|
 //@[20:22)         NewLine |\r\n|
         {
-//@[8:123)         ArrayItemSyntax
+//@[8:121)         ArrayItemSyntax
 //@[8:121)          ObjectSyntax
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
@@ -724,9 +724,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[63:65)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
         {
-//@[8:132)         ArrayItemSyntax
+//@[8:130)         ArrayItemSyntax
 //@[8:130)          ObjectSyntax
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
@@ -763,9 +763,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[76:78)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
         {
-//@[8:103)         ArrayItemSyntax
+//@[8:101)         ArrayItemSyntax
 //@[8:101)          ObjectSyntax
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
@@ -792,9 +792,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[38:40)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
         {
-//@[8:105)         ArrayItemSyntax
+//@[8:103)         ArrayItemSyntax
 //@[8:103)          ObjectSyntax
 //@[8:9)           LeftBrace |{|
 //@[9:11)           NewLine |\r\n|
@@ -821,7 +821,7 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[39:41)           NewLine |\r\n|
         }
 //@[8:9)           RightBrace |}|
-//@[9:11)          NewLine |\r\n|
+//@[9:11)         NewLine |\r\n|
       ]
 //@[6:7)         RightSquare |]|
 //@[7:9)       NewLine |\r\n|
@@ -1334,11 +1334,11 @@ var varBRuntime = [
 //@[18:19)   LeftSquare |[|
 //@[19:21)   NewLine |\r\n|
   varARuntime
-//@[2:15)   ArrayItemSyntax
+//@[2:13)   ArrayItemSyntax
 //@[2:13)    VariableAccessSyntax
 //@[2:13)     IdentifierSyntax
 //@[2:13)      Identifier |varARuntime|
-//@[13:15)    NewLine |\r\n|
+//@[13:15)   NewLine |\r\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:5) NewLine |\r\n\r\n|

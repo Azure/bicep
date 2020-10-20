@@ -25,7 +25,7 @@ namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
     public class ProgramTests
-    {
+    { 
         [NotNull]
         public TestContext? TestContext { get; set; }
 

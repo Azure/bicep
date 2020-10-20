@@ -664,32 +664,49 @@ namespace Bicep.Core.Parser
             {
                 // allow a close on the same line for an empty array
                 var emptyCloseBracket = reader.Read();
-                return new ArraySyntax(openBracket, Enumerable.Empty<Token>(), Enumerable.Empty<SyntaxBase>(), emptyCloseBracket);
+                return new ArraySyntax(openBracket, ImmutableArray<SyntaxBase>.Empty, emptyCloseBracket);
             }
 
-            var newLines = this.NewLines();
+            var itemsOrTokens = new List<SyntaxBase>();
 
-            var items = new List<SyntaxBase>();
-            while (this.IsAtEnd() == false && this.reader.Peek().Type != TokenType.RightSquare)
+            while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightSquare)
             {
-                var item = this.ArrayItem();
-                items.Add(item);
+                // this produces an item node, skipped tokens node, or just a newline token
+                var itemOrToken = this.ArrayItem();
+                itemsOrTokens.Add(itemOrToken);
+
+                // if skipped tokens node is returned above, the newline is not consumed
+                // if newline token is returned, we must not expect another (could be beginning of a new item)
+                if (itemOrToken is ArrayItemSyntax)
+                {
+                    // items must be followed by newlines
+                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+                    if (newLine != null)
+                    {
+                        itemsOrTokens.Add(newLine);
+                    }
+                }
             }
 
             var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-            return new ArraySyntax(openBracket, newLines, items, closeBracket);
+            return new ArraySyntax(openBracket, itemsOrTokens, closeBracket);
         }
 
         private SyntaxBase ArrayItem()
         {
-            return this.WithRecovery(() =>
+            return this.WithRecovery<SyntaxBase>(() =>
             {
-                var value = this.Expression(allowComplexLiterals: true);
-                var newLines = this.NewLines();
+                var current = this.reader.Peek();
 
-                return new ArrayItemSyntax(value, newLines);
-            }, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+                if (current.Type == TokenType.NewLine)
+                {
+                    return this.NewLine();
+                }
+
+                var value = this.Expression(allowComplexLiterals: true);
+                return new ArrayItemSyntax(value);
+            }, RecoveryFlags.None, TokenType.NewLine);
         }
 
         private ObjectSyntax Object()

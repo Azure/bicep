@@ -1,0 +1,53 @@
+[
+  {
+    "label": "name",
+    "kind": "property",
+    "detail": "name (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_name",
+    "insertText": "name",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "secureValue",
+    "kind": "property",
+    "detail": "secureValue",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureValue",
+    "insertText": "secureValue",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "value",
+    "kind": "property",
+    "detail": "value",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_value",
+    "insertText": "value",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

@@ -648,6 +648,23 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:37) Identifier |discriminatorKeyValueMissing|
+//@[38:88) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[89:90) Assignment |=|
+//@[91:92) LeftBrace |{|
+//@[92:94) NewLine |\r\n|
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
+//@[66:68) NewLine |\r\n|
+  kind:   
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[10:12) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
 //@[9:31) Identifier |discriminatorKeySetOne|
@@ -733,6 +750,97 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:32) Identifier |incorrectPropertiesKey2|
+//@[33:83) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[84:85) Assignment |=|
+//@[86:87) LeftBrace |{|
+//@[87:89) NewLine |\r\n|
+  kind: 'AzureCLI'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:18) StringComplete |'AzureCLI'|
+//@[18:20) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  location: ''
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:14) StringComplete |''|
+//@[14:16) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    azCliVersion: '2'
+//@[4:16) Identifier |azCliVersion|
+//@[16:17) Colon |:|
+//@[18:21) StringComplete |'2'|
+//@[21:23) NewLine |\r\n|
+    retentionInterval: 'PT1H'
+//@[4:21) Identifier |retentionInterval|
+//@[21:22) Colon |:|
+//@[23:29) StringComplete |'PT1H'|
+//@[29:31) NewLine |\r\n|
+    
+//@[4:6) NewLine |\r\n|
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
+//@[80:82) NewLine |\r\n|
+    
+//@[4:6) NewLine |\r\n|
+    // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
+//@[62:64) NewLine |\r\n|
+    cleanupPreference: 
+//@[4:21) Identifier |cleanupPreference|
+//@[21:22) Colon |:|
+//@[23:27) NewLine |\r\n\r\n|
+
+    // #completionTest(25,26) -> arrayPlusSymbols
+//@[49:51) NewLine |\r\n|
+    supportingScriptUris: 
+//@[4:24) Identifier |supportingScriptUris|
+//@[24:25) Colon |:|
+//@[26:30) NewLine |\r\n\r\n|
+
+    // #completionTest(27,28) -> objectPlusSymbols
+//@[50:52) NewLine |\r\n|
+    storageAccountSettings: 
+//@[4:26) Identifier |storageAccountSettings|
+//@[26:27) Colon |:|
+//@[28:32) NewLine |\r\n\r\n|
+
+    environmentVariables: [
+//@[4:24) Identifier |environmentVariables|
+//@[24:25) Colon |:|
+//@[26:27) LeftSquare |[|
+//@[27:29) NewLine |\r\n|
+      {
+//@[6:7) LeftBrace |{|
+//@[7:9) NewLine |\r\n|
+        // #completionTest(0,2,4,6,8) -> environmentVariableProperties
+//@[70:72) NewLine |\r\n|
+        
+//@[8:10) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
+//@[60:62) NewLine |\r\n|
+      
+//@[6:8) NewLine |\r\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

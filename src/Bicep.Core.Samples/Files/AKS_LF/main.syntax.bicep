@@ -244,7 +244,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[27:28)       LeftSquare |[|
 //@[28:29)       NewLine |\n|
             {
-//@[12:220)       ArrayItemSyntax
+//@[12:219)       ArrayItemSyntax
 //@[12:219)        ObjectSyntax
 //@[12:13)         LeftBrace |{|
 //@[13:14)         NewLine |\n|
@@ -292,7 +292,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[46:47)         NewLine |\n|
             }
 //@[12:13)         RightBrace |}|
-//@[13:14)        NewLine |\n|
+//@[13:14)       NewLine |\n|
         ]
 //@[8:9)       RightSquare |]|
 //@[9:10)     NewLine |\n|
@@ -330,7 +330,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[28:29)           LeftSquare |[|
 //@[29:30)           NewLine |\n|
                     {
-//@[20:93)           ArrayItemSyntax
+//@[20:92)           ArrayItemSyntax
 //@[20:92)            ObjectSyntax
 //@[20:21)             LeftBrace |{|
 //@[21:22)             NewLine |\n|
@@ -345,7 +345,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
 //@[48:49)             NewLine |\n|
                     }
 //@[20:21)             RightBrace |}|
-//@[21:22)            NewLine |\n|
+//@[21:22)           NewLine |\n|
                 ]
 //@[16:17)           RightSquare |]|
 //@[17:18)         NewLine |\n|

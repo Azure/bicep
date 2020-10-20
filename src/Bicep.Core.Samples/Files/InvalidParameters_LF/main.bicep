@@ -215,5 +215,37 @@ param stringLiteral3 string {
   default: stringLiteral2
 }
 
+param stringModifierCompletions string {
+  // #completionTest(0,1,2) -> stringModifierProperties
+  
+}
+
+param intModifierCompletions int {
+  // #completionTest(0,1,2) -> intModifierProperties
+  
+}
+
+param defaultValueCompletions string {
+  allowed: [
+    'one'
+    'two'
+    'three'
+    // #completionTest(0,1,2,3,4) -> oneTwoThree
+    
+  ]
+  // #completionTest(10,11) -> oneTwoThreePlusSymbols
+  default: 
+  
+  // #completionTest(9,10) -> booleanValues
+  secure: 
+
+  metadata: {
+    // #completionTest(0,1,2,3) -> description
+    
+  }
+  // #completionTest(0,1,2) -> stringLengthConstraints
+  
+}
+
 // unterminated multi-line comment
 /*    

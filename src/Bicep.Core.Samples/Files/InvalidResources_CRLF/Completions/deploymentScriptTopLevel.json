@@ -9,10 +9,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_dependsOn",
     "insertText": "dependsOn",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -26,10 +26,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_identity",
     "insertText": "identity",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -43,10 +43,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_location",
     "insertText": "location",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -60,10 +60,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_name",
     "insertText": "name",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -77,10 +77,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_tags",
     "insertText": "tags",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   }

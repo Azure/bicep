@@ -1,0 +1,104 @@
+[
+  {
+    "label": "arguments",
+    "kind": "property",
+    "detail": "arguments",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arguments",
+    "insertText": "arguments",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "containerSettings",
+    "kind": "property",
+    "detail": "containerSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ContainerConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_containerSettings",
+    "insertText": "containerSettings",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "forceUpdateTag",
+    "kind": "property",
+    "detail": "forceUpdateTag",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceUpdateTag",
+    "insertText": "forceUpdateTag",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "primaryScriptUri",
+    "kind": "property",
+    "detail": "primaryScriptUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_primaryScriptUri",
+    "insertText": "primaryScriptUri",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scriptContent",
+    "kind": "property",
+    "detail": "scriptContent",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scriptContent",
+    "insertText": "scriptContent",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "timeout",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_timeout",
+    "insertText": "timeout",
+    "insertTextFormat": "plainText",
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

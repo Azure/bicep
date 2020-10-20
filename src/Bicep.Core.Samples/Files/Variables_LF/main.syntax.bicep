@@ -326,26 +326,26 @@ var myObj = {
 //@[8:9)     LeftSquare |[|
 //@[9:10)     NewLine |\n|
     1
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |1|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     2
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      NumericLiteralSyntax
 //@[4:5)       Number |2|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     2+1
-//@[4:8)     ArrayItemSyntax
+//@[4:7)     ArrayItemSyntax
 //@[4:7)      BinaryOperationSyntax
 //@[4:5)       NumericLiteralSyntax
 //@[4:5)        Number |2|
 //@[5:6)       Plus |+|
 //@[6:7)       NumericLiteralSyntax
 //@[6:7)        Number |1|
-//@[7:8)      NewLine |\n|
+//@[7:8)     NewLine |\n|
     {
-//@[4:54)     ArrayItemSyntax
+//@[4:53)     ArrayItemSyntax
 //@[4:53)      ObjectSyntax
 //@[4:5)       LeftBrace |{|
 //@[5:6)       NewLine |\n|
@@ -375,16 +375,16 @@ var myObj = {
 //@[41:42)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
     'a' =~ 'b'
-//@[4:15)     ArrayItemSyntax
+//@[4:14)     ArrayItemSyntax
 //@[4:14)      BinaryOperationSyntax
 //@[4:7)       StringSyntax
 //@[4:7)        StringComplete |'a'|
 //@[8:10)       EqualsInsensitive |=~|
 //@[11:14)       StringSyntax
 //@[11:14)        StringComplete |'b'|
-//@[14:15)      NewLine |\n|
+//@[14:15)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -405,10 +405,10 @@ var myObj = {
 //@[12:13)       LeftSquare |[|
 //@[13:14)       NewLine |\n|
       'hello'
-//@[6:14)       ArrayItemSyntax
+//@[6:13)       ArrayItemSyntax
 //@[6:13)        StringSyntax
 //@[6:13)         StringComplete |'hello'|
-//@[13:14)        NewLine |\n|
+//@[13:14)       NewLine |\n|
     ]
 //@[4:5)       RightSquare |]|
 //@[5:6)     NewLine |\n|
@@ -492,20 +492,20 @@ var myArr = [
 //@[12:13)   LeftSquare |[|
 //@[13:14)   NewLine |\n|
   'pirates'
-//@[2:12)   ArrayItemSyntax
+//@[2:11)   ArrayItemSyntax
 //@[2:11)    StringSyntax
 //@[2:11)     StringComplete |'pirates'|
-//@[11:12)    NewLine |\n|
+//@[11:12)   NewLine |\n|
   'say'
-//@[2:8)   ArrayItemSyntax
+//@[2:7)   ArrayItemSyntax
 //@[2:7)    StringSyntax
 //@[2:7)     StringComplete |'say'|
-//@[7:8)    NewLine |\n|
+//@[7:8)   NewLine |\n|
   'arr'
-//@[2:8)   ArrayItemSyntax
+//@[2:7)   ArrayItemSyntax
 //@[2:7)    StringSyntax
 //@[2:7)     StringComplete |'arr'|
-//@[7:8)    NewLine |\n|
+//@[7:8)   NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
@@ -522,7 +522,7 @@ var myArrWithObjects = [
 //@[23:24)   LeftSquare |[|
 //@[24:25)   NewLine |\n|
   {
-//@[2:41)   ArrayItemSyntax
+//@[2:40)   ArrayItemSyntax
 //@[2:40)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
@@ -544,9 +544,9 @@ var myArrWithObjects = [
 //@[16:17)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
   {
-//@[2:71)   ArrayItemSyntax
+//@[2:70)   ArrayItemSyntax
 //@[2:70)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
@@ -580,7 +580,7 @@ var myArrWithObjects = [
 //@[46:47)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
@@ -684,10 +684,10 @@ var intIndexer = [
 //@[17:18)    LeftSquare |[|
 //@[18:19)    NewLine |\n|
   's'
-//@[2:6)    ArrayItemSyntax
+//@[2:5)    ArrayItemSyntax
 //@[2:5)     StringSyntax
 //@[2:5)      StringComplete |'s'|
-//@[5:6)     NewLine |\n|
+//@[5:6)    NewLine |\n|
 ][0]
 //@[0:1)    RightSquare |]|
 //@[1:2)   LeftSquare |[|
@@ -712,10 +712,10 @@ var functionOnIndexer1 = concat([
 //@[32:33)      LeftSquare |[|
 //@[33:34)      NewLine |\n|
   's'
-//@[2:6)      ArrayItemSyntax
+//@[2:5)      ArrayItemSyntax
 //@[2:5)       StringSyntax
 //@[2:5)        StringComplete |'s'|
-//@[5:6)       NewLine |\n|
+//@[5:6)      NewLine |\n|
 ][0], 's')
 //@[0:1)      RightSquare |]|
 //@[1:2)     LeftSquare |[|
@@ -874,7 +874,7 @@ var previousEmitLimit = [
 //@[24:25)   LeftSquare |[|
 //@[25:26)   NewLine |\n|
   concat('s')
-//@[2:14)   ArrayItemSyntax
+//@[2:13)   ArrayItemSyntax
 //@[2:13)    FunctionCallSyntax
 //@[2:8)     IdentifierSyntax
 //@[2:8)      Identifier |concat|
@@ -883,17 +883,17 @@ var previousEmitLimit = [
 //@[9:12)      StringSyntax
 //@[9:12)       StringComplete |'s'|
 //@[12:13)     RightParen |)|
-//@[13:14)    NewLine |\n|
+//@[13:14)   NewLine |\n|
   '${4}'
-//@[2:9)   ArrayItemSyntax
+//@[2:8)   ArrayItemSyntax
 //@[2:8)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
 //@[5:6)     NumericLiteralSyntax
 //@[5:6)      Number |4|
 //@[6:8)     StringRightPiece |}'|
-//@[8:9)    NewLine |\n|
+//@[8:9)   NewLine |\n|
   {
-//@[2:249)   ArrayItemSyntax
+//@[2:248)   ArrayItemSyntax
 //@[2:248)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
@@ -933,14 +933,14 @@ var previousEmitLimit = [
 //@[16:17)           LeftSquare |[|
 //@[17:18)           NewLine |\n|
         12 + 3
-//@[8:15)           ArrayItemSyntax
+//@[8:14)           ArrayItemSyntax
 //@[8:14)            BinaryOperationSyntax
 //@[8:10)             NumericLiteralSyntax
 //@[8:10)              Number |12|
 //@[11:12)             Plus |+|
 //@[13:14)             NumericLiteralSyntax
 //@[13:14)              Number |3|
-//@[14:15)            NewLine |\n|
+//@[14:15)           NewLine |\n|
       ], [
 //@[6:7)           RightSquare |]|
 //@[7:8)          Comma |,|
@@ -949,17 +949,17 @@ var previousEmitLimit = [
 //@[9:10)           LeftSquare |[|
 //@[10:11)           NewLine |\n|
         !true
-//@[8:14)           ArrayItemSyntax
+//@[8:13)           ArrayItemSyntax
 //@[8:13)            UnaryOperationSyntax
 //@[8:9)             Exclamation |!|
 //@[9:13)             BooleanLiteralSyntax
 //@[9:13)              TrueKeyword |true|
-//@[13:14)            NewLine |\n|
+//@[13:14)           NewLine |\n|
         'hello'
-//@[8:16)           ArrayItemSyntax
+//@[8:15)           ArrayItemSyntax
 //@[8:15)            StringSyntax
 //@[8:15)             StringComplete |'hello'|
-//@[15:16)            NewLine |\n|
+//@[15:16)           NewLine |\n|
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
@@ -997,10 +997,10 @@ var previousEmitLimit = [
 //@[16:17)           LeftSquare |[|
 //@[17:18)           NewLine |\n|
         true
-//@[8:13)           ArrayItemSyntax
+//@[8:12)           ArrayItemSyntax
 //@[8:12)            BooleanLiteralSyntax
 //@[8:12)             TrueKeyword |true|
-//@[12:13)            NewLine |\n|
+//@[12:13)           NewLine |\n|
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
@@ -1019,14 +1019,14 @@ var previousEmitLimit = [
 //@[16:17)           LeftSquare |[|
 //@[17:18)           NewLine |\n|
         's' == 12
-//@[8:18)           ArrayItemSyntax
+//@[8:17)           ArrayItemSyntax
 //@[8:17)            BinaryOperationSyntax
 //@[8:11)             StringSyntax
 //@[8:11)              StringComplete |'s'|
 //@[12:14)             Equals |==|
 //@[15:17)             NumericLiteralSyntax
 //@[15:17)              Number |12|
-//@[17:18)            NewLine |\n|
+//@[17:18)           NewLine |\n|
       ])
 //@[6:7)           RightSquare |]|
 //@[7:8)         RightParen |)|
@@ -1036,7 +1036,7 @@ var previousEmitLimit = [
 //@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
@@ -1053,7 +1053,7 @@ var previousEmitLimit2 = [
 //@[25:26)   LeftSquare |[|
 //@[26:27)   NewLine |\n|
   concat('s')
-//@[2:14)   ArrayItemSyntax
+//@[2:13)   ArrayItemSyntax
 //@[2:13)    FunctionCallSyntax
 //@[2:8)     IdentifierSyntax
 //@[2:8)      Identifier |concat|
@@ -1062,17 +1062,17 @@ var previousEmitLimit2 = [
 //@[9:12)      StringSyntax
 //@[9:12)       StringComplete |'s'|
 //@[12:13)     RightParen |)|
-//@[13:14)    NewLine |\n|
+//@[13:14)   NewLine |\n|
   '${4}'
-//@[2:9)   ArrayItemSyntax
+//@[2:8)   ArrayItemSyntax
 //@[2:8)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
 //@[5:6)     NumericLiteralSyntax
 //@[5:6)      Number |4|
 //@[6:8)     StringRightPiece |}'|
-//@[8:9)    NewLine |\n|
+//@[8:9)   NewLine |\n|
   {
-//@[2:276)   ArrayItemSyntax
+//@[2:275)   ArrayItemSyntax
 //@[2:275)    ObjectSyntax
 //@[2:3)     LeftBrace |{|
 //@[3:4)     NewLine |\n|
@@ -1240,7 +1240,7 @@ var previousEmitLimit2 = [
 //@[5:6)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[3:4)   NewLine |\n|
 ]
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
@@ -1320,10 +1320,10 @@ var previousEmitLimit3 = {
 //@[7:8)         LeftSquare |[|
 //@[8:9)         NewLine |\n|
       true
-//@[6:11)         ArrayItemSyntax
+//@[6:10)         ArrayItemSyntax
 //@[6:10)          BooleanLiteralSyntax
 //@[6:10)           TrueKeyword |true|
-//@[10:11)          NewLine |\n|
+//@[10:11)         NewLine |\n|
     ])
 //@[4:5)         RightSquare |]|
 //@[5:6)       RightParen |)|

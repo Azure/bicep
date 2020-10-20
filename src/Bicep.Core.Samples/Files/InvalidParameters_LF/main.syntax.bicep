@@ -693,15 +693,15 @@ param wrongIntModifier int {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'test'
-//@[4:11)     ArrayItemSyntax
+//@[4:10)     ArrayItemSyntax
 //@[4:10)      StringSyntax
 //@[4:10)       StringComplete |'test'|
-//@[10:11)      NewLine |\n|
+//@[10:11)     NewLine |\n|
     true
-//@[4:9)     ArrayItemSyntax
+//@[4:8)     ArrayItemSyntax
 //@[4:8)      BooleanLiteralSyntax
 //@[4:8)       TrueKeyword |true|
-//@[8:9)      NewLine |\n|
+//@[8:9)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -831,11 +831,11 @@ param expressionInModifier string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     i
-//@[4:6)     ArrayItemSyntax
+//@[4:5)     ArrayItemSyntax
 //@[4:5)      VariableAccessSyntax
 //@[4:5)       IdentifierSyntax
 //@[4:5)        Identifier |i|
-//@[5:6)      NewLine |\n|
+//@[5:6)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -980,11 +980,11 @@ param paramModifierSelfCycle string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     paramModifierSelfCycle
-//@[4:27)     ArrayItemSyntax
+//@[4:26)     ArrayItemSyntax
 //@[4:26)      VariableAccessSyntax
 //@[4:26)       IdentifierSyntax
 //@[4:26)        Identifier |paramModifierSelfCycle|
-//@[26:27)      NewLine |\n|
+//@[26:27)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -1276,10 +1276,10 @@ param stringLiteral string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'def'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'def'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -1306,15 +1306,15 @@ param stringLiteral2 string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'abc'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'abc'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
     'def'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'def'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -1350,10 +1350,10 @@ param stringLiteral3 string {
 //@[11:12)     LeftSquare |[|
 //@[12:13)     NewLine |\n|
     'abc'
-//@[4:10)     ArrayItemSyntax
+//@[4:9)     ArrayItemSyntax
 //@[4:9)      StringSyntax
 //@[4:9)       StringComplete |'abc'|
-//@[9:10)      NewLine |\n|
+//@[9:10)     NewLine |\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:4)   NewLine |\n|
@@ -1366,6 +1366,126 @@ param stringLiteral3 string {
 //@[11:25)     IdentifierSyntax
 //@[11:25)      Identifier |stringLiteral2|
 //@[25:26)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param stringModifierCompletions string {
+//@[0:101) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:31)  IdentifierSyntax
+//@[6:31)   Identifier |stringModifierCompletions|
+//@[32:38)  TypeSyntax
+//@[32:38)   Identifier |string|
+//@[39:101)  ObjectSyntax
+//@[39:40)   LeftBrace |{|
+//@[40:41)   NewLine |\n|
+  // #completionTest(0,1,2) -> stringModifierProperties
+//@[55:56)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param intModifierCompletions int {
+//@[0:92) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |intModifierCompletions|
+//@[29:32)  TypeSyntax
+//@[29:32)   Identifier |int|
+//@[33:92)  ObjectSyntax
+//@[33:34)   LeftBrace |{|
+//@[34:35)   NewLine |\n|
+  // #completionTest(0,1,2) -> intModifierProperties
+//@[52:53)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+param defaultValueCompletions string {
+//@[0:396) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:29)  IdentifierSyntax
+//@[6:29)   Identifier |defaultValueCompletions|
+//@[30:36)  TypeSyntax
+//@[30:36)   Identifier |string|
+//@[37:396)  ObjectSyntax
+//@[37:38)   LeftBrace |{|
+//@[38:39)   NewLine |\n|
+  allowed: [
+//@[2:102)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |allowed|
+//@[9:10)    Colon |:|
+//@[11:102)    ArraySyntax
+//@[11:12)     LeftSquare |[|
+//@[12:13)     NewLine |\n|
+    'one'
+//@[4:9)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'one'|
+//@[9:10)     NewLine |\n|
+    'two'
+//@[4:9)     ArrayItemSyntax
+//@[4:9)      StringSyntax
+//@[4:9)       StringComplete |'two'|
+//@[9:10)     NewLine |\n|
+    'three'
+//@[4:11)     ArrayItemSyntax
+//@[4:11)      StringSyntax
+//@[4:11)       StringComplete |'three'|
+//@[11:12)     NewLine |\n|
+    // #completionTest(0,1,2,3,4) -> oneTwoThree
+//@[48:49)     NewLine |\n|
+    
+//@[4:5)     NewLine |\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:4)   NewLine |\n|
+  // #completionTest(10,11) -> oneTwoThreePlusSymbols
+//@[53:54)   NewLine |\n|
+  default: 
+//@[2:11)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |default|
+//@[9:10)    Colon |:|
+//@[11:11)    SkippedTriviaSyntax
+//@[11:12)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
+  // #completionTest(9,10) -> booleanValues
+//@[43:44)   NewLine |\n|
+  secure: 
+//@[2:10)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |secure|
+//@[8:9)    Colon |:|
+//@[10:10)    SkippedTriviaSyntax
+//@[10:12)   NewLine |\n\n|
+
+  metadata: {
+//@[2:69)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |metadata|
+//@[10:11)    Colon |:|
+//@[12:69)    ObjectSyntax
+//@[12:13)     LeftBrace |{|
+//@[13:14)     NewLine |\n|
+    // #completionTest(0,1,2,3) -> description
+//@[46:47)     NewLine |\n|
+    
+//@[4:5)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+  // #completionTest(0,1,2) -> stringLengthConstraints
+//@[54:55)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

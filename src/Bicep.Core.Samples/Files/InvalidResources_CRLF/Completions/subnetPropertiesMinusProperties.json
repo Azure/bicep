@@ -9,10 +9,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_id",
     "insertText": "id",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   },
@@ -26,10 +26,10 @@
     },
     "deprecated": false,
     "preselect": false,
+    "sortText": "2_name",
     "insertText": "name",
     "insertTextFormat": "plainText",
     "commitCharacters": [
-      " ",
       ":"
     ]
   }

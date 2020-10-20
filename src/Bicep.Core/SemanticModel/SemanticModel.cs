@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -56,6 +55,8 @@ namespace Bicep.Core.SemanticModel
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.typeManager.GetDeclaredType(syntax);
+
+        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.typeManager.GetDeclaredTypeAssignment(syntax);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,

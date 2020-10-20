@@ -163,6 +163,11 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
   
 }
 
+resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
+  kind:   
+}
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -187,5 +192,35 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
   kind: 'AzureCLI'
 
   propertes: {
+  }
+}
+
+resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzureCLI'
+  name: 'test'
+  location: ''
+  properties: {
+    azCliVersion: '2'
+    retentionInterval: 'PT1H'
+    
+    // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
+    
+    // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
+    cleanupPreference: 
+
+    // #completionTest(25,26) -> arrayPlusSymbols
+    supportingScriptUris: 
+
+    // #completionTest(27,28) -> objectPlusSymbols
+    storageAccountSettings: 
+
+    environmentVariables: [
+      {
+        // #completionTest(0,2,4,6,8) -> environmentVariableProperties
+        
+      }
+      // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbols
+      
+    ]
   }
 }

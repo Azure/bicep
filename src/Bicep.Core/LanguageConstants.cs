@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Extensions;
+using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 
@@ -24,6 +24,17 @@ namespace Bicep.Core
         public const string ModuleKeyword = "module";
 
         public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
+
+        public const string TrueKeyword = "true";
+        public const string FalseKeyword = "false";
+        public const string NullKeyword = "null";
+
+        public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
+        {
+            [TrueKeyword] = TokenType.TrueKeyword,
+            [FalseKeyword] = TokenType.FalseKeyword,
+            [NullKeyword] = TokenType.NullKeyword
+        }.ToImmutableDictionary();
 
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterDefaultPropertyName = "default";
@@ -47,7 +58,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol Object = new ObjectType("object");
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
-        public static readonly TypeSymbol Null = new PrimitiveType("null", TypeSymbolValidationFlags.Default);
+        public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType("array");
 
         // declares the description property but also allows any other property of any type

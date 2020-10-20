@@ -1,0 +1,22 @@
+[
+  {
+    "label": "false",
+    "kind": "keyword",
+    "detail": "false",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_false",
+    "insertText": "false",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "true",
+    "kind": "keyword",
+    "detail": "true",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_true",
+    "insertText": "true",
+    "insertTextFormat": "plainText"
+  }
+]
