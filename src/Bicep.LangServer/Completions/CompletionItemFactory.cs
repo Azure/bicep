@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System.Linq;
 using System.Text;
 using Bicep.Core;
 using Bicep.Core.Parser;
@@ -15,6 +17,8 @@ namespace Bicep.LanguageServer.Completions
     {
         private const string MarkdownNewLine = "  \n";
 
+        private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
+        
         public static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             new CompletionItem
             {
@@ -23,7 +27,7 @@ namespace Bicep.LanguageServer.Completions
                 InsertTextFormat = InsertTextFormat.PlainText,
                 // property names containg spaces need to be escaped
                 InsertText = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name,
-                CommitCharacters = new Container<string>(":"),
+                CommitCharacters = PropertyCommitChars,
                 Detail = FormatPropertyDetail(property),
                 Documentation = new StringOrMarkupContent(new MarkupContent
                 {
@@ -34,7 +38,7 @@ namespace Bicep.LanguageServer.Completions
                 SortText = GetSortText(property.Name, priority)
             };
 
-        public static CompletionItem CreatePlaintextCompletion(CompletionItemKind kind, string insertText, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+        public static CompletionItem CreatePlaintextCompletion(CompletionItemKind kind, string insertText, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium, Container<string>? commitCharacters = null) =>
             new CompletionItem
             {
                 Kind = kind,
@@ -43,13 +47,14 @@ namespace Bicep.LanguageServer.Completions
                 InsertText = insertText,
                 Detail = detail,
                 Preselect = preselect,
-                SortText = GetSortText(insertText, priority)
+                SortText = GetSortText(insertText, priority),
+                CommitCharacters = commitCharacters
             };
 
         /// <summary>
         /// Creates a completion that inserts a snippet. The user may not necessarily know that a snippet is being inserted.
         /// </summary>
-        public static CompletionItem CreateSnippetCompletion(CompletionItemKind kind, string label, string snippet, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+        public static CompletionItem CreateSnippetCompletion(CompletionItemKind kind, string label, string snippet, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium, Container<string>? commitCharacters = null) =>
             new CompletionItem
             {
                 Kind = kind,
@@ -58,7 +63,8 @@ namespace Bicep.LanguageServer.Completions
                 InsertText = snippet,
                 Detail = detail,
                 Preselect = preselect,
-                SortText = GetSortText(label, priority)
+                SortText = GetSortText(label, priority),
+                CommitCharacters = commitCharacters
             };
 
         public static CompletionItem CreateKeywordCompletion(string keyword, string detail, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) => CreatePlaintextCompletion(CompletionItemKind.Keyword, keyword, detail, preselect, priority);
@@ -85,17 +91,26 @@ namespace Bicep.LanguageServer.Completions
                 SortText = GetSortText(label, priority)
             };
 
-        public static CompletionItem CreateSymbolCompletion(Symbol symbol, bool preselect = false) =>
-            new CompletionItem
+        public static CompletionItem CreateSymbolCompletion(Symbol symbol, bool preselect = false, string? insertText = null)
+        {
+            insertText ??= symbol.Name;
+            var kind = GetCompletionItemKind(symbol);
+            var priority = GetCompletionPriority(symbol);
+
+            if (symbol is FunctionSymbol function)
             {
-                Label = symbol.Name,
-                Kind = GetCompletionItemKind(symbol),
-                Detail = symbol.Name,
-                InsertText = symbol.Name,
-                InsertTextFormat = InsertTextFormat.PlainText,
-                Preselect = preselect,
-                SortText = GetSortText(symbol.Name, GetCompletionPriority(symbol))
-            };
+                // for functions withouth any parameters on all the overloads, we should be placing the cursor after the parentheses
+                // for all other functions, the cursor should land between the parentheses so the user can specify the arguments
+                bool hasParameters = function.Overloads.Any(overload => overload.HasParameters);
+                var snippet = hasParameters
+                    ? $"{insertText}($0)"
+                    : $"{insertText}()$0";
+
+                return CreateSnippetCompletion(kind, insertText, snippet, $"{insertText}()", preselect, priority);
+            }
+
+            return CreatePlaintextCompletion(kind, insertText, insertText, preselect, priority);
+        }
 
         private static CompletionPriority GetCompletionPriority(Symbol symbol) =>
             symbol.Kind switch
@@ -111,10 +126,11 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.Function => CompletionItemKind.Function,
                 SymbolKind.File => CompletionItemKind.File,
                 SymbolKind.Variable => CompletionItemKind.Variable,
-                SymbolKind.Namespace => CompletionItemKind.Reference,
+                SymbolKind.Namespace => CompletionItemKind.Folder,
                 SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Parameter => CompletionItemKind.Field,
                 SymbolKind.Resource => CompletionItemKind.Interface,
+                SymbolKind.Module => CompletionItemKind.Module,
                 _ => CompletionItemKind.Text
             };
 

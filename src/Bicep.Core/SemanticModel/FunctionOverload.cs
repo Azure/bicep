@@ -62,6 +62,8 @@ namespace Bicep.Core.SemanticModel
 
         public ImmutableArray<string> ParameterTypeSignatures { get; }
 
+        public bool HasParameters => this.MinimumArgumentCount > 0 || this.MaximumArgumentCount > 0;
+
         public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes, out ArgumentCountMismatch? argumentCountMismatch, out ArgumentTypeMismatch? argumentTypeMismatch)
         {
             argumentCountMismatch = null;

@@ -72,12 +72,12 @@
   {
     "label": "any",
     "kind": "function",
-    "detail": "any",
+    "detail": "any()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_any",
-    "insertText": "any",
-    "insertTextFormat": "plainText"
+    "insertText": "any($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "anyIndexOnAny",
@@ -92,52 +92,72 @@
   {
     "label": "array",
     "kind": "function",
-    "detail": "array",
+    "detail": "array()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_array",
-    "insertText": "array",
+    "insertText": "array($0)",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "az",
+    "kind": "folder",
+    "detail": "az",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az",
+    "insertText": "az",
     "insertTextFormat": "plainText"
+  },
+  {
+    "label": "az.resourceGroup",
+    "kind": "function",
+    "detail": "az.resourceGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az.resourceGroup",
+    "insertText": "az.resourceGroup()$0",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "base64",
     "kind": "function",
-    "detail": "base64",
+    "detail": "base64()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64",
-    "insertText": "base64",
-    "insertTextFormat": "plainText"
+    "insertText": "base64($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "base64ToJson",
     "kind": "function",
-    "detail": "base64ToJson",
+    "detail": "base64ToJson()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToJson",
-    "insertText": "base64ToJson",
-    "insertTextFormat": "plainText"
+    "insertText": "base64ToJson($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "base64ToString",
     "kind": "function",
-    "detail": "base64ToString",
+    "detail": "base64ToString()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToString",
-    "insertText": "base64ToString",
-    "insertTextFormat": "plainText"
+    "insertText": "base64ToString($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "bool",
     "kind": "function",
-    "detail": "bool",
+    "detail": "bool()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_bool",
-    "insertText": "bool",
-    "insertTextFormat": "plainText"
+    "insertText": "bool($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "bracketInTheMiddle",
@@ -162,32 +182,32 @@
   {
     "label": "coalesce",
     "kind": "function",
-    "detail": "coalesce",
+    "detail": "coalesce()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_coalesce",
-    "insertText": "coalesce",
-    "insertTextFormat": "plainText"
+    "insertText": "coalesce($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "concat",
     "kind": "function",
-    "detail": "concat",
+    "detail": "concat()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_concat",
-    "insertText": "concat",
-    "insertTextFormat": "plainText"
+    "insertText": "concat($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "contains",
     "kind": "function",
-    "detail": "contains",
+    "detail": "contains()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_contains",
-    "insertText": "contains",
-    "insertTextFormat": "plainText"
+    "insertText": "contains($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "createArray",
@@ -232,42 +252,42 @@
   {
     "label": "dataUri",
     "kind": "function",
-    "detail": "dataUri",
+    "detail": "dataUri()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUri",
-    "insertText": "dataUri",
-    "insertTextFormat": "plainText"
+    "insertText": "dataUri($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "dataUriToString",
     "kind": "function",
-    "detail": "dataUriToString",
+    "detail": "dataUriToString()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUriToString",
-    "insertText": "dataUriToString",
-    "insertTextFormat": "plainText"
+    "insertText": "dataUriToString($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "dateTimeAdd",
     "kind": "function",
-    "detail": "dateTimeAdd",
+    "detail": "dateTimeAdd()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dateTimeAdd",
-    "insertText": "dateTimeAdd",
-    "insertTextFormat": "plainText"
+    "insertText": "dateTimeAdd($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "deployment",
     "kind": "function",
-    "detail": "deployment",
+    "detail": "deployment()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_deployment",
-    "insertText": "deployment",
-    "insertTextFormat": "plainText"
+    "insertText": "deployment()$0",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "div",
@@ -292,12 +312,12 @@
   {
     "label": "empty",
     "kind": "function",
-    "detail": "empty",
+    "detail": "empty()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_empty",
-    "insertText": "empty",
-    "insertTextFormat": "plainText"
+    "insertText": "empty($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "emptyJsonArray",
@@ -322,22 +342,22 @@
   {
     "label": "endsWith",
     "kind": "function",
-    "detail": "endsWith",
+    "detail": "endsWith()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_endsWith",
-    "insertText": "endsWith",
-    "insertTextFormat": "plainText"
+    "insertText": "endsWith($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "environment",
     "kind": "function",
-    "detail": "environment",
+    "detail": "environment()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_environment",
-    "insertText": "environment",
-    "insertTextFormat": "plainText"
+    "insertText": "environment()$0",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "equals",
@@ -362,32 +382,32 @@
   {
     "label": "extensionResourceId",
     "kind": "function",
-    "detail": "extensionResourceId",
+    "detail": "extensionResourceId()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_extensionResourceId",
-    "insertText": "extensionResourceId",
-    "insertTextFormat": "plainText"
+    "insertText": "extensionResourceId($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "first",
     "kind": "function",
-    "detail": "first",
+    "detail": "first()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_first",
-    "insertText": "first",
-    "insertTextFormat": "plainText"
+    "insertText": "first($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "format",
     "kind": "function",
-    "detail": "format",
+    "detail": "format()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_format",
-    "insertText": "format",
-    "insertTextFormat": "plainText"
+    "insertText": "format($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "functionOnIndexer1",
@@ -442,12 +462,12 @@
   {
     "label": "guid",
     "kind": "function",
-    "detail": "guid",
+    "detail": "guid()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_guid",
-    "insertText": "guid",
-    "insertTextFormat": "plainText"
+    "insertText": "guid($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "if",
@@ -462,22 +482,22 @@
   {
     "label": "indexOf",
     "kind": "function",
-    "detail": "indexOf",
+    "detail": "indexOf()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_indexOf",
-    "insertText": "indexOf",
-    "insertTextFormat": "plainText"
+    "insertText": "indexOf($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "int",
     "kind": "function",
-    "detail": "int",
+    "detail": "int()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_int",
-    "insertText": "int",
-    "insertTextFormat": "plainText"
+    "insertText": "int($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "intIndexer",
@@ -542,12 +562,12 @@
   {
     "label": "intersection",
     "kind": "function",
-    "detail": "intersection",
+    "detail": "intersection()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_intersection",
-    "insertText": "intersection",
-    "insertTextFormat": "plainText"
+    "insertText": "intersection($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "isFalse",
@@ -572,42 +592,42 @@
   {
     "label": "json",
     "kind": "function",
-    "detail": "json",
+    "detail": "json()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_json",
-    "insertText": "json",
-    "insertTextFormat": "plainText"
+    "insertText": "json($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "last",
     "kind": "function",
-    "detail": "last",
+    "detail": "last()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_last",
-    "insertText": "last",
-    "insertTextFormat": "plainText"
+    "insertText": "last($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "lastIndexOf",
     "kind": "function",
-    "detail": "lastIndexOf",
+    "detail": "lastIndexOf()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_lastIndexOf",
-    "insertText": "lastIndexOf",
-    "insertTextFormat": "plainText"
+    "insertText": "lastIndexOf($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "length",
     "kind": "function",
-    "detail": "length",
+    "detail": "length()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_length",
-    "insertText": "length",
-    "insertTextFormat": "plainText"
+    "insertText": "length($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "less",
@@ -632,32 +652,32 @@
   {
     "label": "listKeys",
     "kind": "function",
-    "detail": "listKeys",
+    "detail": "listKeys()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_listKeys",
-    "insertText": "listKeys",
-    "insertTextFormat": "plainText"
+    "insertText": "listKeys($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "max",
     "kind": "function",
-    "detail": "max",
+    "detail": "max()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_max",
-    "insertText": "max",
-    "insertTextFormat": "plainText"
+    "insertText": "max($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "min",
     "kind": "function",
-    "detail": "min",
+    "detail": "min()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_min",
-    "insertText": "min",
-    "insertTextFormat": "plainText"
+    "insertText": "min($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "mod",
@@ -852,12 +872,12 @@
   {
     "label": "newGuid",
     "kind": "function",
-    "detail": "newGuid",
+    "detail": "newGuid()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_newGuid",
-    "insertText": "newGuid",
-    "insertTextFormat": "plainText"
+    "insertText": "newGuid()$0",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "not",
@@ -892,12 +912,12 @@
   {
     "label": "padLeft",
     "kind": "function",
-    "detail": "padLeft",
+    "detail": "padLeft()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_padLeft",
-    "insertText": "padLeft",
-    "insertTextFormat": "plainText"
+    "insertText": "padLeft($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "parameters",
@@ -912,12 +932,12 @@
   {
     "label": "pickZones",
     "kind": "function",
-    "detail": "pickZones",
+    "detail": "pickZones()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_pickZones",
-    "insertText": "pickZones",
-    "insertTextFormat": "plainText"
+    "insertText": "pickZones($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "previousEmitLimit",
@@ -962,42 +982,42 @@
   {
     "label": "providers",
     "kind": "function",
-    "detail": "providers",
+    "detail": "providers()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_providers",
-    "insertText": "providers",
-    "insertTextFormat": "plainText"
+    "insertText": "providers($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "range",
     "kind": "function",
-    "detail": "range",
+    "detail": "range()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_range",
-    "insertText": "range",
-    "insertTextFormat": "plainText"
+    "insertText": "range($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "reference",
     "kind": "function",
-    "detail": "reference",
+    "detail": "reference()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_reference",
-    "insertText": "reference",
-    "insertTextFormat": "plainText"
+    "insertText": "reference($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "replace",
     "kind": "function",
-    "detail": "replace",
+    "detail": "replace()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_replace",
-    "insertText": "replace",
-    "insertTextFormat": "plainText"
+    "insertText": "replace($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "resourceGroup",
@@ -1032,12 +1052,12 @@
   {
     "label": "resourceId",
     "kind": "function",
-    "detail": "resourceId",
+    "detail": "resourceId()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceId",
-    "insertText": "resourceId",
-    "insertTextFormat": "plainText"
+    "insertText": "resourceId($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "singleQuote",
@@ -1052,12 +1072,12 @@
   {
     "label": "skip",
     "kind": "function",
-    "detail": "skip",
+    "detail": "skip()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_skip",
-    "insertText": "skip",
-    "insertTextFormat": "plainText"
+    "insertText": "skip($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "someText",
@@ -1072,32 +1092,32 @@
   {
     "label": "split",
     "kind": "function",
-    "detail": "split",
+    "detail": "split()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_split",
-    "insertText": "split",
-    "insertTextFormat": "plainText"
+    "insertText": "split($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "startsWith",
     "kind": "function",
-    "detail": "startsWith",
+    "detail": "startsWith()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_startsWith",
-    "insertText": "startsWith",
-    "insertTextFormat": "plainText"
+    "insertText": "startsWith($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "string",
     "kind": "function",
-    "detail": "string",
+    "detail": "string()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_string",
-    "insertText": "string",
-    "insertTextFormat": "plainText"
+    "insertText": "string($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "sub",
@@ -1112,102 +1132,112 @@
   {
     "label": "subscription",
     "kind": "function",
-    "detail": "subscription",
+    "detail": "subscription()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscription",
-    "insertText": "subscription",
-    "insertTextFormat": "plainText"
+    "insertText": "subscription()$0",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "subscriptionResourceId",
     "kind": "function",
-    "detail": "subscriptionResourceId",
+    "detail": "subscriptionResourceId()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
-    "insertText": "subscriptionResourceId",
-    "insertTextFormat": "plainText"
+    "insertText": "subscriptionResourceId($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "substring",
     "kind": "function",
-    "detail": "substring",
+    "detail": "substring()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_substring",
-    "insertText": "substring",
+    "insertText": "substring($0)",
+    "insertTextFormat": "snippet"
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertText": "sys",
     "insertTextFormat": "plainText"
   },
   {
     "label": "take",
     "kind": "function",
-    "detail": "take",
+    "detail": "take()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_take",
-    "insertText": "take",
-    "insertTextFormat": "plainText"
+    "insertText": "take($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "tenantResourceId",
     "kind": "function",
-    "detail": "tenantResourceId",
+    "detail": "tenantResourceId()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenantResourceId",
-    "insertText": "tenantResourceId",
-    "insertTextFormat": "plainText"
+    "insertText": "tenantResourceId($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "toLower",
     "kind": "function",
-    "detail": "toLower",
+    "detail": "toLower()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toLower",
-    "insertText": "toLower",
-    "insertTextFormat": "plainText"
+    "insertText": "toLower($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "toUpper",
     "kind": "function",
-    "detail": "toUpper",
+    "detail": "toUpper()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toUpper",
-    "insertText": "toUpper",
-    "insertTextFormat": "plainText"
+    "insertText": "toUpper($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "trim",
     "kind": "function",
-    "detail": "trim",
+    "detail": "trim()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_trim",
-    "insertText": "trim",
-    "insertTextFormat": "plainText"
+    "insertText": "trim($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "union",
     "kind": "function",
-    "detail": "union",
+    "detail": "union()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_union",
-    "insertText": "union",
-    "insertTextFormat": "plainText"
+    "insertText": "union($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "uniqueString",
     "kind": "function",
-    "detail": "uniqueString",
+    "detail": "uniqueString()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uniqueString",
-    "insertText": "uniqueString",
-    "insertTextFormat": "plainText"
+    "insertText": "uniqueString($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "unusedIntermediate",
@@ -1232,42 +1262,42 @@
   {
     "label": "uri",
     "kind": "function",
-    "detail": "uri",
+    "detail": "uri()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uri",
-    "insertText": "uri",
-    "insertTextFormat": "plainText"
+    "insertText": "uri($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "uriComponent",
     "kind": "function",
-    "detail": "uriComponent",
+    "detail": "uriComponent()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponent",
-    "insertText": "uriComponent",
-    "insertTextFormat": "plainText"
+    "insertText": "uriComponent($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "uriComponentToString",
     "kind": "function",
-    "detail": "uriComponentToString",
+    "detail": "uriComponentToString()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponentToString",
-    "insertText": "uriComponentToString",
-    "insertTextFormat": "plainText"
+    "insertText": "uriComponentToString($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "utcNow",
     "kind": "function",
-    "detail": "utcNow",
+    "detail": "utcNow()",
     "deprecated": false,
     "preselect": false,
     "sortText": "3_utcNow",
-    "insertText": "utcNow",
-    "insertTextFormat": "plainText"
+    "insertText": "utcNow($0)",
+    "insertTextFormat": "snippet"
   },
   {
     "label": "variables",

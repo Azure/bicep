@@ -157,6 +157,26 @@ namespace Bicep.LangServer.IntegrationTests
                 }
             }
 
+            // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion
+            // (likely is needed to somehow help with routing of the ResolveCompletion requests)
+            // the value is different every time you run the language server
+            // to make our test asserts work, we will remove it and set the Data property null if nothing else remains in the object
+            foreach (var completion in completions)
+            {
+                const string omnisharpHandlerIdPropertyName = "$$__handler_id__$$";
+                
+                // LSP protocol dictates that the Data property is of "any" type, so we need to check
+                if (completion.Data is JObject @object && @object.Property(omnisharpHandlerIdPropertyName) != null)
+                {
+                    @object.Remove(omnisharpHandlerIdPropertyName);
+
+                    if (!@object.HasValues)
+                    {
+                        completion.Data = null;
+                    }
+                }
+            }
+
             return JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
         }
 

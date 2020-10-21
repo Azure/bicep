@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
@@ -47,6 +48,7 @@ namespace Bicep.LangServer.UnitTests
 
             var replacementsByDetail = new Dictionary<string, IList<string>>
             {
+                ["Module declaration"] = new[] {string.Empty, "myModule", "./empty.bicep"},
                 ["Parameter declaration"] = new[] {string.Empty, "myParam", "string"},
                 ["Parameter declaration with default value"] = new[] {string.Empty, "myParam", "string", "'myDefault'"},
                 ["Parameter declaration with default and allowed values"] = new[] {string.Empty, "myParam", "string", "'myDefault'", "'val1'\n'val2'"},
@@ -57,7 +59,7 @@ namespace Bicep.LangServer.UnitTests
                 ["Child Resource with defaults"] = new[] {"prop1: 'val1'", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
                 ["Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "2020-01-01", "'parent'"},
                 ["Child Resource without defaults"] = new[] {"properties: {\nprop1: 'val1'\n}", "myResource", "myProvider", "myType", "myChildType", "2020-01-01", "'parent/child'"},
-                ["Output declaration"] = new[] { "'stringVal'", "myOutput", "string" }
+                ["Output declaration"] = new[] {"'stringVal'", "myOutput", "string"}
             };
 
             snippetsByDetail.Keys.Should().BeEquivalentTo(replacementsByDetail.Keys);
@@ -103,6 +105,14 @@ namespace Bicep.LangServer.UnitTests
                 .ToList();
 
             keywordCompletions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("module");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().Be("module");
+                    c.Detail.Should().Be("Module keyword");
+                },
                 c =>
                 {
                     c.Label.Should().Be("output");
@@ -220,7 +230,7 @@ output length int = 42
             var provider = new BicepCompletionProvider();
             var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
 
-            AssertExpectedFunctions(completions, new[] {"concat", "resourceGroup", "base64"});
+            AssertExpectedFunctions(completions, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
@@ -349,21 +359,29 @@ output length int = 42
                 });
         }
 
-        private static void AssertExpectedFunctions(List<CompletionItem> completions, IEnumerable<string>? excludedFunctionNames = null)
+        private static void AssertExpectedFunctions(List<CompletionItem> completions, IEnumerable<string>? fullyQualifiedFunctionNames = null)
         {
-            excludedFunctionNames ??= Enumerable.Empty<string>();
+            fullyQualifiedFunctionNames ??= Enumerable.Empty<string>();
+
+            var fullyQualifiedFunctionParts = fullyQualifiedFunctionNames.Select(fqfn =>
+            {
+                var parts = fqfn.Split('.', StringSplitOptions.None);
+                return (@namespace: parts[0], function: parts[1]);
+            });
+
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
             var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(), new SystemNamespaceSymbol()}
                 .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>())
                 .Select(func => func.Name)
-                .Except(excludedFunctionNames)
+                .Except(fullyQualifiedFunctionParts.Select(p => p.function), LanguageConstants.IdentifierComparer)
+                .Concat(fullyQualifiedFunctionNames)
                 .OrderBy(s => s);
 
             functionCompletions.Select(c => c.Label).Should().BeEquivalentTo(availableFunctionNames);
-            functionCompletions.Should().OnlyContain(c => string.Equals(c.Label, c.InsertText));
-            functionCompletions.Should().OnlyContain(c => string.Equals(c.Label, c.Detail));
-            functionCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.PlainText);
+            functionCompletions.Should().OnlyContain(c => c.InsertText.StartsWith(c.Label + '('));
+            functionCompletions.Should().OnlyContain(c => string.Equals(c.Label + "()", c.Detail));
+            functionCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
         }
     }
 }
