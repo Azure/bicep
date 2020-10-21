@@ -6,7 +6,7 @@ We are not currently publishing "nightly" releases, but you can grab the latest 
 
 The easiest way to get these artifacts is through the GitHub site. Follow [this link](https://github.com/Azure/bicep/actions) to view the latest Action workflows. Find the most recent build on the `main` branch and select it:
 
-![](./images/bicep-select-action.png)
+![](./images/bicep-select-action.PNG)
 
 On the details page, select the artifact you would like to download.
 
