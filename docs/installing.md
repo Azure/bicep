@@ -116,3 +116,7 @@ Open a file called `main.bicep` VS code. If the extension is installed, you shou
 Now that you have the tooling installed, you can start the tutorial which will teach you full bicep capabilities:
 
 [1 - Working with a basic bicep file](./tutorial/01-simple-template.md)
+
+### Install the "nightly" builds of bicep
+
+If you'd like to try the latest pre-release bits of bicep before they are released, you can [follow instructions for installing the nightly builds](./installing-nightly.md). Note, these builds are much more likely to have known or unknown bugs.
