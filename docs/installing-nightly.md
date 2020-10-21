@@ -1,6 +1,6 @@
 # Installing the "Nightly" build of bicep CLI and VS Code extension
 
->**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of bicep. These are much more likely to have undiscovered bugs or other issues.
+>**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of bicep. These are much more likely to have undiscovered bugs or other issues. If you find anything, please open an issue.
 
 We are not currently publishing "nightly" releases, but you can grab the latest bits by viewing the latest Action workflows for the `main` branch (or any other branch).
 
