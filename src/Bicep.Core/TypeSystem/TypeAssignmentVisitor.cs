@@ -694,8 +694,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             => AssignType(syntax, () => {
 
-                base.VisitInstanceFunctionCallSyntax(syntax);
-
                 var errors = new List<ErrorDiagnostic>();
                 
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
@@ -766,7 +764,7 @@ namespace Bicep.Core.TypeSystem
                     case VariableSymbol variable:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
                     
-                    case NamespaceSymbol _:
+                    case NamespaceSymbol _ when hierarchy.GetParent(syntax) is InstanceFunctionCallSyntax:
                         return new UnassignableTypeSymbol("namespace", TypeKind.Never);
 
                     case OutputSymbol _:

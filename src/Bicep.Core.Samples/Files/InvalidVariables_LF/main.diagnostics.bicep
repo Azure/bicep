@@ -141,3 +141,7 @@ var rgName = resourceGroup().name
 // invalid use of reserved namespace
 var az = 1
 //@[4:6) [BCP084 (Error)] The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys". |az|
+
+// cannot assign a variable to a namespace
+var invalidNamespaceAssignment = az
+//@[33:35) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
