@@ -208,13 +208,13 @@ var propertyAccessOnVariable = x.foo
 
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
-//@[17:23) [BCP063 (Error)] The name "concat" is not a parameter or variable. |concat|
-//@[26:32) [BCP063 (Error)] The name "base64" is not a parameter or variable. |base64|
-//@[37:49) [BCP063 (Error)] The name "uniqueString" is not a parameter or variable. |uniqueString|
+//@[17:23) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. |concat|
+//@[26:32) [BCP063 (Error)] The name "base64" is not a parameter, variable, resource or module. |base64|
+//@[37:49) [BCP063 (Error)] The name "uniqueString" is not a parameter, variable, resource or module. |uniqueString|
 param funcvarparam bool = concat
-//@[26:32) [BCP063 (Error)] The name "concat" is not a parameter or variable. |concat|
+//@[26:32) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. |concat|
 output funcvarout array = padLeft
-//@[26:33) [BCP063 (Error)] The name "padLeft" is not a parameter or variable. |padLeft|
+//@[26:33) [BCP063 (Error)] The name "padLeft" is not a parameter, variable, resource or module. |padLeft|
 
 // non-existent function
 var fakeFunc = red() + green() * orange()
@@ -307,11 +307,11 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 var invalidInstanceFunctionCall = az.az()
 //@[37:39) [BCP086 (Error)] The function "az" does not exist in namespace "az". |az|
 var invalidPropertyAccessOnAzNamespace = az.az
-//@[41:43) [BCP063 (Error)] The name "az" is not a parameter or variable. |az|
+//@[41:43) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
-//@[42:45) [BCP063 (Error)] The name "sys" is not a parameter or variable. |sys|
+//@[42:45) [BCP063 (Error)] The name "sys" is not a parameter, variable, resource or module. |sys|
 var invalidOperands = 1 + az
-//@[26:28) [BCP063 (Error)] The name "az" is not a parameter or variable. |az|
+//@[26:28) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
 
 var bannedFunctions = {
   var: variables()

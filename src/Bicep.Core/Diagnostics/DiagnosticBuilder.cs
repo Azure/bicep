@@ -349,7 +349,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP063",
-                $"The name \"{name}\" is not a parameter or variable.");
+                $"The name \"{name}\" is not a parameter, variable, resource or module.");
 
             public ErrorDiagnostic UnexpectedTokensInInterpolation() => new ErrorDiagnostic(
                 TextSpan,

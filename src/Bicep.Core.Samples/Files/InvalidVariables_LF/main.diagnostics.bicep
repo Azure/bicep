@@ -138,4 +138,4 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
-//@[33:35) [BCP063 (Error)] The name "az" is not a parameter or variable. |az|
+//@[33:35) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
