@@ -78,6 +78,9 @@ var objWithInterp = {
 var mySum = az.add(1,2)
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 
+// invalid string using double quotes
+var doubleString = "bad string"
+
 var resourceGroup = ''
 var rgName = resourceGroup().name
 

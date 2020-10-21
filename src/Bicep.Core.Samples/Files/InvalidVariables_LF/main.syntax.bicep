@@ -451,6 +451,21 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[50:51)   RightParen |)|
 //@[51:53) NewLine |\n\n|
 
+// invalid string using double quotes
+//@[37:38) NewLine |\n|
+var doubleString = "bad string"
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |doubleString|
+//@[17:18)  Assignment |=|
+//@[19:31)  SkippedTriviaSyntax
+//@[19:20)   Unrecognized |"|
+//@[20:23)   Identifier |bad|
+//@[24:30)   Identifier |string|
+//@[30:31)   Unrecognized |"|
+//@[31:33) NewLine |\n\n|
+
 var resourceGroup = ''
 //@[0:22) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

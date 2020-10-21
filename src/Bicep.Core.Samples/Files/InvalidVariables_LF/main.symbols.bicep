@@ -102,6 +102,10 @@ var mySum = az.add(1,2)
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[4:12) Variable myConcat. Type: error. Declaration start char: 0, length: 51
 
+// invalid string using double quotes
+var doubleString = "bad string"
+//@[4:16) Variable doubleString. Type: error. Declaration start char: 0, length: 31
+
 var resourceGroup = ''
 //@[4:17) Variable resourceGroup. Type: ''. Declaration start char: 0, length: 22
 var rgName = resourceGroup().name

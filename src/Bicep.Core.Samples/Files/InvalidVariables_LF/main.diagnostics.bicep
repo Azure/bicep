@@ -128,6 +128,12 @@ var mySum = az.add(1,2)
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[34:40) [BCP086 (Error)] The function "concat" does not exist in namespace "az". |concat|
 
+// invalid string using double quotes
+var doubleString = "bad string"
+//@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |"|
+//@[19:20) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. |"|
+//@[30:31) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. |"|
+
 var resourceGroup = ''
 var rgName = resourceGroup().name
 //@[13:26) [BCP059 (Error)] The name "resourceGroup" is not a function. |resourceGroup|
