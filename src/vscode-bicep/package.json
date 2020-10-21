@@ -96,7 +96,7 @@
         "eslint-plugin-jest": "^24.1.0",
         "eslint-plugin-prettier": "^3.1.4",
         "gulp": "^4.0.2",
-        "jest": "^26.5.3",
+        "jest": "^26.6.0",
         "nerdbank-gitversioning": "^3.3.37",
         "prettier": "^2.1.2",
         "rimraf": "^3.0.2",
