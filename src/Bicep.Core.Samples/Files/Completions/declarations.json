@@ -1,5 +1,29 @@
 [
   {
+    "label": "module",
+    "kind": "keyword",
+    "detail": "Module keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_module",
+    "insertText": "module",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "module",
+    "kind": "snippet",
+    "detail": "Module declaration",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmodule Identifier 'Path' = {\n  name: \n  \n}\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_module",
+    "insertText": "module ${1:Identifier} '${2:Path}' = {\n  name: $3\n  $0\n}",
+    "insertTextFormat": "snippet"
+  },
+  {
     "label": "output",
     "kind": "keyword",
     "detail": "Output keyword",

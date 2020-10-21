@@ -29,6 +29,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
             {
                 yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword");
+                
                 yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}");
                 yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}");
                 yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
@@ -73,6 +74,12 @@ namespace Bicep.LanguageServer.Completions
 
                 yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword");
                 yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.OutputKeyword, "Output declaration", "output ${1:Identifier} ${2:Type} = $0");
+
+                yield return CompletionItemFactory.CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword");
+                yield return CompletionItemFactory.CreateContextualSnippetCompletion(LanguageConstants.ModuleKeyword, "Module declaration", @"module ${1:Identifier} '${2:Path}' = {
+  name: $3
+  $0
+}");
             }
         }
 
@@ -85,7 +92,7 @@ namespace Bicep.LanguageServer.Completions
 
             // when we're inside an expression that is inside a property that expects a compile-time constant value,
             // we should not be emitting accessible symbol completions
-            return GetAccessibleSymbols(model, context).Select(symbol => CompletionItemFactory.CreateSymbolCompletion(symbol));
+            return GetAccessibleSymbolCompletions(model, context);
         }
 
         private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(BicepCompletionContext context)
@@ -119,44 +126,66 @@ namespace Bicep.LanguageServer.Completions
 }");
         }
 
-        private static IEnumerable<Symbol> GetAccessibleSymbols(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            var accessibleSymbols = new Dictionary<string, Symbol>();
+            // maps insert text to the completion item
+            var completions = new Dictionary<string, CompletionItem>();
 
             var enclosingDeclarationSymbol = context.EnclosingDeclaration == null 
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
             // local function
-            void AddAccessibleSymbols(IDictionary<string, Symbol> result, IEnumerable<Symbol> symbols)
+            void AddSymbolCompletions(IDictionary<string, CompletionItem> result, IEnumerable<Symbol> symbols)
             {
                 foreach (var symbol in symbols)
                 {
-                    if (result.ContainsKey(symbol.Name))
+                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol))
                     {
-                        // a local declaration has the same name as a function
-                        // we should leave the completions for local symbol but should not include the completions for the function
-                        continue;
+                        // we have not added a symbol with the same name (avoids duplicate completions)
+                        // and the symbol is different than the enclosing declaration (avoids suggesting cycles)
+                        result.Add(symbol.Name, CompletionItemFactory.CreateSymbolCompletion(symbol));
                     }
-
-                    if (ReferenceEquals(symbol, enclosingDeclarationSymbol))
-                    {
-                        // the symbol is the same as the symbol of the enclosing declaration
-                        // if we produce a completion with the matching identifier and the user selects it,
-                        // this will cause a cycle. even thought the type checker will catch it, let's not suggest it to the user
-                        continue;
-                    }
-
-                    result.Add(symbol.Name, symbol);
                 }
             }
 
-            AddAccessibleSymbols(accessibleSymbols, model.Root.AllDeclarations
-                .Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+            // add namespaces first
+            AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
 
-            AddAccessibleSymbols(accessibleSymbols, model.Root.ImportedNamespaces
+            // add the non-output declarations with valid identifiers 
+            AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+
+            // get names of functions that always require to be fully qualified due to clashes between namespaces
+            var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
+                .SelectMany(pair => pair.Value.Descendants.OfType<FunctionSymbol>())
+                .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
+                .Where(tuple => tuple.count > 1)
+                .Select(tuple => tuple.name)
+                .ToHashSet(LanguageConstants.IdentifierComparer);
+
+            foreach (var @namespace in model.Root.ImportedNamespaces.Values)
+            {
+                foreach (var function in @namespace.Descendants.OfType<FunctionSymbol>())
+                {
+                    if (completions.ContainsKey(function.Name) || alwaysFullyQualifiedNames.Contains(function.Name))
+                    {
+                        // either there is a declaration with the same name as the function or the function is ambiguous between the imported namespaces
+                        // either way the function must be fully qualified in the completion
+                        var fullyQualifiedFunctionName = $"{@namespace.Name}.{function.Name}";
+                        completions.Add(fullyQualifiedFunctionName, CompletionItemFactory.CreateSymbolCompletion(function, insertText: fullyQualifiedFunctionName));
+                    }
+                    else
+                    {
+                        // function does not have to be fully qualified
+                        completions.Add(function.Name, CompletionItemFactory.CreateSymbolCompletion(function));
+                    }
+                }
+            }
+
+            AddSymbolCompletions(completions, model.Root.ImportedNamespaces
                 .SelectMany(kvp => kvp.Value.Descendants.OfType<FunctionSymbol>()));
-            return accessibleSymbols.Values;
+            
+            return completions.Values;
         }
 
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
@@ -240,7 +269,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (flags != DeclaredTypeFlags.Constant)
             {
-                completions = completions.Concat(GetAccessibleSymbols(model, context).Select(symbol => CompletionItemFactory.CreateSymbolCompletion(symbol)));
+                completions = completions.Concat(GetAccessibleSymbolCompletions(model, context));
             }
 
             return completions;
