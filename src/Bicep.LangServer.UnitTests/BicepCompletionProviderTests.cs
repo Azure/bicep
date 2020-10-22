@@ -10,6 +10,7 @@ using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
 using Bicep.LanguageServer.Completions;
@@ -162,7 +163,7 @@ namespace Bicep.LangServer.UnitTests
             completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
 
-            AssertExpectedFunctions(completions);
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
         }
 
         [TestMethod]
@@ -181,7 +182,7 @@ output o int = 42
             var provider = new BicepCompletionProvider();
             var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
             
-            AssertExpectedFunctions(completions);
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
@@ -215,6 +216,33 @@ output o int = 42
         }
 
         [TestMethod]
+        public void ParameterTypeContextShouldIncludeFunctionsValidInDefaultValues()
+        {
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"param p string = 's'"));
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+
+            var parameter = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax.Children.OfType<ParameterDeclarationSyntax>().Single();
+
+            var provider = new BicepCompletionProvider();
+            var completions = provider.GetFilteredCompletions(
+                compilation.GetEntrypointSemanticModel(),
+                new BicepCompletionContext(BicepCompletionContextKind.None, enclosingDeclaration: parameter)).ToList();
+
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
+
+            // outputs can't be referenced so they should not show up in completions
+            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
+
+            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
+
+            // should not see parameter completions because we set the enclosing declaration which will exclude the corresponding symbol
+            // this avoids cycle suggestions
+            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
@@ -230,7 +258,7 @@ output length int = 42
             var provider = new BicepCompletionProvider();
             var completions = provider.GetFilteredCompletions(compilation.GetEntrypointSemanticModel(), new BicepCompletionContext(BicepCompletionContextKind.None)).ToList();
 
-            AssertExpectedFunctions(completions, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
@@ -359,7 +387,7 @@ output length int = 42
                 });
         }
 
-        private static void AssertExpectedFunctions(List<CompletionItem> completions, IEnumerable<string>? fullyQualifiedFunctionNames = null)
+        private static void AssertExpectedFunctions(List<CompletionItem> completions, bool expectParamDefaultFunctions, IEnumerable<string>? fullyQualifiedFunctionNames = null)
         {
             fullyQualifiedFunctionNames ??= Enumerable.Empty<string>();
 
@@ -373,6 +401,7 @@ output length int = 42
 
             var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(), new SystemNamespaceSymbol()}
                 .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>())
+                .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)
                 .Except(fullyQualifiedFunctionParts.Select(p => p.function), LanguageConstants.IdentifierComparer)
                 .Concat(fullyQualifiedFunctionNames)

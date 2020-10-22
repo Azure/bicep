@@ -18,6 +18,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Namespace => CompletionItemKind.Reference,
                 SymbolKind.Function => CompletionItemKind.Function,
+                SymbolKind.Module => CompletionItemKind.Module,
                 _ => throw new AssertFailedException($"Unexpected symbol kind '{symbolKind}'.")
             };
     }

@@ -167,6 +167,13 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var function in @namespace.Descendants.OfType<FunctionSymbol>())
                 {
+                    if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDeclarationSymbol is ParameterSymbol))
+                    {
+                        // this function is only allowed in param defaults but the enclosing declaration is not bound to a parameter symbol
+                        // therefore we should not suggesting this function as a viable completion
+                        continue;
+                    }
+
                     if (completions.ContainsKey(function.Name) || alwaysFullyQualifiedNames.Contains(function.Name))
                     {
                         // either there is a declaration with the same name as the function or the function is ambiguous between the imported namespaces
@@ -182,9 +189,6 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            AddSymbolCompletions(completions, model.Root.ImportedNamespaces
-                .SelectMany(kvp => kvp.Value.Descendants.OfType<FunctionSymbol>()));
-            
             return completions.Values;
         }
 

@@ -123,6 +123,7 @@ param wrongMetadataSchema string {
 
 // expression in modifier
 param expressionInModifier string {
+  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
   maxLength: a + 2
   minLength: foo()
