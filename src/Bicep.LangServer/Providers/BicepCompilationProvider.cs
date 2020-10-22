@@ -4,6 +4,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
@@ -24,10 +25,17 @@ namespace Bicep.LanguageServer.Providers
             this.fileResolver = fileResolver;
         }
 
-        public CompilationContext Create(DocumentUri documentUri, string text)
+        public SyntaxTree BuildSyntaxTree(DocumentUri documentUri, string fileContents)
+        {
+            var filePath = fileResolver.GetNormalizedFileName(documentUri.GetFileSystemPath());
+
+            return SyntaxTree.Create(filePath, fileContents);
+        }
+
+        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri)
         {
             var mainFileName = documentUri.GetFileSystemPath();
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.BuildWithPreloadedFile(fileResolver, mainFileName, text);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, mainFileName);
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             return new CompilationContext(compilation);

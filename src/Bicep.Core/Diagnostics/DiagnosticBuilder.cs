@@ -574,6 +574,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP103",
                 $"The following token is not recognized: \"{token}\". Strings are defined using single quotes in bicep.");
+
+            public ErrorDiagnostic ReferencedModuleHasErrors() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP104",
+                $"The referenced module has errors.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

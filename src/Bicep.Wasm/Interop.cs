@@ -14,6 +14,7 @@ using System.Linq;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Wasm
 {
@@ -118,7 +119,7 @@ namespace Bicep.Wasm
         {
             var fileName = "/main.bicep";
             var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [fileName] = text }, filePath => "Modules are not supported in the Bicep Playground");
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, fileName);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), fileName);
 
             return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
         }

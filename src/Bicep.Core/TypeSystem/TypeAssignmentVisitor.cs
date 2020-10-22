@@ -241,6 +241,11 @@ namespace Bicep.Core.TypeSystem
                     return UnassignableTypeSymbol.CreateErrors(failureDiagnostic);
                 }
 
+                if (moduleSemanticModel.HasDiagnosticErrors())
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                }
+
                 var declaredType = GetDeclaredModuleType(moduleSemanticModel, "module");
                 
                 // just established the declared type - assign it!

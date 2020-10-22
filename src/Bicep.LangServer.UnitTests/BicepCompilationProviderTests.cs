@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,7 +26,10 @@ namespace Bicep.LangServer.UnitTests
             var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
-            var context = provider.Create(fileUri, DataSets.Parameters_LF.Bicep);
+            var syntaxTree = SyntaxTree.Create(fileUri.GetFileSystemPath(), DataSets.Parameters_LF.Bicep);
+            var workspace = new Workspace();
+            workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
+            var context = provider.Create(workspace, fileUri);
 
             context.Compilation.Should().NotBeNull();
             context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();

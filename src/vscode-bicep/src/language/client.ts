@@ -58,7 +58,10 @@ async function launchLanguageService(
     progressOnInitialization: true,
     outputChannel,
     synchronize: {
-      fileEvents: vscode.workspace.createFileSystemWatcher("**/*.bicep"),
+      fileEvents: [
+        vscode.workspace.createFileSystemWatcher("**/"), // folder changes
+        vscode.workspace.createFileSystemWatcher("**/*.bicep"), // .bicep file changes
+      ],
     },
   };
 

@@ -7,6 +7,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
@@ -26,7 +27,7 @@ namespace Bicep.Core.Samples
         public static Compilation CopyFilesAndCreateCompilation(this DataSet dataSet, TestContext testContext, out string outputDirectory)
         {
             outputDirectory = dataSet.SaveFilesToTestDirectory(testContext, dataSet.Name);
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), Path.Combine(outputDirectory, DataSet.TestFileMain));
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), Path.Combine(outputDirectory, DataSet.TestFileMain));
 
             return new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
         }

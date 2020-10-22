@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -19,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var fileResolver = new InMemoryFileResolver(files);
 
-            return SyntaxTreeGroupingBuilder.Build(fileResolver, entryFileName);
+            return SyntaxTreeGroupingBuilder.Build(fileResolver, new Workspace(), entryFileName);
         }
     }
 }
