@@ -777,15 +777,17 @@ param wrongMetadataSchema string {
 // expression in modifier
 //@[25:26) NewLine |\n|
 param expressionInModifier string {
-//@[0:115) ParameterDeclarationSyntax
+//@[0:179) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
 //@[27:33)  TypeSyntax
 //@[27:33)   Identifier |string|
-//@[34:115)  ObjectSyntax
+//@[34:179)  ObjectSyntax
 //@[34:35)   LeftBrace |{|
 //@[35:36)   NewLine |\n|
+  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[63:64)   NewLine |\n|
   default: 2 + 3
 //@[2:16)   ObjectPropertySyntax
 //@[2:9)    IdentifierSyntax

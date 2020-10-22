@@ -510,16 +510,6 @@
     "insertTextFormat": "plainText"
   },
   {
-    "label": "newGuid",
-    "kind": "function",
-    "detail": "newGuid()",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_newGuid",
-    "insertText": "newGuid()$0",
-    "insertTextFormat": "snippet"
-  },
-  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",
@@ -807,16 +797,6 @@
     "preselect": false,
     "sortText": "3_uriComponentToString",
     "insertText": "uriComponentToString($0)",
-    "insertTextFormat": "snippet"
-  },
-  {
-    "label": "utcNow",
-    "kind": "function",
-    "detail": "utcNow()",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_utcNow",
-    "insertText": "utcNow($0)",
     "insertTextFormat": "snippet"
   }
 ]

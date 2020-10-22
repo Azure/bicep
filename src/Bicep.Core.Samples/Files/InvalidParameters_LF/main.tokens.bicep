@@ -509,6 +509,8 @@ param expressionInModifier string {
 //@[27:33) Identifier |string|
 //@[34:35) LeftBrace |{|
 //@[35:36) NewLine |\n|
+  // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
+//@[63:64) NewLine |\n|
   default: 2 + 3
 //@[2:9) Identifier |default|
 //@[9:10) Colon |:|
