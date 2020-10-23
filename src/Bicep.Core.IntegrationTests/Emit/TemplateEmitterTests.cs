@@ -11,6 +11,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), compiledFilePath);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepFilePath), compiledFilePath);
             result.Status.Should().Be(EmitStatus.Succeeded);
             result.Diagnostics.Should().BeEmpty();
 
@@ -72,7 +73,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             MemoryStream memoryStream = new MemoryStream();
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), memoryStream);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepFilePath), memoryStream);
             result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -96,7 +97,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             string filePath = FileHelper.GetResultFilePath(this.TestContext, $"{dataSet.Name}_Compiled_Original.json");
 
             // emitting the template should fail
-            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepFilePath), filePath);
+            var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepFilePath), filePath);
             result.Status.Should().Be(EmitStatus.Failed);
             result.Diagnostics.Should().NotBeEmpty();
         }

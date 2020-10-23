@@ -17,18 +17,29 @@ using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
+using System.Collections.Generic;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, Func<IResourceTypeProvider>? typeProviderBuilder = null)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
-            typeProviderBuilder ??= TestResourceTypeProvider.Create;
+            resourceTypeProvider ??= TestResourceTypeProvider.Create();
+            fileResolver ??= new InMemoryFileResolver(new Dictionary<string, string>());
+
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
-            var server = new Server(serverPipe.Reader, clientPipe.Writer, typeProviderBuilder);
+            var server = new Server(
+                serverPipe.Reader,
+                clientPipe.Writer,
+                new Server.CreationOptions
+                {
+                    ResourceTypeProvider = resourceTypeProvider,
+                    FileResolver = fileResolver,
+                });
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options => 
@@ -60,14 +71,32 @@ namespace Bicep.LangServer.IntegrationTests
             return await task;
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null, Func<IResourceTypeProvider>? typeProviderBuilder = null)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Not an issue in test code.")]
+        public static async Task EnsureTaskDoesntCompleteAsync<T>(Task<T> task, int timeout = 10000)
+        {
+            var completed = await Task.WhenAny(
+                task,
+                Task.Delay(timeout)
+            );
+
+            if (task == completed)
+            {
+                Assert.Fail($"Expected task to not complete, but it completed!");
+            }
+        }
+
+        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(options =>
-            {
-                onClientOptions?.Invoke(options);
-                options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
-            }, typeProviderBuilder);
+            var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [uri.GetFileSystemPath()] = text, });
+            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+                options =>
+                {
+                    onClientOptions?.Invoke(options);
+                    options.OnPublishDiagnostics(p => diagnosticsPublished.SetResult(p));
+                },
+                resourceTypeProvider: resourceTypeProvider,
+                fileResolver: fileResolver);
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(uri, text, 0));

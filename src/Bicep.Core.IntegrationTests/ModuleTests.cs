@@ -15,6 +15,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -172,7 +173,7 @@ module main 'main.bicep' = {
             string? tryReadOutput;
             mockFileResolver.Setup(x => x.TryRead("/path/to/main.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = "Mock read failure!"; return null; }));
 
-            Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep");
+            Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep");
             buildAction.Should().Throw<ErrorDiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Mock read failure!");
         }
@@ -201,7 +202,7 @@ module modulea 'modulea.bicep' = {
             mockFileResolver.Setup(x => x.TryRead("/path/to/main.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = null; return mainFileContents; }));
             mockFileResolver.Setup(x => x.TryResolveModulePath("/path/to/main.bicep", "modulea.bicep")).Returns((string?)null);
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {
@@ -235,7 +236,7 @@ module modulea 'modulea.bicep' = {
             mockFileResolver.Setup(x => x.TryRead("/path/to/modulea.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = "Mock read failure!"; return null; }));
             mockFileResolver.Setup(x => x.TryResolveModulePath("/path/to/main.bicep", "modulea.bicep")).Returns("/path/to/modulea.bicep");
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep"));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {

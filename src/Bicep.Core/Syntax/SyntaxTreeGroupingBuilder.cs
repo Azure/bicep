@@ -3,45 +3,40 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
 {
     public class SyntaxTreeGroupingBuilder
     {
         private readonly IFileResolver fileResolver;
+        private readonly IReadOnlyWorkspace workspace;
         private readonly IDictionary<ModuleDeclarationSyntax, SyntaxTree> moduleLookup;
         private readonly IDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup;
         private readonly IDictionary<string, SyntaxTree> syntaxTrees;
         private readonly IDictionary<string, DiagnosticBuilder.ErrorBuilderDelegate> syntaxTreeLoadFailures;
 
-        private SyntaxTreeGroupingBuilder(IFileResolver fileResolver)
+        private SyntaxTreeGroupingBuilder(IFileResolver fileResolver, IReadOnlyWorkspace workspace)
         {
             this.fileResolver = fileResolver;
+            this.workspace = workspace;
             this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, SyntaxTree>();
             this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
             this.syntaxTrees = new Dictionary<string, SyntaxTree>(fileResolver.PathComparer);
             this.syntaxTreeLoadFailures = new Dictionary<string, DiagnosticBuilder.ErrorBuilderDelegate>(fileResolver.PathComparer);
         }
 
-        public static SyntaxTreeGrouping Build(IFileResolver fileResolver, string entryFileName)
+        public static SyntaxTreeGrouping Build(IFileResolver fileResolver, IReadOnlyWorkspace workspace, string entryFileName)
         {
-            var builder = new SyntaxTreeGroupingBuilder(fileResolver);
+            var builder = new SyntaxTreeGroupingBuilder(fileResolver, workspace);
             var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
-
-            return builder.Build(normalizedFileName);
-        }
-
-        public static SyntaxTreeGrouping BuildWithPreloadedFile(IFileResolver fileResolver, string entryFileName, string fileContents)
-        {
-            var builder = new SyntaxTreeGroupingBuilder(fileResolver);
-            var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
-            builder.AddSyntaxTree(normalizedFileName, fileContents);
 
             return builder.Build(normalizedFileName);
         }
@@ -71,8 +66,15 @@ namespace Bicep.Core.Syntax
         private SyntaxTree? TryGetSyntaxTree(string fullFileName, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var normalizedFileName = fileResolver.GetNormalizedFileName(fullFileName);
- 
-            if (syntaxTrees.TryGetValue(normalizedFileName, out var syntaxTree))
+
+            if (workspace.TryGetSyntaxTree(normalizedFileName, out var syntaxTree))
+            {
+                failureBuilder = null;
+                syntaxTrees[normalizedFileName] = syntaxTree;
+                return syntaxTree;
+            }
+
+            if (syntaxTrees.TryGetValue(normalizedFileName, out syntaxTree))
             {
                 failureBuilder = null;
                 return syntaxTree;

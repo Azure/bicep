@@ -16,6 +16,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Cli
 {
@@ -129,7 +130,7 @@ namespace Bicep.Cli
 
         private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepPath);
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -154,7 +155,7 @@ namespace Bicep.Cli
             }
             foreach(var bicepPath in bicepPaths)
             {
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), bicepPath);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepPath);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
