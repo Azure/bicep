@@ -59,7 +59,7 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent();
 
-            this.EmitResourcesIfPresent();
+            this.EmitResources();
 
             this.EmitOutputsIfPresent();
 
@@ -173,13 +173,8 @@ namespace Bicep.Core.Emit
             this.emitter.EmitExpression(variableSymbol.Value);
         }
 
-        private void EmitResourcesIfPresent()
+        private void EmitResources()
         {
-            if (this.context.SemanticModel.Root.ResourceDeclarations.Length == 0 
-                && this.context.SemanticModel.Root.ModuleDeclarations.Length == 0)
-            {
-                return;
-            }
             writer.WritePropertyName("resources");
             writer.WriteStartArray();
 

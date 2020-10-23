@@ -177,6 +177,7 @@
             }
           },
           "functions": [],
+          "resources": [],
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -229,6 +230,7 @@
             }
           },
           "functions": [],
+          "resources": [],
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -294,6 +296,7 @@
             }
           },
           "functions": [],
+          "resources": [],
           "outputs": {
             "outputObj": {
               "type": "object",

@@ -3,6 +3,7 @@
   "contentVersion": "1.0.0.0",
   "functions": [],
   "variables": {},
+  "resources": [],
   "outputs": {
     "myStr": {
       "type": "string",
