@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+coverage/**
 typings/**
 out/test/**
 test/**
@@ -7,4 +8,6 @@ src/**
 **/*.map
 .gitignore
 tsconfig.json
+gulpfile.js
+jest.config.*.js
 vsc-extension-quickstart.md
