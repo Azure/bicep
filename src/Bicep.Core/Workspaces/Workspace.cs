@@ -8,6 +8,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces
 {
+    /// <summary>
+    /// Represents the active set of files and shared data that can be utilized to compile one or more bicep files.
+    /// </summary>
     public class Workspace : IWorkspace
     {
         private readonly IDictionary<string, SyntaxTree> activeSyntaxTrees = new Dictionary<string, SyntaxTree>();

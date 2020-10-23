@@ -241,7 +241,7 @@ namespace Bicep.Core.TypeSystem
                     return UnassignableTypeSymbol.CreateErrors(failureDiagnostic);
                 }
 
-                if (moduleSemanticModel.HasDiagnosticErrors())
+                if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }

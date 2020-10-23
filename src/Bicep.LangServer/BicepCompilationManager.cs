@@ -35,73 +35,6 @@ namespace Bicep.LanguageServer
             this.workspace = workspace;
         }
 
-        private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
-        {
-            this.activeContexts.TryRemove(documentUri, out var removedContext);
-
-            this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
-
-            if (removedContext == null)
-            {
-                return ImmutableArray<SyntaxTree>.Empty;
-            }
-
-            var closedSyntaxTrees = removedContext.Compilation.SyntaxTreeGrouping.SyntaxTrees.ToHashSet();
-            foreach (var (entrypointUri, context) in activeContexts)
-            {
-                closedSyntaxTrees.ExceptWith(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
-            }
-
-            workspace.RemoveSyntaxTrees(closedSyntaxTrees);
-
-            return closedSyntaxTrees.ToImmutableArray();
-        }
-
-        private (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version)
-        {
-            try
-            {
-                var context = this.provider.Create(workspace, documentUri);
-
-                var output = workspace.UpsertSyntaxTrees(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
-
-                // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
-                this.activeContexts[documentUri] = context;
-
-                // convert all the diagnostics to LSP diagnostics
-                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
-
-                // publish all the diagnostics
-                this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
-
-                return output;
-            }
-            catch (Exception exception)
-            {
-                // this is a fatal error likely due to a code defect
-
-                // publish a single fatal error diagnostic to tell the user something horrible has occurred
-                // TODO: Tell user how to create an issue on GitHub.
-                var fatalError = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
-                {
-                    Range = new Range
-                    {
-                        Start = new Position(0, 0),
-                        End = new Position(1, 0),
-                    },
-                    Severity = DiagnosticSeverity.Error,
-                    Message = exception.Message,
-                    Code = new DiagnosticCode("Fatal")
-                };
-                
-                // the file is no longer in a state that can be parsed
-                // clear all info to prevent cascading failures elsewhere
-                var closedTrees = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
-
-                return (ImmutableArray<SyntaxTree>.Empty, closedTrees);
-            }
-        }
-
         public void UpsertCompilation(DocumentUri uri, int? version, string fileContents)
         {
             var newSyntaxTree = this.provider.BuildSyntaxTree(uri, fileContents);
@@ -167,6 +100,73 @@ namespace Bicep.LanguageServer
         {
             this.activeContexts.TryGetValue(uri, out var context);
             return context;
+        }
+
+        private ImmutableArray<SyntaxTree> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
+        {
+            this.activeContexts.TryRemove(documentUri, out var removedContext);
+
+            this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
+
+            if (removedContext == null)
+            {
+                return ImmutableArray<SyntaxTree>.Empty;
+            }
+
+            var closedSyntaxTrees = removedContext.Compilation.SyntaxTreeGrouping.SyntaxTrees.ToHashSet();
+            foreach (var (entrypointUri, context) in activeContexts)
+            {
+                closedSyntaxTrees.ExceptWith(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+            }
+
+            workspace.RemoveSyntaxTrees(closedSyntaxTrees);
+
+            return closedSyntaxTrees.ToImmutableArray();
+        }
+
+        private (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version)
+        {
+            try
+            {
+                var context = this.provider.Create(workspace, documentUri);
+
+                var output = workspace.UpsertSyntaxTrees(context.Compilation.SyntaxTreeGrouping.SyntaxTrees);
+
+                // there shouldn't be concurrent upsert requests (famous last words...), so a simple overwrite should be sufficient
+                this.activeContexts[documentUri] = context;
+
+                // convert all the diagnostics to LSP diagnostics
+                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
+
+                // publish all the diagnostics
+                this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+
+                return output;
+            }
+            catch (Exception exception)
+            {
+                // this is a fatal error likely due to a code defect
+
+                // publish a single fatal error diagnostic to tell the user something horrible has occurred
+                // TODO: Tell user how to create an issue on GitHub.
+                var fatalError = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Diagnostic
+                {
+                    Range = new Range
+                    {
+                        Start = new Position(0, 0),
+                        End = new Position(1, 0),
+                    },
+                    Severity = DiagnosticSeverity.Error,
+                    Message = exception.Message,
+                    Code = new DiagnosticCode("Fatal")
+                };
+                
+                // the file is no longer in a state that can be parsed
+                // clear all info to prevent cascading failures elsewhere
+                var closedTrees = CloseCompilationInternal(documentUri, version, fatalError.AsEnumerable());
+
+                return (ImmutableArray<SyntaxTree>.Empty, closedTrees);
+            }
         }
 
         // TODO: Remove the lexer part when we stop it from emitting errors

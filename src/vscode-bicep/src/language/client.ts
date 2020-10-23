@@ -58,6 +58,7 @@ async function launchLanguageService(
     progressOnInitialization: true,
     outputChannel,
     synchronize: {
+      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHander.cs
       fileEvents: [
         vscode.workspace.createFileSystemWatcher("**/"), // folder changes
         vscode.workspace.createFileSystemWatcher("**/*.bicep"), // .bicep file changes

@@ -33,11 +33,17 @@ namespace Bicep.LanguageServer.Handlers
         private static DidChangeWatchedFilesRegistrationOptions GetDidChangeWatchedFilesRegistrationOptions()
             => new DidChangeWatchedFilesRegistrationOptions()
             {
+                // These file watcher globs should be kept in-sync with those defined in client.ts
                 Watchers = new Container<FileSystemWatcher>(
                     new FileSystemWatcher()
                     {
                         Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
-                        GlobPattern = "**/*.*"
+                        GlobPattern = "**/"
+                    },
+                    new FileSystemWatcher()
+                    {
+                        Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
+                        GlobPattern = "**/*.bicep"
                     }
                 )
             };

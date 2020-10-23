@@ -52,7 +52,7 @@ namespace Bicep.Core.SemanticModel
             .Concat(GetSemanticDiagnostics())
             .OrderBy(diag => diag.Span.Position);
 
-        public bool HasDiagnosticErrors()
+        public bool HasErrors()
             => GetAllDiagnostics().Any(x => x.Level == DiagnosticLevel.Error);
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
