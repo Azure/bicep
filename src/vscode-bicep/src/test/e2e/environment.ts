@@ -22,7 +22,7 @@ class VSCodeEnvironment extends NodeEnvironment {
       await bicepExtension.activate();
     }
 
-    await sleep(1000);
+    await sleep(2000);
 
     this.global.vscode = vscode;
   }
