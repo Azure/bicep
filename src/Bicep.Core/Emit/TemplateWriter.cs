@@ -66,8 +66,7 @@ namespace Bicep.Core.Emit
             writer.WritePropertyName("resources");
             this.EmitResources();
 
-            writer.WritePropertyName("outputs");
-            this.EmitOutputs();
+            this.EmitOutputsIfPresent();
 
             writer.WriteEndObject();
         }
@@ -298,8 +297,14 @@ namespace Bicep.Core.Emit
             writer.WriteEndArray();
         }
 
-        private void EmitOutputs()
+        private void EmitOutputsIfPresent()
         {
+            if (this.context.SemanticModel.Root.OutputDeclarations.Length == 0)
+            {
+                return;
+            }
+
+            writer.WritePropertyName("outputs");
             writer.WriteStartObject();
 
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
