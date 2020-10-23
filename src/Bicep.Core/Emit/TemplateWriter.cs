@@ -175,7 +175,8 @@ namespace Bicep.Core.Emit
 
         private void EmitResourcesIfPresent()
         {
-            if (this.context.SemanticModel.Root.ResourceDeclarations.Length == 0 && this.context.SemanticModel.Root.ModuleDeclarations.Length == 0)
+            if (this.context.SemanticModel.Root.ResourceDeclarations.Length == 0 
+                && this.context.SemanticModel.Root.ModuleDeclarations.Length == 0)
             {
                 return;
             }
