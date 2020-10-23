@@ -156,7 +156,5 @@
       "defaultValue": "[not(equals(18, or(true(), false())))]"
     }
   },
-  "functions": [],
-  "variables": {},
-  "resources": []
+  "functions": []
 }

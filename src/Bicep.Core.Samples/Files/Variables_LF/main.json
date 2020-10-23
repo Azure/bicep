@@ -154,6 +154,5 @@
     "isTrue": "[equals(max(1, 2), 3)]",
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]"
-  },
-  "resources": []
+  }
 }

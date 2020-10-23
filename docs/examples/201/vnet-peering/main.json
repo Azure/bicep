@@ -13,7 +13,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
