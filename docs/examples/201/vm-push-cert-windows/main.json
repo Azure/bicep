@@ -179,6 +179,5 @@
         "[resourceId('Microsoft.Network/networkInterfaces', 'certNic')]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

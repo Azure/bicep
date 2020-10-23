@@ -39,6 +39,5 @@
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

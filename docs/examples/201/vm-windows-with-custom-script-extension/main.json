@@ -289,6 +289,5 @@
         "[resourceId('Microsoft.Compute/virtualMachines', variables('virtualMachine').name)]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

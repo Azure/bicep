@@ -29,6 +29,5 @@
         "value": "[parameters('secretValue')]"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }

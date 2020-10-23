@@ -139,6 +139,5 @@
         "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

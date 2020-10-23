@@ -68,6 +68,5 @@
         "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[0], split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[1])]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

@@ -109,6 +109,5 @@
         "[resourceId('Microsoft.Authorization/policySetDefinitions', variables('initiativeDefinitionName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }
