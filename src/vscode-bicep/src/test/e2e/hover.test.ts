@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 
 import { expectDefined, expectRange } from "../utils/assert";
+import { sleep } from "../utils/time";
 import { executeHoverProviderCommand } from "./commands";
 import { readExampleFile } from "./examples";
 
@@ -17,6 +18,10 @@ describe("hover", (): void => {
     });
 
     await vscode.window.showTextDocument(document);
+
+    // Give the language server sometime to finish compilation. If this is the first test
+    // to run it may take long for the compilation to complete because JIT is not "warmed up".
+    await sleep(2000);
   });
 
   afterAll(async () => {
