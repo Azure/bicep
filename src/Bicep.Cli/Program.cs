@@ -120,7 +120,7 @@ namespace Bicep.Cli
             {
                 foreach (var diagnostic in diagnostics)
                 {
-                    logger.LogDiagnostic(syntaxTree.FilePath, diagnostic, syntaxTree.LineStarts);
+                    logger.LogDiagnostic(syntaxTree.FileUri, diagnostic, syntaxTree.LineStarts);
                     success &= diagnostic.Level != DiagnosticLevel.Error;
                 }
             }
@@ -130,7 +130,7 @@ namespace Bicep.Cli
 
         private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepPath);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
@@ -155,7 +155,7 @@ namespace Bicep.Cli
             }
             foreach(var bicepPath in bicepPaths)
             {
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepPath);
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepPath));
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
                 var success = LogDiagnosticsAndCheckSuccess(logger, compilation);

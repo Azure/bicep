@@ -1,48 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Bicep.Core.FileSystem;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.FileSystem
 {
     public class FileResolver : IFileResolver
     {
-        public string GetNormalizedFileName(string filePath)
-            => PathHelper.ResolveAndNormalizePath(filePath);
-
-        public string? TryRead(string filePath, out string? failureMessage)
+        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             try
             {
-                failureMessage = null;
-                return File.ReadAllText(filePath);
+                if (!fileUri.IsFile)
+                {
+                    failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
+                    fileContents = null;
+                    return false;
+                }
+
+                failureBuilder = null;
+                fileContents = File.ReadAllText(fileUri.LocalPath);
+                return true;
             }
             catch (Exception exception)
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
-                failureMessage = exception.Message;
-                return null;
+                failureBuilder = x => x.ErrorOccurredLoadingModule(exception.Message);
+                fileContents = null;
+                return false;
             }
         }
 
-        public string? TryResolveModulePath(string parentFilePath, string childFilePath)
+        public Uri? TryResolveModulePath(Uri parentFileUri, string childFilePath)
         {
-            if (Path.IsPathFullyQualified(childFilePath))
-            {
-                return GetNormalizedFileName(childFilePath);
-            }
-
-            var parentDirectoryName = Path.GetDirectoryName(parentFilePath);
-            if (parentDirectoryName == null || !Path.IsPathFullyQualified(parentDirectoryName))
+            if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
             {
                 return null;
             }
 
-            return GetNormalizedFileName(Path.GetFullPath(childFilePath, parentDirectoryName));
+            return relativeUri;
         }
-
-        public StringComparer PathComparer => PathHelper.PathComparer;
     }
 }

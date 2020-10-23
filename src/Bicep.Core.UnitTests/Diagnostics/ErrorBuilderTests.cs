@@ -103,6 +103,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> {$"<value_{index}"};
             }
 
+            if (parameter.ParameterType == typeof(Uri))
+            {
+                return new Uri("file:///path/to/main.bicep");
+            }
+
             if (parameter.ParameterType == typeof(int) || parameter.ParameterType == typeof(int?))
             {
                 return 0;

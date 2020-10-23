@@ -35,11 +35,11 @@ namespace Bicep.LanguageServer
             this.workspace = workspace;
         }
 
-        public void UpsertCompilation(DocumentUri uri, int? version, string fileContents)
+        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents)
         {
-            var newSyntaxTree = this.provider.BuildSyntaxTree(uri, fileContents);
+            var newSyntaxTree = SyntaxTree.Create(documentUri.ToUri(), fileContents);
             var firstChanges = workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
-            var secondChanges = UpdateCompilationInternal(uri, version);
+            var secondChanges = UpdateCompilationInternal(documentUri, version);
             
             var addedTrees = firstChanges.added.Concat(secondChanges.added);
             var removedTrees = firstChanges.removed.Concat(secondChanges.removed);
@@ -73,7 +73,7 @@ namespace Bicep.LanguageServer
                 }
 
                 // We treat both updates and deletes as 'removes' to force the new SyntaxTree to be reloaded from disk
-                if (workspace.TryGetSyntaxTree(change.Uri.GetFileSystemPath(), out var removedTree))
+                if (workspace.TryGetSyntaxTree(change.Uri.ToUri(), out var removedTree))
                 {
                     removedTrees.Add(removedTree);
                 }
@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
                     // We could possibly assume that if the path ends in '.bicep', we've got a file, but this would discount directories ending in '.bicep', however unlikely.
-                    var subdirRemovedTrees = workspace.GetSyntaxTreesForDirectory(change.Uri.GetFileSystemPath());
+                    var subdirRemovedTrees = workspace.GetSyntaxTreesForDirectory(change.Uri.ToUri());
                     removedTrees.UnionWith(subdirRemovedTrees);
                 }
             }

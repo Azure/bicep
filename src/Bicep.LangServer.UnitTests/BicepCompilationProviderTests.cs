@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
@@ -18,7 +20,7 @@ namespace Bicep.LangServer.UnitTests
     public class BicepCompilationProviderTests
     {
         private static IFileResolver CreateEmptyFileResolver()
-            => new InMemoryFileResolver(new Dictionary<string, string>());
+            => new InMemoryFileResolver(new Dictionary<Uri, string>());
 
         [TestMethod]
         public void Create_ShouldReturnValidCompilation()
@@ -26,7 +28,7 @@ namespace Bicep.LangServer.UnitTests
             var provider = new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver());
 
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
-            var syntaxTree = SyntaxTree.Create(fileUri.GetFileSystemPath(), DataSets.Parameters_LF.Bicep);
+            var syntaxTree = SyntaxTree.Create(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
             var context = provider.Create(workspace, fileUri);

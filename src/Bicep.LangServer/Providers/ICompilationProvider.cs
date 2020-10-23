@@ -9,8 +9,6 @@ namespace Bicep.LanguageServer.Providers
 {
     public interface ICompilationProvider
     {
-        SyntaxTree BuildSyntaxTree(DocumentUri documentUri, string fileContents);
-
         CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri);
     }
 }

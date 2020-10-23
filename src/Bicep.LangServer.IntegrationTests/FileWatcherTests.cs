@@ -18,6 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -42,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task Module_file_change_should_trigger_a_recompilation()
         {
-            var fileSystemDict = new Dictionary<string, string>();
+            var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 options => 
@@ -51,9 +52,8 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
-            var mainFile = "/path/to/main.bicep";
-            var mainUri = DocumentUri.FromFileSystemPath(mainFile);
-            fileSystemDict[mainFile] = @"
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -62,16 +62,15 @@ module myMod '../toOther/module.bicep' = {
 }
 ";
 
-            var moduleFile = "/path/toOther/module.bicep";
-            var moduleUri = DocumentUri.FromFileSystemPath(moduleFile);
-            fileSystemDict[moduleFile] = @"
+            var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
+            fileSystemDict[moduleUri.ToUri()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainFile], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -80,7 +79,7 @@ param requiredIpnut string
 
             // open the module document. this should trigger diagnostics for both the module and the main doc which references it.
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, fileSystemDict[moduleFile], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, fileSystemDict[moduleUri.ToUri()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
@@ -121,7 +120,7 @@ param requiredInput string
         [TestMethod]
         public async Task Background_file_deletion_should_trigger_a_recompilation()
         {
-            var fileSystemDict = new Dictionary<string, string>();
+            var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 options => 
@@ -130,9 +129,8 @@ param requiredInput string
                 },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
-            var mainFile = "/path/to/main.bicep";
-            var mainUri = DocumentUri.FromFileSystemPath(mainFile);
-            fileSystemDict[mainFile] = @"
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -141,16 +139,15 @@ module myMod '../toOther/module.bicep' = {
 }
 ";
 
-            var moduleFile = "/path/toOther/module.bicep";
-            var moduleUri = DocumentUri.FromFileSystemPath(moduleFile);
-            fileSystemDict[moduleFile] = @"
+            var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
+            fileSystemDict[moduleUri.ToUri()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainFile], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -159,17 +156,17 @@ param requiredIpnut string
 
             // delete the module file with a background process
             {
-                fileSystemDict.Remove(moduleFile);
+                fileSystemDict.Remove(moduleUri.ToUri());
                 SendDidChangeWatchedFiles(client, (moduleUri, FileChangeType.Deleted));
 
                 var nextDiags = await diagsListener.WaitNext();
                 nextDiags.Uri.Should().Be(mainUri);
-                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file /path/toOther/module.bicep"));
+                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file \"/path/toOther/module.bicep\""));
             }
 
             // delete the main file with a background process. this should be ignored, as the close document event should clean it up
             {
-                fileSystemDict.Remove(mainFile);
+                fileSystemDict.Remove(mainUri.ToUri());
                 SendDidChangeWatchedFiles(client, (mainUri, FileChangeType.Deleted));
 
                 await diagsListener.EnsureNoMessageSent();
@@ -189,7 +186,7 @@ param requiredIpnut string
         [TestMethod]
         public async Task Background_folder_deletion_should_trigger_a_recompilation()
         {
-            var fileSystemDict = new Dictionary<string, string>();
+            var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 options => 
@@ -198,9 +195,8 @@ param requiredIpnut string
                 },
                 fileResolver: new InMemoryFileResolver(fileSystemDict));
 
-            var mainFile = "/path/to/main.bicep";
-            var mainUri = DocumentUri.FromFileSystemPath(mainFile);
-            fileSystemDict[mainFile] = @"
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -209,16 +205,15 @@ module myMod '../toOther/module.bicep' = {
 }
 ";
 
-            var moduleFile = "/path/toOther/module.bicep";
-            var moduleUri = DocumentUri.FromFileSystemPath(moduleFile);
-            fileSystemDict[moduleFile] = @"
+            var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
+            fileSystemDict[moduleUri.ToUri()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainFile], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -227,12 +222,12 @@ param requiredIpnut string
 
             // delete the module folder with a background process
             {
-                fileSystemDict.Remove(moduleFile);
+                fileSystemDict.Remove(moduleUri.ToUri());
                 SendDidChangeWatchedFiles(client, (DocumentUri.FromFileSystemPath("/path/toOther"), FileChangeType.Deleted));
 
                 var nextDiags = await diagsListener.WaitNext();
                 nextDiags.Uri.Should().Be(mainUri);
-                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file /path/toOther/module.bicep"));
+                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file \"/path/toOther/module.bicep\""));
             }
         }
     }

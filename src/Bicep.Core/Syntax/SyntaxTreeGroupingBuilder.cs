@@ -20,8 +20,8 @@ namespace Bicep.Core.Syntax
         private readonly IReadOnlyWorkspace workspace;
         private readonly IDictionary<ModuleDeclarationSyntax, SyntaxTree> moduleLookup;
         private readonly IDictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate> moduleFailureLookup;
-        private readonly IDictionary<string, SyntaxTree> syntaxTrees;
-        private readonly IDictionary<string, DiagnosticBuilder.ErrorBuilderDelegate> syntaxTreeLoadFailures;
+        private readonly IDictionary<Uri, SyntaxTree> syntaxTrees;
+        private readonly IDictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate> syntaxTreeLoadFailures;
 
         private SyntaxTreeGroupingBuilder(IFileResolver fileResolver, IReadOnlyWorkspace workspace)
         {
@@ -29,21 +29,20 @@ namespace Bicep.Core.Syntax
             this.workspace = workspace;
             this.moduleLookup = new Dictionary<ModuleDeclarationSyntax, SyntaxTree>();
             this.moduleFailureLookup = new Dictionary<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>();
-            this.syntaxTrees = new Dictionary<string, SyntaxTree>(fileResolver.PathComparer);
-            this.syntaxTreeLoadFailures = new Dictionary<string, DiagnosticBuilder.ErrorBuilderDelegate>(fileResolver.PathComparer);
+            this.syntaxTrees = new Dictionary<Uri, SyntaxTree>();
+            this.syntaxTreeLoadFailures = new Dictionary<Uri, DiagnosticBuilder.ErrorBuilderDelegate>();
         }
 
-        public static SyntaxTreeGrouping Build(IFileResolver fileResolver, IReadOnlyWorkspace workspace, string entryFileName)
+        public static SyntaxTreeGrouping Build(IFileResolver fileResolver, IReadOnlyWorkspace workspace, Uri entryFileUri)
         {
             var builder = new SyntaxTreeGroupingBuilder(fileResolver, workspace);
-            var normalizedFileName = fileResolver.GetNormalizedFileName(entryFileName);
 
-            return builder.Build(normalizedFileName);
+            return builder.Build(entryFileUri);
         }
 
-        private SyntaxTreeGrouping Build(string entryFileName)
+        private SyntaxTreeGrouping Build(Uri entryFileUri)
         {
-            var entryPoint = PopulateRecursive(entryFileName, out var entryPointLoadFailureBuilder);
+            var entryPoint = PopulateRecursive(entryFileUri, out var entryPointLoadFailureBuilder);
             if (entryPoint == null)
             {
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
@@ -63,55 +62,47 @@ namespace Bicep.Core.Syntax
                 moduleFailureLookup.ToImmutableDictionary());
         }
 
-        private SyntaxTree? TryGetSyntaxTree(string fullFileName, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private SyntaxTree? TryGetSyntaxTree(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var normalizedFileName = fileResolver.GetNormalizedFileName(fullFileName);
-
-            if (workspace.TryGetSyntaxTree(normalizedFileName, out var syntaxTree))
+            if (workspace.TryGetSyntaxTree(fileUri, out var syntaxTree))
             {
                 failureBuilder = null;
-                syntaxTrees[normalizedFileName] = syntaxTree;
+                syntaxTrees[fileUri] = syntaxTree;
                 return syntaxTree;
             }
 
-            if (syntaxTrees.TryGetValue(normalizedFileName, out syntaxTree))
+            if (syntaxTrees.TryGetValue(fileUri, out syntaxTree))
             {
                 failureBuilder = null;
                 return syntaxTree;
             }
 
-            if (syntaxTreeLoadFailures.TryGetValue(normalizedFileName, out failureBuilder))
+            if (syntaxTreeLoadFailures.TryGetValue(fileUri, out failureBuilder))
             {
                 return null;
             }
 
-            var fileContents = fileResolver.TryRead(normalizedFileName, out var failureMessage);
-            if (fileContents == null)
+            if (!fileResolver.TryRead(fileUri, out var fileContents, out failureBuilder))
             {
-                // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
-                // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                var concreteFailureMessage = failureMessage ?? throw new InvalidOperationException($"Expected {nameof(fileResolver.TryRead)} to provide failure diagnostics");
-
-                failureBuilder = x => x.ErrorOccurredLoadingModule(concreteFailureMessage);
-                syntaxTreeLoadFailures[normalizedFileName] = failureBuilder;
+                syntaxTreeLoadFailures[fileUri] = failureBuilder;
                 return null;
             }
 
             failureBuilder = null;
-            return AddSyntaxTree(normalizedFileName, fileContents);
+            return AddSyntaxTree(fileUri, fileContents);
         }
 
-        private SyntaxTree AddSyntaxTree(string normalizedFileName, string fileContents)
+        private SyntaxTree AddSyntaxTree(Uri fileUri, string fileContents)
         {
-            var syntaxTree = SyntaxTree.Create(normalizedFileName, fileContents);
-            syntaxTrees[normalizedFileName] = syntaxTree;
+            var syntaxTree = SyntaxTree.Create(fileUri, fileContents);
+            syntaxTrees[fileUri] = syntaxTree;
 
             return syntaxTree;
         }
 
-        private SyntaxTree? PopulateRecursive(string fileName, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private SyntaxTree? PopulateRecursive(Uri fileUri, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var syntaxTree = TryGetSyntaxTree(fileName, out var getSyntaxTreeFailureBuilder);
+            var syntaxTree = TryGetSyntaxTree(fileUri, out var getSyntaxTreeFailureBuilder);
             if (syntaxTree == null)
             {
                 failureBuilder = getSyntaxTreeFailureBuilder;
@@ -120,7 +111,7 @@ namespace Bicep.Core.Syntax
 
             foreach (var module in GetModuleSyntaxes(syntaxTree))
             {
-                var moduleFileName = TryGetNormalizedModulePath(fileName, module, out var moduleGetPathFailureBuilder);
+                var moduleFileName = TryGetNormalizedModulePath(fileUri, module, out var moduleGetPathFailureBuilder);
                 if (moduleFileName == null)
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
@@ -155,7 +146,7 @@ namespace Bicep.Core.Syntax
             return syntaxTree;
         }
 
-        private string? TryGetNormalizedModulePath(string parentFileName, ModuleDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private Uri? TryGetNormalizedModulePath(Uri parentFileUri, ModuleDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var pathName = SyntaxHelper.TryGetModulePath(moduleDeclarationSyntax, out var getModulePathFailureBuilder);
             if (pathName == null)
@@ -171,15 +162,15 @@ namespace Bicep.Core.Syntax
                 return null;
             }
 
-            var fullPath = fileResolver.TryResolveModulePath(parentFileName, pathName);
-            if (fullPath == null)
+            var moduleUri = fileResolver.TryResolveModulePath(parentFileUri, pathName);
+            if (moduleUri == null)
             {
-                failureBuilder = x => x.ModulePathCouldNotBeResolved(pathName, parentFileName);
+                failureBuilder = x => x.ModulePathCouldNotBeResolved(pathName, parentFileUri.LocalPath);
                 return null;
             }
 
             failureBuilder = null;
-            return fullPath;
+            return moduleUri;
         }
 
         private void ReportFailuresForCycles()
@@ -199,7 +190,7 @@ namespace Bicep.Core.Syntax
                     }
                     else
                     {
-                        moduleFailureLookup[kvp.Key] = x => x.CyclicModule(cycle.Select(x => x.FilePath));
+                        moduleFailureLookup[kvp.Key] = x => x.CyclicModule(cycle.Select(x => x.FileUri.LocalPath));
                     }
                 }
             }

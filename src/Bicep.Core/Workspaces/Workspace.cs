@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -13,14 +14,14 @@ namespace Bicep.Core.Workspaces
     /// </summary>
     public class Workspace : IWorkspace
     {
-        private readonly IDictionary<string, SyntaxTree> activeSyntaxTrees = new Dictionary<string, SyntaxTree>();
+        private readonly IDictionary<Uri, SyntaxTree> activeSyntaxTrees = new Dictionary<Uri, SyntaxTree>();
 
-        public bool TryGetSyntaxTree(string normalizedFileName, [NotNullWhen(true)] out SyntaxTree? syntaxTree)
-            => activeSyntaxTrees.TryGetValue(normalizedFileName, out syntaxTree);
+        public bool TryGetSyntaxTree(Uri fileUri, [NotNullWhen(true)] out SyntaxTree? syntaxTree)
+            => activeSyntaxTrees.TryGetValue(fileUri, out syntaxTree);
 
-        public IEnumerable<SyntaxTree> GetSyntaxTreesForDirectory(string normalizedFilePath)
+        public IEnumerable<SyntaxTree> GetSyntaxTreesForDirectory(Uri fileUri)
             => activeSyntaxTrees
-                .Where(kvp => kvp.Key.Length > normalizedFilePath.Length && kvp.Key.StartsWith(normalizedFilePath))
+                .Where(kvp => fileUri.IsBaseOf(kvp.Key))
                 .Select(kvp => kvp.Value);
 
         public (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpsertSyntaxTrees(IEnumerable<SyntaxTree> syntaxTrees)
@@ -30,7 +31,7 @@ namespace Bicep.Core.Workspaces
 
             foreach (var newSyntaxTree in syntaxTrees)
             {
-                if (activeSyntaxTrees.TryGetValue(newSyntaxTree.FilePath, out var oldSyntaxTree))
+                if (activeSyntaxTrees.TryGetValue(newSyntaxTree.FileUri, out var oldSyntaxTree))
                 {
                     if (oldSyntaxTree == newSyntaxTree)
                     {
@@ -42,7 +43,7 @@ namespace Bicep.Core.Workspaces
 
                 addedTrees.Add(newSyntaxTree);
 
-                activeSyntaxTrees[newSyntaxTree.FilePath] = newSyntaxTree;
+                activeSyntaxTrees[newSyntaxTree.FileUri] = newSyntaxTree;
             }
 
             return (addedTrees.ToImmutableArray(), removedTrees.ToImmutableArray());
@@ -52,9 +53,9 @@ namespace Bicep.Core.Workspaces
         {
             foreach (var syntaxTree in syntaxTrees)
             {
-                if (activeSyntaxTrees.TryGetValue(syntaxTree.FilePath, out var treeToRemove) && treeToRemove == syntaxTree)
+                if (activeSyntaxTrees.TryGetValue(syntaxTree.FileUri, out var treeToRemove) && treeToRemove == syntaxTree)
                 {
-                    activeSyntaxTrees.Remove(syntaxTree.FilePath);
+                    activeSyntaxTrees.Remove(syntaxTree.FileUri);
                 }
             }
         }

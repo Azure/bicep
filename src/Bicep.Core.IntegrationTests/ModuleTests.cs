@@ -28,9 +28,13 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
         {
-            var files = new Dictionary<string, string>
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+            var moduleBUri = new Uri("file:///moduleb.bicep");
+
+            var files = new Dictionary<Uri, string>
             {
-                ["/main.bicep"] = @"
+                [mainUri] = @"
 param inputa string
 param inputb string
 
@@ -53,13 +57,13 @@ module moduleb 'moduleb.bicep' = {
 output outputa string = modulea.outputs.outputa
 output outputb string = moduleb.outputs.outputb
 ",
-                ["/modulea.bicep"] = @"
+                [moduleAUri] = @"
 param inputa string
 param inputb string
 
 output outputa string = '${inputa}-${inputb}'
 ",
-                ["/moduleb.bicep"] = @"
+                [moduleBUri] = @"
 param inputa string
 param inputb string
 
@@ -68,7 +72,7 @@ output outputb string = '${inputa}-${inputb}'
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -79,9 +83,11 @@ output outputb string = '${inputa}-${inputb}'
         [TestMethod]
         public void Module_self_cycle_is_detected_correctly()
         {
-            var files = new Dictionary<string, string>
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
             {
-                ["/main.bicep"] = @"
+                [mainUri] = @"
 param inputa string
 param inputb string
 
@@ -96,10 +102,10 @@ module mainRecursive 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
 
@@ -109,9 +115,13 @@ module mainRecursive 'main.bicep' = {
         [TestMethod]
         public void Module_cycles_are_detected_correctly()
         {
-            var files = new Dictionary<string, string>
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+            var moduleBUri = new Uri("file:///moduleb.bicep");
+
+            var files = new Dictionary<Uri, string>
             {
-                ["/main.bicep"] = @"
+                [mainUri] = @"
 param inputa string
 param inputb string
 
@@ -123,7 +133,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ",
-                ["/modulea.bicep"] = @"
+                [moduleAUri] = @"
 param inputa string
 param inputb string
 
@@ -135,7 +145,7 @@ module moduleb 'moduleb.bicep' = {
   }
 }
 ",
-                ["/moduleb.bicep"] = @"
+                [moduleBUri] = @"
 param inputa string
 param inputb string
 
@@ -147,33 +157,44 @@ module main 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, "/main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateForFiles(files, mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile["/main.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
-            diagnosticsByFile["/modulea.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
-            diagnosticsByFile["/moduleb.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
         }
 
-        private delegate string? TryReadDelegate(string fileName, out string? failureMessage);
+        private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+
+        private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            string? outFileContents;
+            DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder;
+            mockFileResolver.Setup(x => x.TryRead(fileUri, out outFileContents, out outFailureBuilder))
+                .Returns(new TryReadDelegate((Uri filePath, out string? outFileContents, out DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder) => {
+                    outFailureBuilder = failureBuilder;
+                    outFileContents = fileContents;
+                    return fileContents != null;
+                }));
+        }
 
         [TestMethod]
         public void SyntaxTreeGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
-            var mockFileResolver = new Mock<IFileResolver>();
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("main.bicep")).Returns("/path/to/main.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("/path/to/main.bicep")).Returns("/path/to/main.bicep");
-            string? tryReadOutput;
-            mockFileResolver.Setup(x => x.TryRead("/path/to/main.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = "Mock read failure!"; return null; }));
+            var fileUri = new Uri("file:///path/to/main.bicep");
 
-            Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep");
+            var mockFileResolver = new Mock<IFileResolver>();
+            SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredLoadingModule("Mock read failure!"));
+
+            Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), fileUri);
             buildAction.Should().Throw<ErrorDiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Mock read failure!");
         }
@@ -181,6 +202,7 @@ module main 'main.bicep' = {
         [TestMethod]
         public void Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
+            var mainFileUri = new Uri("file:///path/to/main.bicep");
             var mainFileContents = @"
 param inputa string
 param inputb string
@@ -195,17 +217,13 @@ module modulea 'modulea.bicep' = {
 ";
 
             var mockFileResolver = new Mock<IFileResolver>();
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("main.bicep")).Returns("/path/to/main.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("/path/to/main.bicep")).Returns("/path/to/main.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("modulea.bicep")).Returns("/path/to/modulea.bicep");
-            string? tryReadOutput;
-            mockFileResolver.Setup(x => x.TryRead("/path/to/main.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = null; return mainFileContents; }));
-            mockFileResolver.Setup(x => x.TryResolveModulePath("/path/to/main.bicep", "modulea.bicep")).Returns((string?)null);
+            SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
+            mockFileResolver.Setup(x => x.TryResolveModulePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainFileUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
                 ("BCP093", DiagnosticLevel.Error, "Module path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
         }
@@ -213,6 +231,9 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void Module_should_include_diagnostic_if_module_file_cannot_be_loaded()
         {
+            var mainUri = new Uri("file:///path/to/main.bicep");
+            var moduleAUri = new Uri("file:///path/to/modulea.bicep");
+
             var mainFileContents = @"
 param inputa string
 param inputb string
@@ -225,21 +246,15 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-
             var mockFileResolver = new Mock<IFileResolver>();
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("main.bicep")).Returns("/path/to/main.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("/path/to/main.bicep")).Returns("/path/to/main.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("modulea.bicep")).Returns("/path/to/modulea.bicep");
-            mockFileResolver.Setup(x => x.GetNormalizedFileName("/path/to/modulea.bicep")).Returns("/path/to/modulea.bicep");
-            string? tryReadOutput;
-            mockFileResolver.Setup(x => x.TryRead("/path/to/main.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = null; return mainFileContents; }));
-            mockFileResolver.Setup(x => x.TryRead("/path/to/modulea.bicep", out tryReadOutput)).Returns(new TryReadDelegate((string fileName, out string? failureMessage) => { failureMessage = "Mock read failure!"; return null; }));
-            mockFileResolver.Setup(x => x.TryResolveModulePath("/path/to/main.bicep", "modulea.bicep")).Returns("/path/to/modulea.bicep");
+            SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
+            SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredLoadingModule("Mock read failure!"));
+            mockFileResolver.Setup(x => x.TryResolveModulePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), "main.bicep"));
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile["/path/to/main.bicep"].Should().HaveDiagnostics(new[] {
+            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, "An error occurred loading the module. Mock read failure!"),
             });
         }
@@ -266,9 +281,9 @@ module modulea 'modulea.bicep' = {
             }
         }
 
-        private static (bool success, IDictionary<string, IEnumerable<Diagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
+        private static (bool success, IDictionary<Uri, IEnumerable<Diagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
-            var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FilePath, kvp => kvp.Value);
+            var diagnosticsByFile = compilation.GetAllDiagnosticsBySyntaxTree().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
             return (success, diagnosticsByFile);

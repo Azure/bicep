@@ -19,6 +19,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -27,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
         public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             resourceTypeProvider ??= TestResourceTypeProvider.Create();
-            fileResolver ??= new InMemoryFileResolver(new Dictionary<string, string>());
+            fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
 
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
@@ -85,10 +86,10 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri uri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
-            var fileResolver = new InMemoryFileResolver(new Dictionary<string, string> { [uri.GetFileSystemPath()] = text, });
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, });
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 options =>
                 {
@@ -99,7 +100,7 @@ namespace Bicep.LangServer.IntegrationTests
                 fileResolver: fileResolver);
 
             // send open document notification
-            client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(uri, text, 0));
+            client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification

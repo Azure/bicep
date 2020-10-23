@@ -9,6 +9,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;
 using System.Linq;
+using System;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -579,6 +580,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP104",
                 $"The referenced module has errors.");
+
+            public ErrorDiagnostic UnableToLoadNonFileUri(Uri fileUri) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP105",
+                $"Unable to load file from URI \"{fileUri}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

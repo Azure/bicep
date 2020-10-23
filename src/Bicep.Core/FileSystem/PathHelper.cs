@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using System.Text;
 
 namespace Bicep.Core.FileSystem
 {
@@ -63,6 +64,23 @@ namespace Bicep.Core.FileSystem
 
             return File.Exists(tempUpperCasePath.ToLowerInvariant()) == false;
         }
+
+        public static Uri FilePathToFileUrl(string filePath)
+        {
+            filePath = filePath.Replace(Path.DirectorySeparatorChar, '/');
+            if (!filePath.StartsWith('/'))
+            {
+                filePath = "/" + filePath;
+            }
+
+            var uriBuilder = new UriBuilder
+            {
+                Scheme = "file",
+                Host = null,
+                Path = filePath,
+            };
+
+            return uriBuilder.Uri;
+        }
     }
 }
-

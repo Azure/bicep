@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -27,7 +28,7 @@ namespace Bicep.LangServer.UnitTests
         public TestContext? TestContext { get; set; }
 
         private static IFileResolver CreateEmptyFileResolver()
-            => new InMemoryFileResolver(new Dictionary<string, string>());
+            => new InMemoryFileResolver(new Dictionary<Uri, string>());
 
         [TestMethod]
         public void UpsertCompilation_ShouldUpsertSuccessfully()
@@ -258,7 +259,6 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = Repository.Create<ICompilationProvider>();
             const string expectedMessage = "Internal bicep exception.";
-            provider.Setup(m => m.BuildSyntaxTree(It.IsAny<DocumentUri>(), It.IsAny<string>())).Returns<DocumentUri, string>((uri, contents) => SyntaxTree.Create(uri.GetFileSystemPath(), contents));
             provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>())).Throws(new InvalidOperationException(expectedMessage));
 
             var manager = new BicepCompilationManager(server.Object, provider.Object, new Workspace());
@@ -316,7 +316,6 @@ namespace Bicep.LangServer.UnitTests
             
             // start by failing
             bool failUpsert = true;
-            provider.Setup(m => m.BuildSyntaxTree(It.IsAny<DocumentUri>(), It.IsAny<string>())).Returns<DocumentUri, string>((uri, contents) => SyntaxTree.Create(uri.GetFileSystemPath(), contents));
             provider
                 .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>()))
                 .Returns<IReadOnlyWorkspace, DocumentUri>((workspace, documentUri) => failUpsert ? throw new InvalidOperationException(expectedMessage) : new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()).Create(workspace, documentUri));

@@ -27,7 +27,8 @@ namespace Bicep.Core.Samples
         public static Compilation CopyFilesAndCreateCompilation(this DataSet dataSet, TestContext testContext, out string outputDirectory)
         {
             outputDirectory = dataSet.SaveFilesToTestDirectory(testContext, dataSet.Name);
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), Path.Combine(outputDirectory, DataSet.TestFileMain));
+            var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), fileUri);
 
             return new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
         }
