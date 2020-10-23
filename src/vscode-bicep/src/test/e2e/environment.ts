@@ -3,10 +3,6 @@
 import NodeEnvironment = require("jest-environment-node");
 import * as vscode from "vscode";
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 class VSCodeEnvironment extends NodeEnvironment {
   async setup(): Promise<void> {
     await super.setup();
@@ -21,8 +17,6 @@ class VSCodeEnvironment extends NodeEnvironment {
     if (!bicepExtension.isActive) {
       await bicepExtension.activate();
     }
-
-    await sleep(2000);
 
     this.global.vscode = vscode;
   }

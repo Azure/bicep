@@ -7,6 +7,7 @@ import { Position } from "vscode";
 import { readExampleFile } from "./examples";
 import { executeCompletionItemProviderCommand } from "./commands";
 import { expectDefined } from "../utils/assert";
+import { sleep } from "../utils/time";
 
 describe("completion", (): void => {
   let document: vscode.TextDocument;
@@ -20,6 +21,10 @@ describe("completion", (): void => {
     });
 
     editor = await vscode.window.showTextDocument(document);
+
+    // Give the language server sometime to finish compilation. If this is the first test
+    // to run it may take long for the compilation to complete because JIT is not "warmed up".
+    await sleep(2000);
   });
 
   afterAll(async () => {
