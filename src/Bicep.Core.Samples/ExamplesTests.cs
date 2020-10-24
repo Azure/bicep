@@ -97,7 +97,7 @@ namespace Bicep.Core.Samples
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepFileName);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
@@ -108,7 +108,7 @@ namespace Bicep.Core.Samples
                 {
                     var nonPermittedDiagnostics = diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x));
 
-                    nonPermittedDiagnostics.Should().BeEmpty($"{Path.GetRelativePath(Directory.GetCurrentDirectory(), syntaxTree.FilePath)} should not have warnings or errors");
+                    nonPermittedDiagnostics.Should().BeEmpty($"\"{syntaxTree.FileUri.LocalPath}\" should not have warnings or errors");
                 }
 
                 var exampleExists = File.Exists(jsonFileName);

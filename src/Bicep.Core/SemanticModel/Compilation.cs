@@ -75,7 +75,7 @@ namespace Bicep.Core.SemanticModel
 
             // TODO: Avoid looping 5 times?
             var file = new FileSymbol(
-                syntaxTree.FilePath,
+                syntaxTree.FileUri.LocalPath,
                 syntaxTree.ProgramSyntax,
                 builtinNamespaces,
                 declarations.OfType<ParameterSymbol>(),

@@ -387,7 +387,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private IEnumerable<string> GetAllDiagnostics(string bicepFilePath)
         {
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepFilePath);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
 
             var output = new List<string>();
@@ -396,7 +396,7 @@ namespace Bicep.Cli.IntegrationTests
                 foreach (var diagnostic in diagnostics)
                 {
                     var (line, character) = TextCoordinateConverter.GetPosition(syntaxTree.LineStarts, diagnostic.Span.Position);
-                    output.Add($"{syntaxTree.FilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}");
+                    output.Add($"{syntaxTree.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}");
                 }
             }
 

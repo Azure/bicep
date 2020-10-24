@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Immutable;
 using Bicep.Core.Text;
 
@@ -8,22 +9,22 @@ namespace Bicep.Core.Syntax
 {
     public class SyntaxTree
     {
-        public static SyntaxTree Create(string filePath, string fileContents)
+        public static SyntaxTree Create(Uri fileUri, string fileContents)
         {
             var parser = new Parser.Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             
-            return new SyntaxTree(filePath, lineStarts, parser.Program());
+            return new SyntaxTree(fileUri, lineStarts, parser.Program());
         }
 
-        public SyntaxTree(string filePath, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
+        public SyntaxTree(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
         {
-            FilePath = filePath;
+            FileUri = fileUri;
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
         }
 
-        public string FilePath { get; }
+        public Uri FileUri { get; }
 
         public ImmutableArray<int> LineStarts { get; }
 

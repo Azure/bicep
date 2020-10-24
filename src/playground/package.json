@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run build-wasm && npm run webpack",
-    "start": "npm run build-wasm && webpack-dev-server",
+    "start": "npm run build-wasm && webpack serve",
     "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
     "webpack": "webpack",
     "package": "gulp setversion && npm run build && gulp resetversion"

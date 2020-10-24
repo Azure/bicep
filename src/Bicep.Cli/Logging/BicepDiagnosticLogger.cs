@@ -22,10 +22,10 @@ namespace Bicep.Cli.Logging
             this.HasLoggedErrors = false;
         }
 
-        public void LogDiagnostic(string filePath, Diagnostic diagnostic, ImmutableArray<int> lineStarts)
+        public void LogDiagnostic(Uri fileUri, Diagnostic diagnostic, ImmutableArray<int> lineStarts)
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-            string message = $"{filePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}";
+            string message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}";
 
             this.logger.Log(ToLogLevel(diagnostic.Level), message);
 

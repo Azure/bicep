@@ -25,17 +25,9 @@ namespace Bicep.LanguageServer.Providers
             this.fileResolver = fileResolver;
         }
 
-        public SyntaxTree BuildSyntaxTree(DocumentUri documentUri, string fileContents)
-        {
-            var filePath = fileResolver.GetNormalizedFileName(documentUri.GetFileSystemPath());
-
-            return SyntaxTree.Create(filePath, fileContents);
-        }
-
         public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri)
         {
-            var mainFileName = documentUri.GetFileSystemPath();
-            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, mainFileName);
+            var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(fileResolver, workspace, documentUri.ToUri());
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
             return new CompilationContext(compilation);
