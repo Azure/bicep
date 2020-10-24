@@ -55,7 +55,9 @@ namespace Bicep.Core.Emit
 
             this.EmitParametersIfPresent();
 
-            this.EmitFunctionsIfPresent();
+            writer.WritePropertyName("functions");
+            writer.WriteStartArray();
+            writer.WriteEndArray();
 
             this.EmitVariablesIfPresent();
 
@@ -64,19 +66,6 @@ namespace Bicep.Core.Emit
             this.EmitOutputsIfPresent();
 
             writer.WriteEndObject();
-        }
-
-        private void EmitFunctionsIfPresent()
-        {
-            //TODO: Exclude functions if none exist when implemented
-            //if (this.context.SemanticModel.Root.FunctionDeclarations.Length == 0)
-            //{
-            //    return;
-            //}
-            writer.WritePropertyName("functions");
-            writer.WriteStartArray();
-            writer.WriteEndArray();
-
         }
 
         private void EmitParametersIfPresent()
@@ -147,7 +136,7 @@ namespace Bicep.Core.Emit
 
         private void EmitVariablesIfPresent()
         {
-            if (this.context.SemanticModel.Root.VariableDeclarations.Length == 0)
+            if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)))
             {
                 return;
             }
