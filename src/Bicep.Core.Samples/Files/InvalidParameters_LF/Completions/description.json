@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_description",
-    "insertText": "description",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "description"
+    },
     "commitCharacters": [
       ":"
     ]

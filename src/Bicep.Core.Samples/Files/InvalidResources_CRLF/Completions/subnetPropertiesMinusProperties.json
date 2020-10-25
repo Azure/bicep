@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_id",
-    "insertText": "id",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "id"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_name",
-    "insertText": "name",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
+    },
     "commitCharacters": [
       ":"
     ]

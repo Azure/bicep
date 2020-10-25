@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_dependsOn",
-    "insertText": "dependsOn",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dependsOn"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_extendedLocation",
-    "insertText": "extendedLocation",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "extendedLocation"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_identity",
-    "insertText": "identity",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "identity"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -61,8 +70,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_kind",
-    "insertText": "kind",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "kind"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -78,8 +90,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_location",
-    "insertText": "location",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "location"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -95,8 +110,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_properties",
-    "insertText": "properties",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "properties"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -112,8 +130,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sku",
-    "insertText": "sku",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "sku"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -129,8 +150,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_tags",
-    "insertText": "tags",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "tags"
+    },
     "commitCharacters": [
       ":"
     ]

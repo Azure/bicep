@@ -15,11 +15,15 @@ namespace Bicep.Core.TypeSystem
 
         public TypeManager(IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol, SyntaxHierarchy hierarchy)
         {
+            this.ResourceTypeProvider = resourceTypeProvider;
+
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeProvider, this, bindings, cyclesBySymbol, hierarchy);
         }
+
+        public IResourceTypeProvider ResourceTypeProvider { get; }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => typeAssignmentVisitor.GetTypeInfo(syntax);

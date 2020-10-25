@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_dependsOn",
-    "insertText": "dependsOn",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dependsOn"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_identity",
-    "insertText": "identity",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "identity"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_location",
-    "insertText": "location",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "location"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -61,8 +70,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_name",
-    "insertText": "name",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -78,8 +90,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_tags",
-    "insertText": "tags",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "tags"
+    },
     "commitCharacters": [
       ":"
     ]

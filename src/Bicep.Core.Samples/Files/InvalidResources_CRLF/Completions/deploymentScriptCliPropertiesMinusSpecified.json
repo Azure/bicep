@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_arguments",
-    "insertText": "arguments",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "arguments"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_containerSettings",
-    "insertText": "containerSettings",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "containerSettings"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_forceUpdateTag",
-    "insertText": "forceUpdateTag",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "forceUpdateTag"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -61,8 +70,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_primaryScriptUri",
-    "insertText": "primaryScriptUri",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "primaryScriptUri"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -78,8 +90,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_scriptContent",
-    "insertText": "scriptContent",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "scriptContent"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -95,8 +110,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_timeout",
-    "insertText": "timeout",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "timeout"
+    },
     "commitCharacters": [
       ":"
     ]

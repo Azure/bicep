@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem
@@ -10,5 +11,7 @@ namespace Bicep.Core.TypeSystem
         ResourceType GetType(ResourceTypeReference reference);
 
         bool HasType(ResourceTypeReference typeReference);
+
+        IEnumerable<ResourceTypeReference> GetAvailableTypes();
     }
 }

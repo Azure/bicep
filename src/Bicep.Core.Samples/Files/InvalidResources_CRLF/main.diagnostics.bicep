@@ -197,6 +197,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   
 }
 
+// #completionTest(24,25,26,49,65) -> resourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'v'
   location: 'eastus'
@@ -292,3 +293,19 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
     ]
   }
 }
+
+// #completionTest(21) -> resourceTypes
+resource missingType 
+//@[21:21) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
+//@[21:21) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
+
+// #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
+resource startedTypingTypeWithQuotes 'virma'
+//@[37:44) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'virma'|
+//@[44:44) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(40,41,42,43,44,45) -> resourceTypes
+resource startedTypingTypeWithoutQuotes virma
+//@[40:45) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
+//@[40:45) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
+//@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||

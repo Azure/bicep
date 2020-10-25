@@ -845,6 +845,8 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// #completionTest(24,25,26,49,65) -> resourceTypes
+//@[51:53) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[0:468) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -1229,4 +1231,42 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(21) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource missingType 
+//@[0:21) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:20)  IdentifierSyntax
+//@[9:20)   Identifier |missingType|
+//@[21:21)  SkippedTriviaSyntax
+//@[21:21)  SkippedTriviaSyntax
+//@[21:21)  SkippedTriviaSyntax
+//@[21:25) NewLine |\r\n\r\n|
+
+// #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
+//@[60:62) NewLine |\r\n|
+resource startedTypingTypeWithQuotes 'virma'
+//@[0:44) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:36)  IdentifierSyntax
+//@[9:36)   Identifier |startedTypingTypeWithQuotes|
+//@[37:44)  StringSyntax
+//@[37:44)   StringComplete |'virma'|
+//@[44:44)  SkippedTriviaSyntax
+//@[44:44)  SkippedTriviaSyntax
+//@[44:48) NewLine |\r\n\r\n|
+
+// #completionTest(40,41,42,43,44,45) -> resourceTypes
+//@[54:56) NewLine |\r\n|
+resource startedTypingTypeWithoutQuotes virma
+//@[0:45) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:39)  IdentifierSyntax
+//@[9:39)   Identifier |startedTypingTypeWithoutQuotes|
+//@[40:45)  SkippedTriviaSyntax
+//@[40:45)   Identifier |virma|
+//@[45:45)  SkippedTriviaSyntax
+//@[45:45)  SkippedTriviaSyntax
+//@[45:45) EndOfFile ||

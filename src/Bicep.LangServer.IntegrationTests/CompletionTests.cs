@@ -23,6 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -148,12 +149,29 @@ namespace Bicep.LangServer.IntegrationTests
             // normalize line endings so assertions match on all OSs
             foreach (var completion in completions)
             {
-                completion.InsertText = NormalizeLineEndings(completion.InsertText);
-                completion.Detail = NormalizeLineEndings(completion.Detail);
+                if (completion.InsertText != null)
+                {
+                    completion.InsertText = NormalizeLineEndings(completion.InsertText);
+                }
+
+                if (completion.Detail != null)
+                {
+                    completion.Detail = NormalizeLineEndings(completion.Detail);
+                }
 
                 if (completion.Documentation?.MarkupContent?.Value != null)
                 {
                     completion.Documentation.MarkupContent.Value = NormalizeLineEndings(completion.Documentation.MarkupContent.Value);
+                }
+
+                if (completion.TextEdit != null)
+                {
+                    completion.TextEdit.NewText = NormalizeLineEndings(completion.TextEdit.NewText);
+                    
+                    // ranges in these text edits will vary by completion trigger position
+                    // if we try to assert on these, we will have an explosion of assert files
+                    // let's ignore it for now until we come up with a better solution
+                    completion.TextEdit.Range = new Range();
                 }
             }
 

@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_allowed",
-    "insertText": "allowed",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "allowed"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_default",
-    "insertText": "default",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "default"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_maxValue",
-    "insertText": "maxValue",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "maxValue"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -61,8 +70,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_metadata",
-    "insertText": "metadata",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "metadata"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -78,8 +90,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_minValue",
-    "insertText": "minValue",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "minValue"
+    },
     "commitCharacters": [
       ":"
     ]
