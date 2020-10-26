@@ -19,7 +19,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -38,6 +37,5 @@
         }
       }
     }
-  ],
-  "outputs": {}
+  ]
 }

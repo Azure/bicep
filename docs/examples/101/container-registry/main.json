@@ -39,7 +39,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.ContainerRegistry/registries",

@@ -50,7 +50,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "microsoft.insights/actionGroups",

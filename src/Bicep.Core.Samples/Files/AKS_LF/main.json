@@ -43,7 +43,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.ContainerService/managedClusters",
@@ -77,6 +76,5 @@
         }
       }
     }
-  ],
-  "outputs": {}
+  ]
 }

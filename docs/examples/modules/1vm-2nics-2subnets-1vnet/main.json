@@ -229,7 +229,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [
             {
               "type": "Microsoft.Compute/virtualMachines",
@@ -284,8 +283,7 @@
                 }
               }
             }
-          ],
-          "outputs": {}
+          ]
         }
       },
       "dependsOn": [

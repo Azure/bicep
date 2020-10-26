@@ -8,7 +8,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -47,7 +46,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",

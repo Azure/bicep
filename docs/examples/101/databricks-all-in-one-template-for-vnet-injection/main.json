@@ -138,6 +138,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

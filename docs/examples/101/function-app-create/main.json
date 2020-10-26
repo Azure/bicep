@@ -275,6 +275,5 @@
         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }
