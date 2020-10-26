@@ -213,6 +213,9 @@ namespace Bicep.Core.Parser
 
         private Token NewLine()
         {
+            if (Check(TokenType.Comma)) {
+                Expect(TokenType.NewLine, b => b.CommaSeparator());
+            }
             return Expect(TokenType.NewLine, b => b.ExpectedNewLine());
         }
 
@@ -771,7 +774,7 @@ namespace Bicep.Core.Parser
 
                 var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine);
                 var value = this.WithRecovery(() => Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.NewLine);
-
+                
                 return new ObjectPropertySyntax(key, colon, value);
             }, RecoveryFlags.None, TokenType.NewLine);
         }

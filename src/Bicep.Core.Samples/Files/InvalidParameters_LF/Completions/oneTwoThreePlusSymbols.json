@@ -140,6 +140,26 @@
     "insertTextFormat": "snippet"
   },
   {
+    "label": "commaOne",
+    "kind": "field",
+    "detail": "commaOne",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_commaOne",
+    "insertText": "commaOne",
+    "insertTextFormat": "plainText"
+  },
+  {
+    "label": "commaTwo",
+    "kind": "field",
+    "detail": "commaTwo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_commaTwo",
+    "insertText": "commaTwo",
+    "insertTextFormat": "plainText"
+  },
+  {
     "label": "concat",
     "kind": "function",
     "detail": "concat()",

@@ -319,5 +319,33 @@ param defaultValueCompletions string {
   
 }
 
+// invalid comma separator (array)
+param commaOne string {
+//@[6:14) Parameter commaOne. Type: 'abc' | 'def'. Declaration start char: 0, length: 174
+    metadata: {
+      description: 'Name of Virtual Machine'
+    }
+    secure: true
+    allowed: [
+      'abc',
+      'def'
+    ]
+    default: 'abc'
+}
+
+// invalid comma separator (object)
+param commaTwo string {
+//@[6:14) Parameter commaTwo. Type: 'abc' | 'def'. Declaration start char: 0, length: 174
+    metadata: {
+      description: 'Name of Virtual Machine'
+    },
+    secure: true
+    allowed: [
+      'abc'
+      'def'
+    ]
+    default: 'abc'
+}
+
 // unterminated multi-line comment
 /*    
