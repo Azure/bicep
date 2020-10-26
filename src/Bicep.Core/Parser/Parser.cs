@@ -774,7 +774,7 @@ namespace Bicep.Core.Parser
 
                 var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine);
                 var value = this.WithRecovery(() => Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.NewLine);
-                
+
                 return new ObjectPropertySyntax(key, colon, value);
             }, RecoveryFlags.None, TokenType.NewLine);
         }
