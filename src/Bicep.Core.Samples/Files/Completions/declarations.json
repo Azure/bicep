@@ -6,8 +6,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_module",
-    "insertText": "module",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "module"
+    }
   },
   {
     "label": "module",
@@ -20,8 +23,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_module",
-    "insertText": "module ${1:Identifier} '${2:Path}' = {\n  name: $3\n  $0\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "module ${1:Identifier} '${2:Path}' = {\n  name: $3\n  $0\n}"
+    }
   },
   {
     "label": "output",
@@ -30,8 +36,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_output",
-    "insertText": "output",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "output"
+    }
   },
   {
     "label": "output",
@@ -44,8 +53,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_output",
-    "insertText": "output ${1:Identifier} ${2:Type} = $0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "output ${1:Identifier} ${2:Type} = $0"
+    }
   },
   {
     "label": "param",
@@ -54,8 +66,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "param"
+    }
   },
   {
     "label": "param",
@@ -68,8 +83,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param ${1:Identifier} ${2:Type}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "param ${1:Identifier} ${2:Type}"
+    }
   },
   {
     "label": "param",
@@ -82,8 +100,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}"
+    }
   },
   {
     "label": "param",
@@ -96,8 +117,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}"
+    }
   },
   {
     "label": "param",
@@ -110,8 +134,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param ${1:Identifier} ${2:Type} {\n  $0\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "param ${1:Identifier} ${2:Type} {\n  $0\n}"
+    }
   },
   {
     "label": "param",
@@ -124,8 +151,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_param",
-    "insertText": "param ${1:Identifier} string {\n  secure: true\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "param ${1:Identifier} string {\n  secure: true\n}"
+    }
   },
   {
     "label": "resource",
@@ -134,8 +164,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resource",
-    "insertText": "resource",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "resource"
+    }
   },
   {
     "label": "resource",
@@ -148,8 +181,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resource",
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
+    }
   },
   {
     "label": "resource",
@@ -162,8 +198,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resource",
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}"
+    }
   },
   {
     "label": "resource",
@@ -176,8 +215,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resource",
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n"
+    }
   },
   {
     "label": "resource",
@@ -190,8 +232,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resource",
-    "insertText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
+    }
   },
   {
     "label": "var",
@@ -200,8 +245,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_var",
-    "insertText": "var",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "var"
+    }
   },
   {
     "label": "var",
@@ -214,7 +262,10 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_var",
-    "insertText": "var ${1:Identifier} = $0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "var ${1:Identifier} = $0"
+    }
   }
 ]

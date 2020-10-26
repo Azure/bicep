@@ -165,6 +165,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   
 }
 
+// #completionTest(24,25,26,49,65) -> resourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[9:23) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 468
   name: 'v'
@@ -258,3 +259,15 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
     ]
   }
 }
+
+// #completionTest(21) -> resourceTypes
+resource missingType 
+//@[9:20) Resource missingType. Type: error. Declaration start char: 0, length: 21
+
+// #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
+resource startedTypingTypeWithQuotes 'virma'
+//@[9:36) Resource startedTypingTypeWithQuotes. Type: error. Declaration start char: 0, length: 44
+
+// #completionTest(40,41,42,43,44,45) -> resourceTypes
+resource startedTypingTypeWithoutQuotes virma
+//@[9:39) Resource startedTypingTypeWithoutQuotes. Type: error. Declaration start char: 0, length: 45
