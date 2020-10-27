@@ -1543,9 +1543,9 @@ param commaOne string {
 //@[6:11)     ArrayItemSyntax
 //@[6:11)      StringSyntax
 //@[6:11)       StringComplete |'abc'|
-//@[11:13)     SkippedTriviaSyntax
+//@[11:12)     SkippedTriviaSyntax
 //@[11:12)      Comma |,|
-//@[12:13)      NewLine |\n|
+//@[12:13)     NewLine |\n|
       'def'
 //@[6:11)     ArrayItemSyntax
 //@[6:11)      StringSyntax
@@ -1596,9 +1596,9 @@ param commaTwo string {
 //@[44:45)     NewLine |\n|
     },
 //@[4:5)     RightBrace |}|
-//@[5:7)   SkippedTriviaSyntax
+//@[5:6)   SkippedTriviaSyntax
 //@[5:6)    Comma |,|
-//@[6:7)    NewLine |\n|
+//@[6:7)   NewLine |\n|
     secure: true
 //@[4:16)   ObjectPropertySyntax
 //@[4:10)    IdentifierSyntax

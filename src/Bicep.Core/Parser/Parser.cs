@@ -213,9 +213,6 @@ namespace Bicep.Core.Parser
 
         private Token NewLine()
         {
-            if (Check(TokenType.Comma)) {
-                Expect(TokenType.NewLine, b => b.CommaSeparator());
-            }
             return Expect(TokenType.NewLine, b => b.ExpectedNewLine());
         }
 
@@ -683,6 +680,10 @@ namespace Bicep.Core.Parser
                 if (itemOrToken is ArrayItemSyntax)
                 {
                     // items must be followed by newlines
+                    if (Check(TokenType.Comma)) {
+                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.CommaSeparator(), TokenType.Comma);
+                        itemsOrTokens.Add(skippedSyntax);
+                    }
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
@@ -735,6 +736,10 @@ namespace Bicep.Core.Parser
                 if (propertyOrToken is ObjectPropertySyntax)
                 {
                     // properties must be followed by newlines
+                    if (Check(TokenType.Comma)) {
+                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.CommaSeparator(), TokenType.Comma);
+                        propertiesOrTokens.Add(skippedSyntax);
+                    }
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
@@ -776,7 +781,7 @@ namespace Bicep.Core.Parser
                 var value = this.WithRecovery(() => Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.NewLine);
 
                 return new ObjectPropertySyntax(key, colon, value);
-            }, RecoveryFlags.None, TokenType.NewLine);
+            }, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
