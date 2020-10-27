@@ -242,6 +242,5 @@
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet_isolated_2_cfg').name)]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }
