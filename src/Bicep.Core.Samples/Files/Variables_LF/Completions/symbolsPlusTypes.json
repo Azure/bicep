@@ -6,8 +6,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_I_WANT_IT_ALL",
-    "insertText": "I_WANT_IT_ALL",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "I_WANT_IT_ALL"
+    }
   },
   {
     "label": "_",
@@ -16,8 +19,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2__",
-    "insertText": "_",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "_"
+    }
   },
   {
     "label": "_0a_1b",
@@ -26,8 +32,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2__0a_1b",
-    "insertText": "_0a_1b",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "_0a_1b"
+    }
   },
   {
     "label": "_1_",
@@ -36,8 +45,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2__1_",
-    "insertText": "_1_",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "_1_"
+    }
   },
   {
     "label": "__",
@@ -46,8 +58,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2___",
-    "insertText": "__",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "__"
+    }
   },
   {
     "label": "add",
@@ -56,8 +71,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_add",
-    "insertText": "add",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "add"
+    }
   },
   {
     "label": "and",
@@ -66,8 +84,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_and",
-    "insertText": "and",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "and"
+    }
   },
   {
     "label": "any",
@@ -76,8 +97,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_any",
-    "insertText": "any($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    }
   },
   {
     "label": "anyIndexOnAny",
@@ -86,8 +110,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_anyIndexOnAny",
-    "insertText": "anyIndexOnAny",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "anyIndexOnAny"
+    }
   },
   {
     "label": "array",
@@ -96,8 +123,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_array",
-    "insertText": "array($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    }
   },
   {
     "label": "az",
@@ -106,8 +136,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_az",
-    "insertText": "az",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "az"
+    }
   },
   {
     "label": "az.resourceGroup",
@@ -116,8 +149,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_az.resourceGroup",
-    "insertText": "az.resourceGroup()$0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "az.resourceGroup()$0"
+    }
   },
   {
     "label": "base64",
@@ -126,8 +162,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64",
-    "insertText": "base64($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    }
   },
   {
     "label": "base64ToJson",
@@ -136,8 +175,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToJson",
-    "insertText": "base64ToJson($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    }
   },
   {
     "label": "base64ToString",
@@ -146,8 +188,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToString",
-    "insertText": "base64ToString($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    }
   },
   {
     "label": "bool",
@@ -156,8 +201,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_bool",
-    "insertText": "bool($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    }
   },
   {
     "label": "bracketInTheMiddle",
@@ -166,8 +214,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_bracketInTheMiddle",
-    "insertText": "bracketInTheMiddle",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketInTheMiddle"
+    }
   },
   {
     "label": "bracketStringInExpression",
@@ -176,8 +227,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_bracketStringInExpression",
-    "insertText": "bracketStringInExpression",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketStringInExpression"
+    }
   },
   {
     "label": "coalesce",
@@ -186,8 +240,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_coalesce",
-    "insertText": "coalesce($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "coalesce($0)"
+    }
   },
   {
     "label": "concat",
@@ -196,8 +253,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_concat",
-    "insertText": "concat($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    }
   },
   {
     "label": "contains",
@@ -206,8 +266,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_contains",
-    "insertText": "contains($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    }
   },
   {
     "label": "createArray",
@@ -216,8 +279,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_createArray",
-    "insertText": "createArray",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "createArray"
+    }
   },
   {
     "label": "createObject",
@@ -226,8 +292,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_createObject",
-    "insertText": "createObject",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "createObject"
+    }
   },
   {
     "label": "curliesInInterp",
@@ -236,8 +305,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_curliesInInterp",
-    "insertText": "curliesInInterp",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesInInterp"
+    }
   },
   {
     "label": "curliesWithNoInterp",
@@ -246,8 +318,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_curliesWithNoInterp",
-    "insertText": "curliesWithNoInterp",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesWithNoInterp"
+    }
   },
   {
     "label": "dataUri",
@@ -256,8 +331,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUri",
-    "insertText": "dataUri($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    }
   },
   {
     "label": "dataUriToString",
@@ -266,8 +344,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUriToString",
-    "insertText": "dataUriToString($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    }
   },
   {
     "label": "dateTimeAdd",
@@ -276,8 +357,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dateTimeAdd",
-    "insertText": "dateTimeAdd($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    }
   },
   {
     "label": "deployment",
@@ -286,8 +370,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_deployment",
-    "insertText": "deployment()$0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "deployment()$0"
+    }
   },
   {
     "label": "div",
@@ -296,8 +383,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_div",
-    "insertText": "div",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "div"
+    }
   },
   {
     "label": "doubleInterp",
@@ -306,8 +396,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_doubleInterp",
-    "insertText": "doubleInterp",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "doubleInterp"
+    }
   },
   {
     "label": "empty",
@@ -316,8 +409,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_empty",
-    "insertText": "empty($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    }
   },
   {
     "label": "emptyJsonArray",
@@ -326,8 +422,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_emptyJsonArray",
-    "insertText": "emptyJsonArray",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "emptyJsonArray"
+    }
   },
   {
     "label": "enclosingBrackets",
@@ -336,8 +435,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_enclosingBrackets",
-    "insertText": "enclosingBrackets",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enclosingBrackets"
+    }
   },
   {
     "label": "endsWith",
@@ -346,8 +448,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_endsWith",
-    "insertText": "endsWith($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    }
   },
   {
     "label": "environment",
@@ -356,8 +461,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_environment",
-    "insertText": "environment()$0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "environment()$0"
+    }
   },
   {
     "label": "equals",
@@ -366,8 +474,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_equals",
-    "insertText": "equals",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "equals"
+    }
   },
   {
     "label": "expressionIndexOnAny",
@@ -376,8 +487,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_expressionIndexOnAny",
-    "insertText": "expressionIndexOnAny",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionIndexOnAny"
+    }
   },
   {
     "label": "extensionResourceId",
@@ -386,8 +500,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_extensionResourceId",
-    "insertText": "extensionResourceId($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionResourceId($0)"
+    }
   },
   {
     "label": "first",
@@ -396,8 +513,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_first",
-    "insertText": "first($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    }
   },
   {
     "label": "format",
@@ -406,8 +526,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_format",
-    "insertText": "format($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    }
   },
   {
     "label": "functionOnIndexer1",
@@ -416,8 +539,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_functionOnIndexer1",
-    "insertText": "functionOnIndexer1",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "functionOnIndexer1"
+    }
   },
   {
     "label": "functionOnIndexer2",
@@ -426,8 +552,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_functionOnIndexer2",
-    "insertText": "functionOnIndexer2",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "functionOnIndexer2"
+    }
   },
   {
     "label": "functionOnIndexer3",
@@ -436,8 +565,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_functionOnIndexer3",
-    "insertText": "functionOnIndexer3",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "functionOnIndexer3"
+    }
   },
   {
     "label": "greater",
@@ -446,8 +578,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_greater",
-    "insertText": "greater",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "greater"
+    }
   },
   {
     "label": "greaterOrEquals",
@@ -456,8 +591,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_greaterOrEquals",
-    "insertText": "greaterOrEquals",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "greaterOrEquals"
+    }
   },
   {
     "label": "guid",
@@ -466,8 +604,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_guid",
-    "insertText": "guid($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    }
   },
   {
     "label": "if",
@@ -476,8 +617,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_if",
-    "insertText": "if",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "if"
+    }
   },
   {
     "label": "indexOf",
@@ -486,8 +630,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_indexOf",
-    "insertText": "indexOf($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    }
   },
   {
     "label": "int",
@@ -496,8 +643,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_int",
-    "insertText": "int($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    }
   },
   {
     "label": "intIndexer",
@@ -506,8 +656,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_intIndexer",
-    "insertText": "intIndexer",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "intIndexer"
+    }
   },
   {
     "label": "interp1",
@@ -516,8 +669,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_interp1",
-    "insertText": "interp1",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "interp1"
+    }
   },
   {
     "label": "interp2",
@@ -526,8 +682,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_interp2",
-    "insertText": "interp2",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "interp2"
+    }
   },
   {
     "label": "interp3",
@@ -536,8 +695,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_interp3",
-    "insertText": "interp3",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "interp3"
+    }
   },
   {
     "label": "interp4",
@@ -546,8 +708,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_interp4",
-    "insertText": "interp4",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "interp4"
+    }
   },
   {
     "label": "interpolatedBrackets",
@@ -556,8 +721,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_interpolatedBrackets",
-    "insertText": "interpolatedBrackets",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "interpolatedBrackets"
+    }
   },
   {
     "label": "intersection",
@@ -566,8 +734,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_intersection",
-    "insertText": "intersection($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    }
   },
   {
     "label": "isFalse",
@@ -576,8 +747,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_isFalse",
-    "insertText": "isFalse",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "isFalse"
+    }
   },
   {
     "label": "isTrue",
@@ -586,8 +760,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_isTrue",
-    "insertText": "isTrue",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "isTrue"
+    }
   },
   {
     "label": "json",
@@ -596,8 +773,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_json",
-    "insertText": "json($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    }
   },
   {
     "label": "last",
@@ -606,8 +786,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_last",
-    "insertText": "last($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    }
   },
   {
     "label": "lastIndexOf",
@@ -616,8 +799,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_lastIndexOf",
-    "insertText": "lastIndexOf($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    }
   },
   {
     "label": "length",
@@ -626,8 +812,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_length",
-    "insertText": "length($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    }
   },
   {
     "label": "less",
@@ -636,8 +825,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_less",
-    "insertText": "less",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "less"
+    }
   },
   {
     "label": "lessOrEquals",
@@ -646,8 +838,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_lessOrEquals",
-    "insertText": "lessOrEquals",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "lessOrEquals"
+    }
   },
   {
     "label": "listKeys",
@@ -656,8 +851,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_listKeys",
-    "insertText": "listKeys($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "listKeys($0)"
+    }
   },
   {
     "label": "max",
@@ -666,8 +864,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_max",
-    "insertText": "max($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    }
   },
   {
     "label": "min",
@@ -676,8 +877,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_min",
-    "insertText": "min($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    }
   },
   {
     "label": "mod",
@@ -686,8 +890,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mod",
-    "insertText": "mod",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mod"
+    }
   },
   {
     "label": "mul",
@@ -696,8 +903,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mul",
-    "insertText": "mul",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mul"
+    }
   },
   {
     "label": "myArr",
@@ -706,8 +916,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myArr",
-    "insertText": "myArr",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myArr"
+    }
   },
   {
     "label": "myArrWithObjects",
@@ -716,8 +929,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myArrWithObjects",
-    "insertText": "myArrWithObjects",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myArrWithObjects"
+    }
   },
   {
     "label": "myEmptyArray",
@@ -726,8 +942,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myEmptyArray",
-    "insertText": "myEmptyArray",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myEmptyArray"
+    }
   },
   {
     "label": "myEmptyObj",
@@ -736,8 +955,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myEmptyObj",
-    "insertText": "myEmptyObj",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myEmptyObj"
+    }
   },
   {
     "label": "myFalsehood",
@@ -746,8 +968,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myFalsehood",
-    "insertText": "myFalsehood",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myFalsehood"
+    }
   },
   {
     "label": "myInt",
@@ -756,8 +981,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myInt",
-    "insertText": "myInt",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myInt"
+    }
   },
   {
     "label": "myObj",
@@ -766,8 +994,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myObj",
-    "insertText": "myObj",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myObj"
+    }
   },
   {
     "label": "myPropertyName",
@@ -776,8 +1007,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myPropertyName",
-    "insertText": "myPropertyName",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myPropertyName"
+    }
   },
   {
     "label": "myStr",
@@ -786,8 +1020,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myStr",
-    "insertText": "myStr",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myStr"
+    }
   },
   {
     "label": "myTruth",
@@ -796,8 +1033,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myTruth",
-    "insertText": "myTruth",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myTruth"
+    }
   },
   {
     "label": "myVar",
@@ -806,8 +1046,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myVar",
-    "insertText": "myVar",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar"
+    }
   },
   {
     "label": "myVar2",
@@ -816,8 +1059,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myVar2",
-    "insertText": "myVar2",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar2"
+    }
   },
   {
     "label": "myVar3",
@@ -826,8 +1072,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myVar3",
-    "insertText": "myVar3",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar3"
+    }
   },
   {
     "label": "myVar4",
@@ -836,8 +1085,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myVar4",
-    "insertText": "myVar4",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar4"
+    }
   },
   {
     "label": "namedPropertyIndexer",
@@ -846,8 +1098,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_namedPropertyIndexer",
-    "insertText": "namedPropertyIndexer",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "namedPropertyIndexer"
+    }
   },
   {
     "label": "nestedBrackets",
@@ -856,8 +1111,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nestedBrackets",
-    "insertText": "nestedBrackets",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedBrackets"
+    }
   },
   {
     "label": "nestedInterpolatedBrackets",
@@ -866,8 +1124,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nestedInterpolatedBrackets",
-    "insertText": "nestedInterpolatedBrackets",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedInterpolatedBrackets"
+    }
   },
   {
     "label": "not",
@@ -876,8 +1137,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_not",
-    "insertText": "not",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "not"
+    }
   },
   {
     "label": "objWithInterp",
@@ -886,8 +1150,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objWithInterp",
-    "insertText": "objWithInterp",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "objWithInterp"
+    }
   },
   {
     "label": "or",
@@ -896,8 +1163,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_or",
-    "insertText": "or",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "or"
+    }
   },
   {
     "label": "padLeft",
@@ -906,8 +1176,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_padLeft",
-    "insertText": "padLeft($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    }
   },
   {
     "label": "parameters",
@@ -916,8 +1189,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_parameters",
-    "insertText": "parameters",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "parameters"
+    }
   },
   {
     "label": "pickZones",
@@ -926,8 +1202,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_pickZones",
-    "insertText": "pickZones($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "pickZones($0)"
+    }
   },
   {
     "label": "previousEmitLimit",
@@ -936,8 +1215,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_previousEmitLimit",
-    "insertText": "previousEmitLimit",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit"
+    }
   },
   {
     "label": "previousEmitLimit2",
@@ -946,8 +1228,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_previousEmitLimit2",
-    "insertText": "previousEmitLimit2",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit2"
+    }
   },
   {
     "label": "previousEmitLimit3",
@@ -956,8 +1241,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_previousEmitLimit3",
-    "insertText": "previousEmitLimit3",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit3"
+    }
   },
   {
     "label": "propertyAccessFromObject",
@@ -966,8 +1254,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_propertyAccessFromObject",
-    "insertText": "propertyAccessFromObject",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyAccessFromObject"
+    }
   },
   {
     "label": "providers",
@@ -976,8 +1267,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_providers",
-    "insertText": "providers($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "providers($0)"
+    }
   },
   {
     "label": "range",
@@ -986,8 +1280,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_range",
-    "insertText": "range($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    }
   },
   {
     "label": "reference",
@@ -996,8 +1293,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_reference",
-    "insertText": "reference($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "reference($0)"
+    }
   },
   {
     "label": "replace",
@@ -1006,8 +1306,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_replace",
-    "insertText": "replace($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    }
   },
   {
     "label": "resourceGroup",
@@ -1016,8 +1319,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resourceGroup",
-    "insertText": "resourceGroup",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroup"
+    }
   },
   {
     "label": "resourceGroupName",
@@ -1026,8 +1332,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resourceGroupName",
-    "insertText": "resourceGroupName",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroupName"
+    }
   },
   {
     "label": "resourceGroupObject",
@@ -1036,8 +1345,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resourceGroupObject",
-    "insertText": "resourceGroupObject",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroupObject"
+    }
   },
   {
     "label": "resourceId",
@@ -1046,8 +1358,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceId",
-    "insertText": "resourceId($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceId($0)"
+    }
   },
   {
     "label": "singleQuote",
@@ -1056,8 +1371,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_singleQuote",
-    "insertText": "singleQuote",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "singleQuote"
+    }
   },
   {
     "label": "skip",
@@ -1066,8 +1384,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_skip",
-    "insertText": "skip($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    }
   },
   {
     "label": "someText",
@@ -1076,8 +1397,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_someText",
-    "insertText": "someText",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "someText"
+    }
   },
   {
     "label": "split",
@@ -1086,8 +1410,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_split",
-    "insertText": "split($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    }
   },
   {
     "label": "startsWith",
@@ -1096,8 +1423,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_startsWith",
-    "insertText": "startsWith($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    }
   },
   {
     "label": "string",
@@ -1106,8 +1436,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_string",
-    "insertText": "string($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    }
   },
   {
     "label": "sub",
@@ -1116,8 +1449,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sub",
-    "insertText": "sub",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "sub"
+    }
   },
   {
     "label": "subscription",
@@ -1126,8 +1462,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscription",
-    "insertText": "subscription()$0",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription()$0"
+    }
   },
   {
     "label": "subscriptionResourceId",
@@ -1136,8 +1475,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
-    "insertText": "subscriptionResourceId($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "subscriptionResourceId($0)"
+    }
   },
   {
     "label": "substring",
@@ -1146,8 +1488,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_substring",
-    "insertText": "substring($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    }
   },
   {
     "label": "sys",
@@ -1156,8 +1501,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_sys",
-    "insertText": "sys",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "sys"
+    }
   },
   {
     "label": "take",
@@ -1166,8 +1514,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_take",
-    "insertText": "take($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    }
   },
   {
     "label": "tenantResourceId",
@@ -1176,8 +1527,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenantResourceId",
-    "insertText": "tenantResourceId($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantResourceId($0)"
+    }
   },
   {
     "label": "toLower",
@@ -1186,8 +1540,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toLower",
-    "insertText": "toLower($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    }
   },
   {
     "label": "toUpper",
@@ -1196,8 +1553,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toUpper",
-    "insertText": "toUpper($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    }
   },
   {
     "label": "trim",
@@ -1206,8 +1566,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_trim",
-    "insertText": "trim($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    }
   },
   {
     "label": "union",
@@ -1216,8 +1579,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_union",
-    "insertText": "union($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    }
   },
   {
     "label": "uniqueString",
@@ -1226,8 +1592,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uniqueString",
-    "insertText": "uniqueString($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    }
   },
   {
     "label": "unusedIntermediate",
@@ -1236,8 +1605,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_unusedIntermediate",
-    "insertText": "unusedIntermediate",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "unusedIntermediate"
+    }
   },
   {
     "label": "unusedIntermediateRef",
@@ -1246,8 +1618,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_unusedIntermediateRef",
-    "insertText": "unusedIntermediateRef",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "unusedIntermediateRef"
+    }
   },
   {
     "label": "uri",
@@ -1256,8 +1631,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uri",
-    "insertText": "uri($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    }
   },
   {
     "label": "uriComponent",
@@ -1266,8 +1644,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponent",
-    "insertText": "uriComponent($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    }
   },
   {
     "label": "uriComponentToString",
@@ -1276,8 +1657,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponentToString",
-    "insertText": "uriComponentToString($0)",
-    "insertTextFormat": "snippet"
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    }
   },
   {
     "label": "variables",
@@ -1286,7 +1670,10 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_variables",
-    "insertText": "variables",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "variables"
+    }
   }
 ]

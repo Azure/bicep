@@ -155,6 +155,5 @@
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]"
   },
-  "resources": [],
-  "outputs": {}
+  "resources": []
 }

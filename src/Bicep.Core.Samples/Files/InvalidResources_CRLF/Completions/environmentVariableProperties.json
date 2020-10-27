@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_name",
-    "insertText": "name",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_secureValue",
-    "insertText": "secureValue",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "secureValue"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_value",
-    "insertText": "value",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "value"
+    },
     "commitCharacters": [
       ":"
     ]

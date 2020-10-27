@@ -400,6 +400,5 @@
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('HostNetworkInterface2Name'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

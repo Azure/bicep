@@ -138,6 +138,5 @@
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

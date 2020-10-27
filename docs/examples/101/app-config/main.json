@@ -30,7 +30,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.AppConfiguration/configurationStores",

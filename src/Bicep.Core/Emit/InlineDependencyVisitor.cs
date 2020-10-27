@@ -16,7 +16,7 @@ namespace Bicep.Core.Emit
         private IDictionary<VariableSymbol, bool> shouldInlineCache;
         private VariableSymbol? currentDeclaration;
 
-        public static ImmutableArray<VariableSymbol> GetVariablesToInline(SemanticModel.SemanticModel model)
+        public static ImmutableHashSet<VariableSymbol> GetVariablesToInline(SemanticModel.SemanticModel model)
         {
             var visitor = new InlineDependencyVisitor(model);
             visitor.Visit(model.Root.Syntax);
@@ -24,7 +24,7 @@ namespace Bicep.Core.Emit
             return visitor.shouldInlineCache
                 .Where(kvp => kvp.Value)
                 .Select(kvp => kvp.Key)
-                .ToImmutableArray();
+                .ToImmutableHashSet();
         }
 
         private InlineDependencyVisitor(SemanticModel.SemanticModel model)

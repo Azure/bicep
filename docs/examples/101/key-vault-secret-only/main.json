@@ -18,7 +18,6 @@
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
@@ -29,6 +28,5 @@
         "value": "[parameters('secretValue')]"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }

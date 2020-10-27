@@ -39,9 +39,11 @@ namespace Bicep.Core.Resources
 
         public ImmutableArray<string> Types { get; }
 
+        public string TypesString => this.Types.ConcatString("/");
+
         public string ApiVersion { get; }
 
-        public string FullyQualifiedType => $"{this.Namespace}/{this.Types.ConcatString("/")}";
+        public string FullyQualifiedType => $"{this.Namespace}/{this.TypesString}";
 
         public string FormatName()
             => $"{this.FullyQualifiedType}@{this.ApiVersion}";

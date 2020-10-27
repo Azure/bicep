@@ -23,6 +23,8 @@ namespace Bicep.Core.SemanticModel
             this.bindings = bindings.ToImmutableDictionary();
         }
 
+        public IResourceTypeProvider ResourceTypeProvider => this.typeManager.ResourceTypeProvider;
+
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>

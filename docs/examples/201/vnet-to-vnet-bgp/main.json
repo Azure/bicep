@@ -239,6 +239,5 @@
         "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

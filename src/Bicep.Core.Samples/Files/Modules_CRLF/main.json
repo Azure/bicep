@@ -1,9 +1,7 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Mock.Rp/mockResource",
@@ -64,7 +62,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -126,7 +123,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -181,7 +177,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -235,7 +230,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -302,7 +296,6 @@
             }
           },
           "functions": [],
-          "variables": {},
           "resources": [],
           "outputs": {
             "outputObj": {

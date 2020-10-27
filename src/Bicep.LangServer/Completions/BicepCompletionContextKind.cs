@@ -43,8 +43,18 @@ namespace Bicep.LanguageServer.Completions
         PropertyValue = 1 << 5,
 
         /// <summary>
-        /// The current location needs an array item
+        /// The current location needs an array item.
         /// </summary>
-        ArrayItem = 1 << 6
+        ArrayItem = 1 << 6,
+
+        /// <summary>
+        /// The current location needs a resource type string.
+        /// </summary>
+        ResourceType = 1 << 7,
+
+        /// <summary>
+        /// The current location needs a module path.
+        /// </summary>
+        ModulePath = 1 << 8
     }
 }

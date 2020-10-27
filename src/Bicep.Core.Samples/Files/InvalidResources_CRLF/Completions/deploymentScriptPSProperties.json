@@ -10,8 +10,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_arguments",
-    "insertText": "arguments",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "arguments"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -27,8 +30,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_azPowerShellVersion",
-    "insertText": "azPowerShellVersion",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "azPowerShellVersion"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -44,8 +50,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_cleanupPreference",
-    "insertText": "cleanupPreference",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "cleanupPreference"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -61,8 +70,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_containerSettings",
-    "insertText": "containerSettings",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "containerSettings"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -78,8 +90,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_environmentVariables",
-    "insertText": "environmentVariables",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "environmentVariables"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -95,8 +110,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_forceUpdateTag",
-    "insertText": "forceUpdateTag",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "forceUpdateTag"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -112,8 +130,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_primaryScriptUri",
-    "insertText": "primaryScriptUri",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "primaryScriptUri"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -129,8 +150,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_retentionInterval",
-    "insertText": "retentionInterval",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "retentionInterval"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -146,8 +170,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_scriptContent",
-    "insertText": "scriptContent",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "scriptContent"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -163,8 +190,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_storageAccountSettings",
-    "insertText": "storageAccountSettings",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "storageAccountSettings"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -180,8 +210,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_supportingScriptUris",
-    "insertText": "supportingScriptUris",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "supportingScriptUris"
+    },
     "commitCharacters": [
       ":"
     ]
@@ -197,8 +230,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_timeout",
-    "insertText": "timeout",
     "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "timeout"
+    },
     "commitCharacters": [
       ":"
     ]

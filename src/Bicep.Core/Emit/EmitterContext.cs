@@ -18,7 +18,7 @@ namespace Bicep.Core.Emit
 
         public SemanticModel.SemanticModel SemanticModel { get; }
 
-        public ImmutableArray<VariableSymbol> VariablesToInline { get; }
+        public ImmutableHashSet<VariableSymbol> VariablesToInline { get; }
 
         public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> ResourceDependencies { get; }
     }

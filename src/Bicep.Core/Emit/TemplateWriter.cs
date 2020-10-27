@@ -53,27 +53,29 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitProperty("contentVersion", "1.0.0.0");
 
-            writer.WritePropertyName("parameters");
-            this.EmitParameters();
-            
+            this.EmitParametersIfPresent();
+
             writer.WritePropertyName("functions");
             writer.WriteStartArray();
             writer.WriteEndArray();
 
-            writer.WritePropertyName("variables");
-            this.EmitVariables();
+            this.EmitVariablesIfPresent();
 
-            writer.WritePropertyName("resources");
             this.EmitResources();
 
-            writer.WritePropertyName("outputs");
-            this.EmitOutputs();
+            this.EmitOutputsIfPresent();
 
             writer.WriteEndObject();
         }
 
-        private void EmitParameters()
+        private void EmitParametersIfPresent()
         {
+            if (this.context.SemanticModel.Root.ParameterDeclarations.Length == 0)
+            {
+                return;
+            }
+
+            writer.WritePropertyName("parameters");
             writer.WriteStartObject();
 
             foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
@@ -132,8 +134,14 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-        private void EmitVariables()
+        private void EmitVariablesIfPresent()
         {
+            if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)))
+            {
+                return;
+            }
+
+            writer.WritePropertyName("variables");
             writer.WriteStartObject();
 
             foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
@@ -156,6 +164,7 @@ namespace Bicep.Core.Emit
 
         private void EmitResources()
         {
+            writer.WritePropertyName("resources");
             writer.WriteStartArray();
 
             foreach (var resourceSymbol in this.context.SemanticModel.Root.ResourceDeclarations)
@@ -298,8 +307,14 @@ namespace Bicep.Core.Emit
             writer.WriteEndArray();
         }
 
-        private void EmitOutputs()
+        private void EmitOutputsIfPresent()
         {
+            if (this.context.SemanticModel.Root.OutputDeclarations.Length == 0)
+            {
+                return;
+            }
+
+            writer.WritePropertyName("outputs");
             writer.WriteStartObject();
 
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
