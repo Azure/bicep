@@ -586,10 +586,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP105",
                 $"Unable to load file from URI \"{fileUri}\".");
             
-            public ErrorDiagnostic CommaSeparator() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedCommaSeparator() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP106",
-                "Commas are not used as separator delimiters. Use new lines");
+                "Expected a new line character at this location. Commas are not used as separator delimiters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

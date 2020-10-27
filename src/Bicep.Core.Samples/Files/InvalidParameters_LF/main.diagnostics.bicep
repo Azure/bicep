@@ -374,7 +374,7 @@ param commaOne string {
     secure: true
     allowed: [
       'abc',
-//@[11:11) [BCP106 (Error)] Commas are not used as separator delimiters. Use new lines ||
+//@[11:11) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. ||
       'def'
     ]
     default: 'abc'
@@ -385,7 +385,7 @@ param commaTwo string {
     metadata: {
       description: 'Name of Virtual Machine'
     },
-//@[5:5) [BCP106 (Error)] Commas are not used as separator delimiters. Use new lines ||
+//@[5:5) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. ||
     secure: true
     allowed: [
       'abc'

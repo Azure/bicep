@@ -679,11 +679,12 @@ namespace Bicep.Core.Parser
                 // if newline token is returned, we must not expect another (could be beginning of a new item)
                 if (itemOrToken is ArrayItemSyntax)
                 {
-                    // items must be followed by newlines
                     if (Check(TokenType.Comma)) {
-                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.CommaSeparator(), TokenType.Comma);
+                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.UnexpectedCommaSeparator(), TokenType.Comma);
                         itemsOrTokens.Add(skippedSyntax);
                     }
+                    
+                    // items must be followed by newlines
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
@@ -735,11 +736,12 @@ namespace Bicep.Core.Parser
                 // if newline token is returned, we must not expect another (could be beginning of a new property)
                 if (propertyOrToken is ObjectPropertySyntax)
                 {
-                    // properties must be followed by newlines
                     if (Check(TokenType.Comma)) {
-                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.CommaSeparator(), TokenType.Comma);
+                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.UnexpectedCommaSeparator(), TokenType.Comma);
                         propertiesOrTokens.Add(skippedSyntax);
                     }
+
+                    // properties must be followed by newlines
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
