@@ -149,8 +149,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_commaOne",
-    "insertText": "commaOne",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "commaOne"
+    }
   },
   {
     "label": "commaTwo",
@@ -159,8 +162,11 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_commaTwo",
-    "insertText": "commaTwo",
-    "insertTextFormat": "plainText"
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "commaTwo"
+    }
   },
   {
     "label": "concat",
