@@ -680,7 +680,12 @@ namespace Bicep.Core.Parser
                 if (itemOrToken is ArrayItemSyntax)
                 {
                     if (Check(TokenType.Comma)) {
-                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.UnexpectedCommaSeparator(), TokenType.Comma);
+                        var token = this.reader.Read();
+                        var skippedSyntax = new SkippedTriviaSyntax(
+                            token.Span, 
+                            new List<SyntaxBase> {token}, 
+                            new List<Diagnostic> {DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator()} 
+                        );
                         itemsOrTokens.Add(skippedSyntax);
                     }
                     
@@ -737,7 +742,12 @@ namespace Bicep.Core.Parser
                 if (propertyOrToken is ObjectPropertySyntax)
                 {
                     if (Check(TokenType.Comma)) {
-                        var skippedSyntax = SynchronizeAndReturnTrivia(this.reader.Position, RecoveryFlags.ConsumeTerminator, b => b.UnexpectedCommaSeparator(), TokenType.Comma);
+                        var token = this.reader.Read();
+                        var skippedSyntax = new SkippedTriviaSyntax(
+                            token.Span, 
+                            new List<SyntaxBase> {token}, 
+                            new List<Diagnostic> {DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator()} 
+                        );
                         propertiesOrTokens.Add(skippedSyntax);
                     }
 
@@ -783,7 +793,7 @@ namespace Bicep.Core.Parser
                 var value = this.WithRecovery(() => Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.NewLine);
 
                 return new ObjectPropertySyntax(key, colon, value);
-            }, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma);
+            }, RecoveryFlags.None, TokenType.NewLine);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)
