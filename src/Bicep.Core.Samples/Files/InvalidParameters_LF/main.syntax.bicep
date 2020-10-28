@@ -1492,6 +1492,154 @@ param defaultValueCompletions string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// invalid comma separator (array)
+//@[34:35) NewLine |\n|
+param commaOne string {
+//@[0:174) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:14)  IdentifierSyntax
+//@[6:14)   Identifier |commaOne|
+//@[15:21)  TypeSyntax
+//@[15:21)   Identifier |string|
+//@[22:174)  ObjectSyntax
+//@[22:23)   LeftBrace |{|
+//@[23:24)   NewLine |\n|
+    metadata: {
+//@[4:66)   ObjectPropertySyntax
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |metadata|
+//@[12:13)    Colon |:|
+//@[14:66)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     NewLine |\n|
+      description: 'Name of Virtual Machine'
+//@[6:44)     ObjectPropertySyntax
+//@[6:17)      IdentifierSyntax
+//@[6:17)       Identifier |description|
+//@[17:18)      Colon |:|
+//@[19:44)      StringSyntax
+//@[19:44)       StringComplete |'Name of Virtual Machine'|
+//@[44:45)     NewLine |\n|
+    }
+//@[4:5)     RightBrace |}|
+//@[5:6)   NewLine |\n|
+    secure: true
+//@[4:16)   ObjectPropertySyntax
+//@[4:10)    IdentifierSyntax
+//@[4:10)     Identifier |secure|
+//@[10:11)    Colon |:|
+//@[12:16)    BooleanLiteralSyntax
+//@[12:16)     TrueKeyword |true|
+//@[16:17)   NewLine |\n|
+    allowed: [
+//@[4:45)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |allowed|
+//@[11:12)    Colon |:|
+//@[13:45)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+      'abc',
+//@[6:11)     ArrayItemSyntax
+//@[6:11)      StringSyntax
+//@[6:11)       StringComplete |'abc'|
+//@[11:12)     SkippedTriviaSyntax
+//@[11:12)      Comma |,|
+//@[12:13)     NewLine |\n|
+      'def'
+//@[6:11)     ArrayItemSyntax
+//@[6:11)      StringSyntax
+//@[6:11)       StringComplete |'def'|
+//@[11:12)     NewLine |\n|
+    ]
+//@[4:5)     RightSquare |]|
+//@[5:6)   NewLine |\n|
+    default: 'abc'
+//@[4:18)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |default|
+//@[11:12)    Colon |:|
+//@[13:18)    StringSyntax
+//@[13:18)     StringComplete |'abc'|
+//@[18:19)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// invalid comma separator (object)
+//@[35:36) NewLine |\n|
+param commaTwo string {
+//@[0:174) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:14)  IdentifierSyntax
+//@[6:14)   Identifier |commaTwo|
+//@[15:21)  TypeSyntax
+//@[15:21)   Identifier |string|
+//@[22:174)  ObjectSyntax
+//@[22:23)   LeftBrace |{|
+//@[23:24)   NewLine |\n|
+    metadata: {
+//@[4:66)   ObjectPropertySyntax
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |metadata|
+//@[12:13)    Colon |:|
+//@[14:66)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:16)     NewLine |\n|
+      description: 'Name of Virtual Machine'
+//@[6:44)     ObjectPropertySyntax
+//@[6:17)      IdentifierSyntax
+//@[6:17)       Identifier |description|
+//@[17:18)      Colon |:|
+//@[19:44)      StringSyntax
+//@[19:44)       StringComplete |'Name of Virtual Machine'|
+//@[44:45)     NewLine |\n|
+    },
+//@[4:5)     RightBrace |}|
+//@[5:6)   SkippedTriviaSyntax
+//@[5:6)    Comma |,|
+//@[6:7)   NewLine |\n|
+    secure: true
+//@[4:16)   ObjectPropertySyntax
+//@[4:10)    IdentifierSyntax
+//@[4:10)     Identifier |secure|
+//@[10:11)    Colon |:|
+//@[12:16)    BooleanLiteralSyntax
+//@[12:16)     TrueKeyword |true|
+//@[16:17)   NewLine |\n|
+    allowed: [
+//@[4:44)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |allowed|
+//@[11:12)    Colon |:|
+//@[13:44)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:15)     NewLine |\n|
+      'abc'
+//@[6:11)     ArrayItemSyntax
+//@[6:11)      StringSyntax
+//@[6:11)       StringComplete |'abc'|
+//@[11:12)     NewLine |\n|
+      'def'
+//@[6:11)     ArrayItemSyntax
+//@[6:11)      StringSyntax
+//@[6:11)       StringComplete |'def'|
+//@[11:12)     NewLine |\n|
+    ]
+//@[4:5)     RightSquare |]|
+//@[5:6)   NewLine |\n|
+    default: 'abc'
+//@[4:18)   ObjectPropertySyntax
+//@[4:11)    IdentifierSyntax
+//@[4:11)     Identifier |default|
+//@[11:12)    Colon |:|
+//@[13:18)    StringSyntax
+//@[13:18)     StringComplete |'abc'|
+//@[18:19)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    

@@ -978,6 +978,106 @@ param defaultValueCompletions string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// invalid comma separator (array)
+//@[34:35) NewLine |\n|
+param commaOne string {
+//@[0:5) Identifier |param|
+//@[6:14) Identifier |commaOne|
+//@[15:21) Identifier |string|
+//@[22:23) LeftBrace |{|
+//@[23:24) NewLine |\n|
+    metadata: {
+//@[4:12) Identifier |metadata|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+      description: 'Name of Virtual Machine'
+//@[6:17) Identifier |description|
+//@[17:18) Colon |:|
+//@[19:44) StringComplete |'Name of Virtual Machine'|
+//@[44:45) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+    secure: true
+//@[4:10) Identifier |secure|
+//@[10:11) Colon |:|
+//@[12:16) TrueKeyword |true|
+//@[16:17) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+      'abc',
+//@[6:11) StringComplete |'abc'|
+//@[11:12) Comma |,|
+//@[12:13) NewLine |\n|
+      'def'
+//@[6:11) StringComplete |'def'|
+//@[11:12) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+    default: 'abc'
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:18) StringComplete |'abc'|
+//@[18:19) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// invalid comma separator (object)
+//@[35:36) NewLine |\n|
+param commaTwo string {
+//@[0:5) Identifier |param|
+//@[6:14) Identifier |commaTwo|
+//@[15:21) Identifier |string|
+//@[22:23) LeftBrace |{|
+//@[23:24) NewLine |\n|
+    metadata: {
+//@[4:12) Identifier |metadata|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:16) NewLine |\n|
+      description: 'Name of Virtual Machine'
+//@[6:17) Identifier |description|
+//@[17:18) Colon |:|
+//@[19:44) StringComplete |'Name of Virtual Machine'|
+//@[44:45) NewLine |\n|
+    },
+//@[4:5) RightBrace |}|
+//@[5:6) Comma |,|
+//@[6:7) NewLine |\n|
+    secure: true
+//@[4:10) Identifier |secure|
+//@[10:11) Colon |:|
+//@[12:16) TrueKeyword |true|
+//@[16:17) NewLine |\n|
+    allowed: [
+//@[4:11) Identifier |allowed|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+      'abc'
+//@[6:11) StringComplete |'abc'|
+//@[11:12) NewLine |\n|
+      'def'
+//@[6:11) StringComplete |'def'|
+//@[11:12) NewLine |\n|
+    ]
+//@[4:5) RightSquare |]|
+//@[5:6) NewLine |\n|
+    default: 'abc'
+//@[4:11) Identifier |default|
+//@[11:12) Colon |:|
+//@[13:18) StringComplete |'abc'|
+//@[18:19) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
 /*    

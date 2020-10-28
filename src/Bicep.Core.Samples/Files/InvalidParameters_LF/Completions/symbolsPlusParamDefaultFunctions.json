@@ -143,6 +143,32 @@
     }
   },
   {
+    "label": "commaOne",
+    "kind": "field",
+    "detail": "commaOne",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_commaOne",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "commaOne"
+    }
+  },
+  {
+    "label": "commaTwo",
+    "kind": "field",
+    "detail": "commaTwo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_commaTwo",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "commaTwo"
+    }
+  },
+  {
     "label": "concat",
     "kind": "function",
     "detail": "concat()",

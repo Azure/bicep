@@ -366,6 +366,34 @@ param defaultValueCompletions string {
   
 }
 
+// invalid comma separator (array)
+param commaOne string {
+    metadata: {
+      description: 'Name of Virtual Machine'
+    }
+    secure: true
+    allowed: [
+      'abc',
+//@[11:12) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
+      'def'
+    ]
+    default: 'abc'
+}
+
+// invalid comma separator (object)
+param commaTwo string {
+    metadata: {
+      description: 'Name of Virtual Machine'
+    },
+//@[5:6) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
+    secure: true
+    allowed: [
+      'abc'
+      'def'
+    ]
+    default: 'abc'
+}
+
 // unterminated multi-line comment
 /*    
 //@[0:6) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |

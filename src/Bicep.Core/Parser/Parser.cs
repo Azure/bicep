@@ -8,6 +8,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parser
 {
@@ -679,6 +680,16 @@ namespace Bicep.Core.Parser
                 // if newline token is returned, we must not expect another (could be beginning of a new item)
                 if (itemOrToken is ArrayItemSyntax)
                 {
+                    if (Check(TokenType.Comma)) {
+                        var token = this.reader.Read();
+                        var skippedSyntax = new SkippedTriviaSyntax(
+                            token.Span, 
+                            token.AsEnumerable(), 
+                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
+                        );
+                        itemsOrTokens.Add(skippedSyntax);
+                    }
+                    
                     // items must be followed by newlines
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
@@ -731,6 +742,16 @@ namespace Bicep.Core.Parser
                 // if newline token is returned, we must not expect another (could be beginning of a new property)
                 if (propertyOrToken is ObjectPropertySyntax)
                 {
+                    if (Check(TokenType.Comma)) {
+                        var token = this.reader.Read();
+                        var skippedSyntax = new SkippedTriviaSyntax(
+                            token.Span, 
+                            token.AsEnumerable(), 
+                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
+                        );
+                        propertiesOrTokens.Add(skippedSyntax);
+                    }
+
                     // properties must be followed by newlines
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
