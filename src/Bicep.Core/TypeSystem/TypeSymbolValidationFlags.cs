@@ -24,5 +24,10 @@ namespace Bicep.Core.TypeSystem
         /// Permits assignment from string to string literal.
         /// </summary>
         AllowLooseStringAssignment = 1 << 1,
+
+        /// <summary>
+        /// Prevents all assignment of this type.
+        /// </summary>
+        PreventAssignment = 1 << 2,
     }
 }

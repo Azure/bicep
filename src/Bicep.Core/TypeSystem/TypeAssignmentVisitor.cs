@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -291,7 +292,22 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignType(syntax, () => {
-                return typeManager.GetTypeInfo(syntax.Value);
+                var errors = new List<ErrorDiagnostic>();
+
+                var valueType = typeManager.GetTypeInfo(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (PropagateErrorType(errors, valueType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (TypeValidator.AreTypesAssignable(valueType, LanguageConstants.Any) != true)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).VariableTypeAssignmentDisallowed(valueType));
+                }
+
+                return valueType;
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -658,15 +674,19 @@ namespace Bicep.Core.TypeSystem
                     baseType = resourceType.Body.Type;
                 }
 
-                if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
+                if (!(baseType is ObjectType objectType))
                 {
-                    // can only access properties of objects
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
-                }
-
-                if (baseType.TypeKind == TypeKind.Any || !(baseType is ObjectType objectType))
-                {
-                    return LanguageConstants.Any;
+                    if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
+                    {
+                        // can only access properties of objects
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
+                    }
+                    else
+                    {
+                        // We can assign to an object, but we don't have a type for that object.
+                        // The best we can do is allow it and return the 'any' type.
+                        return LanguageConstants.Any;
+                    }
                 }
 
                 return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);
@@ -698,15 +718,26 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             => AssignType(syntax, () => {
-
                 var errors = new List<ErrorDiagnostic>();
-                
+
                 var baseType = typeManager.GetTypeInfo(syntax.BaseExpression);
                 CollectErrors(errors, baseType);
 
-                if (errors.Any())
+                if (PropagateErrorType(errors, baseType))
                 {
                     return ErrorType.Create(errors);
+                }
+
+                if (baseType is ResourceType resourceType)
+                {
+                    // We're accessing a property on the resource body.
+                    baseType = resourceType.Body.Type;
+                }
+
+                if (!(baseType is ObjectType objectType))
+                {
+                    // can only access methods on objects
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
                 }
 
                 var argumentTypes = syntax.Arguments.Select(arg => typeManager.GetTypeInfo(arg)).ToList();
@@ -716,14 +747,22 @@ namespace Bicep.Core.TypeSystem
                     CollectErrors(errors, argumentType);
                 }
 
-                switch (bindings[syntax])
+                if (!bindings.TryGetValue(syntax, out var foundSymbol))
+                {
+                    // namespace methods will have already been bound. Everything else will not have been.
+                    var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
+
+                    foundSymbol = SymbolValidator.ValidateObjectQualifiedFunction(resolvedSymbol, syntax.Name, objectType);
+                }
+
+                switch (foundSymbol)
                 {
                     case ErrorSymbol errorSymbol:
                         // bind bind failure - pass the error along
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
-                    case FunctionSymbol function:
-                        return GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
+                    case FunctionSymbol functionSymbol:
+                        return GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -753,7 +792,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     case ErrorSymbol errorSymbol:
                         // variable bind failure - pass the error along
-                        return errorSymbol.ToUnassignableType();
+                        return errorSymbol.ToErrorType();
 
                     case ResourceSymbol resource:
                         // resource bodies can participate in cycles
@@ -769,8 +808,8 @@ namespace Bicep.Core.TypeSystem
                     case VariableSymbol variable:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
                     
-                    case NamespaceSymbol _ when hierarchy.GetParent(syntax) is InstanceFunctionCallSyntax:
-                        return new ErrorType("namespace", TypeKind.Never);
+                    case NamespaceSymbol @namespace:
+                        return @namespace.Type;
 
                     case OutputSymbol _:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));

@@ -108,6 +108,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new Uri("file:///path/to/main.bicep");
             }
 
+            if (parameter.ParameterType == typeof(Symbol))
+            {
+                // just using this one as it's easy to construct
+                return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+            }
+
             if (parameter.ParameterType == typeof(int) || parameter.ParameterType == typeof(int?))
             {
                 return 0;

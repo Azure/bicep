@@ -422,7 +422,7 @@ output length int =
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
             var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(), new SystemNamespaceSymbol()}
-                .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>())
+                .SelectMany(ns => ns.Type.MethodResolver.GetKnownFunctions().Values)
                 .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)
                 .Except(fullyQualifiedFunctionParts.Select(p => p.function), LanguageConstants.IdentifierComparer)

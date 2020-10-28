@@ -92,12 +92,12 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void NameBindingsShouldBeConsistent(DataSet dataSet)
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
-            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var model = compilation.GetEntrypointSemanticModel();
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, model);
 
             // just a sanity check
             symbolReferences.Should().AllBeAssignableTo<ISymbolReference>();
 
-            var model = compilation.GetEntrypointSemanticModel();
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
                 var symbol = model.GetSymbolInfo(symbolReference);
@@ -148,29 +148,30 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
-            var symbolReferences = GetSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var symbolReferences = GetAllBoundSymbolReferences(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax, semanticModel);
 
             var symbols = symbolReferences
-                .Select(symRef => compilation.GetEntrypointSemanticModel().GetSymbolInfo(symRef))
+                .Select(symRef => semanticModel.GetSymbolInfo(symRef))
                 .Distinct();
 
             symbols.Should().NotContainNulls();
 
             var foundReferences = symbols
-                .SelectMany(s => compilation.GetEntrypointSemanticModel().FindReferences(s!))
+                .SelectMany(s => semanticModel.FindReferences(s!))
                 .Where(refSyntax => !(refSyntax is IDeclarationSyntax));
 
             foundReferences.Should().BeEquivalentTo(symbolReferences);
         }
 
-        private static List<SyntaxBase> GetSymbolReferences(ProgramSyntax program)
+        private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program, Core.SemanticModel.SemanticModel semanticModel)
         {
             return SyntaxAggregator.Aggregate(
                 program,
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
-                    if (current is ISymbolReference)
+                    if (current is ISymbolReference symbolReference && TestSyntaxHelper.NodeShouldBeBound(symbolReference, semanticModel))
                     {
                         accumulated.Add(current);
                     }

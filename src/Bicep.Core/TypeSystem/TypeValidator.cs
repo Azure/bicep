@@ -39,7 +39,8 @@ namespace Bicep.Core.TypeSystem
         /// <returns>Returns true if values of the specified source type are assignable to the target type. Returns false otherwise or null if assignability cannot be determined.</returns>
         public static bool? AreTypesAssignable(TypeSymbol? sourceType, TypeSymbol? targetType)
         {
-            if (sourceType == null || targetType == null || sourceType is ErrorType || targetType is ErrorType)
+            if (sourceType == null || sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment) ||
+                targetType == null || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment))
             {
                 return null;
             }

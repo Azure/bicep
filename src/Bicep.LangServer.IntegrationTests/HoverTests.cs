@@ -14,6 +14,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -74,13 +75,6 @@ namespace Bicep.LangServer.IntegrationTests
 
                 switch (symbol!.Kind)
                 {
-                    // when a namespace value is not found, instance function call contains a null hover range
-                    case SymbolKind.Error when symbolReference is InstanceFunctionCallSyntax && hover == null:
-                    case SymbolKind.Error when !(symbolReference is InstanceFunctionCallSyntax):
-                        // error symbol
-                        hover.Should().BeNull();
-                        break;
-
                     case SymbolKind.Function when symbolReference is VariableAccessSyntax:
                         // variable got bound to a function
                         hover.Should().BeNull();
@@ -94,6 +88,12 @@ namespace Bicep.LangServer.IntegrationTests
                     case SymbolKind.Namespace:
                         ValidateInstanceFunctionCallHover(hover);
                         break;
+
+                    case SymbolKind.Error:
+                        // error symbol
+                        ValidateEmptyHover(hover);
+                        break;
+
                     default:
                         ValidateHover(hover, symbol);
                         break;

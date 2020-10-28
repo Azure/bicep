@@ -205,7 +205,7 @@ namespace Bicep.LanguageServer.Completions
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces
             var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
-                .SelectMany(pair => pair.Value.Descendants.OfType<FunctionSymbol>())
+                .SelectMany(pair => pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
                 .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
                 .Where(tuple => tuple.count > 1)
                 .Select(tuple => tuple.name)
@@ -213,7 +213,7 @@ namespace Bicep.LanguageServer.Completions
 
             foreach (var @namespace in model.Root.ImportedNamespaces.Values)
             {
-                foreach (var function in @namespace.Descendants.OfType<FunctionSymbol>())
+                foreach (var function in @namespace.Type.MethodResolver.GetKnownFunctions().Values)
                 {
                     if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDeclarationSymbol is ParameterSymbol))
                     {

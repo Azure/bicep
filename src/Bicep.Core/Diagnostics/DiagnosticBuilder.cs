@@ -10,6 +10,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;
 using System.Linq;
 using System;
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -237,6 +238,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP040",
                 $"String interpolation is not supported for keys on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
 
+            public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP041",
+                $"Values of type \"{valueType}\" cannot be assigned to a variable.");
+
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -367,6 +373,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP066",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in resource declarations.");
 
+            public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP067",
+                $"Cannot access functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
+
             public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP068",
@@ -477,16 +488,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
-            public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
-                TextSpan,
-                "BCP085",
-                $"The variable value cannot be assigned, make sure it is not a namespace value.");
-
-            public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
-                TextSpan,
-                "BCP086",
-                $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
-
             public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP087",
@@ -585,11 +586,33 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP105",
                 $"Unable to load file from URI \"{fileUri}\".");
-            
+
             public ErrorDiagnostic UnexpectedCommaSeparator() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
+                
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP107",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
+
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new FixableErrorDiagnostic(
+                TextSpan,
+                "BCP108",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+
+            public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP109",
+                $"The type \"{type}\" does not contain function \"{name}\".");
+
+            public FixableErrorDiagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => new FixableErrorDiagnostic(
+                TextSpan,
+                "BCP110",
+                $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

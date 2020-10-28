@@ -149,7 +149,7 @@ var ternary = null ? 4 : false
 // complex expressions
 var complex = test(2 + 3*4, true || false && null)
 //@[4:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. |complex|
-//@[14:18) [BCP082 (Error)] The name "test" does not exist in the current context. Did you mean "test1"? |test|
+//@[14:18) [BCP057 (Error)] The name "test" does not exist in the current context. |test|
 //@[36:49) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "bool" and "null". |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[4:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. |complex|
@@ -305,13 +305,13 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[36:37) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
 var invalidInstanceFunctionCall = az.az()
-//@[37:39) [BCP086 (Error)] The function "az" does not exist in namespace "az". |az|
+//@[37:39) [BCP106 (Error)] The function "az" does not exist in namespace "az". |az|
 var invalidPropertyAccessOnAzNamespace = az.az
-//@[41:43) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
+//@[44:46) [BCP052 (Error)] The type "az" does not contain property "az". |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
-//@[42:45) [BCP063 (Error)] The name "sys" is not a parameter, variable, resource or module. |sys|
+//@[46:48) [BCP052 (Error)] The type "sys" does not contain property "az". |az|
 var invalidOperands = 1 + az
-//@[26:28) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
+//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "az". |1 + az|
 
 var bannedFunctions = {
   var: variables()

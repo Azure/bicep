@@ -132,9 +132,9 @@ var objWithInterp = {
 
 // invalid fully qualified function access
 var mySum = az.add(1,2)
-//@[15:18) [BCP086 (Error)] The function "add" does not exist in namespace "az". |add|
+//@[15:18) [BCP106 (Error)] The function "add" does not exist in namespace "az". |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
-//@[34:40) [BCP086 (Error)] The function "concat" does not exist in namespace "az". |concat|
+//@[34:40) [BCP106 (Error)] The function "concat" does not exist in namespace "az". |concat|
 
 // invalid string using double quotes
 var doubleString = "bad string"
@@ -152,4 +152,4 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
-//@[33:35) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
+//@[33:35) [BCP041 (Error)] Values of type "az" cannot be assigned to a variable. |az|
