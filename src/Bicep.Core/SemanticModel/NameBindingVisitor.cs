@@ -110,7 +110,7 @@ namespace Bicep.Core.SemanticModel
             }
             else
             {
-                foundSymbol = new UnassignableSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameDoesNotExist(syntax.Name.IdentifierName));
+                foundSymbol = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameDoesNotExist(syntax.Name.IdentifierName));
             }
 
             // bind what we got - the type checker will validate if it fits
@@ -128,12 +128,12 @@ namespace Bicep.Core.SemanticModel
             
             if (functionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !allowedFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
             {
-                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
             
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
             }
 
             return symbol;
@@ -181,7 +181,7 @@ namespace Bicep.Core.SemanticModel
                 if (foundSymbols.Count() > 1)
                 {
                     // ambiguous symbol
-                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span)
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span)
                         .AmbiguousSymbolReference(name, this.namespaces.Keys));
                 }
 
@@ -197,8 +197,8 @@ namespace Bicep.Core.SemanticModel
                     var suggestedName = SpellChecker.GetSpellingSuggestion(name, nameCandidates);
 
                     return suggestedName != null
-                        ? new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExistWithSuggestion(name, suggestedName))
-                        : new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
+                        ? new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExistWithSuggestion(name, suggestedName))
+                        : new ErrorSymbol(DiagnosticBuilder.ForPosition(span).SymbolicNameDoesNotExist(name));
                 }
             }
             else
@@ -207,7 +207,7 @@ namespace Bicep.Core.SemanticModel
 
                 if (foundSymbol == null)
                 {
-                    return new UnassignableSymbol(DiagnosticBuilder.ForPosition(span).FunctionNotFound(name, @namespace.Name));
+                    return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionNotFound(name, @namespace.Name));
                 }
             }
 

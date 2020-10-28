@@ -57,7 +57,7 @@ namespace Bicep.Core.SemanticModel
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitErrorSymbol(UnassignableSymbol symbol)
+        public override void VisitErrorSymbol(ErrorSymbol symbol)
         {
             base.VisitErrorSymbol(symbol);
             this.CollectDiagnostics(symbol);

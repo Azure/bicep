@@ -106,7 +106,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 if (dataSet.IsValid)
                 {
                     // valid cases should not return error symbols for any symbol reference node
-                    symbol.Should().NotBeOfType<UnassignableSymbol>();
+                    symbol.Should().NotBeOfType<ErrorSymbol>();
                     symbol.Should().Match(s =>
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
@@ -120,7 +120,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 {
                     // invalid files may return errors
                     symbol.Should().Match(s =>
-                        s is UnassignableSymbol ||
+                        s is ErrorSymbol ||
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
