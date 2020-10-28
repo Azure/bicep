@@ -8,6 +8,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parser
 {
@@ -683,8 +684,8 @@ namespace Bicep.Core.Parser
                         var token = this.reader.Read();
                         var skippedSyntax = new SkippedTriviaSyntax(
                             token.Span, 
-                            new List<SyntaxBase> {token}, 
-                            new List<Diagnostic> {DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator()} 
+                            token.AsEnumerable(), 
+                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         itemsOrTokens.Add(skippedSyntax);
                     }
@@ -745,8 +746,8 @@ namespace Bicep.Core.Parser
                         var token = this.reader.Read();
                         var skippedSyntax = new SkippedTriviaSyntax(
                             token.Span, 
-                            new List<SyntaxBase> {token}, 
-                            new List<Diagnostic> {DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator()} 
+                            token.AsEnumerable(), 
+                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         propertiesOrTokens.Add(skippedSyntax);
                     }
