@@ -45,7 +45,7 @@ namespace Bicep.Core.Samples
 
         private static IEnumerable<object[]> GetExampleData()
         {
-            foreach (var streamName in typeof(ExamplesTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith("docs/examples/")))
+            foreach (var streamName in typeof(ExamplesTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith("docs/examples/", StringComparison.Ordinal)))
             {
                 var extension = Path.GetExtension(streamName);
                 if (!StringComparer.OrdinalIgnoreCase.Equals(extension, ".bicep"))

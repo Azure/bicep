@@ -35,7 +35,7 @@ namespace Bicep.Core.UnitTests.Utils
             string outputDirectory = Path.Combine(testContext.TestRunResultsDirectory, testContext.TestName, outputDirName);
 
             var filesSaved = false;
-            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix)))
+            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix,  StringComparison.Ordinal)))
             {
                 var relativePath = embeddedResourceName.Substring(manifestFilePrefix.Length).TrimStart('/');
                 var manifestStream = containingAssembly.GetManifestResourceStream(embeddedResourceName);
