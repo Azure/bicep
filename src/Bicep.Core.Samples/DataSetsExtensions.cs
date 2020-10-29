@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace Bicep.Core.Samples
         public static object[] ToDynamicTestData(this DataSet ds) => new object[] {ds};
 
         public static bool HasCrLfNewlines(this DataSet dataSet)
-            => dataSet.Name.EndsWith("_CRLF");
+            => dataSet.Name.EndsWith("_CRLF",  StringComparison.Ordinal);
             
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext, string parentDirName)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, parentDirName, dataSet.GetStreamPrefix());

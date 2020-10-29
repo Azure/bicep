@@ -190,7 +190,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
             // need to be extremely cautious here. it may be that lexing has failed to find a string terminating character,
             // but we still have a syntax tree to display tokens for.
-            var hasEndOperator = endInterp.Length > 0 && token.Text.EndsWith(endInterp);
+            var hasEndOperator = endInterp.Length > 0 && token.Text.EndsWith(endInterp, StringComparison.Ordinal);
             var endOperatorLength = hasEndOperator ? endInterp.Length : 0;
 
             var hasStartOperator = startInterp.Length > 0 && token.Text.Length >= startInterp.Length;
