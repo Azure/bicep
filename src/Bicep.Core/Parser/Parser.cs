@@ -141,7 +141,7 @@ namespace Bicep.Core.Parser
         private SyntaxBase ParameterDefaultValue()
         {
             var assignmentToken = this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
-            SyntaxBase defaultValue = this.Expression(allowComplexLiterals: true);
+            SyntaxBase defaultValue = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), RecoveryFlags.None, TokenType.NewLine);
 
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
         }

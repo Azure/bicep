@@ -199,14 +199,15 @@ param myInt2 int = 42
 //@[19:21)    Number |42|
 //@[21:22) NewLine |\n|
 param noValueAfterColon int =   
-//@[0:29) ParameterDeclarationSyntax
+//@[0:32) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |noValueAfterColon|
 //@[24:27)  TypeSyntax
 //@[24:27)   Identifier |int|
-//@[28:29)  SkippedTriviaSyntax
+//@[28:32)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
+//@[32:32)   SkippedTriviaSyntax
 //@[32:34) NewLine |\n\n|
 
 param myTruth bool = 'not a boolean'
@@ -1372,6 +1373,16 @@ param stringLiteral3 string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// #completionTest(6) -> empty
+//@[30:31) NewLine |\n|
+param 
+//@[0:6) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:6)  IdentifierSyntax
+//@[6:6)   SkippedTriviaSyntax
+//@[6:6)  SkippedTriviaSyntax
+//@[6:8) NewLine |\n\n|
+
 param stringModifierCompletions string {
 //@[0:101) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -1407,6 +1418,20 @@ param intModifierCompletions int {
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(46,47) -> justSymbols
+//@[40:41) NewLine |\n|
+param defaultValueOneLinerCompletions string = 
+//@[0:47) ParameterDeclarationSyntax
+//@[0:5)  Identifier |param|
+//@[6:37)  IdentifierSyntax
+//@[6:37)   Identifier |defaultValueOneLinerCompletions|
+//@[38:44)  TypeSyntax
+//@[38:44)   Identifier |string|
+//@[45:47)  ParameterDefaultValueSyntax
+//@[45:46)   Assignment |=|
+//@[47:47)   SkippedTriviaSyntax
+//@[47:49) NewLine |\n\n|
 
 param defaultValueCompletions string {
 //@[0:396) ParameterDeclarationSyntax

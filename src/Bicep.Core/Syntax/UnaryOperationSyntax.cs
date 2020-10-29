@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class UnaryOperationSyntax : SyntaxBase
+    public class UnaryOperationSyntax : ExpressionSyntax
     {
         public UnaryOperationSyntax(Token operatorToken, SyntaxBase expression)
         {

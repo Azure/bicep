@@ -2,12 +2,14 @@
 // wrong declaration
 bad
 
-// incomplete
+// incomplete #completionTest(9) -> empty
 resource 
 resource foo
 resource fo/o
 resource foo 'ddd'
-resource foo 'ddd'=
+
+// #completionTest(19,20) -> object
+resource foo 'ddd'= 
 
 // wrong resource type
 resource foo 'ddd'={

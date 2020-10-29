@@ -7,6 +7,10 @@ bad
 var
 //@[3:3) [BCP015 (Error)] Expected a variable identifier at this location. ||
 
+// missing identifier #completionTest(4) -> empty
+var 
+//@[4:4) [BCP015 (Error)] Expected a variable identifier at this location. ||
+
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
@@ -19,6 +23,10 @@ va
 var foo
 //@[4:7) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[7:7) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(18,19) -> symbols
+var missingValue = 
+//@[19:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 // malformed identifier
 var 2 

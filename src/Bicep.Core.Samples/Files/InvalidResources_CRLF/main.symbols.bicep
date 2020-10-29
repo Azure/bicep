@@ -2,7 +2,7 @@
 // wrong declaration
 bad
 
-// incomplete
+// incomplete #completionTest(9) -> empty
 resource 
 //@[9:9) Resource <missing>. Type: error. Declaration start char: 0, length: 9
 resource foo
@@ -11,8 +11,10 @@ resource fo/o
 //@[9:11) Resource fo. Type: error. Declaration start char: 0, length: 13
 resource foo 'ddd'
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 18
-resource foo 'ddd'=
-//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 19
+
+// #completionTest(19,20) -> object
+resource foo 'ddd'= 
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 20
 
 // wrong resource type
 resource foo 'ddd'={

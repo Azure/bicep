@@ -16,6 +16,12 @@ module moduleWithoutPath = {
 
 }
 
+// missing identifier #completionTest(7) -> empty
+module 
+
+// #completionTest(24,25) -> object
+module missingValue '' = 
+
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
 

@@ -6,7 +6,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArraySyntax : SyntaxBase
+    public class ArraySyntax : ExpressionSyntax
     {
         public ArraySyntax(Token openBracket, IEnumerable<SyntaxBase> children, Token closeBracket)
         {

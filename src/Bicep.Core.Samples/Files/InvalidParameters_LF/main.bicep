@@ -216,6 +216,9 @@ param stringLiteral3 string {
   default: stringLiteral2
 }
 
+// #completionTest(6) -> empty
+param 
+
 param stringModifierCompletions string {
   // #completionTest(0,1,2) -> stringModifierProperties
   
@@ -225,6 +228,9 @@ param intModifierCompletions int {
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
+
+// #completionTest(46,47) -> justSymbols
+param defaultValueOneLinerCompletions string = 
 
 param defaultValueCompletions string {
   allowed: [

@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayItemSyntax : SyntaxBase
+    public class ArrayItemSyntax : ExpressionSyntax
     {
         public ArrayItemSyntax(SyntaxBase value)
         {

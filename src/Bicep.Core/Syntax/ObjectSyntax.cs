@@ -6,7 +6,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectSyntax : SyntaxBase
+    public class ObjectSyntax : ExpressionSyntax
     {
         public ObjectSyntax(Token openBrace, IEnumerable<SyntaxBase> children, Token closeBrace)
         {

@@ -18,7 +18,6 @@ using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
@@ -29,12 +28,13 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationSnippetsShouldBeValid()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -94,12 +94,13 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -155,52 +156,30 @@ namespace Bicep.LangServer.UnitTests
         }
 
         [TestMethod]
-        public void NonDeclarationContextInEmptyFileShouldReturnFunctionCompletions()
-        {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
-            var provider = new BicepCompletionProvider();
-
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
-
-            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
-
-            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
-        }
-
-        [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxFactory.CreateFromText(@"
 param p string
-var v = true
+var v = 
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
 output o int = 42
-"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
+");
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
 
-            const string expectedVariable = "v";
-            var variableCompletion = completions.Single(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind());
-            variableCompletion.Label.Should().Be(expectedVariable);
-            variableCompletion.Kind.Should().Be(CompletionItemKind.Variable);
-            variableCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            variableCompletion.TextEdit.NewText.Should().Be(expectedVariable);
-            variableCompletion.CommitCharacters.Should().BeNull();
-            variableCompletion.Detail.Should().Be(expectedVariable);
+            // the variable won't appear in completions because we are not suggesting cycles
+            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
 
             const string expectedResource = "r";
             var resourceCompletion = completions.Single(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind());
@@ -222,17 +201,46 @@ output o int = 42
         }
 
         [TestMethod]
-        public void ParameterTypeContextShouldIncludeFunctionsValidInDefaultValues()
+        public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"param p string = 's'"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            var grouping = SyntaxFactory.CreateFromText(@"param p string = ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
 
-            var parameter = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax.Children.OfType<ParameterDeclarationSyntax>().Single();
+            var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
             var provider = new BicepCompletionProvider();
             var completions = provider.GetFilteredCompletions(
                 compilation,
-                CreateContext(BicepCompletionContextKind.None, enclosingDeclaration: parameter)).ToList();
+                BicepCompletionContext.Create(grouping.EntryPoint, offset)).ToList();
+
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
+
+            // outputs can't be referenced so they should not show up in completions
+            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
+
+            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
+
+            // should not see parameter completions because we set the enclosing declaration which will exclude the corresponding symbol
+            // this avoids cycle suggestions
+            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void CompletionsForModifierDefaultValuesShouldIncludeFunctionsValidInDefaultValues()
+        {
+            var grouping = SyntaxFactory.CreateFromText(@"param p string {
+  defaultValue: 
+}");
+
+            var offset = ((ObjectSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).Properties.Single().Value.Span.Position;
+
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+
+            var provider = new BicepCompletionProvider();
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
@@ -251,18 +259,20 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
-output length int = 42
-"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+output length int = 
+");
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
 
@@ -300,10 +310,13 @@ output length int = 42
         [TestMethod]
         public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText("output test ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.OutputType));
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -314,10 +327,13 @@ output length int = 42
         [TestMethod]
         public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText("param foo ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.ParameterType));
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -342,8 +358,6 @@ output length int = 42
                     c.Detail.Should().Be("Secure string");
                 });
         }
-
-        private static BicepCompletionContext CreateContext(BicepCompletionContextKind kind, SyntaxBase? enclosingDeclaration = null) => new BicepCompletionContext(kind, new Range(), enclosingDeclaration);
 
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {

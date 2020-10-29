@@ -3,9 +3,20 @@
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
 
-// incomplete
+// incomplete #completionTest(7) -> empty
 output 
 //@[7:7) [BCP016 (Error)] Expected an output identifier at this location. ||
+
+var testSymbol = 42
+
+// #completionTest(28,29) -> symbols
+output missingValueAndType = 
+//@[27:28) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". |=|
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+// #completionTest(28,29) -> symbols
+output missingValue string = 
+//@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 output foo
 //@[7:10) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|

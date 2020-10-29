@@ -6,6 +6,10 @@ bad
 var
 //@[3:3) Variable <missing>. Type: error. Declaration start char: 0, length: 3
 
+// missing identifier #completionTest(4) -> empty
+var 
+//@[4:4) Variable <missing>. Type: error. Declaration start char: 0, length: 4
+
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
@@ -15,6 +19,10 @@ va
 // unassigned variable
 var foo
 //@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 7
+
+// #completionTest(18,19) -> symbols
+var missingValue = 
+//@[4:16) Variable missingValue. Type: error. Declaration start char: 0, length: 19
 
 // malformed identifier
 var 2 

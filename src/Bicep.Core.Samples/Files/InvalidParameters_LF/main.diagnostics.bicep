@@ -332,6 +332,10 @@ param stringLiteral3 string {
 //@[11:25) [BCP036 (Error)] The property "default" expected a value of type "'abc'" but the provided value is of type "'abc' | 'def'". |stringLiteral2|
 }
 
+// #completionTest(6) -> empty
+param 
+//@[6:6) [BCP013 (Error)] Expected a parameter identifier at this location. ||
+
 param stringModifierCompletions string {
   // #completionTest(0,1,2) -> stringModifierProperties
   
@@ -341,6 +345,10 @@ param intModifierCompletions int {
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
+
+// #completionTest(46,47) -> justSymbols
+param defaultValueOneLinerCompletions string = 
+//@[47:47) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 param defaultValueCompletions string {
   allowed: [

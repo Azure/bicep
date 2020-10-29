@@ -2,8 +2,16 @@
 // wrong declaration
 bad
 
-// incomplete
+// incomplete #completionTest(7) -> empty
 output 
+
+var testSymbol = 42
+
+// #completionTest(28,29) -> symbols
+output missingValueAndType = 
+
+// #completionTest(28,29) -> symbols
+output missingValue string = 
 
 output foo
 

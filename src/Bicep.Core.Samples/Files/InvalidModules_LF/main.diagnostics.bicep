@@ -23,6 +23,16 @@ module moduleWithoutPath = {
 }
 //@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|
 
+// missing identifier #completionTest(7) -> empty
+module 
+//@[7:7) [BCP096 (Error)] Expected a module identifier at this location. ||
+//@[7:7) [BCP090 (Error)] This module declaration is missing a file path reference. ||
+
+// #completionTest(24,25) -> object
+module missingValue '' = 
+//@[20:22) [BCP094 (Error)] This module references itself, which is not allowed. |''|
+//@[25:25) [BCP018 (Error)] Expected the "{" character at this location. ||
+
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
 //@[28:47) [BCP092 (Error)] String interpolation is not supported in module paths. |'./${interp}.bicep'|
@@ -36,7 +46,6 @@ module moduleWithSelfCycle './main.bicep' = {
 
 module './main.bicep' = {
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
-//@[7:21) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
 
 }
 

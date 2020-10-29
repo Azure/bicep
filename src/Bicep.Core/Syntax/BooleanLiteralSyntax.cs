@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class BooleanLiteralSyntax : SyntaxBase
+    public class BooleanLiteralSyntax : ExpressionSyntax
     {
         public BooleanLiteralSyntax(Token literal, bool value)
         {
