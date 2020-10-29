@@ -247,6 +247,19 @@
     }
   },
   {
+    "label": "defaultValueOneLinerCompletions",
+    "kind": "field",
+    "detail": "defaultValueOneLinerCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_defaultValueOneLinerCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "defaultValueOneLinerCompletions"
+    }
+  },
+  {
     "label": "deployment",
     "kind": "function",
     "detail": "deployment()",

@@ -18,6 +18,17 @@ var
 //@[3:3)  SkippedTriviaSyntax
 //@[3:5) NewLine |\n\n|
 
+// missing identifier #completionTest(4) -> empty
+//@[49:50) NewLine |\n|
+var 
+//@[0:4) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:4)  IdentifierSyntax
+//@[4:4)   SkippedTriviaSyntax
+//@[4:4)  SkippedTriviaSyntax
+//@[4:4)  SkippedTriviaSyntax
+//@[4:6) NewLine |\n\n|
+
 // incomplete keyword
 //@[21:22) NewLine |\n|
 // #completionTest(0,1) -> declarations
@@ -43,6 +54,17 @@ var foo
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
 //@[7:9) NewLine |\n\n|
+
+// #completionTest(18,19) -> symbols
+//@[36:37) NewLine |\n|
+var missingValue = 
+//@[0:19) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |missingValue|
+//@[17:18)  Assignment |=|
+//@[19:19)  SkippedTriviaSyntax
+//@[19:21) NewLine |\n\n|
 
 // malformed identifier
 //@[23:24) NewLine |\n|

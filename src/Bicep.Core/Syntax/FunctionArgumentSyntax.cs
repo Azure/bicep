@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionArgumentSyntax : SyntaxBase
+    public class FunctionArgumentSyntax : ExpressionSyntax
     {
         public FunctionArgumentSyntax(SyntaxBase expression, Token? comma)
         {

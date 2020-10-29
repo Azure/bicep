@@ -20,6 +20,14 @@ module moduleWithoutPath = {
 
 }
 
+// missing identifier #completionTest(7) -> empty
+module 
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 7
+
+// #completionTest(24,25) -> object
+module missingValue '' = 
+//@[7:19) Module missingValue. Type: error. Declaration start char: 0, length: 25
+
 var interp = 'hello'
 //@[4:10) Variable interp. Type: 'hello'. Declaration start char: 0, length: 20
 module moduleWithInterpPath './${interp}.bicep' = {

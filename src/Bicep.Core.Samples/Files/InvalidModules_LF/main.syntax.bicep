@@ -67,6 +67,31 @@ module moduleWithoutPath = {
 //@[0:1)  RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// missing identifier #completionTest(7) -> empty
+//@[49:50) NewLine |\n|
+module 
+//@[0:7) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:9) NewLine |\n\n|
+
+// #completionTest(24,25) -> object
+//@[35:36) NewLine |\n|
+module missingValue '' = 
+//@[0:25) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |missingValue|
+//@[20:22)  StringSyntax
+//@[20:22)   StringComplete |''|
+//@[23:24)  Assignment |=|
+//@[25:25)  SkippedTriviaSyntax
+//@[25:27) NewLine |\n\n|
+
 var interp = 'hello'
 //@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ObjectPropertySyntax : SyntaxBase
+    public class ObjectPropertySyntax : ExpressionSyntax
     {
         public ObjectPropertySyntax(SyntaxBase key, SyntaxBase colon, SyntaxBase value)
         {

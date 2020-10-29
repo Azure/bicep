@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class StringSyntax : SyntaxBase
+    public class StringSyntax : ExpressionSyntax
     {
         public StringSyntax(IEnumerable<Token> stringTokens, IEnumerable<SyntaxBase> expressions, IEnumerable<string> segmentValues)
         {

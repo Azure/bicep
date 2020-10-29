@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayAccessSyntax : SyntaxBase
+    public class ArrayAccessSyntax : ExpressionSyntax
     {
         public ArrayAccessSyntax(SyntaxBase baseExpression, Token openSquare, SyntaxBase indexExpression, Token closeSquare)
         {

@@ -7,8 +7,8 @@ bad
 //@[0:3)  Identifier |bad|
 //@[3:7) NewLine |\r\n\r\n|
 
-// incomplete
-//@[13:15) NewLine |\r\n|
+// incomplete #completionTest(9) -> empty
+//@[41:43) NewLine |\r\n|
 resource 
 //@[0:9) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -47,17 +47,20 @@ resource foo 'ddd'
 //@[13:18)   StringComplete |'ddd'|
 //@[18:18)  SkippedTriviaSyntax
 //@[18:18)  SkippedTriviaSyntax
-//@[18:20) NewLine |\r\n|
-resource foo 'ddd'=
-//@[0:19) ResourceDeclarationSyntax
+//@[18:22) NewLine |\r\n\r\n|
+
+// #completionTest(19,20) -> object
+//@[35:37) NewLine |\r\n|
+resource foo 'ddd'= 
+//@[0:20) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
 //@[13:18)  StringSyntax
 //@[13:18)   StringComplete |'ddd'|
 //@[18:19)  Assignment |=|
-//@[19:19)  SkippedTriviaSyntax
-//@[19:23) NewLine |\r\n\r\n|
+//@[20:20)  SkippedTriviaSyntax
+//@[20:24) NewLine |\r\n\r\n|
 
 // wrong resource type
 //@[22:24) NewLine |\r\n|

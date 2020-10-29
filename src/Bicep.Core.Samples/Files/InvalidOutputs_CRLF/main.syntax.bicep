@@ -7,8 +7,8 @@ bad
 //@[0:3)  Identifier |bad|
 //@[3:7) NewLine |\r\n\r\n|
 
-// incomplete
-//@[13:15) NewLine |\r\n|
+// incomplete #completionTest(7) -> empty
+//@[41:43) NewLine |\r\n|
 output 
 //@[0:7) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
@@ -18,6 +18,41 @@ output
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
 //@[7:11) NewLine |\r\n\r\n|
+
+var testSymbol = 42
+//@[0:19) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:14)  IdentifierSyntax
+//@[4:14)   Identifier |testSymbol|
+//@[15:16)  Assignment |=|
+//@[17:19)  NumericLiteralSyntax
+//@[17:19)   Number |42|
+//@[19:23) NewLine |\r\n\r\n|
+
+// #completionTest(28,29) -> symbols
+//@[36:38) NewLine |\r\n|
+output missingValueAndType = 
+//@[0:29) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |missingValueAndType|
+//@[27:27)  SkippedTriviaSyntax
+//@[27:28)  Assignment |=|
+//@[29:29)  SkippedTriviaSyntax
+//@[29:33) NewLine |\r\n\r\n|
+
+// #completionTest(28,29) -> symbols
+//@[36:38) NewLine |\r\n|
+output missingValue string = 
+//@[0:29) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |missingValue|
+//@[20:26)  TypeSyntax
+//@[20:26)   Identifier |string|
+//@[27:28)  Assignment |=|
+//@[29:29)  SkippedTriviaSyntax
+//@[29:33) NewLine |\r\n\r\n|
 
 output foo
 //@[0:10) OutputDeclarationSyntax

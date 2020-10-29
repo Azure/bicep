@@ -12,6 +12,12 @@ var
 //@[0:3) Identifier |var|
 //@[3:5) NewLine |\n\n|
 
+// missing identifier #completionTest(4) -> empty
+//@[49:50) NewLine |\n|
+var 
+//@[0:3) Identifier |var|
+//@[4:6) NewLine |\n\n|
+
 // incomplete keyword
 //@[21:22) NewLine |\n|
 // #completionTest(0,1) -> declarations
@@ -31,6 +37,14 @@ var foo
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |foo|
 //@[7:9) NewLine |\n\n|
+
+// #completionTest(18,19) -> symbols
+//@[36:37) NewLine |\n|
+var missingValue = 
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |missingValue|
+//@[17:18) Assignment |=|
+//@[19:21) NewLine |\n\n|
 
 // malformed identifier
 //@[23:24) NewLine |\n|

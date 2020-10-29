@@ -888,6 +888,12 @@ param stringLiteral3 string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// #completionTest(6) -> empty
+//@[30:31) NewLine |\n|
+param 
+//@[0:5) Identifier |param|
+//@[6:8) NewLine |\n\n|
+
 param stringModifierCompletions string {
 //@[0:5) Identifier |param|
 //@[6:31) Identifier |stringModifierCompletions|
@@ -915,6 +921,15 @@ param intModifierCompletions int {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(46,47) -> justSymbols
+//@[40:41) NewLine |\n|
+param defaultValueOneLinerCompletions string = 
+//@[0:5) Identifier |param|
+//@[6:37) Identifier |defaultValueOneLinerCompletions|
+//@[38:44) Identifier |string|
+//@[45:46) Assignment |=|
+//@[47:49) NewLine |\n\n|
 
 param defaultValueCompletions string {
 //@[0:5) Identifier |param|
