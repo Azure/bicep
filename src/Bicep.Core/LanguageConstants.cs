@@ -51,7 +51,8 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol ResourceRef = new ResourceRefType();
+        public static readonly TypeSymbol ResourceRef = new NamedObjectType("resourceRef", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
+        public static readonly TypeSymbol ResourceScope = new NamedObjectType("scope", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -146,6 +147,7 @@ namespace Bicep.Core
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
+                    new TypeProperty("scope", LanguageConstants.ResourceScope, TypePropertyFlags.None),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                 },

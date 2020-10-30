@@ -56,8 +56,8 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
-                case ResourceRefType _:
-                    return sourceType.TypeKind == TypeKind.Resource;
+                case TypeSymbol _ when targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.DeclaresResourceScope):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.DeclaresResourceScope);
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.

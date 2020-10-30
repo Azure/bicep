@@ -29,5 +29,10 @@ namespace Bicep.Core.TypeSystem
         /// Prevents all assignment of this type.
         /// </summary>
         PreventAssignment = 1 << 2,
+
+        /// <summary>
+        /// This type declares a resource scope.
+        /// </summary>
+        DeclaresResourceScope = 1 << 3,
     }
 }

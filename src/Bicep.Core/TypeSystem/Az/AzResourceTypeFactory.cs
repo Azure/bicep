@@ -104,7 +104,7 @@ namespace Bicep.Core.TypeSystem.Az
                     var body = resourceType.Body ?? throw new ArgumentException();                    
                     var resourceTypeReference = ResourceTypeReference.Parse(name);
 
-                    return new ResourceType(resourceTypeReference, GetTypeReference(body, true), GetValidationFlags(true));
+                    return new ResourceType(resourceTypeReference, GetTypeReference(body, true), GetValidationFlags(true) | TypeSymbolValidationFlags.DeclaresResourceScope);
                 }
                 case SerializedTypes.Concrete.UnionType unionType:
                 {
