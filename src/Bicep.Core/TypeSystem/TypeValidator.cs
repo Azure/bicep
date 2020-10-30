@@ -37,12 +37,11 @@ namespace Bicep.Core.TypeSystem
         /// <param name="sourceType">The source type</param>
         /// <param name="targetType">The target type</param>
         /// <returns>Returns true if values of the specified source type are assignable to the target type. Returns false otherwise or null if assignability cannot be determined.</returns>
-        public static bool? AreTypesAssignable(TypeSymbol? sourceType, TypeSymbol? targetType)
+        public static bool AreTypesAssignable(TypeSymbol sourceType, TypeSymbol targetType)
         {
-            if (sourceType == null || sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment) ||
-                targetType == null || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment))
+            if (sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment) || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.PreventAssignment))
             {
-                return null;
+                return false;
             }
 
             if (sourceType is AnyType)
@@ -149,12 +148,13 @@ namespace Bicep.Core.TypeSystem
             }
 
             // TODO: The type of this expression and all subexpressions should be cached
-            TypeSymbol? expressionType = typeManager.GetTypeInfo(expression);
+            var expressionType = typeManager.GetTypeInfo(expression);
 
             // since we dynamically checked type, we need to collect the errors but only if the caller wants them
             if (skipTypeErrors == false && expressionType is ErrorType)
             {
                 diagnostics.AddRange(expressionType.GetDiagnostics());
+                return targetType;
             }
 
             // basic assignability check

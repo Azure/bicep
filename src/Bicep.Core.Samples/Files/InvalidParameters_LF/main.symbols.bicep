@@ -177,6 +177,15 @@ param expressionInModifier string {
   ]
 }
 
+param nonCompileTimeConstant string {
+//@[6:28) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 122
+  maxLength: 2 + 3
+  minLength: length([])
+  allowed: [
+    resourceGroup().id
+  ]
+}
+
 param emptyAllowedString string {
 //@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 49
   allowed: []
