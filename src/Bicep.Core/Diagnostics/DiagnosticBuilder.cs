@@ -376,7 +376,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP067",
-                $"Cannot access functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
+                $"Cannot call functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
             public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
                 TextSpan,

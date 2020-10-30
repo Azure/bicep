@@ -91,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                     case SymbolKind.Error:
                         // error symbol
-                        ValidateEmptyHover(hover);
+                        hover.Should().BeNull();
                         break;
 
                     default:

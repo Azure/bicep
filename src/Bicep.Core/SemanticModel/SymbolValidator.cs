@@ -17,8 +17,8 @@ namespace Bicep.Core.SemanticModel
         private delegate IEnumerable<string> GetNameSuggestions();
         private delegate ErrorDiagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
 
-        public static Symbol ValidateNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceSymbol namespaceSymbol)
-            => ValidateSymbolInternal(
+        public static Symbol ResolveNamespaceQualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceSymbol namespaceSymbol)
+            => ResolveSymbolInternal(
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
@@ -28,8 +28,8 @@ namespace Bicep.Core.SemanticModel
                     _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceSymbol, identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ValidateObjectQualifiedFunction(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
-            => ValidateSymbolInternal(
+        public static Symbol ResolveObjectQualifiedFunction(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, ObjectType objectType)
+            => ResolveSymbolInternal(
                 FunctionFlags.Default,
                 foundSymbol,
                 identifierSyntax,
@@ -39,8 +39,8 @@ namespace Bicep.Core.SemanticModel
                     _ => builder.FunctionDoesNotExistOnObjectWithSuggestion(objectType, identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ValidateUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces)
-            => ValidateSymbolInternal(
+        public static Symbol ResolveUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces)
+            => ResolveSymbolInternal(
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
@@ -50,8 +50,8 @@ namespace Bicep.Core.SemanticModel
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ValidateUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces, IEnumerable<string> declarations)
-            => ValidateSymbolInternal(
+        public static Symbol ResolveUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces, IEnumerable<string> declarations)
+            => ResolveSymbolInternal(
                 FunctionFlags.Default,
                 foundSymbol,
                 identifierSyntax,
@@ -61,7 +61,7 @@ namespace Bicep.Core.SemanticModel
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        private static Symbol ValidateSymbolInternal(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, GetNameSuggestions getNameSuggestions, GetMissingNameError getMissingNameError)
+        private static Symbol ResolveSymbolInternal(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, GetNameSuggestions getNameSuggestions, GetMissingNameError getMissingNameError)
         {
             if (foundSymbol == null)
             {
@@ -74,13 +74,13 @@ namespace Bicep.Core.SemanticModel
             switch (foundSymbol)
             {
                 case FunctionSymbol functionSymbol:
-                    return ValidateFunctionFlags(allowedFlags, functionSymbol, identifierSyntax);
+                    return ResolveFunctionFlags(allowedFlags, functionSymbol, identifierSyntax);
                 default:
                     return foundSymbol;
             }
         }
 
-        private static Symbol ValidateFunctionFlags(FunctionFlags allowedFlags, FunctionSymbol functionSymbol, IPositionable span)
+        private static Symbol ResolveFunctionFlags(FunctionFlags allowedFlags, FunctionSymbol functionSymbol, IPositionable span)
         {
             var functionFlags = functionSymbol.Overloads.Select(overload => overload.Flags).Aggregate((x, y) => x | y);
             

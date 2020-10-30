@@ -105,7 +105,7 @@ namespace Bicep.Core.SemanticModel
             {
                 var functionSymbol = namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
 
-                var foundSymbol = SymbolValidator.ValidateNamespaceQualifiedFunction(allowedFlags, functionSymbol, syntax.Name, namespaceSymbol);
+                var foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(allowedFlags, functionSymbol, syntax.Name, namespaceSymbol);
                 
                 this.bindings.Add(syntax, foundSymbol);
             }
@@ -144,8 +144,8 @@ namespace Bicep.Core.SemanticModel
 
             var foundSymbol = foundSymbols.FirstOrDefault();
             return isFunctionCall ?
-                SymbolValidator.ValidateUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaces.Values) :
-                SymbolValidator.ValidateUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaces.Values, declarations.Keys);
+                SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaces.Values) :
+                SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaces.Values, declarations.Keys);
         }
     }
 }

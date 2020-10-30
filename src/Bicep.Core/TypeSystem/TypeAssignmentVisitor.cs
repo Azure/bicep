@@ -752,7 +752,7 @@ namespace Bicep.Core.TypeSystem
                     // namespace methods will have already been bound. Everything else will not have been.
                     var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
 
-                    foundSymbol = SymbolValidator.ValidateObjectQualifiedFunction(resolvedSymbol, syntax.Name, objectType);
+                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunction(resolvedSymbol, syntax.Name, objectType);
                 }
 
                 switch (foundSymbol)
