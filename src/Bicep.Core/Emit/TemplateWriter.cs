@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
@@ -44,12 +45,31 @@ namespace Bicep.Core.Emit
             this.emitter = new ExpressionEmitter(writer, context);
         }
 
+        private static string GetSchema(AzResourceScope targetScope)
+        {
+            if (targetScope.HasFlag(AzResourceScope.Tenant))
+            {
+                return "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
+            }
+
+            if (targetScope.HasFlag(AzResourceScope.ManagementGroup))
+            {
+                return "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#";
+            }
+
+            if (targetScope.HasFlag(AzResourceScope.Subscription))
+            {
+                return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
+            }
+
+            return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
+        }
+
         public void Write()
         {
             writer.WriteStartObject();
 
-            // TODO: Select by scope type
-            this.emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#");
+            this.emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
 
             this.emitter.EmitProperty("contentVersion", "1.0.0.0");
 
@@ -240,8 +260,16 @@ namespace Bicep.Core.Emit
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            var topLevelPropertiesToOmit = new HashSet<string> { LanguageConstants.ModuleParamsPropertyName };
-            this.emitter.EmitObjectProperties((ObjectSyntax) moduleSymbol.DeclaringModule.Body, topLevelPropertiesToOmit);
+            var topLevelPropertiesToOmit = new HashSet<string> { LanguageConstants.ModuleParamsPropertyName, LanguageConstants.ModuleScopePropertyName };
+            var moduleBody = (ObjectSyntax) moduleSymbol.DeclaringModule.Body;
+
+            this.emitter.EmitObjectProperties(moduleBody, topLevelPropertiesToOmit);
+
+            var scopeProperty = moduleBody.Properties.FirstOrDefault(x => x.TryGetKeyText() == LanguageConstants.ModuleScopePropertyName);
+            if (scopeProperty != null)
+            {
+                this.emitter.EmitModuleScopeProperty(scopeProperty.Value);
+            }
 
             writer.WritePropertyName("properties");
             {

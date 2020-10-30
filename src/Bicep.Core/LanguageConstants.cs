@@ -40,6 +40,7 @@ namespace Bicep.Core
         public const string ParameterDefaultPropertyName = "default";
 
         public const string ModuleNamePropertyName = "name";
+        public const string ModuleScopePropertyName = "scope";
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
 
@@ -147,7 +148,7 @@ namespace Bicep.Core
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                    new TypeProperty("scope", LanguageConstants.ResourceScope, TypePropertyFlags.None),
+                    new TypeProperty(ModuleScopePropertyName, LanguageConstants.ResourceScope, TypePropertyFlags.None),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                 },

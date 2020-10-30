@@ -91,12 +91,12 @@ namespace Bicep.Core.SemanticModel.Namespaces
             yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue(), LanguageConstants.String, LanguageConstants.String), allScopes);
         }
 
-        private static IEnumerable<FunctionOverload> GetAzOverloads(AzResourceScope scope)
+        private static IEnumerable<FunctionOverload> GetAzOverloads(AzResourceScope resourceScope)
         {
             foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
             {
                 // we only include it if it's valid at all of the scopes that the template is valid at
-                if (scope == (scope & allowedScopes))
+                if (resourceScope == (resourceScope & allowedScopes))
                 {
                     yield return functionOverload;
                 }
@@ -126,11 +126,9 @@ namespace Bicep.Core.SemanticModel.Namespaces
             yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]+"), FunctionFlags.RequiresInlining);
         }
 
-        private static readonly ImmutableArray<FunctionOverload> AzOverloads = GetAzOverloads(AzResourceScope.ResourceGroup).ToImmutableArray();
-
-        public AzNamespaceSymbol() : base("az", AzOverloads, ImmutableArray<BannedFunction>.Empty)
+        public AzNamespaceSymbol(AzResourceScope resourceScope)
+            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty)
         {
         }
     }
 }
-

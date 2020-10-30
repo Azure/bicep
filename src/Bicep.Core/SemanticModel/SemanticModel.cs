@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -16,10 +17,11 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings)
+        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, AzResourceScope targetScope)
         {
             this.Root = root;
             this.typeManager = typeManager;
+            this.TargetScope = targetScope;
             this.bindings = bindings.ToImmutableDictionary();
         }
 
@@ -83,5 +85,7 @@ namespace Bicep.Core.SemanticModel
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
+
+        public AzResourceScope TargetScope { get; }
     }
 }

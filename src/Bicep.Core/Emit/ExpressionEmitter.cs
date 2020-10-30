@@ -169,6 +169,17 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public void EmitModuleScopeProperty(SyntaxBase valueSyntax)
+        {
+            EmitProperty("scope", () =>
+            {
+                var scopeExpression = ScopeEmittingVisitor.GetScopeExpression(context, valueSyntax);
+                var serialized = ExpressionSerializer.SerializeExpression(scopeExpression);
+
+                writer.WriteValue(serialized);
+            });
+        }
+
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
 

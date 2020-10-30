@@ -36,8 +36,11 @@ namespace Bicep.Core.SemanticModel
 
         private SemanticModel GetSemanticModelInternal(SyntaxTree syntaxTree)
         {
+            // TODO calculate target scope from syntax
+            var targetScope = AzResourceScope.ResourceGroup;
+
             var builtinNamespaces = 
-                new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol() }
+                new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) }
                 .ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
@@ -88,7 +91,7 @@ namespace Bicep.Core.SemanticModel
             // allow type queries now
             symbolContext.Unlock();
 
-            return new SemanticModel(file, symbolContext.TypeManager, bindings);
+            return new SemanticModel(file, symbolContext.TypeManager, bindings, targetScope);
         }
 
         public IReadOnlyDictionary<SyntaxTree, IEnumerable<Diagnostic>> GetAllDiagnosticsBySyntaxTree()
