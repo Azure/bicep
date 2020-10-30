@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.18.0" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.18.1" />
   </ItemGroup>
 
 </Project>
