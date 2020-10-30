@@ -98,7 +98,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
-                highlights.Should().BeEmpty();
+                highlights.Should().BeNull();
             }
         }
 
