@@ -767,6 +767,19 @@
     }
   },
   {
+    "label": "nonCompileTimeConstant",
+    "kind": "field",
+    "detail": "nonCompileTimeConstant",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonCompileTimeConstant",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nonCompileTimeConstant"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",

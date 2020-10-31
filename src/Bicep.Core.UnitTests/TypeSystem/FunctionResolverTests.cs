@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -226,9 +228,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             foreach (var ns in namespaces)
             {
-                matches.AddRange(FunctionResolver.GetMatches(ns, functionName, argumentTypes, out var countMismatches, out var typeMismatches));
-                argumentCountMismatches.AddRange(countMismatches);
-                argumentTypeMismatches.AddRange(typeMismatches);
+                var nameSyntax = TestSyntaxFactory.CreateIdentifier(functionName);
+                if (ns.Type.MethodResolver.TryGetSymbol(nameSyntax) is FunctionSymbol functionSymbol)
+                {
+                    matches.AddRange(FunctionResolver.GetMatches(functionSymbol, argumentTypes, out var countMismatches, out var typeMismatches));
+                    argumentCountMismatches.AddRange(countMismatches);
+                    argumentTypeMismatches.AddRange(typeMismatches);
+                }
             }
 
             return matches;

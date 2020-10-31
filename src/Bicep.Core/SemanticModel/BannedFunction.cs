@@ -17,7 +17,7 @@ namespace Bicep.Core.SemanticModel
 
         public string Name { get; }
 
-        public UnassignableSymbol CreateSymbol(DiagnosticBuilder.DiagnosticBuilderInternal builder) => new UnassignableSymbol(this.errorFunc(builder));
+        public ErrorSymbol CreateSymbol(DiagnosticBuilder.DiagnosticBuilderInternal builder) => new ErrorSymbol(this.errorFunc(builder));
 
         public static BannedFunction CreateForOperator(string name, string @operator) => 
             new BannedFunction(name, builder => builder.FunctionNotSupportedOperatorAvailable(name, @operator));

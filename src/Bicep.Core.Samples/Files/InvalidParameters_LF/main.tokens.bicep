@@ -547,6 +547,47 @@ param expressionInModifier string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+param nonCompileTimeConstant string {
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |nonCompileTimeConstant|
+//@[29:35) Identifier |string|
+//@[36:37) LeftBrace |{|
+//@[37:38) NewLine |\n|
+  maxLength: 2 + 3
+//@[2:11) Identifier |maxLength|
+//@[11:12) Colon |:|
+//@[13:14) Number |2|
+//@[15:16) Plus |+|
+//@[17:18) Number |3|
+//@[18:19) NewLine |\n|
+  minLength: length([])
+//@[2:11) Identifier |minLength|
+//@[11:12) Colon |:|
+//@[13:19) Identifier |length|
+//@[19:20) LeftParen |(|
+//@[20:21) LeftSquare |[|
+//@[21:22) RightSquare |]|
+//@[22:23) RightParen |)|
+//@[23:24) NewLine |\n|
+  allowed: [
+//@[2:9) Identifier |allowed|
+//@[9:10) Colon |:|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+    resourceGroup().id
+//@[4:17) Identifier |resourceGroup|
+//@[17:18) LeftParen |(|
+//@[18:19) RightParen |)|
+//@[19:20) Dot |.|
+//@[20:22) Identifier |id|
+//@[22:23) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 param emptyAllowedString string {
 //@[0:5) Identifier |param|
 //@[6:24) Identifier |emptyAllowedString|
