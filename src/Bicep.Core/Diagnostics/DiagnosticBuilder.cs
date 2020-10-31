@@ -512,10 +512,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP090",
                 "This module declaration is missing a file path reference.");
 
-            public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
+            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP091",
-                $"An error occurred loading the module. {failureMessage}");
+                $"An error occurred reading file. {failureMessage}");
 
             public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,

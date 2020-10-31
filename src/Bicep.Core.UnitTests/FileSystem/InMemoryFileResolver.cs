@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         {
             if (!fileLookup.TryGetValue(fileUri, out fileContents))
             {
-                failureBuilder = x => x.ErrorOccurredLoadingModule(missingFileFailureBuilder(fileUri));
+                failureBuilder = x => x.ErrorOccurredReadingFile(missingFileFailureBuilder(fileUri));
                 fileContents = null;
                 return false;
             }

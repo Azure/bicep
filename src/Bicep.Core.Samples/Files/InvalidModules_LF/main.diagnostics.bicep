@@ -1,17 +1,17 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[26:47) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[26:47) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefDuplicate './nonExistent.bicep' = {
-//@[35:56) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[35:56) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
-//@[40:73) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
+//@[40:73) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
 
 }
 
