@@ -30,7 +30,7 @@ module
 
 // #completionTest(24,25) -> object
 module missingValue '' = 
-//@[20:22) [BCP094 (Error)] This module references itself, which is not allowed. |''|
+//@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
 //@[25:25) [BCP018 (Error)] Expected the "{" character at this location. ||
 
 var interp = 'hello'
@@ -83,12 +83,27 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
-module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP098 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|
-  
-}
-
 module modCycle './cycle.bicep' = {
 //@[16:31) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}cycle.bicep" -> "${TEST_OUTPUT_DIR}main.bicep"). |'./cycle.bicep'|
   
+}
+
+module moduleWithEmptyPath '' = {
+//@[27:29) [BCP050 (Error)] The specified module path is empty. |''|
+}
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+//@[30:46) [BCP051 (Error)] The specified module path begins with "/". Module files must be referenced using relative paths. |'/abc/def.bicep'|
+}
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Expected "/" to be used as the directory separator character. |'child\\file.bicep'|
+}
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+//@[29:48) [BCP085 (Error)] The specified module path contains invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'child/fi|le.bicep'|
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+//@[39:52) [BCP086 (Error)] The specified module path ends with invalid characters. The following are not permitted: " ", ".". |'child/test.'|
 }
