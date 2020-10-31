@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -46,45 +47,35 @@ namespace Bicep.Core.TypeSystem
             this.declarationAccessDict = new Dictionary<DeclaredSymbol, IList<SyntaxBase>>();
         }
 
-        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
+            where TDeclarationSyntax : SyntaxBase, IDeclarationSyntax
         {
+            if (!bindings.ContainsKey(syntax))
+            {
+                // If we've failed to bind the symbol, we should already have an error, and a cycle should not be possible
+                return;
+            }
+
             currentDeclaration = declarations[syntax.Name.IdentifierName];
             declarationAccessDict[currentDeclaration] = new List<SyntaxBase>();
-            base.VisitVariableDeclarationSyntax(syntax);
+            visitBaseFunc(syntax);
             currentDeclaration = null;
         }
+
+        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitVariableDeclarationSyntax);
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-        {
-            currentDeclaration = declarations[syntax.Name.IdentifierName];
-            declarationAccessDict[currentDeclaration] = new List<SyntaxBase>();
-            base.VisitResourceDeclarationSyntax(syntax);
-            currentDeclaration = null;
-        }
+            => VisitDeclaration(syntax, base.VisitResourceDeclarationSyntax);
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
-        {
-            currentDeclaration = declarations[syntax.Name.IdentifierName];
-            declarationAccessDict[currentDeclaration] = new List<SyntaxBase>();
-            base.VisitModuleDeclarationSyntax(syntax);
-            currentDeclaration = null;
-        }
+            => VisitDeclaration(syntax, base.VisitModuleDeclarationSyntax);
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
-        {
-            currentDeclaration = declarations[syntax.Name.IdentifierName];
-            declarationAccessDict[currentDeclaration] = new List<SyntaxBase>();
-            base.VisitOutputDeclarationSyntax(syntax);
-            currentDeclaration = null;
-        }
+            => VisitDeclaration(syntax, base.VisitOutputDeclarationSyntax);
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
-        {
-            currentDeclaration = declarations[syntax.Name.IdentifierName];
-            declarationAccessDict[currentDeclaration] = new List<SyntaxBase>();
-            base.VisitParameterDeclarationSyntax(syntax);
-            currentDeclaration = null;
-        }
+            => VisitDeclaration(syntax, base.VisitParameterDeclarationSyntax);
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {

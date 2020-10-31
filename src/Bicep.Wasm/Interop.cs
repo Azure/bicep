@@ -88,7 +88,7 @@ namespace Bicep.Wasm
             };
         }
 
-        private static (string, IEnumerable<dynamic>) CompileInternal(string content)
+        private static (string, IEnumerable<object>) CompileInternal(string content)
         {
             try
             {
@@ -112,7 +112,7 @@ namespace Bicep.Wasm
             }
             catch (Exception exception)
             {
-                return (exception.ToString(), Enumerable.Empty<dynamic>());
+                return (exception.ToString(), Enumerable.Empty<object>());
             }
         }
 
