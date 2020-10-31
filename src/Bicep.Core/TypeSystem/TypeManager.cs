@@ -36,5 +36,8 @@ namespace Bicep.Core.TypeSystem
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();
+
+        public SyntaxBase? GetParent(SyntaxBase syntax)
+            => typeAssignmentVisitor.GetParent(syntax);
     }
 }

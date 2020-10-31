@@ -301,7 +301,15 @@ namespace Bicep.Core.TypeSystem
 
             if (missingRequiredProperties.Any())
             {
-                diagnostics.Add(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
+                SyntaxBase syntax = expression;
+
+                if (typeManager.GetParent(expression) is ObjectPropertySyntax parent)
+                {
+                    syntax = parent.Key;
+                }
+
+                diagnostics.Add(DiagnosticBuilder.ForPosition(syntax).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
+
             }
 
             var narrowedProperties = new List<TypeProperty>();
