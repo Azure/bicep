@@ -133,12 +133,12 @@ namespace Bicep.Core.TypeSystem
         private void AssignType(SyntaxBase syntax, Func<ITypeReference> assignFunc)
             => AssignTypeWithCaching(syntax, () => new TypeAssignment(assignFunc()));
 
-        private void AssignTypeWithDiagnostics(SyntaxBase syntax, Func<IList<Diagnostic>, ITypeReference> assignFunc)
+        private void AssignTypeWithDiagnostics(SyntaxBase syntax, Func<IDiagnosticWriter, ITypeReference> assignFunc)
             => AssignTypeWithCaching(syntax, () => {
-                var diagnostics = new List<Diagnostic>();
-                var reference = assignFunc(diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var reference = assignFunc(diagnosticWriter);
 
-                return new TypeAssignment(reference, diagnostics);
+                return new TypeAssignment(reference, diagnosticWriter.GetDiagnostics());
             });
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
@@ -199,7 +199,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
-                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
             
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
@@ -244,7 +244,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (moduleSemanticModel.HasErrors())
                 {
-                    diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
                 var declaredType = GetDeclaredModuleType(moduleSemanticModel, "module");
@@ -257,7 +257,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
-                diagnostics.AddRange(this.ValidateIdentifierAccess(syntax));
+                diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax));
 
                 // assume "any" type when the parameter has parse errors (either missing or was skipped)
                 var declaredType = syntax.ParameterType == null
@@ -277,7 +277,7 @@ namespace Bicep.Core.TypeSystem
                 switch (syntax.Modifier)
                 {
                     case ParameterDefaultValueSyntax defaultValueSyntax:
-                        diagnostics.AddRange(ValidateDefaultValue(defaultValueSyntax, assignedType));
+                        diagnostics.WriteMultiple(ValidateDefaultValue(defaultValueSyntax, assignedType));
                         break;
 
                     case ObjectSyntax modifierSyntax:
@@ -325,7 +325,7 @@ namespace Bicep.Core.TypeSystem
 
                 var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
 
-                diagnostics.AddRange(currentDiagnostics);
+                diagnostics.WriteMultiple(currentDiagnostics);
 
                 return primitiveType;
             });
@@ -925,7 +925,7 @@ namespace Bicep.Core.TypeSystem
         /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
         /// <param name="propertyName">The resolved property name</param>
         /// <param name="diagnostics">List of diagnostics to append diagnostics</param>
-        private static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, IList<Diagnostic> diagnostics)
+        private static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, IDiagnosticWriter diagnostics)
         {
             if (baseType.TypeKind == TypeKind.Any)
             {
@@ -940,7 +940,7 @@ namespace Bicep.Core.TypeSystem
                 if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 {
                     var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
-                    diagnostics.Add(writeOnlyDiagnostic);
+                    diagnostics.Write(writeOnlyDiagnostic);
 
                     if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
                     {
@@ -979,7 +979,7 @@ namespace Bicep.Core.TypeSystem
                 _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
             };
 
-            diagnostics.Add(unknownPropertyDiagnostic);
+            diagnostics.Write(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
         }

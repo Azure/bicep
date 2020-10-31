@@ -32,18 +32,19 @@ namespace Bicep.Core.Parser
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IList<Diagnostic> diagnostics = new List<Diagnostic>();
+        private readonly IDiagnosticWriter diagnosticWriter;
         private readonly SlidingTextWindow textWindow;
 
-        public Lexer(SlidingTextWindow textWindow)
+        public Lexer(SlidingTextWindow textWindow, IDiagnosticWriter diagnosticWriter)
         {
             this.textWindow = textWindow;
+            this.diagnosticWriter = diagnosticWriter;
         }
 
         private void AddDiagnostic(TextSpan span, DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
         {
             var diagnostic = diagnosticFunc(DiagnosticBuilder.ForPosition(span));
-            this.diagnostics.Add(diagnostic);
+            this.diagnosticWriter.Write(diagnostic);
         }
 
         private void AddDiagnostic(DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
@@ -64,8 +65,6 @@ namespace Bicep.Core.Parser
         }
 
         public ImmutableArray<Token> GetTokens() => tokens.ToImmutableArray();
-
-        public ImmutableArray<Diagnostic> GetDiagnostics() => diagnostics.ToImmutableArray();
 
         /// <summary>
         /// Converts a set of string literal tokens into their raw values. Returns null if any of the tokens are of the wrong type or malformed.

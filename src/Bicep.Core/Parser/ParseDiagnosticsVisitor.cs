@@ -13,32 +13,32 @@ namespace Bicep.Core.Parser
     /// </summary>
     public class ParseDiagnosticsVisitor : SyntaxVisitor
     {
-        private readonly IList<Diagnostic> diagnostics;
+        private readonly IDiagnosticWriter diagnosticWriter;
         
-        public ParseDiagnosticsVisitor(IList<Diagnostic> diagnostics)
+        public ParseDiagnosticsVisitor(IDiagnosticWriter diagnosticWriter)
         {
-            this.diagnostics = diagnostics;
+            this.diagnosticWriter = diagnosticWriter;
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
             
-            this.diagnostics.AddRange(syntax.LexerDiagnostics);
+            this.diagnosticWriter.WriteMultiple(syntax.LexerDiagnostics);
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
             base.VisitSkippedTriviaSyntax(syntax);
 
-            this.diagnostics.AddRange(syntax.Diagnostics);
+            this.diagnosticWriter.WriteMultiple(syntax.Diagnostics);
         }
 
         public override void VisitIdentifierSyntax(IdentifierSyntax syntax)
         {
             if (syntax.IdentifierName.Length > LanguageConstants.MaxIdentifierLength)
             {
-                this.diagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Child).IdentifierNameExceedsLimit());
+                this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Child).IdentifierNameExceedsLimit());
             }
 
             base.VisitIdentifierSyntax(syntax);
@@ -56,7 +56,7 @@ namespace Bicep.Core.Parser
             {
                 foreach (ObjectPropertySyntax duplicatedProperty in group)
                 {
-                    this.diagnostics.Add(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(group.Key));
+                    this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(duplicatedProperty.Key).PropertyMultipleDeclarations(group.Key));
                 }
             }
         }
