@@ -5,54 +5,34 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.SemanticModel.Namespaces
 {
-    [Flags]
-    public enum AzResourceScope
-    {
-        None = 0,
-
-        Tenant = 1 << 0,
-
-        ManagementGroup = 1 << 1,
-
-        Subscription = 1 << 2,
-
-        ResourceGroup = 1 << 3,
-    }
-
     public class AzNamespaceSymbol : NamespaceSymbol
     {
-        private static ObjectType GetRestrictedResourceGroupReturnValue()
-        {
-            return new NamedObjectType("resourceGroup", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
-        }
+        private static ObjectType GetRestrictedResourceGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+            => new ResourceGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedSubscriptionReturnValue()
-        {
-            return new NamedObjectType("subscription", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
-        }
+        private static ObjectType GetRestrictedSubscriptionReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+            => new SubscriptionScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedManagementGroupReturnValue()
-        {
-            return new NamedObjectType("managementGroup", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
-        }
+        private static ObjectType GetRestrictedManagementGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+            => new ManagementGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedTenantReturnValue()
-        {
-            return new NamedObjectType("tenant", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
-        }
+        private static ObjectType GetRestrictedTenantReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
+            => new TenantScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetResourceGroupReturnValue()
+        private static ObjectType GetResourceGroupReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
         {
             var properties = new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
             {
                 new TypeProperty("provisioningState", LanguageConstants.String),
             }, null);
 
-            return new NamedObjectType("resourceGroup", TypeSymbolValidationFlags.DeclaresResourceScope, new []
+            return new ResourceGroupScopeType(arguments, new []
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
@@ -61,34 +41,34 @@ namespace Bicep.Core.SemanticModel.Namespaces
                 new TypeProperty("managedBy", LanguageConstants.String),
                 new TypeProperty("tags", LanguageConstants.Tags),
                 new TypeProperty("properties", properties),
-            }, null);
+            });
         }
 
-        private static ObjectType GetSubscriptionReturnValue()
+        private static ObjectType GetSubscriptionReturnValue(IEnumerable<FunctionArgumentSyntax> arguments)
         {
-            return new NamedObjectType("subscription", TypeSymbolValidationFlags.DeclaresResourceScope, new []
+            return new SubscriptionScopeType(arguments, new []
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("subscriptionId", LanguageConstants.String),
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("displayName", LanguageConstants.String),
-            }, null);
+            });
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, AzResourceScope allowedScopes)> GetScopeFunctions()
         {
             var allScopes = AzResourceScope.Tenant | AzResourceScope.ManagementGroup | AzResourceScope.Subscription | AzResourceScope.ResourceGroup;
-            yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue()), allScopes);
+            yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue()), AzResourceScope.ManagementGroup);
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue(), LanguageConstants.String), allScopes);
+            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue), AzResourceScope.ManagementGroup);
+            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue()), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("subscription", GetRestrictedSubscriptionReturnValue(), LanguageConstants.String), allScopes);
+            yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
+            yield return (FunctionOverload.CreateFixed("subscription", GetRestrictedSubscriptionReturnValue, LanguageConstants.String), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue()), AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue(), LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue(), LanguageConstants.String, LanguageConstants.String), allScopes);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue), AzResourceScope.ResourceGroup);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), allScopes);
         }
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(AzResourceScope resourceScope)

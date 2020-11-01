@@ -9,6 +9,7 @@ using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ReturnType.Should().BeSameAs(expectedReturnType);
+            matches.Single().ReturnTypeBuilder.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -35,7 +36,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ReturnType).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ReturnTypeBuilder).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]

@@ -10,6 +10,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -268,7 +269,8 @@ namespace Bicep.Core.Emit
             var scopeProperty = moduleBody.Properties.FirstOrDefault(x => x.TryGetKeyText() == LanguageConstants.ModuleScopePropertyName);
             if (scopeProperty != null)
             {
-                this.emitter.EmitModuleScopeProperty(scopeProperty.Value);
+                var scopeType = context.SemanticModel.GetTypeInfo(scopeProperty);
+                this.emitter.EmitModuleScopeProperty(context.SemanticModel.TargetScope, scopeType);
             }
 
             writer.WritePropertyName("properties");

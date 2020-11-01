@@ -8,6 +8,8 @@ using Arm.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -169,15 +171,18 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitModuleScopeProperty(SyntaxBase valueSyntax)
+        public void EmitModuleScopeProperty(AzResourceScope templateScope, TypeSymbol scopeType)
         {
-            EmitProperty("scope", () =>
-            {
-                var scopeExpression = ScopeEmittingVisitor.GetScopeExpression(context, valueSyntax);
-                var serialized = ExpressionSerializer.SerializeExpression(scopeExpression);
+            var scopeProperties = ScopeHelper.GetScopeProperties(templateScope, this.converter, scopeType);
 
-                writer.WriteValue(serialized);
-            });
+            foreach (var (property, expression) in scopeProperties)
+            {
+                EmitProperty(property, () => 
+                {
+                    var serialized = ExpressionSerializer.SerializeExpression(expression);
+                    writer.WriteValue(serialized);
+                });
+            }
         }
 
         public void EmitProperty(string name, Action valueFunc)

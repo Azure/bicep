@@ -8,6 +8,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.SemanticModel
 {

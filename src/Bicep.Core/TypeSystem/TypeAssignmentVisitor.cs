@@ -885,7 +885,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // we have an exact match or a single ambiguous match
                 // return its type
-                return matches.Single().ReturnType;
+                return matches.Single().ReturnTypeBuilder(argumentSyntaxes);
             }
 
             // function arguments are ambiguous (due to "any" type)
