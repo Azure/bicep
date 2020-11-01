@@ -769,6 +769,39 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
+            => AssignType(syntax, () => {
+                var errors = new List<ErrorDiagnostic>();
+
+                var scopeType = UnionType.Create(
+                    new StringLiteralType(LanguageConstants.TargetScopeTypeTenant),
+                    new StringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
+                    new StringLiteralType(LanguageConstants.TargetScopeTypeSubscription),
+                    new StringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup));
+
+                var declaredType = UnionType.Create(
+                    new TypedArrayType(scopeType, TypeSymbolValidationFlags.Default),
+                    scopeType);
+
+                AssignDeclaredType(syntax, declaredType);
+                
+                var diagnostics = TypeValidator.GetCompileTimeConstantViolation(syntax.Value);
+                if (diagnostics.Any())
+                {
+                    return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+                }
+
+                var valueType = typeManager.GetTypeInfo(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (PropagateErrorType(errors, valueType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                return valueType;
+            });
+
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
         {
             var declaringType = typeManager.GetTypeInfo(declaredSymbol.DeclaringSyntax);
@@ -821,7 +854,6 @@ namespace Bicep.Core.TypeSystem
 
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
-
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 

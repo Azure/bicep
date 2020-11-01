@@ -41,7 +41,7 @@ namespace Bicep.Core.Parser
 
                 // if skipped node is returned above, the newline is not consumed
                 // if newline token is returned, we must not expect another (could be a beginning of a declaration)
-                if (declarationOrToken is IDeclarationSyntax)
+                if (declarationOrToken is IDeclarationSyntax || declarationOrToken is TargetScopeSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
@@ -67,6 +67,7 @@ namespace Bicep.Core.Parser
                     {
                         TokenType.Identifier => current.Text switch
                         {
+                            LanguageConstants.TargetScopeKeyword => this.TargetScope(),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
@@ -104,6 +105,15 @@ namespace Bicep.Core.Parser
                 default:
                     return RecoveryFlags.None;
             }
+        }
+
+        private SyntaxBase TargetScope()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.TargetScopeKeyword);
+            var assignmentToken = this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
+            var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), RecoveryFlags.None, TokenType.NewLine);
+
+            return new TargetScopeSyntax(keyword, assignmentToken, value);
         }
 
         private SyntaxBase ParameterDeclaration()

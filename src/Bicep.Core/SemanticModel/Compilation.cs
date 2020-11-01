@@ -35,10 +35,27 @@ namespace Bicep.Core.SemanticModel
         public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
             => this.lazySemanticModelLookup[syntaxTree].Value;
 
+        private static AzResourceScope GetTargetScope(SyntaxTree syntaxTree)
+        {
+            var defaultTargetScope = AzResourceScope.ResourceGroup;
+            var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
+            if (targetSyntax == null)
+            {
+                return defaultTargetScope;
+            }
+
+            var targetScope = SyntaxHelper.GetTargetScope(targetSyntax);
+            if (targetScope == AzResourceScope.None)
+            {
+                return defaultTargetScope;
+            }
+
+            return targetScope;
+        }
+
         private SemanticModel GetSemanticModelInternal(SyntaxTree syntaxTree)
         {
-            // TODO calculate target scope from syntax
-            var targetScope = AzResourceScope.ResourceGroup;
+            var targetScope = GetTargetScope(syntaxTree);
 
             var builtinNamespaces = 
                 new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) }

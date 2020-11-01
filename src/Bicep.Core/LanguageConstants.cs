@@ -17,11 +17,17 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
+        public const string TargetScopeKeyword = "targetScope";
         public const string ParameterKeyword = "param";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+
+        public const string TargetScopeTypeTenant = "tenant";
+        public const string TargetScopeTypeManagementGroup = "managementGroup";
+        public const string TargetScopeTypeSubscription = "subscription";
+        public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
         public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
 
