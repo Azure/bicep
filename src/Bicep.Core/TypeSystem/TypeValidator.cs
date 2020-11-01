@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -301,14 +303,19 @@ namespace Bicep.Core.TypeSystem
 
             if (missingRequiredProperties.Any())
             {
-                SyntaxBase syntax = expression;
+                TextSpan span = expression.Span;
+                var parent = typeManager.GetParent(expression);
 
-                if (typeManager.GetParent(expression) is ObjectPropertySyntax parent)
+                if (parent is ObjectPropertySyntax p1)
                 {
-                    syntax = parent.Key;
+                    span = p1.Key.Span;
+                }
+                else if (parent is IDeclarationSyntax p2)
+                {
+                    span = p2.Keyword.Span;
                 }
 
-                diagnostics.Add(DiagnosticBuilder.ForPosition(syntax).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(span).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
 
             }
 

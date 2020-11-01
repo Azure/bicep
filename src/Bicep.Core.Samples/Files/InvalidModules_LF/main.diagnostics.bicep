@@ -41,19 +41,19 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[38:42) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n\n}|
+//@[0:6) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |module|
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[40:66) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n}|
+//@[0:6) [BCP035 (Error)] The specified object is missing the following required properties: "params". |module|
   name: 'modANoInputs'
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-//@[10:16) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n\n  }|
+//@[2:8) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
 
   }
 }
@@ -61,7 +61,7 @@ module modAEmptyInputs './modulea.bicep' = {
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
   params: {
-//@[10:95) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n    stringParamB: ''\n    objParam: {}\n    objArray: []\n    unspecifiedInput: ''\n  }|
+//@[2:8) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |params|
     stringParamB: ''
     objParam: {}
     objArray: []

@@ -38,8 +38,8 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
-//@[51:55) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
 }
 
 // duplicate property at the top level
@@ -184,7 +184,7 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[92:151) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  // #completionTest(0, 1, 2) -> topLevelProperties\r\n\r\n}|
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
   // #completionTest(0, 1, 2) -> topLevelProperties
 
 }
@@ -219,7 +219,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[86:148) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }
@@ -231,7 +231,7 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 }
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -242,7 +242,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:270) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzurePowerShell'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties\r\n    \r\n  }\r\n}|
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -253,7 +253,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
+//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
   kind: 'AzureCLI'
 
   propertes: {
