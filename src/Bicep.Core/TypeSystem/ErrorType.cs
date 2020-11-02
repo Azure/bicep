@@ -24,6 +24,9 @@ namespace Bicep.Core.TypeSystem
         public static ErrorType Create(IEnumerable<ErrorDiagnostic> errors)
             => new ErrorType(errors.ToImmutableArray());
 
+        public static ErrorType Empty()
+            => new ErrorType(ImmutableArray<ErrorDiagnostic>.Empty);
+
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => this.errors;
 
         public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.PreventAssignment;
