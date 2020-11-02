@@ -501,12 +501,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP085",
-                $"The specified module path contains invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+                $"The specified module path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
             public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP086",
-                $"The specified module path ends with invalid characters. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+                $"The specified module path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
             public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
                 TextSpan,
@@ -570,7 +570,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ModulePathContainsBackSlash() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP098",
-                "The specified module path contains a \"\\\" character. Expected \"/\" to be used as the directory separator character.");
+                "The specified module path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
             public ErrorDiagnostic AllowedMustContainItems() => new ErrorDiagnostic(
                 TextSpan,
@@ -634,10 +634,10 @@ namespace Bicep.Core.Diagnostics
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
-            public ErrorDiagnostic ModulePathContainsAsciiControlChars() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsControlChars() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP111",
-                $"The specified module path contains invalid ASCII control code characters.");
+                $"The specified module path contains invalid control code characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

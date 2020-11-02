@@ -148,6 +148,14 @@ namespace Bicep.Core.Syntax
 
         private static readonly ImmutableHashSet<char> forbiddenPathChars = "<>:\"\\|?*".ToImmutableHashSet();
         private static readonly ImmutableHashSet<char> forbiddenPathTerminatorChars = " .".ToImmutableHashSet();
+        private static bool IsInvalidPathControlCharacter(char pathChar)
+        {
+            // TODO: Revisit when we add unicode support to Bicep
+
+            // The following are disallowed as path chars on Windows, so we block them to avoid cross-platform compilation issues.
+            // Note that we're checking this range explicitly, as char.IsControl() includes some characters that are valid path characters.
+            return pathChar >= 0 && pathChar <= 31;
+        }
 
         private bool ValidateModulePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -178,9 +186,9 @@ namespace Bicep.Core.Syntax
                     return false;
                 }
 
-                if (pathChar >= 0 && pathChar <= 31)
+                if (IsInvalidPathControlCharacter(pathChar))
                 {
-                    failureBuilder = x => x.ModulePathContainsAsciiControlChars();
+                    failureBuilder = x => x.ModulePathContainsControlChars();
                     return false;
                 }
             }

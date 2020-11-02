@@ -97,13 +97,13 @@ module moduleWithAbsolutePath '/abc/def.bicep' = {
 }
 
 module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Expected "/" to be used as the directory separator character. |'child\\file.bicep'|
+//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Use "/" instead as the directory separator character. |'child\\file.bicep'|
 }
 
 module moduleWithInvalidChar 'child/fi|le.bicep' = {
-//@[29:48) [BCP085 (Error)] The specified module path contains invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'child/fi|le.bicep'|
+//@[29:48) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'child/fi|le.bicep'|
 }
 
 module moduleWithInvalidTerminatorChar 'child/test.' = {
-//@[39:52) [BCP086 (Error)] The specified module path ends with invalid characters. The following are not permitted: " ", ".". |'child/test.'|
+//@[39:52) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'child/test.'|
 }
