@@ -62,10 +62,21 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
-module moduleWithBackslash 'child\\file.bicep' = {
+module modCycle './cycle.bicep' = {
   
 }
 
-module modCycle './cycle.bicep' = {
-  
+module moduleWithEmptyPath '' = {
+}
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+}
+
+module moduleWithBackslash 'child\\file.bicep' = {
+}
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
 }

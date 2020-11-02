@@ -21,10 +21,11 @@ namespace Bicep.Core.Parser
         public Parser(string text)
         {
             // treating the lexer as an implementation detail of the parser
-            var lexer = new Lexer(new SlidingTextWindow(text));
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            this.lexerDiagnostics = lexer.GetDiagnostics();
+            this.lexerDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
 
             this.reader = new TokenReader(lexer.GetTokens());
         }

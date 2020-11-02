@@ -192,11 +192,11 @@ module main 'main.bicep' = {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
             var mockFileResolver = new Mock<IFileResolver>();
-            SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredLoadingModule("Mock read failure!"));
+            SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
             Action buildAction = () => SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), fileUri);
             buildAction.Should().Throw<ErrorDiagnosticException>()
-                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred loading the module. Mock read failure!");
+                .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
 
         [TestMethod]
@@ -248,14 +248,14 @@ module modulea 'modulea.bicep' = {
 ";
             var mockFileResolver = new Mock<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
-            SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredLoadingModule("Mock read failure!"));
+            SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveModulePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxTreeGroupingBuilder.Build(mockFileResolver.Object, new Workspace(), mainUri));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                ("BCP091", DiagnosticLevel.Error, "An error occurred loading the module. Mock read failure!"),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
             });
         }
 
