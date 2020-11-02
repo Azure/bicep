@@ -49,6 +49,29 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   }
 }
 
+module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
+  name: 'optionalWithAllParamsAndManualDependency'
+  params: {
+    optionalString: 'abc'
+    optionalInt: 42
+    optionalObj: { }
+    optionalArray: [ ]
+  }
+  dependsOn: [
+    resWithDependencies
+  ]
+}
+
+module optionalWithImplicitDependency './child/optionalParams.bicep'= {
+  name: 'optionalWithImplicitDependency'
+  params: {
+    optionalString: resWithDependencies.id
+    optionalInt: 42
+    optionalObj: { }
+    optionalArray: [ ]
+  }
+}
+
 output stringOutputA string = modATest.outputs.stringOutputA
 output stringOutputB string = modATest.outputs.stringOutputB
 output objOutput object = modATest.outputs.objOutput

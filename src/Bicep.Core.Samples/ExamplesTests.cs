@@ -129,7 +129,7 @@ namespace Bicep.Core.Samples
 
                     actual.Should().EqualWithJsonDiffOutput(
                         JToken.Parse(File.ReadAllText(jsonFileName)),
-                        jsonFileName,
+                        example.JsonStreamName,
                         jsonFileName + ".actual");
                 }
             }
