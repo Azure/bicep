@@ -144,7 +144,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     baz.id
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "string". |baz.id|
+//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resourceRef", but the provided item was of type "string". |baz.id|
   ]
 }
 
@@ -152,9 +152,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "'hello'". |'hello'|
+//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resourceRef", but the provided item was of type "'hello'". |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "bool". |true|
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resourceRef", but the provided item was of type "bool". |true|
   ]
 }
 

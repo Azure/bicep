@@ -5,7 +5,7 @@
     "detail": "dependsOn",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `resource[]`  \nWrite-only property  \n"
+      "value": "Type: `resourceRef[]`  \nWrite-only property  \n"
     },
     "deprecated": false,
     "preselect": false,

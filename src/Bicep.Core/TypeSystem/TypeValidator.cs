@@ -142,7 +142,7 @@ namespace Bicep.Core.TypeSystem
                 // When assigning a resource, we're really assigning the value of the resource body.
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
-                return new ResourceType(targetResourceType.TypeReference, narrowedBody, targetResourceType.ValidationFlags);
+                return new ResourceType(targetResourceType.TypeReference, narrowedBody);
             }
 
             // TODO: The type of this expression and all subexpressions should be cached

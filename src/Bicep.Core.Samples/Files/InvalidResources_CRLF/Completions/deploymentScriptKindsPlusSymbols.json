@@ -598,6 +598,19 @@
     }
   },
   {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -750,7 +763,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "resourceGroup()$0"
+      "newText": "resourceGroup($0)"
     }
   },
   {
@@ -880,7 +893,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "subscription()$0"
+      "newText": "subscription($0)"
     }
   },
   {
@@ -933,6 +946,19 @@
     "textEdit": {
       "range": {},
       "newText": "take($0)"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
     }
   },
   {

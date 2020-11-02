@@ -1,14 +1,12 @@
-
-//@[0:2) NewLine |\r\n|
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[0:119) ResourceDeclarationSyntax
+//@[0:183) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:21)  IdentifierSyntax
 //@[9:21)   Identifier |basicStorage|
 //@[22:68)  StringSyntax
 //@[22:68)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
 //@[69:70)  Assignment |=|
-//@[71:119)  ObjectSyntax
+//@[71:183)  ObjectSyntax
 //@[71:72)   LeftBrace |{|
 //@[72:74)   NewLine |\r\n|
   name: 'basicblobs'
@@ -27,6 +25,33 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[12:20)    StringSyntax
 //@[12:20)     StringComplete |'westus'|
 //@[20:22)   NewLine |\r\n|
+  kind: 'BlobStorage'
+//@[2:21)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:21)    StringSyntax
+//@[8:21)     StringComplete |'BlobStorage'|
+//@[21:23)   NewLine |\r\n|
+  sku: {
+//@[2:39)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:39)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:10)     NewLine |\r\n|
+    name: 'Standard_GRS'
+//@[4:24)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:24)      StringSyntax
+//@[10:24)       StringComplete |'Standard_GRS'|
+//@[24:26)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|

@@ -241,7 +241,7 @@ var takeTooMany = take([
 
 // wrong argument types
 var concatWrongTypes = concat({
-//@[30:33) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(param0: array): array", gave the following error:\n    Argument of type "object" is not assignable to parameter of type "array".\n  Overload 2 of 2, "(param0: bool | int | string): string", gave the following error:\n    Argument of type "object" is not assignable to parameter of type "bool | int | string". |{\n}|
+//@[30:33) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(param0: array): Bicep.Core.SemanticModel.FunctionOverload+ReturnTypeBuilderDelegate", gave the following error:\n    Argument of type "object" is not assignable to parameter of type "array".\n  Overload 2 of 2, "(param0: bool | int | string): Bicep.Core.SemanticModel.FunctionOverload+ReturnTypeBuilderDelegate", gave the following error:\n    Argument of type "object" is not assignable to parameter of type "bool | int | string". |{\n}|
 })
 var concatWrongTypesContradiction = concat('s', [
 //@[48:51) [BCP070 (Error)] Argument of type "array" is not assignable to parameter of type "bool | int | string". |[\n]|

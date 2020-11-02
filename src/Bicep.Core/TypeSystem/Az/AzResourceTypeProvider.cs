@@ -47,7 +47,7 @@ namespace Bicep.Core.TypeSystem.Az
             else
             {
                 var resourceBodyType = new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null);
-                resourceType = new ResourceType(typeReference, resourceBodyType, TypeSymbolValidationFlags.DeclaresResourceScope);
+                resourceType = new ResourceType(typeReference, resourceBodyType);
             }
 
             loadedTypeCache[typeReference] = resourceType;

@@ -55,6 +55,31 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   }
 }
 
+module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
+//@[7:47) Module optionalWithAllParamsAndManualDependency. Type: module. Declaration start char: 0, length: 294
+  name: 'optionalWithAllParamsAndManualDependency'
+  params: {
+    optionalString: 'abc'
+    optionalInt: 42
+    optionalObj: { }
+    optionalArray: [ ]
+  }
+  dependsOn: [
+    resWithDependencies
+  ]
+}
+
+module optionalWithImplicitDependency './child/optionalParams.bicep'= {
+//@[7:37) Module optionalWithImplicitDependency. Type: module. Declaration start char: 0, length: 245
+  name: 'optionalWithImplicitDependency'
+  params: {
+    optionalString: resWithDependencies.id
+    optionalInt: 42
+    optionalObj: { }
+    optionalArray: [ ]
+  }
+}
+
 output stringOutputA string = modATest.outputs.stringOutputA
 //@[7:20) Output stringOutputA. Type: string. Declaration start char: 0, length: 60
 output stringOutputB string = modATest.outputs.stringOutputB
