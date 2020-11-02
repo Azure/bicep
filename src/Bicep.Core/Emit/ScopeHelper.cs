@@ -45,6 +45,25 @@ namespace Bicep.Core.Emit
                 },
                 Array.Empty<LanguageExpression>());
 
+        private static IReadOnlyDictionary<string, LanguageExpression> ToPropertyDictionary(LanguageExpression? scope = null, LanguageExpression? subscriptionId = null, LanguageExpression? resourceGroup = null)
+        {
+            var output = new Dictionary<string, LanguageExpression>();
+            if (scope != null)
+            {
+                output["scope"] = scope;
+            }
+            if (subscriptionId != null)
+            {
+                output["subscriptionId"] = subscriptionId;
+            }
+            if (resourceGroup != null)
+            {
+                output["resourceGroup"] = resourceGroup;
+            }
+
+            return output;
+        }
+
         private static IReadOnlyDictionary<string, LanguageExpression> ToScopePropertyDictionary(LanguageExpression scope)
             => new Dictionary<string, LanguageExpression>
             {
@@ -80,7 +99,7 @@ namespace Bicep.Core.Emit
             {
                 case 0:
                     ValidateScope(templateScope, AzResourceScope.Tenant);
-                    return ToScopePropertyDictionary(new JTokenExpression("/"));
+                    return ToPropertyDictionary();
                 default:
                     // TODO: type checker for this as part of semantic model
                     throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
@@ -93,10 +112,10 @@ namespace Bicep.Core.Emit
             {
                 case 0:
                     ValidateScope(templateScope, AzResourceScope.ManagementGroup);
-                    return ToScopePropertyDictionary(GetDeploymentScopeExpression());
+                    return ToPropertyDictionary();
                 case 1:
-                    return ToScopePropertyDictionary(GetManagementGroupScopeExpression(
-                        expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)));
+                    return ToPropertyDictionary(
+                        scope: GetManagementGroupScopeExpression(expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)));
                 default:
                     // TODO: type checker for this as part of semantic model
                     throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
@@ -109,11 +128,10 @@ namespace Bicep.Core.Emit
             {
                 case 0:
                     ValidateScope(templateScope, AzResourceScope.Subscription);
-                    return ToSubscriptionPropertyDictionary(
-                        GetSubscriptionIdExpression());
+                    return ToPropertyDictionary();
                 case 1:
-                    return ToSubscriptionPropertyDictionary(
-                        expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
+                    return ToPropertyDictionary(
+                        subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
                 default:
                     // TODO: type checker for this as part of semantic model
                     throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
@@ -126,17 +144,15 @@ namespace Bicep.Core.Emit
             {
                 case 0:
                     ValidateScope(templateScope, AzResourceScope.ResourceGroup);
-                    return ToSubscriptionResourceGroupPropertyDictionary(
-                        subscriptionId: GetSubscriptionIdExpression(),
-                        resourceGroupName: GetResourceGroupNameExpression());
+                    return ToPropertyDictionary();
                 case 1:
-                    return ToSubscriptionResourceGroupPropertyDictionary(
-                        subscriptionId: GetSubscriptionIdExpression(),
-                        resourceGroupName: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
+                    ValidateScope(templateScope, AzResourceScope.Subscription, AzResourceScope.ResourceGroup);
+                    return ToPropertyDictionary(
+                        resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
                 case 2:
-                    return ToSubscriptionResourceGroupPropertyDictionary(
+                    return ToPropertyDictionary(
                         subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression),
-                        resourceGroupName: expressionConverter.ConvertExpression(scopeType.Arguments[1].Expression));
+                        resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
                 default:
                     // TODO: type checker for this as part of semantic model
                     throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");

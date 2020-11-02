@@ -32,7 +32,13 @@ namespace Bicep.Core.Emit
         }.ToImmutableArray();
 
         private static ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
-            "dependsOn"
+            "dependsOn",
+        }.ToImmutableHashSet();
+
+        private static ImmutableHashSet<string> ModulePropertiesToOmit = new [] {
+            LanguageConstants.ModuleParamsPropertyName,
+            LanguageConstants.ModuleScopePropertyName,
+            "dependsOn",
         }.ToImmutableHashSet();
 
         private readonly JsonTextWriter writer;
@@ -261,10 +267,9 @@ namespace Bicep.Core.Emit
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            var topLevelPropertiesToOmit = new HashSet<string> { LanguageConstants.ModuleParamsPropertyName, LanguageConstants.ModuleScopePropertyName };
             var moduleBody = (ObjectSyntax) moduleSymbol.DeclaringModule.Body;
 
-            this.emitter.EmitObjectProperties(moduleBody, topLevelPropertiesToOmit);
+            this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
             var scopeProperty = moduleBody.Properties.FirstOrDefault(x => x.TryGetKeyText() == LanguageConstants.ModuleScopePropertyName);
             if (scopeProperty != null)

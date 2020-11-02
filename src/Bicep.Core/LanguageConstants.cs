@@ -147,6 +147,7 @@ namespace Bicep.Core
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
+            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
 
             return new NamedObjectType(
                 typeName,
@@ -157,6 +158,7 @@ namespace Bicep.Core
                     new TypeProperty(ModuleScopePropertyName, LanguageConstants.ResourceScope, TypePropertyFlags.None),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
+                    new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly),
                 },
                 null);
         }
