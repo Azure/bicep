@@ -77,12 +77,27 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[4:21) Variable unspecifiedOutput. Type: error. Declaration start char: 0, length: 58
 
-module moduleWithBackslash 'child\\file.bicep' = {
-//@[7:26) Module moduleWithBackslash. Type: error. Declaration start char: 0, length: 55
-  
-}
-
 module modCycle './cycle.bicep' = {
 //@[7:15) Module modCycle. Type: error. Declaration start char: 0, length: 40
   
+}
+
+module moduleWithEmptyPath '' = {
+//@[7:26) Module moduleWithEmptyPath. Type: error. Declaration start char: 0, length: 35
+}
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+//@[7:29) Module moduleWithAbsolutePath. Type: error. Declaration start char: 0, length: 52
+}
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[7:26) Module moduleWithBackslash. Type: error. Declaration start char: 0, length: 52
+}
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+//@[7:28) Module moduleWithInvalidChar. Type: error. Declaration start char: 0, length: 54
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+//@[7:38) Module moduleWithInvalidTerminatorChar. Type: error. Declaration start char: 0, length: 58
 }

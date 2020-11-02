@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 using FluentAssertions;
@@ -102,7 +103,8 @@ namespace Bicep.Core.UnitTests.Parser
         public void UnterminatedStringUnexpectedNewline_ShouldBeRecognizedWithError()
         {
             var text = "'unfinished\n'even more unfinished\r\n'test'";
-            var lexer = new Lexer(new SlidingTextWindow(text));
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
             var tokens = lexer.GetTokens().ToImmutableArray();
@@ -152,7 +154,8 @@ namespace Bicep.Core.UnitTests.Parser
             expectedTokenText ??= text;
             expectedLength ??= text.Length - expectedStartPosition;
 
-            var lexer = new Lexer(new SlidingTextWindow(text));
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
             var tokens = lexer.GetTokens().ToImmutableArray();
@@ -161,7 +164,7 @@ namespace Bicep.Core.UnitTests.Parser
 
             tokens.First().Text.Should().Be(expectedTokenText);
 
-            var errors = lexer.GetDiagnostics().ToImmutableArray();
+            var errors = diagnosticWriter.GetDiagnostics();
             errors.Should().HaveCount(1);
 
             var error = errors.Single();

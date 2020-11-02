@@ -12,6 +12,7 @@ namespace Bicep.Core.TypeSystem
     {
         // stores results of type checks
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
+        private readonly DeclaredTypeManager declaredTypeManager;
 
         public TypeManager(IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol, SyntaxHierarchy hierarchy)
         {
@@ -21,6 +22,8 @@ namespace Bicep.Core.TypeSystem
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeProvider, this, bindings, cyclesBySymbol, hierarchy);
+
+            this.declaredTypeManager = new DeclaredTypeManager(hierarchy, this, resourceTypeProvider, bindings);
         }
 
         public IResourceTypeProvider ResourceTypeProvider { get; }
@@ -29,10 +32,10 @@ namespace Bicep.Core.TypeSystem
             => typeAssignmentVisitor.GetTypeInfo(syntax);
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax)
-            => typeAssignmentVisitor.GetDeclaredType(syntax);
+            => declaredTypeManager.GetDeclaredType(syntax);
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
-            => typeAssignmentVisitor.GetDeclaredTypeAssignment(syntax);
+            => declaredTypeManager.GetDeclaredTypeAssignment(syntax);
 
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => typeAssignmentVisitor.GetAllDiagnostics();

@@ -37,17 +37,17 @@ namespace Bicep.Core.SemanticModel
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
+        public IReadOnlyList<Diagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             
-            var visitor = new SemanticDiagnosticVisitor(diagnostics);
+            var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
 
             var typeValidationDiagnostics = typeManager.GetAllDiagnostics();
-            diagnostics.AddRange(typeValidationDiagnostics);
+            diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
 
-            return diagnostics;
+            return diagnosticWriter.GetDiagnostics();
         }
 
         /// <summary>

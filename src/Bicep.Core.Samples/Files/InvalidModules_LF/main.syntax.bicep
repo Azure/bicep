@@ -314,23 +314,6 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58)    Identifier |test|
 //@[58:60) NewLine |\n\n|
 
-module moduleWithBackslash 'child\\file.bicep' = {
-//@[0:55) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |moduleWithBackslash|
-//@[27:46)  StringSyntax
-//@[27:46)   StringComplete |'child\\file.bicep'|
-//@[47:48)  Assignment |=|
-//@[49:55)  ObjectSyntax
-//@[49:50)   LeftBrace |{|
-//@[50:51)   NewLine |\n|
-  
-//@[2:3)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 module modCycle './cycle.bicep' = {
 //@[0:40) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -344,6 +327,81 @@ module modCycle './cycle.bicep' = {
 //@[35:36)   NewLine |\n|
   
 //@[2:3)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithEmptyPath '' = {
+//@[0:35) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |moduleWithEmptyPath|
+//@[27:29)  StringSyntax
+//@[27:29)   StringComplete |''|
+//@[30:31)  Assignment |=|
+//@[32:35)  ObjectSyntax
+//@[32:33)   LeftBrace |{|
+//@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+//@[0:52) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:29)  IdentifierSyntax
+//@[7:29)   Identifier |moduleWithAbsolutePath|
+//@[30:46)  StringSyntax
+//@[30:46)   StringComplete |'/abc/def.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:52)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[0:52) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |moduleWithBackslash|
+//@[27:46)  StringSyntax
+//@[27:46)   StringComplete |'child\\file.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:52)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+//@[0:54) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |moduleWithInvalidChar|
+//@[29:48)  StringSyntax
+//@[29:48)   StringComplete |'child/fi|le.bicep'|
+//@[49:50)  Assignment |=|
+//@[51:54)  ObjectSyntax
+//@[51:52)   LeftBrace |{|
+//@[52:53)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+//@[0:58) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:38)  IdentifierSyntax
+//@[7:38)   Identifier |moduleWithInvalidTerminatorChar|
+//@[39:52)  StringSyntax
+//@[39:52)   StringComplete |'child/test.'|
+//@[53:54)  Assignment |=|
+//@[55:58)  ObjectSyntax
+//@[55:56)   LeftBrace |{|
+//@[56:57)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

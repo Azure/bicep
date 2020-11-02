@@ -204,10 +204,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(@object);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Object, diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Object, diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [DataTestMethod]
@@ -217,11 +217,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(@object);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Int, diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), @object, LanguageConstants.Int, diagnosticWriter);
 
-            diagnostics.Should().HaveCount(1);
-            diagnostics.Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
+            diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
+            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("Expected a value of type \"int\" but the provided value is of type \"object\".");
         }
 
         [TestMethod]
@@ -232,10 +232,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -250,10 +250,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(e => e.Message)
                 .Should()
                 .Equal(
@@ -272,10 +272,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -294,9 +294,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
-            diagnostics.Should().BeEmpty();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -320,10 +320,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\".",
@@ -339,11 +339,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
-            diagnostics.Should().HaveCount(1);
-            diagnostics.Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
+            diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
+            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -358,10 +358,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -380,10 +380,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
@@ -407,10 +407,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
             
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -441,10 +441,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -478,10 +478,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
-            var diagnostics = new List<Diagnostic>();
-            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -503,10 +503,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var allowedValuesType = UnionType.Create(new StringLiteralType("One"), new StringLiteralType("Two"));
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, allowedValuesType), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Should().SatisfyRespectively(
                     x => x.Message.Should().Be("The property \"default\" expected a value of type \"'One' | 'Two'\" but the provided value is of type \"'Three'\"."));
         }
@@ -538,10 +538,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -568,10 +568,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -604,10 +604,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnosticWriter);
 
-            diagnostics.Should().BeEmpty();
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [TestMethod]
@@ -643,10 +643,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.String, LanguageConstants.String), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property \"default\" expected a value of type \"string\" but the provided value is of type \"bool\".",
@@ -693,10 +693,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Int, LanguageConstants.Int), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property \"allowed\" expected a value of type \"int[]\" but the provided value is of type \"object\".",
@@ -746,10 +746,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Bool, LanguageConstants.Bool), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should().BeEquivalentTo(
                     "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\".",
@@ -796,10 +796,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Object, LanguageConstants.Object), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
@@ -847,10 +847,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var hierarchy = new SyntaxHierarchy();
             hierarchy.AddRoot(obj);
 
-            var diagnostics = new List<Diagnostic>();
-            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, LanguageConstants.CreateParameterModifierType(LanguageConstants.Array, LanguageConstants.Array), diagnosticWriter);
 
-            diagnostics
+            diagnosticWriter.GetDiagnostics()
                 .Select(d => d.Message)
                 .Should()
                 .BeEquivalentTo(
@@ -896,10 +896,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
 
-                diagnostics.Should().SatisfyRespectively(
+                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" requires a value of type \"'valA' | 'valB'\", but none was supplied.");
                     });
@@ -917,10 +917,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
 
-                diagnostics.Should().SatisfyRespectively(
+                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"object\".");
                     });
@@ -937,10 +937,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
 
-                diagnostics.Should().SatisfyRespectively(
+                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The property \"myDiscriminator\" expected a value of type \"'valA' | 'valB'\" but the provided value is of type \"'valC'\". Did you mean \"'valA'\"?");
                     });
@@ -957,10 +957,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
 
-                diagnostics.Should().SatisfyRespectively(
+                diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
                         x.Message.Should().Be("The specified object is missing the following required properties: \"fieldB\".");
                     });
@@ -985,10 +985,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var hierarchy = new SyntaxHierarchy();
                 hierarchy.AddRoot(obj);
 
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, discriminatedType, diagnosticWriter);
 
-                diagnostics.Should().BeEmpty();
+                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
                 narrowedType.Should().BeOfType<NamedObjectType>();
 
                 // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
@@ -1014,31 +1014,31 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // pick a valid path (int) - we should narrow the union type to just int
                 var intSyntax = TestSyntaxFactory.CreateInt(1234);
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), intSyntax, unionType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), intSyntax, unionType, diagnosticWriter);
                 
-                diagnostics.Should().BeEmpty();
+                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.Int);
             }
 
             {
-                // pick an invalid path (object) - we should get diagnostics
+                // pick an invalid path (object) - we should get diagnosticWriter
                 var objectSyntax = TestSyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>());
                 hierarchy.AddRoot(objectSyntax);
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), objectSyntax, unionType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), objectSyntax, unionType, diagnosticWriter);
                 
-                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
+                diagnosticWriter.GetDiagnostics().Should().Contain(x => x.Message == "Expected a value of type \"bool | int | string\" but the provided value is of type \"object\".");
                 narrowedType.Should().Be(unionType);
             }
 
             {
                 // try narrowing with a string
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("abc");
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, unionType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, unionType, diagnosticWriter);
                 
-                diagnostics.Should().BeEmpty();
+                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
                 narrowedType.Should().Be(LanguageConstants.String);
             }
 
@@ -1049,10 +1049,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("nora");
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnosticWriter);
                 
-                diagnostics.Should().BeEmpty();
+                diagnosticWriter.GetDiagnostics().Should().BeEmpty();
                 narrowedType.Should().BeOfType<StringLiteralType>();
                 (narrowedType as StringLiteralType)!.Name.Should().Be("'nora'");
             }
@@ -1060,10 +1060,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             {
                 // union of string literals with non-matching type
                 var stringLiteralSyntax = TestSyntaxFactory.CreateString("zona");
-                var diagnostics = new List<Diagnostic>();
-                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnostics);
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), stringLiteralSyntax, stringLiteralUnionType, diagnosticWriter);
                 
-                diagnostics.Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
+                diagnosticWriter.GetDiagnostics().Should().Contain(x => x.Message == "Expected a value of type \"'dave' | 'nora'\" but the provided value is of type \"'zona'\".");
                 narrowedType.Should().Be(stringLiteralUnionType);
             }
         }

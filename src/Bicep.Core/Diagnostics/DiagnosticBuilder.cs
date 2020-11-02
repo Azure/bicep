@@ -296,6 +296,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP049",
                 $"The array index must be of type \"{LanguageConstants.String}\" or \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
+            public ErrorDiagnostic ModulePathIsEmpty() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP050",
+                "The specified module path is empty.");
+
+            public ErrorDiagnostic ModulePathBeginsWithForwardSlash() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP051",
+                "The specified module path begins with \"/\". Module files must be referenced using relative paths.");
+
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
@@ -488,6 +498,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
+            public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP085",
+                $"The specified module path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+
+            public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP086",
+                $"The specified module path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
+
             public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP087",
@@ -512,10 +532,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP090",
                 "This module declaration is missing a file path reference.");
 
-            public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
+            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP091",
-                $"An error occurred loading the module. {failureMessage}");
+                $"An error occurred reading file. {failureMessage}");
 
             public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,
@@ -547,10 +567,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsBackSlash() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP098",
-                "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
+                "The specified module path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
             public ErrorDiagnostic AllowedMustContainItems() => new ErrorDiagnostic(
                 TextSpan,
@@ -613,6 +633,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+
+            public ErrorDiagnostic ModulePathContainsControlChars() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP111",
+                $"The specified module path contains invalid control code characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

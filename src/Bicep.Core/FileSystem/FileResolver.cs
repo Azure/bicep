@@ -11,15 +11,15 @@ namespace Bicep.Core.FileSystem
     {
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
+            if (!fileUri.IsFile)
+            {
+                failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
+                fileContents = null;
+                return false;
+            }
+
             try
             {
-                if (!fileUri.IsFile)
-                {
-                    failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-                    fileContents = null;
-                    return false;
-                }
-
                 failureBuilder = null;
                 fileContents = File.ReadAllText(fileUri.LocalPath);
                 return true;
@@ -28,7 +28,7 @@ namespace Bicep.Core.FileSystem
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
-                failureBuilder = x => x.ErrorOccurredLoadingModule(exception.Message);
+                failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
                 fileContents = null;
                 return false;
             }
