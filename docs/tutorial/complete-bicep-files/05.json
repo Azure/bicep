@@ -1,62 +1,99 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "suffix": {
-      "type": "string",
-      "defaultValue": "001"
-    },
-    "owner": {
-      "type": "string",
-      "defaultValue": "alex"
-    },
-    "costCenter": {
-      "type": "string",
-      "defaultValue": "12345"
-    },
-    "addressPrefix": {
-      "type": "string",
-      "defaultValue": "10.0.0.0/15"
-    }
-  },
   "functions": [],
   "variables": {
-    "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
+    "objectId": "cf024e4c-f790-45eb-a992-5218c39bde1a",
+    "contributor": "b24988ac-6180-42a0-ab88-20f7382dd24c"
   },
   "resources": [
     {
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2018-10-01",
-      "name": "[variables('vnetName')]",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "Owner": "[parameters('owner')]",
-        "CostCenter": "[parameters('costCenter')]"
-      },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(subscription().id, variables('objectId'), variables('contributor'))]",
       "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('addressPrefix')]"
-          ]
+        "roleDefinitionId": "[variables('contributor')]",
+        "principalId": "[variables('objectId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "storageDeploy",
+      "resourceGroup": "brittle-hollow",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
-        "enableVmProtection": false,
-        "enableDdosProtection": false,
-        "subnets": [
-          {
-            "name": "subnet001",
-            "properties": {
-              "addressPrefix": "10.0.0.0/24"
+        "mode": "Incremental",
+        "parameters": {
+          "namePrefix": {
+            "value": "contoso"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "namePrefix": {
+              "type": "string",
+              "defaultValue": "stg"
+            },
+            "globalRedundancy": {
+              "type": "bool",
+              "defaultValue": true
             }
           },
-          {
-            "name": "subnet002",
-            "properties": {
-              "addressPrefix": "10.0.1.0/24"
+          "functions": [],
+          "variables": {
+            "storageAccountName": "[format('{0}{1}', parameters('namePrefix'), uniqueString(resourceGroup().id))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "[variables('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "kind": "Storage",
+              "sku": {
+                "name": "[if(parameters('globalRedundancy'), 'Standard_GRS', 'Standard_LRS')]"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/default/logs', variables('storageAccountName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "storageId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            },
+            "computedStorageName": {
+              "type": "string",
+              "value": "[variables('storageAccountName')]"
+            },
+            "primaryEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob]"
             }
           }
-        ]
+        }
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "storageName": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'stg'), '2019-10-01').outputs.computedStorageName.value]"
+    }
+  }
 }
