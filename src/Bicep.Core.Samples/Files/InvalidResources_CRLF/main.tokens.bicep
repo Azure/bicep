@@ -668,7 +668,17 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 //@[10:12) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[0:3) Identifier |var|
+//@[4:43) Identifier |discriminatorKeyValueMissingCompletions|
+//@[44:45) Assignment |=|
+//@[46:74) Identifier |discriminatorKeyValueMissing|
+//@[74:75) Dot |.|
+//@[75:76) Identifier |p|
+//@[76:80) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -699,7 +709,19 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+//@[0:3) Identifier |var|
+//@[4:37) Identifier |discriminatorKeySetOneCompletions|
+//@[38:39) Assignment |=|
+//@[40:62) Identifier |discriminatorKeySetOne|
+//@[62:63) Dot |.|
+//@[63:73) Identifier |properties|
+//@[73:74) Dot |.|
+//@[74:75) Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -730,7 +752,33 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+//@[0:3) Identifier |var|
+//@[4:37) Identifier |discriminatorKeySetTwoCompletions|
+//@[38:39) Assignment |=|
+//@[40:62) Identifier |discriminatorKeySetTwo|
+//@[62:63) Dot |.|
+//@[63:73) Identifier |properties|
+//@[73:74) Dot |.|
+//@[74:75) Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
+
+// #completionTest(90) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[0:3) Identifier |var|
+//@[4:49) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[50:51) Assignment |=|
+//@[52:74) Identifier |discriminatorKeySetTwo|
+//@[74:75) LeftSquare |[|
+//@[75:87) StringComplete |'properties'|
+//@[87:88) RightSquare |]|
+//@[88:89) Dot |.|
+//@[89:90) Identifier |a|
+//@[90:94) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -756,6 +804,15 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
+
+var mock = incorrectPropertiesKey.p
+//@[0:3) Identifier |var|
+//@[4:8) Identifier |mock|
+//@[9:10) Assignment |=|
+//@[11:33) Identifier |incorrectPropertiesKey|
+//@[33:34) Dot |.|
+//@[34:35) Identifier |p|
+//@[35:39) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|

@@ -988,7 +988,23 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 //@[10:12)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[0:76) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:43)  IdentifierSyntax
+//@[4:43)   Identifier |discriminatorKeyValueMissingCompletions|
+//@[44:45)  Assignment |=|
+//@[46:76)  PropertyAccessSyntax
+//@[46:74)   VariableAccessSyntax
+//@[46:74)    IdentifierSyntax
+//@[46:74)     Identifier |discriminatorKeyValueMissing|
+//@[74:75)   Dot |.|
+//@[75:76)   IdentifierSyntax
+//@[75:76)    Identifier |p|
+//@[76:80) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:264) ResourceDeclarationSyntax
@@ -1029,7 +1045,27 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+//@[0:75) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:37)  IdentifierSyntax
+//@[4:37)   Identifier |discriminatorKeySetOneCompletions|
+//@[38:39)  Assignment |=|
+//@[40:75)  PropertyAccessSyntax
+//@[40:73)   PropertyAccessSyntax
+//@[40:62)    VariableAccessSyntax
+//@[40:62)     IdentifierSyntax
+//@[40:62)      Identifier |discriminatorKeySetOne|
+//@[62:63)    Dot |.|
+//@[63:73)    IdentifierSyntax
+//@[63:73)     Identifier |properties|
+//@[73:74)   Dot |.|
+//@[74:75)   IdentifierSyntax
+//@[74:75)    Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:270) ResourceDeclarationSyntax
@@ -1070,7 +1106,49 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+//@[0:75) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:37)  IdentifierSyntax
+//@[4:37)   Identifier |discriminatorKeySetTwoCompletions|
+//@[38:39)  Assignment |=|
+//@[40:75)  PropertyAccessSyntax
+//@[40:73)   PropertyAccessSyntax
+//@[40:62)    VariableAccessSyntax
+//@[40:62)     IdentifierSyntax
+//@[40:62)      Identifier |discriminatorKeySetTwo|
+//@[62:63)    Dot |.|
+//@[63:73)    IdentifierSyntax
+//@[63:73)     Identifier |properties|
+//@[73:74)   Dot |.|
+//@[74:75)   IdentifierSyntax
+//@[74:75)    Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
+
+// #completionTest(90) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[0:90) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:49)  IdentifierSyntax
+//@[4:49)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[50:51)  Assignment |=|
+//@[52:90)  PropertyAccessSyntax
+//@[52:88)   ArrayAccessSyntax
+//@[52:74)    VariableAccessSyntax
+//@[52:74)     IdentifierSyntax
+//@[52:74)      Identifier |discriminatorKeySetTwo|
+//@[74:75)    LeftSquare |[|
+//@[75:87)    StringSyntax
+//@[75:87)     StringComplete |'properties'|
+//@[87:88)    RightSquare |]|
+//@[88:89)   Dot |.|
+//@[89:90)   IdentifierSyntax
+//@[89:90)    Identifier |a|
+//@[90:94) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:132) ResourceDeclarationSyntax
@@ -1106,6 +1184,21 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
+
+var mock = incorrectPropertiesKey.p
+//@[0:35) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:8)  IdentifierSyntax
+//@[4:8)   Identifier |mock|
+//@[9:10)  Assignment |=|
+//@[11:35)  PropertyAccessSyntax
+//@[11:33)   VariableAccessSyntax
+//@[11:33)    IdentifierSyntax
+//@[11:33)     Identifier |incorrectPropertiesKey|
+//@[33:34)   Dot |.|
+//@[34:35)   IdentifierSyntax
+//@[34:35)    Identifier |p|
+//@[35:39) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:774) ResourceDeclarationSyntax

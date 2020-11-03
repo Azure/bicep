@@ -25,7 +25,14 @@ namespace Bicep.LanguageServer.Completions
             TokenType.StringComplete
         }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
 
-        public BicepCompletionContext(BicepCompletionContextKind kind, Range replacementRange, SyntaxBase? enclosingDeclaration, ObjectSyntax? @object, ObjectPropertySyntax? property, ArraySyntax? array)
+        public BicepCompletionContext(
+            BicepCompletionContextKind kind,
+            Range replacementRange,
+            SyntaxBase? enclosingDeclaration,
+            ObjectSyntax? @object,
+            ObjectPropertySyntax? property,
+            ArraySyntax? array,
+            PropertyAccessSyntax? propertyAccess)
         {
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
@@ -33,6 +40,7 @@ namespace Bicep.LanguageServer.Completions
             this.Object = @object;
             this.Property = property;
             this.Array = array;
+            this.PropertyAccess = propertyAccess;
         }
 
         public BicepCompletionContextKind Kind { get; }
@@ -44,6 +52,8 @@ namespace Bicep.LanguageServer.Completions
         public ObjectPropertySyntax? Property { get; }
 
         public ArraySyntax? Array { get; }
+
+        public PropertyAccessSyntax? PropertyAccess { get; }
 
         public Range ReplacementRange { get; }
 
@@ -61,10 +71,12 @@ namespace Bicep.LanguageServer.Completions
             var objectInfo = FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
             var propertyInfo = FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
+            var propertyAccessInfo = FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
 
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
-                       ConvertFlag(IsPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.PropertyName) |
+                       ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
+                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.PropertyAccess) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
@@ -81,7 +93,7 @@ namespace Bicep.LanguageServer.Completions
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
-            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node);
+            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node);
         }
 
         /// <summary>
@@ -224,7 +236,16 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool IsPropertyNameContext(List<SyntaxBase> matchingNodes, (ObjectSyntax? node, int index) objectInfo)
+        private static bool IsPropertyAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo)
+        {
+            // if we're accessing properties, we have the following matching node types at the end of the list:
+            // PropertyAccessSyntax, IdentifierSyntax, Token(TokenType.Identifier)
+            return propertyAccessInfo.node != null &&
+                   SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (propertyAccess, identifier, token) =>
+                       ReferenceEquals(propertyAccess.PropertyName, identifier) && token.Type == TokenType.Identifier);
+        }
+
+        private static bool IsObjectPropertyNameContext(List<SyntaxBase> matchingNodes, (ObjectSyntax? node, int index) objectInfo)
         {
             if (objectInfo.node == null)
             {

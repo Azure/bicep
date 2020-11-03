@@ -229,6 +229,9 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
   kind:   
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 }
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[75:76) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
@@ -240,6 +243,8 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:270) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzurePowerShell'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties\r\n    \r\n  }\r\n}|
@@ -251,6 +256,12 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
@@ -260,6 +271,9 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[2:11) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "Microsoft.Resources/deploymentScripts@2020-10-01". Did you mean "properties"? |propertes|
   }
 }
+
+var mock = incorrectPropertiesKey.p
+//@[34:35) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'

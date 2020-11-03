@@ -33,6 +33,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
+                .Concat(GetPropertyAccessCompletions(model, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
@@ -240,9 +241,48 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
+        private IEnumerable<CompletionItem> GetPropertyAccessCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyAccess) || context.PropertyAccess == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var declaredType = model.GetDeclaredType(context.PropertyAccess.BaseExpression);
+
+            //var baseType = GetPropertyAccessBaseExpressionType(model, context.PropertyAccess);
+            return GetProperties(declaredType)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
+        }
+
+        private TypeSymbol? GetPropertyAccessBaseExpressionType(SemanticModel model, PropertyAccessSyntax propertyAccess)
+        {
+            // if there are semantic errors, we shouldn't be offering bad property name completions
+            // as a result, the code here should be limited to valid cases
+            var symbol = model.GetSymbolInfo(propertyAccess.BaseExpression);
+            switch (propertyAccess.BaseExpression)
+            {
+                case VariableAccessSyntax _ when symbol is DeclaredSymbol declaredSymbol:
+                    // a declaration is being accessed by symbolic name
+                    // return its declared type
+                    return model.GetDeclaredType(declaredSymbol.DeclaringSyntax);
+
+                case FunctionCallSyntax _:
+                case InstanceFunctionCallSyntax _:
+                case ObjectSyntax _:
+                    // getting the declared type is not likely
+                    // because we are inside property access, but let's try anyway
+                    // then fall back to assigned type
+                    return model.GetDeclaredType(propertyAccess.BaseExpression) ?? model.GetTypeInfo(propertyAccess.BaseExpression);
+            }
+
+            return null;
+        }
+
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyName) == false || context.Object == null)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyName) == false || context.Object == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -260,14 +300,17 @@ namespace Bicep.LanguageServer.Completions
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.ReadOnly) == false && specifiedPropertyNames.Contains(p.Name) == false)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.Contains(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
         }
 
-        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol type)
+        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
         {
             switch (type)
             {
+                case ResourceType resourceType:
+                    return GetProperties(resourceType.Body.Type);
+
                 case ObjectType objectType:
                     return objectType.Properties.Values;
 
