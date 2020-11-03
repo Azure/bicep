@@ -9,7 +9,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class ResourceDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public ResourceDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase body)
         {

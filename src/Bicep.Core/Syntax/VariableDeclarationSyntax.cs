@@ -5,7 +5,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class VariableDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class VariableDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public VariableDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
         {

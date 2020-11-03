@@ -6,6 +6,7 @@ using Arm.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -70,6 +71,13 @@ namespace Bicep.Core.Emit
                         Array.Empty<LanguageExpression>());
 
                 case FunctionCallSyntax function:
+                    var returnValueType = context.SemanticModel.GetTypeInfo(function);
+                    if (returnValueType is IResourceScopeType resourceScopeType && !ScopeHelper.CanConvertToArmJson(resourceScopeType))
+                    {
+                        // return an empty object - there is no ARM equivalent to return
+                        return new FunctionExpression("json", new LanguageExpression [] { new JTokenExpression("{}") }, new LanguageExpression[0]);
+                    }
+
                     return ConvertFunction(
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());
@@ -78,6 +86,13 @@ namespace Bicep.Core.Emit
                     var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
                     
                     Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
+
+                    var returnValueType2 = context.SemanticModel.GetTypeInfo(instanceFunctionCall);
+                    if (returnValueType2 is IResourceScopeType resourceScopeType2 && !ScopeHelper.CanConvertToArmJson(resourceScopeType2))
+                    {
+                        // return an empty object - there is no ARM equivalent to return
+                        return new FunctionExpression("json", new LanguageExpression [] { new JTokenExpression("{}") }, new LanguageExpression[0]);
+                    }
 
                     return ConvertFunction(
                         instanceFunctionCall.Name.IdentifierName,

@@ -273,5 +273,11 @@ namespace Bicep.Wasm.LanguageHelpers
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }
+
+        public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitTargetScopeSyntax(syntax);
+        }
     }
 }

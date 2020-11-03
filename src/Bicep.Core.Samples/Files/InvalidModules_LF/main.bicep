@@ -80,3 +80,21 @@ module moduleWithInvalidChar 'child/fi|le.bicep' = {
 
 module moduleWithInvalidTerminatorChar 'child/test.' = {
 }
+
+module moduleWithValidScope './empty.bicep' = {
+  name: 'moduleWithValidScope'
+}
+
+module moduleWithInvalidScope './empty.bicep' = {
+  name: 'moduleWithInvalidScope'
+  scope: moduleWithValidScope
+}
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+  name: 'moduleWithMissingRequiredScope'
+}
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+  name: 'moduleWithInvalidScope2'
+  scope: managementGroup()
+}

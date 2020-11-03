@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Completions
                 throw new ArgumentException($"The specified offset {offset} is outside the span of the specified {nameof(ProgramSyntax)} node.");
             }
 
-            var declarationInfo = FindLastNodeOfType<IDeclarationSyntax, SyntaxBase>(matchingNodes);
+            var declarationInfo = FindLastNodeOfType<INamedDeclarationSyntax, SyntaxBase>(matchingNodes);
             var objectInfo = FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
             var propertyInfo = FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
@@ -224,7 +224,7 @@ namespace Bicep.LanguageServer.Completions
                         // (completions will be filtered by the text that is present, so we don't have to be 100% right)
                         return token.Type == TokenType.Identifier && matchingNodes[^3] is ProgramSyntax;
 
-                    case IDeclarationSyntax declaration:
+                    case INamedDeclarationSyntax declaration:
                         // we are in a fully or partially parsed declaration
                         // whether we are in a declaration context depends on whether our offset is within the keyword token
                         // (by using exclusive span containment, the cursor position at the end of a keyword token 

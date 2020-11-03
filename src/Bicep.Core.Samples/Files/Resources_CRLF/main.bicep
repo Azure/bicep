@@ -1,7 +1,10 @@
-
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'basicblobs'
   location: 'westus'
+  kind: 'BlobStorage'
+  sku: {
+    name: 'Standard_GRS'
+  }
 }
 
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {

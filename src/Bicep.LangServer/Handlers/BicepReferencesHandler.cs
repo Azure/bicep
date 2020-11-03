@@ -30,7 +30,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var references = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
-                .Where(referenceSyntax => request.Context.IncludeDeclaration || !(referenceSyntax is IDeclarationSyntax))
+                .Where(referenceSyntax => request.Context.IncludeDeclaration || !(referenceSyntax is INamedDeclarationSyntax))
                 .Select(referenceSyntax => new Location
                 {
                     Uri = request.TextDocument.Uri,

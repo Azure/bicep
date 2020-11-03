@@ -25,6 +25,12 @@ namespace Bicep.Core.Parser
             base.VisitProgramSyntax(syntax);
             
             this.diagnosticWriter.WriteMultiple(syntax.LexerDiagnostics);
+
+            var targetScopeSyntaxes = syntax.Children.OfType<TargetScopeSyntax>().ToList();
+            foreach (var targetScope in targetScopeSyntaxes.Skip(1))
+            {
+                this.diagnosticWriter.Write(targetScope.Keyword, x => x.TargetScopeMultipleDeclarations());
+            }
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)

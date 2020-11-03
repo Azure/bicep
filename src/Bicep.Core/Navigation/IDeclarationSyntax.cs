@@ -9,11 +9,9 @@ namespace Bicep.Core.Navigation
     /// <summary>
     /// Represents a syntax declaration.
     /// </summary>
-    /// <remarks>This is used to distinguish a declaration from syntax that references the declaration.</remarks>
+    /// <remarks>This is used to identify a program syntax declaration.</remarks>
     public interface IDeclarationSyntax
     {
-        IdentifierSyntax Name { get; }
-
         Token Keyword { get; }
     }
 }

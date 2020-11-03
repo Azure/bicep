@@ -48,7 +48,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
-            where TDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+            where TDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
         {
             if (!bindings.ContainsKey(syntax))
             {

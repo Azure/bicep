@@ -107,3 +107,24 @@ module moduleWithInvalidChar 'child/fi|le.bicep' = {
 module moduleWithInvalidTerminatorChar 'child/test.' = {
 //@[39:52) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'child/test.'|
 }
+
+module moduleWithValidScope './empty.bicep' = {
+  name: 'moduleWithValidScope'
+}
+
+module moduleWithInvalidScope './empty.bicep' = {
+  name: 'moduleWithInvalidScope'
+  scope: moduleWithValidScope
+//@[9:29) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "module". |moduleWithValidScope|
+}
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[69:113) [BCP035 (Error)] The specified object is missing the following required properties: "scope". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
+  name: 'moduleWithMissingRequiredScope'
+}
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+  name: 'moduleWithInvalidScope2'
+  scope: managementGroup()
+//@[9:24) [BCP057 (Error)] The name "managementGroup" does not exist in the current context. |managementGroup|
+}

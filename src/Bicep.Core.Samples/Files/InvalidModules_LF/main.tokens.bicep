@@ -283,4 +283,80 @@ module moduleWithInvalidTerminatorChar 'child/test.' = {
 //@[56:57) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithValidScope './empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:27) Identifier |moduleWithValidScope|
+//@[28:43) StringComplete |'./empty.bicep'|
+//@[44:45) Assignment |=|
+//@[46:47) LeftBrace |{|
+//@[47:48) NewLine |\n|
+  name: 'moduleWithValidScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:30) StringComplete |'moduleWithValidScope'|
+//@[30:31) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope './empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:29) Identifier |moduleWithInvalidScope|
+//@[30:45) StringComplete |'./empty.bicep'|
+//@[46:47) Assignment |=|
+//@[48:49) LeftBrace |{|
+//@[49:50) NewLine |\n|
+  name: 'moduleWithInvalidScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:32) StringComplete |'moduleWithInvalidScope'|
+//@[32:33) NewLine |\n|
+  scope: moduleWithValidScope
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:29) Identifier |moduleWithValidScope|
+//@[29:30) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:37) Identifier |moduleWithMissingRequiredScope|
+//@[38:66) StringComplete |'./subscription_empty.bicep'|
+//@[67:68) Assignment |=|
+//@[69:70) LeftBrace |{|
+//@[70:71) NewLine |\n|
+  name: 'moduleWithMissingRequiredScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:40) StringComplete |'moduleWithMissingRequiredScope'|
+//@[40:41) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:30) Identifier |moduleWithInvalidScope2|
+//@[31:46) StringComplete |'./empty.bicep'|
+//@[47:48) Assignment |=|
+//@[49:50) LeftBrace |{|
+//@[50:51) NewLine |\n|
+  name: 'moduleWithInvalidScope2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:33) StringComplete |'moduleWithInvalidScope2'|
+//@[33:34) NewLine |\n|
+  scope: managementGroup()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:24) Identifier |managementGroup|
+//@[24:25) LeftParen |(|
+//@[25:26) RightParen |)|
+//@[26:27) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

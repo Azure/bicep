@@ -101,3 +101,25 @@ module moduleWithInvalidChar 'child/fi|le.bicep' = {
 module moduleWithInvalidTerminatorChar 'child/test.' = {
 //@[7:38) Module moduleWithInvalidTerminatorChar. Type: error. Declaration start char: 0, length: 58
 }
+
+module moduleWithValidScope './empty.bicep' = {
+//@[7:27) Module moduleWithValidScope. Type: module. Declaration start char: 0, length: 80
+  name: 'moduleWithValidScope'
+}
+
+module moduleWithInvalidScope './empty.bicep' = {
+//@[7:29) Module moduleWithInvalidScope. Type: module. Declaration start char: 0, length: 114
+  name: 'moduleWithInvalidScope'
+  scope: moduleWithValidScope
+}
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[7:37) Module moduleWithMissingRequiredScope. Type: module. Declaration start char: 0, length: 113
+  name: 'moduleWithMissingRequiredScope'
+}
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+//@[7:30) Module moduleWithInvalidScope2. Type: module. Declaration start char: 0, length: 113
+  name: 'moduleWithInvalidScope2'
+  scope: managementGroup()
+}

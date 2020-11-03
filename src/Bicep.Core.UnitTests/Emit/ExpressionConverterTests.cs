@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Linq;
 using Arm.Expression.Configuration;
 using Arm.Expression.Expressions;
 using Bicep.Core.Emit;
@@ -54,12 +55,14 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var programText = $"var test = {text}";
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(programText));
 
-            var parsed = ParserHelper.ParseExpression(text);
+            var programSyntax = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+            var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();
 
             var converter = new ExpressionConverter(new EmitterContext(compilation.GetEntrypointSemanticModel()));
-            var converted = converter.ConvertExpression(parsed);
+            var converted = converter.ConvertExpression(variableDeclarationSyntax.Value);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {
