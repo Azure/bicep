@@ -269,6 +269,9 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
     resWithDependencies
 //@[4:23) Identifier |resWithDependencies|
 //@[23:25) NewLine |\r\n|
+    optionalWithAllParams
+//@[4:25) Identifier |optionalWithAllParams|
+//@[25:27) NewLine |\r\n|
   ]
 //@[2:3) RightSquare |]|
 //@[3:5) NewLine |\r\n|
@@ -293,13 +296,20 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[8:9) Colon |:|
 //@[10:11) LeftBrace |{|
 //@[11:13) NewLine |\r\n|
-    optionalString: resWithDependencies.id
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
 //@[4:18) Identifier |optionalString|
 //@[18:19) Colon |:|
-//@[20:39) Identifier |resWithDependencies|
-//@[39:40) Dot |.|
-//@[40:42) Identifier |id|
-//@[42:44) NewLine |\r\n|
+//@[20:26) Identifier |concat|
+//@[26:27) LeftParen |(|
+//@[27:46) Identifier |resWithDependencies|
+//@[46:47) Dot |.|
+//@[47:49) Identifier |id|
+//@[49:50) Comma |,|
+//@[51:91) Identifier |optionalWithAllParamsAndManualDependency|
+//@[91:92) Dot |.|
+//@[92:96) Identifier |name|
+//@[96:97) RightParen |)|
+//@[97:99) NewLine |\r\n|
     optionalInt: 42
 //@[4:15) Identifier |optionalInt|
 //@[15:16) Colon |:|

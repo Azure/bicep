@@ -59,13 +59,14 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
   }
   dependsOn: [
     resWithDependencies
+    optionalWithAllParams
   ]
 }
 
 module optionalWithImplicitDependency './child/optionalParams.bicep'= {
   name: 'optionalWithImplicitDependency'
   params: {
-    optionalString: resWithDependencies.id
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
     optionalInt: 42
     optionalObj: { }
     optionalArray: [ ]

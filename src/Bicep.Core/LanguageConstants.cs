@@ -149,7 +149,7 @@ namespace Bicep.Core
                 _ => new ResourceScopeReference("none", ResourceScopeType.None),
             };
 
-        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, AzResourceScope resourceScope, string typeName)
+        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, AzResourceScope moduleScope, AzResourceScope containingScope, string typeName)
         {
             var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are reqired, we can allow the 'params' declaration to be ommitted entirely
@@ -158,13 +158,16 @@ namespace Bicep.Core
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
 
+            // If the module scope matches the parent scope, we can safely omit the scope property
+            var scopeRequiredFlag = moduleScope != containingScope ? TypePropertyFlags.Required : TypePropertyFlags.None;
+
             var moduleBody = new NamedObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                    new TypeProperty(ModuleScopePropertyName, CreateResourceScopeReference(resourceScope), TypePropertyFlags.None),
+                    new TypeProperty(ModuleScopePropertyName, CreateResourceScopeReference(moduleScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                     new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly),

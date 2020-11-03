@@ -70,7 +70,7 @@ namespace Bicep.Core.SemanticModel
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySymbol, hierarchy), bindings, this);
+            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySymbol, hierarchy, targetScope), bindings, this);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
@@ -108,6 +108,12 @@ namespace Bicep.Core.SemanticModel
             // name binding is done
             // allow type queries now
             symbolContext.Unlock();
+
+            foreach (var targetScopeSyntax in syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>())
+            {
+                // force a type check to get diagnostics for the target scope
+                symbolContext.TypeManager.GetTypeInfo(targetScopeSyntax);
+            }
 
             return new SemanticModel(file, symbolContext.TypeManager, bindings, targetScope);
         }

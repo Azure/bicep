@@ -12,6 +12,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -41,13 +42,15 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly SyntaxHierarchy hierarchy;
+        private readonly AzResourceScope targetScope;
 
         public TypeAssignmentVisitor(
             IResourceTypeProvider resourceTypeProvider,
             TypeManager typeManager,
             IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
             IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol,
-            SyntaxHierarchy hierarchy)
+            SyntaxHierarchy hierarchy,
+            AzResourceScope targetScope)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
@@ -58,6 +61,7 @@ namespace Bicep.Core.TypeSystem
             this.cyclesBySymbol = cyclesBySymbol;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.hierarchy = hierarchy;
+            this.targetScope = targetScope;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -163,7 +167,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(failureDiagnostic);
                 }
 
-                var declaredType = syntax.GetDeclaredType(moduleSemanticModel);
+                var declaredType = syntax.GetDeclaredType(targetScope, moduleSemanticModel);
 
                 if (moduleSemanticModel.HasErrors())
                 {

@@ -7,6 +7,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -20,13 +21,15 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
+        private readonly AzResourceScope targetScope;
 
-        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase,Symbol> bindings)
+        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, AzResourceScope targetScope)
         {
             this.hierarchy = hierarchy;
             this.typeManager = typeManager;
             this.resourceTypeProvider = resourceTypeProvider;
             this.bindings = bindings;
+            this.targetScope = targetScope;
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
@@ -95,7 +98,7 @@ namespace Bicep.Core.TypeSystem
                 return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic));
             }
 
-            return new DeclaredTypeAssignment(syntax.GetDeclaredType(moduleSemanticModel));
+            return new DeclaredTypeAssignment(syntax.GetDeclaredType(targetScope, moduleSemanticModel));
         }
 
         private DeclaredTypeAssignment? GetArrayType(ArraySyntax syntax)

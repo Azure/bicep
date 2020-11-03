@@ -377,6 +377,7 @@
         }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParams')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     },
@@ -391,7 +392,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[resourceId('Mock.Rp/mockResource', 'harry')]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
           },
           "optionalInt": {
             "value": 42
@@ -446,6 +447,7 @@
         }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     }
