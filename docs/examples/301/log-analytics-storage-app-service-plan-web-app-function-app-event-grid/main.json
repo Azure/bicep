@@ -1,0 +1,630 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "australiacentral",
+        "australiaeast",
+        "australiasoutheast",
+        "brazilsouth",
+        "canadacentral",
+        "centralindia",
+        "centralus",
+        "eastasia",
+        "eastus",
+        "eastus2",
+        "francecentral",
+        "japaneast",
+        "koreacentral",
+        "northcentralus",
+        "northeurope",
+        "southafricanorth",
+        "southcentralus",
+        "southeastasia",
+        "switzerlandnorth",
+        "switzerlandwest",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westeurope",
+        "westus",
+        "westus2"
+      ]
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "[format('la-{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "defaultValue": "[format('asp-{0}', uniqueString(resourceGroup().id))]"
+    },
+    "webAppStorageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('sawa{0}', uniqueString(resourceGroup().id))]"
+    },
+    "webAppStorageAccountImagesContainerName": {
+      "type": "string",
+      "defaultValue": "images"
+    },
+    "webAppStorageAccountThumbnailsContainerName": {
+      "type": "string",
+      "defaultValue": "thumbnails"
+    },
+    "functionAppStorageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('safa{0}', uniqueString(resourceGroup().id))]"
+    },
+    "applicationInsightsName": {
+      "type": "string",
+      "defaultValue": "[format('appin-{0}', uniqueString(resourceGroup().id))]"
+    },
+    "webAppName": {
+      "type": "string",
+      "defaultValue": "[format('wa{0}', uniqueString(resourceGroup().id))]"
+    },
+    "webAppRepoURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/Azure-Samples/storage-blob-upload-from-webapp"
+    },
+    "functionAppName": {
+      "type": "string",
+      "defaultValue": "[format('fa{0}', uniqueString(resourceGroup().id))]"
+    },
+    "functionAppRepoURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/Azure-Samples/function-image-upload-resize"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "deploymentSlotName": "preview",
+    "functionName": "Thumbnail",
+    "functionResourceId": "[format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Web/sites/{2}/functions/{3}', subscription().subscriptionId, resourceGroup().name, parameters('functionAppName'), variables('functionName'))]",
+    "environmentName": "Production",
+    "workloadName": "Image Resizer",
+    "costCenterName": "IT"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-03-01-preview",
+      "name": "[parameters('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "properties": {
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1
+        },
+        "sku": {
+          "name": "PerGB2018"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[format('{0}/Microsoft.Insights/diagnosticSettings', parameters('logAnalyticsWorkspaceName'))]",
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "logs": [
+          {
+            "category": "Audit",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2016-09-01",
+      "name": "[parameters('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "sku": {
+        "name": "S1",
+        "tier": "Standard",
+        "size": "S1",
+        "family": "S",
+        "capacity": 1
+      },
+      "kind": "app",
+      "properties": {
+        "name": "[parameters('appServicePlanName')]",
+        "perSiteScaling": false,
+        "reserved": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('webAppStorageAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "kind": "BlobStorage",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "accessTier": "Hot",
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default/{1}', parameters('webAppStorageAccountName'), parameters('webAppStorageAccountImagesContainerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default/{1}', parameters('webAppStorageAccountName'), parameters('webAppStorageAccountThumbnailsContainerName'))]",
+      "properties": {
+        "publicaccess": "container"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('functionAppStorageAccountName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "accessTier": "Hot",
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[parameters('applicationInsightsName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "kind": "web",
+      "properties": {
+        "ApplicationId": "[parameters('applicationInsightsName')]",
+        "Application_Type": "web",
+        "Flow_Type": "Redfield",
+        "Request_Source": "IbizaAIExtension",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('webAppName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "httpsOnly": false,
+        "siteconfig": {
+          "appsettings": [
+            {
+              "name": "AzureStorageConfig__AccountName",
+              "value": "[parameters('webAppStorageAccountName')]"
+            },
+            {
+              "name": "AzureStorageConfig__AccountKey",
+              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName')), '2019-06-01').keys[1].value]"
+            },
+            {
+              "name": "AzureStorageConfig__ImageContainer",
+              "value": "images"
+            },
+            {
+              "name": "AzureStorageConfig__ThumbnailContainer",
+              "value": "thumbnails"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2018-05-01-preview').InstrumentationKey]"
+            },
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_Mode",
+              "value": "recommended"
+            },
+            {
+              "name": "InstrumentationEngine_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_BaseExtensions",
+              "value": "~1"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2018-11-01",
+      "name": "[format('{0}/web', parameters('webAppName'))]",
+      "properties": {
+        "repoUrl": "[parameters('webAppRepoURL')]",
+        "branch": "master",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[format('{0}/Microsoft.Insights/diagnosticSettings', parameters('webAppName'))]",
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "logs": [
+          {
+            "category": "AppServiceHTTPLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceConsoleLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceAppLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceFileAuditLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceAuditLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceAntivirusScanAuditLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServiceIPSecAuditLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          },
+          {
+            "category": "AppServicePlatformLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2018-11-01",
+      "name": "[format('{0}/{1}', parameters('webAppName'), variables('deploymentSlotName'))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/slots/sourcecontrols",
+      "apiVersion": "2018-11-01",
+      "name": "[format('{0}/web', format('{0}/{1}', parameters('webAppName'), variables('deploymentSlotName')))]",
+      "properties": {
+        "repoUrl": "[parameters('webAppRepoURL')]",
+        "branch": "master",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/slots', split(format('{0}/{1}', parameters('webAppName'), variables('deploymentSlotName')), '/')[0], split(format('{0}/{1}', parameters('webAppName'), variables('deploymentSlotName')), '/')[1])]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('functionAppName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Environment": "[variables('environmentName')]",
+        "Workload": "[variables('workloadName')]",
+        "CostCenter": "[variables('costCenterName')]"
+      },
+      "kind": "functionApp",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "siteconfig": {
+          "appsettings": [
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1}', parameters('functionAppStorageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('functionAppStorageAccountName')), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix=core.windows.net;AccountKey={1}', parameters('webAppStorageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName')), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "10.14.1"
+            },
+            {
+              "name": "THUMBNAIL_CONTAINER_NAME",
+              "value": "thumbnails"
+            },
+            {
+              "name": "THUMBNAIL_WIDTH",
+              "value": "100"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('applicationInsightsName')), '2018-05-01-preview').InstrumentationKey]"
+            },
+            {
+              "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_Mode",
+              "value": "recommended"
+            },
+            {
+              "name": "InstrumentationEngine_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "XDT_MicrosoftApplicationInsights_BaseExtensions",
+              "value": "~1"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('functionAppStorageAccountName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/sourcecontrols",
+      "apiVersion": "2018-11-01",
+      "name": "[format('{0}/web', parameters('functionAppName'))]",
+      "properties": {
+        "repoUrl": "[parameters('functionAppRepoURL')]",
+        "branch": "master",
+        "isManualIntegration": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[format('{0}/Microsoft.Insights/diagnosticSettings', parameters('functionAppName'))]",
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "logs": [
+          {
+            "category": "FunctionAppLogs",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ],
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "days": 7,
+              "enabled": true
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/providers/eventSubscriptions",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[format('{0}/Microsoft.EventGrid/imageResizer', parameters('webAppStorageAccountName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "topic": "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]",
+        "destination": {
+          "endpointType": "AzureFunction",
+          "properties": {
+            "resourceId": "[variables('functionResourceId')]",
+            "maxEventsPerBatch": 1,
+            "preferredBatchSizeInKilobytes": 64
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Storage.BlobCreated"
+          ],
+          "subjectBeginsWith": "/blobServices/default/containers/images/blobs/",
+          "advancedFilters": []
+        },
+        "labels": [
+          "functions-thumbnail"
+        ],
+        "eventDeliverySchema": "EventGridSchema"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/sourcecontrols', split(format('{0}/web', parameters('functionAppName')), '/')[0], split(format('{0}/web', parameters('functionAppName')), '/')[1])]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('functionAppStorageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+    },
+    "appServicePlanId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
+    },
+    "webAppStorageAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('webAppStorageAccountName'))]"
+    },
+    "functionAppStorageAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('functionAppStorageAccountName'))]"
+    },
+    "applicationInsightsId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Insights/components', parameters('applicationInsightsName'))]"
+    },
+    "webAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+    },
+    "webAppPublicUrl": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('webAppName'))).defaultHostName]"
+    },
+    "functionAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+    }
+  }
+}
