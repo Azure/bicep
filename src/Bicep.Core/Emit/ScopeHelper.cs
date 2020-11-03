@@ -80,14 +80,5 @@ namespace Bicep.Core.Emit
                     resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[1].Expression)),
                 _ => null,
             };
-
-        public static bool CanConvertToArmJson(IResourceScopeType resourceScopeType)
-            => resourceScopeType switch {
-                TenantScopeType _ => false,
-                ManagementGroupScopeType _ => false,
-                SubscriptionScopeType subscriptionScopeType => subscriptionScopeType.Arguments.Length == 0,
-                ResourceGroupScopeType resourceGroupScopeType => resourceGroupScopeType.Arguments.Length == 0,
-                _ => true,
-            };
     }
 }
