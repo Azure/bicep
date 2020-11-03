@@ -10,7 +10,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class ParameterDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public ParameterDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase? modifier)
         {

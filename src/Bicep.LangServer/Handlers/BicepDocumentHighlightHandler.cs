@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(referenceSyntax => new DocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
-                    Kind = referenceSyntax is IDeclarationSyntax
+                    Kind = referenceSyntax is INamedDeclarationSyntax
                         ? DocumentHighlightKind.Write
                         : DocumentHighlightKind.Read
                 });

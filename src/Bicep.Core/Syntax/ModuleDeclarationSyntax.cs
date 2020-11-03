@@ -8,7 +8,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase body)
         {

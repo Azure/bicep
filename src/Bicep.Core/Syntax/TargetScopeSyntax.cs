@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class TargetScopeSyntax : SyntaxBase
+    public class TargetScopeSyntax : SyntaxBase, IDeclarationSyntax
     {
         public TargetScopeSyntax(Token keyword, Token assignment, SyntaxBase value)
         {
@@ -29,15 +30,12 @@ namespace Bicep.Core.Syntax
 
         public TypeSymbol GetDeclaredType()
         {
-            var scopeType = UnionType.Create(
+            // TODO: Implement the ability to declare a file targeting multiple scopes
+            return UnionType.Create(
                 new StringLiteralType(LanguageConstants.TargetScopeTypeTenant),
                 new StringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
                 new StringLiteralType(LanguageConstants.TargetScopeTypeSubscription),
                 new StringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup));
-
-            return UnionType.Create(
-                new TypedArrayType(scopeType, TypeSymbolValidationFlags.Default),
-                scopeType);
         }
     }
 }

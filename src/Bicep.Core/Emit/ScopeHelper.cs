@@ -11,31 +11,6 @@ namespace Bicep.Core.Emit
 {
     public static class ScopeHelper
     {
-        private static LanguageExpression GetDeploymentScopeExpression()
-            => new FunctionExpression(
-                "deployment",
-                Array.Empty<LanguageExpression>(),
-                new LanguageExpression[]
-                {
-                    new JTokenExpression("scope"),
-                });
-
-        private static LanguageExpression GetSubscriptionIdExpression()
-            => new FunctionExpression(
-                "subscription",
-                Array.Empty<LanguageExpression>(),
-                new LanguageExpression[] {
-                    new JTokenExpression("subscriptionId"),
-                });
-
-        private static LanguageExpression GetResourceGroupNameExpression()
-            => new FunctionExpression(
-                "resourceGroup",
-                Array.Empty<LanguageExpression>(),
-                new LanguageExpression[] {
-                    new JTokenExpression("name"),
-                });
-
         private static LanguageExpression GetManagementGroupScopeExpression(LanguageExpression managementGroupName)
             => new FunctionExpression(
                 "format",
@@ -63,25 +38,6 @@ namespace Bicep.Core.Emit
 
             return output;
         }
-
-        private static IReadOnlyDictionary<string, LanguageExpression> ToScopePropertyDictionary(LanguageExpression scope)
-            => new Dictionary<string, LanguageExpression>
-            {
-                ["scope"] = scope,
-            };
-
-        private static IReadOnlyDictionary<string, LanguageExpression> ToSubscriptionResourceGroupPropertyDictionary(LanguageExpression subscriptionId, LanguageExpression resourceGroupName)
-            => new Dictionary<string, LanguageExpression>
-            {
-                ["subscriptionId"] = subscriptionId,
-                ["resourceGroup"] = resourceGroupName,
-            };
-
-        private static IReadOnlyDictionary<string, LanguageExpression> ToSubscriptionPropertyDictionary(LanguageExpression subscriptionId)
-            => new Dictionary<string, LanguageExpression>
-            {
-                ["subscriptionId"] = subscriptionId,
-            };
 
         public static IReadOnlyDictionary<string, LanguageExpression> GetScopeProperties(AzResourceScope templateScope, ExpressionConverter expressionConverter, TypeSymbol scopeType)
             => scopeType switch {
