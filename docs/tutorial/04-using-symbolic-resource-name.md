@@ -215,6 +215,6 @@ We can see in our compiled ARM Template that the `dependsOn` is correctly added 
 
 ## Next steps
 
-In the final tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
+In the next tutorial, we will learn how to consume our current bicep file as a `module`:
 
-[5 - Convert any ARM template into a Bicep file](./05-convert-arm-template.md)
+[5 - Creating and consuming modules](./05-creating-modules.md)

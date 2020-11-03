@@ -55,6 +55,9 @@ If you'd like to contribute example `.bicep` files that showcase abilities of th
 * Include your file named `main.bicep`.
 * Compile the file using the Bicep CLI, and include the compiled `main.json` with your check-in.
 * Pull Request validation will ensure that the `main.bicep` file can be compiled successfully without errors, and that the generated `main.json` file matches the one being checked in. If you want to validate that this will pass locally before submitting a PR, you can use `dotnet test` in the root directory of this repo to run the full test suite.
+* While everything will *not necessarily be applicable*, read through the Azure QuickStart Templates [Best Practices Guide](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#best-practices) and follow it where appropriate (i.e. [parameter guidance](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#parameters), [resource property order](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#sort-order-of-properties), etc.)
+
+**Note:** If you have never submitted a Pull Request or used git before, reading through the [Git tutorial](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/git-tutorial.md) in the azure-quickstart-template repo is a good place to start.
 
 ## Feature Suggestions
 * Please first search [Open Bicep Issues](https://github.com/Azure/bicep/issues) before opening an issue to check whether your feature has already been suggested. If it has, feel free to add your own comments to the existing issue.
