@@ -27,9 +27,12 @@ namespace Bicep.Core.Parser
             this.diagnosticWriter.WriteMultiple(syntax.LexerDiagnostics);
 
             var targetScopeSyntaxes = syntax.Children.OfType<TargetScopeSyntax>().ToList();
-            foreach (var targetScope in targetScopeSyntaxes.Skip(1))
+            if (targetScopeSyntaxes.Count > 1)
             {
-                this.diagnosticWriter.Write(targetScope.Keyword, x => x.TargetScopeMultipleDeclarations());
+                foreach (var targetScope in targetScopeSyntaxes)
+                {
+                    this.diagnosticWriter.Write(targetScope.Keyword, x => x.TargetScopeMultipleDeclarations());
+                }
             }
         }
 

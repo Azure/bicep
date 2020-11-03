@@ -8,10 +8,11 @@ namespace Bicep.Core.Syntax
 {
     public class TargetScopeSyntax : SyntaxBase, IDeclarationSyntax
     {
-        public TargetScopeSyntax(Token keyword, Token assignment, SyntaxBase value)
+        public TargetScopeSyntax(Token keyword, SyntaxBase assignment, SyntaxBase value)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.TargetScopeKeyword);
-            AssertTokenType(assignment, nameof(assignment), TokenType.Assignment);
+            AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
             this.Keyword = keyword;
             this.Assignment = assignment;
@@ -20,7 +21,7 @@ namespace Bicep.Core.Syntax
 
         public Token Keyword { get; }
 
-        public Token Assignment { get; }
+        public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
 

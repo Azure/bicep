@@ -75,7 +75,7 @@ namespace Bicep.Core.Emit
                     if (returnValueType is IResourceScopeType resourceScopeType && !ScopeHelper.CanConvertToArmJson(resourceScopeType))
                     {
                         // return an empty object - there is no ARM equivalent to return
-                        return new FunctionExpression("json", new LanguageExpression [] { new JTokenExpression("{}") }, new LanguageExpression[0]);
+                        return new FunctionExpression("createObject", new LanguageExpression [0], new LanguageExpression[0]);
                     }
 
                     return ConvertFunction(
@@ -91,7 +91,7 @@ namespace Bicep.Core.Emit
                     if (returnValueType2 is IResourceScopeType resourceScopeType2 && !ScopeHelper.CanConvertToArmJson(resourceScopeType2))
                     {
                         // return an empty object - there is no ARM equivalent to return
-                        return new FunctionExpression("json", new LanguageExpression [] { new JTokenExpression("{}") }, new LanguageExpression[0]);
+                        return new FunctionExpression("createObject", new LanguageExpression [0], new LanguageExpression[0]);
                     }
 
                     return ConvertFunction(
