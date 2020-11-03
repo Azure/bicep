@@ -133,6 +133,10 @@ namespace Bicep.Core.TypeSystem
                     // the declared type of the body is more useful to us than the declared type of the resource itself
                     return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Body);
 
+                case ModuleSymbol moduleSymbol when IsCycleFree(moduleSymbol):
+                    // the declared type of the body is more useful to us than the declared type of the module itself
+                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.Body);
+
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
                     // use its declared type
