@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
@@ -20,13 +21,15 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
+        private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
 
-        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase,Symbol> bindings)
+        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
         {
             this.hierarchy = hierarchy;
             this.typeManager = typeManager;
             this.resourceTypeProvider = resourceTypeProvider;
             this.bindings = bindings;
+            this.cyclesBySyntax = cyclesBySyntax;
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
@@ -114,17 +117,21 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
+            // references to symbols can be involved in cycles
+            // we should not try to obtain the declared type for such symbols because we will likely never finish
+            bool IsCycleFree(DeclaredSymbol declaredSymbol) => !this.cyclesBySyntax.ContainsKey(declaredSymbol);
+
             // because all variable access nodes are normally bound to something, this should always return true
             // (if not, the following code handles that gracefully)
             this.bindings.TryGetValue(syntax, out var symbol);
             
             switch (symbol)
             {
-                case ResourceSymbol resourceSymbol:
+                case ResourceSymbol resourceSymbol when IsCycleFree(resourceSymbol):
                     // the declared type of the body is more useful to us than the declared type of the resource itself
                     return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Body);
 
-                case DeclaredSymbol declaredSymbol:
+                case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
                     // use its declared type
                     return this.GetDeclaredTypeAssignment(declaredSymbol.DeclaringSyntax);
