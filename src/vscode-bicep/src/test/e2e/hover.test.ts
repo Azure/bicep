@@ -98,7 +98,7 @@ describe("hover", (): void => {
       startLine: 19,
       startCharacter: 55,
       endLine: 19,
-      endCharacter: 69,
+      endCharacter: 67,
       contents: ["function uniqueString(string): string"],
     });
   });
