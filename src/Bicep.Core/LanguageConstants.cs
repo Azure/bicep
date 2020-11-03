@@ -17,11 +17,17 @@ namespace Bicep.Core
 
         public const string ListSeparator = ", ";
 
+        public const string TargetScopeKeyword = "targetScope";
         public const string ParameterKeyword = "param";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+
+        public const string TargetScopeTypeTenant = "tenant";
+        public const string TargetScopeTypeManagementGroup = "managementGroup";
+        public const string TargetScopeTypeSubscription = "subscription";
+        public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
         public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
 
@@ -40,6 +46,7 @@ namespace Bicep.Core
         public const string ParameterDefaultPropertyName = "default";
 
         public const string ModuleNamePropertyName = "name";
+        public const string ModuleScopePropertyName = "scope";
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
 
@@ -51,7 +58,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol ResourceRef = new ResourceRefType();
+        public static readonly TypeSymbol ResourceRef = new ResourceScopeReference("resource | module", ResourceScopeType.ModuleScope | ResourceScopeType.ResourceScope);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -132,24 +139,41 @@ namespace Bicep.Core
             yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
         }
 
-        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, string typeName)
+        private static ResourceScopeReference CreateResourceScopeReference(ResourceScopeType resourceScope)
+            => resourceScope switch {
+                ResourceScopeType.TenantScope => new ResourceScopeReference("tenant", resourceScope),
+                ResourceScopeType.ManagementGroupScope => new ResourceScopeReference("managementGroup", resourceScope),
+                ResourceScopeType.SubscriptionScope => new ResourceScopeReference("subscription", resourceScope),
+                ResourceScopeType.ResourceGroupScope => new ResourceScopeReference("resourceGroup", resourceScope),
+                _ => new ResourceScopeReference("none", ResourceScopeType.None),
+            };
+
+        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScopeType moduleScope, ResourceScopeType containingScope, string typeName)
         {
             var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are reqired, we can allow the 'params' declaration to be ommitted entirely
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
+            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
 
-            return new NamedObjectType(
+            // If the module scope matches the parent scope, we can safely omit the scope property
+            var scopeRequiredFlag = moduleScope != containingScope ? TypePropertyFlags.Required : TypePropertyFlags.None;
+
+            var moduleBody = new NamedObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
+                    new TypeProperty(ModuleScopePropertyName, CreateResourceScopeReference(moduleScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
+                    new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly),
                 },
                 null);
+
+            return new ModuleType(typeName, moduleBody);
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)

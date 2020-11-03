@@ -326,6 +326,185 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
+//@[0:321) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:47)  IdentifierSyntax
+//@[7:47)   Identifier |optionalWithAllParamsAndManualDependency|
+//@[48:78)  StringSyntax
+//@[48:78)   StringComplete |'./child/optionalParams.bicep'|
+//@[78:79)  Assignment |=|
+//@[80:321)  ObjectSyntax
+//@[80:81)   LeftBrace |{|
+//@[81:83)   NewLine |\r\n|
+  name: 'optionalWithAllParamsAndManualDependency'
+//@[2:50)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:50)    StringSyntax
+//@[8:50)     StringComplete |'optionalWithAllParamsAndManualDependency'|
+//@[50:52)   NewLine |\r\n|
+  params: {
+//@[2:110)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:110)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+    optionalString: 'abc'
+//@[4:25)     ObjectPropertySyntax
+//@[4:18)      IdentifierSyntax
+//@[4:18)       Identifier |optionalString|
+//@[18:19)      Colon |:|
+//@[20:25)      StringSyntax
+//@[20:25)       StringComplete |'abc'|
+//@[25:27)     NewLine |\r\n|
+    optionalInt: 42
+//@[4:19)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalInt|
+//@[15:16)      Colon |:|
+//@[17:19)      NumericLiteralSyntax
+//@[17:19)       Number |42|
+//@[19:21)     NewLine |\r\n|
+    optionalObj: { }
+//@[4:20)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalObj|
+//@[15:16)      Colon |:|
+//@[17:20)      ObjectSyntax
+//@[17:18)       LeftBrace |{|
+//@[19:20)       RightBrace |}|
+//@[20:22)     NewLine |\r\n|
+    optionalArray: [ ]
+//@[4:22)     ObjectPropertySyntax
+//@[4:17)      IdentifierSyntax
+//@[4:17)       Identifier |optionalArray|
+//@[17:18)      Colon |:|
+//@[19:22)      ArraySyntax
+//@[19:20)       LeftSquare |[|
+//@[21:22)       RightSquare |]|
+//@[22:24)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  dependsOn: [
+//@[2:71)   ObjectPropertySyntax
+//@[2:11)    IdentifierSyntax
+//@[2:11)     Identifier |dependsOn|
+//@[11:12)    Colon |:|
+//@[13:71)    ArraySyntax
+//@[13:14)     LeftSquare |[|
+//@[14:16)     NewLine |\r\n|
+    resWithDependencies
+//@[4:23)     ArrayItemSyntax
+//@[4:23)      VariableAccessSyntax
+//@[4:23)       IdentifierSyntax
+//@[4:23)        Identifier |resWithDependencies|
+//@[23:25)     NewLine |\r\n|
+    optionalWithAllParams
+//@[4:25)     ArrayItemSyntax
+//@[4:25)      VariableAccessSyntax
+//@[4:25)       IdentifierSyntax
+//@[4:25)        Identifier |optionalWithAllParams|
+//@[25:27)     NewLine |\r\n|
+  ]
+//@[2:3)     RightSquare |]|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module optionalWithImplicitDependency './child/optionalParams.bicep'= {
+//@[0:300) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:37)  IdentifierSyntax
+//@[7:37)   Identifier |optionalWithImplicitDependency|
+//@[38:68)  StringSyntax
+//@[38:68)   StringComplete |'./child/optionalParams.bicep'|
+//@[68:69)  Assignment |=|
+//@[70:300)  ObjectSyntax
+//@[70:71)   LeftBrace |{|
+//@[71:73)   NewLine |\r\n|
+  name: 'optionalWithImplicitDependency'
+//@[2:40)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:40)    StringSyntax
+//@[8:40)     StringComplete |'optionalWithImplicitDependency'|
+//@[40:42)   NewLine |\r\n|
+  params: {
+//@[2:182)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:182)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:13)     NewLine |\r\n|
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
+//@[4:97)     ObjectPropertySyntax
+//@[4:18)      IdentifierSyntax
+//@[4:18)       Identifier |optionalString|
+//@[18:19)      Colon |:|
+//@[20:97)      FunctionCallSyntax
+//@[20:26)       IdentifierSyntax
+//@[20:26)        Identifier |concat|
+//@[26:27)       LeftParen |(|
+//@[27:50)       FunctionArgumentSyntax
+//@[27:49)        PropertyAccessSyntax
+//@[27:46)         VariableAccessSyntax
+//@[27:46)          IdentifierSyntax
+//@[27:46)           Identifier |resWithDependencies|
+//@[46:47)         Dot |.|
+//@[47:49)         IdentifierSyntax
+//@[47:49)          Identifier |id|
+//@[49:50)        Comma |,|
+//@[51:96)       FunctionArgumentSyntax
+//@[51:96)        PropertyAccessSyntax
+//@[51:91)         VariableAccessSyntax
+//@[51:91)          IdentifierSyntax
+//@[51:91)           Identifier |optionalWithAllParamsAndManualDependency|
+//@[91:92)         Dot |.|
+//@[92:96)         IdentifierSyntax
+//@[92:96)          Identifier |name|
+//@[96:97)       RightParen |)|
+//@[97:99)     NewLine |\r\n|
+    optionalInt: 42
+//@[4:19)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalInt|
+//@[15:16)      Colon |:|
+//@[17:19)      NumericLiteralSyntax
+//@[17:19)       Number |42|
+//@[19:21)     NewLine |\r\n|
+    optionalObj: { }
+//@[4:20)     ObjectPropertySyntax
+//@[4:15)      IdentifierSyntax
+//@[4:15)       Identifier |optionalObj|
+//@[15:16)      Colon |:|
+//@[17:20)      ObjectSyntax
+//@[17:18)       LeftBrace |{|
+//@[19:20)       RightBrace |}|
+//@[20:22)     NewLine |\r\n|
+    optionalArray: [ ]
+//@[4:22)     ObjectPropertySyntax
+//@[4:17)      IdentifierSyntax
+//@[4:17)       Identifier |optionalArray|
+//@[17:18)      Colon |:|
+//@[19:22)      ArraySyntax
+//@[19:20)       LeftSquare |[|
+//@[21:22)       RightSquare |]|
+//@[22:24)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 output stringOutputA string = modATest.outputs.stringOutputA
 //@[0:60) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|

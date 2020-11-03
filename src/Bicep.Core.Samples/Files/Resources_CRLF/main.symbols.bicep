@@ -1,8 +1,11 @@
-
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[9:21) Resource basicStorage. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 119
+//@[9:21) Resource basicStorage. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 183
   name: 'basicblobs'
   location: 'westus'
+  kind: 'BlobStorage'
+  sku: {
+    name: 'Standard_GRS'
+  }
 }
 
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
@@ -75,7 +78,7 @@ param appServicePlanInstances int
 //@[6:29) Parameter appServicePlanInstances. Type: int. Declaration start char: 0, length: 33
 
 var location = resourceGroup().location
-//@[4:12) Variable location. Type: any. Declaration start char: 0, length: 39
+//@[4:12) Variable location. Type: string. Declaration start char: 0, length: 39
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[9:13) Resource farm. Type: Microsoft.Web/serverFarms@2019-08-01. Declaration start char: 0, length: 371

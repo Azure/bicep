@@ -37,7 +37,11 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "basicblobs",
-      "location": "westus"
+      "location": "westus",
+      "kind": "BlobStorage",
+      "sku": {
+        "name": "Standard_GRS"
+      }
     },
     {
       "type": "Microsoft.Network/dnszones",

@@ -1918,6 +1918,66 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 //@[62:63)   Colon |:|
 //@[64:74)   StringSyntax
 //@[64:74)    StringComplete |'someText'|
-//@[74:75) NewLine |\n|
+//@[74:76) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+// Bicep functions that cannot be converted into ARM functions
+//@[62:63) NewLine |\n|
+var scopesWithoutArmRepresentation = {
+//@[0:214) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:34)  IdentifierSyntax
+//@[4:34)   Identifier |scopesWithoutArmRepresentation|
+//@[35:36)  Assignment |=|
+//@[37:214)  ObjectSyntax
+//@[37:38)   LeftBrace |{|
+//@[38:39)   NewLine |\n|
+  tenant: tenant()
+//@[2:18)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |tenant|
+//@[8:9)    Colon |:|
+//@[10:18)    FunctionCallSyntax
+//@[10:16)     IdentifierSyntax
+//@[10:16)      Identifier |tenant|
+//@[16:17)     LeftParen |(|
+//@[17:18)     RightParen |)|
+//@[18:19)   NewLine |\n|
+  subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
+//@[2:68)   ObjectPropertySyntax
+//@[2:14)    IdentifierSyntax
+//@[2:14)     Identifier |subscription|
+//@[14:15)    Colon |:|
+//@[16:68)    FunctionCallSyntax
+//@[16:28)     IdentifierSyntax
+//@[16:28)      Identifier |subscription|
+//@[28:29)     LeftParen |(|
+//@[29:67)     FunctionArgumentSyntax
+//@[29:67)      StringSyntax
+//@[29:67)       StringComplete |'10b57a01-6350-4ce2-972a-6a13642f00bf'|
+//@[67:68)     RightParen |)|
+//@[68:69)   NewLine |\n|
+  resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
+//@[2:85)   ObjectPropertySyntax
+//@[2:15)    IdentifierSyntax
+//@[2:15)     Identifier |resourceGroup|
+//@[15:16)    Colon |:|
+//@[17:85)    InstanceFunctionCallSyntax
+//@[17:19)     VariableAccessSyntax
+//@[17:19)      IdentifierSyntax
+//@[17:19)       Identifier |az|
+//@[19:20)     Dot |.|
+//@[20:33)     IdentifierSyntax
+//@[20:33)      Identifier |resourceGroup|
+//@[33:34)     LeftParen |(|
+//@[34:73)     FunctionArgumentSyntax
+//@[34:72)      StringSyntax
+//@[34:72)       StringComplete |'10b57a01-6350-4ce2-972a-6a13642f00bf'|
+//@[72:73)      Comma |,|
+//@[74:84)     FunctionArgumentSyntax
+//@[74:84)      StringSyntax
+//@[74:84)       StringComplete |'myRgName'|
+//@[84:85)     RightParen |)|
+//@[85:86)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

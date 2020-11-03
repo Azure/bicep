@@ -153,7 +153,12 @@
     "propertyAccessFromObject": "[variables('resourceGroupObject').name]",
     "isTrue": "[equals(max(1, 2), 3)]",
     "isFalse": "[not(variables('isTrue'))]",
-    "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]"
+    "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]",
+    "scopesWithoutArmRepresentation": {
+      "tenant": "[json('{}')]",
+      "subscription": "[json('{}')]",
+      "resourceGroup": "[json('{}')]"
+    }
   },
   "resources": []
 }

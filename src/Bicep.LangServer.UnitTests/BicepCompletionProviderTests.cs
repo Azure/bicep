@@ -87,7 +87,7 @@ namespace Bicep.LangServer.UnitTests
                 var parser = new Parser(replaced);
                 var declaration = parser.Declaration();
 
-                declaration.Should().BeAssignableTo<IDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
+                declaration.Should().BeAssignableTo<INamedDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
             }
         }
 
@@ -421,7 +421,7 @@ output length int =
 
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
-            var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(), new SystemNamespaceSymbol()}
+            var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(ResourceScopeType.ResourceGroupScope), new SystemNamespaceSymbol()}
                 .SelectMany(ns => ns.Type.MethodResolver.GetKnownFunctions().Values)
                 .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)

@@ -48,7 +48,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "az.resourceGroup()$0"
+      "newText": "az.resourceGroup($0)"
     }
   },
   {
@@ -750,7 +750,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "subscription()$0"
+      "newText": "subscription($0)"
     }
   },
   {
@@ -803,6 +803,19 @@
     "textEdit": {
       "range": {},
       "newText": "take($0)"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
     }
   },
   {

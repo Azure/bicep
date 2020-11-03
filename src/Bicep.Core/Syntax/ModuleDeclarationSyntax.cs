@@ -8,7 +8,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase body)
         {
@@ -43,7 +43,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(SemanticModel.SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel.SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
             foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
@@ -64,7 +64,7 @@ namespace Bicep.Core.Syntax
                 outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
             }
 
-            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, "module");
+            return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, "module");
         }
     }
 }

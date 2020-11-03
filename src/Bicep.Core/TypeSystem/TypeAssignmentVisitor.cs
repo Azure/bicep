@@ -41,13 +41,15 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly SyntaxHierarchy hierarchy;
+        private readonly ResourceScopeType targetScope;
 
         public TypeAssignmentVisitor(
             IResourceTypeProvider resourceTypeProvider,
             TypeManager typeManager,
             IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
             IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol,
-            SyntaxHierarchy hierarchy)
+            SyntaxHierarchy hierarchy,
+            ResourceScopeType targetScope)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
@@ -58,6 +60,7 @@ namespace Bicep.Core.TypeSystem
             this.cyclesBySymbol = cyclesBySymbol;
             this.assignedTypes = new Dictionary<SyntaxBase, TypeAssignment>();
             this.hierarchy = hierarchy;
+            this.targetScope = targetScope;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -163,7 +166,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(failureDiagnostic);
                 }
 
-                var declaredType = syntax.GetDeclaredType(moduleSemanticModel);
+                var declaredType = syntax.GetDeclaredType(targetScope, moduleSemanticModel);
 
                 if (moduleSemanticModel.HasErrors())
                 {
@@ -576,6 +579,12 @@ namespace Bicep.Core.TypeSystem
                     baseType = resourceType.Body.Type;
                 }
 
+                if (baseType is ModuleType moduleType)
+                {
+                    // We're accessing a property on the module body.
+                    baseType = moduleType.Body.Type;
+                }
+
                 if (!(baseType is ObjectType objectType))
                 {
                     if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
@@ -636,6 +645,12 @@ namespace Bicep.Core.TypeSystem
                     baseType = resourceType.Body.Type;
                 }
 
+                if (baseType is ModuleType moduleType)
+                {
+                    // We're accessing a property on the module body.
+                    baseType = moduleType.Body.Type;
+                }
+
                 if (!(baseType is ObjectType objectType))
                 {
                     // can only access methods on objects
@@ -669,6 +684,19 @@ namespace Bicep.Core.TypeSystem
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
                 }
+            });
+
+        public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                var declaredType = syntax.GetDeclaredType();
+                if (declaredType is ErrorType)
+                {
+                    return declaredType;
+                }
+
+                TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
             });
 
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
@@ -723,7 +751,6 @@ namespace Bicep.Core.TypeSystem
 
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
-
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 
@@ -787,7 +814,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // we have an exact match or a single ambiguous match
                 // return its type
-                return matches.Single().ReturnType;
+                return matches.Single().ReturnTypeBuilder(argumentSyntaxes);
             }
 
             // function arguments are ambiguous (due to "any" type)

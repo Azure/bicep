@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
@@ -65,5 +66,32 @@ namespace Bicep.Core.Syntax
 
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
             => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.ParameterType?.TypeName);
+
+        public static ResourceScopeType GetTargetScope(TargetScopeSyntax targetScopeSyntax)
+        {
+            // TODO: Revisit when adding support for multiple target scopes
+
+            // Type checking will pick up any errors if we fail to process the syntax correctly in this function.
+            // There's no need to do error checking here - just return "None" as the scope type.
+
+            if (!(targetScopeSyntax.Value is StringSyntax stringSyntax))
+            {
+                return ResourceScopeType.None;
+            }
+
+            var literalValue = stringSyntax.TryGetLiteralValue();
+            if (literalValue == null)
+            {
+                return ResourceScopeType.None;
+            }
+
+            return literalValue switch {
+                LanguageConstants.TargetScopeTypeTenant => ResourceScopeType.TenantScope,
+                LanguageConstants.TargetScopeTypeManagementGroup => ResourceScopeType.ManagementGroupScope,
+                LanguageConstants.TargetScopeTypeSubscription => ResourceScopeType.SubscriptionScope,
+                LanguageConstants.TargetScopeTypeResourceGroup => ResourceScopeType.ResourceGroupScope,
+                _ => ResourceScopeType.None,
+            };
+        }
     }
 }

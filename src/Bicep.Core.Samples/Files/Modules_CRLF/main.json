@@ -310,6 +310,146 @@
           }
         }
       }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithAllParamsAndManualDependency",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "abc"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParams')]",
+        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "optionalWithImplicitDependency",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
+        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+      ]
     }
   ],
   "outputs": {

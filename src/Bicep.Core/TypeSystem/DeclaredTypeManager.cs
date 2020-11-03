@@ -22,14 +22,16 @@ namespace Bicep.Core.TypeSystem
         private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
+        private readonly ResourceScopeType targetScope;
 
-        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax)
+        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax, ResourceScopeType targetScope)
         {
             this.hierarchy = hierarchy;
             this.typeManager = typeManager;
             this.resourceTypeProvider = resourceTypeProvider;
             this.bindings = bindings;
             this.cyclesBySyntax = cyclesBySyntax;
+            this.targetScope = targetScope;
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
@@ -112,7 +114,7 @@ namespace Bicep.Core.TypeSystem
                 return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic));
             }
 
-            return new DeclaredTypeAssignment(syntax.GetDeclaredType(moduleSemanticModel));
+            return new DeclaredTypeAssignment(syntax.GetDeclaredType(targetScope, moduleSemanticModel));
         }
 
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
@@ -241,10 +243,10 @@ namespace Bicep.Core.TypeSystem
                     // the declared type will be the same as the parent
                     return CreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, syntax));
 
-                case ModuleDeclarationSyntax _ when parentType is ObjectType objectType:
+                case ModuleDeclarationSyntax _ when parentType is ModuleType moduleType:
                     // the object literal's parent is a module declaration, which makes this the body of the module
                     // the declared type will be the same as the parent
-                    return CreateAssignment(ResolveDiscriminatedObjects(objectType, syntax));
+                    return CreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, syntax));
 
                 case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
                     // the object is a modifier of a parameter type

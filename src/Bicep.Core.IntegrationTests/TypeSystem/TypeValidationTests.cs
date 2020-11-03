@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
             var registeredTypes = definedTypes.ToDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
             typeRegistrarMock
                 .Setup(x => x.GetType(It.IsAny<ResourceTypeReference>()))
-                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object, TypeSymbolValidationFlags.Default));
+                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object));
             typeRegistrarMock
                 .Setup(x => x.HasType(It.IsAny<ResourceTypeReference>()))
                 .Returns<ResourceTypeReference>(x => registeredTypes.ContainsKey(x));
@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var resourceProperties = LanguageConstants.GetCommonResourceProperties(reference)
                 .Concat(new TypeProperty("properties", new NamedObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
-            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null), validationFlags);
+            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null));
         }
 
         [DataTestMethod]

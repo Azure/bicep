@@ -18,6 +18,8 @@ namespace Bicep.Core.Diagnostics
     {
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
+        public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
+
         public class DiagnosticBuilderInternal
         {
             public DiagnosticBuilderInternal(TextSpan textSpan)
@@ -638,6 +640,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP111",
                 $"The specified module path contains invalid control code characters.");
+
+            public ErrorDiagnostic TargetScopeMultipleDeclarations() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP112",
+                $"The \"{LanguageConstants.TargetScopeKeyword}\" cannot be declared multiple times in one file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

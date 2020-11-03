@@ -404,4 +404,116 @@ module moduleWithInvalidTerminatorChar 'child/test.' = {
 //@[56:57)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithValidScope './empty.bicep' = {
+//@[0:80) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |moduleWithValidScope|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'./empty.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:80)  ObjectSyntax
+//@[46:47)   LeftBrace |{|
+//@[47:48)   NewLine |\n|
+  name: 'moduleWithValidScope'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'moduleWithValidScope'|
+//@[30:31)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope './empty.bicep' = {
+//@[0:114) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:29)  IdentifierSyntax
+//@[7:29)   Identifier |moduleWithInvalidScope|
+//@[30:45)  StringSyntax
+//@[30:45)   StringComplete |'./empty.bicep'|
+//@[46:47)  Assignment |=|
+//@[48:114)  ObjectSyntax
+//@[48:49)   LeftBrace |{|
+//@[49:50)   NewLine |\n|
+  name: 'moduleWithInvalidScope'
+//@[2:32)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:32)    StringSyntax
+//@[8:32)     StringComplete |'moduleWithInvalidScope'|
+//@[32:33)   NewLine |\n|
+  scope: moduleWithValidScope
+//@[2:29)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:29)    VariableAccessSyntax
+//@[9:29)     IdentifierSyntax
+//@[9:29)      Identifier |moduleWithValidScope|
+//@[29:30)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[0:113) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:37)  IdentifierSyntax
+//@[7:37)   Identifier |moduleWithMissingRequiredScope|
+//@[38:66)  StringSyntax
+//@[38:66)   StringComplete |'./subscription_empty.bicep'|
+//@[67:68)  Assignment |=|
+//@[69:113)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:71)   NewLine |\n|
+  name: 'moduleWithMissingRequiredScope'
+//@[2:40)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:40)    StringSyntax
+//@[8:40)     StringComplete |'moduleWithMissingRequiredScope'|
+//@[40:41)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+//@[0:113) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:30)  IdentifierSyntax
+//@[7:30)   Identifier |moduleWithInvalidScope2|
+//@[31:46)  StringSyntax
+//@[31:46)   StringComplete |'./empty.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:113)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+  name: 'moduleWithInvalidScope2'
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    StringSyntax
+//@[8:33)     StringComplete |'moduleWithInvalidScope2'|
+//@[33:34)   NewLine |\n|
+  scope: managementGroup()
+//@[2:26)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:26)    FunctionCallSyntax
+//@[9:24)     IdentifierSyntax
+//@[9:24)      Identifier |managementGroup|
+//@[24:25)     LeftParen |(|
+//@[25:26)     RightParen |)|
+//@[26:27)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

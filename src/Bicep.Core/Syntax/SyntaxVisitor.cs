@@ -72,6 +72,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public virtual void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public virtual void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             this.Visit(syntax.Keyword);

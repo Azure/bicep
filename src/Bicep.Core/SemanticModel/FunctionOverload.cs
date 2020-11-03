@@ -4,13 +4,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
 {
     public class FunctionOverload
     {
+        public delegate TypeSymbol ReturnTypeBuilderDelegate(IEnumerable<FunctionArgumentSyntax> arguments);
+
         public FunctionOverload(string name, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedParameterTypes, TypeSymbol? variableParameterType, FunctionFlags flags = FunctionFlags.Default)
+            : this(name, args => returnType, returnType, minimumArgumentCount, maximumArgumentCount, fixedParameterTypes, variableParameterType, flags)
+        {
+        }
+        
+        public FunctionOverload(string name, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol returnType, int minimumArgumentCount, int? maximumArgumentCount, IEnumerable<TypeSymbol> fixedParameterTypes, TypeSymbol? variableParameterType, FunctionFlags flags = FunctionFlags.Default)
         {
             if (maximumArgumentCount.HasValue && maximumArgumentCount.Value < minimumArgumentCount)
             {
@@ -24,7 +32,7 @@ namespace Bicep.Core.SemanticModel
             }
 
             this.Name = name;
-            this.ReturnType = returnType;
+            this.ReturnTypeBuilder = returnTypeBuilder;
             this.MinimumArgumentCount = minimumArgumentCount;
             this.MaximumArgumentCount = maximumArgumentCount;
             this.FixedParameterTypes = fixedTypes;
@@ -54,7 +62,7 @@ namespace Bicep.Core.SemanticModel
 
         public TypeSymbol? VariableParameterType { get; }
 
-        public TypeSymbol ReturnType { get; }
+        public ReturnTypeBuilderDelegate ReturnTypeBuilder { get; }
 
         public FunctionFlags Flags { get; }
 
@@ -121,6 +129,9 @@ namespace Bicep.Core.SemanticModel
 
         public static FunctionOverload CreateFixed(string name, TypeSymbol returnType, params TypeSymbol[] argumentTypes) => 
             new FunctionOverload(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableParameterType: null);
+
+        public static FunctionOverload CreateFixed(string name, ReturnTypeBuilderDelegate returnTypeBuilder, params TypeSymbol[] argumentTypes) => 
+            new FunctionOverload(name, returnTypeBuilder, returnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>()), argumentTypes.Length, argumentTypes.Length, argumentTypes, variableParameterType: null);
 
         public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
             new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);

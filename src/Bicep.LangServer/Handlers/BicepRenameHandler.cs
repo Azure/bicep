@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                 case ISymbolReference symbolReference:
                     return symbolReference.Name;
 
-                case IDeclarationSyntax declarationSyntax:
+                case INamedDeclarationSyntax declarationSyntax:
                     return declarationSyntax.Name;
 
                 default:
