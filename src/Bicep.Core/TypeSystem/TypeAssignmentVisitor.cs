@@ -576,6 +576,12 @@ namespace Bicep.Core.TypeSystem
                     baseType = resourceType.Body.Type;
                 }
 
+                if (baseType is ModuleType moduleType)
+                {
+                    // We're accessing a property on the module body.
+                    baseType = moduleType.Body.Type;
+                }
+
                 if (!(baseType is ObjectType objectType))
                 {
                     if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
@@ -634,6 +640,12 @@ namespace Bicep.Core.TypeSystem
                 {
                     // We're accessing a property on the resource body.
                     baseType = resourceType.Body.Type;
+                }
+
+                if (baseType is ModuleType moduleType)
+                {
+                    // We're accessing a property on the module body.
+                    baseType = moduleType.Body.Type;
                 }
 
                 if (!(baseType is ObjectType objectType))

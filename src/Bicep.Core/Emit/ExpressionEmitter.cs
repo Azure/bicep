@@ -171,9 +171,13 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitModuleScopeProperty(AzResourceScope templateScope, TypeSymbol scopeType)
+        public void EmitModuleScopeProperty(TypeSymbol scopeType)
         {
-            var scopeProperties = ScopeHelper.GetScopeProperties(templateScope, this.converter, scopeType);
+            var scopeProperties = ScopeHelper.GetScopeProperties(this.converter, scopeType);
+            if (scopeProperties == null)
+            {
+                return;
+            }
 
             foreach (var (property, expression) in scopeProperties)
             {

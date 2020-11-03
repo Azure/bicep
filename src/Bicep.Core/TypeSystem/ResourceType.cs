@@ -4,7 +4,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class ResourceType : TypeSymbol
+    public class ResourceType : TypeSymbol, IResourceScopeType
     {
         public ResourceType(ResourceTypeReference typeReference, ITypeReference body)
             : base(typeReference.FormatName())
@@ -19,6 +19,6 @@ namespace Bicep.Core.TypeSystem
 
         public ITypeReference Body { get; }
 
-        public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.DeclaresResourceScope;
+        public ResourceScopeType ResourceScopeType => ResourceScopeType.ResourceScope;
     }
 }

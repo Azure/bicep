@@ -39,88 +39,55 @@ namespace Bicep.Core.Emit
             return output;
         }
 
-        public static IReadOnlyDictionary<string, LanguageExpression> GetScopeProperties(AzResourceScope templateScope, ExpressionConverter expressionConverter, TypeSymbol scopeType)
+        public static IReadOnlyDictionary<string, LanguageExpression>? GetScopeProperties(ExpressionConverter expressionConverter, TypeSymbol scopeType)
             => scopeType switch {
-                TenantScopeType tenantScopeType => ScopeHelper.GetTenantScopeProperties(templateScope, tenantScopeType),
-                ManagementGroupScopeType managementGroupScopeType => ScopeHelper.GetManagementGroupScopeProperties(templateScope, expressionConverter, managementGroupScopeType),
-                SubscriptionScopeType subscriptionScopeType => ScopeHelper.GetSubscriptionScopeProperties(templateScope, expressionConverter, subscriptionScopeType),
-                ResourceGroupScopeType resourceGroupScopeType => ScopeHelper.GetResourceGroupScopeProperties(templateScope, expressionConverter, resourceGroupScopeType),
-                // TODO: type checker for this as part of semantic model
-                _ => throw new ArgumentException($"Unexpected scope type {scopeType.GetType()}"),
+                TenantScopeType tenantScopeType => ScopeHelper.GetTenantScopeProperties(tenantScopeType),
+                ManagementGroupScopeType managementGroupScopeType => ScopeHelper.GetManagementGroupScopeProperties(expressionConverter, managementGroupScopeType),
+                SubscriptionScopeType subscriptionScopeType => ScopeHelper.GetSubscriptionScopeProperties(expressionConverter, subscriptionScopeType),
+                ResourceGroupScopeType resourceGroupScopeType => ScopeHelper.GetResourceGroupScopeProperties(expressionConverter, resourceGroupScopeType),
+                _ => null,
             };
 
-        private static IReadOnlyDictionary<string, LanguageExpression> GetTenantScopeProperties(AzResourceScope templateScope, TenantScopeType scopeType)
-        {
-            switch (scopeType.Arguments.Length)
-            {
-                case 0:
-                    ValidateScope(templateScope, AzResourceScope.Tenant);
-                    return ToPropertyDictionary();
-                default:
-                    // TODO: type checker for this as part of semantic model
-                    throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
-            }
-        }
+        private static IReadOnlyDictionary<string, LanguageExpression>? GetTenantScopeProperties(TenantScopeType scopeType)
+            => scopeType.Arguments.Length switch {
+                0 => ToPropertyDictionary(),
+                _ => null,
+            };
 
-        private static IReadOnlyDictionary<string, LanguageExpression> GetManagementGroupScopeProperties(AzResourceScope templateScope, ExpressionConverter expressionConverter, ManagementGroupScopeType scopeType)
-        {
-            switch (scopeType.Arguments.Length)
-            {
-                case 0:
-                    ValidateScope(templateScope, AzResourceScope.ManagementGroup);
-                    return ToPropertyDictionary();
-                case 1:
-                    return ToPropertyDictionary(
-                        scope: GetManagementGroupScopeExpression(expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)));
-                default:
-                    // TODO: type checker for this as part of semantic model
-                    throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
-            }
-        }
+        private static IReadOnlyDictionary<string, LanguageExpression>? GetManagementGroupScopeProperties(ExpressionConverter expressionConverter, ManagementGroupScopeType scopeType)
+            => scopeType.Arguments.Length switch {
+                0 => ToPropertyDictionary(),
+                1 => ToPropertyDictionary(
+                    scope: GetManagementGroupScopeExpression(expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression))),
+                _ => null,
+            };
 
-        private static IReadOnlyDictionary<string, LanguageExpression> GetSubscriptionScopeProperties(AzResourceScope templateScope, ExpressionConverter expressionConverter, SubscriptionScopeType scopeType)
-        {
-            switch (scopeType.Arguments.Length)
-            {
-                case 0:
-                    ValidateScope(templateScope, AzResourceScope.Subscription);
-                    return ToPropertyDictionary();
-                case 1:
-                    return ToPropertyDictionary(
-                        subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
-                default:
-                    // TODO: type checker for this as part of semantic model
-                    throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
-            }
-        }
+        private static IReadOnlyDictionary<string, LanguageExpression>? GetSubscriptionScopeProperties(ExpressionConverter expressionConverter, SubscriptionScopeType scopeType)
+            => scopeType.Arguments.Length switch {
+                0 => ToPropertyDictionary(),
+                1 => ToPropertyDictionary(
+                    subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)),
+                _ => null,
+            };
 
-        private static IReadOnlyDictionary<string, LanguageExpression> GetResourceGroupScopeProperties(AzResourceScope templateScope, ExpressionConverter expressionConverter, ResourceGroupScopeType scopeType)
-        {
-            switch (scopeType.Arguments.Length)
-            {
-                case 0:
-                    ValidateScope(templateScope, AzResourceScope.ResourceGroup);
-                    return ToPropertyDictionary();
-                case 1:
-                    ValidateScope(templateScope, AzResourceScope.Subscription, AzResourceScope.ResourceGroup);
-                    return ToPropertyDictionary(
-                        resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
-                case 2:
-                    return ToPropertyDictionary(
-                        subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression),
-                        resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression));
-                default:
-                    // TODO: type checker for this as part of semantic model
-                    throw new ArgumentException($"Unexpected number of arguments for {scopeType.Name}");
-            }
-        }
+        private static IReadOnlyDictionary<string, LanguageExpression>? GetResourceGroupScopeProperties(ExpressionConverter expressionConverter, ResourceGroupScopeType scopeType)
+            => scopeType.Arguments.Length switch {
+                0 => ToPropertyDictionary(),
+                1 => ToPropertyDictionary(
+                    resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)),
+                2 => ToPropertyDictionary(
+                    subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression),
+                    resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[1].Expression)),
+                _ => null,
+            };
 
-        private static void ValidateScope(AzResourceScope templateScope, params AzResourceScope[] expectedScopes)
-        {
-            if (!expectedScopes.Contains(templateScope))
-            {
-                throw new ArgumentException($"Unexpected template scope");
-            }
-        }
+        public static bool CanConvertToArmJson(IResourceScopeType resourceScopeType)
+            => resourceScopeType switch {
+                TenantScopeType _ => false,
+                ManagementGroupScopeType _ => false,
+                SubscriptionScopeType subscriptionScopeType => subscriptionScopeType.Arguments.Length == 0,
+                ResourceGroupScopeType resourceGroupScopeType => resourceGroupScopeType.Arguments.Length == 0,
+                _ => true,
+            };
     }
 }

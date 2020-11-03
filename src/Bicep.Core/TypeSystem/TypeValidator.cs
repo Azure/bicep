@@ -54,12 +54,16 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
-                case TypeSymbol _ when targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.DeclaresResourceScope):
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.DeclaresResourceScope);
+                case TypeSymbol _ when targetType is ResourceScopeReference scopeReference:
+                    return sourceType is IResourceScopeType resourceScopeType && scopeReference.ResourceScopeType.HasFlag(resourceScopeType.ResourceScopeType);
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
+
+                case TypeSymbol _ when sourceType is ModuleType sourceModuleType:
+                    // When assigning a resource, we're really assigning the value of the resource body.
+                    return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
 
                 case StringLiteralType _ when sourceType is StringLiteralType:
                     // The name *is* the escaped string value, so we must have an exact match.
@@ -143,6 +147,13 @@ namespace Bicep.Core.TypeSystem
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
                 return new ResourceType(targetResourceType.TypeReference, narrowedBody);
+            }
+            
+            if (targetType is ModuleType targetModuleType)
+            {
+                var narrowedBody = NarrowTypeInternal(typeManager, expression, targetModuleType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+
+                return new ModuleType(targetModuleType.Name, narrowedBody);
             }
 
             // TODO: The type of this expression and all subexpressions should be cached

@@ -6,6 +6,7 @@ using Arm.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -70,6 +71,12 @@ namespace Bicep.Core.Emit
                         Array.Empty<LanguageExpression>());
 
                 case FunctionCallSyntax function:
+                    var functionCallType = context.SemanticModel.GetTypeInfo(function);
+                    if (functionCallType is IResourceScopeType resourceScopeType && !ScopeHelper.CanConvertToArmJson(resourceScopeType))
+                    {
+                        return new FunctionExpression("json", new LanguageExpression [] { new JTokenExpression("{}") }, new LanguageExpression[0]);
+                    }
+
                     return ConvertFunction(
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)).ToArray());

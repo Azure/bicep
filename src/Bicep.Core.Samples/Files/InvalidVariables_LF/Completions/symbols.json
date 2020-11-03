@@ -455,19 +455,6 @@
     }
   },
   {
-    "label": "managementGroup",
-    "kind": "function",
-    "detail": "managementGroup()",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_managementGroup",
-    "insertTextFormat": "snippet",
-    "textEdit": {
-      "range": {},
-      "newText": "managementGroup($0)"
-    }
-  },
-  {
     "label": "max",
     "kind": "function",
     "detail": "max()",

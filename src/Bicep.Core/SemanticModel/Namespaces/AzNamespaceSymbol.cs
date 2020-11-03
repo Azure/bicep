@@ -61,14 +61,14 @@ namespace Bicep.Core.SemanticModel.Namespaces
             yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue), allScopes);
 
             yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue), AzResourceScope.ManagementGroup);
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), allScopes);
+            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), AzResourceScope.Tenant | AzResourceScope.ManagementGroup);
 
             yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
             yield return (FunctionOverload.CreateFixed("subscription", GetRestrictedSubscriptionReturnValue, LanguageConstants.String), allScopes);
 
             yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue), AzResourceScope.ResourceGroup);
             yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), allScopes);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
         }
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(AzResourceScope resourceScope)

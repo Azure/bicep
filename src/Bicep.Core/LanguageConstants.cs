@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core
 {
@@ -58,8 +59,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol ResourceRef = new NamedObjectType("resourceRef", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
-        public static readonly TypeSymbol ResourceScope = new NamedObjectType("scope", TypeSymbolValidationFlags.DeclaresResourceScope, Enumerable.Empty<TypeProperty>(), null);
+        public static readonly TypeSymbol ResourceRef = new ResourceScopeReference("resource | module", ResourceScopeType.ModuleScope | ResourceScopeType.ResourceScope);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -140,7 +140,16 @@ namespace Bicep.Core
             yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
         }
 
-        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, string typeName)
+        private static ResourceScopeReference CreateResourceScopeReference(AzResourceScope resourceScope)
+            => resourceScope switch {
+                AzResourceScope.Tenant => new ResourceScopeReference("tenant", ResourceScopeType.TenantScope),
+                AzResourceScope.ManagementGroup => new ResourceScopeReference("managementGroup", ResourceScopeType.ManagementGroupScope),
+                AzResourceScope.Subscription => new ResourceScopeReference("subscription", ResourceScopeType.SubscriptionScope),
+                AzResourceScope.ResourceGroup => new ResourceScopeReference("resourceGroup", ResourceScopeType.ResourceGroupScope),
+                _ => new ResourceScopeReference("none", ResourceScopeType.None),
+            };
+
+        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, AzResourceScope resourceScope, string typeName)
         {
             var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are reqired, we can allow the 'params' declaration to be ommitted entirely
@@ -149,18 +158,20 @@ namespace Bicep.Core
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
 
-            return new NamedObjectType(
+            var moduleBody = new NamedObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
                 new []
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SkipInlining),
-                    new TypeProperty(ModuleScopePropertyName, LanguageConstants.ResourceScope, TypePropertyFlags.None),
+                    new TypeProperty(ModuleScopePropertyName, CreateResourceScopeReference(resourceScope), TypePropertyFlags.None),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                     new TypeProperty("dependsOn", resourceRefArray, TypePropertyFlags.WriteOnly),
                 },
                 null);
+
+            return new ModuleType(typeName, moduleBody);
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)

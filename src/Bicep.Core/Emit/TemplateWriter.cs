@@ -275,7 +275,7 @@ namespace Bicep.Core.Emit
             if (scopeProperty != null)
             {
                 var scopeType = context.SemanticModel.GetTypeInfo(scopeProperty);
-                this.emitter.EmitModuleScopeProperty(context.SemanticModel.TargetScope, scopeType);
+                this.emitter.EmitModuleScopeProperty(scopeType);
             }
 
             writer.WritePropertyName("properties");
