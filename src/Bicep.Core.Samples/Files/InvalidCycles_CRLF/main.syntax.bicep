@@ -200,4 +200,173 @@ var dd = {
 //@[8:10)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// variable completion cycles
+//@[29:31) NewLine |\r\n|
+var one = {
+//@[0:28) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |one|
+//@[8:9)  Assignment |=|
+//@[10:28)  ObjectSyntax
+//@[10:11)   LeftBrace |{|
+//@[11:13)   NewLine |\r\n|
+  first: two
+//@[2:12)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |first|
+//@[7:8)    Colon |:|
+//@[9:12)    VariableAccessSyntax
+//@[9:12)     IdentifierSyntax
+//@[9:12)      Identifier |two|
+//@[12:14)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(15) -> empty
+//@[31:33) NewLine |\r\n|
+var two = one.f
+//@[0:15) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:7)  IdentifierSyntax
+//@[4:7)   Identifier |two|
+//@[8:9)  Assignment |=|
+//@[10:15)  PropertyAccessSyntax
+//@[10:13)   VariableAccessSyntax
+//@[10:13)    IdentifierSyntax
+//@[10:13)     Identifier |one|
+//@[13:14)   Dot |.|
+//@[14:15)   IdentifierSyntax
+//@[14:15)    Identifier |f|
+//@[15:19) NewLine |\r\n\r\n|
+
+// resource completion cycles
+//@[29:31) NewLine |\r\n|
+resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[0:196) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:13)  IdentifierSyntax
+//@[9:13)   Identifier |res1|
+//@[14:60)  StringSyntax
+//@[14:60)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:196)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  // #completionTest(14) -> empty
+//@[33:35)   NewLine |\r\n|
+  name: res2.n
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    PropertyAccessSyntax
+//@[8:12)     VariableAccessSyntax
+//@[8:12)      IdentifierSyntax
+//@[8:12)       Identifier |res2|
+//@[12:13)     Dot |.|
+//@[13:14)     IdentifierSyntax
+//@[13:14)      Identifier |n|
+//@[14:16)   NewLine |\r\n|
+  location: 'l'
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:15)    StringSyntax
+//@[12:15)     StringComplete |'l'|
+//@[15:17)   NewLine |\r\n|
+  sku: {
+//@[2:38)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:38)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:10)     NewLine |\r\n|
+    name: 'Premium_LRS'
+//@[4:23)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:23)      StringSyntax
+//@[10:23)       StringComplete |'Premium_LRS'|
+//@[23:25)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'StorageV2'|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[0:164) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:13)  IdentifierSyntax
+//@[9:13)   Identifier |res2|
+//@[14:60)  StringSyntax
+//@[14:60)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[61:62)  Assignment |=|
+//@[63:164)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  name: res1.name
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:17)    PropertyAccessSyntax
+//@[8:12)     VariableAccessSyntax
+//@[8:12)      IdentifierSyntax
+//@[8:12)       Identifier |res1|
+//@[12:13)     Dot |.|
+//@[13:17)     IdentifierSyntax
+//@[13:17)      Identifier |name|
+//@[17:19)   NewLine |\r\n|
+  location: 'l'
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:15)    StringSyntax
+//@[12:15)     StringComplete |'l'|
+//@[15:17)   NewLine |\r\n|
+  sku: {
+//@[2:38)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:38)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:10)     NewLine |\r\n|
+    name: 'Premium_LRS'
+//@[4:23)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:23)      StringSyntax
+//@[10:23)       StringComplete |'Premium_LRS'|
+//@[23:25)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'StorageV2'|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

@@ -23,7 +23,7 @@ namespace Bicep.Core.TypeSystem
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeProvider, this, bindings, cyclesBySymbol, hierarchy);
 
-            this.declaredTypeManager = new DeclaredTypeManager(hierarchy, this, resourceTypeProvider, bindings);
+            this.declaredTypeManager = new DeclaredTypeManager(hierarchy, this, resourceTypeProvider, bindings, cyclesBySymbol);
         }
 
         public IResourceTypeProvider ResourceTypeProvider { get; }

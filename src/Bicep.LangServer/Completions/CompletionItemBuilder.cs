@@ -50,6 +50,12 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
+        public static CompletionItem WithAdditionalEdits(this CompletionItem item, TextEditContainer editContainer)
+        {
+            item.AdditionalTextEdits = editContainer;
+            return item;
+        }
+
         public static CompletionItem WithDetail(this CompletionItem item, string detail)
         {
             item.Detail = detail;

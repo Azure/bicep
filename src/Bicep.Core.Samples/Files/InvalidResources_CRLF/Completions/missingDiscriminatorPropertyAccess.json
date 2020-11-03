@@ -1,0 +1,22 @@
+[
+  {
+    "label": "kind",
+    "kind": "property",
+    "detail": "kind (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'AzureCLI' | 'AzurePowerShell'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_kind",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "kind"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

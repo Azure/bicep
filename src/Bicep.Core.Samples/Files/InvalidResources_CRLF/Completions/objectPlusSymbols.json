@@ -234,6 +234,19 @@
     }
   },
   {
+    "label": "dashesInPropertyNames",
+    "kind": "interface",
+    "detail": "dashesInPropertyNames",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dashesInPropertyNames",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dashesInPropertyNames"
+    }
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "detail": "dataUri()",
@@ -312,6 +325,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwo",
     "kind": "interface",
     "detail": "discriminatorKeySetTwo",
@@ -325,6 +351,32 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissing",
     "kind": "interface",
     "detail": "discriminatorKeyValueMissing",
@@ -335,6 +387,19 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions"
     }
   },
   {
@@ -572,6 +637,19 @@
     }
   },
   {
+    "label": "letsAccessTheDashes",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -634,6 +712,19 @@
     "textEdit": {
       "range": {},
       "newText": "missingType"
+    }
+  },
+  {
+    "label": "mock",
+    "kind": "variable",
+    "detail": "mock",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mock",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mock"
     }
   },
   {

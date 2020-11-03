@@ -36,3 +36,33 @@ var dd = {
 //@[4:6) Variable dd. Type: error. Declaration start char: 0, length: 23
   aa: aa
 }
+
+// variable completion cycles
+var one = {
+//@[4:7) Variable one. Type: error. Declaration start char: 0, length: 28
+  first: two
+}
+// #completionTest(15) -> empty
+var two = one.f
+//@[4:7) Variable two. Type: error. Declaration start char: 0, length: 15
+
+// resource completion cycles
+resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[9:13) Resource res1. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 196
+  // #completionTest(14) -> empty
+  name: res2.n
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}
+resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[9:13) Resource res2. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 164
+  name: res1.name
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}

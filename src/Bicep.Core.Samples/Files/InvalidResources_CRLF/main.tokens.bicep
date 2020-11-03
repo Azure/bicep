@@ -668,7 +668,17 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 //@[10:12) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[0:3) Identifier |var|
+//@[4:43) Identifier |discriminatorKeyValueMissingCompletions|
+//@[44:45) Assignment |=|
+//@[46:74) Identifier |discriminatorKeyValueMissing|
+//@[74:75) Dot |.|
+//@[75:76) Identifier |p|
+//@[76:80) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -699,7 +709,19 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+//@[0:3) Identifier |var|
+//@[4:37) Identifier |discriminatorKeySetOneCompletions|
+//@[38:39) Assignment |=|
+//@[40:62) Identifier |discriminatorKeySetOne|
+//@[62:63) Dot |.|
+//@[63:73) Identifier |properties|
+//@[73:74) Dot |.|
+//@[74:75) Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -730,7 +752,33 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[1:3) NewLine |\r\n|
+// #completionTest(75) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+//@[0:3) Identifier |var|
+//@[4:37) Identifier |discriminatorKeySetTwoCompletions|
+//@[38:39) Assignment |=|
+//@[40:62) Identifier |discriminatorKeySetTwo|
+//@[62:63) Dot |.|
+//@[63:73) Identifier |properties|
+//@[73:74) Dot |.|
+//@[74:75) Identifier |a|
+//@[75:79) NewLine |\r\n\r\n|
+
+// #completionTest(90) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[0:3) Identifier |var|
+//@[4:49) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[50:51) Assignment |=|
+//@[52:74) Identifier |discriminatorKeySetTwo|
+//@[74:75) LeftSquare |[|
+//@[75:87) StringComplete |'properties'|
+//@[87:88) RightSquare |]|
+//@[88:89) Dot |.|
+//@[89:90) Identifier |a|
+//@[90:94) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -756,6 +804,15 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
+
+var mock = incorrectPropertiesKey.p
+//@[0:3) Identifier |var|
+//@[4:8) Identifier |mock|
+//@[9:10) Assignment |=|
+//@[11:33) Identifier |incorrectPropertiesKey|
+//@[33:34) Dot |.|
+//@[34:35) Identifier |p|
+//@[35:39) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) Identifier |resource|
@@ -871,4 +928,29 @@ resource startedTypingTypeWithoutQuotes virma
 //@[0:8) Identifier |resource|
 //@[9:39) Identifier |startedTypingTypeWithoutQuotes|
 //@[40:45) Identifier |virma|
-//@[45:45) EndOfFile ||
+//@[45:49) NewLine |\r\n\r\n|
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[0:8) Identifier |resource|
+//@[9:30) Identifier |dashesInPropertyNames|
+//@[31:86) StringComplete |'Microsoft.ContainerService/managedClusters@2020-09-01'|
+//@[87:88) Assignment |=|
+//@[89:90) LeftBrace |{|
+//@[90:92) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+//@[61:63) NewLine |\r\n|
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |letsAccessTheDashes|
+//@[24:25) Assignment |=|
+//@[26:47) Identifier |dashesInPropertyNames|
+//@[47:48) Dot |.|
+//@[48:58) Identifier |properties|
+//@[58:59) Dot |.|
+//@[59:76) Identifier |autoScalerProfile|
+//@[76:77) Dot |.|
+//@[77:78) Identifier |s|
+//@[78:78) EndOfFile ||

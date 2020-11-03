@@ -1,0 +1,122 @@
+[
+  {
+    "label": "fifth",
+    "kind": "property",
+    "detail": "fifth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `array`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fifth",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "fifth"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "first",
+    "kind": "property",
+    "detail": "first",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_first",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "first"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "fourth",
+    "kind": "property",
+    "detail": "fourth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'test'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fourth",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "fourth"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "second",
+    "kind": "property",
+    "detail": "second",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_second",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "second"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "sixth",
+    "kind": "property",
+    "detail": "sixth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `object[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sixth",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "sixth"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "third",
+    "kind": "property",
+    "detail": "third",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_third",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "third"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]
