@@ -1,0 +1,412 @@
+[
+  {
+    "label": "balance-similar-node-groups",
+    "kind": "property",
+    "detail": "balance-similar-node-groups",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_balance-similar-node-groups",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['balance-similar-node-groups']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "expander",
+    "kind": "property",
+    "detail": "expander",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'least-waste' | 'most-pods' | 'random'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expander",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "expander"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "max-empty-bulk-delete",
+    "kind": "property",
+    "detail": "max-empty-bulk-delete",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_max-empty-bulk-delete",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['max-empty-bulk-delete']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "max-graceful-termination-sec",
+    "kind": "property",
+    "detail": "max-graceful-termination-sec",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_max-graceful-termination-sec",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['max-graceful-termination-sec']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "max-total-unready-percentage",
+    "kind": "property",
+    "detail": "max-total-unready-percentage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_max-total-unready-percentage",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['max-total-unready-percentage']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "new-pod-scale-up-delay",
+    "kind": "property",
+    "detail": "new-pod-scale-up-delay",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_new-pod-scale-up-delay",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['new-pod-scale-up-delay']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "ok-total-unready-count",
+    "kind": "property",
+    "detail": "ok-total-unready-count",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ok-total-unready-count",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['ok-total-unready-count']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-delay-after-add",
+    "kind": "property",
+    "detail": "scale-down-delay-after-add",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-delay-after-add",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-delay-after-add']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-delay-after-delete",
+    "kind": "property",
+    "detail": "scale-down-delay-after-delete",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-delay-after-delete",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-delay-after-delete']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-delay-after-failure",
+    "kind": "property",
+    "detail": "scale-down-delay-after-failure",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-delay-after-failure",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-delay-after-failure']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-unneeded-time",
+    "kind": "property",
+    "detail": "scale-down-unneeded-time",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-unneeded-time",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-unneeded-time']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-unready-time",
+    "kind": "property",
+    "detail": "scale-down-unready-time",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-unready-time",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-unready-time']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scale-down-utilization-threshold",
+    "kind": "property",
+    "detail": "scale-down-utilization-threshold",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scale-down-utilization-threshold",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scale-down-utilization-threshold']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scan-interval",
+    "kind": "property",
+    "detail": "scan-interval",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scan-interval",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['scan-interval']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "skip-nodes-with-local-storage",
+    "kind": "property",
+    "detail": "skip-nodes-with-local-storage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_skip-nodes-with-local-storage",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['skip-nodes-with-local-storage']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "skip-nodes-with-system-pods",
+    "kind": "property",
+    "detail": "skip-nodes-with-system-pods",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_skip-nodes-with-system-pods",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "['skip-nodes-with-system-pods']"
+    },
+    "additionalTextEdits": [
+      {
+        "range": {},
+        "newText": ""
+      }
+    ],
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

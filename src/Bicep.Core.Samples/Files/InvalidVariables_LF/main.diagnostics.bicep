@@ -153,3 +153,35 @@ var az = 1
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
 //@[33:35) [BCP041 (Error)] Values of type "az" cannot be assigned to a variable. |az|
+
+var objectLiteralType = {
+  first: true
+  second: false
+  third: 42
+  fourth: 'test'
+  fifth: [
+    {
+      one: true
+    }
+    {
+      one: false
+    }
+  ]
+  sixth: [
+    {
+      two: 44
+    }
+  ]
+}
+
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions = objectLiteralType.f
+//@[53:54) [BCP053 (Error)] The type "object" does not contain property "f". Available properties include "fifth", "first", "fourth", "second", "sixth", "third". |f|
+
+// this does not produce any completions because mixed array items are of type "any"
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t
+//@[57:58) [BCP053 (Error)] The type "object" does not contain property "t". Available properties include "two". |t|
