@@ -323,3 +323,9 @@ resource startedTypingTypeWithoutQuotes virma
 //@[40:45) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[40:45) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[89:93) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s

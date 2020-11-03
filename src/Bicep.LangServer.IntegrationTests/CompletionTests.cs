@@ -173,6 +173,15 @@ namespace Bicep.LangServer.IntegrationTests
                     // let's ignore it for now until we come up with a better solution
                     completion.TextEdit.Range = new Range();
                 }
+
+                // can't do != null because the container overloads the != operator 😠
+                if (!(completion.AdditionalTextEdits is null))
+                {
+                    foreach (var additionalEdit in completion.AdditionalTextEdits)
+                    {
+                        additionalEdit.Range = new Range();
+                    }
+                }
             }
 
             // OmniSharp sometimes will add a $$__handler_id__$$ property to the Data dictionary of a completion

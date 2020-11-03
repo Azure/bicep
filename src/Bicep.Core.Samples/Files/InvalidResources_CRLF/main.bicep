@@ -247,3 +247,8 @@ resource startedTypingTypeWithQuotes 'virma'
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s

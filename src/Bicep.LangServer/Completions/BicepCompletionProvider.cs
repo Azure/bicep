@@ -12,7 +12,9 @@ using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
@@ -33,7 +35,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
-                .Concat(GetPropertyAccessCompletions(model, context))
+                .Concat(GetPropertyAccessCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
@@ -241,43 +243,18 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private IEnumerable<CompletionItem> GetPropertyAccessCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetPropertyAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyAccess) || context.PropertyAccess == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var declaredType = model.GetDeclaredType(context.PropertyAccess.BaseExpression);
+            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.PropertyAccess.BaseExpression);
 
-            //var baseType = GetPropertyAccessBaseExpressionType(model, context.PropertyAccess);
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
-        }
-
-        private TypeSymbol? GetPropertyAccessBaseExpressionType(SemanticModel model, PropertyAccessSyntax propertyAccess)
-        {
-            // if there are semantic errors, we shouldn't be offering bad property name completions
-            // as a result, the code here should be limited to valid cases
-            var symbol = model.GetSymbolInfo(propertyAccess.BaseExpression);
-            switch (propertyAccess.BaseExpression)
-            {
-                case VariableAccessSyntax _ when symbol is DeclaredSymbol declaredSymbol:
-                    // a declaration is being accessed by symbolic name
-                    // return its declared type
-                    return model.GetDeclaredType(declaredSymbol.DeclaringSyntax);
-
-                case FunctionCallSyntax _:
-                case InstanceFunctionCallSyntax _:
-                case ObjectSyntax _:
-                    // getting the declared type is not likely
-                    // because we are inside property access, but let's try anyway
-                    // then fall back to assigned type
-                    return model.GetDeclaredType(propertyAccess.BaseExpression) ?? model.GetTypeInfo(propertyAccess.BaseExpression);
-            }
-
-            return null;
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange));
         }
 
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
@@ -424,6 +401,30 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
                 .WithSortText(GetSortText(property.Name, priority));
+
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var item = CreatePropertyNameCompletion(property, replacementRange);
+
+            if (IsPropertyNameEscapingRequired(property))
+            {
+                // the property requires escaping because it does not comply with bicep identifier rules
+                // in bicep those types of properties are accessed via array indexer using a string as an index
+                // if we update the main edit of the completion, vs code will not show such a completion at all
+                // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
+                item
+                    .WithPlainTextEdit(replacementRange, $"[{StringUtils.EscapeBicepString(property.Name)}]")
+                    .WithAdditionalEdits(new TextEditContainer(
+                        // remove the dot after the main text edit is applied
+                        new TextEdit
+                        {
+                            NewText = string.Empty,
+                            Range = propertyAccess.Dot.ToRange(tree.LineStarts)
+                        }));
+            }
+
+            return item;
+        }
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Keyword)

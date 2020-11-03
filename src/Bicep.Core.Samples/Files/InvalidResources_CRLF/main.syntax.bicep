@@ -1365,4 +1365,43 @@ resource startedTypingTypeWithoutQuotes virma
 //@[40:45)   Identifier |virma|
 //@[45:45)  SkippedTriviaSyntax
 //@[45:45)  SkippedTriviaSyntax
-//@[45:45) EndOfFile ||
+//@[45:49) NewLine |\r\n\r\n|
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[0:93) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |dashesInPropertyNames|
+//@[31:86)  StringSyntax
+//@[31:86)   StringComplete |'Microsoft.ContainerService/managedClusters@2020-09-01'|
+//@[87:88)  Assignment |=|
+//@[89:93)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+//@[61:63) NewLine |\r\n|
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+//@[0:78) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |letsAccessTheDashes|
+//@[24:25)  Assignment |=|
+//@[26:78)  PropertyAccessSyntax
+//@[26:76)   PropertyAccessSyntax
+//@[26:58)    PropertyAccessSyntax
+//@[26:47)     VariableAccessSyntax
+//@[26:47)      IdentifierSyntax
+//@[26:47)       Identifier |dashesInPropertyNames|
+//@[47:48)     Dot |.|
+//@[48:58)     IdentifierSyntax
+//@[48:58)      Identifier |properties|
+//@[58:59)    Dot |.|
+//@[59:76)    IdentifierSyntax
+//@[59:76)     Identifier |autoScalerProfile|
+//@[76:77)   Dot |.|
+//@[77:78)   IdentifierSyntax
+//@[77:78)    Identifier |s|
+//@[78:78) EndOfFile ||

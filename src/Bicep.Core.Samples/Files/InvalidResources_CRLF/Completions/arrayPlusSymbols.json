@@ -247,6 +247,19 @@
     }
   },
   {
+    "label": "dashesInPropertyNames",
+    "kind": "interface",
+    "detail": "dashesInPropertyNames",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dashesInPropertyNames",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dashesInPropertyNames"
+    }
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "detail": "dataUri()",
@@ -634,6 +647,19 @@
     "textEdit": {
       "range": {},
       "newText": "length($0)"
+    }
+  },
+  {
+    "label": "letsAccessTheDashes",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes"
     }
   },
   {

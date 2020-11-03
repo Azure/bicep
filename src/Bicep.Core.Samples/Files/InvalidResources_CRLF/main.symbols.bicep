@@ -289,3 +289,10 @@ resource startedTypingTypeWithQuotes 'virma'
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
 //@[9:39) Resource startedTypingTypeWithoutQuotes. Type: error. Declaration start char: 0, length: 45
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[9:30) Resource dashesInPropertyNames. Type: Microsoft.ContainerService/managedClusters@2020-09-01. Declaration start char: 0, length: 93
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+//@[4:23) Variable letsAccessTheDashes. Type: any. Declaration start char: 0, length: 78
