@@ -25,3 +25,29 @@ var cc = {
 var dd = {
   aa: aa
 }
+
+// variable completion cycles
+var one = {
+  first: two
+}
+// #completionTest(15) -> empty
+var two = one.f
+
+// resource completion cycles
+resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  // #completionTest(14) -> empty
+  name: res2.n
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}
+resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: res1.name
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}
