@@ -366,6 +366,7 @@ namespace Bicep.LanguageServer.Completions
                     
                     break;
 
+                case DiscriminatedObjectType _:
                 case ObjectType _:
                     yield return CreateObjectBodyCompletion(replacementRange);
                     break;
