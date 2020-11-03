@@ -12,7 +12,6 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -42,7 +41,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
         private readonly IDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly SyntaxHierarchy hierarchy;
-        private readonly AzResourceScope targetScope;
+        private readonly ResourceScopeType targetScope;
 
         public TypeAssignmentVisitor(
             IResourceTypeProvider resourceTypeProvider,
@@ -50,7 +49,7 @@ namespace Bicep.Core.TypeSystem
             IReadOnlyDictionary<SyntaxBase, Symbol> bindings,
             IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol,
             SyntaxHierarchy hierarchy,
-            AzResourceScope targetScope)
+            ResourceScopeType targetScope)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;

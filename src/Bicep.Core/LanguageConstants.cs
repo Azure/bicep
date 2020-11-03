@@ -7,7 +7,6 @@ using System.Linq;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core
 {
@@ -140,16 +139,16 @@ namespace Bicep.Core
             yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.SkipInlining);
         }
 
-        private static ResourceScopeReference CreateResourceScopeReference(AzResourceScope resourceScope)
+        private static ResourceScopeReference CreateResourceScopeReference(ResourceScopeType resourceScope)
             => resourceScope switch {
-                AzResourceScope.Tenant => new ResourceScopeReference("tenant", ResourceScopeType.TenantScope),
-                AzResourceScope.ManagementGroup => new ResourceScopeReference("managementGroup", ResourceScopeType.ManagementGroupScope),
-                AzResourceScope.Subscription => new ResourceScopeReference("subscription", ResourceScopeType.SubscriptionScope),
-                AzResourceScope.ResourceGroup => new ResourceScopeReference("resourceGroup", ResourceScopeType.ResourceGroupScope),
+                ResourceScopeType.TenantScope => new ResourceScopeReference("tenant", resourceScope),
+                ResourceScopeType.ManagementGroupScope => new ResourceScopeReference("managementGroup", resourceScope),
+                ResourceScopeType.SubscriptionScope => new ResourceScopeReference("subscription", resourceScope),
+                ResourceScopeType.ResourceGroupScope => new ResourceScopeReference("resourceGroup", resourceScope),
                 _ => new ResourceScopeReference("none", ResourceScopeType.None),
             };
 
-        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, AzResourceScope moduleScope, AzResourceScope containingScope, string typeName)
+        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScopeType moduleScope, ResourceScopeType containingScope, string typeName)
         {
             var paramsType = new NamedObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are reqired, we can allow the 'params' declaration to be ommitted entirely

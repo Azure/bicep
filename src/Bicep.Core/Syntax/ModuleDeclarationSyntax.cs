@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Syntax
 {
@@ -44,7 +43,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(AzResourceScope containingScope, SemanticModel.SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel.SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
             foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)

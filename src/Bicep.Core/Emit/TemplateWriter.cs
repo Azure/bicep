@@ -10,7 +10,6 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -52,19 +51,19 @@ namespace Bicep.Core.Emit
             this.emitter = new ExpressionEmitter(writer, context);
         }
 
-        private static string GetSchema(AzResourceScope targetScope)
+        private static string GetSchema(ResourceScopeType targetScope)
         {
-            if (targetScope.HasFlag(AzResourceScope.Tenant))
+            if (targetScope.HasFlag(ResourceScopeType.TenantScope))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
             }
 
-            if (targetScope.HasFlag(AzResourceScope.ManagementGroup))
+            if (targetScope.HasFlag(ResourceScopeType.ManagementGroupScope))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#";
             }
 
-            if (targetScope.HasFlag(AzResourceScope.Subscription))
+            if (targetScope.HasFlag(ResourceScopeType.SubscriptionScope))
             {
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }

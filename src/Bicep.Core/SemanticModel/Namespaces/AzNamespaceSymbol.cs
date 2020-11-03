@@ -55,7 +55,7 @@ namespace Bicep.Core.SemanticModel.Namespaces
             });
         }
 
-        private static IEnumerable<(FunctionOverload functionOverload, AzResourceScope allowedScopes)> GetScopeFunctions()
+        private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()
         {
             // Depending on the scope of the Bicep file, different sets of function overloads are invalid - for example, you can't use 'resourceGroup()' inside a tenant-level deployment
 
@@ -63,21 +63,21 @@ namespace Bicep.Core.SemanticModel.Namespaces
             // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "json({})" if anyone tries to access the object value.
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
-            var allScopes = AzResourceScope.Tenant | AzResourceScope.ManagementGroup | AzResourceScope.Subscription | AzResourceScope.ResourceGroup;
+            var allScopes = ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope;
             yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue), AzResourceScope.ManagementGroup);
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), AzResourceScope.Tenant | AzResourceScope.ManagementGroup);
+            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue), ResourceScopeType.ManagementGroupScope);
+            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
 
-            yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
+            yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
             yield return (FunctionOverload.CreateFixed("subscription", GetRestrictedSubscriptionReturnValue, LanguageConstants.String), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue), AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), AzResourceScope.Subscription | AzResourceScope.ResourceGroup);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue), ResourceScopeType.ResourceGroupScope);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
         }
 
-        private static IEnumerable<FunctionOverload> GetAzOverloads(AzResourceScope resourceScope)
+        private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScopeType resourceScope)
         {
             foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
             {
@@ -112,7 +112,7 @@ namespace Bicep.Core.SemanticModel.Namespaces
             yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]+"), FunctionFlags.RequiresInlining);
         }
 
-        public AzNamespaceSymbol(AzResourceScope resourceScope)
+        public AzNamespaceSymbol(ResourceScopeType resourceScope)
             : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty)
         {
         }

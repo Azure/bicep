@@ -9,7 +9,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.SemanticModel
 {
@@ -35,9 +34,9 @@ namespace Bicep.Core.SemanticModel
         public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
             => this.lazySemanticModelLookup[syntaxTree].Value;
 
-        private static AzResourceScope GetTargetScope(SyntaxTree syntaxTree)
+        private static ResourceScopeType GetTargetScope(SyntaxTree syntaxTree)
         {
-            var defaultTargetScope = AzResourceScope.ResourceGroup;
+            var defaultTargetScope = ResourceScopeType.ResourceGroupScope;
             var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
             if (targetSyntax == null)
             {
@@ -45,7 +44,7 @@ namespace Bicep.Core.SemanticModel
             }
 
             var targetScope = SyntaxHelper.GetTargetScope(targetSyntax);
-            if (targetScope == AzResourceScope.None)
+            if (targetScope == ResourceScopeType.None)
             {
                 return defaultTargetScope;
             }

@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.SemanticModel
 {
@@ -18,7 +17,7 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, AzResourceScope targetScope)
+        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, ResourceScopeType targetScope)
         {
             this.Root = root;
             this.typeManager = typeManager;
@@ -87,6 +86,6 @@ namespace Bicep.Core.SemanticModel
         /// </summary>
         public FileSymbol Root { get; }
 
-        public AzResourceScope TargetScope { get; }
+        public ResourceScopeType TargetScope { get; }
     }
 }

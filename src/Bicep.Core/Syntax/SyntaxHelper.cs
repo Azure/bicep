@@ -5,7 +5,6 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Syntax
 {
@@ -68,7 +67,7 @@ namespace Bicep.Core.Syntax
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
             => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.ParameterType?.TypeName);
 
-        public static AzResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
+        public static ResourceScopeType GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes
 
@@ -77,21 +76,21 @@ namespace Bicep.Core.Syntax
 
             if (!(targetScopeSyntax.Value is StringSyntax stringSyntax))
             {
-                return AzResourceScope.None;
+                return ResourceScopeType.None;
             }
 
             var literalValue = stringSyntax.TryGetLiteralValue();
             if (literalValue == null)
             {
-                return AzResourceScope.None;
+                return ResourceScopeType.None;
             }
 
             return literalValue switch {
-                LanguageConstants.TargetScopeTypeTenant => AzResourceScope.Tenant,
-                LanguageConstants.TargetScopeTypeManagementGroup => AzResourceScope.ManagementGroup,
-                LanguageConstants.TargetScopeTypeSubscription => AzResourceScope.Subscription,
-                LanguageConstants.TargetScopeTypeResourceGroup => AzResourceScope.ResourceGroup,
-                _ => AzResourceScope.None,
+                LanguageConstants.TargetScopeTypeTenant => ResourceScopeType.TenantScope,
+                LanguageConstants.TargetScopeTypeManagementGroup => ResourceScopeType.ManagementGroupScope,
+                LanguageConstants.TargetScopeTypeSubscription => ResourceScopeType.SubscriptionScope,
+                LanguageConstants.TargetScopeTypeResourceGroup => ResourceScopeType.ResourceGroupScope,
+                _ => ResourceScopeType.None,
             };
         }
     }
