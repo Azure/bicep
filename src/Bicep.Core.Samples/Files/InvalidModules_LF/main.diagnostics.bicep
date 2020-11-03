@@ -50,22 +50,34 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[38:42) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n\n}|
+//@[38:93) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n// #completionTest(0) -> moduleATopLevelProperties\n\n}|
+// #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[40:66) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n}|
+//@[40:135) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName\n  \n}|
   name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-//@[10:16) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n\n  }|
-
+//@[10:71) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n    // #completionTest(0,1,2,3,4) -> moduleAParams\n    \n  }|
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+    
   }
 }
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+//@[54:55) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
+
+// #completionTest(56) -> moduleAOutputs
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+//@[55:56) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'

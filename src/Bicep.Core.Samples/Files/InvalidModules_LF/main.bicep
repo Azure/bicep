@@ -36,19 +36,29 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
+// #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
   name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+    
   }
 }
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+
+// #completionTest(56) -> moduleAOutputs
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'

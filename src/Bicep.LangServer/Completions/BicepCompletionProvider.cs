@@ -288,6 +288,9 @@ namespace Bicep.LanguageServer.Completions
                 case ResourceType resourceType:
                     return GetProperties(resourceType.Body.Type);
 
+                case ModuleType moduleType:
+                    return GetProperties(moduleType.Body.Type);
+
                 case ObjectType objectType:
                     return objectType.Properties.Values;
 

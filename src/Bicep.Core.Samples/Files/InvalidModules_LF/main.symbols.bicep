@@ -46,22 +46,34 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[7:17) Module modANoName. Type: module. Declaration start char: 0, length: 42
+//@[7:17) Module modANoName. Type: module. Declaration start char: 0, length: 93
+// #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[7:19) Module modANoInputs. Type: module. Declaration start char: 0, length: 66
+//@[7:19) Module modANoInputs. Type: module. Declaration start char: 0, length: 135
   name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
 }
 
 module modAEmptyInputs './modulea.bicep' = {
-//@[7:22) Module modAEmptyInputs. Type: module. Declaration start char: 0, length: 86
+//@[7:22) Module modAEmptyInputs. Type: module. Declaration start char: 0, length: 141
   name: 'modANoInputs'
   params: {
-
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+    
   }
 }
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+//@[4:35) Variable modulePropertyAccessCompletions. Type: error. Declaration start char: 0, length: 55
+
+// #completionTest(56) -> moduleAOutputs
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+//@[4:28) Variable moduleOutputsCompletions. Type: error. Declaration start char: 0, length: 56
 
 module modAUnspecifiedInputs './modulea.bicep' = {
 //@[7:28) Module modAUnspecifiedInputs. Type: module. Declaration start char: 0, length: 180

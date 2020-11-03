@@ -1,0 +1,42 @@
+[
+  {
+    "label": "name",
+    "kind": "property",
+    "detail": "name (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_name",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "outputs",
+    "kind": "property",
+    "detail": "outputs",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `outputs`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_outputs",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "outputs"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

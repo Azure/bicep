@@ -154,30 +154,32 @@ module './main.bicep' = {
 //@[1:3) NewLine |\n\n|
 
 module modANoName './modulea.bicep' = {
-//@[0:42) ModuleDeclarationSyntax
+//@[0:93) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |modANoName|
 //@[18:35)  StringSyntax
 //@[18:35)   StringComplete |'./modulea.bicep'|
 //@[36:37)  Assignment |=|
-//@[38:42)  ObjectSyntax
+//@[38:93)  ObjectSyntax
 //@[38:39)   LeftBrace |{|
-//@[39:41)   NewLine |\n\n|
+//@[39:40)   NewLine |\n|
+// #completionTest(0) -> moduleATopLevelProperties
+//@[50:52)   NewLine |\n\n|
 
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {
-//@[0:66) ModuleDeclarationSyntax
+//@[0:135) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |modANoInputs|
 //@[20:37)  StringSyntax
 //@[20:37)   StringComplete |'./modulea.bicep'|
 //@[38:39)  Assignment |=|
-//@[40:66)  ObjectSyntax
+//@[40:135)  ObjectSyntax
 //@[40:41)   LeftBrace |{|
 //@[41:42)   NewLine |\n|
   name: 'modANoInputs'
@@ -188,19 +190,23 @@ module modANoInputs './modulea.bicep' = {
 //@[8:22)    StringSyntax
 //@[8:22)     StringComplete |'modANoInputs'|
 //@[22:23)   NewLine |\n|
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+//@[65:66)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modAEmptyInputs './modulea.bicep' = {
-//@[0:86) ModuleDeclarationSyntax
+//@[0:141) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:22)  IdentifierSyntax
 //@[7:22)   Identifier |modAEmptyInputs|
 //@[23:40)  StringSyntax
 //@[23:40)   StringComplete |'./modulea.bicep'|
 //@[41:42)  Assignment |=|
-//@[43:86)  ObjectSyntax
+//@[43:141)  ObjectSyntax
 //@[43:44)   LeftBrace |{|
 //@[44:45)   NewLine |\n|
   name: 'modANoInputs'
@@ -212,20 +218,61 @@ module modAEmptyInputs './modulea.bicep' = {
 //@[8:22)     StringComplete |'modANoInputs'|
 //@[22:23)   NewLine |\n|
   params: {
-//@[2:16)   ObjectPropertySyntax
+//@[2:71)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |params|
 //@[8:9)    Colon |:|
-//@[10:16)    ObjectSyntax
+//@[10:71)    ObjectSyntax
 //@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\n\n|
-
+//@[11:12)     NewLine |\n|
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+//@[50:51)     NewLine |\n|
+    
+//@[4:5)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+//@[55:56) NewLine |\n|
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:35)  IdentifierSyntax
+//@[4:35)   Identifier |modulePropertyAccessCompletions|
+//@[36:37)  Assignment |=|
+//@[38:55)  PropertyAccessSyntax
+//@[38:53)   VariableAccessSyntax
+//@[38:53)    IdentifierSyntax
+//@[38:53)     Identifier |modAEmptyInputs|
+//@[53:54)   Dot |.|
+//@[54:55)   IdentifierSyntax
+//@[54:55)    Identifier |o|
+//@[55:57) NewLine |\n\n|
+
+// #completionTest(56) -> moduleAOutputs
+//@[40:41) NewLine |\n|
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+//@[0:56) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:28)  IdentifierSyntax
+//@[4:28)   Identifier |moduleOutputsCompletions|
+//@[29:30)  Assignment |=|
+//@[31:56)  PropertyAccessSyntax
+//@[31:54)   PropertyAccessSyntax
+//@[31:46)    VariableAccessSyntax
+//@[31:46)     IdentifierSyntax
+//@[31:46)      Identifier |modAEmptyInputs|
+//@[46:47)    Dot |.|
+//@[47:54)    IdentifierSyntax
+//@[47:54)     Identifier |outputs|
+//@[54:55)   Dot |.|
+//@[55:56)   IdentifierSyntax
+//@[55:56)    Identifier |s|
+//@[56:58) NewLine |\n\n|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
 //@[0:180) ModuleDeclarationSyntax
