@@ -1365,6 +1365,19 @@
     }
   },
   {
+    "label": "scopesWithoutArmRepresentation",
+    "kind": "variable",
+    "detail": "scopesWithoutArmRepresentation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scopesWithoutArmRepresentation",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "scopesWithoutArmRepresentation"
+    }
+  },
+  {
     "label": "singleQuote",
     "kind": "variable",
     "detail": "singleQuote",
