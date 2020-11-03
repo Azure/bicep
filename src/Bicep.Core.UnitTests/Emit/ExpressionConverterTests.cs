@@ -55,13 +55,14 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
-            var programSyntax = $"var test = {text}";
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(programSyntax));
+            var programText = $"var test = {text}";
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(programText));
 
-            var parsed = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax.Children.OfType<VariableDeclarationSyntax>().First();
+            var programSyntax = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+            var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();
 
             var converter = new ExpressionConverter(new EmitterContext(compilation.GetEntrypointSemanticModel()));
-            var converted = converter.ConvertExpression(parsed.Value);
+            var converted = converter.ConvertExpression(variableDeclarationSyntax.Value);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {

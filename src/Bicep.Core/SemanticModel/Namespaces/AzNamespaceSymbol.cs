@@ -57,6 +57,12 @@ namespace Bicep.Core.SemanticModel.Namespaces
 
         private static IEnumerable<(FunctionOverload functionOverload, AzResourceScope allowedScopes)> GetScopeFunctions()
         {
+            // Depending on the scope of the Bicep file, different sets of function overloads are invalid - for example, you can't use 'resourceGroup()' inside a tenant-level deployment
+
+            // Also note that some of these functions and overloads ("GetRestrictedXYZ") have not yet been implemented in full in the ARM JSON. For these, we simply
+            // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "json({})" if anyone tries to access the object value.
+            // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
+
             var allScopes = AzResourceScope.Tenant | AzResourceScope.ManagementGroup | AzResourceScope.Subscription | AzResourceScope.ResourceGroup;
             yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue), allScopes);
 

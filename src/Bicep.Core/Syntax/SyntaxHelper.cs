@@ -70,53 +70,29 @@ namespace Bicep.Core.Syntax
 
         public static AzResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
-            var targetScope = AzResourceScope.None;
-            IEnumerable<SyntaxBase> targets;
-            if (targetScopeSyntax.Value is ArraySyntax arraySyntax)
-            {
-                targets = arraySyntax.Items.Select(x => x.Value);
-            }
-            else
-            {
-                targets = targetScopeSyntax.Value.AsEnumerable();
-            }
+            // TODO: Revisit when adding support for multiple target scopes
 
-            foreach (var target in targets)
+            // Type checking will pick up any errors if we fail to process the syntax correctly in this function.
+            // There's no need to do error checking here - just return "None" as the scope type.
+
+            if (!(targetScopeSyntax.Value is StringSyntax stringSyntax))
             {
-                if (!(target is StringSyntax stringSyntax))
-                {
-                    // type checking will pick up any errors - no need to do so here.
-                    continue;
-                }
-
-                var literalValue = stringSyntax.TryGetLiteralValue();
-                if (literalValue == null)
-                {
-                    // type checking will pick up any errors - no need to do so here.
-                    continue;
-                }
-
-                switch (literalValue)
-                {
-                    case LanguageConstants.TargetScopeTypeTenant:
-                        targetScope |= AzResourceScope.Tenant;
-                        break;
-                    case LanguageConstants.TargetScopeTypeManagementGroup:
-                        targetScope |= AzResourceScope.ManagementGroup;
-                        break;
-                    case LanguageConstants.TargetScopeTypeSubscription:
-                        targetScope |= AzResourceScope.Subscription;
-                        break;
-                    case LanguageConstants.TargetScopeTypeResourceGroup:
-                        targetScope |= AzResourceScope.ResourceGroup;
-                        break;
-                    default:
-                        // type checking will pick up any errors - no need to do so here.
-                        break;
-                }
+                return AzResourceScope.None;
             }
 
-            return targetScope;
+            var literalValue = stringSyntax.TryGetLiteralValue();
+            if (literalValue == null)
+            {
+                return AzResourceScope.None;
+            }
+
+            return literalValue switch {
+                LanguageConstants.TargetScopeTypeTenant => AzResourceScope.Tenant,
+                LanguageConstants.TargetScopeTypeManagementGroup => AzResourceScope.ManagementGroup,
+                LanguageConstants.TargetScopeTypeSubscription => AzResourceScope.Subscription,
+                LanguageConstants.TargetScopeTypeResourceGroup => AzResourceScope.ResourceGroup,
+                _ => AzResourceScope.None,
+            };
         }
     }
 }

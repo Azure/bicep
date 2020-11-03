@@ -62,7 +62,7 @@ namespace Bicep.Core.TypeSystem
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);
 
                 case TypeSymbol _ when sourceType is ModuleType sourceModuleType:
-                    // When assigning a resource, we're really assigning the value of the resource body.
+                    // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
 
                 case StringLiteralType _ when sourceType is StringLiteralType:
