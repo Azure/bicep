@@ -303,19 +303,22 @@ namespace Bicep.Core.TypeSystem
 
             if (missingRequiredProperties.Any())
             {
-                TextSpan span = expression.Span;
+                IPositionable positionable = expression;
+                string blockName = "";
+
                 var parent = typeManager.GetParent(expression);
-
-                if (parent is ObjectPropertySyntax p1)
+                if (parent is ObjectPropertySyntax objectPropertyParent)
                 {
-                    span = p1.Key.Span;
+                    positionable = objectPropertyParent.Key;
+                    blockName = "object";
                 }
-                else if (parent is IDeclarationSyntax p2)
+                else if (parent is IDeclarationSyntax declarationParent)
                 {
-                    span = p2.Keyword.Span;
+                    positionable = declarationParent.Name;
+                    blockName = "block";
                 }
 
-                diagnostics.Add(DiagnosticBuilder.ForPosition(span).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
+                diagnostics.Add(DiagnosticBuilder.ForPosition(positionable).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties, blockName));
 
             }
 

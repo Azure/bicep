@@ -201,11 +201,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, IEnumerable<string> properties) => new Diagnostic(
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, IEnumerable<string> properties, string blockName) => new Diagnostic(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP035",
-                $"The specified object is missing the following required properties: {ToQuotedString(properties)}.");
+                $"The specified {blockName} is missing the following required properties: {ToQuotedString(properties)}.");
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
                 TextSpan,
