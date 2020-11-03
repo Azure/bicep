@@ -15,7 +15,7 @@ Next let's create a new, empty `main.bicep` file. Your file structure should loo
 In `main.bicep`, we'll add the following code to instantiate our module:
 
 ```
-module stg ./storage.bicep = {
+module stg './storage.bicep' = {
   name: 'storageDeploy'
   params: {
     namePrefix: 'contoso'
@@ -34,7 +34,7 @@ When modules are transpiled into ARM template JSON, they are turned into a neste
 Notice modules, just like everything in bicep, has an identifier and we can use that identifier to retrieve information like `outputs` from the module. We can add an output to `main.bicep` to retrieve the storage account name:
 
 ```
-module stg ./storage.bicep = {
+module stg './storage.bicep' = {
   name: 'storageDeploy'
   params: {
     namePrefix: 'contoso'
@@ -47,7 +47,7 @@ output storageName string = stg.outputs.computedStorageName
 Modules also support a `scope` property, which allows you to specify a scope that is different that the target scope of the deployment. For example, we may want the storage module to be deployed to a different resource group. To do so, let's add the `scope` property to our module declaration:
 
 ```
-module stg ./storage.bicep = {
+module stg './storage.bicep' = {
   name: 'storageDeploy'
   scope: resourceGroup('another-rg') // this will target another resource group in the same subscription
   params: {
