@@ -50,6 +50,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDefinitionHandler>()
                     .WithHandler<BicepReferencesHandler>()
                     .WithHandler<BicepDocumentHighlightHandler>()
+                    .WithHandler<BicepDocumentFormattingHandler>()
                     .WithHandler<BicepRenameHandler>()
                     .WithHandler<BicepHoverHandler>()
                     .WithHandler<BicepCompletionHandler>()

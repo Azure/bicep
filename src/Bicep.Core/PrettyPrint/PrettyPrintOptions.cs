@@ -15,12 +15,12 @@ namespace Bicep.Core.PrettyPrint
         public PrettyPrintOptions(
             NewlineOption newlineOption,
             IndentKindOption indentKindOption,
-            int indentSize,
+            long indentSize,
             bool insertFinalNewLine)
         {
             this.NewlineOption = newlineOption;
             this.IndentKindOption = indentKindOption;
-            this.IndentSize = Math.Min(MaxIndentSize, Math.Max(MinIndentSize, indentSize));
+            this.IndentSize = (int)Math.Min(MaxIndentSize, Math.Max(MinIndentSize, indentSize));
             this.InsertFinalNewline = insertFinalNewLine;
         }
 
