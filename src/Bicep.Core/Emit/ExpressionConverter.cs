@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;

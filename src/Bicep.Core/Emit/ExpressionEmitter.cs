@@ -3,8 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arm.Expression.Configuration;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Configuration;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 
