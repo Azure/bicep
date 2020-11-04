@@ -70,6 +70,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is accessing properties or methods.
         /// </summary>
-        MemberAccess = 1 << 11
+        MemberAccess = 1 << 11,
+        
+        /// <summary>
+        /// The current location needs target scope value.
+        /// </summary>
+        TargetScope = 1 << 12
     }
 }
