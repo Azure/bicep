@@ -14,3 +14,7 @@ module myTenantMod 'tenant.bicep' = {
   name: 'myTenantMod'
   scope: tenant()
 }
+
+output myOutput string = myTenantMod.outputs.myOutput
+output myOutputRgMod string = myResourceGroupMod.outputs.myOutput
+output myOutputRgMod2 string = myResourceGroupMod2.outputs.myOutput

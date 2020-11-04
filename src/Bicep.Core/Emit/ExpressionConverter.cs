@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -121,7 +122,7 @@ namespace Bicep.Core.Emit
                         var (moduleSymbol, outputName) = moduleAccess.Value;
                         return AppendProperty(
                             AppendProperty(
-                                GetModuleOutputsReferenceExpression(moduleSymbol),
+                                GetModuleOutputsReferenceExpression(moduleSymbol.DeclaringModule),
                                 new JTokenExpression(outputName)),
                             new JTokenExpression("value"));
                     }
@@ -162,29 +163,64 @@ namespace Bicep.Core.Emit
                 // this condition should have already been validated by the type checker
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
+            
+            // this condition should have already been validated by the type checker
+            return TryGetNamedPropertyExpression(objectSyntax, "name") ?? throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+        }
 
-            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), "name"));
-            if (namePropertySyntax == null)
+        private LanguageExpression GetModuleNameExpression(ModuleDeclarationSyntax moduleSyntax)
+        {
+            if (!(moduleSyntax.Body is ObjectSyntax objectSyntax))
             {
                 // this condition should have already been validated by the type checker
-                throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+                throw new ArgumentException($"Expected module syntax to have type {typeof(ObjectSyntax)}, but found {moduleSyntax.Body.GetType()}");
+            }
+            
+            // this condition should have already been validated by the type checker
+            return TryGetNamedPropertyExpression(objectSyntax, "name") ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+        }
+
+        /// <summary>
+        /// Tries to get an ARM expression for a named property from a source object syntax. Returns null if no property is found.
+        /// </summary>
+        private LanguageExpression? TryGetNamedPropertyExpression(ObjectSyntax objectSyntax, string propertyName)
+        {
+            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), propertyName));
+            if (namePropertySyntax == null)
+            {
+                return null;
             }
 
             return ConvertExpression(namePropertySyntax.Value);
+        }
+
+        private static FunctionExpression GenerateResourceIdExpression(SemanticModel.SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        {
+            var resourceIdFunctionName = semanticModel.TargetScope switch {
+                ResourceScopeType.TenantScope => "tenantResourceId",
+                ResourceScopeType.ManagementGroupScope => "managementGroupResourceId", // TODO - this doesn't really exist!
+                ResourceScopeType.SubscriptionScope => "subscriptionResourceId",
+                ResourceScopeType.ResourceGroupScope => "resourceId",
+                // this should have already been caught during compilation
+                _ => throw new InvalidOperationException($"Invalid target scope {semanticModel.TargetScope} for module"),
+            };
+
+            var resourceTypeExpression = new JTokenExpression(fullyQualifiedType);
+            
+            return new FunctionExpression(
+                resourceIdFunctionName,
+                resourceTypeExpression.AsEnumerable().Concat(nameSegments).ToArray(),
+                Array.Empty<LanguageExpression>());
         }
 
         public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
         {
             if (typeReference.Types.Length == 1)
             {
-                return new FunctionExpression(
-                    "resourceId",
-                    new LanguageExpression[]
-                    {
-                        new JTokenExpression(typeReference.FullyQualifiedType),
-                        GetResourceNameExpression(resourceSyntax),
-                    },
-                    Array.Empty<LanguageExpression>());
+                return GenerateResourceIdExpression(
+                    context.SemanticModel,
+                    typeReference.FullyQualifiedType,
+                    GetResourceNameExpression(resourceSyntax).AsEnumerable());
             }
 
             var nameSegments = typeReference.Types.Select(
@@ -193,34 +229,27 @@ namespace Bicep.Core.Emit
                     new LanguageExpression[] { GetResourceNameExpression(resourceSyntax), new JTokenExpression("/") },
                     new LanguageExpression[] { new JTokenExpression(i) }));
 
-            return new FunctionExpression(
-                "resourceId",
-                new LanguageExpression[]
-                {
-                    new JTokenExpression(typeReference.FullyQualifiedType),
-                }.Concat(nameSegments).ToArray(),
-                Array.Empty<LanguageExpression>());
+            return GenerateResourceIdExpression(
+                context.SemanticModel,
+                typeReference.FullyQualifiedType,
+                nameSegments);
         }
 
-        public FunctionExpression GetModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        public FunctionExpression GetModuleResourceIdExpression(SemanticModel.SemanticModel semanticModel, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
-            return new FunctionExpression(
-                "resourceId",
-                new LanguageExpression[]
-                {
-                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceType),
-                    new JTokenExpression(moduleSymbol.Name),
-                },
-                Array.Empty<LanguageExpression>());
+            return GenerateResourceIdExpression(
+                context.SemanticModel,
+                TemplateWriter.NestedDeploymentResourceType,
+                GetModuleNameExpression(moduleDeclarationSyntax).AsEnumerable());
         }
         
-        public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol)
+        public FunctionExpression GetModuleOutputsReferenceExpression(ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
             return new FunctionExpression(
                 "reference",
                 new LanguageExpression[]
                 {
-                    GetModuleResourceIdExpression(moduleSymbol),
+                    GetModuleResourceIdExpression(context.SemanticModel, moduleDeclarationSyntax),
                     new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion),
                 },
                 new LanguageExpression[]
@@ -279,7 +308,7 @@ namespace Bicep.Core.Emit
                     return GetReferenceExpression(resourceSymbol.DeclaringResource, typeReference, true);
 
                 case ModuleSymbol moduleSymbol:
-                    return GetModuleOutputsReferenceExpression(moduleSymbol);
+                    return GetModuleOutputsReferenceExpression(moduleSymbol.DeclaringModule);
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

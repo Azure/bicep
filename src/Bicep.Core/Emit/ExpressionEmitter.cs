@@ -99,9 +99,9 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        public void EmitModuleResourceIdExpression(ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
-            var resourceIdExpression = converter.GetModuleResourceIdExpression(moduleSymbol);
+            var resourceIdExpression = converter.GetModuleResourceIdExpression(context.SemanticModel, moduleDeclarationSyntax);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);

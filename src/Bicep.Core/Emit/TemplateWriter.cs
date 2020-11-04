@@ -40,6 +40,17 @@ namespace Bicep.Core.Emit
             "dependsOn",
         }.ToImmutableHashSet();
 
+        private static SemanticModel.SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        {
+            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
+            {
+                // this should have already been checked during type assignment
+                throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
+            }
+            
+            return moduleSemanticModel;
+        }
+
         private readonly JsonTextWriter writer;
         private readonly EmitterContext context;
         private readonly ExpressionEmitter emitter;
@@ -294,12 +305,7 @@ namespace Bicep.Core.Emit
 
                 writer.WritePropertyName("template");
                 {
-                    if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
-                    {
-                        // this should have already been checked during type assignment
-                        throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
-                    }
-
+                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
                     var moduleWriter = new TemplateWriter(writer, moduleSemanticModel);
                     moduleWriter.Write();
                 }
@@ -332,7 +338,7 @@ namespace Bicep.Core.Emit
                         emitter.EmitResourceIdReference(resourceDependency.DeclaringResource, typeReference);
                         break;
                     case ModuleSymbol moduleDependency:
-                        emitter.EmitModuleResourceIdExpression(moduleDependency);
+                        emitter.EmitModuleResourceIdExpression(moduleDependency.DeclaringModule);
                         break;
                     default:
                         throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");

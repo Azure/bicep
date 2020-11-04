@@ -31,11 +31,23 @@
                   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
                   "functions": [],
-                  "resources": []
+                  "resources": [],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
                 }
               }
             }
-          ]
+          ],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference(managementGroupResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+            }
+          }
         }
       }
     },
@@ -82,7 +94,13 @@
                           "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "functions": [],
-                          "resources": []
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
                         }
                       }
                     },
@@ -101,11 +119,27 @@
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "functions": [],
-                          "resources": []
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
                         }
                       }
                     }
-                  ]
+                  ],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2019-10-01').outputs.myOutput.value]"
+                    }
+                  }
                 }
               }
             },
@@ -138,7 +172,13 @@
                           "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "functions": [],
-                          "resources": []
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
                         }
                       }
                     },
@@ -157,11 +197,27 @@
                           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                           "contentVersion": "1.0.0.0",
                           "functions": [],
-                          "resources": []
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
                         }
                       }
                     }
-                  ]
+                  ],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2019-10-01').outputs.myOutput.value]"
+                    }
+                  }
                 }
               }
             },
@@ -178,13 +234,43 @@
                   "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
                   "contentVersion": "1.0.0.0",
                   "functions": [],
-                  "resources": []
+                  "resources": [],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
                 }
               }
             }
-          ]
+          ],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+            },
+            "myOutputRgMod": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myResourceGroupMod'), '2019-10-01').outputs.myOutput.value]"
+            },
+            "myOutputRgMod2": {
+              "type": "string",
+              "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2019-10-01').outputs.myOutput.value]"
+            }
+          }
         }
       }
     }
-  ]
+  ],
+  "outputs": {
+    "myManagementGroupOutput": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myManagementGroupMod'), '2019-10-01').outputs.myOutput.value]"
+    },
+    "mySubscriptionOutput": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'mySubscriptionMod'), '2019-10-01').outputs.myOutput.value]"
+    }
+  }
 }
