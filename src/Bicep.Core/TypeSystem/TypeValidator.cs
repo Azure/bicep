@@ -315,7 +315,7 @@ namespace Bicep.Core.TypeSystem
                 else if (parent is IDeclarationSyntax declarationParent)
                 {
                     positionable = declarationParent.Name;
-                    blockName = "block";
+                    blockName = declarationParent.Keyword.Text;
                 }
 
                 diagnostics.Add(DiagnosticBuilder.ForPosition(positionable).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties, blockName));
