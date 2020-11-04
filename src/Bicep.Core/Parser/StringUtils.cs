@@ -46,6 +46,6 @@ namespace Bicep.Core.Parser
             return buffer.ToString();
         }
 
-        public static bool IsMultilineString(string value) => NewLineRegex.Matches(value).Count >= 2;
+        public static bool HasAtLeastTwoNewlines(string value) => NewLineRegex.Matches(value).Count >= 2;
     }
 }

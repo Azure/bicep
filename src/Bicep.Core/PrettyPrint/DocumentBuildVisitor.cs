@@ -9,46 +9,30 @@ using Bicep.Core.Parser;
 using Bicep.Core.PrettyPrint.Documents;
 using Bicep.Core.PrettyPrint.DocumentCombinators;
 using Bicep.Core.Syntax;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.PrettyPrint
 {
     public class DocumentBuildVisitor : SyntaxVisitor
     {
+        private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
+            LanguageConstants.DeclarationKeywords
+            .Concat(LanguageConstants.Keywords.Keys)
+            .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
+            .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
+            .ToImmutableDictionary(value => value, value => new TextDocument(value, Nil));
+
         private static readonly ILinkedDocument Nil = new NilDocument();
 
         private static readonly ILinkedDocument Space = new TextDocument(" ", Nil);
 
         private static readonly ILinkedDocument Line = new NestDocument(0, Nil);
 
-        private static readonly IReadOnlyDictionary<string, TextDocument> CommonTextCache;
-
         private readonly Stack<ILinkedDocument> documents = new Stack<ILinkedDocument>();
 
         private readonly Stack<DocumentBlockContext> documentBlockContexts = new Stack<DocumentBlockContext>();
 
         private readonly List<ILinkedDocument> precedingTrailingComments = new List<ILinkedDocument>();
-
-        static DocumentBuildVisitor()
-        {
-            var commonTextCache = new Dictionary<string, TextDocument>();
-
-            foreach (var symbol in new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
-            {
-                commonTextCache.Add(symbol, new TextDocument(symbol, Nil));
-            }
-
-            foreach (var name in new[] { "name", "properties", "string", "bool", "int", "array", "object" })
-            {
-                commonTextCache.Add(name, new TextDocument(name, Nil));
-            }
-
-            foreach (var keyword in LanguageConstants.DeclarationKeywords.Concat(LanguageConstants.Keywords.Keys))
-            {
-                commonTextCache.Add(keyword, new TextDocument(keyword, Nil));
-            }
-
-            CommonTextCache = commonTextCache;
-        }
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
         {
@@ -162,7 +146,7 @@ namespace Bicep.Core.PrettyPrint
                         // Normalize newlines.
                         !this.IsBlockFirstNewLine(token) &&
                         !this.IsBlockLastNewLine(token) &&
-                        StringUtils.IsMultilineString(token.Text)
+                        StringUtils.HasAtLeastTwoNewlines(token.Text)
                             ? Concat(Line, Line)
                             : Line,
                     _ => Text(token.Text)
@@ -297,16 +281,13 @@ namespace Bicep.Core.PrettyPrint
             => Spread(combinators as IEnumerable<ILinkedDocument>);
 
         private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators)
-            => Delimited(combinators, Space);
-
-        private static ILinkedDocument Delimited(IEnumerable<ILinkedDocument> combinators, ILinkedDocument delimiter)
         {
             if (!combinators.Any())
             {
                 return Nil;
             }
 
-            return combinators.Aggregate((a, b) => a.Concat(delimiter).Concat(b));
+            return combinators.Aggregate((a, b) => a.Concat(Space).Concat(b));
         }
 
         private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
