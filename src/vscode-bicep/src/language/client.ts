@@ -57,6 +57,15 @@ async function launchLanguageService(
     documentSelector: [{ language: "bicep" }],
     progressOnInitialization: true,
     outputChannel,
+    middleware: {
+      provideDocumentFormattingEdits: (document, options, token, next) => {
+        options.insertFinalNewline =
+          vscode.workspace
+            .getConfiguration("files")
+            .get<boolean>("insertFinalNewline") ?? false;
+        return next(document, options, token);
+      },
+    },
     synchronize: {
       // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHander.cs
       fileEvents: [
