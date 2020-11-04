@@ -36,19 +36,29 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
+// #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
   name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+    
   }
 }
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+
+// #completionTest(56) -> moduleAOutputs
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
@@ -62,10 +72,39 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
-module moduleWithBackslash 'child\\file.bicep' = {
+module modCycle './cycle.bicep' = {
   
 }
 
-module modCycle './cycle.bicep' = {
-  
+module moduleWithEmptyPath '' = {
+}
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+}
+
+module moduleWithBackslash 'child\\file.bicep' = {
+}
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+}
+
+module moduleWithValidScope './empty.bicep' = {
+  name: 'moduleWithValidScope'
+}
+
+module moduleWithInvalidScope './empty.bicep' = {
+  name: 'moduleWithInvalidScope'
+  scope: moduleWithValidScope
+}
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+  name: 'moduleWithMissingRequiredScope'
+}
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+  name: 'moduleWithInvalidScope2'
+  scope: managementGroup()
 }

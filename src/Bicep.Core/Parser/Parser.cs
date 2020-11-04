@@ -21,10 +21,11 @@ namespace Bicep.Core.Parser
         public Parser(string text)
         {
             // treating the lexer as an implementation detail of the parser
-            var lexer = new Lexer(new SlidingTextWindow(text));
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            this.lexerDiagnostics = lexer.GetDiagnostics();
+            this.lexerDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
 
             this.reader = new TokenReader(lexer.GetTokens());
         }
@@ -67,6 +68,7 @@ namespace Bicep.Core.Parser
                     {
                         TokenType.Identifier => current.Text switch
                         {
+                            LanguageConstants.TargetScopeKeyword => this.TargetScope(),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
@@ -104,6 +106,15 @@ namespace Bicep.Core.Parser
                 default:
                     return RecoveryFlags.None;
             }
+        }
+
+        private SyntaxBase TargetScope()
+        {
+            var keyword = ExpectKeyword(LanguageConstants.TargetScopeKeyword);
+            var assignment = this.WithRecovery(this.Assignment, RecoveryFlags.None, TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), RecoveryFlags.None, TokenType.NewLine);
+
+            return new TargetScopeSyntax(keyword, assignment, value);
         }
 
         private SyntaxBase ParameterDeclaration()

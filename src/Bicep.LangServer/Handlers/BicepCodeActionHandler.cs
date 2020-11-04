@@ -14,7 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepCodeActionHandler : CodeActionHandler
+    public class BicepCodeActionHandler : CodeActionHandlerBase
     {
         private readonly ICompilationManager compilationManager;
 
@@ -49,6 +49,13 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new CommandOrCodeActionContainer(quickFixes));
         }
 
+        public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
+        {
+            // we are currently precomputing our quickfixes, so there's no need to resolve them after they are chosen
+            // this shouldn't be called because registration options disabled the resolve functionality
+            return Task.FromResult(request);
+        }
+
         private static CommandOrCodeAction CreateQuickFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
             return new CodeAction
@@ -73,7 +80,8 @@ namespace Bicep.LanguageServer.Handlers
         private static CodeActionRegistrationOptions CreateCodeActionRegistrationOptions() => new CodeActionRegistrationOptions
         {
             DocumentSelector = DocumentSelectorFactory.Create(),
-            CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix)
+            CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix),
+            ResolveProvider = false
         };
     }
 }

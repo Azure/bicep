@@ -141,7 +141,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     baz.id
-//@[8:10) [BCP053 (Error)] The type "Microsoft.Foo/foos@2020-02-02-alpha" does not contain property "id". Available properties include "eTag", "extendedLocation", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "zones". |id|
+//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |baz.id|
   ]
 }
 
@@ -149,9 +149,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "'hello'". |'hello'|
+//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'hello'". |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "bool". |true|
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "bool". |true|
   ]
 }
 
@@ -176,9 +176,7 @@ var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:16) [BCP040 (Error)] String interpolation is not supported for keys on objects of type "Microsoft.Foo/foos@2020-02-02-alpha". Permissible properties include "dependsOn", "eTag", "extendedLocation", "identity", "kind", "location", "managedBy", "managedByExtended", "plan", "properties", "scale", "sku", "tags", "zones". |'${interpVal}'|
   '${undefinedSymbol}': true
-//@[2:22) [BCP040 (Error)] String interpolation is not supported for keys on objects of type "Microsoft.Foo/foos@2020-02-02-alpha". Permissible properties include "dependsOn", "eTag", "extendedLocation", "identity", "kind", "location", "managedBy", "managedByExtended", "plan", "properties", "scale", "sku", "tags", "zones". |'${undefinedSymbol}'|
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
 }
 
@@ -228,6 +226,9 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
   kind:   
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 }
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[75:76) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
@@ -239,6 +240,8 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:270) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzurePowerShell'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties\r\n    \r\n  }\r\n}|
@@ -250,6 +253,12 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
@@ -259,6 +268,9 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[2:11) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "Microsoft.Resources/deploymentScripts@2020-10-01". Did you mean "properties"? |propertes|
   }
 }
+
+var mock = incorrectPropertiesKey.p
+//@[34:35) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -308,3 +320,9 @@ resource startedTypingTypeWithoutQuotes virma
 //@[40:45) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[40:45) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[89:93) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s

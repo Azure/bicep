@@ -1,6 +1,4 @@
 # Resource Scopes
-> **Note:** Not implemented yet.
-
 ## Introduction / Motivation
 A deployment in ARM has an associated scope, which dictates the scope that resources within that deployment are created in. There are various ways to deploy resources across multiple scopes today in ARM templates; this spec describes how similar functionality can be achieved in Bicep.
 
@@ -8,14 +6,15 @@ See [here][arm-scopes] for more information on ARM scopes.
 
 ## Declaring and using scopes
 
-### Declaring the target scope(s)
-Unless otherwise specified, Bicep will assume that a given `.bicep` file is to be deployed at a resource group scope, and will validate resources accordingly. If you wish to change this scope, or define a file that can be deployed at multiple scopes, you must use the `target` keyword with either a string or array value as follows:
+### Declaring the target scope
+Unless otherwise specified, Bicep will assume that a given `.bicep` file is to be deployed at a resource group scope, and will validate resources accordingly. If you wish to change this scope, or define a file that can be deployed at multiple scopes, you must use the `targetScope` keyword with either a string or array value as follows:
 
 ```bicep
 // this file can only be deployed at a subscription scope
 target = 'subscription'
 ```
 
+> **NOTE:** The below syntax to target multiple scopes below has not yet been implemented.
 ```bicep
 // this file can be deployed at either a tenant or managementGroup scope
 target = [
@@ -24,84 +23,85 @@ target = [
 ]
 ```
 
-The following strings are permitted for the `target` keyword: `'tenant'`, `'managementGroup'`, `'subscription'`, `'resourceGroup'`. Expressions are not permitted.
+The following strings are permitted for the `targetScope` keyword: `'tenant'`, `'managementGroup'`, `'subscription'`, `'resourceGroup'`. Expressions are not permitted.
 
 It is important to set the target scope because it allows Bicep to perform validation that the resources declared in the `.bicep` file are permitted at that scope, and it also ensures that the correct type of scope is passed to the module when the module is referenced.
 
-### Additional 'resourceId' Type
-With the implementation of this feature, we introduce a new type `resourceId` (subtype of `string`). This type contains structured information about a resource identifier or scope, but with a string representation. We will allow `resourceId` to be assigned to a `string`, but not a `string` to be assigned to a `resourceId`.
+### Module 'scope' property
+When declaring a module, you can supply a property named `scope` to set the scope at which to deploy the module. If the module's target scope is the same as the parent's target scope, this property may be omitted.
 
-### Resource 'id' Property
-The existing readonly resource property `id` will be updated to return a `resourceId` type rather than a `string`. This will be a non-breaking change because we will allow assignment to `string` as discussed in [Additional 'resourceId' Type](#additional-resourceid-type).
+Assigning a scope to this field indicates that the module must be deployed at that scope. If the field is not provided, the module will be deployed at the target scope for the file (see [Declaring the target scope(s)](#declaring-the-target-scopes)).
 
-### Resource or Module 'scope' Property
-An additional optional read-write property `scope` of type `resourceId` will be added to the `resource` & `module` types.
+```bicep
+module myModule './path/to/module.bicep' = {
+  name: 'myModule'
+  // deploy this module at the subscription scope
+  scope: scope.subscription()
+}
 
-Assigning a scope to this field indicates that the resource or module must be deployed at that scope. If the field is not provided, the resource or module will be deployed at the target scope for the file (see [Declaring the target scope(s)](#declaring-the-target-scopes)).
+var otherRgScope = scope.resourceGroup(otherSubscription, otherResourceGroupName)
+module myModule './path/to/module.bicep' = {
+  name: 'myModule'
+  // deploy this module into a different resource group
+  scope: otherRgScope
+}
+```
+
+### Global Functions
+The following functions will return a scope object which can be passed to an above-mentioned `scope` property:
+
+```bicep
+tenant() // returns the tenant scope
+
+managementGroup() // returns the current management group scope (only from managementGroup deployments)
+managementGroup(name: string) // returns the scope for a named management group
+
+subscription() // returns the subscription scope for the current deployment (only from subscription & resourceGroup deployments)
+subscription(subscriptionId: string) // returns a named subscription scope (only from subscription & resourceGroup deployments)
+
+resourceGroup() // returns the current resource group scope (only from resourceGroup deployments)
+resourceGroup(resourceGroupName: string) // returns a named resource group scope (only from subscription & resourceGroup deployments)
+resourceGroup(subscriptionId: string, resourceGroupName: string) // returns a named resource group scope (only from subscription & resourceGroup deployments)
+```
+
+### Resource 'scope' Property
+> **NOTE:** Supplying scope to resources has not yet been implemented.
+
+When declaring a resource, you can supply a property named `scope` to set the scope at which to deploy the resource. If the module's target scope is the same as the parent's target scope, this property may be omitted.
+
+Assigning a scope to this field indicates that the resource must be deployed at that scope. If the field is not provided, the resource will be deployed at the target scope for the file (see [Declaring the target scope(s)](#declaring-the-target-scopes)).
 
 ```bicep
 resource myNic 'Microsoft.Network/networkInterfaces@2020-01-01' = {
   // use a different resource group scope for this resource
   scope: scope.resourceGroup(myExternalResourceGroup)
 }
-
-module myModule './path/to/module.bicep' = {
-  name: 'myModule'
-  // deploy this module at the subscription scope
-  scope: scope.subscription()
-}
 ```
 
 If the scope being assigned has been generated by another resource (for example the deployment of a resourceGroup), using this scope will set up an implicit dependency from child on parent.
 
-### Global Functions
-We will introduce an object named `scope` under the `az` namespaces, with the following methods, which will all return scopes of type `resourceId`:
-
-```bicep
-scope.tenant() // returns the tenant scope
-  
-scope.managementGroup(name: string) // returns a named management scope
-
-scope.subscription() // returns the subscription scope for the current deployment
-scope.subscription(subscriptionId: string) // returns a named subscription scope
-
-scope.resourceGroup() // returns the resource group scope for the current deployment
-scope.resourceGroup(resourceGroupName: string) // returns a named resource group scope for a group in the same subscription
-scope.resourceGroup(resourceGroupName: string, subscription: string)  // returns a named resource group scope
-
-scope.extension(resourceId: string) // returns an extension scope for a given resourceId (external resource)
-```
-
-### Type checking
-Internally, we will store the information about the type of the `resourceId` - this can be `TenantScope`, `ManagementGroupScope`, `SubscriptionScope`, `ResourceGroupScope` and `ExtensionScope`, allowing for combinations.
-
-Bicep will use this information to verify that the scope type being passed to a resource or module matches an acceptable type or set of types for that resource or module.
-
 ## Example Usages
 ```bicep
+// set the target scope for this file
+targetScope = 'subscription'
+
 // deploy a resource group to the subscription scope
 resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01 = {
   name: 'myRg'
   location: 'West US'
-  scope: scope.subscription()
+  scope: subscription()
 }
+var rgScope = resourceGroup('myRg') // use the scope of the newly-created resource group
 
-// deploy a resource into the newly-created resource group
-resource myNic 'Microsoft.Network/networkInterfaces@2020-01-01 = {
-  name: 'myNic'
-  location: 'West US'
-  scope: myRg.id // use the scope of the newly-created resource group
-}
-
-// deploy an extension resource on the network interface
-resource extension 'Microsoft.MockExtension/extension@2020-01-01 = {
-  name: 'myExtension'
-  scope: myNic.id // use the scope of the network interface to deploy the extension resource
+// deploy a module to that newly-created resource group
+module myMod './path/to/module.bicep' = {
+  name: 'myMod'
+  scope: rgScope
 }
 ```
 
 ## Allowed combinations of scopes
-This feature will be limited to the same scoping constraints that exist within ARM Deployments today. We will prevent successful compilation of a template that cannot be deployed, with an error message explaining the constraint.
+This feature is limited to the same scoping constraints that exist within ARM Deployments today.
 
 ## Possible Extensions
 
@@ -114,7 +114,7 @@ resource myParent 'My.Rp/parentType@2020-01-01' = {
 }
 
 resource myChild 'My.Rp/parentType/childType@2020-01-01' = {
-  parent: myParent.id // pass parent resourceId
+  scope: myParent // pass parent reference
   name: 'myChild' // don't require the full name to be formatted with '/' characters
 }
 ```

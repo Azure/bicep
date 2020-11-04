@@ -48,5 +48,20 @@ namespace Bicep.Core.TypeSystem
         /// Discriminated object type.
         /// </summary>
         DiscriminatedObject,
+
+        /// <summary>
+        /// Namespace type.
+        /// </summary>
+        Namespace,
+
+        /// <summary>
+        /// A reference to a resource scope.
+        /// </summary>
+        ResourceScopeReference,
+
+        /// <summary>
+        /// Module type
+        /// </summary>
+        Module,
     }
 }

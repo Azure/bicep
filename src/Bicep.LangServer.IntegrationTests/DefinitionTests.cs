@@ -10,8 +10,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -153,7 +151,7 @@ namespace Bicep.LangServer.IntegrationTests
             single.Location.Should().BeNull();
             single.LocationLink.Should().NotBeNull();
 
-            return single.LocationLink;
+            return single.LocationLink!;
         }
 
         private static IEnumerable<object[]> GetData()

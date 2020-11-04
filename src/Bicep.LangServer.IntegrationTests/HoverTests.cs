@@ -14,6 +14,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,7 +49,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
-                    if (node is ISymbolReference || node is IDeclarationSyntax)
+                    if (node is ISymbolReference || node is INamedDeclarationSyntax)
                     {
                         accumulated.Add(node);
                     }
@@ -68,22 +69,15 @@ namespace Bicep.LangServer.IntegrationTests
                 if (symbolTable.TryGetValue(symbolReference, out var symbol) == false)
                 {
                     // symbol ref not bound to a symbol
-                    ValidateEmptyHover(hover);
+                    hover.Should().BeNull();
                     continue;
                 }
 
                 switch (symbol!.Kind)
                 {
-                    // when a namespace value is not found, instance function call contains a null hover range
-                    case SymbolKind.Error when  (symbolReference is InstanceFunctionCallSyntax && hover.Range == null):
-                    case SymbolKind.Error when !(symbolReference is InstanceFunctionCallSyntax):
-                        // error symbol
-                        ValidateEmptyHover(hover);
-                        break;
-
                     case SymbolKind.Function when symbolReference is VariableAccessSyntax:
                         // variable got bound to a function
-                        ValidateEmptyHover(hover);
+                        hover.Should().BeNull();
                         break;
 
                     // when a namespace value is found and there was an error with the function call or
@@ -94,6 +88,12 @@ namespace Bicep.LangServer.IntegrationTests
                     case SymbolKind.Namespace:
                         ValidateInstanceFunctionCallHover(hover);
                         break;
+
+                    case SymbolKind.Error:
+                        // error symbol
+                        hover.Should().BeNull();
+                        break;
+
                     default:
                         ValidateHover(hover, symbol);
                         break;
@@ -106,7 +106,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverNonHoverableElementsShouldProduceEmptyHovers(DataSet dataSet)
         {
             // local function
-            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax) && !(node is Token);
+            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
@@ -140,13 +140,14 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = PositionHelper.GetPosition(lineStarts, node.Span.Position)
                 });
 
-                ValidateEmptyHover(hover);
+                hover.Should().BeNull();
             }
         }
 
-        private static void ValidateHover(Hover hover, Symbol symbol)
+        private static void ValidateHover(Hover? hover, Symbol symbol)
         {
-            hover.Range.Should().NotBeNull();
+            hover.Should().NotBeNull();
+            hover!.Range!.Should().NotBeNull();
             hover.Contents.Should().NotBeNull();
 
             hover.Contents.HasMarkedStrings.Should().BeFalse();
@@ -154,7 +155,7 @@ namespace Bicep.LangServer.IntegrationTests
             hover.Contents.MarkedStrings.Should().BeNull();
             hover.Contents.MarkupContent.Should().NotBeNull();
 
-            hover.Contents.MarkupContent.Kind.Should().Be(MarkupKind.Markdown);
+            hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
             hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
             hover.Contents.MarkupContent.Value.Should().EndWith("```");
 
@@ -190,9 +191,10 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static void ValidateInstanceFunctionCallHover(Hover hover)
+        private static void ValidateInstanceFunctionCallHover(Hover? hover)
         {
-            hover.Range.Should().NotBeNull();
+            hover.Should().NotBeNull();
+            hover!.Range!.Should().NotBeNull();
             hover.Contents.Should().NotBeNull();
 
             hover.Contents.HasMarkedStrings.Should().BeFalse();
@@ -200,19 +202,9 @@ namespace Bicep.LangServer.IntegrationTests
             hover.Contents.MarkedStrings.Should().BeNull();
             hover.Contents.MarkupContent.Should().NotBeNull();
 
-            hover.Contents.MarkupContent.Kind.Should().Be(MarkupKind.Markdown);
+            hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
             hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
             hover.Contents.MarkupContent.Value.Should().EndWith("```");
-        }
-
-        private void ValidateEmptyHover(Hover hover)
-        {
-            hover.Range.Should().BeNull();
-            hover.Contents.Should().NotBeNull();
-            hover.Contents.HasMarkedStrings.Should().BeTrue();
-            hover.Contents.HasMarkupContent.Should().BeFalse();
-            hover.Contents.MarkupContent.Should().BeNull();
-            hover.Contents.MarkedStrings.Should().SatisfyRespectively(ms => ms.Value.Should().BeEmpty());
         }
 
         private static IEnumerable<object[]> GetData()

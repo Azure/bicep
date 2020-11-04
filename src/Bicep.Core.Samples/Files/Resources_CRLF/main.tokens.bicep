@@ -1,5 +1,3 @@
-
-//@[0:2) NewLine |\r\n|
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[0:8) Identifier |resource|
 //@[9:21) Identifier |basicStorage|
@@ -17,6 +15,24 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[10:11) Colon |:|
 //@[12:20) StringComplete |'westus'|
 //@[20:22) NewLine |\r\n|
+  kind: 'BlobStorage'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:21) StringComplete |'BlobStorage'|
+//@[21:23) NewLine |\r\n|
+  sku: {
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+    name: 'Standard_GRS'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:24) StringComplete |'Standard_GRS'|
+//@[24:26) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|

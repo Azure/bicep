@@ -9,13 +9,13 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxExtensions
     {
-        public static IList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
+        public static IReadOnlyList<Diagnostic> GetParseDiagnostics(this SyntaxBase syntax)
         {
-            var diagnostics = new List<Diagnostic>();
-            var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnostics);
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var parseErrorVisitor = new ParseDiagnosticsVisitor(diagnosticWriter);
             parseErrorVisitor.Visit(syntax);
 
-            return diagnostics;
+            return diagnosticWriter.GetDiagnostics();
         }
 
         public static bool HasParseErrors(this SyntaxBase syntax)

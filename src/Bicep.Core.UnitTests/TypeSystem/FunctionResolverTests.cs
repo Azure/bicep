@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.SemanticModel.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,7 +26,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ReturnType.Should().BeSameAs(expectedReturnType);
+            matches.Single().ReturnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>()).Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -33,7 +36,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ReturnType).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ReturnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>())).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -150,7 +153,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             }
 
             yield return CreateRow("concat", Tuple.Create(1, (int?)null));
-            yield return CreateRow("resourceGroup", Tuple.Create(0, (int?)0), LanguageConstants.Int);
+            yield return CreateRow("deployment", Tuple.Create(0, (int?)0), LanguageConstants.Int);
             yield return CreateRow("toUpper", Tuple.Create(1, (int?)1), LanguageConstants.String, LanguageConstants.String, LanguageConstants.String);
             yield return CreateRow("padLeft", Tuple.Create(2, (int?)3));
         }
@@ -218,7 +221,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol()};
+            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScopeType.ResourceGroupScope)};
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();
@@ -226,9 +229,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             foreach (var ns in namespaces)
             {
-                matches.AddRange(FunctionResolver.GetMatches(ns, functionName, argumentTypes, out var countMismatches, out var typeMismatches));
-                argumentCountMismatches.AddRange(countMismatches);
-                argumentTypeMismatches.AddRange(typeMismatches);
+                var nameSyntax = TestSyntaxFactory.CreateIdentifier(functionName);
+                if (ns.Type.MethodResolver.TryGetSymbol(nameSyntax) is FunctionSymbol functionSymbol)
+                {
+                    matches.AddRange(FunctionResolver.GetMatches(functionSymbol, argumentTypes, out var countMismatches, out var typeMismatches));
+                    argumentCountMismatches.AddRange(countMismatches);
+                    argumentTypeMismatches.AddRange(typeMismatches);
+                }
             }
 
             return matches;

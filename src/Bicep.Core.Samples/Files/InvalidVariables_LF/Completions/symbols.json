@@ -48,7 +48,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "az.resourceGroup()$0"
+      "newText": "az.resourceGroup($0)"
     }
   },
   {
@@ -481,6 +481,19 @@
     }
   },
   {
+    "label": "mixedArrayTypeCompletions",
+    "kind": "variable",
+    "detail": "mixedArrayTypeCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mixedArrayTypeCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mixedArrayTypeCompletions"
+    }
+  },
+  {
     "label": "myConcat",
     "kind": "variable",
     "detail": "myConcat",
@@ -517,6 +530,45 @@
     "textEdit": {
       "range": {},
       "newText": "objWithInterp"
+    }
+  },
+  {
+    "label": "objectLiteralType",
+    "kind": "variable",
+    "detail": "objectLiteralType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objectLiteralType",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "objectLiteralType"
+    }
+  },
+  {
+    "label": "objectVarTopLevelCompletions",
+    "kind": "variable",
+    "detail": "objectVarTopLevelCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objectVarTopLevelCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "objectVarTopLevelCompletions"
+    }
+  },
+  {
+    "label": "oneArrayItemCompletions",
+    "kind": "variable",
+    "detail": "oneArrayItemCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_oneArrayItemCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "oneArrayItemCompletions"
     }
   },
   {
@@ -698,7 +750,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "subscription()$0"
+      "newText": "subscription($0)"
     }
   },
   {
@@ -751,6 +803,19 @@
     "textEdit": {
       "range": {},
       "newText": "take($0)"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
     }
   },
   {

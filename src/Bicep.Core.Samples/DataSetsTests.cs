@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,7 +45,7 @@ namespace Bicep.Core.Samples
 
         private IEnumerable<Token> GetLineEndingTokens(string contents)
         {
-            var lexer = new Lexer(new SlidingTextWindow(contents));
+            var lexer = new Lexer(new SlidingTextWindow(contents), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             return lexer.GetTokens().Where(token => token.Type == TokenType.NewLine);

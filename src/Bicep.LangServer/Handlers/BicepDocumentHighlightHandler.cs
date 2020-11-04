@@ -20,12 +20,12 @@ namespace Bicep.LanguageServer.Handlers
             this.symbolResolver = symbolResolver;
         }
 
-        public override Task<DocumentHighlightContainer> Handle(DocumentHighlightParams request, CancellationToken cancellationToken)
+        public override Task<DocumentHighlightContainer?> Handle(DocumentHighlightParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {
-                return Task.FromResult(new DocumentHighlightContainer());
+                return Task.FromResult<DocumentHighlightContainer?>(null);
             }
 
             var highlights = result.Context.Compilation.GetEntrypointSemanticModel()
@@ -33,12 +33,12 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(referenceSyntax => new DocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
-                    Kind = referenceSyntax is IDeclarationSyntax
+                    Kind = referenceSyntax is INamedDeclarationSyntax
                         ? DocumentHighlightKind.Write
                         : DocumentHighlightKind.Read
                 });
 
-            return Task.FromResult(new DocumentHighlightContainer(highlights));
+            return Task.FromResult<DocumentHighlightContainer?>(new DocumentHighlightContainer(highlights));
         }
 
         private static DocumentHighlightRegistrationOptions CreateRegistrationOptions() =>

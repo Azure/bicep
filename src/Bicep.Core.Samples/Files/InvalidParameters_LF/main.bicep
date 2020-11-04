@@ -132,6 +132,14 @@ param expressionInModifier string {
   ]
 }
 
+param nonCompileTimeConstant string {
+  maxLength: 2 + 3
+  minLength: length([])
+  allowed: [
+    resourceGroup().id
+  ]
+}
+
 param emptyAllowedString string {
   allowed: []
 }

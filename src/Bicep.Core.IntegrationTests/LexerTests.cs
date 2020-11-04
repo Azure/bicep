@@ -4,20 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Serialization;
 using Bicep.Core.UnitTests.Utils;
-using DiffPlex.DiffBuilder;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -30,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldRoundtrip(DataSet dataSet)
         {
-            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             var serialized = new StringBuilder();
@@ -43,7 +38,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceValidTokenLocations(DataSet dataSet)
         {
-            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             foreach (Token token in lexer.GetTokens())
@@ -59,7 +54,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceContiguousSpans(DataSet dataSet)
         {
-            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             int visitedPosition = 0;
@@ -99,7 +94,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceExpectedTokens(DataSet dataSet)
         {
-            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             string getLoggingString(Token token)
@@ -123,7 +118,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceValidStringLiteralTokensOnValidFiles(DataSet dataSet)
         {
-            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep));
+            var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
             lexer.Lex();
 
             foreach (Token stringToken in lexer.GetTokens().Where(token => token.Type == TokenType.StringComplete))

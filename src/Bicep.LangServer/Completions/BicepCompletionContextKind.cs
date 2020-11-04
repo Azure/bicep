@@ -33,9 +33,9 @@ namespace Bicep.LanguageServer.Completions
         Expression = 1 << 3,
 
         /// <summary>
-        /// The current location needs a property name. 
+        /// The current location needs an object property name. 
         /// </summary>
-        PropertyName = 1 << 4,
+        ObjectPropertyName = 1 << 4,
 
         /// <summary>
         /// The current location needs a property value.
@@ -66,5 +66,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a module body.
         /// </summary>
         ModuleBody = 1 << 10,
+
+        /// <summary>
+        /// The current location is accessing property names.
+        /// </summary>
+        PropertyAccess = 1 << 11
     }
 }

@@ -95,3 +95,33 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
+
+var objectLiteralType = {
+  first: true
+  second: false
+  third: 42
+  fourth: 'test'
+  fifth: [
+    {
+      one: true
+    }
+    {
+      one: false
+    }
+  ]
+  sixth: [
+    {
+      two: 44
+    }
+  ]
+}
+
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions = objectLiteralType.f
+
+// this does not produce any completions because mixed array items are of type "any"
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t

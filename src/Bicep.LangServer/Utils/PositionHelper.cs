@@ -21,7 +21,7 @@ namespace Bicep.LanguageServer.Utils
 
         public static Range GetNameRange(ImmutableArray<int> lineStarts, SyntaxBase syntax)
         {
-            if (syntax is IDeclarationSyntax declarationSyntax)
+            if (syntax is INamedDeclarationSyntax declarationSyntax)
             {
                 return declarationSyntax.Name.ToRange(lineStarts);
             }

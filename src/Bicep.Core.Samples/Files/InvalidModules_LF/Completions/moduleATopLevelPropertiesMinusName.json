@@ -1,0 +1,62 @@
+[
+  {
+    "label": "dependsOn",
+    "kind": "property",
+    "detail": "dependsOn",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resource | module[]`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dependsOn",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dependsOn"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "params",
+    "kind": "property",
+    "detail": "params (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `params`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_params",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "params"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "scope",
+    "kind": "property",
+    "detail": "scope",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resourceGroup`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scope",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "scope"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

@@ -32,6 +32,6 @@ namespace Bicep.Core.Syntax
             : this.EndOfFile.Span;
 
         // TODO: Should we have a DeclarationSyntax abstract class?
-        public IEnumerable<SyntaxBase> Declarations => this.Children.Where(c => c is IDeclarationSyntax);
+        public IEnumerable<SyntaxBase> Declarations => this.Children.Where(c => c is INamedDeclarationSyntax);
     }
 }

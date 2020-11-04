@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceDeclarationSyntax : SyntaxBase, IDeclarationSyntax
+    public class ResourceDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
         public ResourceDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase body)
         {
@@ -39,6 +42,32 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(Keyword, Body);
 
-        public StringSyntax? TryGetType() => Type as StringSyntax;
+        public StringSyntax? TypeString => Type as StringSyntax;
+
+        public TypeSymbol GetDeclaredType(IResourceTypeProvider resourceTypeProvider)
+        {
+            var stringSyntax = this.TypeString;
+
+            if (stringSyntax != null && stringSyntax.IsInterpolated())
+            {
+                // TODO: in the future, we can relax this check to allow interpolation with compile-time constants.
+                // right now, codegen will still generate a format string however, which will cause problems for the type.
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).ResourceTypeInterpolationUnsupported());
+            }
+
+            var stringContent = stringSyntax?.TryGetLiteralValue();
+            if (stringContent == null)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
+            }
+
+            var typeReference = ResourceTypeReference.TryParse(stringContent);
+            if (typeReference == null)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
+            }
+
+            return resourceTypeProvider.GetType(typeReference);
+        }
     }
 }

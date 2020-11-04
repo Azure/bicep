@@ -1,33 +1,5 @@
 param location string {
     default: resourceGroup().location
-    allowed: [
-        'australiacentral' 
-        'australiaeast' 
-        'australiasoutheast' 
-        'brazilsouth'
-        'canadacentral' 
-        'centralindia' 
-        'centralus' 
-        'eastasia' 
-        'eastus' 
-        'eastus2' 
-        'francecentral' 
-        'japaneast' 
-        'koreacentral' 
-        'northcentralus' 
-        'northeurope' 
-        'southafricanorth' 
-        'southcentralus' 
-        'southeastasia'
-        'switzerlandnorth'
-        'switzerlandwest'
-        'uksouth' 
-        'ukwest' 
-        'westcentralus' 
-        'westeurope' 
-        'westus' 
-        'westus2' 
-    ]
 }
 
 param logAnalyticsWorkspaceName string = 'la-${uniqueString(resourceGroup().id)}'

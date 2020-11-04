@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -16,10 +17,11 @@ namespace Bicep.Core.SemanticModel
 
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
 
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings)
+        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, ResourceScopeType targetScope)
         {
             this.Root = root;
             this.typeManager = typeManager;
+            this.TargetScope = targetScope;
             this.bindings = bindings.ToImmutableDictionary();
         }
 
@@ -34,17 +36,17 @@ namespace Bicep.Core.SemanticModel
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<Diagnostic> GetSemanticDiagnostics()
+        public IReadOnlyList<Diagnostic> GetSemanticDiagnostics()
         {
-            var diagnostics = new List<Diagnostic>();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             
-            var visitor = new SemanticDiagnosticVisitor(diagnostics);
+            var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
 
             var typeValidationDiagnostics = typeManager.GetAllDiagnostics();
-            diagnostics.AddRange(typeValidationDiagnostics);
+            diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
 
-            return diagnostics;
+            return diagnosticWriter.GetDiagnostics();
         }
 
         /// <summary>
@@ -83,5 +85,7 @@ namespace Bicep.Core.SemanticModel
         /// Gets the file that was compiled.
         /// </summary>
         public FileSymbol Root { get; }
+
+        public ResourceScopeType TargetScope { get; }
     }
 }
