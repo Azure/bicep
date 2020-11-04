@@ -22,6 +22,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Files\Completions\targetScopes.json">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\InvalidTargetScopes_LF\main.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\InvalidTargetScopes_LF\main.diagnostics.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\InvalidTargetScopes_LF\main.symbols.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\InvalidTargetScopes_LF\main.syntax.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Files\InvalidTargetScopes_LF\main.tokens.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />

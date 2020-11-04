@@ -239,6 +239,19 @@
     }
   },
   {
+    "label": "targetScope",
+    "kind": "keyword",
+    "detail": "Target Scope keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_targetScope",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "targetScope"
+    }
+  },
+  {
     "label": "var",
     "kind": "keyword",
     "detail": "Variable keyword",

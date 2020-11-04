@@ -71,6 +71,9 @@ namespace Bicep.Core.TypeSystem
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
+                case TargetScopeSyntax targetScopeSyntax:
+                    return new DeclaredTypeAssignment(targetScopeSyntax.GetDeclaredType(), DeclaredTypeFlags.Constant);
+
                 case PropertyAccessSyntax propertyAccess:
                     return GetPropertyAccessType(propertyAccess);
 

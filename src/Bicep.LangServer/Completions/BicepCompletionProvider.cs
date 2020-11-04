@@ -39,7 +39,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
-                .Concat(GetResourceOrModuleBodyCompletions(context));
+                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetTargetScopeCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
@@ -98,7 +99,16 @@ namespace Bicep.LanguageServer.Completions
   name: $3
   $0
 }", context.ReplacementRange);
+
+                yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
             }
+        }
+
+        private IEnumerable<CompletionItem> GetTargetScopeCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is {} targetScope
+                ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange)
+                : Enumerable.Empty<CompletionItem>();
         }
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
