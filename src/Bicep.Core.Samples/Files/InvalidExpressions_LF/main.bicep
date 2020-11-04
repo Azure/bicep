@@ -191,6 +191,12 @@ var bannedFunctions = {
   bool: sys.not() || sys.and() || sys.or()
 }
 
+// we can get function completions from namespaces
+// #completionTest(22) -> azFunctions
+var azFunctions = az.a
+// #completionTest(24) -> sysFunctions
+var sysFunctions = sys.a
+
 // keywords can't be called like functions
 var nullness = null()
 var truth = true()

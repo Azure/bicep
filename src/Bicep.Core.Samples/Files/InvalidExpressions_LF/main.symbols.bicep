@@ -285,6 +285,14 @@ var bannedFunctions = {
   bool: sys.not() || sys.and() || sys.or()
 }
 
+// we can get function completions from namespaces
+// #completionTest(22) -> azFunctions
+var azFunctions = az.a
+//@[4:15) Variable azFunctions. Type: error. Declaration start char: 0, length: 22
+// #completionTest(24) -> sysFunctions
+var sysFunctions = sys.a
+//@[4:16) Variable sysFunctions. Type: error. Declaration start char: 0, length: 24
+
 // keywords can't be called like functions
 var nullness = null()
 //@[4:12) Variable nullness. Type: null. Declaration start char: 0, length: 19

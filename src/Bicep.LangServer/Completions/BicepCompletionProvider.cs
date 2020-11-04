@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
-                .Concat(GetPropertyAccessCompletions(compilation, context))
+                .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
@@ -243,9 +243,9 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private IEnumerable<CompletionItem> GetPropertyAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyAccess) || context.PropertyAccess == null)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -254,7 +254,9 @@ namespace Bicep.LanguageServer.Completions
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange));
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Concat(GetMethods(declaredType)
+                    .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
 
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
@@ -301,6 +303,11 @@ namespace Bicep.LanguageServer.Completions
                     return Enumerable.Empty<TypeProperty>();
             }
         }
+
+        private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>
+            type is ObjectType objectType
+                ? objectType.MethodResolver.GetKnownFunctions().Values
+                : Enumerable.Empty<FunctionSymbol>();
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
             ? null

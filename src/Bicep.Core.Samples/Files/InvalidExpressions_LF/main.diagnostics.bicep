@@ -343,6 +343,14 @@ var bannedFunctions = {
 //@[38:40) [BCP069 (Error)] The function "or" is not supported. Use the "||" operator instead. |or|
 }
 
+// we can get function completions from namespaces
+// #completionTest(22) -> azFunctions
+var azFunctions = az.a
+//@[21:22) [BCP052 (Error)] The type "az" does not contain property "a". |a|
+// #completionTest(24) -> sysFunctions
+var sysFunctions = sys.a
+//@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
+
 // keywords can't be called like functions
 var nullness = null()
 //@[19:20) [BCP019 (Error)] Expected a new line character at this location. |(|
