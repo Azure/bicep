@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Linq;
-using Arm.Expression.Configuration;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Configuration;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
