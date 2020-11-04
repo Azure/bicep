@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -12,7 +11,7 @@ namespace Bicep.Core.TypeSystem
             Body = body;
         }
 
-        public override TypeKind TypeKind => TypeKind.Resource;
+        public override TypeKind TypeKind => TypeKind.Module;
 
         public ITypeReference Body { get; }
 

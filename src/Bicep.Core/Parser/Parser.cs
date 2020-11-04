@@ -111,10 +111,10 @@ namespace Bicep.Core.Parser
         private SyntaxBase TargetScope()
         {
             var keyword = ExpectKeyword(LanguageConstants.TargetScopeKeyword);
-            var assignmentToken = this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
+            var assignment = this.WithRecovery(this.Assignment, RecoveryFlags.None, TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), RecoveryFlags.None, TokenType.NewLine);
 
-            return new TargetScopeSyntax(keyword, assignmentToken, value);
+            return new TargetScopeSyntax(keyword, assignment, value);
         }
 
         private SyntaxBase ParameterDeclaration()
