@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Completions
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
-                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.PropertyAccess) |
+                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.MemberAccess) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |

@@ -2017,6 +2017,41 @@ var bannedFunctions = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// we can get function completions from namespaces
+//@[50:51) NewLine |\n|
+// #completionTest(22) -> azFunctions
+//@[37:38) NewLine |\n|
+var azFunctions = az.a
+//@[0:22) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |azFunctions|
+//@[16:17)  Assignment |=|
+//@[18:22)  PropertyAccessSyntax
+//@[18:20)   VariableAccessSyntax
+//@[18:20)    IdentifierSyntax
+//@[18:20)     Identifier |az|
+//@[20:21)   Dot |.|
+//@[21:22)   IdentifierSyntax
+//@[21:22)    Identifier |a|
+//@[22:23) NewLine |\n|
+// #completionTest(24) -> sysFunctions
+//@[38:39) NewLine |\n|
+var sysFunctions = sys.a
+//@[0:24) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |sysFunctions|
+//@[17:18)  Assignment |=|
+//@[19:24)  PropertyAccessSyntax
+//@[19:22)   VariableAccessSyntax
+//@[19:22)    IdentifierSyntax
+//@[19:22)     Identifier |sys|
+//@[22:23)   Dot |.|
+//@[23:24)   IdentifierSyntax
+//@[23:24)    Identifier |a|
+//@[24:26) NewLine |\n\n|
+
 // keywords can't be called like functions
 //@[42:43) NewLine |\n|
 var nullness = null()
