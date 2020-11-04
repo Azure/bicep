@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
 
             long indentSize = request.Options.TabSize;
             IndentKindOption indentKindOption = request.Options.InsertSpaces ? IndentKindOption.Space : IndentKindOption.Tab;
-            bool insertFinalNewline = request.Options.ContainsKey("insertFinalNewline") ? request.Options.InsertFinalNewline : false;
+            bool insertFinalNewline = request.Options.ContainsKey("insertFinalNewline") && request.Options.InsertFinalNewline;
 
             ProgramSyntax programSyntax = context.ProgramSyntax;
             PrettyPrintOptions options = new PrettyPrintOptions(NewlineOption.Auto, indentKindOption, indentSize, insertFinalNewline);
