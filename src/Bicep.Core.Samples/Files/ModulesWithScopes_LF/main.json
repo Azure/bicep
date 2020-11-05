@@ -45,7 +45,7 @@
           "outputs": {
             "myOutput": {
               "type": "string",
-              "value": "[reference(managementGroupResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+              "value": "[reference(format('Microsoft.Resources/deployments/{0}', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
             }
           }
         }

@@ -196,21 +196,35 @@ namespace Bicep.Core.Emit
 
         private static FunctionExpression GenerateResourceIdExpression(SemanticModel.SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
-            var resourceIdFunctionName = semanticModel.TargetScope switch {
-                ResourceScopeType.TenantScope => "tenantResourceId",
-                ResourceScopeType.ManagementGroupScope => "managementGroupResourceId", // TODO - this doesn't really exist!
-                ResourceScopeType.SubscriptionScope => "subscriptionResourceId",
-                ResourceScopeType.ResourceGroupScope => "resourceId",
-                // this should have already been caught during compilation
-                _ => throw new InvalidOperationException($"Invalid target scope {semanticModel.TargetScope} for module"),
-            };
+            var initialArgs = new JTokenExpression(fullyQualifiedType).AsEnumerable();
+            switch (semanticModel.TargetScope)
+            {
+                case ResourceScopeType.TenantScope:
+                    var tenantArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("tenantResourceId", tenantArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.SubscriptionScope:
+                    var subscriptionArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("subscriptionResourceId", subscriptionArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.ResourceGroupScope:
+                    var resourceGroupArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("resourceId", resourceGroupArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.ManagementGroupScope:
+                    // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
+                    // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
+                    // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
+                    var typeSegments = fullyQualifiedType.Split("/");
 
-            var resourceTypeExpression = new JTokenExpression(fullyQualifiedType);
-            
-            return new FunctionExpression(
-                resourceIdFunctionName,
-                resourceTypeExpression.AsEnumerable().Concat(nameSegments).ToArray(),
-                Array.Empty<LanguageExpression>());
+                    // Generate a format string that looks like: My.Rp/type1/{0}/type2/{1}
+                    var formatString = $"{typeSegments[0]}/" + string.Join('/', typeSegments.Skip(1).Select((type, i) => $"{type}/{{{i}}}"));
+                    initialArgs = new JTokenExpression(formatString).AsEnumerable();
+
+                    // This is going to generate some fairly wonky IL, but we can live with it - there aren't many child resources at management group scope, and this will ultimately be removed when we have a better way to do it (previous comment).
+                    var managementGroupArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("format", managementGroupArgs.ToArray(), new LanguageExpression[0]);
+                default:
+                    // this should have already been caught during compilation
+                    throw new InvalidOperationException($"Invalid target scope {semanticModel.TargetScope} for module");
+            }
         }
 
         public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
