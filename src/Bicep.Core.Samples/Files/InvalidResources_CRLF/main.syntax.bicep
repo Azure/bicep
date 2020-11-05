@@ -1404,4 +1404,184 @@ var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 //@[76:77)   Dot |.|
 //@[77:78)   IdentifierSyntax
 //@[77:78)    Identifier |s|
-//@[78:78) EndOfFile ||
+//@[78:82) NewLine |\r\n\r\n|
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[0:190) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:38)  IdentifierSyntax
+//@[9:38)   Identifier |nestedDiscriminatorMissingKey|
+//@[39:97)  StringSyntax
+//@[39:97)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[98:99)  Assignment |=|
+//@[100:190)  ObjectSyntax
+//@[100:101)   LeftBrace |{|
+//@[101:103)   NewLine |\r\n|
+  name: 'test'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)   NewLine |\r\n|
+  location: 'l'
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:15)    StringSyntax
+//@[12:15)     StringComplete |'l'|
+//@[15:17)   NewLine |\r\n|
+  properties: {
+//@[2:51)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:51)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    //createMode: 'Default'
+//@[27:31)     NewLine |\r\n\r\n|
+
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(90) -> createMode
+//@[36:38) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+//@[0:90) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:44)  IdentifierSyntax
+//@[4:44)   Identifier |nestedDiscriminatorMissingKeyCompletions|
+//@[45:46)  Assignment |=|
+//@[47:90)  PropertyAccessSyntax
+//@[47:87)   PropertyAccessSyntax
+//@[47:76)    VariableAccessSyntax
+//@[47:76)     IdentifierSyntax
+//@[47:76)      Identifier |nestedDiscriminatorMissingKey|
+//@[76:77)    Dot |.|
+//@[77:87)    IdentifierSyntax
+//@[77:87)     Identifier |properties|
+//@[87:88)   Dot |.|
+//@[88:90)   IdentifierSyntax
+//@[88:90)    Identifier |cr|
+//@[90:92) NewLine |\r\n|
+// #completionTest(94) -> createMode
+//@[36:38) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+//@[0:94) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:45)  IdentifierSyntax
+//@[4:45)   Identifier |nestedDiscriminatorMissingKeyCompletions2|
+//@[46:47)  Assignment |=|
+//@[48:94)  PropertyAccessSyntax
+//@[48:91)   ArrayAccessSyntax
+//@[48:77)    VariableAccessSyntax
+//@[48:77)     IdentifierSyntax
+//@[48:77)      Identifier |nestedDiscriminatorMissingKey|
+//@[77:78)    LeftSquare |[|
+//@[78:90)    StringSyntax
+//@[78:90)     StringComplete |'properties'|
+//@[90:91)    RightSquare |]|
+//@[91:92)   Dot |.|
+//@[92:94)   IdentifierSyntax
+//@[92:94)    Identifier |cr|
+//@[94:98) NewLine |\r\n\r\n|
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[0:178) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |nestedDiscriminator|
+//@[29:87)  StringSyntax
+//@[29:87)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[88:89)  Assignment |=|
+//@[90:178)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: 'test'
+//@[2:14)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:14)    StringSyntax
+//@[8:14)     StringComplete |'test'|
+//@[14:16)   NewLine |\r\n|
+  location: 'l'
+//@[2:15)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:15)    StringSyntax
+//@[12:15)     StringComplete |'l'|
+//@[15:17)   NewLine |\r\n|
+  properties: {
+//@[2:49)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:49)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    createMode: 'Default'
+//@[4:25)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |createMode|
+//@[14:15)      Colon |:|
+//@[16:25)      StringSyntax
+//@[16:25)       StringComplete |'Default'|
+//@[25:29)     NewLine |\r\n\r\n|
+
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(69) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+//@[0:69) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:34)  IdentifierSyntax
+//@[4:34)   Identifier |nestedDiscriminatorCompletions|
+//@[35:36)  Assignment |=|
+//@[37:69)  PropertyAccessSyntax
+//@[37:67)   PropertyAccessSyntax
+//@[37:56)    VariableAccessSyntax
+//@[37:56)     IdentifierSyntax
+//@[37:56)      Identifier |nestedDiscriminator|
+//@[56:57)    Dot |.|
+//@[57:67)    IdentifierSyntax
+//@[57:67)     Identifier |properties|
+//@[67:68)   Dot |.|
+//@[68:69)   IdentifierSyntax
+//@[68:69)    Identifier |a|
+//@[69:71) NewLine |\r\n|
+// #completionTest(73) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[0:73) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:35)  IdentifierSyntax
+//@[4:35)   Identifier |nestedDiscriminatorCompletions2|
+//@[36:37)  Assignment |=|
+//@[38:73)  PropertyAccessSyntax
+//@[38:71)   ArrayAccessSyntax
+//@[38:57)    VariableAccessSyntax
+//@[38:57)     IdentifierSyntax
+//@[38:57)      Identifier |nestedDiscriminator|
+//@[57:58)    LeftSquare |[|
+//@[58:70)    StringSyntax
+//@[58:70)     StringComplete |'properties'|
+//@[70:71)    RightSquare |]|
+//@[71:72)   Dot |.|
+//@[72:73)   IdentifierSyntax
+//@[72:73)    Identifier |a|
+//@[73:75) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

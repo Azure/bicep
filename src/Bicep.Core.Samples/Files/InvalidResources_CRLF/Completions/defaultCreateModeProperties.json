@@ -1,0 +1,562 @@
+[
+  {
+    "label": "apiProperties",
+    "kind": "property",
+    "detail": "apiProperties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ApiProperties`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_apiProperties",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "apiProperties"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "backupPolicy",
+    "kind": "property",
+    "detail": "backupPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `BackupPolicy`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_backupPolicy",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "backupPolicy"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "capabilities",
+    "kind": "property",
+    "detail": "capabilities",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Capability[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_capabilities",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "capabilities"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "connectorOffer",
+    "kind": "property",
+    "detail": "connectorOffer",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Small'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_connectorOffer",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "connectorOffer"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "consistencyPolicy",
+    "kind": "property",
+    "detail": "consistencyPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ConsistencyPolicy`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_consistencyPolicy",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "consistencyPolicy"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "cors",
+    "kind": "property",
+    "detail": "cors",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `CorsPolicy[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_cors",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "cors"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "createMode",
+    "kind": "property",
+    "detail": "createMode (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Default'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_createMode",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "createMode"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "databaseAccountOfferType",
+    "kind": "property",
+    "detail": "databaseAccountOfferType (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_databaseAccountOfferType",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "databaseAccountOfferType"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "disableKeyBasedMetadataWriteAccess",
+    "kind": "property",
+    "detail": "disableKeyBasedMetadataWriteAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_disableKeyBasedMetadataWriteAccess",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "disableKeyBasedMetadataWriteAccess"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "documentEndpoint",
+    "kind": "property",
+    "detail": "documentEndpoint",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_documentEndpoint",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "documentEndpoint"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "enableAnalyticalStorage",
+    "kind": "property",
+    "detail": "enableAnalyticalStorage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_enableAnalyticalStorage",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enableAnalyticalStorage"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "enableAutomaticFailover",
+    "kind": "property",
+    "detail": "enableAutomaticFailover",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_enableAutomaticFailover",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enableAutomaticFailover"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "enableCassandraConnector",
+    "kind": "property",
+    "detail": "enableCassandraConnector",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_enableCassandraConnector",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enableCassandraConnector"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "enableFreeTier",
+    "kind": "property",
+    "detail": "enableFreeTier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_enableFreeTier",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enableFreeTier"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "enableMultipleWriteLocations",
+    "kind": "property",
+    "detail": "enableMultipleWriteLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_enableMultipleWriteLocations",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "enableMultipleWriteLocations"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "failoverPolicies",
+    "kind": "property",
+    "detail": "failoverPolicies",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_failoverPolicies",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "failoverPolicies"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "instanceId",
+    "kind": "property",
+    "detail": "instanceId",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_instanceId",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "instanceId"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "ipRules",
+    "kind": "property",
+    "detail": "ipRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `IpAddressOrRange[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ipRules",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "ipRules"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "isVirtualNetworkFilterEnabled",
+    "kind": "property",
+    "detail": "isVirtualNetworkFilterEnabled",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_isVirtualNetworkFilterEnabled",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "isVirtualNetworkFilterEnabled"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "keyVaultKeyUri",
+    "kind": "property",
+    "detail": "keyVaultKeyUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_keyVaultKeyUri",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "keyVaultKeyUri"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "locations",
+    "kind": "property",
+    "detail": "locations (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_locations",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "locations"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "privateEndpointConnections",
+    "kind": "property",
+    "detail": "privateEndpointConnections",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_privateEndpointConnections",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "privateEndpointConnections"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "provisioningState",
+    "kind": "property",
+    "detail": "provisioningState",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_provisioningState",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "provisioningState"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "publicNetworkAccess",
+    "kind": "property",
+    "detail": "publicNetworkAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_publicNetworkAccess",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "publicNetworkAccess"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "readLocations",
+    "kind": "property",
+    "detail": "readLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_readLocations",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "readLocations"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "restoreParameters",
+    "kind": "property",
+    "detail": "restoreParameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_restoreParameters",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "restoreParameters"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "virtualNetworkRules",
+    "kind": "property",
+    "detail": "virtualNetworkRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `VirtualNetworkRule[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_virtualNetworkRules",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "virtualNetworkRules"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "writeLocations",
+    "kind": "property",
+    "detail": "writeLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_writeLocations",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "writeLocations"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]
