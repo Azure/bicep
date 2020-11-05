@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -49,6 +50,13 @@ namespace Bicep.Core.Samples
             typeof(DataSets)
                 .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)
                 .Where(property => property.PropertyType == typeof(DataSet))
+                .Select(property => property.GetValue(null))
+                .Cast<DataSet>();
+
+        public static IEnumerable<DataSet> DataSetsWithNoDiagnostics =>
+            typeof(DataSets)
+                .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)
+                .Where(property => property.PropertyType == typeof(DataSet) && !property.Name.StartsWith("Invalid", StringComparison.Ordinal))
                 .Select(property => property.GetValue(null))
                 .Cast<DataSet>();
 
