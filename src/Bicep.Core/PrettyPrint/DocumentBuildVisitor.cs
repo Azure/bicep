@@ -15,18 +15,18 @@ namespace Bicep.Core.PrettyPrint
 {
     public class DocumentBuildVisitor : SyntaxVisitor
     {
+        private static readonly ILinkedDocument Nil = new NilDocument();
+
+        private static readonly ILinkedDocument Space = new TextDocument(" ", Nil);
+
+        private static readonly ILinkedDocument Line = new NestDocument(0, Nil);
+
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
             LanguageConstants.DeclarationKeywords
             .Concat(LanguageConstants.Keywords.Keys)
             .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
             .ToImmutableDictionary(value => value, value => new TextDocument(value, Nil));
-
-        private static readonly ILinkedDocument Nil = new NilDocument();
-
-        private static readonly ILinkedDocument Space = new TextDocument(" ", Nil);
-
-        private static readonly ILinkedDocument Line = new NestDocument(0, Nil);
 
         private readonly Stack<ILinkedDocument> documents = new Stack<ILinkedDocument>();
 
@@ -188,6 +188,12 @@ namespace Bicep.Core.PrettyPrint
 
                     if (this.IsBlockCloseSyntax(token))
                     {
+                        if (this.IsCurrentBlockOnTheSameLine())
+                        {
+                            // Handle single line block containing comments.
+                            this.documents.Push(Line);
+                        }
+
                         this.documents.Push(head);
                         this.documents.Push(Line);
                         head = Nil;
@@ -237,8 +243,8 @@ namespace Bicep.Core.PrettyPrint
             this.BuildBlock(
                 syntax.OpenBrace,
                 syntax.CloseBrace,
-                syntax.Children[0],
-                syntax.Children[^1],
+                syntax.Children.FirstOrDefault(),
+                syntax.Children.LastOrDefault(),
                 () => base.VisitObjectSyntax(syntax));
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) =>
@@ -257,8 +263,8 @@ namespace Bicep.Core.PrettyPrint
             this.BuildBlock(
                 syntax.OpenBracket,
                 syntax.CloseBracket,
-                syntax.Children[0],
-                syntax.Children[^1],
+                syntax.Children.FirstOrDefault(),
+                syntax.Children.LastOrDefault(),
                 () => base.VisitArraySyntax(syntax));
 
         private static ILinkedDocument Text(string text)
@@ -271,24 +277,17 @@ namespace Bicep.Core.PrettyPrint
             return new TextDocument(text, Nil);
         }
 
-        private static ILinkedDocument Concat(params ILinkedDocument[] combinators)
-            => Concat(combinators as IEnumerable<ILinkedDocument>);
+        private static ILinkedDocument Concat(params ILinkedDocument[] combinators) =>
+            Concat(combinators as IEnumerable<ILinkedDocument>);
 
-        private static ILinkedDocument Concat(IEnumerable<ILinkedDocument> combinators)
-            => combinators.Aggregate(Nil, (a, b) => a.Concat(b));
+        private static ILinkedDocument Concat(IEnumerable<ILinkedDocument> combinators) =>
+            combinators.Aggregate(Nil, (a, b) => a.Concat(b));
 
-        private static ILinkedDocument Spread(params ILinkedDocument[] combinators)
-            => Spread(combinators as IEnumerable<ILinkedDocument>);
+        private static ILinkedDocument Spread(params ILinkedDocument[] combinators) =>
+            Spread(combinators as IEnumerable<ILinkedDocument>);
 
-        private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators)
-        {
-            if (!combinators.Any())
-            {
-                return Nil;
-            }
-
-            return combinators.Aggregate((a, b) => a.Concat(Space).Concat(b));
-        }
+        private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators) =>
+            combinators.Any() ? combinators.Aggregate((a, b) => a.Concat(Space).Concat(b)) : Nil;
 
         private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
 
@@ -312,10 +311,12 @@ namespace Bicep.Core.PrettyPrint
 
                 ILinkedDocument openSymbol = children[0];
                 ILinkedDocument body = Concat(children.Skip(1).SkipLast(2)).Nest(1);
-                ILinkedDocument lastLine = children[^2];
+                ILinkedDocument lastLine = children.Length > 2 ? children[^2] : Nil;
                 ILinkedDocument closeSymbol = children[^1];
 
-                return Concat(openSymbol, body, lastLine, closeSymbol);
+                return body != Nil
+                    ? Concat(openSymbol, body, lastLine, closeSymbol)
+                    : Concat(openSymbol, closeSymbol);
             });
 
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
@@ -335,6 +336,8 @@ namespace Bicep.Core.PrettyPrint
 
             this.documents.Push(buildFunc(children));
         }
+
+        private bool IsCurrentBlockOnTheSameLine() => this.documentBlockContexts.Peek().FirstNewLine == null;
 
         private bool IsBlockOpenSyntax(SyntaxBase syntax) => syntax == this.documentBlockContexts.Peek().OpenSyntax;
 

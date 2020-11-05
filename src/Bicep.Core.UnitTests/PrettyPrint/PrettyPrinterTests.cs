@@ -322,6 +322,8 @@ param bar array = [
         public void PrintProgram_CommentBeforeCloseSyntax_ShouldMoveOneLineAboveAndIndent()
         {
             var programSyntax = ParserHelper.Parse(@"
+param foo object = { /* I can be anywhere */ }
+
 param foo object = {
   /* I can be anywhere */ }
 
@@ -345,6 +347,8 @@ param foo object = {
 param bar array = [
 /* I can be anywhere */]
 
+param bar array = [ /* I can be anywhere */]
+
 param bar array = [
   true
 /* I can be anywhere */   ]
@@ -358,6 +362,10 @@ param bar array = [
 
             output.Should().Be(
 @"param foo object = {
+  /* I can be anywhere */
+}
+
+param foo object = {
   /* I can be anywhere */
 }
 
@@ -386,6 +394,10 @@ param bar array = [
 ]
 
 param bar array = [
+  /* I can be anywhere */
+]
+
+param bar array = [
   true
   /* I can be anywhere */
 ]
@@ -395,6 +407,50 @@ param bar array = [
   false
   /* I can be anywhere */ /* I can be anywhere */
 ]");
+        }
+
+        [TestMethod]
+        public void PrintProgram_EmptyBlocks_ShouldFormatCorrectly()
+        {
+            var programSyntax = ParserHelper.Parse(@"
+param foo object = {}
+param foo object = {
+}
+param foo object = {
+
+}
+param foo object = {
+
+
+
+
+}
+
+param bar array = []
+param bar array = [
+]
+param bar array = [
+
+]
+param bar array = [
+
+
+
+
+]");
+
+            var output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
+
+            output.Should().Be(
+@"param foo object = {}
+param foo object = {}
+param foo object = {}
+param foo object = {}
+
+param bar array = []
+param bar array = []
+param bar array = []
+param bar array = []");
         }
 
         [TestMethod]
@@ -516,10 +572,8 @@ module myModule 'myModule' = {
 resource myResource2 'myResource' = {
   something: 'foo/${myName}/bar'
   properties: {
-    emptyObj: {
-    }
-    emptyArr: [
-    ]
+    emptyObj: {}
+    emptyArr: []
   }
 }
 
@@ -527,8 +581,7 @@ output myOutput1 int = 1 + num * 3
 output myOutput2 string = yes ? 'yes' : 'no'
 output myOutput3 object = yes ? {
   value: 42
-} : {
-}");
+} : {}");
         }
 
         /*
@@ -594,7 +647,7 @@ p: q
 null
 /* I can be anywhere *//* I can be anywhere */] // I can be any where
 }
-     /* I can be anywhere f*/
+     /* I can be anywhere */
 ");
 
             var output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
@@ -637,8 +690,7 @@ anywhere */ /* I can be anywhere */
     az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[ /* I can be anywhere */1 /* I can be anywhere */] /* I can be anywhere */. /* I can be anywhere */baz // I can be anywhere
     true
     {
-      m: [
-      ] /* I can be any
+      m: [] /* I can be any
 where */
       kkk: [
         // I can be any where
@@ -654,7 +706,7 @@ where */
     /* I can be anywhere */ /* I can be anywhere */
   ] // I can be any where
 }
-/* I can be anywhere f*/");
+/* I can be anywhere */");
         }
     }
 }
