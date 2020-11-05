@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         {
             WriteTrivia(token.LeadingTrivia);
 
-            if (shouldIgnore != null && !shouldIgnore(token))
+            if (shouldIgnore == null || !shouldIgnore(token))
             {
                 buffer.Append(token.Text);
             }
@@ -41,7 +41,7 @@ namespace Bicep.Core.IntegrationTests
         {
             foreach (var trivia in triviaList)
             {
-                if (shouldIgnore != null && !shouldIgnore(trivia))
+                if (shouldIgnore == null || !shouldIgnore(trivia))
                 {
                     buffer.Append(trivia.Text);
                 }
