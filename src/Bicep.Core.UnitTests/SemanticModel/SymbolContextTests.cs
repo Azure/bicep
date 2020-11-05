@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(""));
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
-            var context = new SymbolContext(new TypeManager(TestResourceTypeProvider.Create(), bindings, cyclesBySymbol, new SyntaxHierarchy()), bindings, compilation);
+            var context = new SymbolContext(new TypeManager(TestResourceTypeProvider.Create(), bindings, cyclesBySymbol, new SyntaxHierarchy(), ResourceScopeType.ResourceGroupScope), bindings, compilation);
 
             Action byName = () =>
             {

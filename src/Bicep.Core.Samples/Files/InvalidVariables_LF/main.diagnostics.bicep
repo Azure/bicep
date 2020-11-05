@@ -7,6 +7,10 @@ bad
 var
 //@[3:3) [BCP015 (Error)] Expected a variable identifier at this location. ||
 
+// missing identifier #completionTest(4) -> empty
+var 
+//@[4:4) [BCP015 (Error)] Expected a variable identifier at this location. ||
+
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
@@ -19,6 +23,10 @@ va
 var foo
 //@[4:7) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[7:7) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(18,19) -> symbols
+var missingValue = 
+//@[19:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 // malformed identifier
 var 2 
@@ -124,9 +132,9 @@ var objWithInterp = {
 
 // invalid fully qualified function access
 var mySum = az.add(1,2)
-//@[15:18) [BCP086 (Error)] The function "add" does not exist in namespace "az". |add|
+//@[15:18) [BCP107 (Error)] The function "add" does not exist in namespace "az". |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
-//@[34:40) [BCP086 (Error)] The function "concat" does not exist in namespace "az". |concat|
+//@[34:40) [BCP107 (Error)] The function "concat" does not exist in namespace "az". |concat|
 
 // invalid string using double quotes
 var doubleString = "bad string"
@@ -144,4 +152,36 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
-//@[33:35) [BCP063 (Error)] The name "az" is not a parameter, variable, resource or module. |az|
+//@[33:35) [BCP041 (Error)] Values of type "az" cannot be assigned to a variable. |az|
+
+var objectLiteralType = {
+  first: true
+  second: false
+  third: 42
+  fourth: 'test'
+  fifth: [
+    {
+      one: true
+    }
+    {
+      one: false
+    }
+  ]
+  sixth: [
+    {
+      two: 44
+    }
+  ]
+}
+
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions = objectLiteralType.f
+//@[53:54) [BCP053 (Error)] The type "object" does not contain property "f". Available properties include "fifth", "first", "fourth", "second", "sixth", "third". |f|
+
+// this does not produce any completions because mixed array items are of type "any"
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t
+//@[57:58) [BCP053 (Error)] The type "object" does not contain property "t". Available properties include "two". |t|

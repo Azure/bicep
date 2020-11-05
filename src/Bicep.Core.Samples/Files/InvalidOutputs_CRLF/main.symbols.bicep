@@ -2,9 +2,20 @@
 // wrong declaration
 bad
 
-// incomplete
+// incomplete #completionTest(7) -> empty
 output 
 //@[7:7) Output <missing>. Type: any. Declaration start char: 0, length: 7
+
+var testSymbol = 42
+//@[4:14) Variable testSymbol. Type: int. Declaration start char: 0, length: 19
+
+// #completionTest(28,29) -> symbols
+output missingValueAndType = 
+//@[7:26) Output missingValueAndType. Type: any. Declaration start char: 0, length: 29
+
+// #completionTest(28,29) -> symbols
+output missingValue string = 
+//@[7:19) Output missingValue. Type: string. Declaration start char: 0, length: 29
 
 output foo
 //@[7:10) Output foo. Type: any. Declaration start char: 0, length: 10

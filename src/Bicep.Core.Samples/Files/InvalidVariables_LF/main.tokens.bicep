@@ -12,6 +12,12 @@ var
 //@[0:3) Identifier |var|
 //@[3:5) NewLine |\n\n|
 
+// missing identifier #completionTest(4) -> empty
+//@[49:50) NewLine |\n|
+var 
+//@[0:3) Identifier |var|
+//@[4:6) NewLine |\n\n|
+
 // incomplete keyword
 //@[21:22) NewLine |\n|
 // #completionTest(0,1) -> declarations
@@ -31,6 +37,14 @@ var foo
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |foo|
 //@[7:9) NewLine |\n\n|
+
+// #completionTest(18,19) -> symbols
+//@[36:37) NewLine |\n|
+var missingValue = 
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |missingValue|
+//@[17:18) Assignment |=|
+//@[19:21) NewLine |\n\n|
 
 // malformed identifier
 //@[23:24) NewLine |\n|
@@ -344,4 +358,128 @@ var invalidNamespaceAssignment = az
 //@[4:30) Identifier |invalidNamespaceAssignment|
 //@[31:32) Assignment |=|
 //@[33:35) Identifier |az|
-//@[35:35) EndOfFile ||
+//@[35:37) NewLine |\n\n|
+
+var objectLiteralType = {
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |objectLiteralType|
+//@[22:23) Assignment |=|
+//@[24:25) LeftBrace |{|
+//@[25:26) NewLine |\n|
+  first: true
+//@[2:7) Identifier |first|
+//@[7:8) Colon |:|
+//@[9:13) TrueKeyword |true|
+//@[13:14) NewLine |\n|
+  second: false
+//@[2:8) Identifier |second|
+//@[8:9) Colon |:|
+//@[10:15) FalseKeyword |false|
+//@[15:16) NewLine |\n|
+  third: 42
+//@[2:7) Identifier |third|
+//@[7:8) Colon |:|
+//@[9:11) Number |42|
+//@[11:12) NewLine |\n|
+  fourth: 'test'
+//@[2:8) Identifier |fourth|
+//@[8:9) Colon |:|
+//@[10:16) StringComplete |'test'|
+//@[16:17) NewLine |\n|
+  fifth: [
+//@[2:7) Identifier |fifth|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+    {
+//@[4:5) LeftBrace |{|
+//@[5:6) NewLine |\n|
+      one: true
+//@[6:9) Identifier |one|
+//@[9:10) Colon |:|
+//@[11:15) TrueKeyword |true|
+//@[15:16) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+    {
+//@[4:5) LeftBrace |{|
+//@[5:6) NewLine |\n|
+      one: false
+//@[6:9) Identifier |one|
+//@[9:10) Colon |:|
+//@[11:16) FalseKeyword |false|
+//@[16:17) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+  sixth: [
+//@[2:7) Identifier |sixth|
+//@[7:8) Colon |:|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+    {
+//@[4:5) LeftBrace |{|
+//@[5:6) NewLine |\n|
+      two: 44
+//@[6:9) Identifier |two|
+//@[9:10) Colon |:|
+//@[11:13) Number |44|
+//@[13:14) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:4) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(54) -> objectVarTopLevel
+//@[43:44) NewLine |\n|
+var objectVarTopLevelCompletions = objectLiteralType.f
+//@[0:3) Identifier |var|
+//@[4:32) Identifier |objectVarTopLevelCompletions|
+//@[33:34) Assignment |=|
+//@[35:52) Identifier |objectLiteralType|
+//@[52:53) Dot |.|
+//@[53:54) Identifier |f|
+//@[54:56) NewLine |\n\n|
+
+// this does not produce any completions because mixed array items are of type "any"
+//@[84:85) NewLine |\n|
+// #completionTest(60) -> mixedArrayProperties
+//@[46:47) NewLine |\n|
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+//@[0:3) Identifier |var|
+//@[4:29) Identifier |mixedArrayTypeCompletions|
+//@[30:31) Assignment |=|
+//@[32:49) Identifier |objectLiteralType|
+//@[49:50) Dot |.|
+//@[50:55) Identifier |fifth|
+//@[55:56) LeftSquare |[|
+//@[56:57) Number |0|
+//@[57:58) RightSquare |]|
+//@[58:59) Dot |.|
+//@[59:60) Identifier |o|
+//@[60:62) NewLine |\n\n|
+
+// #completionTest(58) -> oneArrayItemProperties
+//@[48:49) NewLine |\n|
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |oneArrayItemCompletions|
+//@[28:29) Assignment |=|
+//@[30:47) Identifier |objectLiteralType|
+//@[47:48) Dot |.|
+//@[48:53) Identifier |sixth|
+//@[53:54) LeftSquare |[|
+//@[54:55) Number |0|
+//@[55:56) RightSquare |]|
+//@[56:57) Dot |.|
+//@[57:58) Identifier |t|
+//@[58:58) EndOfFile ||

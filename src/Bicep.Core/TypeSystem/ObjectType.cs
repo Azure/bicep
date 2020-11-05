@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -17,6 +18,8 @@ namespace Bicep.Core.TypeSystem
         public override TypeKind TypeKind => TypeKind.Primitive;
 
         public virtual ImmutableDictionary<string, TypeProperty> Properties => ImmutableDictionary<string, TypeProperty>.Empty;
+
+        public virtual FunctionResolver MethodResolver => FunctionResolver.Empty;
 
         public virtual ITypeReference? AdditionalPropertiesType { get; }
 

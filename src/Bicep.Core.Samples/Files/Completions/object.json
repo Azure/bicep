@@ -1,0 +1,15 @@
+[
+  {
+    "label": "{}",
+    "kind": "value",
+    "detail": "{}",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_{}",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "{$0}"
+    }
+  }
+]

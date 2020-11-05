@@ -3,7 +3,7 @@
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |bad|
 
-// incomplete
+// incomplete #completionTest(9) -> empty
 resource 
 //@[9:9) [BCP017 (Error)] Expected a resource identifier at this location. ||
 //@[9:9) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". ||
@@ -19,10 +19,12 @@ resource foo 'ddd'
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
 //@[18:18) [BCP018 (Error)] Expected the "=" character at this location. ||
-resource foo 'ddd'=
+
+// #completionTest(19,20) -> object
+resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
-//@[19:19) [BCP018 (Error)] Expected the "{" character at this location. ||
+//@[20:20) [BCP018 (Error)] Expected the "{" character at this location. ||
 
 // wrong resource type
 resource foo 'ddd'={
@@ -129,20 +131,17 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   id: 2
 //@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. |id|
-//@[6:7) [BCP036 (Error)] The property "id" expected a value of type "string" but the provided value is of type "int". |2|
   type: 'hello'
 //@[2:6) [BCP073 (Error)] The property "type" is read-only. Expressions cannot be assigned to read-only properties. |type|
-//@[8:15) [BCP036 (Error)] The property "type" expected a value of type "'Microsoft.Foo/foos'" but the provided value is of type "'hello'". |'hello'|
   apiVersion: true
 //@[2:12) [BCP073 (Error)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
-//@[14:18) [BCP036 (Error)] The property "apiVersion" expected a value of type "'2020-02-02-alpha'" but the provided value is of type "bool". |true|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     baz.id
-//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "string". |baz.id|
+//@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |baz.id|
   ]
 }
 
@@ -150,9 +149,9 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [
     'hello'
-//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "'hello'". |'hello'|
+//@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'hello'". |'hello'|
     true
-//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource", but the provided item was of type "bool". |true|
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "bool". |true|
   ]
 }
 
@@ -177,9 +176,7 @@ var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:16) [BCP040 (Error)] String interpolation is not supported for keys on objects of type "Microsoft.Foo/foos@2020-02-02-alpha". Permissible properties include "dependsOn", "eTag", "extendedLocation", "identity", "kind", "location", "managedBy", "managedByExtended", "plan", "properties", "scale", "sku", "tags", "zones". |'${interpVal}'|
   '${undefinedSymbol}': true
-//@[2:22) [BCP040 (Error)] String interpolation is not supported for keys on objects of type "Microsoft.Foo/foos@2020-02-02-alpha". Permissible properties include "dependsOn", "eTag", "extendedLocation", "identity", "kind", "location", "managedBy", "managedByExtended", "plan", "properties", "scale", "sku", "tags", "zones". |'${undefinedSymbol}'|
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
 }
 
@@ -229,6 +226,9 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
   kind:   
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 }
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+//@[75:76) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
@@ -240,6 +240,8 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
@@ -251,6 +253,12 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+//@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
@@ -260,6 +268,9 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[2:11) [BCP089 (Error)] The property "propertes" is not allowed on objects of type "Microsoft.Resources/deploymentScripts@2020-10-01". Did you mean "properties"? |propertes|
   }
 }
+
+var mock = incorrectPropertiesKey.p
+//@[34:35) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -309,3 +320,38 @@ resource startedTypingTypeWithoutQuotes virma
 //@[40:45) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[40:45) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |virma|
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[89:93) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+// #completionTest(94) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+//@[48:77) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminatorMissingKey|
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
+

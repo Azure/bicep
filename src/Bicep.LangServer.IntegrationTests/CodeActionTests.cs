@@ -4,15 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Parser;
 using Bicep.Core.Samples;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
-using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -65,11 +60,11 @@ namespace Bicep.LangServer.IntegrationTests
                         var bicepFix = bicepFixList[i];
 
                         quickFix.IsCodeAction.Should().BeTrue();
-                        quickFix.CodeAction.Kind.Should().Be(CodeActionKind.QuickFix);
+                        quickFix.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
                         quickFix.CodeAction.Title.Should().Be(bicepFix.Description);
-                        quickFix.CodeAction.Edit.Changes.Should().ContainKey(uri);
+                        quickFix.CodeAction.Edit!.Changes.Should().ContainKey(uri);
 
-                        var textEditList = quickFix.CodeAction.Edit.Changes[uri].ToList();
+                        var textEditList = quickFix.CodeAction.Edit.Changes![uri].ToList();
                         var replacementList = bicepFix.Replacements.ToList();
 
                         for (int j = 0; j < textEditList.Count; j++)

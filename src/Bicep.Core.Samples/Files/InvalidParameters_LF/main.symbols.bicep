@@ -58,7 +58,7 @@ param wrongDefaultValue string = 42
 param myInt2 int = 42
 //@[6:12) Parameter myInt2. Type: int. Declaration start char: 0, length: 21
 param noValueAfterColon int =   
-//@[6:23) Parameter noValueAfterColon. Type: int. Declaration start char: 0, length: 29
+//@[6:23) Parameter noValueAfterColon. Type: int. Declaration start char: 0, length: 32
 
 param myTruth bool = 'not a boolean'
 //@[6:13) Parameter myTruth. Type: bool. Declaration start char: 0, length: 36
@@ -177,6 +177,15 @@ param expressionInModifier string {
   ]
 }
 
+param nonCompileTimeConstant string {
+//@[6:28) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 122
+  maxLength: 2 + 3
+  minLength: length([])
+  allowed: [
+    resourceGroup().id
+  ]
+}
+
 param emptyAllowedString string {
 //@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 49
   allowed: []
@@ -284,6 +293,10 @@ param stringLiteral3 string {
   default: stringLiteral2
 }
 
+// #completionTest(6) -> empty
+param 
+//@[6:6) Parameter <missing>. Type: any. Declaration start char: 0, length: 6
+
 param stringModifierCompletions string {
 //@[6:31) Parameter stringModifierCompletions. Type: string. Declaration start char: 0, length: 101
   // #completionTest(0,1,2) -> stringModifierProperties
@@ -295,6 +308,10 @@ param intModifierCompletions int {
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
+
+// #completionTest(46,47) -> justSymbols
+param defaultValueOneLinerCompletions string = 
+//@[6:37) Parameter defaultValueOneLinerCompletions. Type: string. Declaration start char: 0, length: 47
 
 param defaultValueCompletions string {
 //@[6:29) Parameter defaultValueCompletions. Type: 'one' | 'three' | 'two'. Declaration start char: 0, length: 396

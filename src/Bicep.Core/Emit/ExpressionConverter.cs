@@ -1,11 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -76,7 +80,6 @@ namespace Bicep.Core.Emit
 
                 case InstanceFunctionCallSyntax instanceFunctionCall:
                     var namespaceSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
-                    
                     Assert(namespaceSymbol is NamespaceSymbol, $"BaseExpression must be a NamespaceSymbol, instead got: '{namespaceSymbol?.Kind}'");
 
                     return ConvertFunction(
@@ -359,7 +362,29 @@ namespace Bicep.Core.Emit
                 return arguments.Single();
             }
 
+            if (ShouldReplaceUnsupportedFunction(functionName, arguments, out var replacementExpression))
+            {
+                return replacementExpression;
+            }
+
             return new FunctionExpression(functionName, arguments, Array.Empty<LanguageExpression>());
+        }
+
+        private static bool ShouldReplaceUnsupportedFunction(string functionName, LanguageExpression[] arguments, [NotNullWhen(true)] out LanguageExpression? replacementExpression)
+        {
+            switch (functionName)
+            {
+                // These functions have not yet been implemented in ARM. For now, we will just return an empty object if they are accessed directly.
+                case "tenant":
+                case "managementGroup":
+                case "subscription" when arguments.Length > 0:
+                case "resourceGroup" when arguments.Length > 0:
+                    replacementExpression = GetCreateObjectExpression();
+                    return true;
+            }
+
+            replacementExpression = null;
+            return false;
         }
 
         private FunctionExpression ConvertArray(ArraySyntax syntax)
@@ -387,11 +412,11 @@ namespace Bicep.Core.Emit
             }
 
             // we are using the createObject() funciton as a proy for an object literal
-            return new FunctionExpression(
-                "createObject",
-                parameters,
-                Array.Empty<LanguageExpression>());
+            return GetCreateObjectExpression(parameters);
         }
+
+        private static FunctionExpression GetCreateObjectExpression(params LanguageExpression[] parameters)
+            =>  new FunctionExpression("createObject", parameters, Array.Empty<LanguageExpression>());
 
         private LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
         {

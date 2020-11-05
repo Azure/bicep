@@ -161,7 +161,7 @@ param requiredIpnut string
 
                 var nextDiags = await diagsListener.WaitNext();
                 nextDiags.Uri.Should().Be(mainUri);
-                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file \"/path/toOther/module.bicep\""));
+                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file \"/path/toOther/module.bicep\""));
             }
 
             // delete the main file with a background process. this should be ignored, as the close document event should clean it up
@@ -227,7 +227,7 @@ param requiredIpnut string
 
                 var nextDiags = await diagsListener.WaitNext();
                 nextDiags.Uri.Should().Be(mainUri);
-                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred loading the module. Could not find file \"/path/toOther/module.bicep\""));
+                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file \"/path/toOther/module.bicep\""));
             }
         }
     }

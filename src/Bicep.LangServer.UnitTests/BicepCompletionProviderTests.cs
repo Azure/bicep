@@ -18,7 +18,6 @@ using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
@@ -29,12 +28,13 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationSnippetsShouldBeValid()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
             var snippetCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Snippet)
@@ -44,7 +44,7 @@ namespace Bicep.LangServer.UnitTests
             snippetCompletions.Should().OnlyContain(c => c.Kind == CompletionItemKind.Snippet && c.InsertTextFormat == InsertTextFormat.Snippet);
             snippetCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
             snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label));
-            snippetCompletions.Should().OnlyContain(c => c.Documentation.HasMarkupContent && c.Documentation.MarkupContent.Kind == MarkupKind.Markdown);
+            snippetCompletions.Should().OnlyContain(c => c.Documentation!.HasMarkupContent && c.Documentation.MarkupContent!.Kind == MarkupKind.Markdown);
 
             var snippetsByDetail = snippetCompletions.ToDictionary(c => c.Detail);
 
@@ -70,16 +70,16 @@ namespace Bicep.LangServer.UnitTests
             foreach (var (detail, completion) in snippetsByDetail)
             {
                 // validate snippet
-                var snippet = new Snippet(completion.TextEdit.NewText);
+                var snippet = new Snippet(completion.TextEdit!.NewText);
                 
                 // if we don't have placeholders, why is it a snippet?
                 snippet.Placeholders.Should().NotBeEmpty();
 
                 // documentation should have the snippet without placeholders
-                completion.Documentation.MarkupContent.Value.Should().Contain(snippet.FormatDocumentation());
+                completion.Documentation!.MarkupContent!.Value.Should().Contain(snippet.FormatDocumentation());
 
                 // perform the sample replacement
-                var replacements = replacementsByDetail[detail];
+                var replacements = replacementsByDetail[detail!];
                 var replaced = snippet.Format((s, placeholder) => placeholder.Index >= 0 && placeholder.Index < replacements.Count
                     ? replacements[placeholder.Index]
                     : string.Empty);
@@ -87,19 +87,20 @@ namespace Bicep.LangServer.UnitTests
                 var parser = new Parser(replaced);
                 var declaration = parser.Declaration();
 
-                declaration.Should().BeAssignableTo<IDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
+                declaration.Should().BeAssignableTo<INamedDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
             }
         }
 
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.DeclarationStart));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
             var keywordCompletions = completions
                 .Where(c => c.Kind == CompletionItemKind.Keyword)
@@ -114,7 +115,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Module keyword");
-                    c.TextEdit.NewText.Should().Be("module");
+                    c.TextEdit!.NewText.Should().Be("module");
                 },
                 c =>
                 {
@@ -123,7 +124,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Output keyword");
-                    c.TextEdit.NewText.Should().Be("output");
+                    c.TextEdit!.NewText.Should().Be("output");
                 },
                 c =>
                 {
@@ -132,7 +133,7 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Parameter keyword");
-                    c.TextEdit.NewText.Should().Be("param");
+                    c.TextEdit!.NewText.Should().Be("param");
                 },
                 c =>
                 {
@@ -141,7 +142,16 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Resource keyword");
-                    c.TextEdit.NewText.Should().Be("resource");
+                    c.TextEdit!.NewText.Should().Be("resource");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("targetScope");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Target Scope keyword");
+                    c.TextEdit!.NewText.Should().Be("targetScope");
                 },
                 c =>
                 {
@@ -150,64 +160,42 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Variable keyword");
-                    c.TextEdit.NewText.Should().Be("var");
+                    c.TextEdit!.NewText.Should().Be("var");
                 });
-        }
-
-        [TestMethod]
-        public void NonDeclarationContextInEmptyFileShouldReturnFunctionCompletions()
-        {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
-            var provider = new BicepCompletionProvider();
-
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
-
-            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
-            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
-
-            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
         }
 
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxFactory.CreateFromText(@"
 param p string
-var v = true
+var v = 
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
 output o int = 42
-"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
+");
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
 
-            const string expectedVariable = "v";
-            var variableCompletion = completions.Single(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind());
-            variableCompletion.Label.Should().Be(expectedVariable);
-            variableCompletion.Kind.Should().Be(CompletionItemKind.Variable);
-            variableCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            variableCompletion.TextEdit.NewText.Should().Be(expectedVariable);
-            variableCompletion.CommitCharacters.Should().BeNull();
-            variableCompletion.Detail.Should().Be(expectedVariable);
+            // the variable won't appear in completions because we are not suggesting cycles
+            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
 
             const string expectedResource = "r";
             var resourceCompletion = completions.Single(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind());
             resourceCompletion.Label.Should().Be(expectedResource);
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            resourceCompletion.TextEdit.NewText.Should().Be(expectedResource);
+            resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
             resourceCompletion.CommitCharacters.Should().BeNull();
             resourceCompletion.Detail.Should().Be(expectedResource);
 
@@ -216,23 +204,52 @@ output o int = 42
             paramCompletion.Label.Should().Be(expectedParam);
             paramCompletion.Kind.Should().Be(CompletionItemKind.Field);
             paramCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            paramCompletion.TextEdit.NewText.Should().Be(expectedParam);
+            paramCompletion.TextEdit!.NewText.Should().Be(expectedParam);
             paramCompletion.CommitCharacters.Should().BeNull();
             paramCompletion.Detail.Should().Be(expectedParam);
         }
 
         [TestMethod]
-        public void ParameterTypeContextShouldIncludeFunctionsValidInDefaultValues()
+        public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"param p string = 's'"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            var grouping = SyntaxFactory.CreateFromText(@"param p string = ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
 
-            var parameter = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax.Children.OfType<ParameterDeclarationSyntax>().Single();
+            var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
             var provider = new BicepCompletionProvider();
             var completions = provider.GetFilteredCompletions(
                 compilation,
-                CreateContext(BicepCompletionContextKind.None, enclosingDeclaration: parameter)).ToList();
+                BicepCompletionContext.Create(grouping.EntryPoint, offset)).ToList();
+
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
+
+            // outputs can't be referenced so they should not show up in completions
+            completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
+
+            completions.Where(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind()).Should().BeEmpty();
+            completions.Where(c => c.Kind == SymbolKind.Module.ToCompletionItemKind()).Should().BeEmpty();
+
+            // should not see parameter completions because we set the enclosing declaration which will exclude the corresponding symbol
+            // this avoids cycle suggestions
+            completions.Where(c => c.Kind == SymbolKind.Parameter.ToCompletionItemKind()).Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void CompletionsForModifierDefaultValuesShouldIncludeFunctionsValidInDefaultValues()
+        {
+            var grouping = SyntaxFactory.CreateFromText(@"param p string {
+  defaultValue: 
+}");
+
+            var offset = ((ObjectSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).Properties.Single().Value.Span.Position;
+
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+
+            var provider = new BicepCompletionProvider();
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
 
@@ -251,18 +268,20 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
-output length int = 42
-"));
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+output length int = 
+");
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.None)).ToList();
+            var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
 
@@ -274,7 +293,7 @@ output length int = 42
             variableCompletion.Label.Should().Be(expectedVariable);
             variableCompletion.Kind.Should().Be(CompletionItemKind.Variable);
             variableCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            variableCompletion.TextEdit.NewText.Should().Be(expectedVariable);
+            variableCompletion.TextEdit!.NewText.Should().Be(expectedVariable);
             variableCompletion.CommitCharacters.Should().BeNull();
             variableCompletion.Detail.Should().Be(expectedVariable);
 
@@ -283,7 +302,7 @@ output length int = 42
             resourceCompletion.Label.Should().Be(expectedResource);
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            resourceCompletion.TextEdit.NewText.Should().Be(expectedResource);
+            resourceCompletion.TextEdit!.NewText.Should().Be(expectedResource);
             resourceCompletion.CommitCharacters.Should().BeNull();
             resourceCompletion.Detail.Should().Be(expectedResource);
 
@@ -292,7 +311,7 @@ output length int = 42
             paramCompletion.Label.Should().Be(expectedParam);
             paramCompletion.Kind.Should().Be(CompletionItemKind.Field);
             paramCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-            paramCompletion.TextEdit.NewText.Should().Be(expectedParam);
+            paramCompletion.TextEdit!.NewText.Should().Be(expectedParam);
             paramCompletion.CommitCharacters.Should().BeNull();
             paramCompletion.Detail.Should().Be(expectedParam);
         }
@@ -300,10 +319,13 @@ output length int = 42
         [TestMethod]
         public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText("output test ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.OutputType));
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -314,10 +336,13 @@ output length int = 42
         [TestMethod]
         public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var grouping = SyntaxFactory.CreateFromText("param foo ");
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider();
 
-            var completions = provider.GetFilteredCompletions(compilation, CreateContext(BicepCompletionContextKind.ParameterType));
+            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
             AssertExpectedDeclarationTypeCompletions(declarationTypeCompletions);
@@ -328,7 +353,7 @@ output length int = 42
                     c.Label.Should().Be("secureObject");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit.NewText.Should().StartWith("object");
+                    c.TextEdit!.NewText.Should().StartWith("object");
                     c.TextEdit.NewText.Should().Contain("secure: true");
                     c.Detail.Should().Be("Secure object");
                 },
@@ -337,13 +362,11 @@ output length int = 42
                     c.Label.Should().Be("secureString");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.TextEdit.NewText.Should().StartWith("string");
+                    c.TextEdit!.NewText.Should().StartWith("string");
                     c.TextEdit.NewText.Should().Contain("secure: true");
                     c.Detail.Should().Be("Secure string");
                 });
         }
-
-        private static BicepCompletionContext CreateContext(BicepCompletionContextKind kind, SyntaxBase? enclosingDeclaration = null) => new BicepCompletionContext(kind, new Range(), enclosingDeclaration);
 
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {
@@ -354,7 +377,7 @@ output length int = 42
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit.NewText.Should().Be(expected);
+                    c.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -363,7 +386,7 @@ output length int = 42
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit.NewText.Should().Be(expected);
+                    c.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -372,7 +395,7 @@ output length int = 42
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit.NewText.Should().Be(expected);
+                    c.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -381,7 +404,7 @@ output length int = 42
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit.NewText.Should().Be(expected);
+                    c.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 },
                 c =>
@@ -390,7 +413,7 @@ output length int = 42
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.TextEdit.NewText.Should().Be(expected);
+                    c.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
                 });
         }
@@ -407,8 +430,8 @@ output length int = 42
 
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
-            var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(), new SystemNamespaceSymbol()}
-                .SelectMany(ns => ns.Descendants.OfType<FunctionSymbol>())
+            var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(ResourceScopeType.ResourceGroupScope), new SystemNamespaceSymbol()}
+                .SelectMany(ns => ns.Type.MethodResolver.GetKnownFunctions().Values)
                 .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)
                 .Except(fullyQualifiedFunctionParts.Select(p => p.function), LanguageConstants.IdentifierComparer)
@@ -416,7 +439,7 @@ output length int = 42
                 .OrderBy(s => s);
 
             functionCompletions.Select(c => c.Label).Should().BeEquivalentTo(availableFunctionNames);
-            functionCompletions.Should().OnlyContain(c => c.TextEdit.NewText.StartsWith(c.Label + '('));
+            functionCompletions.Should().OnlyContain(c => c.TextEdit!.NewText.StartsWith(c.Label + '(', StringComparison.Ordinal));
             functionCompletions.Should().OnlyContain(c => string.Equals(c.Label + "()", c.Detail));
             functionCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
         }

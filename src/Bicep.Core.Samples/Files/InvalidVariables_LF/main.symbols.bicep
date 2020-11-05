@@ -6,6 +6,10 @@ bad
 var
 //@[3:3) Variable <missing>. Type: error. Declaration start char: 0, length: 3
 
+// missing identifier #completionTest(4) -> empty
+var 
+//@[4:4) Variable <missing>. Type: error. Declaration start char: 0, length: 4
+
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
@@ -15,6 +19,10 @@ va
 // unassigned variable
 var foo
 //@[4:7) Variable foo. Type: error. Declaration start char: 0, length: 7
+
+// #completionTest(18,19) -> symbols
+var missingValue = 
+//@[4:16) Variable missingValue. Type: error. Declaration start char: 0, length: 19
 
 // malformed identifier
 var 2 
@@ -118,3 +126,37 @@ var az = 1
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
 //@[4:30) Variable invalidNamespaceAssignment. Type: error. Declaration start char: 0, length: 35
+
+var objectLiteralType = {
+//@[4:21) Variable objectLiteralType. Type: object. Declaration start char: 0, length: 199
+  first: true
+  second: false
+  third: 42
+  fourth: 'test'
+  fifth: [
+    {
+      one: true
+    }
+    {
+      one: false
+    }
+  ]
+  sixth: [
+    {
+      two: 44
+    }
+  ]
+}
+
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions = objectLiteralType.f
+//@[4:32) Variable objectVarTopLevelCompletions. Type: error. Declaration start char: 0, length: 54
+
+// this does not produce any completions because mixed array items are of type "any"
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+//@[4:29) Variable mixedArrayTypeCompletions. Type: any. Declaration start char: 0, length: 60
+
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t
+//@[4:27) Variable oneArrayItemCompletions. Type: error. Declaration start char: 0, length: 58

@@ -10,12 +10,15 @@ using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;
 using System.Linq;
 using System;
+using Bicep.Core.SemanticModel;
 
 namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
+
+        public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
         {
@@ -237,6 +240,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP040",
                 $"String interpolation is not supported for keys on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
 
+            public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP041",
+                $"Values of type \"{valueType}\" cannot be assigned to a variable.");
+
             public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP043",
@@ -289,6 +297,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP049",
                 $"The array index must be of type \"{LanguageConstants.String}\" or \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
+
+            public ErrorDiagnostic ModulePathIsEmpty() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP050",
+                "The specified module path is empty.");
+
+            public ErrorDiagnostic ModulePathBeginsWithForwardSlash() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP051",
+                "The specified module path begins with \"/\". Module files must be referenced using relative paths.");
 
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
                 TextSpan,
@@ -366,6 +384,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP066",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in resource declarations.");
+
+            public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP067",
+                $"Cannot call functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
             public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
                 TextSpan,
@@ -477,15 +500,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
-            public ErrorDiagnostic VariableValueCannotBeAssigned() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP085",
-                $"The variable value cannot be assigned, make sure it is not a namespace value.");
+                $"The specified module path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic FunctionNotFound(string functionName, string namespaceName) => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP086",
-                $"The function \"{functionName}\" does not exist in namespace \"{namespaceName}\".");
+                $"The specified module path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
             public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
                 TextSpan,
@@ -511,10 +534,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP090",
                 "This module declaration is missing a file path reference.");
 
-            public ErrorDiagnostic ErrorOccurredLoadingModule(string failureMessage) => new ErrorDiagnostic(
+            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP091",
-                $"An error occurred loading the module. {failureMessage}");
+                $"An error occurred reading file. {failureMessage}");
 
             public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
                 TextSpan,
@@ -546,10 +569,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic ModulePathBackslashUnsupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsBackSlash() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP098",
-                "File paths must use forward slash (\"/\") characters instead of back slash (\"\\\") characters for directory separators.");
+                "The specified module path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
             public ErrorDiagnostic AllowedMustContainItems() => new ErrorDiagnostic(
                 TextSpan,
@@ -585,11 +608,43 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP105",
                 $"Unable to load file from URI \"{fileUri}\".");
-            
+
             public ErrorDiagnostic UnexpectedCommaSeparator() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
+                
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP107",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
+
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new FixableErrorDiagnostic(
+                TextSpan,
+                "BCP108",
+                $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+
+            public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP109",
+                $"The type \"{type}\" does not contain function \"{name}\".");
+
+            public FixableErrorDiagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => new FixableErrorDiagnostic(
+                TextSpan,
+                "BCP110",
+                $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+
+            public ErrorDiagnostic ModulePathContainsControlChars() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP111",
+                $"The specified module path contains invalid control code characters.");
+
+            public ErrorDiagnostic TargetScopeMultipleDeclarations() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP112",
+                $"The \"{LanguageConstants.TargetScopeKeyword}\" cannot be declared multiple times in one file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

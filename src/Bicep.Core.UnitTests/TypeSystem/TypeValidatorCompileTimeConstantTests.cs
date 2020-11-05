@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Parser;
@@ -18,21 +20,30 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetLiteralExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void CompileTimeConstantExpressionShouldReturnNoViolations(string displayName, SyntaxBase expression)
         {
-            TypeValidator.GetCompileTimeConstantViolation(expression).Should().BeEmpty();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            TypeValidator.GetCompileTimeConstantViolation(expression, diagnosticWriter);
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetNonLiteralExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void NonLiteralExpression_IsLiteralExpression_ShouldReturnViolations(string displayName, SyntaxBase expression)
         {
-            TypeValidator.GetCompileTimeConstantViolation(expression).Should().NotBeEmpty();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            TypeValidator.GetCompileTimeConstantViolation(expression, diagnosticWriter);
+
+            diagnosticWriter.GetDiagnostics().Should().NotBeEmpty();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetNonExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void NonExpressionShouldProduceNoViolations(string displayName, SyntaxBase expression)
         {
-            TypeValidator.GetCompileTimeConstantViolation(expression).Should().BeEmpty();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            TypeValidator.GetCompileTimeConstantViolation(expression, diagnosticWriter);
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)

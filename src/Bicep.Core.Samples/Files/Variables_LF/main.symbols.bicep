@@ -278,11 +278,11 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 var resourceGroup = 'something'
 //@[4:17) Variable resourceGroup. Type: 'something'. Declaration start char: 0, length: 31
 var resourceGroupName = az.resourceGroup().name
-//@[4:21) Variable resourceGroupName. Type: any. Declaration start char: 0, length: 47
+//@[4:21) Variable resourceGroupName. Type: string. Declaration start char: 0, length: 47
 var resourceGroupObject = az.resourceGroup()
-//@[4:23) Variable resourceGroupObject. Type: object. Declaration start char: 0, length: 44
+//@[4:23) Variable resourceGroupObject. Type: resourceGroup. Declaration start char: 0, length: 44
 var propertyAccessFromObject = resourceGroupObject.name
-//@[4:28) Variable propertyAccessFromObject. Type: any. Declaration start char: 0, length: 55
+//@[4:28) Variable propertyAccessFromObject. Type: string. Declaration start char: 0, length: 55
 var isTrue = sys.max(1, 2) == 3
 //@[4:10) Variable isTrue. Type: bool. Declaration start char: 0, length: 31
 var isFalse = !isTrue
@@ -290,3 +290,10 @@ var isFalse = !isTrue
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 //@[4:12) Variable someText. Type: 'someText' | string. Declaration start char: 0, length: 74
 
+// Bicep functions that cannot be converted into ARM functions
+var scopesWithoutArmRepresentation = {
+//@[4:34) Variable scopesWithoutArmRepresentation. Type: object. Declaration start char: 0, length: 214
+  tenant: tenant()
+  subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
+  resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
+}

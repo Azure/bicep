@@ -25,14 +25,14 @@ namespace Bicep.LanguageServer.Handlers
             this.symbolResolver = symbolResolver;
         }
 
-        public override Task<WorkspaceEdit> Handle(RenameParams request, CancellationToken cancellationToken)
+        public override Task<WorkspaceEdit?> Handle(RenameParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null || !(result.Symbol is DeclaredSymbol))
             {
                 // result is not a symbol or it's a built-in symbol that was not declared by the user (namespaces, functions, for example)
                 // symbols that are not declared by the user cannot be renamed
-                return Task.FromResult(new WorkspaceEdit());
+                return Task.FromResult<WorkspaceEdit?>(null);
             }
 
             var textEdits = result.Context.Compilation.GetEntrypointSemanticModel()
@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
                     NewText = request.NewName
                 });
 
-            return Task.FromResult(new WorkspaceEdit
+            return Task.FromResult<WorkspaceEdit?>(new WorkspaceEdit
             {
                 Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
                 {
@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                 case ISymbolReference symbolReference:
                     return symbolReference.Name;
 
-                case IDeclarationSyntax declarationSyntax:
+                case INamedDeclarationSyntax declarationSyntax:
                     return declarationSyntax.Name;
 
                 default:

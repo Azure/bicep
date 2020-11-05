@@ -132,6 +132,14 @@ param expressionInModifier string {
   ]
 }
 
+param nonCompileTimeConstant string {
+  maxLength: 2 + 3
+  minLength: length([])
+  allowed: [
+    resourceGroup().id
+  ]
+}
+
 param emptyAllowedString string {
   allowed: []
 }
@@ -216,6 +224,9 @@ param stringLiteral3 string {
   default: stringLiteral2
 }
 
+// #completionTest(6) -> empty
+param 
+
 param stringModifierCompletions string {
   // #completionTest(0,1,2) -> stringModifierProperties
   
@@ -225,6 +236,9 @@ param intModifierCompletions int {
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
+
+// #completionTest(46,47) -> justSymbols
+param defaultValueOneLinerCompletions string = 
 
 param defaultValueCompletions string {
   allowed: [

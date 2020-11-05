@@ -55,3 +55,20 @@ output ipFqdn string = publicIp.outputs.ipFqdn
 
 ### Notes
 * All paths in Bicep must be specified using the forward slash (`/`) directory separator to ensure consistent compilation cross-platform. The Windows backslash (`\`) character is unsupported.
+
+## Defining and configuring module scopes
+
+It is possible to deploy across multiple scopes using the `scope` property when declaring a module. For example:
+
+```bicep
+module publicIp './publicIpAddress.bicep' = {
+  name: 'publicIp'
+  scope: resourceGroup('someOtherRg') // pass in a scope to a different resourceGroup
+  params: {
+    publicIpResourceName: publicIpName
+    dynamicAllocation: true
+  }
+}
+```
+
+Please see [Resource Scopes](./resource-scopes.md) for more information and advanced usage.

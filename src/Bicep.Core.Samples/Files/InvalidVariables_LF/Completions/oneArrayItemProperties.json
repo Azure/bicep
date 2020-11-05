@@ -1,0 +1,22 @@
+[
+  {
+    "label": "two",
+    "kind": "property",
+    "detail": "two",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `int`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_two",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "two"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

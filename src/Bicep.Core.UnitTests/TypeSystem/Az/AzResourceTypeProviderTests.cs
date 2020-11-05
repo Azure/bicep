@@ -92,7 +92,7 @@ resource missingRequired 'Mock.Rp/mockType@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP035", DiagnosticLevel.Error, "The specified object is missing the following required properties: \"properties\".")
+                ("BCP035", DiagnosticLevel.Error, "The specified resource is missing the following required properties: \"properties\".")
             });
 
             // Top-level properties that aren't part of the type definition - should be an error

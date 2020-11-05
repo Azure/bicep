@@ -30,30 +30,41 @@ namespace Bicep.Core.Samples
 
         public class ExampleData
         {
-            public ExampleData(string bicepStreamName, string jsonStreamName)
+            public ExampleData(string bicepStreamName, string jsonStreamName, string outputFolderName)
             {
                 BicepStreamName = bicepStreamName;
                 JsonStreamName = jsonStreamName;
+                OutputFolderName = outputFolderName;
             }
 
             public string BicepStreamName { get; }
 
             public string JsonStreamName { get; }
 
+            public string OutputFolderName { get; }
+
             public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).BicepStreamName!;
         }
 
         private static IEnumerable<object[]> GetExampleData()
         {
-            foreach (var streamName in typeof(ExamplesTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith("docs/examples/")))
+            const string pathPrefix = "docs/examples/";
+            const string bicepExtension = ".bicep";
+
+            foreach (var streamName in typeof(ExamplesTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal)))
             {
                 var extension = Path.GetExtension(streamName);
-                if (!StringComparer.OrdinalIgnoreCase.Equals(extension, ".bicep"))
+                if (!StringComparer.OrdinalIgnoreCase.Equals(extension, bicepExtension))
                 {
                     continue;
                 }
 
-                var exampleData = new ExampleData(streamName, Path.ChangeExtension(streamName, "json"));
+                var outputFolderName = streamName
+                    .Substring(0, streamName.Length - bicepExtension.Length)
+                    .Substring(pathPrefix.Length)
+                    .Replace('/', '_');
+
+                var exampleData = new ExampleData(streamName, Path.ChangeExtension(streamName, "json"), outputFolderName);
 
                 yield return new object[] { exampleData };
             }
@@ -87,13 +98,19 @@ namespace Bicep.Core.Samples
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
         }
 
+        [TestMethod]
+        public void ExampleData_should_return_a_number_of_records()
+        {
+            GetExampleData().Should().HaveCountGreaterOrEqualTo(30, "sanity check to ensure we're finding examples to test");
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void ExampleIsValid(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext!, typeof(ExamplesTests).Assembly, "example", parentStream);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext!, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
@@ -129,7 +146,7 @@ namespace Bicep.Core.Samples
 
                     actual.Should().EqualWithJsonDiffOutput(
                         JToken.Parse(File.ReadAllText(jsonFileName)),
-                        jsonFileName,
+                        example.JsonStreamName,
                         jsonFileName + ".actual");
                 }
             }

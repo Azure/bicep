@@ -1,0 +1,587 @@
+[
+  {
+    "label": "any",
+    "kind": "function",
+    "detail": "any()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_any",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    }
+  },
+  {
+    "label": "array",
+    "kind": "function",
+    "detail": "array()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_array",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    }
+  },
+  {
+    "label": "base64",
+    "kind": "function",
+    "detail": "base64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    }
+  },
+  {
+    "label": "base64ToJson",
+    "kind": "function",
+    "detail": "base64ToJson()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToJson",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    }
+  },
+  {
+    "label": "base64ToString",
+    "kind": "function",
+    "detail": "base64ToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToString",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    }
+  },
+  {
+    "label": "bool",
+    "kind": "function",
+    "detail": "bool()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_bool",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    }
+  },
+  {
+    "label": "coalesce",
+    "kind": "function",
+    "detail": "coalesce()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_coalesce",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "coalesce($0)"
+    }
+  },
+  {
+    "label": "concat",
+    "kind": "function",
+    "detail": "concat()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_concat",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    }
+  },
+  {
+    "label": "contains",
+    "kind": "function",
+    "detail": "contains()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_contains",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    }
+  },
+  {
+    "label": "dataUri",
+    "kind": "function",
+    "detail": "dataUri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUri",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    }
+  },
+  {
+    "label": "dataUriToString",
+    "kind": "function",
+    "detail": "dataUriToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUriToString",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    }
+  },
+  {
+    "label": "dateTimeAdd",
+    "kind": "function",
+    "detail": "dateTimeAdd()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeAdd",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    }
+  },
+  {
+    "label": "empty",
+    "kind": "function",
+    "detail": "empty()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_empty",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    }
+  },
+  {
+    "label": "endsWith",
+    "kind": "function",
+    "detail": "endsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_endsWith",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    }
+  },
+  {
+    "label": "first",
+    "kind": "function",
+    "detail": "first()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_first",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    }
+  },
+  {
+    "label": "format",
+    "kind": "function",
+    "detail": "format()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_format",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    }
+  },
+  {
+    "label": "guid",
+    "kind": "function",
+    "detail": "guid()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_guid",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    }
+  },
+  {
+    "label": "indexOf",
+    "kind": "function",
+    "detail": "indexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_indexOf",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    }
+  },
+  {
+    "label": "int",
+    "kind": "function",
+    "detail": "int()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_int",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    }
+  },
+  {
+    "label": "intersection",
+    "kind": "function",
+    "detail": "intersection()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_intersection",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    }
+  },
+  {
+    "label": "json",
+    "kind": "function",
+    "detail": "json()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_json",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    }
+  },
+  {
+    "label": "last",
+    "kind": "function",
+    "detail": "last()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_last",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    }
+  },
+  {
+    "label": "lastIndexOf",
+    "kind": "function",
+    "detail": "lastIndexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_lastIndexOf",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    }
+  },
+  {
+    "label": "length",
+    "kind": "function",
+    "detail": "length()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_length",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    }
+  },
+  {
+    "label": "max",
+    "kind": "function",
+    "detail": "max()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_max",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    }
+  },
+  {
+    "label": "min",
+    "kind": "function",
+    "detail": "min()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_min",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    }
+  },
+  {
+    "label": "newGuid",
+    "kind": "function",
+    "detail": "newGuid()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_newGuid",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "newGuid()$0"
+    }
+  },
+  {
+    "label": "padLeft",
+    "kind": "function",
+    "detail": "padLeft()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_padLeft",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    }
+  },
+  {
+    "label": "range",
+    "kind": "function",
+    "detail": "range()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_range",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    }
+  },
+  {
+    "label": "replace",
+    "kind": "function",
+    "detail": "replace()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_replace",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    }
+  },
+  {
+    "label": "skip",
+    "kind": "function",
+    "detail": "skip()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_skip",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    }
+  },
+  {
+    "label": "split",
+    "kind": "function",
+    "detail": "split()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_split",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    }
+  },
+  {
+    "label": "startsWith",
+    "kind": "function",
+    "detail": "startsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_startsWith",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    }
+  },
+  {
+    "label": "string",
+    "kind": "function",
+    "detail": "string()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_string",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    }
+  },
+  {
+    "label": "substring",
+    "kind": "function",
+    "detail": "substring()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_substring",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    }
+  },
+  {
+    "label": "take",
+    "kind": "function",
+    "detail": "take()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_take",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    }
+  },
+  {
+    "label": "toLower",
+    "kind": "function",
+    "detail": "toLower()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLower",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    }
+  },
+  {
+    "label": "toUpper",
+    "kind": "function",
+    "detail": "toUpper()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toUpper",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    }
+  },
+  {
+    "label": "trim",
+    "kind": "function",
+    "detail": "trim()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_trim",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    }
+  },
+  {
+    "label": "union",
+    "kind": "function",
+    "detail": "union()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_union",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    }
+  },
+  {
+    "label": "uniqueString",
+    "kind": "function",
+    "detail": "uniqueString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uniqueString",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    }
+  },
+  {
+    "label": "uri",
+    "kind": "function",
+    "detail": "uri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uri",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    }
+  },
+  {
+    "label": "uriComponent",
+    "kind": "function",
+    "detail": "uriComponent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponent",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    }
+  },
+  {
+    "label": "uriComponentToString",
+    "kind": "function",
+    "detail": "uriComponentToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponentToString",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    }
+  },
+  {
+    "label": "utcNow",
+    "kind": "function",
+    "detail": "utcNow()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_utcNow",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "utcNow($0)"
+    }
+  }
+]

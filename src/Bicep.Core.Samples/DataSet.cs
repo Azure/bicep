@@ -105,7 +105,7 @@ namespace Bicep.Core.Samples
         {
             var matches = Assembly.GetExecutingAssembly()
                 .GetManifestResourceNames()
-                .Where(streamName => streamName.StartsWith(streamNamePrefix))
+                .Where(streamName => streamName.StartsWith(streamNamePrefix, StringComparison.Ordinal))
                 .Select(streamName => (streamName, key: streamName.Substring(streamNamePrefix.Length)));
 
             var builder = ImmutableDictionary.CreateBuilder<string, string>();

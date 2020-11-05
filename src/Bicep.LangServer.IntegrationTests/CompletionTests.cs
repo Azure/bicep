@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
@@ -33,6 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         public static readonly AzResourceTypeProvider TypeProvider = new AzResourceTypeProvider();
 
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
@@ -61,9 +63,14 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
         {
-            var uri = DocumentUri.From($"/{dataSet.Name}");
+            // ensure all files are present locally
+            string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext, $"{dataSet.DisplayName}_{setName}");
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: TypeProvider);
+            var entryPoint = Path.Combine(basePath, "main.bicep");
+            
+            var uri = DocumentUri.FromFileSystemPath(entryPoint);
+            
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: TypeProvider, fileResolver: new FileResolver());
 
             var intermediate = new List<(Position position, JToken actual)>();
 
@@ -172,6 +179,15 @@ namespace Bicep.LangServer.IntegrationTests
                     // if we try to assert on these, we will have an explosion of assert files
                     // let's ignore it for now until we come up with a better solution
                     completion.TextEdit.Range = new Range();
+                }
+
+                // can't do != null because the container overloads the != operator 😠
+                if (!(completion.AdditionalTextEdits is null))
+                {
+                    foreach (var additionalEdit in completion.AdditionalTextEdits)
+                    {
+                        additionalEdit.Range = new Range();
+                    }
                 }
             }
 

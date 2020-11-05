@@ -67,6 +67,31 @@ module moduleWithoutPath = {
 //@[0:1)  RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+// missing identifier #completionTest(7) -> empty
+//@[49:50) NewLine |\n|
+module 
+//@[0:7) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:7)  SkippedTriviaSyntax
+//@[7:9) NewLine |\n\n|
+
+// #completionTest(24,25) -> object
+//@[35:36) NewLine |\n|
+module missingValue '' = 
+//@[0:25) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:19)  IdentifierSyntax
+//@[7:19)   Identifier |missingValue|
+//@[20:22)  StringSyntax
+//@[20:22)   StringComplete |''|
+//@[23:24)  Assignment |=|
+//@[25:25)  SkippedTriviaSyntax
+//@[25:27) NewLine |\n\n|
+
 var interp = 'hello'
 //@[0:20) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -129,30 +154,32 @@ module './main.bicep' = {
 //@[1:3) NewLine |\n\n|
 
 module modANoName './modulea.bicep' = {
-//@[0:42) ModuleDeclarationSyntax
+//@[0:93) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |modANoName|
 //@[18:35)  StringSyntax
 //@[18:35)   StringComplete |'./modulea.bicep'|
 //@[36:37)  Assignment |=|
-//@[38:42)  ObjectSyntax
+//@[38:93)  ObjectSyntax
 //@[38:39)   LeftBrace |{|
-//@[39:41)   NewLine |\n\n|
+//@[39:40)   NewLine |\n|
+// #completionTest(0) -> moduleATopLevelProperties
+//@[50:52)   NewLine |\n\n|
 
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {
-//@[0:66) ModuleDeclarationSyntax
+//@[0:135) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |modANoInputs|
 //@[20:37)  StringSyntax
 //@[20:37)   StringComplete |'./modulea.bicep'|
 //@[38:39)  Assignment |=|
-//@[40:66)  ObjectSyntax
+//@[40:135)  ObjectSyntax
 //@[40:41)   LeftBrace |{|
 //@[41:42)   NewLine |\n|
   name: 'modANoInputs'
@@ -163,19 +190,23 @@ module modANoInputs './modulea.bicep' = {
 //@[8:22)    StringSyntax
 //@[8:22)     StringComplete |'modANoInputs'|
 //@[22:23)   NewLine |\n|
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+//@[65:66)   NewLine |\n|
+  
+//@[2:3)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modAEmptyInputs './modulea.bicep' = {
-//@[0:86) ModuleDeclarationSyntax
+//@[0:141) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:22)  IdentifierSyntax
 //@[7:22)   Identifier |modAEmptyInputs|
 //@[23:40)  StringSyntax
 //@[23:40)   StringComplete |'./modulea.bicep'|
 //@[41:42)  Assignment |=|
-//@[43:86)  ObjectSyntax
+//@[43:141)  ObjectSyntax
 //@[43:44)   LeftBrace |{|
 //@[44:45)   NewLine |\n|
   name: 'modANoInputs'
@@ -187,20 +218,61 @@ module modAEmptyInputs './modulea.bicep' = {
 //@[8:22)     StringComplete |'modANoInputs'|
 //@[22:23)   NewLine |\n|
   params: {
-//@[2:16)   ObjectPropertySyntax
+//@[2:71)   ObjectPropertySyntax
 //@[2:8)    IdentifierSyntax
 //@[2:8)     Identifier |params|
 //@[8:9)    Colon |:|
-//@[10:16)    ObjectSyntax
+//@[10:71)    ObjectSyntax
 //@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\n\n|
-
+//@[11:12)     NewLine |\n|
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+//@[50:51)     NewLine |\n|
+    
+//@[4:5)     NewLine |\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+//@[55:56) NewLine |\n|
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:35)  IdentifierSyntax
+//@[4:35)   Identifier |modulePropertyAccessCompletions|
+//@[36:37)  Assignment |=|
+//@[38:55)  PropertyAccessSyntax
+//@[38:53)   VariableAccessSyntax
+//@[38:53)    IdentifierSyntax
+//@[38:53)     Identifier |modAEmptyInputs|
+//@[53:54)   Dot |.|
+//@[54:55)   IdentifierSyntax
+//@[54:55)    Identifier |o|
+//@[55:57) NewLine |\n\n|
+
+// #completionTest(56) -> moduleAOutputs
+//@[40:41) NewLine |\n|
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+//@[0:56) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:28)  IdentifierSyntax
+//@[4:28)   Identifier |moduleOutputsCompletions|
+//@[29:30)  Assignment |=|
+//@[31:56)  PropertyAccessSyntax
+//@[31:54)   PropertyAccessSyntax
+//@[31:46)    VariableAccessSyntax
+//@[31:46)     IdentifierSyntax
+//@[31:46)      Identifier |modAEmptyInputs|
+//@[46:47)    Dot |.|
+//@[47:54)    IdentifierSyntax
+//@[47:54)     Identifier |outputs|
+//@[54:55)   Dot |.|
+//@[55:56)   IdentifierSyntax
+//@[55:56)    Identifier |s|
+//@[56:58) NewLine |\n\n|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
 //@[0:180) ModuleDeclarationSyntax
@@ -289,23 +361,6 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58)    Identifier |test|
 //@[58:60) NewLine |\n\n|
 
-module moduleWithBackslash 'child\\file.bicep' = {
-//@[0:55) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |moduleWithBackslash|
-//@[27:46)  StringSyntax
-//@[27:46)   StringComplete |'child\\file.bicep'|
-//@[47:48)  Assignment |=|
-//@[49:55)  ObjectSyntax
-//@[49:50)   LeftBrace |{|
-//@[50:51)   NewLine |\n|
-  
-//@[2:3)   NewLine |\n|
-}
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
 module modCycle './cycle.bicep' = {
 //@[0:40) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -319,6 +374,193 @@ module modCycle './cycle.bicep' = {
 //@[35:36)   NewLine |\n|
   
 //@[2:3)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithEmptyPath '' = {
+//@[0:35) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |moduleWithEmptyPath|
+//@[27:29)  StringSyntax
+//@[27:29)   StringComplete |''|
+//@[30:31)  Assignment |=|
+//@[32:35)  ObjectSyntax
+//@[32:33)   LeftBrace |{|
+//@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+//@[0:52) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:29)  IdentifierSyntax
+//@[7:29)   Identifier |moduleWithAbsolutePath|
+//@[30:46)  StringSyntax
+//@[30:46)   StringComplete |'/abc/def.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:52)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[0:52) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |moduleWithBackslash|
+//@[27:46)  StringSyntax
+//@[27:46)   StringComplete |'child\\file.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:52)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+//@[0:54) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |moduleWithInvalidChar|
+//@[29:48)  StringSyntax
+//@[29:48)   StringComplete |'child/fi|le.bicep'|
+//@[49:50)  Assignment |=|
+//@[51:54)  ObjectSyntax
+//@[51:52)   LeftBrace |{|
+//@[52:53)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+//@[0:58) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:38)  IdentifierSyntax
+//@[7:38)   Identifier |moduleWithInvalidTerminatorChar|
+//@[39:52)  StringSyntax
+//@[39:52)   StringComplete |'child/test.'|
+//@[53:54)  Assignment |=|
+//@[55:58)  ObjectSyntax
+//@[55:56)   LeftBrace |{|
+//@[56:57)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithValidScope './empty.bicep' = {
+//@[0:80) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |moduleWithValidScope|
+//@[28:43)  StringSyntax
+//@[28:43)   StringComplete |'./empty.bicep'|
+//@[44:45)  Assignment |=|
+//@[46:80)  ObjectSyntax
+//@[46:47)   LeftBrace |{|
+//@[47:48)   NewLine |\n|
+  name: 'moduleWithValidScope'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'moduleWithValidScope'|
+//@[30:31)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope './empty.bicep' = {
+//@[0:114) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:29)  IdentifierSyntax
+//@[7:29)   Identifier |moduleWithInvalidScope|
+//@[30:45)  StringSyntax
+//@[30:45)   StringComplete |'./empty.bicep'|
+//@[46:47)  Assignment |=|
+//@[48:114)  ObjectSyntax
+//@[48:49)   LeftBrace |{|
+//@[49:50)   NewLine |\n|
+  name: 'moduleWithInvalidScope'
+//@[2:32)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:32)    StringSyntax
+//@[8:32)     StringComplete |'moduleWithInvalidScope'|
+//@[32:33)   NewLine |\n|
+  scope: moduleWithValidScope
+//@[2:29)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:29)    VariableAccessSyntax
+//@[9:29)     IdentifierSyntax
+//@[9:29)      Identifier |moduleWithValidScope|
+//@[29:30)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[0:113) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:37)  IdentifierSyntax
+//@[7:37)   Identifier |moduleWithMissingRequiredScope|
+//@[38:66)  StringSyntax
+//@[38:66)   StringComplete |'./subscription_empty.bicep'|
+//@[67:68)  Assignment |=|
+//@[69:113)  ObjectSyntax
+//@[69:70)   LeftBrace |{|
+//@[70:71)   NewLine |\n|
+  name: 'moduleWithMissingRequiredScope'
+//@[2:40)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:40)    StringSyntax
+//@[8:40)     StringComplete |'moduleWithMissingRequiredScope'|
+//@[40:41)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+//@[0:113) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:30)  IdentifierSyntax
+//@[7:30)   Identifier |moduleWithInvalidScope2|
+//@[31:46)  StringSyntax
+//@[31:46)   StringComplete |'./empty.bicep'|
+//@[47:48)  Assignment |=|
+//@[49:113)  ObjectSyntax
+//@[49:50)   LeftBrace |{|
+//@[50:51)   NewLine |\n|
+  name: 'moduleWithInvalidScope2'
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    StringSyntax
+//@[8:33)     StringComplete |'moduleWithInvalidScope2'|
+//@[33:34)   NewLine |\n|
+  scope: managementGroup()
+//@[2:26)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:26)    FunctionCallSyntax
+//@[9:24)     IdentifierSyntax
+//@[9:24)      Identifier |managementGroup|
+//@[24:25)     LeftParen |(|
+//@[25:26)     RightParen |)|
+//@[26:27)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

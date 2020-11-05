@@ -22,21 +22,21 @@ namespace Bicep.LanguageServer.Handlers
             this.symbolResolver = symbolResolver;
         }
 
-        public override Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken)
+        public override Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {
-                return Task.FromResult(new Hover());
+                return Task.FromResult<Hover?>(null);
             }
 
             var markdown = GetMarkdown(result);
             if (markdown == null)
             {
-                return Task.FromResult(new Hover());
+                return Task.FromResult<Hover?>(null);
             }
 
-            return Task.FromResult(new Hover
+            return Task.FromResult<Hover?>(new Hover
             {
                 Contents = new MarkedStringsOrMarkupContent(new MarkupContent
                 {

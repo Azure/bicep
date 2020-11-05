@@ -8,11 +8,11 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticDiagnosticVisitor : SymbolVisitor
     {
-        private readonly IList<Diagnostic> diagnostics;
+        private readonly IDiagnosticWriter diagnosticWriter;
 
-        public SemanticDiagnosticVisitor(IList<Diagnostic> diagnostics)
+        public SemanticDiagnosticVisitor(IDiagnosticWriter diagnosticWriter)
         {
-            this.diagnostics = diagnostics;
+            this.diagnosticWriter = diagnosticWriter;
         }
 
         public override void VisitTypeSymbol(TypeSymbol symbol)
@@ -57,7 +57,7 @@ namespace Bicep.Core.SemanticModel
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitErrorSymbol(UnassignableSymbol symbol)
+        public override void VisitErrorSymbol(ErrorSymbol symbol)
         {
             base.VisitErrorSymbol(symbol);
             this.CollectDiagnostics(symbol);
@@ -77,10 +77,7 @@ namespace Bicep.Core.SemanticModel
 
         protected void CollectDiagnostics(Symbol symbol)
         {
-            foreach (var diagnostic in symbol.GetDiagnostics())
-            {
-                this.diagnostics.Add(diagnostic);
-            }
+            diagnosticWriter.WriteMultiple(symbol.GetDiagnostics());
         }
     }
 }

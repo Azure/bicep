@@ -57,19 +57,17 @@ az deployment group create -f ./main.json -g my-rg
   * Simple string interpolation: `'${namePrefix}-vm'` instead of `concat(parameters('namePrefix'), '-vm')`
   * Simpler resource declaration using positional properties to avoid typing common property names like `type` and `apiVersion` explicitly.
   * Direct property access of a resource (e.g. `aks.properties.fqdn` instead of `reference(parameters('aksName')).properties.fqdn`)
+* Easily break your bicep project down into multiple files with [modules](https://github.com/Azure/bicep/blob/main/docs/spec/modules.md)
 * Better copy/paste experience via flexible declaration of types. Different types (e.g. `variables`, `resources`, `outputs`) can be declared anywhere.
   * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
-* Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resouce declaration.
+* Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
+* Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
 
 ## Known limitations
 
 * No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
-* No explicit support for deployments across scopes (though this can be done by using the `Microsoft.Resources/deployments` resource and using the `templateLink` or `template` property to insert the full ARM template) [[#187](https://github.com/Azure/bicep/issues/187)]
-  * Bicep assumes you are deploying to a resource group, though the generated template can be deployed to any scope
 * Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported
 * You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
-* No IntelliSense whatsoever [[#269](https://github.com/Azure/bicep/issues/269)]
-* Minimal resource schema validation. Other than basic validations like correct resource `type` structure and requiring a `name`, you will not get errors for missing or incorrect properties in a resource declaration
 * Bicep is currently not covered by [Azure support plans](https://azure.microsoft.com/en-us/support/plans/) as it is still in early development stages. Expect Bicep to be covered by all support plans starting on the 0.3 version.
 
 ## FAQ

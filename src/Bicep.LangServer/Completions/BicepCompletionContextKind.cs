@@ -28,14 +28,14 @@ namespace Bicep.LanguageServer.Completions
         OutputType = 1 << 2,
 
         /// <summary>
-        /// The current location needs a value (variable, expression, function call, etc.)
+        /// The current location needs an expression
         /// </summary>
-        Value = 1 << 3,
+        Expression = 1 << 3,
 
         /// <summary>
-        /// The current location needs a property name. 
+        /// The current location needs an object property name. 
         /// </summary>
-        PropertyName = 1 << 4,
+        ObjectPropertyName = 1 << 4,
 
         /// <summary>
         /// The current location needs a property value.
@@ -55,6 +55,26 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a module path.
         /// </summary>
-        ModulePath = 1 << 8
+        ModulePath = 1 << 8,
+
+        /// <summary>
+        /// The current location needs a resource body.
+        /// </summary>
+        ResourceBody = 1 << 9,
+
+        /// <summary>
+        /// The current location needs a module body.
+        /// </summary>
+        ModuleBody = 1 << 10,
+
+        /// <summary>
+        /// The current location is accessing properties or methods.
+        /// </summary>
+        MemberAccess = 1 << 11,
+        
+        /// <summary>
+        /// The current location needs target scope value.
+        /// </summary>
+        TargetScope = 1 << 12
     }
 }

@@ -7,7 +7,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class InstanceFunctionCallSyntax : SyntaxBase, ISymbolReference
+    public class InstanceFunctionCallSyntax : ExpressionSyntax, ISymbolReference
     {
         public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
         {

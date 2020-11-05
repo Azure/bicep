@@ -1,38 +1,21 @@
-param suffix string = '001'
-param owner string = 'alex'
-param costCenter string = '12345'
-param addressPrefix string = '10.0.0.0/15'
+targetScope = 'subscription'
 
-var vnetName = 'vnet-${suffix}'
-
-resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-  name: vnetName
-  location: resourceGroup().location
-  tags: {
-    Owner: owner
-    CostCenter: costCenter
-  }
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        addressPrefix
-      ]
-    }
-    enableVmProtection: false
-    enableDdosProtection: false
-    subnets: [
-      {
-        name: 'subnet001'
-        properties: {
-          addressPrefix: '10.0.0.0/24'
-        }
-      }
-      {
-        name: 'subnet002'
-        properties: {
-          addressPrefix: '10.0.1.0/24'
-        }
-      }
-    ]
+module stg './storage.bicep' = {
+  name: 'storageDeploy'
+  scope: resourceGroup('brittle-hollow') // this will target another resource group in the same subscription
+  params: {
+    namePrefix: 'contoso'
   }
 }
+
+var objectId = 'cf024e4c-f790-45eb-a992-5218c39bde1a' // change this AAD object ID. This is specific to the microsoft tenant
+var contributor = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: guid(subscription().id, objectId, contributor)
+  properties: {
+    roleDefinitionId: contributor
+    principalId: objectId
+  }
+}
+
+output storageName string = stg.outputs.computedStorageName

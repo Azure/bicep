@@ -5,6 +5,9 @@ bad
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 
+// missing identifier #completionTest(4) -> empty
+var 
+
 // incomplete keyword
 // #completionTest(0,1) -> declarations
 v
@@ -13,6 +16,9 @@ va
 
 // unassigned variable
 var foo
+
+// #completionTest(18,19) -> symbols
+var missingValue = 
 
 // malformed identifier
 var 2 
@@ -89,3 +95,33 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
+
+var objectLiteralType = {
+  first: true
+  second: false
+  third: 42
+  fourth: 'test'
+  fifth: [
+    {
+      one: true
+    }
+    {
+      one: false
+    }
+  ]
+  sixth: [
+    {
+      two: 44
+    }
+  ]
+}
+
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions = objectLiteralType.f
+
+// this does not produce any completions because mixed array items are of type "any"
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions = objectLiteralType.sixth[0].t

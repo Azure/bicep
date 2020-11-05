@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arm.Expression.Configuration;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Configuration;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -166,6 +168,24 @@ namespace Bicep.Core.Emit
                 {
                     EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
+            }
+        }
+
+        public void EmitModuleScopeProperty(TypeSymbol scopeType)
+        {
+            var scopeProperties = ScopeHelper.GetScopeProperties(this.converter, scopeType);
+            if (scopeProperties == null)
+            {
+                return;
+            }
+
+            foreach (var (property, expression) in scopeProperties)
+            {
+                EmitProperty(property, () => 
+                {
+                    var serialized = ExpressionSerializer.SerializeExpression(expression);
+                    writer.WriteValue(serialized);
+                });
             }
         }
 

@@ -3,12 +3,15 @@ The following is the active pseudo-grammar of the bicep language.
 ```
 program -> statement* EOF 
 statement -> 
+  targetScopeDecl | 
   parameterDecl | 
   variableDecl |
   resourceDecl |
   moduleDecl |
   outputDecl |
   NL
+
+targetScopeDecl -> "targetScope" "=" expression
 
 parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (parameterDefaultValue | object(modifier))? NL
 parameterDefaultValue -> "=" expression

@@ -102,7 +102,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                 // exclude declarations when calculating expected ranges
                 var expectedRanges = symbolToSyntaxLookup[symbol]
-                    .Where(node => !(node is IDeclarationSyntax))
+                    .Where(node => !(node is INamedDeclarationSyntax))
                     .Select(node => PositionHelper.GetNameRange(lineStarts, node));
 
                 // ranges should match what we got from our own symbol table
@@ -115,7 +115,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task FindReferencesOnNonSymbolsShouldProduceEmptyResult(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is IDeclarationSyntax) && !(node is Token);
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 

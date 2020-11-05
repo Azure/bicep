@@ -234,6 +234,19 @@
     }
   },
   {
+    "label": "dashesInPropertyNames",
+    "kind": "interface",
+    "detail": "dashesInPropertyNames",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dashesInPropertyNames",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "dashesInPropertyNames"
+    }
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "detail": "dataUri()",
@@ -312,6 +325,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwo",
     "kind": "interface",
     "detail": "discriminatorKeySetTwo",
@@ -325,6 +351,32 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissing",
     "kind": "interface",
     "detail": "discriminatorKeyValueMissing",
@@ -335,6 +387,19 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions"
     }
   },
   {
@@ -572,6 +637,19 @@
     }
   },
   {
+    "label": "letsAccessTheDashes",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -634,6 +712,97 @@
     "textEdit": {
       "range": {},
       "newText": "missingType"
+    }
+  },
+  {
+    "label": "mock",
+    "kind": "variable",
+    "detail": "mock",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mock",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mock"
+    }
+  },
+  {
+    "label": "nestedDiscriminator",
+    "kind": "interface",
+    "detail": "nestedDiscriminator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2"
     }
   },
   {
@@ -724,7 +893,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "resourceGroup()$0"
+      "newText": "resourceGroup($0)"
     }
   },
   {
@@ -854,7 +1023,7 @@
     "insertTextFormat": "snippet",
     "textEdit": {
       "range": {},
-      "newText": "subscription()$0"
+      "newText": "subscription($0)"
     }
   },
   {
@@ -907,6 +1076,19 @@
     "textEdit": {
       "range": {},
       "newText": "take($0)"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
     }
   },
   {

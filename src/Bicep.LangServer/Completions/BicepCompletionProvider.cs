@@ -12,7 +12,9 @@ using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
@@ -33,9 +35,12 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
+                .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
-                .Concat(GetResourceTypeCompletions(model, context));
+                .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetTargetScopeCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
@@ -94,13 +99,30 @@ namespace Bicep.LanguageServer.Completions
   name: $3
   $0
 }", context.ReplacementRange);
+
+                yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
             }
+        }
+
+        private IEnumerable<CompletionItem> GetTargetScopeCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is {} targetScope
+                ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange)
+                : Enumerable.Empty<CompletionItem>();
         }
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind != BicepCompletionContextKind.None)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression))
             {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            if (context.Property != null && model.GetDeclaredTypeAssignment(context.Property)?.Flags == DeclaredTypeFlags.Constant)
+            {
+                // the enclosing property's declared type is supposed to be a constant value
+                // the constant flag comes from TypeProperty constant flag, so nothing else can really alter it except for another property
+                // (in other words constant flag inherits down into the expression tree of the property value)
                 return Enumerable.Empty<CompletionItem>();
             }
 
@@ -130,7 +152,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetResourceTypeCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind != BicepCompletionContextKind.ResourceType)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceType))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -155,6 +177,14 @@ namespace Bicep.LanguageServer.Completions
 }", replacementRange);
         }
 
+        private IEnumerable<CompletionItem> GetResourceOrModuleBodyCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) || context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            {
+                yield return CreateObjectBodyCompletion(context.ReplacementRange);
+            }
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -169,10 +199,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var symbol in symbols)
                 {
-                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol))
+                    if (!result.ContainsKey(symbol.Name) && !ReferenceEquals(symbol, enclosingDeclarationSymbol) && !string.Equals(symbol.Name, enclosingDeclarationSymbol?.Name, LanguageConstants.IdentifierComparison))
                     {
-                        // we have not added a symbol with the same name (avoids duplicate completions)
-                        // and the symbol is different than the enclosing declaration (avoids suggesting cycles)
+                        // the symbol satisfies the following conditions:
+                        // - we have not added a symbol with the same name (avoids duplicate completions)
+                        // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
+                        // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
                         result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange));
                     }
                 }
@@ -186,7 +218,7 @@ namespace Bicep.LanguageServer.Completions
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces
             var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
-                .SelectMany(pair => pair.Value.Descendants.OfType<FunctionSymbol>())
+                .SelectMany(pair => pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
                 .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
                 .Where(tuple => tuple.count > 1)
                 .Select(tuple => tuple.name)
@@ -194,7 +226,7 @@ namespace Bicep.LanguageServer.Completions
 
             foreach (var @namespace in model.Root.ImportedNamespaces.Values)
             {
-                foreach (var function in @namespace.Descendants.OfType<FunctionSymbol>())
+                foreach (var function in @namespace.Type.MethodResolver.GetKnownFunctions().Values)
                 {
                     if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDeclarationSymbol is ParameterSymbol))
                     {
@@ -221,9 +253,25 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
+        private IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.PropertyAccess.BaseExpression);
+
+            return GetProperties(declaredType)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Concat(GetMethods(declaredType)
+                    .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
+        }
+
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyName) == false || context.Object == null)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyName) == false || context.Object == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -241,14 +289,20 @@ namespace Bicep.LanguageServer.Completions
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
             return GetProperties(declaredType)
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.ReadOnly) == false && specifiedPropertyNames.Contains(p.Name) == false)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && specifiedPropertyNames.Contains(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, context.ReplacementRange));
         }
 
-        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol type)
+        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
         {
             switch (type)
             {
+                case ResourceType resourceType:
+                    return GetProperties(resourceType.Body.Type);
+
+                case ModuleType moduleType:
+                    return GetProperties(moduleType.Body.Type);
+
                 case ObjectType objectType:
                     return objectType.Properties.Values;
 
@@ -259,6 +313,11 @@ namespace Bicep.LanguageServer.Completions
                     return Enumerable.Empty<TypeProperty>();
             }
         }
+
+        private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>
+            type is ObjectType objectType
+                ? objectType.MethodResolver.GetKnownFunctions().Values
+                : Enumerable.Empty<FunctionSymbol>();
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
             ? null
@@ -277,7 +336,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            return GetValueCompletions(model, context, declaredTypeAssignment.Reference.Type, declaredTypeAssignment.Flags);
+            return GetValueCompletionsForType(declaredTypeAssignment.Reference.Type, context.ReplacementRange);
         }
 
         private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)
@@ -293,19 +352,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            return GetValueCompletions(model, context, arrayType.Item.Type, declaredTypeAssignment.Flags);
-        }
-
-        private static IEnumerable<CompletionItem> GetValueCompletions(SemanticModel model, BicepCompletionContext context, TypeSymbol type, DeclaredTypeFlags flags)
-        {
-            var completions = GetValueCompletionsForType(type, context.ReplacementRange);
-
-            if (flags != DeclaredTypeFlags.Constant)
-            {
-                completions = completions.Concat(GetAccessibleSymbolCompletions(model, context));
-            }
-
-            return completions;
+            return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange);
         }
 
         private static IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? propertyType, Range replacementRange)
@@ -339,15 +386,9 @@ namespace Bicep.LanguageServer.Completions
                     
                     break;
 
+                case DiscriminatedObjectType _:
                 case ObjectType _:
-                    const string objectLabel = "{}";
-                    yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
-                        .WithLabel(objectLabel)
-                        .WithSnippetEdit(replacementRange, "{$0}")
-                        .WithDetail(objectLabel)
-                        .Preselect()
-                        .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
-
+                    yield return CreateObjectBodyCompletion(replacementRange);
                     break;
 
                 case UnionType union:
@@ -361,6 +402,17 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private static CompletionItem CreateObjectBodyCompletion(Range replacementRange)
+        {
+            const string objectLabel = "{}";
+            return CompletionItemBuilder.Create(CompletionItemKind.Value)
+                .WithLabel(objectLabel)
+                .WithSnippetEdit(replacementRange, "{$0}")
+                .WithDetail(objectLabel)
+                .Preselect()
+                .WithSortText(GetSortText(objectLabel, CompletionPriority.High));
+        }
+
         private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Property)
                 .WithLabel(property.Name)
@@ -370,6 +422,30 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
                 .WithSortText(GetSortText(property.Name, priority));
+
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var item = CreatePropertyNameCompletion(property, replacementRange);
+
+            if (IsPropertyNameEscapingRequired(property))
+            {
+                // the property requires escaping because it does not comply with bicep identifier rules
+                // in bicep those types of properties are accessed via array indexer using a string as an index
+                // if we update the main edit of the completion, vs code will not show such a completion at all
+                // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
+                item
+                    .WithPlainTextEdit(replacementRange, $"[{StringUtils.EscapeBicepString(property.Name)}]")
+                    .WithAdditionalEdits(new TextEditContainer(
+                        // remove the dot after the main text edit is applied
+                        new TextEdit
+                        {
+                            NewText = string.Empty,
+                            Range = propertyAccess.Dot.ToRange(tree.LineStarts)
+                        }));
+            }
+
+            return item;
+        }
 
         private static CompletionItem CreateKeywordCompletion(string keyword, string detail, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Keyword)

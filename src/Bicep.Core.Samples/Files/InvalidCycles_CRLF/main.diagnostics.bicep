@@ -40,3 +40,33 @@ var dd = {
   aa: aa
 //@[6:8) [BCP080 (Error)] The expression is involved in a cycle ("aa" -> "bb" -> "cc" -> "dd"). |aa|
 }
+
+// variable completion cycles
+var one = {
+  first: two
+//@[9:12) [BCP080 (Error)] The expression is involved in a cycle ("two" -> "one"). |two|
+}
+// #completionTest(15) -> empty
+var two = one.f
+//@[10:13) [BCP080 (Error)] The expression is involved in a cycle ("one" -> "two"). |one|
+
+// resource completion cycles
+resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  // #completionTest(14) -> empty
+  name: res2.n
+//@[8:12) [BCP080 (Error)] The expression is involved in a cycle ("res2" -> "res1"). |res2|
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}
+resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: res1.name
+//@[8:12) [BCP080 (Error)] The expression is involved in a cycle ("res1" -> "res2"). |res1|
+  location: 'l'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  kind: 'StorageV2'
+}

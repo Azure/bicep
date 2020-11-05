@@ -4,7 +4,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParenthesizedExpressionSyntax : SyntaxBase
+    public class ParenthesizedExpressionSyntax : ExpressionSyntax
     {
         public ParenthesizedExpressionSyntax(Token openParen, SyntaxBase expression, Token closeParen)
         {

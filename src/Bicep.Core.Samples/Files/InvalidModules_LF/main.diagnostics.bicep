@@ -1,17 +1,17 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[26:47) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[26:47) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefDuplicate './nonExistent.bicep' = {
-//@[35:56) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[35:56) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
-//@[40:73) [BCP091 (Error)] An error occurred loading the module. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
+//@[40:73) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
 
 }
 
@@ -22,6 +22,16 @@ module moduleWithoutPath = {
 
 }
 //@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|
+
+// missing identifier #completionTest(7) -> empty
+module 
+//@[7:7) [BCP096 (Error)] Expected a module identifier at this location. ||
+//@[7:7) [BCP090 (Error)] This module declaration is missing a file path reference. ||
+
+// #completionTest(24,25) -> object
+module missingValue '' = 
+//@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
+//@[25:25) [BCP018 (Error)] Expected the "{" character at this location. ||
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
@@ -36,7 +46,6 @@ module moduleWithSelfCycle './main.bicep' = {
 
 module './main.bicep' = {
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
-//@[7:21) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
 
 }
 
@@ -48,6 +57,8 @@ module modANoName './modulea.bicep' = {
 module modANoInputs './modulea.bicep' = {
 //@[0:6) [BCP035 (Error)] The specified object is missing the following required properties: "params". |module|
   name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
 }
 
 module modAEmptyInputs './modulea.bicep' = {
@@ -57,6 +68,14 @@ module modAEmptyInputs './modulea.bicep' = {
 
   }
 }
+
+// #completionTest(55) -> moduleATopLevelPropertyAccess
+var modulePropertyAccessCompletions = modAEmptyInputs.o
+//@[54:55) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
+
+// #completionTest(56) -> moduleAOutputs
+var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+//@[55:56) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
@@ -74,12 +93,48 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
-module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP098 (Error)] File paths must use forward slash ("/") characters instead of back slash ("\") characters for directory separators. |'child\\file.bicep'|
-  
-}
-
 module modCycle './cycle.bicep' = {
 //@[16:31) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}cycle.bicep" -> "${TEST_OUTPUT_DIR}main.bicep"). |'./cycle.bicep'|
   
+}
+
+module moduleWithEmptyPath '' = {
+//@[27:29) [BCP050 (Error)] The specified module path is empty. |''|
+}
+
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+//@[30:46) [BCP051 (Error)] The specified module path begins with "/". Module files must be referenced using relative paths. |'/abc/def.bicep'|
+}
+
+module moduleWithBackslash 'child\\file.bicep' = {
+//@[27:46) [BCP098 (Error)] The specified module path contains a "\" character. Use "/" instead as the directory separator character. |'child\\file.bicep'|
+}
+
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+//@[29:48) [BCP085 (Error)] The specified module path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". |'child/fi|le.bicep'|
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+//@[39:52) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'child/test.'|
+}
+
+module moduleWithValidScope './empty.bicep' = {
+  name: 'moduleWithValidScope'
+}
+
+module moduleWithInvalidScope './empty.bicep' = {
+  name: 'moduleWithInvalidScope'
+  scope: moduleWithValidScope
+//@[9:29) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "module". |moduleWithValidScope|
+}
+
+module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
+//@[69:113) [BCP035 (Error)] The specified object is missing the following required properties: "scope". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
+  name: 'moduleWithMissingRequiredScope'
+}
+
+module moduleWithInvalidScope2 './empty.bicep' = {
+  name: 'moduleWithInvalidScope2'
+  scope: managementGroup()
+//@[9:24) [BCP057 (Error)] The name "managementGroup" does not exist in the current context. |managementGroup|
 }

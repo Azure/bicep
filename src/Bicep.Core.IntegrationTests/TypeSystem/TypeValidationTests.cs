@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
             var registeredTypes = definedTypes.ToDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
             typeRegistrarMock
                 .Setup(x => x.GetType(It.IsAny<ResourceTypeReference>()))
-                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object, TypeSymbolValidationFlags.Default));
+                .Returns<ResourceTypeReference>(x => registeredTypes.TryGetValue(x, out var resourceType) ? resourceType : new ResourceType(x, LanguageConstants.Object));
             typeRegistrarMock
                 .Setup(x => x.HasType(It.IsAny<ResourceTypeReference>()))
                 .Returns<ResourceTypeReference>(x => registeredTypes.ContainsKey(x));
@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var resourceProperties = LanguageConstants.GetCommonResourceProperties(reference)
                 .Concat(new TypeProperty("properties", new NamedObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
-            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null), validationFlags);
+            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null));
         }
 
         [DataTestMethod]
@@ -122,13 +122,11 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified object is missing the following required properties: \"requiredProp\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyProp\" is read-only. Expressions cannot be assigned to read-only properties."),
-                x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyProp\" expected a value of type \"string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyProp\" expected a value of type \"string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified object is missing the following required properties: \"propA\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"propB\" expected a value of type \"string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified object is missing the following required properties: \"requiredNestedProp\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyNestedProp\" is read-only. Expressions cannot be assigned to read-only properties."),
-                x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyNestedProp\" expected a value of type \"string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyNestedProp\" expected a value of type \"string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP077", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyProp\" on type \"properties\" is write-only. Write-only properties cannot be accessed."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"writeOnlyProp\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\"."),

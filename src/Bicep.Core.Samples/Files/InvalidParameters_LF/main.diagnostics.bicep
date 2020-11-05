@@ -214,17 +214,24 @@ param wrongMetadataSchema string {
 param expressionInModifier string {
   // #completionTest(10,11) -> symbolsPlusParamDefaultFunctions
   default: 2 + 3
-//@[11:16) [BCP036 (Error)] The property "default" expected a value of type "string" but the provided value is of type "int". |2 + 3|
   maxLength: a + 2
 //@[13:14) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
-//@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |a + 2|
   minLength: foo()
 //@[13:16) [BCP057 (Error)] The name "foo" does not exist in the current context. |foo|
-//@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |foo()|
   allowed: [
     i
 //@[4:5) [BCP057 (Error)] The name "i" does not exist in the current context. |i|
-//@[4:5) [BCP032 (Error)] The value must be a compile-time constant. |i|
+  ]
+}
+
+param nonCompileTimeConstant string {
+  maxLength: 2 + 3
+//@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
+  minLength: length([])
+//@[13:23) [BCP032 (Error)] The value must be a compile-time constant. |length([])|
+  allowed: [
+    resourceGroup().id
+//@[4:22) [BCP032 (Error)] The value must be a compile-time constant. |resourceGroup().id|
   ]
 }
 
@@ -259,7 +266,6 @@ param paramModifierSelfCycle string {
   allowed: [
     paramModifierSelfCycle
 //@[4:26) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
-//@[4:26) [BCP032 (Error)] The value must be a compile-time constant. |paramModifierSelfCycle|
   ]
 }
 
@@ -332,6 +338,10 @@ param stringLiteral3 string {
 //@[11:25) [BCP036 (Error)] The property "default" expected a value of type "'abc'" but the provided value is of type "'abc' | 'def'". |stringLiteral2|
 }
 
+// #completionTest(6) -> empty
+param 
+//@[6:6) [BCP013 (Error)] Expected a parameter identifier at this location. ||
+
 param stringModifierCompletions string {
   // #completionTest(0,1,2) -> stringModifierProperties
   
@@ -341,6 +351,10 @@ param intModifierCompletions int {
   // #completionTest(0,1,2) -> intModifierProperties
   
 }
+
+// #completionTest(46,47) -> justSymbols
+param defaultValueOneLinerCompletions string = 
+//@[47:47) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 param defaultValueCompletions string {
   allowed: [

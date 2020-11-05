@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Arm.Expression.Configuration;
-using Arm.Expression.Expressions;
+using System.Linq;
+using Azure.Deployments.Expression.Configuration;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -54,12 +56,14 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("'foo'[x()]","[string('foo')[x()]]")]
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
-            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(string.Empty));
+            var programText = $"var test = {text}";
+            var compilation = new Compilation(TestResourceTypeProvider.Create(), SyntaxFactory.CreateFromText(programText));
 
-            var parsed = ParserHelper.ParseExpression(text);
+            var programSyntax = compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax;
+            var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();
 
             var converter = new ExpressionConverter(new EmitterContext(compilation.GetEntrypointSemanticModel()));
-            var converted = converter.ConvertExpression(parsed);
+            var converted = converter.ConvertExpression(variableDeclarationSyntax.Value);
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {

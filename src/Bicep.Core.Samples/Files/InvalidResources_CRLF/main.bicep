@@ -2,12 +2,14 @@
 // wrong declaration
 bad
 
-// incomplete
+// incomplete #completionTest(9) -> empty
 resource 
 resource foo
 resource fo/o
 resource foo 'ddd'
-resource foo 'ddd'=
+
+// #completionTest(19,20) -> object
+resource foo 'ddd'= 
 
 // wrong resource type
 resource foo 'ddd'={
@@ -168,6 +170,8 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
   kind:   
 }
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -178,6 +182,8 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
@@ -188,6 +194,11 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
     
   }
 }
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -195,6 +206,8 @@ resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-0
   propertes: {
   }
 }
+
+var mock = incorrectPropertiesKey.p
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -234,3 +247,34 @@ resource startedTypingTypeWithQuotes 'virma'
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
+
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+}
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+// #completionTest(94) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a

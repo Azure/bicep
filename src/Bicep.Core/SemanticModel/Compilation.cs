@@ -34,10 +34,30 @@ namespace Bicep.Core.SemanticModel
         public SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
             => this.lazySemanticModelLookup[syntaxTree].Value;
 
+        private static ResourceScopeType GetTargetScope(SyntaxTree syntaxTree)
+        {
+            var defaultTargetScope = ResourceScopeType.ResourceGroupScope;
+            var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
+            if (targetSyntax == null)
+            {
+                return defaultTargetScope;
+            }
+
+            var targetScope = SyntaxHelper.GetTargetScope(targetSyntax);
+            if (targetScope == ResourceScopeType.None)
+            {
+                return defaultTargetScope;
+            }
+
+            return targetScope;
+        }
+
         private SemanticModel GetSemanticModelInternal(SyntaxTree syntaxTree)
         {
+            var targetScope = GetTargetScope(syntaxTree);
+
             var builtinNamespaces = 
-                new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol() }
+                new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) }
                 .ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
 
             var bindings = new Dictionary<SyntaxBase, Symbol>();
@@ -49,7 +69,7 @@ namespace Bicep.Core.SemanticModel
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySymbol, hierarchy), bindings, this);
+            var symbolContext = new SymbolContext(new TypeManager(resourceTypeProvider, bindings, cyclesBySymbol, hierarchy, targetScope), bindings, this);
 
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
@@ -88,7 +108,13 @@ namespace Bicep.Core.SemanticModel
             // allow type queries now
             symbolContext.Unlock();
 
-            return new SemanticModel(file, symbolContext.TypeManager, bindings);
+            foreach (var targetScopeSyntax in syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>())
+            {
+                // force a type check to get diagnostics for the target scope
+                symbolContext.TypeManager.GetTypeInfo(targetScopeSyntax);
+            }
+
+            return new SemanticModel(file, symbolContext.TypeManager, bindings, targetScope);
         }
 
         public IReadOnlyDictionary<SyntaxTree, IEnumerable<Diagnostic>> GetAllDiagnosticsBySyntaxTree()
