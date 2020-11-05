@@ -281,12 +281,8 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
-            var scopeProperty = moduleBody.Properties.FirstOrDefault(x => x.TryGetKeyText() == LanguageConstants.ModuleScopePropertyName);
-            if (scopeProperty != null)
-            {
-                var scopeType = context.SemanticModel.GetTypeInfo(scopeProperty);
-                this.emitter.EmitModuleScopeProperty(scopeType);
-            }
+            var scopeData = context.ScopeDataLookup[moduleSymbol];
+            ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);
 
             writer.WritePropertyName("properties");
             {
@@ -338,7 +334,7 @@ namespace Bicep.Core.Emit
                         emitter.EmitResourceIdReference(resourceDependency.DeclaringResource, typeReference);
                         break;
                     case ModuleSymbol moduleDependency:
-                        emitter.EmitModuleResourceIdExpression(moduleDependency.DeclaringModule);
+                        emitter.EmitModuleResourceIdExpression(moduleDependency);
                         break;
                     default:
                         throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");

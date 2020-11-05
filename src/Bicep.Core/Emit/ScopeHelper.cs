@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Extensions;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 
@@ -11,74 +13,221 @@ namespace Bicep.Core.Emit
 {
     public static class ScopeHelper
     {
-        private static LanguageExpression GetManagementGroupScopeExpression(LanguageExpression managementGroupName)
-            => new FunctionExpression(
-                "format",
-                new LanguageExpression[] { 
-                    new JTokenExpression("Microsoft.Management/managementGroups/{0}"),
-                    managementGroupName,
-                },
-                Array.Empty<LanguageExpression>());
-
-        private static IReadOnlyDictionary<string, LanguageExpression> ToPropertyDictionary(LanguageExpression? scope = null, LanguageExpression? subscriptionId = null, LanguageExpression? resourceGroup = null)
+        public class ScopeData
         {
-            var output = new Dictionary<string, LanguageExpression>();
-            if (scope != null)
-            {
-                output["scope"] = scope;
-            }
-            if (subscriptionId != null)
-            {
-                output["subscriptionId"] = subscriptionId;
-            }
-            if (resourceGroup != null)
-            {
-                output["resourceGroup"] = resourceGroup;
-            }
+            public ResourceScopeType RequestedScope { get; set; }
 
-            return output;
+            public SyntaxBase? ManagementGroupNameProperty { get; set; }
+
+            public SyntaxBase? SubscriptionIdProperty { get; set; }
+
+            public SyntaxBase? ResourceGroupProperty { get; set; }
         }
 
-        public static IReadOnlyDictionary<string, LanguageExpression>? GetScopeProperties(ExpressionConverter expressionConverter, TypeSymbol scopeType)
-            => scopeType switch {
-                TenantScopeType tenantScopeType => ScopeHelper.GetTenantScopeProperties(tenantScopeType),
-                ManagementGroupScopeType managementGroupScopeType => ScopeHelper.GetManagementGroupScopeProperties(expressionConverter, managementGroupScopeType),
-                SubscriptionScopeType subscriptionScopeType => ScopeHelper.GetSubscriptionScopeProperties(expressionConverter, subscriptionScopeType),
-                ResourceGroupScopeType resourceGroupScopeType => ScopeHelper.GetResourceGroupScopeProperties(expressionConverter, resourceGroupScopeType),
-                _ => null,
-            };
+        public static ScopeData GetScopeData(ResourceScopeType currentScope, TypeSymbol scopeType)
+        {
+            switch (currentScope)
+            {
+                case ResourceScopeType.TenantScope:
+                    switch (scopeType)
+                    {
+                        case TenantScopeType tenantScopeType:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.TenantScope };
+                        case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ManagementGroupScope,
+                                ManagementGroupNameProperty = managementGroupScopeType.Arguments[0].Expression };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.SubscriptionScope, 
+                                SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
+                    }
+                    break;
+                case ResourceScopeType.ManagementGroupScope:
+                    switch (scopeType)
+                    {
+                        case TenantScopeType tenantScopeType:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.TenantScope };
+                        case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 0:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ManagementGroupScope };
+                        case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ManagementGroupScope, 
+                                ManagementGroupNameProperty = managementGroupScopeType.Arguments[0].Expression };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.SubscriptionScope, 
+                                SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
+                    }
+                    break;
+                case ResourceScopeType.SubscriptionScope:
+                    switch (scopeType)
+                    {
+                        case TenantScopeType tenantScopeType:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.TenantScope };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 0:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.SubscriptionScope };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ResourceGroupScope, 
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[0].Expression };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
+                            return new ScopeData {
+                                RequestedScope = ResourceScopeType.ResourceGroupScope,
+                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
+                    }
+                    break;
+                case ResourceScopeType.ResourceGroupScope:
+                    switch (scopeType)
+                    {
+                        case TenantScopeType tenantScopeType:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.TenantScope };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 0:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ResourceGroupScope };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.ResourceGroupScope,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[0].Expression };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
+                            return new ScopeData {
+                                RequestedScope = ResourceScopeType.ResourceGroupScope,
+                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
+                    }
+                    break;
+            }
 
-        private static IReadOnlyDictionary<string, LanguageExpression>? GetTenantScopeProperties(TenantScopeType scopeType)
-            => scopeType.Arguments.Length switch {
-                0 => ToPropertyDictionary(),
-                _ => null,
-            };
+            throw new NotImplementedException($"Cannot generate scope for scope {currentScope}, type {scopeType}");
+        }
 
-        private static IReadOnlyDictionary<string, LanguageExpression>? GetManagementGroupScopeProperties(ExpressionConverter expressionConverter, ManagementGroupScopeType scopeType)
-            => scopeType.Arguments.Length switch {
-                0 => ToPropertyDictionary(),
-                1 => ToPropertyDictionary(
-                    scope: GetManagementGroupScopeExpression(expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression))),
-                _ => null,
-            };
+        public static LanguageExpression FormatCrossScopeResourceId(ExpressionConverter expressionConverter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        {
+            var arguments = new List<LanguageExpression>();
 
-        private static IReadOnlyDictionary<string, LanguageExpression>? GetSubscriptionScopeProperties(ExpressionConverter expressionConverter, SubscriptionScopeType scopeType)
-            => scopeType.Arguments.Length switch {
-                0 => ToPropertyDictionary(),
-                1 => ToPropertyDictionary(
-                    subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)),
-                _ => null,
-            };
+            switch (scopeData.RequestedScope)
+            {
+                case ResourceScopeType.TenantScope:
+                    arguments.Add(new JTokenExpression(fullyQualifiedType));
+                    arguments.AddRange(nameSegments);
 
-        private static IReadOnlyDictionary<string, LanguageExpression>? GetResourceGroupScopeProperties(ExpressionConverter expressionConverter, ResourceGroupScopeType scopeType)
-            => scopeType.Arguments.Length switch {
-                0 => ToPropertyDictionary(),
-                1 => ToPropertyDictionary(
-                    resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression)),
-                2 => ToPropertyDictionary(
-                    subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression),
-                    resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[1].Expression)),
-                _ => null,
-            };
+                    return new FunctionExpression("tenantResourceId", arguments.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.SubscriptionScope:
+                    if (scopeData.SubscriptionIdProperty != null)
+                    {
+                        arguments.Add(expressionConverter.ConvertExpression(scopeData.SubscriptionIdProperty));
+                    }
+                    arguments.Add(new JTokenExpression(fullyQualifiedType));
+                    arguments.AddRange(nameSegments);
+
+                    return new FunctionExpression("subscriptionResourceId", arguments.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.ResourceGroupScope:
+                    // We avoid using the 'resourceId' function at all here, because its behavior differs depending on the scope that it is called FROM.
+                    LanguageExpression scope;
+                    if (scopeData.SubscriptionIdProperty == null)
+                    {
+                        if (scopeData.ResourceGroupProperty == null)
+                        {
+                            scope = new FunctionExpression("resourceGroup", new LanguageExpression[0], new LanguageExpression[] { new JTokenExpression("id") });
+                        }
+                        else
+                        {
+                            var subscriptionId = new FunctionExpression("subscription", new LanguageExpression[0], new LanguageExpression[] { new JTokenExpression("subscriptionId") });
+                            var resourceGroup = expressionConverter.ConvertExpression(scopeData.ResourceGroupProperty);
+                            scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
+                        }
+                    }
+                    else
+                    {
+                        if (scopeData.ResourceGroupProperty == null)
+                        {
+                            throw new NotImplementedException($"Cannot format resourceId with non-null subscription and null resourceGroup");
+                        }
+
+                        var subscriptionId = expressionConverter.ConvertExpression(scopeData.SubscriptionIdProperty);
+                        var resourceGroup = expressionConverter.ConvertExpression(scopeData.ResourceGroupProperty);
+                        scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
+                    }
+
+                    // We've got to DIY it, unfortunately. The resourceId() function behaves differently when used at different scopes, so is unsuitable here.
+                    return ExpressionConverter.GenerateScopedResourceId(scope, fullyQualifiedType, nameSegments);
+                case ResourceScopeType.ManagementGroupScope:
+                    if (scopeData.ManagementGroupNameProperty != null)
+                    {
+                        var managementGroupName = expressionConverter.ConvertExpression(scopeData.ManagementGroupNameProperty);
+                        var managementGroupScope = ExpressionConverter.GetManagementGroupScopeExpression(managementGroupName);
+
+                        return ExpressionConverter.GenerateScopedResourceId(managementGroupScope, fullyQualifiedType, nameSegments);
+                    }
+
+                    // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
+                    // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
+                    // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
+                    return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
+                default:
+                    throw new NotImplementedException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
+            }
+        }
+
+        public static LanguageExpression FormatLocallyScopedResourceId(SemanticModel.SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        {
+            var initialArgs = new JTokenExpression(fullyQualifiedType).AsEnumerable();
+            switch (semanticModel.TargetScope)
+            {
+                case ResourceScopeType.TenantScope:
+                    var tenantArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("tenantResourceId", tenantArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.SubscriptionScope:
+                    var subscriptionArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("subscriptionResourceId", subscriptionArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.ResourceGroupScope:
+                    var resourceGroupArgs = initialArgs.Concat(nameSegments);
+                    return new FunctionExpression("resourceId", resourceGroupArgs.ToArray(), new LanguageExpression[0]);
+                case ResourceScopeType.ManagementGroupScope:
+                    // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
+                    // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
+                    // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
+                    return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
+                default:
+                    // this should have already been caught during compilation
+                    throw new InvalidOperationException($"Invalid target scope {semanticModel.TargetScope} for module");
+            }
+        }
+
+        public static void EmitModuleScopeProperties(ScopeData scopeData, ExpressionEmitter expressionEmitter)
+        {
+            switch (scopeData.RequestedScope)
+            {
+                case ResourceScopeType.TenantScope:
+                    expressionEmitter.EmitProperty("scope", new JTokenExpression("/"));
+                    return;
+                case ResourceScopeType.ManagementGroupScope:
+                    if (scopeData.ManagementGroupNameProperty != null)
+                    {
+                        expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitManagementGroupScope(scopeData.ManagementGroupNameProperty));
+                    }
+                    return;
+                case ResourceScopeType.SubscriptionScope:
+                case ResourceScopeType.ResourceGroupScope:
+                    if (scopeData.SubscriptionIdProperty != null)
+                    {
+                        expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
+                    }
+                    if (scopeData.ResourceGroupProperty != null)
+                    {
+                        expressionEmitter.EmitProperty("resourceGroup", scopeData.ResourceGroupProperty);
+                    }
+                    return;
+                default:
+                    throw new NotImplementedException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
+            }
+        }
     }
 }

@@ -155,8 +155,8 @@ output vnetstate string = vnet.properties.provisioningState
             var jsonOutput = AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
 
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-            jsonOutput.Should().Contain("[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
-            jsonOutput.Should().Contain("[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
+            jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
+            jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
         }
     }
 }

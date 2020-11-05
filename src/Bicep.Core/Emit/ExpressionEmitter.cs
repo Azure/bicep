@@ -93,16 +93,25 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
         {
-            var resourceIdExpression = converter.GetResourceIdExpression(resourceSyntax, typeReference);
+            var resourceIdExpression = converter.GetLocallyScopedResourceIdExpression(resourceSyntax, typeReference);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
         }
 
-        public void EmitModuleResourceIdExpression(ModuleDeclarationSyntax moduleDeclarationSyntax)
+        public void EmitModuleResourceIdExpression(ModuleSymbol moduleSymbol)
         {
-            var resourceIdExpression = converter.GetModuleResourceIdExpression(context.SemanticModel, moduleDeclarationSyntax);
+            var resourceIdExpression = converter.GetModuleResourceIdExpression(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
+
+            writer.WriteValue(serialized);
+        }
+
+        public void EmitManagementGroupScope(SyntaxBase managementGroupNameProperty)
+        {
+            var managementGroupName = converter.ConvertExpression(managementGroupNameProperty);
+            var managementGroupScope = ExpressionConverter.GetManagementGroupScopeExpression(managementGroupName);
+            var serialized = ExpressionSerializer.SerializeExpression(managementGroupScope);
 
             writer.WriteValue(serialized);
         }
@@ -171,23 +180,12 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitModuleScopeProperty(TypeSymbol scopeType)
-        {
-            var scopeProperties = ScopeHelper.GetScopeProperties(this.converter, scopeType);
-            if (scopeProperties == null)
+        public void EmitProperty(string name, LanguageExpression expressionValue)
+            => EmitPropertyInternal(new JTokenExpression(name), () =>
             {
-                return;
-            }
-
-            foreach (var (property, expression) in scopeProperties)
-            {
-                EmitProperty(property, () => 
-                {
-                    var serialized = ExpressionSerializer.SerializeExpression(expression);
-                    writer.WriteValue(serialized);
-                });
-            }
-        }
+                var propertyValue = ExpressionSerializer.SerializeExpression(expressionValue);
+                writer.WriteValue(propertyValue);
+            });
 
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
