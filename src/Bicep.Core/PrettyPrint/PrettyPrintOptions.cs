@@ -10,7 +10,7 @@ namespace Bicep.Core.PrettyPrint
     {
         private const int MinIndentSize = 1;
 
-        private const int MaxIndentSize = 8;
+        private const int MaxIndentSize = 1000;
 
         public PrettyPrintOptions(
             NewlineOption newlineOption,

@@ -14,9 +14,6 @@ namespace Bicep.Core.PrettyPrint
 {
     public static class PrettyPrinter
     {
-        private static readonly IReadOnlyDictionary<int, string> IndentsBySize = Enumerable.Range(1, 8)
-            .ToDictionary(size => size, size => new string(' ', size));
-
         public static string? PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options)
         {
             if (programSyntax.GetParseDiagnostics().Count > 0)
@@ -24,9 +21,9 @@ namespace Bicep.Core.PrettyPrint
                 return null;
             }
 
-            Debug.Assert(options.IndentSize >= 1 && options.IndentSize <= 8);
+            Debug.Assert(options.IndentSize >= 1 && options.IndentSize <= 1000);
 
-            string indent = options.IndentKindOption == IndentKindOption.Space ?  IndentsBySize[options.IndentSize] : "\t";
+            string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
             string newline = options.NewlineOption switch
             {
                 NewlineOption.LF => "\n",
