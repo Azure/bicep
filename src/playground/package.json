@@ -17,7 +17,7 @@
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
     "copy-webpack-plugin": "^6.3.0",
-    "css-loader": "^5.0.0",
+    "css-loader": "^5.0.1",
     "file-loader": "^6.2.0",
     "gulp": "^4.0.2",
     "html-webpack-plugin": "^4.5.0",
