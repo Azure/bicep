@@ -53,12 +53,7 @@ namespace Bicep.Core.Samples
                 .Select(property => property.GetValue(null))
                 .Cast<DataSet>();
 
-        public static IEnumerable<DataSet> DataSetsWithNoDiagnostics =>
-            typeof(DataSets)
-                .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)
-                .Where(property => property.PropertyType == typeof(DataSet) && !property.Name.StartsWith("Invalid", StringComparison.Ordinal))
-                .Select(property => property.GetValue(null))
-                .Cast<DataSet>();
+        public static IEnumerable<DataSet> DataSetsWithNoDiagnostics => AllDataSets.Where(dataSet => dataSet.IsValid);
 
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");
 
