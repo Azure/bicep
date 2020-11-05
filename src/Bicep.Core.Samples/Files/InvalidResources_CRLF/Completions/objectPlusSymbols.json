@@ -728,6 +728,84 @@
     }
   },
   {
+    "label": "nestedDiscriminator",
+    "kind": "interface",
+    "detail": "nestedDiscriminator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",

@@ -1,0 +1,22 @@
+[
+  {
+    "label": "createMode",
+    "kind": "property",
+    "detail": "createMode (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Default' | 'Restore'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_createMode",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "createMode"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

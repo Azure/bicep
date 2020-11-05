@@ -326,3 +326,32 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+// #completionTest(94) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+//@[48:77) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminatorMissingKey|
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
+
