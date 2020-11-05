@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Parser
 {
     public static class StringUtils
     {
+        public static Regex NewLineRegex { get; } = new Regex("(\r\n|\r|\n)");
+
         public static string EscapeBicepString(string value)
         {
             var buffer = new StringBuilder(value.Length + 2);
@@ -42,5 +45,7 @@ namespace Bicep.Core.Parser
 
             return buffer.ToString();
         }
+
+        public static bool HasAtLeastTwoNewlines(string value) => NewLineRegex.Matches(value).Count >= 2;
     }
 }
