@@ -336,6 +336,8 @@ namespace Bicep.Core.TypeSystem
                         // the declared property is read-only
                         // value cannot be assigned to a read-only property
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(declaredPropertySyntax.Key).CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                        narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
+                        continue;
                     }
 
                     TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) =>

@@ -296,3 +296,36 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 //@[4:23) Variable letsAccessTheDashes. Type: any. Declaration start char: 0, length: 78
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[9:38) Resource nestedDiscriminatorMissingKey. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 190
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+//@[4:44) Variable nestedDiscriminatorMissingKeyCompletions. Type: any. Declaration start char: 0, length: 90
+// #completionTest(94) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+//@[4:45) Variable nestedDiscriminatorMissingKeyCompletions2. Type: error. Declaration start char: 0, length: 94
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[9:28) Resource nestedDiscriminator. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 178
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+//@[4:34) Variable nestedDiscriminatorCompletions. Type: any. Declaration start char: 0, length: 69
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[4:35) Variable nestedDiscriminatorCompletions2. Type: error. Declaration start char: 0, length: 73
+

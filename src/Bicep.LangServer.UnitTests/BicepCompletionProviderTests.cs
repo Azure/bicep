@@ -146,6 +146,15 @@ namespace Bicep.LangServer.UnitTests
                 },
                 c =>
                 {
+                    c.Label.Should().Be("targetScope");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Target Scope keyword");
+                    c.TextEdit!.NewText.Should().Be("targetScope");
+                },
+                c =>
+                {
                     c.Label.Should().Be("var");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);

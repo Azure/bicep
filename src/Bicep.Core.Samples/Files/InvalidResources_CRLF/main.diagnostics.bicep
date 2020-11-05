@@ -131,13 +131,10 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   id: 2
 //@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. |id|
-//@[6:7) [BCP036 (Error)] The property "id" expected a value of type "string" but the provided value is of type "int". |2|
   type: 'hello'
 //@[2:6) [BCP073 (Error)] The property "type" is read-only. Expressions cannot be assigned to read-only properties. |type|
-//@[8:15) [BCP036 (Error)] The property "type" expected a value of type "'Microsoft.Foo/foos'" but the provided value is of type "'hello'". |'hello'|
   apiVersion: true
 //@[2:12) [BCP073 (Error)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
-//@[14:18) [BCP036 (Error)] The property "apiVersion" expected a value of type "'2020-02-02-alpha'" but the provided value is of type "bool". |true|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -329,3 +326,32 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+// #completionTest(94) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+//@[48:77) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminatorMissingKey|
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
+

@@ -68,8 +68,13 @@ namespace Bicep.LanguageServer.Completions
         ModuleBody = 1 << 10,
 
         /// <summary>
-        /// The current location is accessing property names.
+        /// The current location is accessing properties or methods.
         /// </summary>
-        PropertyAccess = 1 << 11
+        MemberAccess = 1 << 11,
+        
+        /// <summary>
+        /// The current location needs target scope value.
+        /// </summary>
+        TargetScope = 1 << 12
     }
 }

@@ -32,7 +32,8 @@ namespace Bicep.LanguageServer.Completions
             ObjectSyntax? @object,
             ObjectPropertySyntax? property,
             ArraySyntax? array,
-            PropertyAccessSyntax? propertyAccess)
+            PropertyAccessSyntax? propertyAccess,
+            TargetScopeSyntax? targetScope)
         {
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
@@ -41,6 +42,7 @@ namespace Bicep.LanguageServer.Completions
             this.Property = property;
             this.Array = array;
             this.PropertyAccess = propertyAccess;
+            this.TargetScope = targetScope;
         }
 
         public BicepCompletionContextKind Kind { get; }
@@ -54,6 +56,8 @@ namespace Bicep.LanguageServer.Completions
         public ArraySyntax? Array { get; }
 
         public PropertyAccessSyntax? PropertyAccess { get; }
+
+        public TargetScopeSyntax? TargetScope { get; }
 
         public Range ReplacementRange { get; }
 
@@ -72,16 +76,18 @@ namespace Bicep.LanguageServer.Completions
             var propertyInfo = FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
             var propertyAccessInfo = FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
+            var targetScopeInfo = FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
 
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
-                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.PropertyAccess) |
+                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.MemberAccess) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
                        ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
-                       ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
+                       ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
+                       ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope);
 
             if (kind == BicepCompletionContextKind.None)
             {
@@ -93,7 +99,7 @@ namespace Bicep.LanguageServer.Completions
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
-            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node);
+            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, targetScopeInfo.node);
         }
 
         /// <summary>
@@ -193,6 +199,14 @@ namespace Bicep.LanguageServer.Completions
 
             return BicepCompletionContextKind.None;
         }
+
+        private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
+            SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
+                !targetScope.Assignment.Span.ContainsInclusive(offset) &&
+                targetScope.Value is SkippedTriviaSyntax && offset == targetScope.Value.Span.Position) ||
+            SyntaxMatcher.IsTailMatch<TargetScopeSyntax, Token>(matchingNodes, (targetScope, token) =>
+                token.Type == TokenType.Assignment &&
+                ReferenceEquals(targetScope.Assignment, token));
 
         private static bool IsDeclarationStartContext(List<SyntaxBase> matchingNodes, int offset)
         {

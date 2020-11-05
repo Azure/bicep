@@ -71,16 +71,21 @@ namespace Bicep.Core.TypeSystem
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
+                case TargetScopeSyntax targetScopeSyntax:
+                    return new DeclaredTypeAssignment(targetScopeSyntax.GetDeclaredType(), targetScopeSyntax, DeclaredTypeFlags.Constant);
+
                 case PropertyAccessSyntax propertyAccess:
                     return GetPropertyAccessType(propertyAccess);
 
                 case ArrayAccessSyntax arrayAccess:
                     return GetArrayAccessType(arrayAccess);
 
-                case VariableDeclarationSyntax _:
+                case VariableDeclarationSyntax variable:
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), variable);
+
                 case FunctionCallSyntax _:
                 case InstanceFunctionCallSyntax _:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax));
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
 
                 case ArraySyntax array:
                     return GetArrayType(array);
@@ -98,23 +103,23 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType());
+        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(), syntax);
 
-        private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(this.resourceTypeProvider));
+        private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax) => new DeclaredTypeAssignment(syntax.GetDeclaredType(this.resourceTypeProvider), syntax);
 
         private DeclaredTypeAssignment GetModuleType(ModuleDeclarationSyntax syntax)
         {
             if (!(bindings.TryGetValue(syntax, out var symbol) && symbol is ModuleSymbol moduleSymbol))
             {
-                return new DeclaredTypeAssignment(ErrorType.Empty());
+                return new DeclaredTypeAssignment(ErrorType.Empty(), syntax);
             }
 
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
             {
-                return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic));
+                return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic), syntax);
             }
 
-            return new DeclaredTypeAssignment(syntax.GetDeclaredType(targetScope, moduleSemanticModel));
+            return new DeclaredTypeAssignment(syntax.GetDeclaredType(targetScope, moduleSemanticModel), syntax);
         }
 
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
@@ -144,7 +149,7 @@ namespace Bicep.Core.TypeSystem
 
                 case NamespaceSymbol namespaceSymbol:
                     // the syntax node is referencing a namespace - use its type
-                    return new DeclaredTypeAssignment(namespaceSymbol.Type);
+                    return new DeclaredTypeAssignment(namespaceSymbol.Type, declaringSyntax: null);
             }
 
             return null;
@@ -157,26 +162,38 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var baseExpressionType = GetDeclaredTypeAssignment(syntax.BaseExpression);
-            return GetObjectPropertyType(baseExpressionType?.Reference.Type, syntax.PropertyName.IdentifierName);
+            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
+            
+            // it's ok to rely on useSyntax=true because those types have already been established
+            return GetObjectPropertyType(
+                baseExpressionAssignment?.Reference.Type,
+                baseExpressionAssignment?.DeclaringSyntax as ObjectSyntax,
+                syntax.PropertyName.IdentifierName,
+                useSyntax: true);
         }
 
         private DeclaredTypeAssignment? GetArrayAccessType(ArrayAccessSyntax syntax)
         {
-            var baseExpressionDeclaredType = GetDeclaredTypeAssignment(syntax.BaseExpression);
+            var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
             var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
 
             // TODO: Currently array access is broken with discriminated object types - revisit when that is fixed
-            switch (baseExpressionDeclaredType?.Reference.Type)
+            switch (baseExpressionAssignment?.Reference.Type)
             {
                 case ArrayType arrayType when TypeValidator.AreTypesAssignable(indexAssignedType, LanguageConstants.Int):
                     // we are accessing an array by an expression of a numeric type
                     // return the item type of the array
-                    return new DeclaredTypeAssignment(arrayType.Item.Type);
+                    // TODO: We can flow the syntax nodes through declared type assignments if we are able to evaluate the array index - skipping for now
+                    return new DeclaredTypeAssignment(arrayType.Item.Type, declaringSyntax: null);
 
-                case ObjectType objectType when syntax.IndexExpression is StringSyntax potentialLiteralValue && potentialLiteralValue.TryGetLiteralValue() is string propertyName:
+                case ObjectType objectType when syntax.IndexExpression is StringSyntax potentialLiteralValue && potentialLiteralValue.TryGetLiteralValue() is { } propertyName:
                     // string literal indexing over an object is the same as dot property access
-                    return this.GetObjectPropertyType(objectType, propertyName);
+                    // it's ok to rely on useSyntax=true because those types have already been established
+                    return this.GetObjectPropertyType(
+                        objectType,
+                        baseExpressionAssignment.DeclaringSyntax as ObjectSyntax,
+                        propertyName,
+                        useSyntax: true);
             }
 
             return null;
@@ -193,7 +210,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // this array is a value of the property
                 // the declared type should be the same as the array and we should propagate the flags
-                return GetDeclaredTypeAssignment(parent);
+                return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
             }
 
             return null;
@@ -210,7 +227,7 @@ namespace Bicep.Core.TypeSystem
                     var parentType = GetDeclaredTypeAssignment(parent)?.Reference.Type;
                     if (parentType is ArrayType arrayType)
                     {
-                        return new DeclaredTypeAssignment(arrayType.Item.Type);
+                        return new DeclaredTypeAssignment(arrayType.Item.Type, syntax);
                     }
 
                     break;
@@ -224,7 +241,7 @@ namespace Bicep.Core.TypeSystem
             // local function
             DeclaredTypeAssignment? CreateAssignment(ITypeReference? typeRef, DeclaredTypeFlags flags = DeclaredTypeFlags.None) => typeRef == null
                 ? null
-                : new DeclaredTypeAssignment(typeRef, flags);
+                : new DeclaredTypeAssignment(typeRef, syntax, flags);
 
             var parent = this.hierarchy.GetParent(syntax);
             if (parent == null)
@@ -277,36 +294,56 @@ namespace Bicep.Core.TypeSystem
         {
             var propertyName = syntax.TryGetKeyText();
             var parent = this.hierarchy.GetParent(syntax);
-            if (propertyName == null || parent == null)
+            if (propertyName == null || !(parent is ObjectSyntax parentObject))
             {
-                // the property name is an interpolated string (expression) OR the parent is missing
+                // the property name is an interpolated string (expression) OR the parent is missing OR the parent is not ObjectSyntax
                 // cannot establish declared type
                 // TODO: Improve this when we have constant folding
                 return null;
             }
 
             var assignment = GetDeclaredTypeAssignment(parent);
-            return GetObjectPropertyType(assignment?.Reference.Type, propertyName);
+
+            // we are in the process of establishing the declared type for the syntax nodes,
+            // so we must set useSyntax to false to avoid a stack overflow
+            return GetObjectPropertyType(assignment?.Reference.Type, parentObject, propertyName, useSyntax: false);
         }
 
-        private DeclaredTypeAssignment? GetObjectPropertyType(TypeSymbol? type, string propertyName)
+        private DeclaredTypeAssignment? GetObjectPropertyType(TypeSymbol? type, ObjectSyntax? objectSyntax, string propertyName, bool useSyntax)
         {
             // local function
             DeclaredTypeFlags ConvertFlags(TypePropertyFlags flags) => flags.HasFlag(TypePropertyFlags.Constant) ? DeclaredTypeFlags.Constant : DeclaredTypeFlags.None;
 
+            // the declared types on the declaration side of things will take advantage of properties
+            // set on objects to resolve discriminators at all levels
+            // to take advantage of this, we should first try looking up the property's declared type
+            var declaringProperty = objectSyntax?.SafeGetPropertyByName(propertyName);
+            if (useSyntax && declaringProperty != null)
+            {
+                // it is important to get the property value's decl type instead of the property's decl type
+                // (the property has the unresolved discriminated object type and the value will have it resolved)
+                var declaredPropertyAssignment = this.GetDeclaredTypeAssignment(declaringProperty.Value);
+                if (declaredPropertyAssignment != null)
+                {
+                    return declaredPropertyAssignment;
+                }
+            }
+
+            // could not get the declared type via syntax
+            // let's use the type info instead
             switch (type)
             {
                 case ObjectType objectType:
                     // lookup declared property
                     if (objectType.Properties.TryGetValue(propertyName, out var property))
                     {
-                        return new DeclaredTypeAssignment(property.TypeReference.Type, ConvertFlags(property.Flags));
+                        return new DeclaredTypeAssignment(property.TypeReference.Type, declaringProperty, ConvertFlags(property.Flags));
                     }
 
                     // if there are additional properties, try those
                     if (objectType.AdditionalPropertiesType != null)
                     {
-                        return new DeclaredTypeAssignment(objectType.AdditionalPropertiesType.Type, ConvertFlags(objectType.AdditionalPropertiesFlags));
+                        return new DeclaredTypeAssignment(objectType.AdditionalPropertiesType.Type, declaringProperty, ConvertFlags(objectType.AdditionalPropertiesFlags));
                     }
 
                     break;
@@ -315,7 +352,7 @@ namespace Bicep.Core.TypeSystem
                     if (string.Equals(propertyName, discriminated.DiscriminatorProperty.Name, LanguageConstants.IdentifierComparison))
                     {
                         // the property is the discriminator property - use its type
-                        return new DeclaredTypeAssignment(discriminated.DiscriminatorProperty.TypeReference.Type);
+                        return new DeclaredTypeAssignment(discriminated.DiscriminatorProperty.TypeReference.Type, declaringProperty);
                     }
 
                     break;
