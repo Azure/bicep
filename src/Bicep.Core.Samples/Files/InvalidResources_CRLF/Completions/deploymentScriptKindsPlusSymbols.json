@@ -364,6 +364,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions2"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwo",
     "kind": "interface",
     "detail": "discriminatorKeySetTwo",
@@ -390,6 +403,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions2"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwoCompletionsArrayIndexer",
     "kind": "variable",
     "detail": "discriminatorKeySetTwoCompletionsArrayIndexer",
@@ -403,6 +429,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions",
@@ -413,6 +452,19 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions2"
     }
   },
   {
@@ -676,6 +728,19 @@
     }
   },
   {
+    "label": "letsAccessTheDashes2",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes2"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -751,6 +816,110 @@
     "textEdit": {
       "range": {},
       "newText": "mock"
+    }
+  },
+  {
+    "label": "nestedDiscriminator",
+    "kind": "interface",
+    "detail": "nestedDiscriminator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions3",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions3",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions3"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions4",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions4",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions4"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2"
     }
   },
   {

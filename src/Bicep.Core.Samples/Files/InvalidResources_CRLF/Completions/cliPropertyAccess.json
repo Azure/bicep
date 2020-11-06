@@ -16,7 +16,7 @@
       "newText": "arguments"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -36,7 +36,7 @@
       "newText": "azCliVersion"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -56,7 +56,7 @@
       "newText": "cleanupPreference"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -76,7 +76,7 @@
       "newText": "containerSettings"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -96,7 +96,7 @@
       "newText": "environmentVariables"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -116,7 +116,7 @@
       "newText": "forceUpdateTag"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -136,7 +136,7 @@
       "newText": "outputs"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -156,7 +156,7 @@
       "newText": "primaryScriptUri"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -176,7 +176,7 @@
       "newText": "provisioningState"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -196,7 +196,7 @@
       "newText": "retentionInterval"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -216,7 +216,7 @@
       "newText": "scriptContent"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -236,7 +236,7 @@
       "newText": "status"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -256,7 +256,7 @@
       "newText": "storageAccountSettings"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -276,7 +276,7 @@
       "newText": "supportingScriptUris"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -296,7 +296,7 @@
       "newText": "timeout"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

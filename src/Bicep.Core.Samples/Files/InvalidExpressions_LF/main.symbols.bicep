@@ -168,6 +168,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[4:28) Variable propertyAccessOnVariable. Type: error. Declaration start char: 0, length: 36
 
+// missing property in property access
+var oneValidDeclaration = {}
+//@[4:23) Variable oneValidDeclaration. Type: object. Declaration start char: 0, length: 28
+var missingPropertyName = oneValidDeclaration.
+//@[4:23) Variable missingPropertyName. Type: error. Declaration start char: 0, length: 46
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[4:37) Variable missingPropertyInsideAnExpression. Type: error. Declaration start char: 0, length: 83
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[4:14) Variable funcvarvar. Type: error. Declaration start char: 0, length: 49
@@ -284,6 +292,14 @@ var bannedFunctions = {
   equals: sys.equals()
   bool: sys.not() || sys.and() || sys.or()
 }
+
+// we can get function completions from namespaces
+// #completionTest(22) -> azFunctions
+var azFunctions = az.a
+//@[4:15) Variable azFunctions. Type: error. Declaration start char: 0, length: 22
+// #completionTest(24) -> sysFunctions
+var sysFunctions = sys.a
+//@[4:16) Variable sysFunctions. Type: error. Declaration start char: 0, length: 24
 
 // keywords can't be called like functions
 var nullness = null()

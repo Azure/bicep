@@ -152,7 +152,16 @@ var two = one.f
 //@[10:13) Identifier |one|
 //@[13:14) Dot |.|
 //@[14:15) Identifier |f|
-//@[15:19) NewLine |\r\n\r\n|
+//@[15:17) NewLine |\r\n|
+// #completionTest(17) -> empty
+//@[31:33) NewLine |\r\n|
+var twotwo = one.
+//@[0:3) Identifier |var|
+//@[4:10) Identifier |twotwo|
+//@[11:12) Assignment |=|
+//@[13:16) Identifier |one|
+//@[16:17) Dot |.|
+//@[17:21) NewLine |\r\n\r\n|
 
 // resource completion cycles
 //@[29:31) NewLine |\r\n|
@@ -187,6 +196,14 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[8:9) Colon |:|
 //@[10:23) StringComplete |'Premium_LRS'|
 //@[23:25) NewLine |\r\n|
+    // #completionTest(15) -> empty
+//@[35:37) NewLine |\r\n|
+    tier: res2.
+//@[4:8) Identifier |tier|
+//@[8:9) Colon |:|
+//@[10:14) Identifier |res2|
+//@[14:15) Dot |.|
+//@[15:17) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|
@@ -227,6 +244,22 @@ resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[8:9) Colon |:|
 //@[10:23) StringComplete |'Premium_LRS'|
 //@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    // #completionTest(21) -> empty
+//@[35:37) NewLine |\r\n|
+    accessTier: res1.
+//@[4:14) Identifier |accessTier|
+//@[14:15) Colon |:|
+//@[16:20) Identifier |res1|
+//@[20:21) Dot |.|
+//@[21:23) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|

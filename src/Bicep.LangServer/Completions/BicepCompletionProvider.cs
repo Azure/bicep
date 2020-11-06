@@ -14,7 +14,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
@@ -27,6 +26,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
 
+        private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
+
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
             var model = compilation.GetEntrypointSemanticModel();
@@ -35,11 +36,12 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetSymbolCompletions(model, context))
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
-                .Concat(GetPropertyAccessCompletions(compilation, context))
+                .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
-                .Concat(GetResourceOrModuleBodyCompletions(context));
+                .Concat(GetResourceOrModuleBodyCompletions(context))
+                .Concat(GetTargetScopeCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
@@ -98,7 +100,16 @@ namespace Bicep.LanguageServer.Completions
   name: $3
   $0
 }", context.ReplacementRange);
+
+                yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
             }
+        }
+
+        private IEnumerable<CompletionItem> GetTargetScopeCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is {} targetScope
+                ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange)
+                : Enumerable.Empty<CompletionItem>();
         }
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
@@ -243,9 +254,9 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private IEnumerable<CompletionItem> GetPropertyAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyAccess) || context.PropertyAccess == null)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -254,7 +265,9 @@ namespace Bicep.LanguageServer.Completions
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange));
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SyntaxTreeGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Concat(GetMethods(declaredType)
+                    .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
 
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
@@ -288,6 +301,9 @@ namespace Bicep.LanguageServer.Completions
                 case ResourceType resourceType:
                     return GetProperties(resourceType.Body.Type);
 
+                case ModuleType moduleType:
+                    return GetProperties(moduleType.Body.Type);
+
                 case ObjectType objectType:
                     return objectType.Properties.Values;
 
@@ -298,6 +314,11 @@ namespace Bicep.LanguageServer.Completions
                     return Enumerable.Empty<TypeProperty>();
             }
         }
+
+        private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) =>
+            type is ObjectType objectType
+                ? objectType.MethodResolver.GetKnownFunctions().Values
+                : Enumerable.Empty<FunctionSymbol>();
 
         private static DeclaredTypeAssignment? GetDeclaredTypeAssignment(SemanticModel model, SyntaxBase? syntax) => syntax == null
             ? null
@@ -405,7 +426,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var item = CreatePropertyNameCompletion(property, replacementRange);
+            var item = CompletionItemBuilder.Create(CompletionItemKind.Property)
+                .WithLabel(property.Name)
+                .WithCommitCharacters(PropertyAccessCommitChars)
+                .WithDetail(FormatPropertyDetail(property))
+                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithSortText(GetSortText(property.Name, priority));
 
             if (IsPropertyNameEscapingRequired(property))
             {
@@ -422,6 +448,10 @@ namespace Bicep.LanguageServer.Completions
                             NewText = string.Empty,
                             Range = propertyAccess.Dot.ToRange(tree.LineStarts)
                         }));
+            }
+            else
+            {
+                item.WithPlainTextEdit(replacementRange, property.Name);
             }
 
             return item;

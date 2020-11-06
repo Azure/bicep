@@ -86,10 +86,10 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, });
+            fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, });
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 options =>
                 {

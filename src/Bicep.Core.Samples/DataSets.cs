@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidResources_CRLF => CreateDataSet();
 
+        public static DataSet InvalidTargetScopes_LF => CreateDataSet();
+
         public static DataSet InvalidVariables_LF => CreateDataSet();
 
         public static DataSet Outputs_CRLF => CreateDataSet();
@@ -51,6 +54,8 @@ namespace Bicep.Core.Samples
                 .Where(property => property.PropertyType == typeof(DataSet))
                 .Select(property => property.GetValue(null))
                 .Cast<DataSet>();
+
+        public static IEnumerable<DataSet> DataSetsWithNoDiagnostics => AllDataSets.Where(dataSet => dataSet.IsValid);
 
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");
 

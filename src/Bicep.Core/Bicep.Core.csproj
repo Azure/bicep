@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arm.Expression\Arm.Expression.csproj" />
     <ProjectReference Include="../../bicep-types-az/src/Bicep.SerializedTypes/Bicep.SerializedTypes.csproj" />
     <ProjectReference Include="../../bicep-types-az/src/Bicep.SerializedTypes.Az/Bicep.SerializedTypes.Az.csproj" />
   </ItemGroup>
@@ -16,6 +15,7 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.112" />
   </ItemGroup>
 
 </Project>

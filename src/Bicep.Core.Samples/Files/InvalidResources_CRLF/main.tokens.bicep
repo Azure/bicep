@@ -678,6 +678,15 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 //@[46:74) Identifier |discriminatorKeyValueMissing|
 //@[74:75) Dot |.|
 //@[75:76) Identifier |p|
+//@[76:78) NewLine |\r\n|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
+//@[0:3) Identifier |var|
+//@[4:44) Identifier |discriminatorKeyValueMissingCompletions2|
+//@[45:46) Assignment |=|
+//@[47:75) Identifier |discriminatorKeyValueMissing|
+//@[75:76) Dot |.|
 //@[76:80) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -721,6 +730,17 @@ var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 //@[63:73) Identifier |properties|
 //@[73:74) Dot |.|
 //@[74:75) Identifier |a|
+//@[75:77) NewLine |\r\n|
+// #completionTest(75) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+//@[0:3) Identifier |var|
+//@[4:38) Identifier |discriminatorKeySetOneCompletions2|
+//@[39:40) Assignment |=|
+//@[41:63) Identifier |discriminatorKeySetOne|
+//@[63:64) Dot |.|
+//@[64:74) Identifier |properties|
+//@[74:75) Dot |.|
 //@[75:79) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -764,6 +784,17 @@ var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
 //@[63:73) Identifier |properties|
 //@[73:74) Dot |.|
 //@[74:75) Identifier |a|
+//@[75:77) NewLine |\r\n|
+// #completionTest(75) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
+//@[0:3) Identifier |var|
+//@[4:38) Identifier |discriminatorKeySetTwoCompletions2|
+//@[39:40) Assignment |=|
+//@[41:63) Identifier |discriminatorKeySetTwo|
+//@[63:64) Dot |.|
+//@[64:74) Identifier |properties|
+//@[74:75) Dot |.|
 //@[75:79) NewLine |\r\n\r\n|
 
 // #completionTest(90) -> powershellPropertyAccess
@@ -778,6 +809,18 @@ var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['prop
 //@[87:88) RightSquare |]|
 //@[88:89) Dot |.|
 //@[89:90) Identifier |a|
+//@[90:92) NewLine |\r\n|
+// #completionTest(90) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
+//@[0:3) Identifier |var|
+//@[4:50) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2|
+//@[51:52) Assignment |=|
+//@[53:75) Identifier |discriminatorKeySetTwo|
+//@[75:76) LeftSquare |[|
+//@[76:88) StringComplete |'properties'|
+//@[88:89) RightSquare |]|
+//@[89:90) Dot |.|
 //@[90:94) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -953,4 +996,158 @@ var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 //@[59:76) Identifier |autoScalerProfile|
 //@[76:77) Dot |.|
 //@[77:78) Identifier |s|
-//@[78:78) EndOfFile ||
+//@[78:80) NewLine |\r\n|
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+//@[61:63) NewLine |\r\n|
+var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
+//@[0:3) Identifier |var|
+//@[4:24) Identifier |letsAccessTheDashes2|
+//@[25:26) Assignment |=|
+//@[27:48) Identifier |dashesInPropertyNames|
+//@[48:49) Dot |.|
+//@[49:59) Identifier |properties|
+//@[59:60) Dot |.|
+//@[60:77) Identifier |autoScalerProfile|
+//@[77:78) Dot |.|
+//@[78:82) NewLine |\r\n\r\n|
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:38) Identifier |nestedDiscriminatorMissingKey|
+//@[39:97) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[98:99) Assignment |=|
+//@[100:101) LeftBrace |{|
+//@[101:103) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  location: 'l'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:15) StringComplete |'l'|
+//@[15:17) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    //createMode: 'Default'
+//@[27:31) NewLine |\r\n\r\n|
+
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(90) -> createMode
+//@[36:38) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+//@[0:3) Identifier |var|
+//@[4:44) Identifier |nestedDiscriminatorMissingKeyCompletions|
+//@[45:46) Assignment |=|
+//@[47:76) Identifier |nestedDiscriminatorMissingKey|
+//@[76:77) Dot |.|
+//@[77:87) Identifier |properties|
+//@[87:88) Dot |.|
+//@[88:90) Identifier |cr|
+//@[90:92) NewLine |\r\n|
+// #completionTest(92) -> createMode
+//@[36:38) NewLine |\r\n|
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
+//@[0:3) Identifier |var|
+//@[4:45) Identifier |nestedDiscriminatorMissingKeyCompletions2|
+//@[46:47) Assignment |=|
+//@[48:77) Identifier |nestedDiscriminatorMissingKey|
+//@[77:78) LeftSquare |[|
+//@[78:90) StringComplete |'properties'|
+//@[90:91) RightSquare |]|
+//@[91:92) Dot |.|
+//@[92:96) NewLine |\r\n\r\n|
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[0:8) Identifier |resource|
+//@[9:28) Identifier |nestedDiscriminator|
+//@[29:87) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[88:89) Assignment |=|
+//@[90:91) LeftBrace |{|
+//@[91:93) NewLine |\r\n|
+  name: 'test'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) StringComplete |'test'|
+//@[14:16) NewLine |\r\n|
+  location: 'l'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:15) StringComplete |'l'|
+//@[15:17) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    createMode: 'Default'
+//@[4:14) Identifier |createMode|
+//@[14:15) Colon |:|
+//@[16:25) StringComplete |'Default'|
+//@[25:29) NewLine |\r\n\r\n|
+
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+// #completionTest(69) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+//@[0:3) Identifier |var|
+//@[4:34) Identifier |nestedDiscriminatorCompletions|
+//@[35:36) Assignment |=|
+//@[37:56) Identifier |nestedDiscriminator|
+//@[56:57) Dot |.|
+//@[57:67) Identifier |properties|
+//@[67:68) Dot |.|
+//@[68:69) Identifier |a|
+//@[69:71) NewLine |\r\n|
+// #completionTest(73) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[0:3) Identifier |var|
+//@[4:35) Identifier |nestedDiscriminatorCompletions2|
+//@[36:37) Assignment |=|
+//@[38:57) Identifier |nestedDiscriminator|
+//@[57:58) LeftSquare |[|
+//@[58:70) StringComplete |'properties'|
+//@[70:71) RightSquare |]|
+//@[71:72) Dot |.|
+//@[72:73) Identifier |a|
+//@[73:75) NewLine |\r\n|
+// #completionTest(69) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
+//@[0:3) Identifier |var|
+//@[4:35) Identifier |nestedDiscriminatorCompletions3|
+//@[36:37) Assignment |=|
+//@[38:57) Identifier |nestedDiscriminator|
+//@[57:58) Dot |.|
+//@[58:68) Identifier |properties|
+//@[68:69) Dot |.|
+//@[69:71) NewLine |\r\n|
+// #completionTest(72) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+//@[0:3) Identifier |var|
+//@[4:35) Identifier |nestedDiscriminatorCompletions4|
+//@[36:37) Assignment |=|
+//@[38:57) Identifier |nestedDiscriminator|
+//@[57:58) LeftSquare |[|
+//@[58:70) StringComplete |'properties'|
+//@[70:71) RightSquare |]|
+//@[71:72) Dot |.|
+//@[72:74) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

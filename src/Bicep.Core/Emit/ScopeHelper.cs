@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Arm.Expression.Expressions;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 
@@ -79,15 +79,6 @@ namespace Bicep.Core.Emit
                     subscriptionId: expressionConverter.ConvertExpression(scopeType.Arguments[0].Expression),
                     resourceGroup: expressionConverter.ConvertExpression(scopeType.Arguments[1].Expression)),
                 _ => null,
-            };
-
-        public static bool CanConvertToArmJson(IResourceScopeType resourceScopeType)
-            => resourceScopeType switch {
-                TenantScopeType _ => false,
-                ManagementGroupScopeType _ => false,
-                SubscriptionScopeType subscriptionScopeType => subscriptionScopeType.Arguments.Length == 0,
-                ResourceGroupScopeType resourceGroupScopeType => resourceGroupScopeType.Arguments.Length == 0,
-                _ => true,
             };
     }
 }

@@ -1,0 +1,54 @@
+[
+  {
+    "label": "'managementGroup'",
+    "kind": "enumMember",
+    "detail": "'managementGroup'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'managementGroup'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'managementGroup'"
+    }
+  },
+  {
+    "label": "'resourceGroup'",
+    "kind": "enumMember",
+    "detail": "'resourceGroup'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'resourceGroup'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'resourceGroup'"
+    }
+  },
+  {
+    "label": "'subscription'",
+    "kind": "enumMember",
+    "detail": "'subscription'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'subscription'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'subscription'"
+    }
+  },
+  {
+    "label": "'tenant'",
+    "kind": "enumMember",
+    "detail": "'tenant'",
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "2_'tenant'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'tenant'"
+    }
+  }
+]

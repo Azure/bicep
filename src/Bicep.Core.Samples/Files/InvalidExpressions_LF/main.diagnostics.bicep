@@ -206,6 +206,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[31:32) [BCP062 (Error)] The referenced declaration with name "x" is not valid. |x|
 
+// missing property in property access
+var oneValidDeclaration = {}
+var missingPropertyName = oneValidDeclaration.
+//@[46:46) [BCP020 (Error)] Expected a function or property name at this location. ||
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[61:61) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[83:83) [BCP020 (Error)] Expected a function or property name at this location. ||
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[17:23) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. |concat|
@@ -342,6 +350,14 @@ var bannedFunctions = {
 //@[25:28) [BCP069 (Error)] The function "and" is not supported. Use the "&&" operator instead. |and|
 //@[38:40) [BCP069 (Error)] The function "or" is not supported. Use the "||" operator instead. |or|
 }
+
+// we can get function completions from namespaces
+// #completionTest(22) -> azFunctions
+var azFunctions = az.a
+//@[21:22) [BCP052 (Error)] The type "az" does not contain property "a". |a|
+// #completionTest(24) -> sysFunctions
+var sysFunctions = sys.a
+//@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
 
 // keywords can't be called like functions
 var nullness = null()

@@ -58,5 +58,10 @@ namespace Bicep.Core.TypeSystem
         /// A reference to a resource scope.
         /// </summary>
         ResourceScopeReference,
+
+        /// <summary>
+        /// Module type
+        /// </summary>
+        Module,
     }
 }

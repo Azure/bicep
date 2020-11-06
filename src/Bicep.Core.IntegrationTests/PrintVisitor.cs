@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Parser;
@@ -11,15 +12,28 @@ namespace Bicep.Core.IntegrationTests
     {
         private readonly StringBuilder buffer;
 
+        private readonly Predicate<IPositionable>? shouldIgnore = null;
+
         public PrintVisitor(StringBuilder buffer)
         {
             this.buffer = buffer;
         }
 
+        public PrintVisitor(StringBuilder buffer, Predicate<IPositionable> shouldIgnore)
+            : this(buffer)
+        {
+            this.shouldIgnore = shouldIgnore;
+        }
+
         public override void VisitToken(Token token)
         {
             WriteTrivia(token.LeadingTrivia);
-            buffer.Append(token.Text);
+
+            if (shouldIgnore == null || !shouldIgnore(token))
+            {
+                buffer.Append(token.Text);
+            }
+
             WriteTrivia(token.TrailingTrivia);
         }
 
@@ -27,7 +41,10 @@ namespace Bicep.Core.IntegrationTests
         {
             foreach (var trivia in triviaList)
             {
-                buffer.Append(trivia.Text);
+                if (shouldIgnore == null || !shouldIgnore(trivia))
+                {
+                    buffer.Append(trivia.Text);
+                }
             }
         }
     }

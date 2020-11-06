@@ -131,13 +131,10 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   id: 2
 //@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. |id|
-//@[6:7) [BCP036 (Error)] The property "id" expected a value of type "string" but the provided value is of type "int". |2|
   type: 'hello'
 //@[2:6) [BCP073 (Error)] The property "type" is read-only. Expressions cannot be assigned to read-only properties. |type|
-//@[8:15) [BCP036 (Error)] The property "type" expected a value of type "'Microsoft.Foo/foos'" but the provided value is of type "'hello'". |'hello'|
   apiVersion: true
 //@[2:12) [BCP073 (Error)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. |apiVersion|
-//@[14:18) [BCP036 (Error)] The property "apiVersion" expected a value of type "'2020-02-02-alpha'" but the provided value is of type "bool". |true|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -232,6 +229,9 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 //@[75:76) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
+//@[76:76) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
@@ -245,6 +245,9 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+//@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:270) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzurePowerShell'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties\r\n    \r\n  }\r\n}|
@@ -258,10 +261,17 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
+//@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
 //@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
+//@[53:75) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
+//@[90:90) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
@@ -329,3 +339,43 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
+//@[78:78) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    //createMode: 'Default'
+
+  }
+}
+// #completionTest(90) -> createMode
+var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
+// #completionTest(92) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
+//@[48:77) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminatorMissingKey|
+//@[92:92) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+  name: 'test'
+  location: 'l'
+  properties: {
+    createMode: 'Default'
+
+  }
+}
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
+// #completionTest(73) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
+//@[69:69) [BCP020 (Error)] Expected a function or property name at this location. ||
+// #completionTest(72) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
+//@[72:72) [BCP020 (Error)] Expected a function or property name at this location. ||
+

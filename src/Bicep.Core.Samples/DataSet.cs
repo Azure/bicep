@@ -21,6 +21,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
+        public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
         public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestCompletionsDirectory = "Completions";
@@ -39,6 +40,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazySymbols;
 
+        private readonly Lazy<string> lazyFormatted;
+
         private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
 
         public DataSet(string name)
@@ -51,6 +54,7 @@ namespace Bicep.Core.Samples
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
+            this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
             this.lazyCompletions = new Lazy<ImmutableDictionary<string, string>>(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -69,6 +73,8 @@ namespace Bicep.Core.Samples
         public string Symbols => this.lazySymbols.Value;
 
         public string Syntax => this.lazySyntax.Value;
+
+        public string Formatted => this.lazyFormatted.Value;
 
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 
