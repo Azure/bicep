@@ -308,7 +308,8 @@ namespace Bicep.Core.Parser
                 {
                     // dot operator
                     Token dot = this.reader.Read();
-                    IdentifierSyntax identifier = this.Identifier(b => b.ExpectedFunctionOrPropertyName());
+
+                    IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
                     if (Check(TokenType.LeftParen))
                     {
@@ -482,6 +483,19 @@ namespace Bicep.Core.Parser
             var identifier = Expect(TokenType.Identifier, errorFunc);
 
             return new IdentifierSyntax(identifier);
+        }
+
+        private IdentifierSyntax IdentifierOrSkip(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            if (this.Check(TokenType.Identifier))
+            {
+                var identifier = Expect(TokenType.Identifier, errorFunc);
+                return new IdentifierSyntax(identifier);
+            }
+
+            var span = new TextSpan(this.reader.Peek().Span.Position, 0);
+            var skipped = new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
+            return new IdentifierSyntax(skipped);
         }
 
         private IdentifierSyntax IdentifierWithRecovery(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, params TokenType[] terminatingTypes)

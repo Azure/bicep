@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer.Completions
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
-                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo), BicepCompletionContextKind.MemberAccess) |
+                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
@@ -250,13 +250,18 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool IsPropertyAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo)
+        private static bool IsPropertyAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo, int offset)
         {
-            // if we're accessing properties, we have the following matching node types at the end of the list:
-            // PropertyAccessSyntax, IdentifierSyntax, Token(TokenType.Identifier)
             return propertyAccessInfo.node != null &&
-                   SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (propertyAccess, identifier, token) =>
-                       ReferenceEquals(propertyAccess.PropertyName, identifier) && token.Type == TokenType.Identifier);
+                   (SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, IdentifierSyntax, Token>(
+                        matchingNodes,
+                        (propertyAccess, identifier, token) => ReferenceEquals(propertyAccess.PropertyName, identifier) && token.Type == TokenType.Identifier) ||
+                    SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, Token>(
+                        matchingNodes,
+                        (propertyAccess, token) => token.Type == TokenType.Dot && ReferenceEquals(propertyAccess.Dot, token)) ||
+                    SyntaxMatcher.IsTailMatch<PropertyAccessSyntax>(
+                        matchingNodes,
+                        propertyAccess => offset > propertyAccess.Dot.Span.Position));
         }
 
         private static bool IsObjectPropertyNameContext(List<SyntaxBase> matchingNodes, (ObjectSyntax? node, int index) objectInfo)

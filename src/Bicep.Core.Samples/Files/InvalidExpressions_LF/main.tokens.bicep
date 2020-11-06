@@ -678,6 +678,33 @@ var propertyAccessOnVariable = x.foo
 //@[33:36) Identifier |foo|
 //@[36:38) NewLine |\n\n|
 
+// missing property in property access
+//@[38:39) NewLine |\n|
+var oneValidDeclaration = {}
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |oneValidDeclaration|
+//@[24:25) Assignment |=|
+//@[26:27) LeftBrace |{|
+//@[27:28) RightBrace |}|
+//@[28:29) NewLine |\n|
+var missingPropertyName = oneValidDeclaration.
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |missingPropertyName|
+//@[24:25) Assignment |=|
+//@[26:45) Identifier |oneValidDeclaration|
+//@[45:46) Dot |.|
+//@[46:47) NewLine |\n|
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[0:3) Identifier |var|
+//@[4:37) Identifier |missingPropertyInsideAnExpression|
+//@[38:39) Assignment |=|
+//@[40:59) Identifier |oneValidDeclaration|
+//@[59:60) Dot |.|
+//@[61:62) Plus |+|
+//@[63:82) Identifier |oneValidDeclaration|
+//@[82:83) Dot |.|
+//@[83:85) NewLine |\n\n|
+
 // function used like a variable
 //@[32:33) NewLine |\n|
 var funcvarvar = concat + base64 || !uniqueString

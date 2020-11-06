@@ -206,6 +206,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[31:32) [BCP062 (Error)] The referenced declaration with name "x" is not valid. |x|
 
+// missing property in property access
+var oneValidDeclaration = {}
+var missingPropertyName = oneValidDeclaration.
+//@[46:46) [BCP020 (Error)] Expected a function or property name at this location. ||
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[61:61) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[83:83) [BCP020 (Error)] Expected a function or property name at this location. ||
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[17:23) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. |concat|

@@ -494,6 +494,19 @@
     }
   },
   {
+    "label": "mixedArrayTypeCompletions2",
+    "kind": "variable",
+    "detail": "mixedArrayTypeCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mixedArrayTypeCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "mixedArrayTypeCompletions2"
+    }
+  },
+  {
     "label": "myConcat",
     "kind": "variable",
     "detail": "myConcat",
@@ -559,6 +572,19 @@
     }
   },
   {
+    "label": "objectVarTopLevelCompletions2",
+    "kind": "variable",
+    "detail": "objectVarTopLevelCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objectVarTopLevelCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "objectVarTopLevelCompletions2"
+    }
+  },
+  {
     "label": "oneArrayItemCompletions",
     "kind": "variable",
     "detail": "oneArrayItemCompletions",
@@ -569,6 +595,19 @@
     "textEdit": {
       "range": {},
       "newText": "oneArrayItemCompletions"
+    }
+  },
+  {
+    "label": "oneArrayItemCompletions2",
+    "kind": "variable",
+    "detail": "oneArrayItemCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_oneArrayItemCompletions2",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "oneArrayItemCompletions2"
     }
   },
   {

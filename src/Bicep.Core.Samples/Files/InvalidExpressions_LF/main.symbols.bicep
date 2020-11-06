@@ -168,6 +168,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[4:28) Variable propertyAccessOnVariable. Type: error. Declaration start char: 0, length: 36
 
+// missing property in property access
+var oneValidDeclaration = {}
+//@[4:23) Variable oneValidDeclaration. Type: object. Declaration start char: 0, length: 28
+var missingPropertyName = oneValidDeclaration.
+//@[4:23) Variable missingPropertyName. Type: error. Declaration start char: 0, length: 46
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[4:37) Variable missingPropertyInsideAnExpression. Type: error. Declaration start char: 0, length: 83
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[4:14) Variable funcvarvar. Type: error. Declaration start char: 0, length: 49
