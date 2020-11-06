@@ -14,7 +14,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
@@ -26,6 +25,8 @@ namespace Bicep.LanguageServer.Completions
         private const string MarkdownNewLine = "  \n";
 
         private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
+
+        private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
@@ -425,7 +426,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var item = CreatePropertyNameCompletion(property, replacementRange);
+            var item = CompletionItemBuilder.Create(CompletionItemKind.Property)
+                .WithLabel(property.Name)
+                .WithCommitCharacters(PropertyAccessCommitChars)
+                .WithDetail(FormatPropertyDetail(property))
+                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithSortText(GetSortText(property.Name, priority));
 
             if (IsPropertyNameEscapingRequired(property))
             {
@@ -442,6 +448,10 @@ namespace Bicep.LanguageServer.Completions
                             NewText = string.Empty,
                             Range = propertyAccess.Dot.ToRange(tree.LineStarts)
                         }));
+            }
+            else
+            {
+                item.WithPlainTextEdit(replacementRange, property.Name);
             }
 
             return item;

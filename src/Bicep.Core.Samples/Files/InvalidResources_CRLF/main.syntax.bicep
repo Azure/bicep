@@ -1004,6 +1004,22 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 //@[74:75)   Dot |.|
 //@[75:76)   IdentifierSyntax
 //@[75:76)    Identifier |p|
+//@[76:78) NewLine |\r\n|
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+//@[60:62) NewLine |\r\n|
+var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
+//@[0:76) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:44)  IdentifierSyntax
+//@[4:44)   Identifier |discriminatorKeyValueMissingCompletions2|
+//@[45:46)  Assignment |=|
+//@[47:76)  PropertyAccessSyntax
+//@[47:75)   VariableAccessSyntax
+//@[47:75)    IdentifierSyntax
+//@[47:75)     Identifier |discriminatorKeyValueMissing|
+//@[75:76)   Dot |.|
+//@[76:76)   IdentifierSyntax
+//@[76:76)    SkippedTriviaSyntax
 //@[76:80) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -1065,6 +1081,26 @@ var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 //@[73:74)   Dot |.|
 //@[74:75)   IdentifierSyntax
 //@[74:75)    Identifier |a|
+//@[75:77) NewLine |\r\n|
+// #completionTest(75) -> cliPropertyAccess
+//@[43:45) NewLine |\r\n|
+var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+//@[0:75) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:38)  IdentifierSyntax
+//@[4:38)   Identifier |discriminatorKeySetOneCompletions2|
+//@[39:40)  Assignment |=|
+//@[41:75)  PropertyAccessSyntax
+//@[41:74)   PropertyAccessSyntax
+//@[41:63)    VariableAccessSyntax
+//@[41:63)     IdentifierSyntax
+//@[41:63)      Identifier |discriminatorKeySetOne|
+//@[63:64)    Dot |.|
+//@[64:74)    IdentifierSyntax
+//@[64:74)     Identifier |properties|
+//@[74:75)   Dot |.|
+//@[75:75)   IdentifierSyntax
+//@[75:75)    SkippedTriviaSyntax
 //@[75:79) NewLine |\r\n\r\n|
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -1126,6 +1162,26 @@ var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
 //@[73:74)   Dot |.|
 //@[74:75)   IdentifierSyntax
 //@[74:75)    Identifier |a|
+//@[75:77) NewLine |\r\n|
+// #completionTest(75) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
+//@[0:75) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:38)  IdentifierSyntax
+//@[4:38)   Identifier |discriminatorKeySetTwoCompletions2|
+//@[39:40)  Assignment |=|
+//@[41:75)  PropertyAccessSyntax
+//@[41:74)   PropertyAccessSyntax
+//@[41:63)    VariableAccessSyntax
+//@[41:63)     IdentifierSyntax
+//@[41:63)      Identifier |discriminatorKeySetTwo|
+//@[63:64)    Dot |.|
+//@[64:74)    IdentifierSyntax
+//@[64:74)     Identifier |properties|
+//@[74:75)   Dot |.|
+//@[75:75)   IdentifierSyntax
+//@[75:75)    SkippedTriviaSyntax
 //@[75:79) NewLine |\r\n\r\n|
 
 // #completionTest(90) -> powershellPropertyAccess
@@ -1148,6 +1204,27 @@ var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['prop
 //@[88:89)   Dot |.|
 //@[89:90)   IdentifierSyntax
 //@[89:90)    Identifier |a|
+//@[90:92) NewLine |\r\n|
+// #completionTest(90) -> powershellPropertyAccess
+//@[50:52) NewLine |\r\n|
+var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
+//@[0:90) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:50)  IdentifierSyntax
+//@[4:50)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2|
+//@[51:52)  Assignment |=|
+//@[53:90)  PropertyAccessSyntax
+//@[53:89)   ArrayAccessSyntax
+//@[53:75)    VariableAccessSyntax
+//@[53:75)     IdentifierSyntax
+//@[53:75)      Identifier |discriminatorKeySetTwo|
+//@[75:76)    LeftSquare |[|
+//@[76:88)    StringSyntax
+//@[76:88)     StringComplete |'properties'|
+//@[88:89)    RightSquare |]|
+//@[89:90)   Dot |.|
+//@[90:90)   IdentifierSyntax
+//@[90:90)    SkippedTriviaSyntax
 //@[90:94) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -1404,6 +1481,30 @@ var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 //@[76:77)   Dot |.|
 //@[77:78)   IdentifierSyntax
 //@[77:78)    Identifier |s|
+//@[78:80) NewLine |\r\n|
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+//@[61:63) NewLine |\r\n|
+var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
+//@[0:78) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |letsAccessTheDashes2|
+//@[25:26)  Assignment |=|
+//@[27:78)  PropertyAccessSyntax
+//@[27:77)   PropertyAccessSyntax
+//@[27:59)    PropertyAccessSyntax
+//@[27:48)     VariableAccessSyntax
+//@[27:48)      IdentifierSyntax
+//@[27:48)       Identifier |dashesInPropertyNames|
+//@[48:49)     Dot |.|
+//@[49:59)     IdentifierSyntax
+//@[49:59)      Identifier |properties|
+//@[59:60)    Dot |.|
+//@[60:77)    IdentifierSyntax
+//@[60:77)     Identifier |autoScalerProfile|
+//@[77:78)   Dot |.|
+//@[78:78)   IdentifierSyntax
+//@[78:78)    SkippedTriviaSyntax
 //@[78:82) NewLine |\r\n\r\n|
 
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
@@ -1470,15 +1571,15 @@ var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.pro
 //@[88:90)   IdentifierSyntax
 //@[88:90)    Identifier |cr|
 //@[90:92) NewLine |\r\n|
-// #completionTest(94) -> createMode
+// #completionTest(92) -> createMode
 //@[36:38) NewLine |\r\n|
-var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
-//@[0:94) VariableDeclarationSyntax
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
+//@[0:92) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:45)  IdentifierSyntax
 //@[4:45)   Identifier |nestedDiscriminatorMissingKeyCompletions2|
 //@[46:47)  Assignment |=|
-//@[48:94)  PropertyAccessSyntax
+//@[48:92)  PropertyAccessSyntax
 //@[48:91)   ArrayAccessSyntax
 //@[48:77)    VariableAccessSyntax
 //@[48:77)     IdentifierSyntax
@@ -1488,9 +1589,9 @@ var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['p
 //@[78:90)     StringComplete |'properties'|
 //@[90:91)    RightSquare |]|
 //@[91:92)   Dot |.|
-//@[92:94)   IdentifierSyntax
-//@[92:94)    Identifier |cr|
-//@[94:98) NewLine |\r\n\r\n|
+//@[92:92)   IdentifierSyntax
+//@[92:92)    SkippedTriviaSyntax
+//@[92:96) NewLine |\r\n\r\n|
 
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
 //@[0:178) ResourceDeclarationSyntax
@@ -1583,5 +1684,46 @@ var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
 //@[72:73)   IdentifierSyntax
 //@[72:73)    Identifier |a|
 //@[73:75) NewLine |\r\n|
+// #completionTest(69) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
+//@[0:69) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:35)  IdentifierSyntax
+//@[4:35)   Identifier |nestedDiscriminatorCompletions3|
+//@[36:37)  Assignment |=|
+//@[38:69)  PropertyAccessSyntax
+//@[38:68)   PropertyAccessSyntax
+//@[38:57)    VariableAccessSyntax
+//@[38:57)     IdentifierSyntax
+//@[38:57)      Identifier |nestedDiscriminator|
+//@[57:58)    Dot |.|
+//@[58:68)    IdentifierSyntax
+//@[58:68)     Identifier |properties|
+//@[68:69)   Dot |.|
+//@[69:69)   IdentifierSyntax
+//@[69:69)    SkippedTriviaSyntax
+//@[69:71) NewLine |\r\n|
+// #completionTest(72) -> defaultCreateModeProperties
+//@[53:55) NewLine |\r\n|
+var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+//@[0:72) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:35)  IdentifierSyntax
+//@[4:35)   Identifier |nestedDiscriminatorCompletions4|
+//@[36:37)  Assignment |=|
+//@[38:72)  PropertyAccessSyntax
+//@[38:71)   ArrayAccessSyntax
+//@[38:57)    VariableAccessSyntax
+//@[38:57)     IdentifierSyntax
+//@[38:57)      Identifier |nestedDiscriminator|
+//@[57:58)    LeftSquare |[|
+//@[58:70)    StringSyntax
+//@[58:70)     StringComplete |'properties'|
+//@[70:71)    RightSquare |]|
+//@[71:72)   Dot |.|
+//@[72:72)   IdentifierSyntax
+//@[72:72)    SkippedTriviaSyntax
+//@[72:74) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

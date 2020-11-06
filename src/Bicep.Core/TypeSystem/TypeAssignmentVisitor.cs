@@ -592,12 +592,17 @@ namespace Bicep.Core.TypeSystem
                         // can only access properties of objects
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
                     }
-                    else
-                    {
-                        // We can assign to an object, but we don't have a type for that object.
-                        // The best we can do is allow it and return the 'any' type.
-                        return LanguageConstants.Any;
-                    }
+
+                    // We can assign to an object, but we don't have a type for that object.
+                    // The best we can do is allow it and return the 'any' type.
+                    return LanguageConstants.Any;
+                }
+
+                if (!syntax.PropertyName.IsValid)
+                {
+                    // the property is not valid
+                    // there's already a parse error for it, so we don't need to add a type error as well
+                    return ErrorType.Empty();
                 }
 
                 return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);

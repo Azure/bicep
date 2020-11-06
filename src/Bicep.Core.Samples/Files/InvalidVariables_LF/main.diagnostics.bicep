@@ -177,11 +177,20 @@ var objectLiteralType = {
 // #completionTest(54) -> objectVarTopLevel
 var objectVarTopLevelCompletions = objectLiteralType.f
 //@[53:54) [BCP053 (Error)] The type "object" does not contain property "f". Available properties include "fifth", "first", "fourth", "second", "sixth", "third". |f|
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions2 = objectLiteralType.
+//@[54:54) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // this does not produce any completions because mixed array items are of type "any"
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
+//@[60:60) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 //@[57:58) [BCP053 (Error)] The type "object" does not contain property "t". Available properties include "two". |t|
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
+//@[58:58) [BCP020 (Error)] Expected a function or property name at this location. ||

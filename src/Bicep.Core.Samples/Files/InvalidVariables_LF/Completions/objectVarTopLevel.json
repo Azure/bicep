@@ -16,7 +16,7 @@
       "newText": "fifth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -36,7 +36,7 @@
       "newText": "first"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -56,7 +56,7 @@
       "newText": "fourth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -76,7 +76,7 @@
       "newText": "second"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -96,7 +96,7 @@
       "newText": "sixth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -116,7 +116,7 @@
       "newText": "third"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

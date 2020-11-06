@@ -1023,6 +1023,56 @@ var propertyAccessOnVariable = x.foo
 //@[33:36)    Identifier |foo|
 //@[36:38) NewLine |\n\n|
 
+// missing property in property access
+//@[38:39) NewLine |\n|
+var oneValidDeclaration = {}
+//@[0:28) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |oneValidDeclaration|
+//@[24:25)  Assignment |=|
+//@[26:28)  ObjectSyntax
+//@[26:27)   LeftBrace |{|
+//@[27:28)   RightBrace |}|
+//@[28:29) NewLine |\n|
+var missingPropertyName = oneValidDeclaration.
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |missingPropertyName|
+//@[24:25)  Assignment |=|
+//@[26:46)  PropertyAccessSyntax
+//@[26:45)   VariableAccessSyntax
+//@[26:45)    IdentifierSyntax
+//@[26:45)     Identifier |oneValidDeclaration|
+//@[45:46)   Dot |.|
+//@[46:46)   IdentifierSyntax
+//@[46:46)    SkippedTriviaSyntax
+//@[46:47) NewLine |\n|
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[0:83) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:37)  IdentifierSyntax
+//@[4:37)   Identifier |missingPropertyInsideAnExpression|
+//@[38:39)  Assignment |=|
+//@[40:83)  BinaryOperationSyntax
+//@[40:61)   PropertyAccessSyntax
+//@[40:59)    VariableAccessSyntax
+//@[40:59)     IdentifierSyntax
+//@[40:59)      Identifier |oneValidDeclaration|
+//@[59:60)    Dot |.|
+//@[61:61)    IdentifierSyntax
+//@[61:61)     SkippedTriviaSyntax
+//@[61:62)   Plus |+|
+//@[63:83)   PropertyAccessSyntax
+//@[63:82)    VariableAccessSyntax
+//@[63:82)     IdentifierSyntax
+//@[63:82)      Identifier |oneValidDeclaration|
+//@[82:83)    Dot |.|
+//@[83:83)    IdentifierSyntax
+//@[83:83)     SkippedTriviaSyntax
+//@[83:85) NewLine |\n\n|
+
 // function used like a variable
 //@[32:33) NewLine |\n|
 var funcvarvar = concat + base64 || !uniqueString

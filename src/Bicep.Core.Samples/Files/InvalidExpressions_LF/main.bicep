@@ -107,6 +107,11 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 
 var propertyAccessOnVariable = x.foo
 
+// missing property in property access
+var oneValidDeclaration = {}
+var missingPropertyName = oneValidDeclaration.
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 param funcvarparam bool = concat

@@ -16,7 +16,7 @@
       "newText": "apiProperties"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -36,7 +36,7 @@
       "newText": "backupPolicy"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -56,7 +56,7 @@
       "newText": "capabilities"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -76,7 +76,7 @@
       "newText": "connectorOffer"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -96,7 +96,7 @@
       "newText": "consistencyPolicy"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -116,7 +116,7 @@
       "newText": "cors"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -136,7 +136,7 @@
       "newText": "createMode"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -156,7 +156,7 @@
       "newText": "databaseAccountOfferType"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -176,7 +176,7 @@
       "newText": "disableKeyBasedMetadataWriteAccess"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -196,7 +196,7 @@
       "newText": "documentEndpoint"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -216,7 +216,7 @@
       "newText": "enableAnalyticalStorage"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -236,7 +236,7 @@
       "newText": "enableAutomaticFailover"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -256,7 +256,7 @@
       "newText": "enableCassandraConnector"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -276,7 +276,7 @@
       "newText": "enableFreeTier"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -296,7 +296,7 @@
       "newText": "enableMultipleWriteLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -316,7 +316,7 @@
       "newText": "failoverPolicies"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -336,7 +336,7 @@
       "newText": "instanceId"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -356,7 +356,7 @@
       "newText": "ipRules"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -376,7 +376,7 @@
       "newText": "isVirtualNetworkFilterEnabled"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -396,7 +396,7 @@
       "newText": "keyVaultKeyUri"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -416,7 +416,7 @@
       "newText": "locations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -436,7 +436,7 @@
       "newText": "privateEndpointConnections"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -456,7 +456,7 @@
       "newText": "provisioningState"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -476,7 +476,7 @@
       "newText": "publicNetworkAccess"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -496,7 +496,7 @@
       "newText": "readLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -516,7 +516,7 @@
       "newText": "restoreParameters"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -536,7 +536,7 @@
       "newText": "virtualNetworkRules"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -556,7 +556,7 @@
       "newText": "writeLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

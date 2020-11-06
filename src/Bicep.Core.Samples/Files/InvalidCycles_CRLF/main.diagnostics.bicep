@@ -49,6 +49,10 @@ var one = {
 // #completionTest(15) -> empty
 var two = one.f
 //@[10:13) [BCP080 (Error)] The expression is involved in a cycle ("one" -> "two"). |one|
+// #completionTest(17) -> empty
+var twotwo = one.
+//@[13:16) [BCP080 (Error)] The expression is involved in a cycle ("one" -> "two"). |one|
+//@[17:17) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 // resource completion cycles
 resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -58,6 +62,10 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: 'l'
   sku: {
     name: 'Premium_LRS'
+    // #completionTest(15) -> empty
+    tier: res2.
+//@[10:14) [BCP080 (Error)] The expression is involved in a cycle ("res2" -> "res1"). |res2|
+//@[15:15) [BCP020 (Error)] Expected a function or property name at this location. ||
   }
   kind: 'StorageV2'
 }
@@ -67,6 +75,12 @@ resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: 'l'
   sku: {
     name: 'Premium_LRS'
+  }
+  properties: {
+    // #completionTest(21) -> empty
+    accessTier: res1.
+//@[16:20) [BCP080 (Error)] The expression is involved in a cycle ("res1" -> "res2"). |res1|
+//@[21:21) [BCP020 (Error)] Expected a function or property name at this location. ||
   }
   kind: 'StorageV2'
 }
