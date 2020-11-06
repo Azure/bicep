@@ -16,7 +16,7 @@
       "newText": "arrayOutput"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -36,7 +36,7 @@
       "newText": "objOutput"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -56,7 +56,7 @@
       "newText": "stringOutputA"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -76,7 +76,7 @@
       "newText": "stringOutputB"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]
