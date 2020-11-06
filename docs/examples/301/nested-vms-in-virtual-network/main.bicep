@@ -1,7 +1,3 @@
-/*
-  This template requires a nested deployment, which we don't yet support natively
-*/
-
 param _artifactsLocation string = 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/'
 param _artifactsLocationSasToken string {
   secure: true
@@ -83,36 +79,25 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
 resource natNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: NATSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource hyperVNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: hyperVSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource ghostedNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: ghostedSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource azureVmsSubnet 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: azureVMsSubnetNSGName
   location: location
-  properties: {
-  }
-}
-
-resource azureVmsUdr 'Microsoft.Network/routeTables@2019-04-01' = {
-  name: azureVMsSubnetUDRName
-  location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
@@ -144,15 +129,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
         }
       }
       {
-        name: hyperVSubnetName
-        properties: {
-          addressPrefix: hyperVSubnetPrefix
-          networkSecurityGroup: {
-            id: hyperVNsg.id
-          }
-        }
-      }
-      {
         name: ghostedSubnetName
         properties: {
           addressPrefix: ghostedSubnetPrefix
@@ -169,7 +145,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
             id: azureVmsSubnet.id
           }
           routeTable: {
-            id: azureVmsUdr.id
+            id: createAzureVmUdr.outputs.udrId
           }
         }
       }
@@ -177,45 +153,61 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
   }
 }
 
-resource nic1 'Microsoft.Network/networkInterfaces@2019-04-01' = {
-  name: HostNetworkInterface1Name
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          primary: true
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: '${vnet}/subnets${NATSubnetName}'
-          }
-          publicIPAddress: {
-            id: publicIp.id
-          }
-        }
-      }
-    ]
+module createNic1 './nic.bicep' = {
+  name: 'createNic1'
+  params: {
+    nicName: HostNetworkInterface1Name
+    subnetId: '${vnet.id}/subnets/${NATSubnetName}'
+    pipId: publicIp.id
   }
 }
 
-resource nic2 'Microsoft.Network/networkInterfaces@2019-04-01' = {
-  name: HostNetworkInterface2Name
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          primary: true
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: '${vnet}/subnets${hyperVSubnetName}'
-          }
-        }
-      }
-    ]
+// update nic to staticIp now that nic has been created
+module updateNic1 './nic.bicep' = {
+  name: 'updateNic1'
+  params: {
+    ipAllocationMethod: 'Static'
+    staticIpAddress: createNic1.outputs.assignedIp
+    nicName: HostNetworkInterface1Name
+    subnetId: '${vnet.id}/subnets/${NATSubnetName}'
+    pipId: publicIp.id
+  }
+}
+
+module createNic2 './nic.bicep' = {
+  name: 'createNic2'
+  params: {
+    nicName: HostNetworkInterface2Name
     enableIPForwarding: true
+    subnetId: '${vnet}/subnets${hyperVSubnetName}'
+  }
+}
+
+// update nic to staticIp now that nic has been created
+module updateNic2 './nic.bicep' = {
+  name: 'updateNic2'
+  params: {
+    ipAllocationMethod: 'Static'
+    staticIpAddress: createNic2.outputs.assignedIp
+    nicName: HostNetworkInterface2Name
+    enableIPForwarding: true
+    subnetId: '${vnet}/subnets${hyperVSubnetName}'
+  }
+}
+
+module createAzureVmUdr './udr.bicep' = {
+  name: 'udrDeploy'
+  params: {
+    udrName: azureVMsSubnetUDRName
+  }
+}
+
+module updateAzureVmUdr './udr.bicep' = {
+  name: 'udrUpdate'
+  params: {
+    udrName: azureVMsSubnetUDRName
+    addressPrefix: ghostedSubnetPrefix
+    nextHopAddress: createNic2.outputs.assignedIp 
   }
 }
 
@@ -262,13 +254,13 @@ resource hostVm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: nic1.id
+          id: createNic1.outputs.nicId
           properties: {
             primary: true
           }
         }
         {
-          id: nic2.id
+          id: createNic2.outputs.nicId
           properties: {
             primary: false
           }
@@ -309,94 +301,7 @@ resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019
       fileUris: [
         HVHostSetupScriptUri
       ]
-      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${nic1.properties.ipConfigurations[0].properties.privateIPAddress} -NIC2IPAddress ${nic2.properties.ipConfigurations[0].properties.privateIPAddress} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
+      commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${createNic1.outputs.assignedIp} -NIC2IPAddress ${createNic2.outputs.assignedIp} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
     }
   }
 }
-
-/*
-TODO:
-
-      {
-        "type": "Microsoft.Resources/deployments",
-        "apiVersion": "2019-05-01",
-        "name": "UpdateNetworking",
-        "dependsOn": [
-          "[parameters('HostNetworkInterface1Name')]",
-          "[parameters('HostNetworkInterface2Name')]"
-        ],
-        "properties": {
-          "mode": "Incremental",
-          "template": {
-            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-            "contentVersion": "1.0.0.0",
-            "resources": [
-              {
-                "type": "Microsoft.Network/routeTables",
-                "apiVersion": "2019-04-01",
-                "name": "[variables('azureVMsSubnetUDRName')]",
-                "location": "[parameters('location')]",
-                "properties": {
-                  "routes": [
-                    {
-                      "name": "Nested-VMs",
-                      "properties": {
-                        "addressPrefix": "[parameters('ghostedSubnetPrefix')]",
-                        "nextHopType": "VirtualAppliance",
-                        "nextHopIPAddress": "[reference(parameters('HostNetworkInterface2Name')).ipconfigurations[0].properties.privateIPAddress]"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "Microsoft.Network/networkInterfaces",
-                "apiVersion": "2019-04-01",
-                "name": "[parameters('HostNetworkInterface1Name')]",
-                "location": "[parameters('location')]",
-                "properties": {
-                  "ipConfigurations": [
-                    {
-                      "name": "ipconfig",
-                      "properties": {
-                        "primary": "true",
-                        "privateIPAllocationMethod": "Static",
-                        "privateIPAddress": "[reference(parameters('HostNetworkInterface1Name')).ipconfigurations[0].properties.privateIPAddress]",
-                        "subnet": {
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('NATSubnetName'))]"
-                        },
-                        "publicIPAddress": {
-                          "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('HostPublicIPAddressName'))]"
-                        }
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "Microsoft.Network/networkInterfaces",
-                "apiVersion": "2019-04-01",
-                "name": "[parameters('HostNetworkInterface2Name')]",
-                "location": "[parameters('location')]",
-                "properties": {
-                  "ipConfigurations": [
-                    {
-                      "name": "ipconfig",
-                      "properties": {
-                        "primary": "true",
-                        "privateIPAllocationMethod": "Static",
-                        "privateIPAddress": "[reference(parameters('HostNetworkInterface2Name')).ipconfigurations[0].properties.privateIPAddress]",
-                        "subnet": {
-                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('hyperVSubnetName'))]"
-                        }
-                      }
-                    }
-                  ],
-                  "enableIPForwarding": true
-                }
-              }
-            ]
-          }
-        }
-      },
-*/
