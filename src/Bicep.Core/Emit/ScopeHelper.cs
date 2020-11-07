@@ -24,7 +24,7 @@ namespace Bicep.Core.Emit
             public SyntaxBase? ResourceGroupProperty { get; set; }
         }
 
-        public static ScopeData GetScopeData(ResourceScopeType currentScope, TypeSymbol scopeType)
+        public static ScopeData? TryGetScopeData(ResourceScopeType currentScope, TypeSymbol scopeType)
         {
             switch (currentScope)
             {
@@ -76,11 +76,6 @@ namespace Bicep.Core.Emit
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.ResourceGroupScope, 
                                 ResourceGroupProperty = resourceGroupScopeType.Arguments[0].Expression };
-                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
-                            return new ScopeData {
-                                RequestedScope = ResourceScopeType.ResourceGroupScope,
-                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
-                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
                     }
                     break;
                 case ResourceScopeType.ResourceGroupScope:
@@ -105,7 +100,7 @@ namespace Bicep.Core.Emit
                     break;
             }
 
-            throw new NotImplementedException($"Cannot generate scope for scope {currentScope}, type {scopeType}");
+            return null;
         }
 
         public static LanguageExpression FormatCrossScopeResourceId(ExpressionConverter expressionConverter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)

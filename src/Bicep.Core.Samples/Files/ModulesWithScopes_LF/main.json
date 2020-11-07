@@ -149,7 +149,6 @@
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2019-10-01",
               "name": "myResourceGroupMod2",
-              "subscriptionId": "[subscription().id]",
               "resourceGroup": "myRg",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -260,7 +259,7 @@
             },
             "myOutputRgMod2": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().id, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2019-10-01').outputs.myOutput.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2019-10-01').outputs.myOutput.value]"
             }
           }
         }

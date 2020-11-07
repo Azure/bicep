@@ -208,7 +208,7 @@ namespace Bicep.Core.Emit
         {
             return ScopeHelper.FormatCrossScopeResourceId(
                 this,
-                context.ScopeDataLookup[moduleSymbol],
+                context.ModuleScopeData[moduleSymbol],
                 TemplateWriter.NestedDeploymentResourceType,
                 GetModuleNameExpression(moduleSymbol.DeclaringModule).AsEnumerable());
         }

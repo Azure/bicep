@@ -281,7 +281,7 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
-            var scopeData = context.ScopeDataLookup[moduleSymbol];
+            var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);
 
             writer.WritePropertyName("properties");

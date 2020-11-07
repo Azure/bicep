@@ -645,6 +645,34 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP112",
                 $"The \"{LanguageConstants.TargetScopeKeyword}\" cannot be declared multiple times in one file.");
+
+            public Diagnostic InvalidModuleScopeForTenantScope() => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP113",
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. " +
+                $"Allowed scopes include current: tenant() or leave blank, named management group: managementGroup(<name>), or named subscription: subscription(<subId>).");
+
+            public Diagnostic InvalidModuleScopeForManagementScope() => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP114",
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. " +
+                $"Allowed scopes include current: managementGroup() or leave blank, named management group: managementGroup(<name>), named subscription: subscription(<subId>), or tenant: tenant().");
+
+            public Diagnostic InvalidModuleScopeForSubscriptionScope() => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP115",
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. " +
+                $"Allowed scopes include current: subscription() or leave blank, named resource group in same subscription: resourceGroup(<name>), or tenant: tenant().");
+
+            public Diagnostic InvalidModuleScopeForResourceGroup() => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP116",
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. " +
+                $"Allowed scopes include current: resourceGroup() or leave blank, named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

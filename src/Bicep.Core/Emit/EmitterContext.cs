@@ -13,19 +13,6 @@ namespace Bicep.Core.Emit
             this.SemanticModel = semanticModel;
             this.VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
             this.ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
-            this.ScopeDataLookup = semanticModel.Root.ModuleDeclarations.ToImmutableDictionary(module => module, module => GetScopeData(semanticModel, module));
-        }
-
-        private static ScopeHelper.ScopeData GetScopeData(SemanticModel.SemanticModel semanticModel, ModuleSymbol moduleSymbol)
-        {
-            var scopeProperty = (moduleSymbol.DeclaringModule.Body as ObjectSyntax)?.SafeGetPropertyByName("scope");
-            if (scopeProperty == null)
-            {
-                return new ScopeHelper.ScopeData { RequestedScope = semanticModel.TargetScope };
-            }
-            var scopeType = semanticModel.GetTypeInfo(scopeProperty.Value);
-
-            return ScopeHelper.GetScopeData(semanticModel.TargetScope, scopeType);
         }
 
         public SemanticModel.SemanticModel SemanticModel { get; }
@@ -34,6 +21,6 @@ namespace Bicep.Core.Emit
 
         public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> ResourceDependencies { get; }
 
-        public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ScopeDataLookup { get; }
+        public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
     }
 }
