@@ -10,7 +10,9 @@ The bicep compiler has a type system that ensure your code is authored correctly
 
 * code completions
   * dot-property access
+    * works on any `param` or `var` object, `resource` or `module`
   * resource property names & property values
+    * works for every `resource` and `module` (e.g. `myModule.outputs.`)
   * resource types
 
 ### Snippets
