@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -26,6 +27,7 @@ namespace Bicep.Core.Samples
     [TestClass]
     public class ExamplesTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         public class ExampleData
@@ -110,7 +112,7 @@ namespace Bicep.Core.Samples
         {
             // save all the files in the containing directory to disk so that we can test module resolution
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext!, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
             
@@ -145,6 +147,7 @@ namespace Bicep.Core.Samples
                     File.WriteAllText(jsonFileName + ".actual", generated);
 
                     actual.Should().EqualWithJsonDiffOutput(
+                        TestContext, 
                         JToken.Parse(File.ReadAllText(jsonFileName)),
                         example.JsonStreamName,
                         jsonFileName + ".actual");

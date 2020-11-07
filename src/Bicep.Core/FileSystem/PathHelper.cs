@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
-using System.Text;
 
 namespace Bicep.Core.FileSystem
 {
@@ -20,23 +19,26 @@ namespace Bicep.Core.FileSystem
         /// Converts relative paths to absolute paths relative to current directory. Fully qualified paths are returned as-is.
         /// </summary>
         /// <param name="path">The path.</param>
-        public static string ResolvePath(string path)
+        /// <param name="baseDirectory">The base directory to use when resolving relative paths. Set to null to use CWD.</param>
+        public static string ResolvePath(string path, string? baseDirectory = null)
         {
             if (Path.IsPathFullyQualified(path))
             {
                 return path;
             }
 
-            return Path.Combine(Environment.CurrentDirectory, path);
+            baseDirectory ??= Environment.CurrentDirectory;
+            return Path.Combine(baseDirectory, path);
         }
 
         /// <summary>
         /// Returns a normalized absolute path. Relative paths are converted to absolute paths relative to current directory prior to normalization.
         /// </summary>
         /// <param name="path">The path.</param>
-        public static string ResolveAndNormalizePath(string path)
+        /// <param name="baseDirectory">The base directory to use when resolving relative paths. Set to null to use CWD.</param>
+        public static string ResolveAndNormalizePath(string path, string? baseDirectory = null)
         {
-            var resolvedPath = ResolvePath(path);
+            var resolvedPath = ResolvePath(path, baseDirectory);
 
             return Path.GetFullPath(resolvedPath);
         }

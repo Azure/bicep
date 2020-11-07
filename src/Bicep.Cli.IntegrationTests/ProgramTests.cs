@@ -138,6 +138,7 @@ namespace Bicep.Cli.IntegrationTests
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
             actual.Should().EqualWithJsonDiffOutput(
+                TestContext, 
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -169,6 +170,7 @@ namespace Bicep.Cli.IntegrationTests
             var actual = JToken.Parse(output);
 
             actual.Should().EqualWithJsonDiffOutput(
+                TestContext, 
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -207,6 +209,7 @@ namespace Bicep.Cli.IntegrationTests
                 var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
                 actual.Should().EqualWithJsonDiffOutput(
+                    TestContext, 
                     JToken.Parse(dataSet.Compiled!),
                     expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
                     actualLocation: compiledFilePath);
