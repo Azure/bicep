@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
+using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -311,7 +313,23 @@ namespace Bicep.Core.TypeSystem
 
             if (missingRequiredProperties.Any())
             {
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties));
+                IPositionable positionable = expression;
+                string blockName = "object";
+
+                var parent = typeManager.GetParent(expression);
+                if (parent is ObjectPropertySyntax objectPropertyParent)
+                {
+                    positionable = objectPropertyParent.Key;
+                    blockName = "object";
+                }
+                else if (parent is INamedDeclarationSyntax declarationParent)
+                {
+                    positionable = declarationParent.Name;
+                    blockName = declarationParent.Keyword.Text;
+                }
+
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties, blockName));
+
             }
 
             var narrowedProperties = new List<TypeProperty>();

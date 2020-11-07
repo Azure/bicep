@@ -50,13 +50,13 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[38:93) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n// #completionTest(0) -> moduleATopLevelProperties\n\n}|
+//@[7:17) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[40:135) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName\n  \n}|
+//@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
@@ -65,9 +65,9 @@ module modANoInputs './modulea.bicep' = {
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-//@[10:71) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n    // #completionTest(0,1,2,3,4) -> moduleAParams\n    \n  }|
-    // #completionTest(0,1,2,3,4) -> moduleAParams
-    
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+// #completionTest(0,1,2,3,4) -> moduleAParams
+
   }
 }
 
@@ -82,7 +82,7 @@ var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
   params: {
-//@[10:95) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n    stringParamB: ''\n    objParam: {}\n    objArray: []\n    unspecifiedInput: ''\n  }|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam". |params|
     stringParamB: ''
     objParam: {}
     objArray: []
@@ -131,7 +131,7 @@ module moduleWithInvalidScope './empty.bicep' = {
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
-//@[69:113) [BCP035 (Error)] The specified object is missing the following required properties: "scope". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
+//@[7:37) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "scope". |moduleWithMissingRequiredScope|
   name: 'moduleWithMissingRequiredScope'
 }
 
