@@ -1,21 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions.Execution;
 using FluentAssertions;
 using System;
 
@@ -24,59 +12,6 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ScenarioTests
     {
-        private static (string? jsonOutput, IEnumerable<Diagnostic> diagnostics) Compile(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
-        {
-            var syntaxTreeGrouping = SyntaxFactory.CreateForFiles(files, entryFileUri);
-            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
-            
-            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-
-            string? jsonOutput = null;
-            if (!compilation.GetEntrypointSemanticModel().HasErrors())
-            {
-                using var stream = new MemoryStream();
-                var emitResult = emitter.Emit(stream);
-
-                if (emitResult.Status != EmitStatus.Failed)
-                {
-                    stream.Position = 0;
-                    jsonOutput = new StreamReader(stream).ReadToEnd();
-                }
-            }
-
-            return (jsonOutput, diagnostics);
-        }        
-
-        private static void AssertFailureWithDiagnostics(string fileContents,  IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics)
-        {
-            var entryFileUri = new Uri("file:///main.bicep");
-
-            AssertFailureWithDiagnostics(new Dictionary<Uri, string> { [entryFileUri] = fileContents }, entryFileUri, expectedDiagnostics);
-        }
-
-        private static void AssertFailureWithDiagnostics(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri, IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics)
-        {
-            var (jsonOutput, diagnostics) = Compile(files, entryFileUri);
-            using (new AssertionScope())
-            {
-                jsonOutput.Should().BeNull();
-                diagnostics.Should().HaveDiagnostics(expectedDiagnostics);
-            }
-        }
-
-        private static string AssertSuccessWithTemplateOutput(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
-        {
-            var (jsonOutput, diagnostics) = Compile(files, entryFileUri);
-            using (new AssertionScope())
-            {
-                jsonOutput.Should().NotBeNull();
-                diagnostics.Should().BeEmpty();
-            }
-
-            return jsonOutput!;
-        }
-
         [TestMethod]
         public void Test_Issue746()
         {
@@ -85,7 +20,7 @@ var l = l
 param l
 ";
 
-            AssertFailureWithDiagnostics(
+            CompilationHelper.AssertFailureWithDiagnostics(
                 bicepContents,
                 new [] {
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
@@ -152,7 +87,7 @@ output vnetstate string = vnet.properties.provisioningState
 ",
             };
 
-            var jsonOutput = AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
 
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
             jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");

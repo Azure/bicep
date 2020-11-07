@@ -142,3 +142,10 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[9:24) [BCP057 (Error)] The name "managementGroup" does not exist in the current context. |managementGroup|
 //@[9:26) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Allowed scopes include current: resourceGroup() or leave blank, named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |managementGroup()|
 }
+
+module moduleWithBadScope './empty.bicep' = {
+  name: 'moduleWithBadScope'
+  scope: 'stringScope'
+//@[9:22) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "'stringScope'". |'stringScope'|
+//@[9:22) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Allowed scopes include current: resourceGroup() or leave blank, named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |'stringScope'|
+}
