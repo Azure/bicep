@@ -74,7 +74,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified object is missing the following required properties: \"requiredIpnut\"."));
+                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
             }
 
             // open the module document. this should trigger diagnostics for both the module and the main doc which references it.
@@ -87,7 +87,7 @@ param requiredIpnut string
 
                 diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified object is missing the following required properties: \"requiredIpnut\"."));
+                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
             }
 
             // fix the mis-spelling in the module! We should again get two sets of diagnostics, but with no errors
@@ -151,7 +151,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified object is missing the following required properties: \"requiredIpnut\"."));
+                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
             }
 
             // delete the module file with a background process
@@ -217,7 +217,7 @@ param requiredIpnut string
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
-                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified object is missing the following required properties: \"requiredIpnut\"."));
+                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
             }
 
             // delete the module folder with a background process

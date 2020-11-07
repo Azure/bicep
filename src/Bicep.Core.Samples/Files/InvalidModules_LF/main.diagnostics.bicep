@@ -50,12 +50,13 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[0:6) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |module|
+//@[7:17) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoName|
+// #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[0:6) [BCP035 (Error)] The specified object is missing the following required properties: "params". |module|
+//@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
@@ -64,7 +65,8 @@ module modANoInputs './modulea.bicep' = {
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-//@[2:8) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+// #completionTest(0,1,2,3,4) -> moduleAParams
 
   }
 }
@@ -80,7 +82,7 @@ var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
   params: {
-//@[2:8) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |params|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam". |params|
     stringParamB: ''
     objParam: {}
     objArray: []
@@ -129,7 +131,7 @@ module moduleWithInvalidScope './empty.bicep' = {
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
-//@[69:113) [BCP035 (Error)] The specified object is missing the following required properties: "scope". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
+//@[7:37) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "scope". |moduleWithMissingRequiredScope|
   name: 'moduleWithMissingRequiredScope'
 }
 

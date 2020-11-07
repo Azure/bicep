@@ -40,8 +40,8 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
 }
 
 // duplicate property at the top level
@@ -181,7 +181,7 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
 
 }
@@ -216,7 +216,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
+//@[9:32) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeyMissing|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }
@@ -231,7 +231,7 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 //@[75:76) [BCP053 (Error)] The type "Microsoft.Resources/deploymentScripts@2020-10-01" does not contain property "p". Available properties include "apiVersion", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". |p|
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -244,7 +244,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -261,7 +261,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['prop
 //@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) [BCP035 (Error)] The specified object is missing the following required properties: "name". |resource|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |incorrectPropertiesKey|
   kind: 'AzureCLI'
 
   propertes: {
@@ -322,7 +322,7 @@ resource startedTypingTypeWithoutQuotes virma
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[89:93) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+//@[9:30) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |dashesInPropertyNames|
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s

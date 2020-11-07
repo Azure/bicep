@@ -208,7 +208,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP035",
-                $"The specified {blockName} is missing the following required properties: {ToQuotedString(properties)}.");
+                $"The specified \"{blockName}\" declaration is missing the following required properties: {ToQuotedString(properties)}.");
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
                 TextSpan,

@@ -343,7 +343,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
             diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
-            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
+            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -962,7 +962,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The specified object is missing the following required properties: \"fieldB\".");
+                        x.Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"fieldB\".");
                     });
 
                 // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator
