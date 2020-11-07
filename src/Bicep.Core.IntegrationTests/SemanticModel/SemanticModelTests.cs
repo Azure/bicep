@@ -46,6 +46,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
                 dataSet.Diagnostics,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
                 actualLocation: resultsFile);
@@ -82,6 +83,7 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
                 dataSet.Symbols,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
                 actualLocation: resultsFile);

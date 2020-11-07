@@ -56,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
             
             var expected = JToken.Parse(expectedStr);
 
-            actual.Should().EqualWithJsonDiffOutput(expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
+            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
         [DataTestMethod]
@@ -125,7 +125,7 @@ namespace Bicep.LangServer.IntegrationTests
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
-            actual.Should().EqualWithJsonDiffOutput(expected, expectedLocation, actualLocation, "because ");
+            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
