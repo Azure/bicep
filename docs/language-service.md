@@ -1,6 +1,6 @@
 # Key features of the Bicep language service
 
-The bicep language service (implemented in the [bicep VS Code extension](./installing.md/install-the-bicep-vs-code-extension)) is capable of many of the features you would expect out of other language tooling. Here's all of the features that are currently implemented.
+The bicep language service (implemented in the [bicep VS Code extension](./installing.md#install-the-bicep-vs-code-extension)) is capable of many of the features you would expect out of other language tooling. Here's all of the features that are currently implemented.
 
 ## Validation and type checking
 
