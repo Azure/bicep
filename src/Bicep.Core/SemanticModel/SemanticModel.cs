@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
@@ -14,8 +16,8 @@ namespace Bicep.Core.SemanticModel
     public class SemanticModel
     {
         private readonly ITypeManager typeManager;
-
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
+        private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
 
         public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, ResourceScopeType targetScope)
         {
@@ -23,9 +25,12 @@ namespace Bicep.Core.SemanticModel
             this.typeManager = typeManager;
             this.TargetScope = targetScope;
             this.bindings = bindings.ToImmutableDictionary();
+            this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
         }
 
         public IResourceTypeProvider ResourceTypeProvider => this.typeManager.ResourceTypeProvider;
+
+        public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
@@ -45,6 +50,8 @@ namespace Bicep.Core.SemanticModel
 
             var typeValidationDiagnostics = typeManager.GetAllDiagnostics();
             diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
+
+            diagnosticWriter.WriteMultiple(EmitLimitationInfo.Diagnostics);
 
             return diagnosticWriter.GetDiagnostics();
         }

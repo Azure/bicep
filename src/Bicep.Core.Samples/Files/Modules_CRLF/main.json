@@ -1,6 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deployTimeSuffix": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    }
+  },
   "functions": [],
   "resources": [
     {
@@ -8,12 +14,24 @@
       "apiVersion": "2020-01-01",
       "name": "harry",
       "properties": {
-        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
-        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
+        "modADep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
+        "modBDep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
-        "[resourceId('Microsoft.Resources/deployments', 'modB')]"
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest')]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modB')]"
+      ]
+    },
+    {
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "properties": {
+        "modADep": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+      },
+      "dependsOn": [
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix')))]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]"
       ]
     },
     {
@@ -377,7 +395,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParams')]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithNoParams2')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     },
@@ -392,7 +410,7 @@
         "mode": "Incremental",
         "parameters": {
           "optionalString": {
-            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
           },
           "optionalInt": {
             "value": 42
@@ -447,7 +465,77 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
+        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name)]"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "optionalString": {
+              "type": "string",
+              "defaultValue": "abc"
+            },
+            "optionalInt": {
+              "type": "int",
+              "defaultValue": 42
+            },
+            "optionalObj": {
+              "type": "object",
+              "defaultValue": {
+                "a": "b"
+              }
+            },
+            "optionalArray": {
+              "type": "array",
+              "defaultValue": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "outputObj": {
+              "type": "object",
+              "value": {
+                "optionalString": "[parameters('optionalString')]",
+                "optionalInt": "[parameters('optionalInt')]",
+                "optionalObj": "[parameters('optionalObj')]",
+                "optionalArray": "[parameters('optionalArray')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     }
@@ -455,19 +543,23 @@
   "outputs": {
     "stringOutputA": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
     },
     "stringOutputB": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
     },
     "objOutput": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
     },
     "arrayOutput": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+    },
+    "modCalculatedNameOutput": {
+      "type": "object",
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
     }
   }
 }

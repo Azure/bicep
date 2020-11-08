@@ -73,7 +73,7 @@
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
+      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
     }
   }
 }
