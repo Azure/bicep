@@ -650,29 +650,29 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP113",
-                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. " +
-                $"Allowed scopes include current: tenant() or leave blank, named management group: managementGroup(<name>), or named subscription: subscription(<subId>).");
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
+                $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), or named subscription: subscription(<subId>).");
 
             public Diagnostic InvalidModuleScopeForManagementScope() => new Diagnostic(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP114",
-                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. " +
-                $"Allowed scopes include current: managementGroup() or leave blank, named management group: managementGroup(<name>), named subscription: subscription(<subId>), or tenant: tenant().");
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
+                $"Permissible scopes include current management group: managementGroup(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or tenant: tenant()");
 
             public Diagnostic InvalidModuleScopeForSubscriptionScope() => new Diagnostic(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP115",
-                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. " +
-                $"Allowed scopes include current: subscription() or leave blank, named resource group in same subscription: resourceGroup(<name>), or tenant: tenant().");
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
+                $"Permissible scopes include current subscription: subscription(), named resource group in same subscription: resourceGroup(<name>), or tenant: tenant().");
 
             public Diagnostic InvalidModuleScopeForResourceGroup() => new Diagnostic(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP116",
-                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. " +
-                $"Allowed scopes include current: resourceGroup() or leave blank, named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
+                $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
+                $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
