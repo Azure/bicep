@@ -812,13 +812,44 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value?["value"]));
         }
 
+        private TargetScopeSyntax? ParseTargetScope(JObject template)
+        {
+            switch (template["$schema"]?.ToString())
+            {
+                case "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#":
+                    return new TargetScopeSyntax(
+                        Helpers.CreateToken(TokenType.Identifier, "targetScope"),
+                        Helpers.CreateToken(TokenType.Assignment, "="),
+                        Helpers.CreateStringLiteral("tenant"));
+                case "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#":
+                    return new TargetScopeSyntax(
+                        Helpers.CreateToken(TokenType.Identifier, "targetScope"),
+                        Helpers.CreateToken(TokenType.Assignment, "="),
+                        Helpers.CreateStringLiteral("managementGroup"));
+                case "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#":
+                    return new TargetScopeSyntax(
+                        Helpers.CreateToken(TokenType.Identifier, "targetScope"),
+                        Helpers.CreateToken(TokenType.Assignment, "="),
+                        Helpers.CreateStringLiteral("subscription"));
+            }
+
+            return null;
+        }
+
         private ProgramSyntax Parse()
         {
             var template = JsonConvert.DeserializeObject<JObject>(content);
+            var statements = new List<SyntaxBase>();
 
             if ((template["functions"] as JArray)?.Any() == true)
             {
                 throw new NotImplementedException($"User defined functions are not currently supported");
+            }
+
+            var targetScope = ParseTargetScope(template);
+            if (targetScope != null)
+            {
+                statements.Add(targetScope);
             }
 
             var parameters = ((template["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>()).ToArray();
@@ -828,16 +859,10 @@ namespace Bicep.Decompiler
 
             RegisterNames(parameters, resources, variables, outputs);
 
-            var parametersParsed = parameters.Select(ParseParam);
-            var variablesParsed = variables.Select(ParseVariable);
-            var resourcesParsed = resources.Select(ParseResource);
-            var outputsParsed = outputs.Select(ParseOutput);
-
-            var statements = Enumerable.Empty<SyntaxBase>()
-                .Concat(parametersParsed)
-                .Concat(variablesParsed)
-                .Concat(resourcesParsed)
-                .Concat(outputsParsed);
+            statements.AddRange(parameters.Select(ParseParam));
+            statements.AddRange(variables.Select(ParseVariable));
+            statements.AddRange(resources.Select(ParseResource));
+            statements.AddRange(outputs.Select(ParseOutput));
 
             return new ProgramSyntax(
                 statements.SelectMany(x => new [] { x, Helpers.CreateToken(TokenType.NewLine, "\n" )}),
