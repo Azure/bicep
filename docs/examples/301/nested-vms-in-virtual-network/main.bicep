@@ -52,7 +52,9 @@ param HostVirtualMachineSize string {
   ]
 }
 param HostAdminUsername string
-param HostAdminPassword string
+param HostAdminPassword string {
+  secure: true
+}
 
 var NATSubnetNSGName = '${NATSubnetName}NSG'
 var hyperVSubnetNSGName = '${hyperVSubnetName}NSG'
@@ -162,6 +164,15 @@ module createNic1 './nic.bicep' = {
   }
 }
 
+module createNic2 './nic.bicep' = {
+  name: 'createNic2'
+  params: {
+    nicName: HostNetworkInterface2Name
+    enableIPForwarding: true
+    subnetId: '${vnet.id}/subnets/${hyperVSubnetName}'
+  }
+}
+
 // update nic to staticIp now that nic has been created
 module updateNic1 './nic.bicep' = {
   name: 'updateNic1'
@@ -174,15 +185,6 @@ module updateNic1 './nic.bicep' = {
   }
 }
 
-module createNic2 './nic.bicep' = {
-  name: 'createNic2'
-  params: {
-    nicName: HostNetworkInterface2Name
-    enableIPForwarding: true
-    subnetId: '${vnet}/subnets${hyperVSubnetName}'
-  }
-}
-
 // update nic to staticIp now that nic has been created
 module updateNic2 './nic.bicep' = {
   name: 'updateNic2'
@@ -191,7 +193,7 @@ module updateNic2 './nic.bicep' = {
     staticIpAddress: createNic2.outputs.assignedIp
     nicName: HostNetworkInterface2Name
     enableIPForwarding: true
-    subnetId: '${vnet}/subnets${hyperVSubnetName}'
+    subnetId: '${vnet.id}/subnets/${hyperVSubnetName}'
   }
 }
 
@@ -271,7 +273,7 @@ resource hostVm 'Microsoft.Compute/virtualMachines@2019-03-01' = {
 }
 
 resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
-  name: '${hostVm.id}/InstallWindowsFeatures'
+  name: '${hostVm.name}/InstallWindowsFeatures'
   location: location
   properties: {
     publisher: 'Microsoft.Powershell'
@@ -290,7 +292,7 @@ resource vmExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' =
 }
 
 resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019-03-01' = {
-  name: '${hostVm.id}/HVHOSTSetup'
+  name: '${hostVm.name}/HVHOSTSetup'
   location: location
   properties: {
     publisher: 'Microsoft.Compute'

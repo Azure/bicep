@@ -105,7 +105,7 @@
       "type": "string"
     },
     "HostAdminPassword": {
-      "type": "string"
+      "type": "secureString"
     }
   },
   "functions": [],
@@ -290,7 +290,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
-      "name": "[format('{0}/InstallWindowsFeatures', resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName')))]",
+      "name": "[format('{0}/InstallWindowsFeatures', parameters('HostVirtualMachineName'))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Powershell",
@@ -313,7 +313,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2019-03-01",
-      "name": "[format('{0}/HVHOSTSetup', resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName')))]",
+      "name": "[format('{0}/HVHOSTSetup', parameters('HostVirtualMachineName'))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -553,7 +553,7 @@
             "value": true
           },
           "subnetId": {
-            "value": "[format('{0}/subnets{1}', reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '2019-04-01', 'full'), parameters('hyperVSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('hyperVSubnetName'))]"
           }
         },
         "template": {
@@ -656,7 +656,7 @@
             "value": true
           },
           "subnetId": {
-            "value": "[format('{0}/subnets{1}', reference(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '2019-04-01', 'full'), parameters('hyperVSubnetName'))]"
+            "value": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), parameters('hyperVSubnetName'))]"
           }
         },
         "template": {
