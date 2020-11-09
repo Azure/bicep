@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_dependsOn",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "dependsOn"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_params",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "params"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_scope",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "scope"

@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_arguments",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "arguments"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_azPowerShellVersion",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "azPowerShellVersion"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_cleanupPreference",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "cleanupPreference"
@@ -71,6 +74,7 @@
     "preselect": false,
     "sortText": "2_containerSettings",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "containerSettings"
@@ -91,6 +95,7 @@
     "preselect": false,
     "sortText": "2_environmentVariables",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "environmentVariables"
@@ -111,6 +116,7 @@
     "preselect": false,
     "sortText": "2_forceUpdateTag",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "forceUpdateTag"
@@ -131,6 +137,7 @@
     "preselect": false,
     "sortText": "2_outputs",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "outputs"
@@ -151,6 +158,7 @@
     "preselect": false,
     "sortText": "2_primaryScriptUri",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "primaryScriptUri"
@@ -171,6 +179,7 @@
     "preselect": false,
     "sortText": "2_provisioningState",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "provisioningState"
@@ -191,6 +200,7 @@
     "preselect": false,
     "sortText": "2_retentionInterval",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "retentionInterval"
@@ -211,6 +221,7 @@
     "preselect": false,
     "sortText": "2_scriptContent",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "scriptContent"
@@ -231,6 +242,7 @@
     "preselect": false,
     "sortText": "2_status",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "status"
@@ -251,6 +263,7 @@
     "preselect": false,
     "sortText": "2_storageAccountSettings",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "storageAccountSettings"
@@ -271,6 +284,7 @@
     "preselect": false,
     "sortText": "2_supportingScriptUris",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "supportingScriptUris"
@@ -291,6 +305,7 @@
     "preselect": false,
     "sortText": "2_timeout",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "timeout"

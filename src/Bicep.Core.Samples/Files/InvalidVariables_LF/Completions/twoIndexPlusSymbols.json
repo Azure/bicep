@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "1_'two'",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "'two'"
@@ -24,6 +25,7 @@
     "preselect": false,
     "sortText": "3_any",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "any($0)"
@@ -37,6 +39,7 @@
     "preselect": false,
     "sortText": "3_array",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "array($0)"
@@ -50,6 +53,7 @@
     "preselect": false,
     "sortText": "3_az",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "az"
@@ -63,6 +67,7 @@
     "preselect": false,
     "sortText": "3_az.resourceGroup",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "az.resourceGroup($0)"
@@ -76,6 +81,7 @@
     "preselect": false,
     "sortText": "2_badEquals",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "badEquals"
@@ -89,6 +95,7 @@
     "preselect": false,
     "sortText": "2_badEquals2",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "badEquals2"
@@ -102,6 +109,7 @@
     "preselect": false,
     "sortText": "2_bar",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "bar"
@@ -115,6 +123,7 @@
     "preselect": false,
     "sortText": "3_base64",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "base64($0)"
@@ -128,6 +137,7 @@
     "preselect": false,
     "sortText": "3_base64ToJson",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "base64ToJson($0)"
@@ -141,6 +151,7 @@
     "preselect": false,
     "sortText": "3_base64ToString",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "base64ToString($0)"
@@ -154,6 +165,7 @@
     "preselect": false,
     "sortText": "3_bool",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "bool($0)"
@@ -167,6 +179,7 @@
     "preselect": false,
     "sortText": "3_coalesce",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "coalesce($0)"
@@ -180,6 +193,7 @@
     "preselect": false,
     "sortText": "3_concat",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "concat($0)"
@@ -193,6 +207,7 @@
     "preselect": false,
     "sortText": "3_contains",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "contains($0)"
@@ -206,6 +221,7 @@
     "preselect": false,
     "sortText": "3_dataUri",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "dataUri($0)"
@@ -219,6 +235,7 @@
     "preselect": false,
     "sortText": "3_dataUriToString",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "dataUriToString($0)"
@@ -232,6 +249,7 @@
     "preselect": false,
     "sortText": "3_dateTimeAdd",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "dateTimeAdd($0)"
@@ -245,6 +263,7 @@
     "preselect": false,
     "sortText": "3_deployment",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "deployment()$0"
@@ -258,6 +277,7 @@
     "preselect": false,
     "sortText": "2_doubleString",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "doubleString"
@@ -271,6 +291,7 @@
     "preselect": false,
     "sortText": "3_empty",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "empty($0)"
@@ -284,6 +305,7 @@
     "preselect": false,
     "sortText": "3_endsWith",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "endsWith($0)"
@@ -297,6 +319,7 @@
     "preselect": false,
     "sortText": "3_environment",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "environment()$0"
@@ -310,6 +333,7 @@
     "preselect": false,
     "sortText": "3_extensionResourceId",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "extensionResourceId($0)"
@@ -323,6 +347,7 @@
     "preselect": false,
     "sortText": "3_first",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "first($0)"
@@ -336,6 +361,7 @@
     "preselect": false,
     "sortText": "2_foo",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "foo"
@@ -349,6 +375,7 @@
     "preselect": false,
     "sortText": "3_format",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "format($0)"
@@ -362,6 +389,7 @@
     "preselect": false,
     "sortText": "3_guid",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "guid($0)"
@@ -375,6 +403,7 @@
     "preselect": false,
     "sortText": "3_indexOf",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "indexOf($0)"
@@ -388,6 +417,7 @@
     "preselect": false,
     "sortText": "3_int",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "int($0)"
@@ -401,6 +431,7 @@
     "preselect": false,
     "sortText": "3_intersection",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "intersection($0)"
@@ -414,6 +445,7 @@
     "preselect": false,
     "sortText": "2_invalidNamespaceAssignment",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "invalidNamespaceAssignment"
@@ -427,6 +459,7 @@
     "preselect": false,
     "sortText": "3_json",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "json($0)"
@@ -440,6 +473,7 @@
     "preselect": false,
     "sortText": "3_last",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "last($0)"
@@ -453,6 +487,7 @@
     "preselect": false,
     "sortText": "3_lastIndexOf",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "lastIndexOf($0)"
@@ -466,6 +501,7 @@
     "preselect": false,
     "sortText": "3_length",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "length($0)"
@@ -479,6 +515,7 @@
     "preselect": false,
     "sortText": "3_max",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "max($0)"
@@ -492,6 +529,7 @@
     "preselect": false,
     "sortText": "3_min",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "min($0)"
@@ -505,6 +543,7 @@
     "preselect": false,
     "sortText": "2_missingValue",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "missingValue"
@@ -518,6 +557,7 @@
     "preselect": false,
     "sortText": "2_mixedArrayTypeCompletions",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "mixedArrayTypeCompletions"
@@ -531,6 +571,7 @@
     "preselect": false,
     "sortText": "2_mixedArrayTypeCompletions2",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "mixedArrayTypeCompletions2"
@@ -544,6 +585,7 @@
     "preselect": false,
     "sortText": "2_myConcat",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "myConcat"
@@ -557,6 +599,7 @@
     "preselect": false,
     "sortText": "2_mySum",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "mySum"
@@ -570,6 +613,7 @@
     "preselect": false,
     "sortText": "2_objWithInterp",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objWithInterp"
@@ -583,6 +627,7 @@
     "preselect": false,
     "sortText": "2_objectLiteralType",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objectLiteralType"
@@ -596,6 +641,7 @@
     "preselect": false,
     "sortText": "2_objectVarTopLevelArrayIndexCompletions",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objectVarTopLevelArrayIndexCompletions"
@@ -609,6 +655,7 @@
     "preselect": false,
     "sortText": "2_objectVarTopLevelCompletions",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objectVarTopLevelCompletions"
@@ -622,6 +669,7 @@
     "preselect": false,
     "sortText": "2_objectVarTopLevelCompletions2",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objectVarTopLevelCompletions2"
@@ -635,6 +683,7 @@
     "preselect": false,
     "sortText": "2_oneArrayItemCompletions",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "oneArrayItemCompletions"
@@ -648,6 +697,7 @@
     "preselect": false,
     "sortText": "2_oneArrayItemCompletions2",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "oneArrayItemCompletions2"
@@ -661,6 +711,7 @@
     "preselect": false,
     "sortText": "3_padLeft",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "padLeft($0)"
@@ -674,6 +725,7 @@
     "preselect": false,
     "sortText": "3_pickZones",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "pickZones($0)"
@@ -687,6 +739,7 @@
     "preselect": false,
     "sortText": "3_providers",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "providers($0)"
@@ -700,6 +753,7 @@
     "preselect": false,
     "sortText": "3_range",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "range($0)"
@@ -713,6 +767,7 @@
     "preselect": false,
     "sortText": "3_reference",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "reference($0)"
@@ -726,6 +781,7 @@
     "preselect": false,
     "sortText": "3_replace",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "replace($0)"
@@ -739,6 +795,7 @@
     "preselect": false,
     "sortText": "2_resourceGroup",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resourceGroup"
@@ -752,6 +809,7 @@
     "preselect": false,
     "sortText": "3_resourceId",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
@@ -765,6 +823,7 @@
     "preselect": false,
     "sortText": "2_rgName",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "rgName"
@@ -778,6 +837,7 @@
     "preselect": false,
     "sortText": "3_skip",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "skip($0)"
@@ -791,6 +851,7 @@
     "preselect": false,
     "sortText": "3_split",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "split($0)"
@@ -804,6 +865,7 @@
     "preselect": false,
     "sortText": "3_startsWith",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "startsWith($0)"
@@ -817,6 +879,7 @@
     "preselect": false,
     "sortText": "3_string",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "string($0)"
@@ -830,6 +893,7 @@
     "preselect": false,
     "sortText": "3_subscription",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "subscription($0)"
@@ -843,6 +907,7 @@
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "subscriptionResourceId($0)"
@@ -856,6 +921,7 @@
     "preselect": false,
     "sortText": "3_substring",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "substring($0)"
@@ -869,6 +935,7 @@
     "preselect": false,
     "sortText": "3_sys",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "sys"
@@ -882,6 +949,7 @@
     "preselect": false,
     "sortText": "3_take",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "take($0)"
@@ -895,6 +963,7 @@
     "preselect": false,
     "sortText": "3_tenant",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "tenant()$0"
@@ -908,6 +977,7 @@
     "preselect": false,
     "sortText": "3_tenantResourceId",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "tenantResourceId($0)"
@@ -921,6 +991,7 @@
     "preselect": false,
     "sortText": "2_test",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "test"
@@ -934,6 +1005,7 @@
     "preselect": false,
     "sortText": "2_test2",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "test2"
@@ -947,6 +1019,7 @@
     "preselect": false,
     "sortText": "2_test3",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "test3"
@@ -960,6 +1033,7 @@
     "preselect": false,
     "sortText": "2_testDupe",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "testDupe"
@@ -973,6 +1047,7 @@
     "preselect": false,
     "sortText": "3_toLower",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "toLower($0)"
@@ -986,6 +1061,7 @@
     "preselect": false,
     "sortText": "3_toUpper",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "toUpper($0)"
@@ -999,6 +1075,7 @@
     "preselect": false,
     "sortText": "3_trim",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "trim($0)"
@@ -1012,6 +1089,7 @@
     "preselect": false,
     "sortText": "3_union",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "union($0)"
@@ -1025,6 +1103,7 @@
     "preselect": false,
     "sortText": "3_uniqueString",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "uniqueString($0)"
@@ -1038,6 +1117,7 @@
     "preselect": false,
     "sortText": "3_uri",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "uri($0)"
@@ -1051,6 +1131,7 @@
     "preselect": false,
     "sortText": "3_uriComponent",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "uriComponent($0)"
@@ -1064,6 +1145,7 @@
     "preselect": false,
     "sortText": "3_uriComponentToString",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
@@ -1077,6 +1159,7 @@
     "preselect": false,
     "sortText": "2_x",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "x"
@@ -1090,6 +1173,7 @@
     "preselect": false,
     "sortText": "2_y",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "y"
