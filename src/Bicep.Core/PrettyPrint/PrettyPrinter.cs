@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
@@ -38,8 +36,6 @@ namespace Bicep.Core.PrettyPrint
             var document = documentBuildVisitor.BuildDocument(programSyntax);
             document.Layout(sb, indent, newline);
 
-            sb.TrimNewLines();
-
             if (options.InsertFinalNewline)
             {
                 sb.Append(newline);
@@ -50,12 +46,12 @@ namespace Bicep.Core.PrettyPrint
 
         private static string InferNewline(ProgramSyntax programSyntax)
         {
-            var firstNewLine = (Token?)programSyntax.Children
+            var firstNewlineToken = (Token?)programSyntax.Children
                 .FirstOrDefault(child => child is Token token && token.Type == TokenType.NewLine);
 
-            if (firstNewLine != null)
+            if (firstNewlineToken != null)
             {
-                return StringUtils.NewLineRegex.Match(firstNewLine.Text).Value;
+                return StringUtils.MatchNewline(firstNewlineToken.Text);
             }
 
             return Environment.NewLine;
