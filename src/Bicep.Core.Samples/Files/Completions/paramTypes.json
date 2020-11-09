@@ -7,6 +7,7 @@
     "preselect": false,
     "sortText": "2_array",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "array"
@@ -20,6 +21,7 @@
     "preselect": false,
     "sortText": "2_bool",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "bool"
@@ -33,6 +35,7 @@
     "preselect": false,
     "sortText": "2_int",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "int"
@@ -46,6 +49,7 @@
     "preselect": false,
     "sortText": "2_object",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "object"
@@ -63,6 +67,7 @@
     "preselect": false,
     "sortText": "2_secureObject",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "object {\n  secure: true\n}"
@@ -80,6 +85,7 @@
     "preselect": false,
     "sortText": "2_secureString",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "string {\n  secure: true\n}"
@@ -93,6 +99,7 @@
     "preselect": false,
     "sortText": "2_string",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "string"

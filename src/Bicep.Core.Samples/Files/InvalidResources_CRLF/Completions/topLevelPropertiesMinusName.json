@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_dependsOn",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "dependsOn"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_extendedLocation",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "extendedLocation"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_identity",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "identity"
@@ -71,6 +74,7 @@
     "preselect": false,
     "sortText": "2_kind",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "kind"
@@ -91,6 +95,7 @@
     "preselect": false,
     "sortText": "2_location",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "location"
@@ -111,6 +116,7 @@
     "preselect": false,
     "sortText": "2_properties",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "properties"
@@ -131,6 +137,7 @@
     "preselect": false,
     "sortText": "2_sku",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "sku"
@@ -151,6 +158,7 @@
     "preselect": false,
     "sortText": "2_tags",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "tags"
