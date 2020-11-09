@@ -10,6 +10,8 @@ using Bicep.Core.Syntax;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Azure.Deployments.Expression.Expressions;
+using System.IO;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Decompiler
 {
@@ -18,7 +20,8 @@ namespace Bicep.Decompiler
         private static readonly IExpressionsProvider ExpressionsProvider = new ArmExpressionsProvider();
 
         private readonly INamingResolver nameResolver;
-        private readonly string content;
+        private readonly string filePath;
+        private readonly JObject template;
 
         private static LanguageExpression GetLanguageExpression(string value)
         {
@@ -30,15 +33,16 @@ namespace Bicep.Decompiler
             return new JTokenExpression(value);
         }
 
-        private TemplateConverter(string content)
+        private TemplateConverter(string filePath, string content)
         {
-            this.content = content;
+            this.filePath = filePath;
+            this.template = JsonConvert.DeserializeObject<JObject>(content);
             this.nameResolver = new UniqueNamingResolver(ExpressionsProvider);
         }
 
-        public static ProgramSyntax DecompileTemplate(string content)
+        public static ProgramSyntax DecompileTemplate(string filePath, string content)
         {
-            var instance = new TemplateConverter(content);
+            var instance = new TemplateConverter(filePath, content);
 
             return instance.Parse();
         }
@@ -188,6 +192,45 @@ namespace Bicep.Decompiler
             return functionExpression;
         }
 
+        private static LanguageExpression InlineVariablesRecursive(JObject template, LanguageExpression original)
+        {
+            if (!(original is FunctionExpression functionExpression))
+            {
+                return original;
+            }
+
+            if (functionExpression.Function == "variables" && functionExpression.Parameters.Length == 1 && functionExpression.Parameters[0] is JTokenExpression variableNameExpression)
+            {
+                var variableVal = template["variables"]?[variableNameExpression.Value.ToString()];
+
+                if (variableVal == null)
+                {
+                    throw new ArgumentException($"Unable to resolve variable {variableNameExpression.Value.ToString()}");
+                }
+
+                if (variableVal.Type == JTokenType.String && variableVal.ToObject<string>() is string stringValue)
+                {
+                    var variableExpression = GetLanguageExpression(stringValue);
+
+                    return InlineVariablesRecursive(template, variableExpression);
+                }
+            }
+
+            var inlinedParameters = functionExpression.Parameters.Select(p => InlineVariablesRecursive(template, p));
+
+            return new FunctionExpression(
+                functionExpression.Function,
+                inlinedParameters.ToArray(),
+                functionExpression.Properties);
+        }
+
+        private static LanguageExpression FlattenConcatsAndInlineVariables(JObject template, LanguageExpression original)
+        {
+            var inlined = InlineVariablesRecursive(template, original);
+
+            return FlattenConcats(inlined);
+        }
+
         private static IEnumerable<JToken> FlattenAndNormalizeResource(JToken resource)
         {
             var parentType = resource["type"]?.Value<string>() ?? throw new ArgumentException($"Unable to parse 'type' for resource '{resource["name"]}'");
@@ -211,8 +254,12 @@ namespace Bicep.Decompiler
                 var childType = childResource["type"]?.Value<string>() ?? throw new ArgumentException($"Unable to parse 'type' for resource '{childResource["name"]}'");
                 var childName = childResource["name"]?.Value<string>() ?? throw new ArgumentException($"Unable to parse 'name' for resource '{childResource["name"]}'");
 
-                childResource["type"] = $"{parentType}/{childResource["type"]}";
-                childResource["name"] = ExpressionsProvider.SerializeExpression(new FunctionExpression("concat", new LanguageExpression[] { parentNameExpression, new JTokenExpression("/"), GetLanguageExpression(childName)}, Array.Empty<LanguageExpression>()));
+                // child may sometimes be specified using the fully-qualified type and name
+                if (!StringComparer.OrdinalIgnoreCase.Equals(parentType.Split("/")[0], childType.Split("/")[0]))
+                {
+                    childResource["type"] = $"{parentType}/{childType}";
+                    childResource["name"] = ExpressionsProvider.SerializeExpression(new FunctionExpression("concat", new LanguageExpression[] { parentNameExpression, new JTokenExpression("/"), GetLanguageExpression(childName)}, Array.Empty<LanguageExpression>()));
+                }
 
                 foreach (var result in FlattenAndNormalizeResource(childResource))
                 {
@@ -260,6 +307,8 @@ namespace Bicep.Decompiler
                     functionExpression.Parameters,
                     new LanguageExpression[] { });
             }
+            
+            // TODO: find resources with same name variable - this is pretty common
 
             if (!functionExpression.NameEquals("resourceid") ||
                 functionExpression.Parameters.Length < 2)
@@ -301,6 +350,79 @@ namespace Bicep.Decompiler
                 JTokenType.Null => new NullLiteralSyntax(Helpers.CreateToken(TokenType.NullKeyword, "null")),
                 _ => throw new NotImplementedException($"Unrecognized expression {ExpressionsProvider.SerializeExpression(expression)}"),
             };
+
+        private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
+        {
+            if (Helpers.BannedBinaryOperatorLookup.TryGetValue(expression.Function, out var bannedOperator))
+            {
+                if (expression.Parameters.Length != 2)
+                {
+                    throw new ArgumentException($"Expected 2 parameters for binary function {expression.Function}");
+                }
+
+                if (expression.Properties.Any())
+                {
+                    throw new ArgumentException($"Expected 0 properties for binary function {expression.Function}");
+                }
+
+                syntax = new ParenthesizedExpressionSyntax(
+                    Helpers.CreateToken(TokenType.LeftParen, "("),
+                    new BinaryOperationSyntax(
+                        ParseLanguageExpression(expression.Parameters[0]),
+                        bannedOperator,
+                        ParseLanguageExpression(expression.Parameters[1])),
+                    Helpers.CreateToken(TokenType.RightParen, ")"));
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "not"))
+            {
+                if (expression.Parameters.Length != 1)
+                {
+                    throw new ArgumentException($"Expected 1 parameters for unary function {expression.Function}");
+                }
+
+                if (expression.Properties.Any())
+                {
+                    throw new ArgumentException($"Expected 0 properties for unary function {expression.Function}");
+                }
+
+                syntax = new ParenthesizedExpressionSyntax(
+                    Helpers.CreateToken(TokenType.LeftParen, "("),
+                    new UnaryOperationSyntax(
+                        Helpers.CreateToken(TokenType.Exclamation, "!"),
+                        ParseLanguageExpression(expression.Parameters[0])),
+                    Helpers.CreateToken(TokenType.RightParen, ")"));
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "if"))
+            {
+                if (expression.Parameters.Length != 3)
+                {
+                    throw new ArgumentException($"Expected 3 parameters for ternary function {expression.Function}");
+                }
+
+                if (expression.Properties.Any())
+                {
+                    throw new ArgumentException($"Expected 0 properties for ternary function {expression.Function}");
+                }
+
+                syntax = new ParenthesizedExpressionSyntax(
+                    Helpers.CreateToken(TokenType.LeftParen, "("),
+                    new TernaryOperationSyntax(
+                        ParseLanguageExpression(expression.Parameters[0]),
+                        Helpers.CreateToken(TokenType.Question, "?"),
+                        ParseLanguageExpression(expression.Parameters[1]),
+                        Helpers.CreateToken(TokenType.Colon, ":"),
+                        ParseLanguageExpression(expression.Parameters[2])),
+                    Helpers.CreateToken(TokenType.RightParen, ")"));
+                return true;
+            }
+
+            syntax = null;
+            return false;
+        }
 
         private SyntaxBase ParseFunctionExpression(FunctionExpression expression)
         {
@@ -457,6 +579,12 @@ namespace Bicep.Decompiler
                     baseSyntax = new VariableAccessSyntax(Helpers.CreateIdentifier(resourceRef));
                     break;
                 }
+                default:
+                    if (TryReplaceBannedFunction(expression, out var replacedBannedSyntax))
+                    {
+                        baseSyntax = replacedBannedSyntax;
+                    }
+                    break;
             }
 
             if (baseSyntax == null)
@@ -662,7 +790,45 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        public ResourceDeclarationSyntax ParseResource(JToken value)
+        private string? TryGetModuleFilePath(JObject resource)
+        {
+            var templateLink = resource["properties"]?["templateLink"]?["uri"]?.Value<string>();
+            if (templateLink == null)
+            {
+                return null;
+            }
+
+            var templateLinkExpression = FlattenConcatsAndInlineVariables(template, GetLanguageExpression(templateLink));
+
+            LanguageExpression? relativePath = null;
+            if (templateLinkExpression is FunctionExpression uriExpression && uriExpression.Function == "uri")
+            {
+                // it's common to format references to files using the uri function. the second param is the relative path (which should match the file system path)
+                relativePath = uriExpression.Parameters[1];
+            }
+            else if (templateLinkExpression is FunctionExpression concatExpression && concatExpression.Function == "concat" &&
+                concatExpression.Parameters[0] is FunctionExpression concatUriExpression && concatUriExpression.Function == "uri")
+            {
+                // or sometimes the other way around - uri expression inside a concat
+                relativePath = concatUriExpression.Parameters[1];
+            }
+
+            if (!(relativePath is JTokenExpression jTokenExpression))
+            {
+                throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
+            }
+
+            var nestedRelativePath = jTokenExpression.Value.ToString();
+            var fullNestedFilePath = Path.Combine(Path.GetDirectoryName(filePath), nestedRelativePath);
+            if (!File.Exists(fullNestedFilePath))
+            {
+                throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
+            }
+
+            return Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
+        }
+
+        public SyntaxBase ParseResource(JObject template, JToken value)
         {
             var resource = (value as JObject) ?? throw new ArgumentException($"Incorrect resource format");
 
@@ -673,6 +839,131 @@ namespace Bicep.Decompiler
 
             if (StringComparer.OrdinalIgnoreCase.Equals(typeString, "Microsoft.Resources/deployments"))
             {
+                var expectedDeploymentProps = new HashSet<string>(new [] {
+                    "name",
+                    "type",
+                    "apiVersion",
+                    "location",
+                    "properties",
+                    "dependsOn",
+                    "comments",
+                }, StringComparer.OrdinalIgnoreCase);
+
+                var moduleFilePath = TryGetModuleFilePath(resource);
+                if (moduleFilePath != null)
+                {
+                    foreach (var prop in resource.Properties())
+                    {
+                        if (!expectedDeploymentProps.Contains(prop.Name))
+                        {
+                            if (prop.Name.ToLowerInvariant() == "copy")
+                            {
+                                throw new NotImplementedException($"Copy loops are not currently supported");
+                            }
+
+                            if (prop.Name.ToLowerInvariant() == "condition")
+                            {
+                                throw new NotImplementedException($"Conditionals are not currently supported");
+                            }
+
+                            if (resource["scope"] != null || resource["subscriptionId"] != null || resource["resourceGroup"] != null)
+                            {
+                                throw new ArgumentException($"'scope', 'subscriptionId' and 'resourceGroup' are not yet supported for linked templates");
+                            }
+
+                            throw new NotImplementedException($"Unrecognized top-level resource property '{prop.Name}'");
+                        }
+                    }
+
+                    var paramProperties = new List<SyntaxBase>();
+                    paramProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+
+                    var parameters = (value["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
+                    foreach (var param in parameters)
+                    {
+                        paramProperties.Add(new ObjectPropertySyntax(
+                            Helpers.CreateObjectPropertyKey(param.Name),
+                            Helpers.CreateToken(TokenType.Colon, ":"),
+                            ParseJToken(param.Value["value"])));
+                        paramProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+                    }
+
+                    var moduleParams = new ObjectSyntax(
+                        Helpers.CreateToken(TokenType.LeftBrace, "{"),
+                        paramProperties,
+                        Helpers.CreateToken(TokenType.RightBrace, "}"));
+
+                    var moduleProperties = new List<SyntaxBase>();
+                    moduleProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+
+                    moduleProperties.Add(new ObjectPropertySyntax(
+                        Helpers.CreateObjectPropertyKey("name"),
+                        Helpers.CreateToken(TokenType.Colon, ":"),
+                        ParseJToken(nameString)));
+                    moduleProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+
+                    moduleProperties.Add(new ObjectPropertySyntax(
+                        Helpers.CreateObjectPropertyKey("params"),
+                        Helpers.CreateToken(TokenType.Colon, ":"),
+                        moduleParams));
+                    moduleProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+
+                    if (resource["dependsOn"] != null)
+                    {
+                        if (!(resource["dependsOn"] is JArray dependsOn))
+                        {
+                            throw new InvalidOperationException($"Parsing failed for dependsOn");
+                        }
+
+                        // bicep dependsOn behaves more like the 'reference' function - try to patch up this behavior
+                        var dependsOnExpressions = dependsOn.Select(entry =>
+                        {
+                            var entryString = entry.Value<string>();
+                            if (entryString == null)
+                            {
+                                throw new InvalidOperationException($"Parsing failed for dependsOn");
+                            }
+
+                            var entryExpression = GetLanguageExpression(entryString);
+                            var resourceRef = TryLookupResource(entryExpression);
+                            if (resourceRef != null)
+                            {
+                                // add a magic function - we'll turn this into an identifier later on
+                                return new FunctionExpression("__bicep_reference", new [] { new JTokenExpression(resourceRef) }, Array.Empty<LanguageExpression>());
+                            }
+
+                            // nothing we can do, leave it alone
+                            return entryExpression;
+                        });
+
+                        // use the patched dependsOn
+                        dependsOn = new JArray(dependsOnExpressions.Select(ExpressionsProvider.SerializeExpression));
+
+                        if (dependsOn.Any())
+                        {
+                            moduleProperties.Add(new ObjectPropertySyntax(
+                                Helpers.CreateObjectPropertyKey("dependsOn"),
+                                Helpers.CreateToken(TokenType.Colon, ":"),
+                                TryParseJToken(dependsOn)!));
+                            moduleProperties.Add(Helpers.CreateToken(TokenType.NewLine, "\n"));
+                        }
+                    }
+
+                    var moduleBody = new ObjectSyntax(
+                        Helpers.CreateToken(TokenType.LeftBrace, "{"),
+                        moduleProperties,
+                        Helpers.CreateToken(TokenType.RightBrace, "}"));
+
+                    var moduleIdentifier = nameResolver.TryLookupResourceName(typeString, GetLanguageExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
+                    
+                    return new ModuleDeclarationSyntax(
+                        Helpers.CreateToken(TokenType.Identifier, "module"),
+                        Helpers.CreateIdentifier(moduleIdentifier),
+                        Helpers.CreateStringLiteral(moduleFilePath),
+                        Helpers.CreateToken(TokenType.Assignment, "="),
+                        moduleBody);
+                }
+
                 throw new NotImplementedException($"Nested/linked deployments are not currently supported");
             }
             
@@ -838,7 +1129,6 @@ namespace Bicep.Decompiler
 
         private ProgramSyntax Parse()
         {
-            var template = JsonConvert.DeserializeObject<JObject>(content);
             var statements = new List<SyntaxBase>();
 
             if ((template["functions"] as JArray)?.Any() == true)
@@ -861,7 +1151,7 @@ namespace Bicep.Decompiler
 
             statements.AddRange(parameters.Select(ParseParam));
             statements.AddRange(variables.Select(ParseVariable));
-            statements.AddRange(resources.Select(ParseResource));
+            statements.AddRange(resources.Select(r => ParseResource(template, r)));
             statements.AddRange(outputs.Select(ParseOutput));
 
             return new ProgramSyntax(

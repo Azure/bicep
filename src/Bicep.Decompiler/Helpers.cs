@@ -51,7 +51,23 @@ namespace Bicep.Decompiler
             .Replace("${", "\\${")
             .Replace("'", "\\'");
 
-        private static IReadOnlyDictionary<string, string> WellKnownFunctions = new []
+        public static readonly IReadOnlyDictionary<string, Token> BannedBinaryOperatorLookup = new Dictionary<string, Token>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["add"] = Helpers.CreateToken(TokenType.Plus, "+"),
+            ["sub"] = Helpers.CreateToken(TokenType.Minus, "-"),
+            ["mul"] = Helpers.CreateToken(TokenType.Asterisk, "*"),
+            ["div"] = Helpers.CreateToken(TokenType.Slash, "/"),
+            ["mod"] = Helpers.CreateToken(TokenType.Modulo, "%"),
+            ["less"] = Helpers.CreateToken(TokenType.LessThan, "<"),
+            ["lessOrEquals"] = Helpers.CreateToken(TokenType.LessThanOrEqual, "<="),
+            ["greater"] = Helpers.CreateToken(TokenType.GreaterThan, ">"),
+            ["greaterOrEquals"] = Helpers.CreateToken(TokenType.GreaterThanOrEqual, ">="),
+            ["equals"] = Helpers.CreateToken(TokenType.Equals, "=="),
+            ["and"] = Helpers.CreateToken(TokenType.LogicalAnd, "&&"),
+            ["or"] = Helpers.CreateToken(TokenType.LogicalOr, "||"),
+        };
+
+        private static readonly IReadOnlyDictionary<string, string> WellKnownFunctions = new []
         {
             "any",
             "concat",

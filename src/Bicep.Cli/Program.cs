@@ -219,16 +219,10 @@ namespace Bicep.Cli
         {
             try
             {
-                var jsonInput = File.ReadAllText(filePath);
-                var outputFile = Path.ChangeExtension(filePath, "bicep");
+                var bicepUri = Decompiler.Decompiler.DecompileFileWithModules(filePath);
 
-                var program = TemplateConverter.DecompileTemplate(jsonInput);
-                var bicepOutput = PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, false));
-                File.WriteAllText(outputFile, bicepOutput);
-
-                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(outputFile));
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
-                var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToArray();
 
                 return LogDiagnosticsAndCheckSuccess(logger, compilation);
             }
