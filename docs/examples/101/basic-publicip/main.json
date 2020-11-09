@@ -1,83 +1,3 @@
-<<<<<<< HEAD:docs/examples/101/basic-publicip/main.json
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "publicIpName": {
-      "type": "string",
-      "defaultValue": "mypublicip"
-    }
-  },
-  "functions": [],
-  "resources": [
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
-      "name": "publicIp",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "publicIpResourceName": {
-            "value": "[parameters('publicIpName')]"
-          },
-          "dynamicAllocation": {
-            "value": true
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {
-            "publicIpResourceName": {
-              "type": "string"
-            },
-            "publicIpDnsLabel": {
-              "type": "string",
-              "defaultValue": "[format('{0}-{1}', parameters('publicIpResourceName'), newGuid())]"
-            },
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
-            },
-            "dynamicAllocation": {
-              "type": "bool"
-            }
-          },
-          "functions": [],
-          "resources": [
-            {
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2020-06-01",
-              "name": "[parameters('publicIpResourceName')]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publicIPAllocationMethod": "[if(parameters('dynamicAllocation'), 'Dynamic', 'Static')]",
-                "dnsSettings": {
-                  "domainNameLabel": "[parameters('publicIpDnsLabel')]"
-                }
-              }
-            }
-          ],
-          "outputs": {
-            "ipFqdn": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
-            }
-          }
-        }
-      }
-    }
-  ],
-  "outputs": {
-    "ipFqdn": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
-    }
-  }
-=======
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
@@ -156,5 +76,4 @@
       "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
     }
   }
->>>>>>> 2f4e7ab81ebe3d329c0c89b1f29782b3646d7166:docs/examples/modules/basic-publicip/main.json
 }
