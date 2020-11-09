@@ -1,28 +1,478 @@
 [
   {
-    "label": "'AzureCLI'",
-    "kind": "enumMember",
-    "detail": "'AzureCLI'",
+    "label": "'apiProperties'",
+    "kind": "property",
+    "detail": "apiProperties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ApiProperties`  \n"
+    },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzureCLI'",
+    "preselect": false,
+    "sortText": "1_'apiProperties'",
     "insertTextFormat": "plainText",
     "textEdit": {
       "range": {},
-      "newText": "'AzureCLI'"
+      "newText": "'apiProperties'"
     }
   },
   {
-    "label": "'AzurePowerShell'",
-    "kind": "enumMember",
-    "detail": "'AzurePowerShell'",
+    "label": "'backupPolicy'",
+    "kind": "property",
+    "detail": "backupPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `BackupPolicy`  \n"
+    },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzurePowerShell'",
+    "preselect": false,
+    "sortText": "1_'backupPolicy'",
     "insertTextFormat": "plainText",
     "textEdit": {
       "range": {},
-      "newText": "'AzurePowerShell'"
+      "newText": "'backupPolicy'"
+    }
+  },
+  {
+    "label": "'capabilities'",
+    "kind": "property",
+    "detail": "capabilities",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Capability[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'capabilities'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'capabilities'"
+    }
+  },
+  {
+    "label": "'connectorOffer'",
+    "kind": "property",
+    "detail": "connectorOffer",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Small'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'connectorOffer'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'connectorOffer'"
+    }
+  },
+  {
+    "label": "'consistencyPolicy'",
+    "kind": "property",
+    "detail": "consistencyPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ConsistencyPolicy`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'consistencyPolicy'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'consistencyPolicy'"
+    }
+  },
+  {
+    "label": "'cors'",
+    "kind": "property",
+    "detail": "cors",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `CorsPolicy[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'cors'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'cors'"
+    }
+  },
+  {
+    "label": "'createMode'",
+    "kind": "property",
+    "detail": "createMode (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Default'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'createMode'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'createMode'"
+    }
+  },
+  {
+    "label": "'databaseAccountOfferType'",
+    "kind": "property",
+    "detail": "databaseAccountOfferType (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'databaseAccountOfferType'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'databaseAccountOfferType'"
+    }
+  },
+  {
+    "label": "'disableKeyBasedMetadataWriteAccess'",
+    "kind": "property",
+    "detail": "disableKeyBasedMetadataWriteAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'disableKeyBasedMetadataWriteAccess'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'disableKeyBasedMetadataWriteAccess'"
+    }
+  },
+  {
+    "label": "'documentEndpoint'",
+    "kind": "property",
+    "detail": "documentEndpoint",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'documentEndpoint'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'documentEndpoint'"
+    }
+  },
+  {
+    "label": "'enableAnalyticalStorage'",
+    "kind": "property",
+    "detail": "enableAnalyticalStorage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableAnalyticalStorage'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableAnalyticalStorage'"
+    }
+  },
+  {
+    "label": "'enableAutomaticFailover'",
+    "kind": "property",
+    "detail": "enableAutomaticFailover",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableAutomaticFailover'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableAutomaticFailover'"
+    }
+  },
+  {
+    "label": "'enableCassandraConnector'",
+    "kind": "property",
+    "detail": "enableCassandraConnector",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableCassandraConnector'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableCassandraConnector'"
+    }
+  },
+  {
+    "label": "'enableFreeTier'",
+    "kind": "property",
+    "detail": "enableFreeTier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableFreeTier'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableFreeTier'"
+    }
+  },
+  {
+    "label": "'enableMultipleWriteLocations'",
+    "kind": "property",
+    "detail": "enableMultipleWriteLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableMultipleWriteLocations'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableMultipleWriteLocations'"
+    }
+  },
+  {
+    "label": "'failoverPolicies'",
+    "kind": "property",
+    "detail": "failoverPolicies",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'failoverPolicies'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'failoverPolicies'"
+    }
+  },
+  {
+    "label": "'instanceId'",
+    "kind": "property",
+    "detail": "instanceId",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'instanceId'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'instanceId'"
+    }
+  },
+  {
+    "label": "'ipRules'",
+    "kind": "property",
+    "detail": "ipRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `IpAddressOrRange[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'ipRules'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'ipRules'"
+    }
+  },
+  {
+    "label": "'isVirtualNetworkFilterEnabled'",
+    "kind": "property",
+    "detail": "isVirtualNetworkFilterEnabled",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'isVirtualNetworkFilterEnabled'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'isVirtualNetworkFilterEnabled'"
+    }
+  },
+  {
+    "label": "'keyVaultKeyUri'",
+    "kind": "property",
+    "detail": "keyVaultKeyUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'keyVaultKeyUri'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'keyVaultKeyUri'"
+    }
+  },
+  {
+    "label": "'locations'",
+    "kind": "property",
+    "detail": "locations (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'locations'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'locations'"
+    }
+  },
+  {
+    "label": "'privateEndpointConnections'",
+    "kind": "property",
+    "detail": "privateEndpointConnections",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'privateEndpointConnections'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'privateEndpointConnections'"
+    }
+  },
+  {
+    "label": "'provisioningState'",
+    "kind": "property",
+    "detail": "provisioningState",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'provisioningState'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'provisioningState'"
+    }
+  },
+  {
+    "label": "'publicNetworkAccess'",
+    "kind": "property",
+    "detail": "publicNetworkAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'publicNetworkAccess'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'publicNetworkAccess'"
+    }
+  },
+  {
+    "label": "'readLocations'",
+    "kind": "property",
+    "detail": "readLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'readLocations'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'readLocations'"
+    }
+  },
+  {
+    "label": "'restoreParameters'",
+    "kind": "property",
+    "detail": "restoreParameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'restoreParameters'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'restoreParameters'"
+    }
+  },
+  {
+    "label": "'virtualNetworkRules'",
+    "kind": "property",
+    "detail": "virtualNetworkRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `VirtualNetworkRule[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'virtualNetworkRules'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'virtualNetworkRules'"
+    }
+  },
+  {
+    "label": "'writeLocations'",
+    "kind": "property",
+    "detail": "writeLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'writeLocations'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'writeLocations'"
     }
   },
   {
@@ -455,6 +905,19 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissing",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions",
@@ -855,19 +1318,6 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminator"
-    }
-  },
-  {
-    "label": "nestedDiscriminatorArrayIndexCompletions",
-    "kind": "variable",
-    "detail": "nestedDiscriminatorArrayIndexCompletions",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_nestedDiscriminatorArrayIndexCompletions",
-    "insertTextFormat": "plainText",
-    "textEdit": {
-      "range": {},
-      "newText": "nestedDiscriminatorArrayIndexCompletions"
     }
   },
   {

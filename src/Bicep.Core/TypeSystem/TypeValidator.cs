@@ -96,11 +96,11 @@ namespace Bicep.Core.TypeSystem
                     // this function does not validate item types
                     return true;
 
-                case DiscriminatedObjectType targetDiscriminated when sourceType is DiscriminatedObjectType sourceDiscriminated:
+                case DiscriminatedObjectType _ when sourceType is DiscriminatedObjectType:
                     // validation left for later
                     return true;
 
-                case DiscriminatedObjectType targetDiscriminated when sourceType is ObjectType sourceObject:
+                case DiscriminatedObjectType _ when sourceType is ObjectType:
                     // validation left for later
                     return true;
 

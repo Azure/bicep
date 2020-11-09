@@ -38,5 +38,19 @@ namespace Bicep.LanguageServer.Completions
                    nodes[^1] is T3 three &&
                    predicate(one, two, three);
         }
+
+        public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate)
+            where T1 : SyntaxBase
+            where T2 : SyntaxBase
+            where T3 : SyntaxBase
+            where T4 : SyntaxBase
+        {
+            return nodes.Count >= 4 &&
+                   nodes[^4] is T1 one &&
+                   nodes[^3] is T2 two &&
+                   nodes[^2] is T3 three &&
+                   nodes[^1] is T4 four &&
+                   predicate(one, two, three, four);
+        }
     }
 }

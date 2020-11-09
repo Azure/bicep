@@ -1,28 +1,19 @@
 [
   {
-    "label": "'AzureCLI'",
-    "kind": "enumMember",
-    "detail": "'AzureCLI'",
+    "label": "'kind'",
+    "kind": "property",
+    "detail": "kind (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'AzureCLI' | 'AzurePowerShell'`  \n"
+    },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzureCLI'",
+    "preselect": false,
+    "sortText": "1_'kind'",
     "insertTextFormat": "plainText",
     "textEdit": {
       "range": {},
-      "newText": "'AzureCLI'"
-    }
-  },
-  {
-    "label": "'AzurePowerShell'",
-    "kind": "enumMember",
-    "detail": "'AzurePowerShell'",
-    "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzurePowerShell'",
-    "insertTextFormat": "plainText",
-    "textEdit": {
-      "range": {},
-      "newText": "'AzurePowerShell'"
+      "newText": "'kind'"
     }
   },
   {
@@ -455,6 +446,19 @@
     }
   },
   {
+    "label": "discriminatorKeyValueMissing",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing"
+    }
+  },
+  {
     "label": "discriminatorKeyValueMissingCompletions",
     "kind": "variable",
     "detail": "discriminatorKeyValueMissingCompletions",
@@ -478,19 +482,6 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions2"
-    }
-  },
-  {
-    "label": "discriminatorKeyValueMissingCompletions3",
-    "kind": "variable",
-    "detail": "discriminatorKeyValueMissingCompletions3",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_discriminatorKeyValueMissingCompletions3",
-    "insertTextFormat": "plainText",
-    "textEdit": {
-      "range": {},
-      "newText": "discriminatorKeyValueMissingCompletions3"
     }
   },
   {

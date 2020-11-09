@@ -789,4 +789,51 @@ var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
 //@[57:58)   Dot |.|
 //@[58:58)   IdentifierSyntax
 //@[58:58)    SkippedTriviaSyntax
-//@[58:58) EndOfFile ||
+//@[58:60) NewLine |\n\n|
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+//@[50:51) NewLine |\n|
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+//@[0:65) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:42)  IdentifierSyntax
+//@[4:42)   Identifier |objectVarTopLevelArrayIndexCompletions|
+//@[43:44)  Assignment |=|
+//@[45:65)  ArrayAccessSyntax
+//@[45:62)   VariableAccessSyntax
+//@[45:62)    IdentifierSyntax
+//@[45:62)     Identifier |objectLiteralType|
+//@[62:63)   LeftSquare |[|
+//@[63:64)   VariableAccessSyntax
+//@[63:64)    IdentifierSyntax
+//@[63:64)     Identifier |f|
+//@[64:65)   RightSquare |]|
+//@[65:67) NewLine |\n\n|
+
+// #completionTest(58) -> twoIndexPlusSymbols
+//@[45:46) NewLine |\n|
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+//@[0:59) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:28)  IdentifierSyntax
+//@[4:28)   Identifier |oneArrayIndexCompletions|
+//@[29:30)  Assignment |=|
+//@[31:59)  ArrayAccessSyntax
+//@[31:57)   ArrayAccessSyntax
+//@[31:54)    PropertyAccessSyntax
+//@[31:48)     VariableAccessSyntax
+//@[31:48)      IdentifierSyntax
+//@[31:48)       Identifier |objectLiteralType|
+//@[48:49)     Dot |.|
+//@[49:54)     IdentifierSyntax
+//@[49:54)      Identifier |sixth|
+//@[54:55)    LeftSquare |[|
+//@[55:56)    NumericLiteralSyntax
+//@[55:56)     Number |0|
+//@[56:57)    RightSquare |]|
+//@[57:58)   LeftSquare |[|
+//@[58:58)   SkippedTriviaSyntax
+//@[58:59)   RightSquare |]|
+//@[59:60) NewLine |\n|
+
+//@[0:0) EndOfFile ||

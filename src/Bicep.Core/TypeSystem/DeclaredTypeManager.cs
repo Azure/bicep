@@ -361,7 +361,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private TypeSymbol? ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
+        private static TypeSymbol? ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
         {
             if (!(type is DiscriminatedObjectType discriminated))
             {

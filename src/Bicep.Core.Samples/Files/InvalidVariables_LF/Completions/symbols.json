@@ -559,6 +559,19 @@
     }
   },
   {
+    "label": "objectVarTopLevelArrayIndexCompletions",
+    "kind": "variable",
+    "detail": "objectVarTopLevelArrayIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objectVarTopLevelArrayIndexCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "objectVarTopLevelArrayIndexCompletions"
+    }
+  },
+  {
     "label": "objectVarTopLevelCompletions",
     "kind": "variable",
     "detail": "objectVarTopLevelCompletions",
@@ -582,6 +595,19 @@
     "textEdit": {
       "range": {},
       "newText": "objectVarTopLevelCompletions2"
+    }
+  },
+  {
+    "label": "oneArrayIndexCompletions",
+    "kind": "variable",
+    "detail": "oneArrayIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_oneArrayIndexCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "oneArrayIndexCompletions"
     }
   },
   {
