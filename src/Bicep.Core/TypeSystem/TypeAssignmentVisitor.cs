@@ -81,6 +81,9 @@ namespace Bicep.Core.TypeSystem
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => assignedTypes.Values.SelectMany(x => x.Diagnostics);
 
+        public SyntaxBase? GetParent(SyntaxBase syntax)
+            => hierarchy.GetParent(syntax);
+
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
         {
             if (assignedTypes.ContainsKey(syntax))

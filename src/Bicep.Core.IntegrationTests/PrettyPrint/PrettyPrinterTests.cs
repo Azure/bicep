@@ -35,6 +35,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainFormatted), formattedOutput!);
 
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
                 formattedOutput!,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
                 actualLocation: resultsFile);

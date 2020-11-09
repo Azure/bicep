@@ -88,7 +88,7 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
       ]
     }
   ]

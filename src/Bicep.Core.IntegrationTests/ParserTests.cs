@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Bicep.Core.UnitTests.Assertions;
@@ -58,6 +59,7 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
@@ -111,9 +113,10 @@ namespace Bicep.Core.IntegrationTests
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
                 dataSet.Syntax,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
                 actualLocation: resultsFile);

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -13,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -41,6 +43,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
 
             actual.Should().EqualWithJsonDiffOutput(
+                TestContext, 
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -83,6 +86,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled), actual.ToString(Formatting.Indented));
 
             actual.Should().EqualWithJsonDiffOutput(
+                TestContext, 
                 JToken.Parse(dataSet.Compiled!),
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
@@ -100,6 +104,107 @@ namespace Bicep.Core.IntegrationTests.Emit
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), filePath);
             result.Status.Should().Be(EmitStatus.Failed);
             result.Diagnostics.Should().NotBeEmpty();
+        }
+
+        private const string ExpectedTenantSchema = "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
+        private const string ExpectedMgSchema = "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#";
+        private const string ExpectedSubSchema = "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
+        private const string ExpectedRgSchema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
+
+        [DataRow("tenant", "tenant()", "tenant", ExpectedTenantSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "managementGroup('abc')", "managementGroup", ExpectedTenantSchema, "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "subscription('abc')", "subscription", ExpectedTenantSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("managementGroup", "managementGroup()", "managementGroup", ExpectedMgSchema, "[reference(format('Microsoft.Resources/deployments/{0}', 'myMod'), '2019-10-01').outputs.hello.value]", "[format('Microsoft.Resources/deployments/{0}', 'myMod')]")]
+        [DataRow("managementGroup", "subscription('abc')", "subscription", ExpectedMgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "subscription()", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "resourceGroup('abc')", "resourceGroup", ExpectedSubSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "tenant()", "tenant", ExpectedSubSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup()", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup('abc')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "tenant()", "tenant", ExpectedRgSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2019-10-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataTestMethod]
+        public void Emitter_should_generate_correct_module_output_scope_strings(string targetScope, string moduleScope, string moduleTargetScope, string expectedSchema, string expectedOutput, string expectedResourceDependsOn)
+        {
+            var (json, diags) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = '$targetScope'
+
+module myMod './module.bicep' = {
+  name: 'myMod'
+  scope: $moduleScope
+}
+
+resource resourceB 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceB'
+  dependsOn: [
+    myMod
+  ]
+}
+
+output hello string = myMod.outputs.hello
+".Replace("$targetScope", targetScope).Replace("$moduleScope", moduleScope)),
+                ("module.bicep", @"
+targetScope = '$moduleTargetScope'
+
+output hello string = 'hello!'
+".Replace("$moduleTargetScope", moduleTargetScope)));
+
+            json.Should().NotBeNull();
+            var template = JObject.Parse(json!);
+
+            using (new AssertionScope())
+            {
+                template.SelectToken("$.['$schema']")!.ToString().Should().Be(expectedSchema);
+                template.SelectToken("$.outputs.hello.value")!.ToString().Should().Be(expectedOutput);
+                template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.ToString().Should().Be(expectedResourceDependsOn);
+            }
+        }
+
+        [DataRow("tenant", "[tenantResourceId('My.Rp/myResource', 'resourceA')]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[format('Microsoft.Resources/deployments/{0}', 'myMod')]")]
+        [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataTestMethod]
+        public void Emitter_should_generate_correct_dependsOn_resourceIds(string targetScope, string expectedModuleDependsOn, string expectedResourceDependsOn)
+        {
+            var (json, diags) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = '$targetScope'
+
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+}
+
+module myMod './module.bicep' = {
+  name: 'myMod'
+  params: {
+    dependency: resourceA.id
+  }
+}
+
+resource resourceB 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceB'
+  dependsOn: [
+    myMod
+  ]
+}
+".Replace("$targetScope", targetScope)),
+                ("module.bicep", @"
+targetScope = '$targetScope'
+
+param dependency string
+".Replace("$targetScope", targetScope))
+            );
+
+            json.Should().NotBeNull();
+            var template = JObject.Parse(json!);
+
+            using (new AssertionScope())
+            {
+                template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.ToString().Should().Be(expectedResourceDependsOn);
+                template.SelectToken("$.resources[?(@.name == 'myMod')].dependsOn[0]")!.ToString().Should().Be(expectedModuleDependsOn);
+            }
         }
 
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath)

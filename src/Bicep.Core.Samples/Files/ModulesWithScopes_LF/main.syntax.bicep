@@ -78,4 +78,45 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@[61:62)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
+//@[0:77) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:30)  IdentifierSyntax
+//@[7:30)   Identifier |myManagementGroupOutput|
+//@[31:37)  TypeSyntax
+//@[31:37)   Identifier |string|
+//@[38:39)  Assignment |=|
+//@[40:77)  PropertyAccessSyntax
+//@[40:68)   PropertyAccessSyntax
+//@[40:60)    VariableAccessSyntax
+//@[40:60)     IdentifierSyntax
+//@[40:60)      Identifier |myManagementGroupMod|
+//@[60:61)    Dot |.|
+//@[61:68)    IdentifierSyntax
+//@[61:68)     Identifier |outputs|
+//@[68:69)   Dot |.|
+//@[69:77)   IdentifierSyntax
+//@[69:77)    Identifier |myOutput|
+//@[77:78) NewLine |\n|
+output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
+//@[0:71) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:27)  IdentifierSyntax
+//@[7:27)   Identifier |mySubscriptionOutput|
+//@[28:34)  TypeSyntax
+//@[28:34)   Identifier |string|
+//@[35:36)  Assignment |=|
+//@[37:71)  PropertyAccessSyntax
+//@[37:62)   PropertyAccessSyntax
+//@[37:54)    VariableAccessSyntax
+//@[37:54)     IdentifierSyntax
+//@[37:54)      Identifier |mySubscriptionMod|
+//@[54:55)    Dot |.|
+//@[55:62)    IdentifierSyntax
+//@[55:62)     Identifier |outputs|
+//@[62:63)   Dot |.|
+//@[63:71)   IdentifierSyntax
+//@[63:71)    Identifier |myOutput|
+//@[71:71) EndOfFile ||
