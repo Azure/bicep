@@ -673,6 +673,13 @@ namespace Bicep.Core.Diagnostics
                 "BCP116",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
+
+            public ErrorDiagnostic EmptyIndexerNotAllowed() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP117",
+                "An empty indexer is not allowed. Specify a valid expression."
+            );
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

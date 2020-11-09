@@ -1,28 +1,257 @@
 [
   {
-    "label": "'AzureCLI'",
-    "kind": "enumMember",
-    "detail": "'AzureCLI'",
+    "label": "'arguments'",
+    "kind": "property",
+    "detail": "arguments",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzureCLI'",
+    "preselect": false,
+    "sortText": "1_'arguments'",
     "insertTextFormat": "plainText",
     "textEdit": {
       "range": {},
-      "newText": "'AzureCLI'"
+      "newText": "'arguments'"
     }
   },
   {
-    "label": "'AzurePowerShell'",
-    "kind": "enumMember",
-    "detail": "'AzurePowerShell'",
+    "label": "'azCliVersion'",
+    "kind": "property",
+    "detail": "azCliVersion (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "2_'AzurePowerShell'",
+    "preselect": false,
+    "sortText": "1_'azCliVersion'",
     "insertTextFormat": "plainText",
     "textEdit": {
       "range": {},
-      "newText": "'AzurePowerShell'"
+      "newText": "'azCliVersion'"
+    }
+  },
+  {
+    "label": "'cleanupPreference'",
+    "kind": "property",
+    "detail": "cleanupPreference",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'cleanupPreference'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'cleanupPreference'"
+    }
+  },
+  {
+    "label": "'containerSettings'",
+    "kind": "property",
+    "detail": "containerSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ContainerConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'containerSettings'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'containerSettings'"
+    }
+  },
+  {
+    "label": "'environmentVariables'",
+    "kind": "property",
+    "detail": "environmentVariables",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `EnvironmentVariable[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'environmentVariables'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'environmentVariables'"
+    }
+  },
+  {
+    "label": "'forceUpdateTag'",
+    "kind": "property",
+    "detail": "forceUpdateTag",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'forceUpdateTag'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'forceUpdateTag'"
+    }
+  },
+  {
+    "label": "'outputs'",
+    "kind": "property",
+    "detail": "outputs",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Dictionary<string,Object>`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'outputs'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'outputs'"
+    }
+  },
+  {
+    "label": "'primaryScriptUri'",
+    "kind": "property",
+    "detail": "primaryScriptUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'primaryScriptUri'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'primaryScriptUri'"
+    }
+  },
+  {
+    "label": "'provisioningState'",
+    "kind": "property",
+    "detail": "provisioningState",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Canceled' | 'Creating' | 'Failed' | 'ProvisioningResources' | 'Running' | 'Succeeded'`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'provisioningState'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'provisioningState'"
+    }
+  },
+  {
+    "label": "'retentionInterval'",
+    "kind": "property",
+    "detail": "retentionInterval (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'retentionInterval'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'retentionInterval'"
+    }
+  },
+  {
+    "label": "'scriptContent'",
+    "kind": "property",
+    "detail": "scriptContent",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'scriptContent'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'scriptContent'"
+    }
+  },
+  {
+    "label": "'status'",
+    "kind": "property",
+    "detail": "status",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ScriptStatus`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'status'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'status'"
+    }
+  },
+  {
+    "label": "'storageAccountSettings'",
+    "kind": "property",
+    "detail": "storageAccountSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageAccountConfiguration`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'storageAccountSettings'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'storageAccountSettings'"
+    }
+  },
+  {
+    "label": "'supportingScriptUris'",
+    "kind": "property",
+    "detail": "supportingScriptUris",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'supportingScriptUris'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'supportingScriptUris'"
+    }
+  },
+  {
+    "label": "'timeout'",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'timeout'",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "'timeout'"
     }
   },
   {
@@ -377,19 +606,6 @@
     }
   },
   {
-    "label": "discriminatorKeySetOneCompletions3",
-    "kind": "variable",
-    "detail": "discriminatorKeySetOneCompletions3",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_discriminatorKeySetOneCompletions3",
-    "insertTextFormat": "plainText",
-    "textEdit": {
-      "range": {},
-      "newText": "discriminatorKeySetOneCompletions3"
-    }
-  },
-  {
     "label": "discriminatorKeySetTwo",
     "kind": "interface",
     "detail": "discriminatorKeySetTwo",
@@ -452,6 +668,19 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissing",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing"
     }
   },
   {

@@ -169,3 +169,12 @@ var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
 //@[4:28) Variable oneArrayItemCompletions2. Type: error. Declaration start char: 0, length: 58
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+//@[4:42) Variable objectVarTopLevelArrayIndexCompletions. Type: error. Declaration start char: 0, length: 65
+
+// #completionTest(58) -> twoIndexPlusSymbols
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+//@[4:28) Variable oneArrayIndexCompletions. Type: error. Declaration start char: 0, length: 59
+

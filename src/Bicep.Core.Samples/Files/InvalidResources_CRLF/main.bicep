@@ -175,6 +175,9 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
 
+// #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
+var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -188,6 +191,9 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+
+// #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
+var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
@@ -276,6 +282,9 @@ var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.pro
 // #completionTest(92) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
 
+// #completionTest(94) -> createModeIndexPlusSymbols
+var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
+
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
   location: 'l'
@@ -292,3 +301,6 @@ var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
 // #completionTest(72) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+
+// #completionTest(79) -> defaultCreateModeIndexes
+var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]

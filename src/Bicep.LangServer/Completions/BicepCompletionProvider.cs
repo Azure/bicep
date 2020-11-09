@@ -37,6 +37,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDeclarationTypeCompletions(context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
                 .Concat(GetMemberAccessCompletions(compilation, context))
+                .Concat(GetArrayIndexCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
@@ -270,6 +271,20 @@ namespace Bicep.LanguageServer.Completions
                     .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
 
+        private IEnumerable<CompletionItem> GetArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayIndex) || context.ArrayAccess == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.ArrayAccess.BaseExpression);
+
+            return GetProperties(declaredType)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => CreatePropertyIndexCompletion(p, context.ReplacementRange, CompletionPriority.High));
+        }
+
         private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyName) == false || context.Object == null)
@@ -423,6 +438,17 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
                 .WithSortText(GetSortText(property.Name, priority));
+
+        private static CompletionItem CreatePropertyIndexCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var escaped = StringUtils.EscapeBicepString(property.Name);
+            return CompletionItemBuilder.Create(CompletionItemKind.Property)
+                .WithLabel(escaped)
+                .WithPlainTextEdit(replacementRange, escaped)
+                .WithDetail(FormatPropertyDetail(property))
+                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithSortText(GetSortText(escaped, priority));
+        }
 
         private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, SyntaxTree tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {

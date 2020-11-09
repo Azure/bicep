@@ -390,6 +390,19 @@
     }
   },
   {
+    "label": "discriminatorKeySetOneCompletions3",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions3",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions3"
+    }
+  },
+  {
     "label": "discriminatorKeySetTwo",
     "kind": "interface",
     "detail": "discriminatorKeySetTwo",
@@ -491,6 +504,19 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissingCompletions2"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions3",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions3",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions3"
     }
   },
   {
@@ -845,6 +871,19 @@
     }
   },
   {
+    "label": "nestedDiscriminatorArrayIndexCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorArrayIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorArrayIndexCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorArrayIndexCompletions"
+    }
+  },
+  {
     "label": "nestedDiscriminatorCompletions",
     "kind": "variable",
     "detail": "nestedDiscriminatorCompletions",
@@ -933,6 +972,19 @@
     "textEdit": {
       "range": {},
       "newText": "nestedDiscriminatorMissingKeyCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions",
+    "insertTextFormat": "plainText",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions"
     }
   },
   {

@@ -194,3 +194,12 @@ var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
 //@[58:58) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+//@[63:64) [BCP057 (Error)] The name "f" does not exist in the current context. |f|
+
+// #completionTest(58) -> twoIndexPlusSymbols
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+//@[58:58) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+

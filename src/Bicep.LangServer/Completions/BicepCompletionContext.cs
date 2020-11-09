@@ -33,6 +33,7 @@ namespace Bicep.LanguageServer.Completions
             ObjectPropertySyntax? property,
             ArraySyntax? array,
             PropertyAccessSyntax? propertyAccess,
+            ArrayAccessSyntax? arrayAccess,
             TargetScopeSyntax? targetScope)
         {
             this.Kind = kind;
@@ -42,6 +43,7 @@ namespace Bicep.LanguageServer.Completions
             this.Property = property;
             this.Array = array;
             this.PropertyAccess = propertyAccess;
+            this.ArrayAccess = arrayAccess;
             this.TargetScope = targetScope;
         }
 
@@ -56,6 +58,8 @@ namespace Bicep.LanguageServer.Completions
         public ArraySyntax? Array { get; }
 
         public PropertyAccessSyntax? PropertyAccess { get; }
+
+        public ArrayAccessSyntax? ArrayAccess { get; }
 
         public TargetScopeSyntax? TargetScope { get; }
 
@@ -76,12 +80,14 @@ namespace Bicep.LanguageServer.Completions
             var propertyInfo = FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
             var propertyAccessInfo = FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
+            var arrayAccessInfo = FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var targetScopeInfo = FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
 
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
-                       ConvertFlag(IsPropertyAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
+                       ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
+                       ConvertFlag(IsArrayIndexContext(matchingNodes,arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsPropertyValueContext(matchingNodes, propertyInfo), BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
@@ -99,7 +105,7 @@ namespace Bicep.LanguageServer.Completions
             // the check at the beginning guarantees we have at least 1 node
             var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
-            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, targetScopeInfo.node);
+            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
         }
 
         /// <summary>
@@ -250,7 +256,7 @@ namespace Bicep.LanguageServer.Completions
             return false;
         }
 
-        private static bool IsPropertyAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo, int offset)
+        private static bool IsMemberAccessContext(List<SyntaxBase> matchingNodes, (PropertyAccessSyntax? node, int index) propertyAccessInfo, int offset)
         {
             return propertyAccessInfo.node != null &&
                    (SyntaxMatcher.IsTailMatch<PropertyAccessSyntax, IdentifierSyntax, Token>(
@@ -262,6 +268,20 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxMatcher.IsTailMatch<PropertyAccessSyntax>(
                         matchingNodes,
                         propertyAccess => offset > propertyAccess.Dot.Span.Position));
+        }
+
+        private static bool IsArrayIndexContext(List<SyntaxBase> matchingNodes, (ArrayAccessSyntax? node, int index) arrayAccessInfo)
+        {
+            return arrayAccessInfo.node != null &&
+                   (SyntaxMatcher.IsTailMatch<ArrayAccessSyntax, Token>(
+                        matchingNodes,
+                        (arrayAccess, token) => token.Type == TokenType.LeftSquare && ReferenceEquals(arrayAccess.OpenSquare, token)) ||
+                    SyntaxMatcher.IsTailMatch<ArrayAccessSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
+                        matchingNodes,
+                        (arrayAccess, variableAccess, _, token) => token.Type == TokenType.Identifier && ReferenceEquals(arrayAccess.IndexExpression, variableAccess)) ||
+                    SyntaxMatcher.IsTailMatch<ArrayAccessSyntax, StringSyntax, Token>(
+                        matchingNodes,
+                        (arrayAccess, @string, token) => token.Type == TokenType.StringComplete && ReferenceEquals(arrayAccess.IndexExpression, @string)));
         }
 
         private static bool IsObjectPropertyNameContext(List<SyntaxBase> matchingNodes, (ObjectSyntax? node, int index) objectInfo)
