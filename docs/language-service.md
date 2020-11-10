@@ -4,7 +4,7 @@ The bicep language service (implemented in the [bicep VS Code extension](./insta
 
 ## Validation and type checking
 
-The bicep compiler has a type system that ensure your code is authored correctly. We will check the basic types that are built into the bicep language (`string`, `int`, `object`), as well as types of returned functions, and types of resources. Depending on the type of validation, you will see either a warning in yellow, which will successfully compile with `bicep build` or you will see an error in red, which will block compilation.
+The bicep compiler has a type system that ensures your code is authored correctly. We will check the basic types that are built into the bicep language (`string`, `int`, `object`), as well as types of returned functions, and types of resources. Depending on the type of validation, you will see either a warning in yellow, which will successfully compile with `bicep build` or you will see an error in red, which will block compilation because the compiled JSON would produce an invalid ARM Template.
 
 ## Intellisense
 
