@@ -206,6 +206,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[31:32) [BCP062 (Error)] The referenced declaration with name "x" is not valid. |x|
 
+// missing property in property access
+var oneValidDeclaration = {}
+var missingPropertyName = oneValidDeclaration.
+//@[46:46) [BCP020 (Error)] Expected a function or property name at this location. ||
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[61:61) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[83:83) [BCP020 (Error)] Expected a function or property name at this location. ||
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[17:23) [BCP063 (Error)] The name "concat" is not a parameter, variable, resource or module. |concat|
@@ -350,6 +358,23 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 var sysFunctions = sys.a
 //@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
+
+// missing method name
+var missingMethodName = az.()
+//@[27:27) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// missing indexer
+var missingIndexerOnLiteralArray = [][][]
+//@[38:38) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+//@[40:40) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[33:54) [BCP057 (Error)] The name "nonExistentIdentifier" does not exist in the current context. |nonExistentIdentifier|
+//@[55:55) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+//@[60:60) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
+// empty parens - should produce expected expression diagnostic
+var emptyParens = ()
+//@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
 
 // keywords can't be called like functions
 var nullness = null()

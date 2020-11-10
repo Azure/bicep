@@ -7,6 +7,7 @@ using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -26,7 +27,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 _ => "  ",
             };
 
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
         {
             const int truncate = 100;
             var diff = InlineDiffBuilder.Diff(instance.Subject, expected);
@@ -41,9 +42,17 @@ namespace Bicep.Core.UnitTests.Assertions
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
 
+
+            var testPassed = !diff.HasDifferences;
+
+            if (!testPassed && BaselineHelper.ShouldSetBaseline(testContext))
+            {
+                BaselineHelper.SetBaseline(actualLocation, expectedLocation);
+            }
+
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .ForCondition(!diff.HasDifferences)
+                .ForCondition(testPassed)
                 .FailWith(@"
 Found diffs between actual and expected:
 {0}

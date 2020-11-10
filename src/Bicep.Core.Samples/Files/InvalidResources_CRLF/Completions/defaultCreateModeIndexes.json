@@ -1,0 +1,1976 @@
+[
+  {
+    "label": "'apiProperties'",
+    "kind": "property",
+    "detail": "apiProperties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ApiProperties`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'apiProperties'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'apiProperties'"
+    }
+  },
+  {
+    "label": "'backupPolicy'",
+    "kind": "property",
+    "detail": "backupPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `BackupPolicy`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'backupPolicy'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'backupPolicy'"
+    }
+  },
+  {
+    "label": "'capabilities'",
+    "kind": "property",
+    "detail": "capabilities",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Capability[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'capabilities'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'capabilities'"
+    }
+  },
+  {
+    "label": "'connectorOffer'",
+    "kind": "property",
+    "detail": "connectorOffer",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Small'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'connectorOffer'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'connectorOffer'"
+    }
+  },
+  {
+    "label": "'consistencyPolicy'",
+    "kind": "property",
+    "detail": "consistencyPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ConsistencyPolicy`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'consistencyPolicy'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'consistencyPolicy'"
+    }
+  },
+  {
+    "label": "'cors'",
+    "kind": "property",
+    "detail": "cors",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `CorsPolicy[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'cors'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'cors'"
+    }
+  },
+  {
+    "label": "'createMode'",
+    "kind": "property",
+    "detail": "createMode (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Default'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'createMode'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'createMode'"
+    }
+  },
+  {
+    "label": "'databaseAccountOfferType'",
+    "kind": "property",
+    "detail": "databaseAccountOfferType (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'databaseAccountOfferType'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'databaseAccountOfferType'"
+    }
+  },
+  {
+    "label": "'disableKeyBasedMetadataWriteAccess'",
+    "kind": "property",
+    "detail": "disableKeyBasedMetadataWriteAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'disableKeyBasedMetadataWriteAccess'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'disableKeyBasedMetadataWriteAccess'"
+    }
+  },
+  {
+    "label": "'documentEndpoint'",
+    "kind": "property",
+    "detail": "documentEndpoint",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'documentEndpoint'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'documentEndpoint'"
+    }
+  },
+  {
+    "label": "'enableAnalyticalStorage'",
+    "kind": "property",
+    "detail": "enableAnalyticalStorage",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableAnalyticalStorage'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableAnalyticalStorage'"
+    }
+  },
+  {
+    "label": "'enableAutomaticFailover'",
+    "kind": "property",
+    "detail": "enableAutomaticFailover",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableAutomaticFailover'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableAutomaticFailover'"
+    }
+  },
+  {
+    "label": "'enableCassandraConnector'",
+    "kind": "property",
+    "detail": "enableCassandraConnector",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableCassandraConnector'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableCassandraConnector'"
+    }
+  },
+  {
+    "label": "'enableFreeTier'",
+    "kind": "property",
+    "detail": "enableFreeTier",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableFreeTier'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableFreeTier'"
+    }
+  },
+  {
+    "label": "'enableMultipleWriteLocations'",
+    "kind": "property",
+    "detail": "enableMultipleWriteLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'enableMultipleWriteLocations'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'enableMultipleWriteLocations'"
+    }
+  },
+  {
+    "label": "'failoverPolicies'",
+    "kind": "property",
+    "detail": "failoverPolicies",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `FailoverPolicy[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'failoverPolicies'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'failoverPolicies'"
+    }
+  },
+  {
+    "label": "'instanceId'",
+    "kind": "property",
+    "detail": "instanceId",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'instanceId'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'instanceId'"
+    }
+  },
+  {
+    "label": "'ipRules'",
+    "kind": "property",
+    "detail": "ipRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `IpAddressOrRange[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'ipRules'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'ipRules'"
+    }
+  },
+  {
+    "label": "'isVirtualNetworkFilterEnabled'",
+    "kind": "property",
+    "detail": "isVirtualNetworkFilterEnabled",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'isVirtualNetworkFilterEnabled'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'isVirtualNetworkFilterEnabled'"
+    }
+  },
+  {
+    "label": "'keyVaultKeyUri'",
+    "kind": "property",
+    "detail": "keyVaultKeyUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'keyVaultKeyUri'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'keyVaultKeyUri'"
+    }
+  },
+  {
+    "label": "'locations'",
+    "kind": "property",
+    "detail": "locations (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'locations'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'locations'"
+    }
+  },
+  {
+    "label": "'privateEndpointConnections'",
+    "kind": "property",
+    "detail": "privateEndpointConnections",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `PrivateEndpointConnection[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'privateEndpointConnections'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'privateEndpointConnections'"
+    }
+  },
+  {
+    "label": "'provisioningState'",
+    "kind": "property",
+    "detail": "provisioningState",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'provisioningState'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'provisioningState'"
+    }
+  },
+  {
+    "label": "'publicNetworkAccess'",
+    "kind": "property",
+    "detail": "publicNetworkAccess",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Disabled' | 'Enabled'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'publicNetworkAccess'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'publicNetworkAccess'"
+    }
+  },
+  {
+    "label": "'readLocations'",
+    "kind": "property",
+    "detail": "readLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'readLocations'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'readLocations'"
+    }
+  },
+  {
+    "label": "'restoreParameters'",
+    "kind": "property",
+    "detail": "restoreParameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `RestoreParameters`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'restoreParameters'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'restoreParameters'"
+    }
+  },
+  {
+    "label": "'virtualNetworkRules'",
+    "kind": "property",
+    "detail": "virtualNetworkRules",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `VirtualNetworkRule[]`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'virtualNetworkRules'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'virtualNetworkRules'"
+    }
+  },
+  {
+    "label": "'writeLocations'",
+    "kind": "property",
+    "detail": "writeLocations",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Location[]`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_'writeLocations'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'writeLocations'"
+    }
+  },
+  {
+    "label": "any",
+    "kind": "function",
+    "detail": "any()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_any",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    }
+  },
+  {
+    "label": "array",
+    "kind": "function",
+    "detail": "array()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_array",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    }
+  },
+  {
+    "label": "az",
+    "kind": "folder",
+    "detail": "az",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "az"
+    }
+  },
+  {
+    "label": "badDepends",
+    "kind": "interface",
+    "detail": "badDepends",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badDepends",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badDepends"
+    }
+  },
+  {
+    "label": "badDepends2",
+    "kind": "interface",
+    "detail": "badDepends2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badDepends2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badDepends2"
+    }
+  },
+  {
+    "label": "badDepends3",
+    "kind": "interface",
+    "detail": "badDepends3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badDepends3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badDepends3"
+    }
+  },
+  {
+    "label": "badDepends4",
+    "kind": "interface",
+    "detail": "badDepends4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badDepends4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badDepends4"
+    }
+  },
+  {
+    "label": "badDepends5",
+    "kind": "interface",
+    "detail": "badDepends5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badDepends5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badDepends5"
+    }
+  },
+  {
+    "label": "badInterp",
+    "kind": "interface",
+    "detail": "badInterp",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badInterp",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badInterp"
+    }
+  },
+  {
+    "label": "bar",
+    "kind": "interface",
+    "detail": "bar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bar"
+    }
+  },
+  {
+    "label": "base64",
+    "kind": "function",
+    "detail": "base64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    }
+  },
+  {
+    "label": "base64ToJson",
+    "kind": "function",
+    "detail": "base64ToJson()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToJson",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    }
+  },
+  {
+    "label": "base64ToString",
+    "kind": "function",
+    "detail": "base64ToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    }
+  },
+  {
+    "label": "baz",
+    "kind": "interface",
+    "detail": "baz",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_baz",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "baz"
+    }
+  },
+  {
+    "label": "bool",
+    "kind": "function",
+    "detail": "bool()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_bool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    }
+  },
+  {
+    "label": "coalesce",
+    "kind": "function",
+    "detail": "coalesce()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_coalesce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "coalesce($0)"
+    }
+  },
+  {
+    "label": "concat",
+    "kind": "function",
+    "detail": "concat()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_concat",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    }
+  },
+  {
+    "label": "contains",
+    "kind": "function",
+    "detail": "contains()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_contains",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    }
+  },
+  {
+    "label": "dashesInPropertyNames",
+    "kind": "interface",
+    "detail": "dashesInPropertyNames",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dashesInPropertyNames",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dashesInPropertyNames"
+    }
+  },
+  {
+    "label": "dataUri",
+    "kind": "function",
+    "detail": "dataUri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    }
+  },
+  {
+    "label": "dataUriToString",
+    "kind": "function",
+    "detail": "dataUriToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUriToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    }
+  },
+  {
+    "label": "dateTimeAdd",
+    "kind": "function",
+    "detail": "dateTimeAdd()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeAdd",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    }
+  },
+  {
+    "label": "deployment",
+    "kind": "function",
+    "detail": "deployment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "deployment()$0"
+    }
+  },
+  {
+    "label": "discriminatorKeyMissing",
+    "kind": "interface",
+    "detail": "discriminatorKeyMissing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyMissing",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyMissing"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOne",
+    "kind": "interface",
+    "detail": "discriminatorKeySetOne",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOne",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOne"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions2"
+    }
+  },
+  {
+    "label": "discriminatorKeySetOneCompletions3",
+    "kind": "variable",
+    "detail": "discriminatorKeySetOneCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetOneCompletions3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetOneCompletions3"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwo",
+    "kind": "interface",
+    "detail": "discriminatorKeySetTwo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwo",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwo"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletions2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletions2"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer"
+    }
+  },
+  {
+    "label": "discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "kind": "variable",
+    "detail": "discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeySetTwoCompletionsArrayIndexer2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeySetTwoCompletionsArrayIndexer2"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissing",
+    "kind": "interface",
+    "detail": "discriminatorKeyValueMissing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissing",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissing"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions2",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions2"
+    }
+  },
+  {
+    "label": "discriminatorKeyValueMissingCompletions3",
+    "kind": "variable",
+    "detail": "discriminatorKeyValueMissingCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_discriminatorKeyValueMissingCompletions3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminatorKeyValueMissingCompletions3"
+    }
+  },
+  {
+    "label": "empty",
+    "kind": "function",
+    "detail": "empty()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_empty",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    }
+  },
+  {
+    "label": "endsWith",
+    "kind": "function",
+    "detail": "endsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_endsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    }
+  },
+  {
+    "label": "environment",
+    "kind": "function",
+    "detail": "environment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_environment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "environment()$0"
+    }
+  },
+  {
+    "label": "extensionResourceId",
+    "kind": "function",
+    "detail": "extensionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_extensionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionResourceId($0)"
+    }
+  },
+  {
+    "label": "first",
+    "kind": "function",
+    "detail": "first()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_first",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    }
+  },
+  {
+    "label": "fo",
+    "kind": "interface",
+    "detail": "fo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fo",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "fo"
+    }
+  },
+  {
+    "label": "foo",
+    "kind": "interface",
+    "detail": "foo",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_foo",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "foo"
+    }
+  },
+  {
+    "label": "format",
+    "kind": "function",
+    "detail": "format()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_format",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    }
+  },
+  {
+    "label": "guid",
+    "kind": "function",
+    "detail": "guid()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_guid",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    }
+  },
+  {
+    "label": "incorrectPropertiesKey",
+    "kind": "interface",
+    "detail": "incorrectPropertiesKey",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incorrectPropertiesKey",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "incorrectPropertiesKey"
+    }
+  },
+  {
+    "label": "incorrectPropertiesKey2",
+    "kind": "interface",
+    "detail": "incorrectPropertiesKey2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incorrectPropertiesKey2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "incorrectPropertiesKey2"
+    }
+  },
+  {
+    "label": "indexOf",
+    "kind": "function",
+    "detail": "indexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_indexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    }
+  },
+  {
+    "label": "int",
+    "kind": "function",
+    "detail": "int()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_int",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    }
+  },
+  {
+    "label": "interpVal",
+    "kind": "variable",
+    "detail": "interpVal",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interpVal",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "interpVal"
+    }
+  },
+  {
+    "label": "intersection",
+    "kind": "function",
+    "detail": "intersection()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_intersection",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    }
+  },
+  {
+    "label": "json",
+    "kind": "function",
+    "detail": "json()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_json",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    }
+  },
+  {
+    "label": "last",
+    "kind": "function",
+    "detail": "last()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_last",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    }
+  },
+  {
+    "label": "lastIndexOf",
+    "kind": "function",
+    "detail": "lastIndexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_lastIndexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    }
+  },
+  {
+    "label": "length",
+    "kind": "function",
+    "detail": "length()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_length",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    }
+  },
+  {
+    "label": "letsAccessTheDashes",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes"
+    }
+  },
+  {
+    "label": "letsAccessTheDashes2",
+    "kind": "variable",
+    "detail": "letsAccessTheDashes2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_letsAccessTheDashes2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "letsAccessTheDashes2"
+    }
+  },
+  {
+    "label": "max",
+    "kind": "function",
+    "detail": "max()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_max",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    }
+  },
+  {
+    "label": "min",
+    "kind": "function",
+    "detail": "min()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_min",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    }
+  },
+  {
+    "label": "missingTopLevelProperties",
+    "kind": "interface",
+    "detail": "missingTopLevelProperties",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingTopLevelProperties",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingTopLevelProperties"
+    }
+  },
+  {
+    "label": "missingTopLevelPropertiesExceptName",
+    "kind": "interface",
+    "detail": "missingTopLevelPropertiesExceptName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingTopLevelPropertiesExceptName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingTopLevelPropertiesExceptName"
+    }
+  },
+  {
+    "label": "missingType",
+    "kind": "interface",
+    "detail": "missingType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingType"
+    }
+  },
+  {
+    "label": "mock",
+    "kind": "variable",
+    "detail": "mock",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mock",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "mock"
+    }
+  },
+  {
+    "label": "nestedDiscriminator",
+    "kind": "interface",
+    "detail": "nestedDiscriminator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminator"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions3",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions3"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorCompletions4",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorCompletions4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorCompletions4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorCompletions4"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKey",
+    "kind": "interface",
+    "detail": "nestedDiscriminatorMissingKey",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKey",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKey"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyCompletions2",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyCompletions2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyCompletions2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyCompletions2"
+    }
+  },
+  {
+    "label": "nestedDiscriminatorMissingKeyIndexCompletions",
+    "kind": "variable",
+    "detail": "nestedDiscriminatorMissingKeyIndexCompletions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedDiscriminatorMissingKeyIndexCompletions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedDiscriminatorMissingKeyIndexCompletions"
+    }
+  },
+  {
+    "label": "padLeft",
+    "kind": "function",
+    "detail": "padLeft()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_padLeft",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    }
+  },
+  {
+    "label": "pickZones",
+    "kind": "function",
+    "detail": "pickZones()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_pickZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "pickZones($0)"
+    }
+  },
+  {
+    "label": "providers",
+    "kind": "function",
+    "detail": "providers()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_providers",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "providers($0)"
+    }
+  },
+  {
+    "label": "range",
+    "kind": "function",
+    "detail": "range()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_range",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    }
+  },
+  {
+    "label": "reference",
+    "kind": "function",
+    "detail": "reference()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reference",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "reference($0)"
+    }
+  },
+  {
+    "label": "replace",
+    "kind": "function",
+    "detail": "replace()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_replace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    }
+  },
+  {
+    "label": "resourceGroup",
+    "kind": "function",
+    "detail": "resourceGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroup($0)"
+    }
+  },
+  {
+    "label": "resourceId",
+    "kind": "function",
+    "detail": "resourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceId($0)"
+    }
+  },
+  {
+    "label": "resrefpar",
+    "kind": "field",
+    "detail": "resrefpar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resrefpar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resrefpar"
+    }
+  },
+  {
+    "label": "resrefvar",
+    "kind": "variable",
+    "detail": "resrefvar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resrefvar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resrefvar"
+    }
+  },
+  {
+    "label": "skip",
+    "kind": "function",
+    "detail": "skip()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_skip",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    }
+  },
+  {
+    "label": "split",
+    "kind": "function",
+    "detail": "split()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_split",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    }
+  },
+  {
+    "label": "startedTypingTypeWithQuotes",
+    "kind": "interface",
+    "detail": "startedTypingTypeWithQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_startedTypingTypeWithQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "startedTypingTypeWithQuotes"
+    }
+  },
+  {
+    "label": "startedTypingTypeWithoutQuotes",
+    "kind": "interface",
+    "detail": "startedTypingTypeWithoutQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_startedTypingTypeWithoutQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "startedTypingTypeWithoutQuotes"
+    }
+  },
+  {
+    "label": "startsWith",
+    "kind": "function",
+    "detail": "startsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_startsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    }
+  },
+  {
+    "label": "string",
+    "kind": "function",
+    "detail": "string()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_string",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    }
+  },
+  {
+    "label": "subscription",
+    "kind": "function",
+    "detail": "subscription()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscription",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription($0)"
+    }
+  },
+  {
+    "label": "subscriptionResourceId",
+    "kind": "function",
+    "detail": "subscriptionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscriptionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscriptionResourceId($0)"
+    }
+  },
+  {
+    "label": "substring",
+    "kind": "function",
+    "detail": "substring()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_substring",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    }
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sys"
+    }
+  },
+  {
+    "label": "take",
+    "kind": "function",
+    "detail": "take()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_take",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
+    }
+  },
+  {
+    "label": "tenantResourceId",
+    "kind": "function",
+    "detail": "tenantResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenantResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantResourceId($0)"
+    }
+  },
+  {
+    "label": "toLower",
+    "kind": "function",
+    "detail": "toLower()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLower",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    }
+  },
+  {
+    "label": "toUpper",
+    "kind": "function",
+    "detail": "toUpper()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toUpper",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    }
+  },
+  {
+    "label": "trim",
+    "kind": "function",
+    "detail": "trim()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_trim",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    }
+  },
+  {
+    "label": "unfinishedVnet",
+    "kind": "interface",
+    "detail": "unfinishedVnet",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unfinishedVnet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "unfinishedVnet"
+    }
+  },
+  {
+    "label": "union",
+    "kind": "function",
+    "detail": "union()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_union",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    }
+  },
+  {
+    "label": "uniqueString",
+    "kind": "function",
+    "detail": "uniqueString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uniqueString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    }
+  },
+  {
+    "label": "uri",
+    "kind": "function",
+    "detail": "uri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    }
+  },
+  {
+    "label": "uriComponent",
+    "kind": "function",
+    "detail": "uriComponent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    }
+  },
+  {
+    "label": "uriComponentToString",
+    "kind": "function",
+    "detail": "uriComponentToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponentToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    }
+  }
+]

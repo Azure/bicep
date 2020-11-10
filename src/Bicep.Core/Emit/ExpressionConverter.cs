@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
@@ -102,7 +103,7 @@ namespace Bicep.Core.Emit
                         switch (propertyAccess.PropertyName.IdentifierName)
                         {
                             case "id":
-                                return GetResourceIdExpression(resourceSymbol.DeclaringResource, typeReference);
+                                return GetLocallyScopedResourceIdExpression(resourceSymbol.DeclaringResource, typeReference);
                             case "name":
                                 return GetResourceNameExpression(resourceSymbol.DeclaringResource);
                             case "type":
@@ -162,56 +163,54 @@ namespace Bicep.Core.Emit
                 // this condition should have already been validated by the type checker
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
+            
+            // this condition should have already been validated by the type checker
+            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+            return  ConvertExpression(namePropertySyntax.Value);
+        }
 
-            var namePropertySyntax = objectSyntax.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), "name"));
-            if (namePropertySyntax == null)
+        private LanguageExpression GetModuleNameExpression(ModuleDeclarationSyntax moduleSyntax)
+        {
+            if (!(moduleSyntax.Body is ObjectSyntax objectSyntax))
             {
                 // this condition should have already been validated by the type checker
-                throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+                throw new ArgumentException($"Expected module syntax to have type {typeof(ObjectSyntax)}, but found {moduleSyntax.Body.GetType()}");
             }
-
-            return ConvertExpression(namePropertySyntax.Value);
+            
+            // this condition should have already been validated by the type checker
+            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            return  ConvertExpression(namePropertySyntax.Value);
         }
 
-        public FunctionExpression GetResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        public LanguageExpression GetLocallyScopedResourceIdExpression(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
         {
+            IEnumerable<LanguageExpression> nameSegments;
             if (typeReference.Types.Length == 1)
             {
-                return new FunctionExpression(
-                    "resourceId",
-                    new LanguageExpression[]
-                    {
-                        new JTokenExpression(typeReference.FullyQualifiedType),
-                        GetResourceNameExpression(resourceSyntax),
-                    },
-                    Array.Empty<LanguageExpression>());
+                nameSegments = GetResourceNameExpression(resourceSyntax).AsEnumerable();
+            }
+            else
+            {
+                nameSegments = typeReference.Types.Select(
+                    (type, i) => new FunctionExpression(
+                        "split",
+                        new LanguageExpression[] { GetResourceNameExpression(resourceSyntax), new JTokenExpression("/") },
+                        new LanguageExpression[] { new JTokenExpression(i) }));
             }
 
-            var nameSegments = typeReference.Types.Select(
-                (type, i) => new FunctionExpression(
-                    "split",
-                    new LanguageExpression[] { GetResourceNameExpression(resourceSyntax), new JTokenExpression("/") },
-                    new LanguageExpression[] { new JTokenExpression(i) }));
-
-            return new FunctionExpression(
-                "resourceId",
-                new LanguageExpression[]
-                {
-                    new JTokenExpression(typeReference.FullyQualifiedType),
-                }.Concat(nameSegments).ToArray(),
-                Array.Empty<LanguageExpression>());
+            return ScopeHelper.FormatLocallyScopedResourceId(
+                context.SemanticModel,
+                typeReference.FullyQualifiedType,
+                nameSegments);
         }
 
-        public FunctionExpression GetModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        public LanguageExpression GetModuleResourceIdExpression(ModuleSymbol moduleSymbol)
         {
-            return new FunctionExpression(
-                "resourceId",
-                new LanguageExpression[]
-                {
-                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceType),
-                    new JTokenExpression(moduleSymbol.Name),
-                },
-                Array.Empty<LanguageExpression>());
+            return ScopeHelper.FormatCrossScopeResourceId(
+                this,
+                context.ModuleScopeData[moduleSymbol],
+                TemplateWriter.NestedDeploymentResourceType,
+                GetModuleNameExpression(moduleSymbol.DeclaringModule).AsEnumerable());
         }
         
         public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol)
@@ -238,7 +237,7 @@ namespace Bicep.Core.Emit
                     "reference",
                     new LanguageExpression[]
                     {
-                        GetResourceIdExpression(resourceSyntax, typeReference),
+                        GetLocallyScopedResourceIdExpression(resourceSyntax, typeReference),
                         new JTokenExpression(typeReference.ApiVersion),
                         new JTokenExpression("full"),
                     },
@@ -249,7 +248,7 @@ namespace Bicep.Core.Emit
                 "reference",
                 new LanguageExpression[]
                 {
-                    GetResourceIdExpression(resourceSyntax, typeReference),
+                    GetLocallyScopedResourceIdExpression(resourceSyntax, typeReference),
                 },
                 Array.Empty<LanguageExpression>());
         }
@@ -507,6 +506,42 @@ namespace Bicep.Core.Emit
                     throw new NotImplementedException($"Cannot emit unexpected unary operator '{syntax.Operator}.");
             }
         }
+
+        public static LanguageExpression GenerateUnqualifiedResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        {
+            var typeSegments = fullyQualifiedType.Split("/");
+
+            // Generate a format string that looks like: My.Rp/type1/{0}/type2/{1}
+            var formatString = $"{typeSegments[0]}/" + string.Join('/', typeSegments.Skip(1).Select((type, i) => $"{type}/{{{i}}}"));
+
+            return new FunctionExpression(
+                "format",
+                new JTokenExpression(formatString).AsEnumerable().Concat(nameSegments).ToArray(),
+                new LanguageExpression[0]);
+        }
+
+        public static LanguageExpression GenerateScopedResourceId(LanguageExpression scope, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+            => new FunctionExpression(
+                "extensionResourceId",
+                new [] { scope, new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments).ToArray(),
+                new LanguageExpression[0]);
+
+        public static LanguageExpression GenerateResourceGroupScope(LanguageExpression subscriptionId, LanguageExpression resourceGroup)
+            => new FunctionExpression("format", new LanguageExpression[] 
+            {
+                new JTokenExpression("/subscriptions/{0}/resourceGroups/{1}"),
+                subscriptionId,
+                resourceGroup,
+            }, new LanguageExpression[0]);
+
+        public static LanguageExpression GetManagementGroupScopeExpression(LanguageExpression managementGroupName)
+            => new FunctionExpression(
+                "tenantResourceId",
+                new LanguageExpression[] {
+                    new JTokenExpression("Microsoft.Management/managementGroups"),
+                    managementGroupName,
+                },
+                Array.Empty<LanguageExpression>());
 
         private static FunctionExpression AppendProperty(FunctionExpression function, LanguageExpression newProperty) => 
             // technically we could just mutate the provided function object, but let's hold off on that optimization

@@ -11,12 +11,13 @@
     "preselect": false,
     "sortText": "2_createMode",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "createMode"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

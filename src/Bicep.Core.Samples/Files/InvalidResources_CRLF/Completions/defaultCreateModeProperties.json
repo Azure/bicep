@@ -11,12 +11,13 @@
     "preselect": false,
     "sortText": "2_apiProperties",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "apiProperties"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -31,12 +32,13 @@
     "preselect": false,
     "sortText": "2_backupPolicy",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "backupPolicy"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -51,12 +53,13 @@
     "preselect": false,
     "sortText": "2_capabilities",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "capabilities"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -71,12 +74,13 @@
     "preselect": false,
     "sortText": "2_connectorOffer",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "connectorOffer"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -91,12 +95,13 @@
     "preselect": false,
     "sortText": "2_consistencyPolicy",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "consistencyPolicy"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -111,12 +116,13 @@
     "preselect": false,
     "sortText": "2_cors",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "cors"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -131,12 +137,13 @@
     "preselect": false,
     "sortText": "2_createMode",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "createMode"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -151,12 +158,13 @@
     "preselect": false,
     "sortText": "2_databaseAccountOfferType",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "databaseAccountOfferType"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -171,12 +179,13 @@
     "preselect": false,
     "sortText": "2_disableKeyBasedMetadataWriteAccess",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "disableKeyBasedMetadataWriteAccess"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -191,12 +200,13 @@
     "preselect": false,
     "sortText": "2_documentEndpoint",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "documentEndpoint"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -211,12 +221,13 @@
     "preselect": false,
     "sortText": "2_enableAnalyticalStorage",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableAnalyticalStorage"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -231,12 +242,13 @@
     "preselect": false,
     "sortText": "2_enableAutomaticFailover",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableAutomaticFailover"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -251,12 +263,13 @@
     "preselect": false,
     "sortText": "2_enableCassandraConnector",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableCassandraConnector"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -271,12 +284,13 @@
     "preselect": false,
     "sortText": "2_enableFreeTier",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableFreeTier"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -291,12 +305,13 @@
     "preselect": false,
     "sortText": "2_enableMultipleWriteLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableMultipleWriteLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -311,12 +326,13 @@
     "preselect": false,
     "sortText": "2_failoverPolicies",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "failoverPolicies"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -331,12 +347,13 @@
     "preselect": false,
     "sortText": "2_instanceId",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "instanceId"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -351,12 +368,13 @@
     "preselect": false,
     "sortText": "2_ipRules",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "ipRules"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -371,12 +389,13 @@
     "preselect": false,
     "sortText": "2_isVirtualNetworkFilterEnabled",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "isVirtualNetworkFilterEnabled"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -391,12 +410,13 @@
     "preselect": false,
     "sortText": "2_keyVaultKeyUri",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "keyVaultKeyUri"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -411,12 +431,13 @@
     "preselect": false,
     "sortText": "2_locations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "locations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -431,12 +452,13 @@
     "preselect": false,
     "sortText": "2_privateEndpointConnections",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "privateEndpointConnections"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -451,12 +473,13 @@
     "preselect": false,
     "sortText": "2_provisioningState",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "provisioningState"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -471,12 +494,13 @@
     "preselect": false,
     "sortText": "2_publicNetworkAccess",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "publicNetworkAccess"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -491,12 +515,13 @@
     "preselect": false,
     "sortText": "2_readLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "readLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -511,12 +536,13 @@
     "preselect": false,
     "sortText": "2_restoreParameters",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "restoreParameters"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -531,12 +557,13 @@
     "preselect": false,
     "sortText": "2_virtualNetworkRules",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "virtualNetworkRules"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -551,12 +578,13 @@
     "preselect": false,
     "sortText": "2_writeLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "writeLocations"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

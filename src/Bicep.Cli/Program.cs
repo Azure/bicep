@@ -99,7 +99,7 @@ namespace Bicep.Cli
 
         private void Build(IDiagnosticLogger logger, BuildArguments arguments)
         {
-            var bicepPaths = arguments.Files.Select(PathHelper.ResolvePath).ToArray();
+            var bicepPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
             if (arguments.OutputToStdOut)
             {
                 BuildManyFilesToStdOut(logger, bicepPaths);

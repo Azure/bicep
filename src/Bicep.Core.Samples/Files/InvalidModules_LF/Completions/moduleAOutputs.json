@@ -11,12 +11,13 @@
     "preselect": false,
     "sortText": "2_arrayOutput",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "arrayOutput"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -31,12 +32,13 @@
     "preselect": false,
     "sortText": "2_objOutput",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "objOutput"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -51,12 +53,13 @@
     "preselect": false,
     "sortText": "2_stringOutputA",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "stringOutputA"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -71,12 +74,13 @@
     "preselect": false,
     "sortText": "2_stringOutputB",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "stringOutputB"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

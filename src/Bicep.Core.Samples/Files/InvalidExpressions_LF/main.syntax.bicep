@@ -1023,6 +1023,56 @@ var propertyAccessOnVariable = x.foo
 //@[33:36)    Identifier |foo|
 //@[36:38) NewLine |\n\n|
 
+// missing property in property access
+//@[38:39) NewLine |\n|
+var oneValidDeclaration = {}
+//@[0:28) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |oneValidDeclaration|
+//@[24:25)  Assignment |=|
+//@[26:28)  ObjectSyntax
+//@[26:27)   LeftBrace |{|
+//@[27:28)   RightBrace |}|
+//@[28:29) NewLine |\n|
+var missingPropertyName = oneValidDeclaration.
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |missingPropertyName|
+//@[24:25)  Assignment |=|
+//@[26:46)  PropertyAccessSyntax
+//@[26:45)   VariableAccessSyntax
+//@[26:45)    IdentifierSyntax
+//@[26:45)     Identifier |oneValidDeclaration|
+//@[45:46)   Dot |.|
+//@[46:46)   IdentifierSyntax
+//@[46:46)    SkippedTriviaSyntax
+//@[46:47) NewLine |\n|
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[0:83) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:37)  IdentifierSyntax
+//@[4:37)   Identifier |missingPropertyInsideAnExpression|
+//@[38:39)  Assignment |=|
+//@[40:83)  BinaryOperationSyntax
+//@[40:61)   PropertyAccessSyntax
+//@[40:59)    VariableAccessSyntax
+//@[40:59)     IdentifierSyntax
+//@[40:59)      Identifier |oneValidDeclaration|
+//@[59:60)    Dot |.|
+//@[61:61)    IdentifierSyntax
+//@[61:61)     SkippedTriviaSyntax
+//@[61:62)   Plus |+|
+//@[63:83)   PropertyAccessSyntax
+//@[63:82)    VariableAccessSyntax
+//@[63:82)     IdentifierSyntax
+//@[63:82)      Identifier |oneValidDeclaration|
+//@[82:83)    Dot |.|
+//@[83:83)    IdentifierSyntax
+//@[83:83)     SkippedTriviaSyntax
+//@[83:85) NewLine |\n\n|
+
 // function used like a variable
 //@[32:33) NewLine |\n|
 var funcvarvar = concat + base64 || !uniqueString
@@ -2051,6 +2101,82 @@ var sysFunctions = sys.a
 //@[23:24)   IdentifierSyntax
 //@[23:24)    Identifier |a|
 //@[24:26) NewLine |\n\n|
+
+// missing method name
+//@[22:23) NewLine |\n|
+var missingMethodName = az.()
+//@[0:29) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |missingMethodName|
+//@[22:23)  Assignment |=|
+//@[24:29)  InstanceFunctionCallSyntax
+//@[24:26)   VariableAccessSyntax
+//@[24:26)    IdentifierSyntax
+//@[24:26)     Identifier |az|
+//@[26:27)   Dot |.|
+//@[27:27)   IdentifierSyntax
+//@[27:27)    SkippedTriviaSyntax
+//@[27:28)   LeftParen |(|
+//@[28:29)   RightParen |)|
+//@[29:31) NewLine |\n\n|
+
+// missing indexer
+//@[18:19) NewLine |\n|
+var missingIndexerOnLiteralArray = [][][]
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:32)  IdentifierSyntax
+//@[4:32)   Identifier |missingIndexerOnLiteralArray|
+//@[33:34)  Assignment |=|
+//@[35:41)  ArrayAccessSyntax
+//@[35:39)   ArrayAccessSyntax
+//@[35:37)    ArraySyntax
+//@[35:36)     LeftSquare |[|
+//@[36:37)     RightSquare |]|
+//@[37:38)    LeftSquare |[|
+//@[38:38)    SkippedTriviaSyntax
+//@[38:39)    RightSquare |]|
+//@[39:40)   LeftSquare |[|
+//@[40:40)   SkippedTriviaSyntax
+//@[40:41)   RightSquare |]|
+//@[41:42) NewLine |\n|
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[0:61) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |missingIndexerOnIdentifier|
+//@[31:32)  Assignment |=|
+//@[33:61)  ArrayAccessSyntax
+//@[33:59)   ArrayAccessSyntax
+//@[33:56)    ArrayAccessSyntax
+//@[33:54)     VariableAccessSyntax
+//@[33:54)      IdentifierSyntax
+//@[33:54)       Identifier |nonExistentIdentifier|
+//@[54:55)     LeftSquare |[|
+//@[55:55)     SkippedTriviaSyntax
+//@[55:56)     RightSquare |]|
+//@[56:57)    LeftSquare |[|
+//@[57:58)    NumericLiteralSyntax
+//@[57:58)     Number |1|
+//@[58:59)    RightSquare |]|
+//@[59:60)   LeftSquare |[|
+//@[60:60)   SkippedTriviaSyntax
+//@[60:61)   RightSquare |]|
+//@[61:63) NewLine |\n\n|
+
+// empty parens - should produce expected expression diagnostic
+//@[63:64) NewLine |\n|
+var emptyParens = ()
+//@[0:20) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |emptyParens|
+//@[16:17)  Assignment |=|
+//@[18:20)  SkippedTriviaSyntax
+//@[18:19)   LeftParen |(|
+//@[19:20)   RightParen |)|
+//@[20:22) NewLine |\n\n|
 
 // keywords can't be called like functions
 //@[42:43) NewLine |\n|

@@ -40,6 +40,17 @@ namespace Bicep.Core.Emit
             "dependsOn",
         }.ToImmutableHashSet();
 
+        private static SemanticModel.SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        {
+            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
+            {
+                // this should have already been checked during type assignment
+                throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
+            }
+            
+            return moduleSemanticModel;
+        }
+
         private readonly JsonTextWriter writer;
         private readonly EmitterContext context;
         private readonly ExpressionEmitter emitter;
@@ -270,12 +281,8 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
-            var scopeProperty = moduleBody.Properties.FirstOrDefault(x => x.TryGetKeyText() == LanguageConstants.ModuleScopePropertyName);
-            if (scopeProperty != null)
-            {
-                var scopeType = context.SemanticModel.GetTypeInfo(scopeProperty);
-                this.emitter.EmitModuleScopeProperty(scopeType);
-            }
+            var scopeData = context.ModuleScopeData[moduleSymbol];
+            ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);
 
             writer.WritePropertyName("properties");
             {
@@ -294,12 +301,7 @@ namespace Bicep.Core.Emit
 
                 writer.WritePropertyName("template");
                 {
-                    if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
-                    {
-                        // this should have already been checked during type assignment
-                        throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
-                    }
-
+                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
                     var moduleWriter = new TemplateWriter(writer, moduleSemanticModel);
                     moduleWriter.Write();
                 }

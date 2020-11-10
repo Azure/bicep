@@ -172,6 +172,11 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
+// #completionTest(76) -> missingDiscriminatorPropertyAccess
+var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
+
+// #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
+var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
 
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -184,6 +189,11 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
+// #completionTest(75) -> cliPropertyAccess
+var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
+
+// #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
+var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
@@ -196,9 +206,13 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 }
 // #completionTest(75) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
+// #completionTest(75) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
+// #completionTest(90) -> powershellPropertyAccess
+var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
@@ -252,6 +266,8 @@ resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
+// #completionTest(78) -> autoScalerPropertiesRequireEscaping
+var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
@@ -263,8 +279,11 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
 }
 // #completionTest(90) -> createMode
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
-// #completionTest(94) -> createMode
-var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].cr
+// #completionTest(92) -> createMode
+var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
+
+// #completionTest(94) -> createModeIndexPlusSymbols
+var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
 
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
@@ -278,3 +297,10 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
+// #completionTest(69) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
+// #completionTest(72) -> defaultCreateModeProperties
+var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
+
+// #completionTest(79) -> defaultCreateModeIndexes
+var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]

@@ -240,19 +240,35 @@ var two = one.f
 //@[13:14)   Dot |.|
 //@[14:15)   IdentifierSyntax
 //@[14:15)    Identifier |f|
-//@[15:19) NewLine |\r\n\r\n|
+//@[15:17) NewLine |\r\n|
+// #completionTest(17) -> empty
+//@[31:33) NewLine |\r\n|
+var twotwo = one.
+//@[0:17) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:10)  IdentifierSyntax
+//@[4:10)   Identifier |twotwo|
+//@[11:12)  Assignment |=|
+//@[13:17)  PropertyAccessSyntax
+//@[13:16)   VariableAccessSyntax
+//@[13:16)    IdentifierSyntax
+//@[13:16)     Identifier |one|
+//@[16:17)   Dot |.|
+//@[17:17)   IdentifierSyntax
+//@[17:17)    SkippedTriviaSyntax
+//@[17:21) NewLine |\r\n\r\n|
 
 // resource completion cycles
 //@[29:31) NewLine |\r\n|
 resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[0:196) ResourceDeclarationSyntax
+//@[0:250) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |res1|
 //@[14:60)  StringSyntax
 //@[14:60)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
 //@[61:62)  Assignment |=|
-//@[63:196)  ObjectSyntax
+//@[63:250)  ObjectSyntax
 //@[63:64)   LeftBrace |{|
 //@[64:66)   NewLine |\r\n|
   // #completionTest(14) -> empty
@@ -279,11 +295,11 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[12:15)     StringComplete |'l'|
 //@[15:17)   NewLine |\r\n|
   sku: {
-//@[2:38)   ObjectPropertySyntax
+//@[2:92)   ObjectPropertySyntax
 //@[2:5)    IdentifierSyntax
 //@[2:5)     Identifier |sku|
 //@[5:6)    Colon |:|
-//@[7:38)    ObjectSyntax
+//@[7:92)    ObjectSyntax
 //@[7:8)     LeftBrace |{|
 //@[8:10)     NewLine |\r\n|
     name: 'Premium_LRS'
@@ -294,6 +310,21 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[10:23)      StringSyntax
 //@[10:23)       StringComplete |'Premium_LRS'|
 //@[23:25)     NewLine |\r\n|
+    // #completionTest(15) -> empty
+//@[35:37)     NewLine |\r\n|
+    tier: res2.
+//@[4:15)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |tier|
+//@[8:9)      Colon |:|
+//@[10:15)      PropertyAccessSyntax
+//@[10:14)       VariableAccessSyntax
+//@[10:14)        IdentifierSyntax
+//@[10:14)         Identifier |res2|
+//@[14:15)       Dot |.|
+//@[15:15)       IdentifierSyntax
+//@[15:15)        SkippedTriviaSyntax
+//@[15:17)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:5)   NewLine |\r\n|
@@ -309,14 +340,14 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\r\n|
 resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[0:164) ResourceDeclarationSyntax
+//@[0:246) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:13)  IdentifierSyntax
 //@[9:13)   Identifier |res2|
 //@[14:60)  StringSyntax
 //@[14:60)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
 //@[61:62)  Assignment |=|
-//@[63:164)  ObjectSyntax
+//@[63:246)  ObjectSyntax
 //@[63:64)   LeftBrace |{|
 //@[64:66)   NewLine |\r\n|
   name: res1.name
@@ -356,6 +387,32 @@ resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[10:23)      StringSyntax
 //@[10:23)       StringComplete |'Premium_LRS'|
 //@[23:25)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+  properties: {
+//@[2:80)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:80)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    // #completionTest(21) -> empty
+//@[35:37)     NewLine |\r\n|
+    accessTier: res1.
+//@[4:21)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |accessTier|
+//@[14:15)      Colon |:|
+//@[16:21)      PropertyAccessSyntax
+//@[16:20)       VariableAccessSyntax
+//@[16:20)        IdentifierSyntax
+//@[16:20)         Identifier |res1|
+//@[20:21)       Dot |.|
+//@[21:21)       IdentifierSyntax
+//@[21:21)        SkippedTriviaSyntax
+//@[21:23)     NewLine |\r\n|
   }
 //@[2:3)     RightBrace |}|
 //@[3:5)   NewLine |\r\n|

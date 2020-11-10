@@ -11,12 +11,13 @@
     "preselect": false,
     "sortText": "2_arguments",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "arguments"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -31,12 +32,13 @@
     "preselect": false,
     "sortText": "2_azPowerShellVersion",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "azPowerShellVersion"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -51,12 +53,13 @@
     "preselect": false,
     "sortText": "2_cleanupPreference",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "cleanupPreference"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -71,12 +74,13 @@
     "preselect": false,
     "sortText": "2_containerSettings",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "containerSettings"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -91,12 +95,13 @@
     "preselect": false,
     "sortText": "2_environmentVariables",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "environmentVariables"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -111,12 +116,13 @@
     "preselect": false,
     "sortText": "2_forceUpdateTag",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "forceUpdateTag"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -131,12 +137,13 @@
     "preselect": false,
     "sortText": "2_outputs",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "outputs"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -151,12 +158,13 @@
     "preselect": false,
     "sortText": "2_primaryScriptUri",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "primaryScriptUri"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -171,12 +179,13 @@
     "preselect": false,
     "sortText": "2_provisioningState",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "provisioningState"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -191,12 +200,13 @@
     "preselect": false,
     "sortText": "2_retentionInterval",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "retentionInterval"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -211,12 +221,13 @@
     "preselect": false,
     "sortText": "2_scriptContent",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "scriptContent"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -231,12 +242,13 @@
     "preselect": false,
     "sortText": "2_status",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "status"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -251,12 +263,13 @@
     "preselect": false,
     "sortText": "2_storageAccountSettings",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "storageAccountSettings"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -271,12 +284,13 @@
     "preselect": false,
     "sortText": "2_supportingScriptUris",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "supportingScriptUris"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -291,12 +305,13 @@
     "preselect": false,
     "sortText": "2_timeout",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "timeout"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

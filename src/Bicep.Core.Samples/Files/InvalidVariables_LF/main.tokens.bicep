@@ -448,6 +448,15 @@ var objectVarTopLevelCompletions = objectLiteralType.f
 //@[35:52) Identifier |objectLiteralType|
 //@[52:53) Dot |.|
 //@[53:54) Identifier |f|
+//@[54:55) NewLine |\n|
+// #completionTest(54) -> objectVarTopLevel
+//@[43:44) NewLine |\n|
+var objectVarTopLevelCompletions2 = objectLiteralType.
+//@[0:3) Identifier |var|
+//@[4:33) Identifier |objectVarTopLevelCompletions2|
+//@[34:35) Assignment |=|
+//@[36:53) Identifier |objectLiteralType|
+//@[53:54) Dot |.|
 //@[54:56) NewLine |\n\n|
 
 // this does not produce any completions because mixed array items are of type "any"
@@ -466,6 +475,20 @@ var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
 //@[57:58) RightSquare |]|
 //@[58:59) Dot |.|
 //@[59:60) Identifier |o|
+//@[60:61) NewLine |\n|
+// #completionTest(60) -> mixedArrayProperties
+//@[46:47) NewLine |\n|
+var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |mixedArrayTypeCompletions2|
+//@[31:32) Assignment |=|
+//@[33:50) Identifier |objectLiteralType|
+//@[50:51) Dot |.|
+//@[51:56) Identifier |fifth|
+//@[56:57) LeftSquare |[|
+//@[57:58) Number |0|
+//@[58:59) RightSquare |]|
+//@[59:60) Dot |.|
 //@[60:62) NewLine |\n\n|
 
 // #completionTest(58) -> oneArrayItemProperties
@@ -482,4 +505,48 @@ var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 //@[55:56) RightSquare |]|
 //@[56:57) Dot |.|
 //@[57:58) Identifier |t|
-//@[58:58) EndOfFile ||
+//@[58:59) NewLine |\n|
+// #completionTest(58) -> oneArrayItemProperties
+//@[48:49) NewLine |\n|
+var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
+//@[0:3) Identifier |var|
+//@[4:28) Identifier |oneArrayItemCompletions2|
+//@[29:30) Assignment |=|
+//@[31:48) Identifier |objectLiteralType|
+//@[48:49) Dot |.|
+//@[49:54) Identifier |sixth|
+//@[54:55) LeftSquare |[|
+//@[55:56) Number |0|
+//@[56:57) RightSquare |]|
+//@[57:58) Dot |.|
+//@[58:60) NewLine |\n\n|
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+//@[50:51) NewLine |\n|
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+//@[0:3) Identifier |var|
+//@[4:42) Identifier |objectVarTopLevelArrayIndexCompletions|
+//@[43:44) Assignment |=|
+//@[45:62) Identifier |objectLiteralType|
+//@[62:63) LeftSquare |[|
+//@[63:64) Identifier |f|
+//@[64:65) RightSquare |]|
+//@[65:67) NewLine |\n\n|
+
+// #completionTest(58) -> twoIndexPlusSymbols
+//@[45:46) NewLine |\n|
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+//@[0:3) Identifier |var|
+//@[4:28) Identifier |oneArrayIndexCompletions|
+//@[29:30) Assignment |=|
+//@[31:48) Identifier |objectLiteralType|
+//@[48:49) Dot |.|
+//@[49:54) Identifier |sixth|
+//@[54:55) LeftSquare |[|
+//@[55:56) Number |0|
+//@[56:57) RightSquare |]|
+//@[57:58) LeftSquare |[|
+//@[58:59) RightSquare |]|
+//@[59:60) NewLine |\n|
+
+//@[0:0) EndOfFile ||

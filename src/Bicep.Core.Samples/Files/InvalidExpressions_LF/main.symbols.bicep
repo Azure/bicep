@@ -168,6 +168,14 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 var propertyAccessOnVariable = x.foo
 //@[4:28) Variable propertyAccessOnVariable. Type: error. Declaration start char: 0, length: 36
 
+// missing property in property access
+var oneValidDeclaration = {}
+//@[4:23) Variable oneValidDeclaration. Type: object. Declaration start char: 0, length: 28
+var missingPropertyName = oneValidDeclaration.
+//@[4:23) Variable missingPropertyName. Type: error. Declaration start char: 0, length: 46
+var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
+//@[4:37) Variable missingPropertyInsideAnExpression. Type: error. Declaration start char: 0, length: 83
+
 // function used like a variable
 var funcvarvar = concat + base64 || !uniqueString
 //@[4:14) Variable funcvarvar. Type: error. Declaration start char: 0, length: 49
@@ -292,6 +300,20 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 var sysFunctions = sys.a
 //@[4:16) Variable sysFunctions. Type: error. Declaration start char: 0, length: 24
+
+// missing method name
+var missingMethodName = az.()
+//@[4:21) Variable missingMethodName. Type: error. Declaration start char: 0, length: 29
+
+// missing indexer
+var missingIndexerOnLiteralArray = [][][]
+//@[4:32) Variable missingIndexerOnLiteralArray. Type: error. Declaration start char: 0, length: 41
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[4:30) Variable missingIndexerOnIdentifier. Type: error. Declaration start char: 0, length: 61
+
+// empty parens - should produce expected expression diagnostic
+var emptyParens = ()
+//@[4:15) Variable emptyParens. Type: error. Declaration start char: 0, length: 20
 
 // keywords can't be called like functions
 var nullness = null()

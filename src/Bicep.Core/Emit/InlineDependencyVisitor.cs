@@ -135,7 +135,7 @@ namespace Bicep.Core.Emit
                         return;
                     }
 
-                    // update the cache if property can't be skipped for inining
+                    // update the cache if property can't be skipped for inlining
                     shouldInlineCache[currentDeclaration] |= !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining);
                     return;
             }

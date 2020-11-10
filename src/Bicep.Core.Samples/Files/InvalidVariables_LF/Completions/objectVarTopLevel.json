@@ -11,12 +11,13 @@
     "preselect": false,
     "sortText": "2_fifth",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "fifth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -31,12 +32,13 @@
     "preselect": false,
     "sortText": "2_first",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "first"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -51,12 +53,13 @@
     "preselect": false,
     "sortText": "2_fourth",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "fourth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -71,12 +74,13 @@
     "preselect": false,
     "sortText": "2_second",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "second"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -91,12 +95,13 @@
     "preselect": false,
     "sortText": "2_sixth",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "sixth"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   },
   {
@@ -111,12 +116,13 @@
     "preselect": false,
     "sortText": "2_third",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "third"
     },
     "commitCharacters": [
-      ":"
+      "."
     ]
   }
 ]

@@ -108,3 +108,8 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   name: 'moduleWithInvalidScope2'
   scope: managementGroup()
 }
+
+module moduleWithBadScope './empty.bicep' = {
+  name: 'moduleWithBadScope'
+  scope: 'stringScope'
+}

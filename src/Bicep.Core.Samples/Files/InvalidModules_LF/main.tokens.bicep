@@ -392,4 +392,25 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[26:27) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithBadScope './empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |moduleWithBadScope|
+//@[26:41) StringComplete |'./empty.bicep'|
+//@[42:43) Assignment |=|
+//@[44:45) LeftBrace |{|
+//@[45:46) NewLine |\n|
+  name: 'moduleWithBadScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:28) StringComplete |'moduleWithBadScope'|
+//@[28:29) NewLine |\n|
+  scope: 'stringScope'
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:22) StringComplete |'stringScope'|
+//@[22:23) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||
