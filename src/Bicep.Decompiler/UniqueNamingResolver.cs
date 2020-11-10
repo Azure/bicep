@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Expressions;
 
@@ -73,8 +74,7 @@ namespace Bicep.Decompiler
             // it's valid to include a trailing slash, so we need to normalize it
             typeString = typeString.TrimEnd('/');
 
-            var nameString = expressionsProvider.SerializeExpression(nameExpression);
-            var assignedResourceKey = EscapeIdentifier($"{typeString}_{nameString}");
+            var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
 
             if (!assignedResourceNames.TryGetValue(assignedResourceKey, out var name))
             {
@@ -89,8 +89,8 @@ namespace Bicep.Decompiler
             // it's valid to include a trailing slash, so we need to normalize it
             typeString = typeString.TrimEnd('/');
 
-            var nameString = expressionsProvider.SerializeExpression(nameExpression);
-            var assignedResourceKey = EscapeIdentifier($"{typeString}_{nameString}");
+            var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
+            var nameString = GetNameRecursive(nameExpression);
 
             // try to get a shorter name first if possible
             // if we've got two resources of different types with the same name, we may be forced to qualify it
@@ -109,6 +109,30 @@ namespace Bicep.Decompiler
             }
 
             return null;
+        }
+
+        private string GetResourceNameKey(string typeString, LanguageExpression nameExpression)
+        {
+            var nameString = expressionsProvider.SerializeExpression(nameExpression);
+
+            return EscapeIdentifier($"{typeString}_{nameString}");
+        }
+
+        private static string GetNameRecursive(LanguageExpression expression)
+        {
+            if (expression is JTokenExpression jTokenExpression)
+            {
+                return jTokenExpression.Value.ToString();
+            }
+
+            if (expression is FunctionExpression functionExpression)
+            {
+                var subExpressions = functionExpression.Parameters.Concat(functionExpression.Properties);
+                
+                return string.Join('_', subExpressions.Select(GetNameRecursive));
+            }
+
+            return "_";
         }
     }
 }

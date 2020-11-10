@@ -192,7 +192,7 @@ namespace Bicep.Decompiler
             return functionExpression;
         }
 
-        private static LanguageExpression InlineVariablesRecursive(JObject template, LanguageExpression original)
+        private LanguageExpression InlineVariablesRecursive(LanguageExpression original)
         {
             if (!(original is FunctionExpression functionExpression))
             {
@@ -212,11 +212,11 @@ namespace Bicep.Decompiler
                 {
                     var variableExpression = GetLanguageExpression(stringValue);
 
-                    return InlineVariablesRecursive(template, variableExpression);
+                    return InlineVariablesRecursive(variableExpression);
                 }
             }
 
-            var inlinedParameters = functionExpression.Parameters.Select(p => InlineVariablesRecursive(template, p));
+            var inlinedParameters = functionExpression.Parameters.Select(p => InlineVariablesRecursive(p));
 
             return new FunctionExpression(
                 functionExpression.Function,
@@ -224,9 +224,9 @@ namespace Bicep.Decompiler
                 functionExpression.Properties);
         }
 
-        private static LanguageExpression FlattenConcatsAndInlineVariables(JObject template, LanguageExpression original)
+        private LanguageExpression FlattenConcatsAndInlineVariables(LanguageExpression original)
         {
-            var inlined = InlineVariablesRecursive(template, original);
+            var inlined = InlineVariablesRecursive(original);
 
             return FlattenConcats(inlined);
         }
@@ -433,7 +433,7 @@ namespace Bicep.Decompiler
                 {
                     if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
                     {
-                        throw new NotImplementedException($"Unrecognized expression {ExpressionsProvider.SerializeExpression(expression)}");
+                        throw new NotImplementedException($"Unable to process parameter with non-constant name {ExpressionsProvider.SerializeExpression(expression)}");
                     }
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
@@ -445,7 +445,7 @@ namespace Bicep.Decompiler
                 {
                     if (expression.Parameters.Length != 1 || !(expression.Parameters[0] is JTokenExpression jTokenExpression) || jTokenExpression.Value.Type != JTokenType.String)
                     {
-                        throw new NotImplementedException($"Unrecognized expression {ExpressionsProvider.SerializeExpression(expression)}");
+                        throw new NotImplementedException($"Unable to process variable with non-constant name {ExpressionsProvider.SerializeExpression(expression)}");
                     }
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
@@ -798,7 +798,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            var templateLinkExpression = FlattenConcatsAndInlineVariables(template, GetLanguageExpression(templateLink));
+            var templateLinkExpression = FlattenConcatsAndInlineVariables(GetLanguageExpression(templateLink));
 
             LanguageExpression? relativePath = null;
             if (templateLinkExpression is FunctionExpression uriExpression && uriExpression.Function == "uri")
@@ -806,11 +806,18 @@ namespace Bicep.Decompiler
                 // it's common to format references to files using the uri function. the second param is the relative path (which should match the file system path)
                 relativePath = uriExpression.Parameters[1];
             }
-            else if (templateLinkExpression is FunctionExpression concatExpression && concatExpression.Function == "concat" &&
-                concatExpression.Parameters[0] is FunctionExpression concatUriExpression && concatUriExpression.Function == "uri")
+            else if (templateLinkExpression is FunctionExpression concatExpression && concatExpression.Function == "concat")
             {
-                // or sometimes the other way around - uri expression inside a concat
-                relativePath = concatUriExpression.Parameters[1];
+                if (concatExpression.Parameters[0] is FunctionExpression concatUriExpression && concatUriExpression.Function == "uri")
+                {
+                    // or sometimes the other way around - uri expression inside a concat
+                    relativePath = concatExpression.Parameters[1];
+                }
+                else if (concatExpression.Parameters[0] is FunctionExpression concatParametersExpression && concatParametersExpression.Function == "parameters" && concatExpression.Parameters.Length == 2)
+                {
+                    // URI prefix in a parameter
+                    relativePath = concatExpression.Parameters[1];
+                }
             }
 
             if (!(relativePath is JTokenExpression jTokenExpression))
@@ -818,7 +825,7 @@ namespace Bicep.Decompiler
                 throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
             }
 
-            var nestedRelativePath = jTokenExpression.Value.ToString();
+            var nestedRelativePath = jTokenExpression.Value.ToString().Trim('/');
             var fullNestedFilePath = Path.Combine(Path.GetDirectoryName(filePath), nestedRelativePath);
             if (!File.Exists(fullNestedFilePath))
             {
