@@ -140,7 +140,7 @@ namespace Bicep.Core.PrettyPrint
                 top != DoubleLine)
             {
                 // The skipped trivia is after some valid declaration. Insert a Space to separate them.
-                this.PushDocument(Space);
+                this.documentStack.Push(Space);
             }
 
             this.visitingSkippedTriviaSyntax = true;
