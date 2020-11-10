@@ -269,7 +269,7 @@ namespace Bicep.Core.PrettyPrint
 
         private static ILinkedDocument Text(string text)
         {
-            if (CommonTextCache.TryGetValue(text, out TextDocument cached))
+            if (CommonTextCache.TryGetValue(text, out var cached))
             {
                 return cached;
             }
@@ -293,7 +293,7 @@ namespace Bicep.Core.PrettyPrint
 
         private void BuildWithConcat(Action visitAciton) => this.Build(visitAciton, Concat);
 
-        private void BuildBlock(SyntaxBase openSyntax, SyntaxBase closeSyntax, SyntaxBase firstNewLine, SyntaxBase lastNewLine, Action visitAction) =>
+        private void BuildBlock(SyntaxBase openSyntax, SyntaxBase closeSyntax, SyntaxBase? firstNewLine, SyntaxBase? lastNewLine, Action visitAction) =>
             this.Build(() =>
             {
                 this.documentBlockContexts.Push(new DocumentBlockContext(

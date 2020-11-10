@@ -79,7 +79,7 @@ namespace Bicep.Core
 
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
-            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
+            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))
             {
                 return primitiveType;
             }
