@@ -12,7 +12,7 @@ namespace Bicep.Core.PrettyPrint
 {
     public static class PrettyPrinter
     {
-        public static string? PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options)
+        public static string PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options)
         {
             string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
             string newline = options.NewlineOption switch
