@@ -21,6 +21,12 @@ namespace Bicep.Core.PrettyPrint
 
         private static readonly ILinkedDocument Line = new NestDocument(0, Nil);
 
+        private static readonly ILinkedDocument NoLine = new NilDocument();
+
+        private static readonly ILinkedDocument SingleLine = new NestDocument(0, Nil);
+
+        private static readonly ILinkedDocument DoubleLine = new NestDocument(0, Line);
+
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
             LanguageConstants.DeclarationKeywords
             .Concat(LanguageConstants.Keywords.Keys)
@@ -28,49 +34,50 @@ namespace Bicep.Core.PrettyPrint
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })
             .ToImmutableDictionary(value => value, value => new TextDocument(value, Nil));
 
-        private readonly Stack<ILinkedDocument> documents = new Stack<ILinkedDocument>();
+        private readonly Stack<ILinkedDocument> documentStack = new Stack<ILinkedDocument>();
 
-        private readonly Stack<DocumentBlockContext> documentBlockContexts = new Stack<DocumentBlockContext>();
+        private bool visitingBlockOpenSyntax;
 
-        private readonly List<ILinkedDocument> precedingTrailingComments = new List<ILinkedDocument>();
+        private bool visitingBlockCloseSyntax;
+
+        private bool visitingSkippedTriviaSyntax;
+
+        private bool visitingBrokenDeclaration;
+
+        private bool visitingComment;
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
         {
             this.Visit(syntax);
 
-            Debug.Assert(this.documents.Count == 1);
+            Debug.Assert(this.documentStack.Count == 1);
 
-            return this.documents.Pop();
+            return this.documentStack.Pop();
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax) =>
             this.BuildWithConcat(() =>
             {
-                this.documentBlockContexts.Push(new DocumentBlockContext(
-                    null,
-                    syntax.EndOfFile,
-                    syntax.Children.FirstOrDefault(),
-                    syntax.Children.LastOrDefault()));
-
-                base.VisitProgramSyntax(syntax);
-
-                this.documentBlockContexts.Pop();
+                this.PushDocument(NoLine);
+                this.VisitNodes(syntax.Children);
+                this.PushDocument(NoLine);
+                this.Visit(syntax.EndOfFile);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitParameterDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitParameterDeclarationSyntax(syntax));
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitVariableDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitVariableDeclarationSyntax(syntax));
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitResourceDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitResourceDeclarationSyntax(syntax));
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitModuleDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitModuleDeclarationSyntax(syntax));
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitOutputDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitOutputDeclarationSyntax(syntax));
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
             this.BuildWithSpread(() => base.VisitTernaryOperationSyntax(syntax));
@@ -121,131 +128,90 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitFunctionArgumentSyntax(syntax));
 
-        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
-            this.BuildWithConcat(() => base.VisitSkippedTriviaSyntax(syntax));
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
+        {
+            ILinkedDocument top = this.documentStack.Peek();
+
+            if (!this.visitingBrokenDeclaration &&
+                syntax.Elements.Length > 0 &&
+                top != NoLine &&
+                top != Line &&
+                top != SingleLine &&
+                top != DoubleLine)
+            {
+                // The skipped trivia is after some valid declaration. Insert a Space to separate them.
+                this.documentStack.Push(Space);
+            }
+
+            this.visitingSkippedTriviaSyntax = true;
+            base.VisitSkippedTriviaSyntax(syntax);
+            this.visitingSkippedTriviaSyntax = false;
+        }
 
         public override void VisitStringSyntax(StringSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitStringSyntax(syntax));
 
-        public override void VisitToken(Token token) =>
-            this.Build(() =>
+        public override void VisitToken(Token token)
+        {
+            foreach (var trivia in token.LeadingTrivia)
             {
-                // Leading comments.
-                foreach (var commentTrivia in token.LeadingTrivia)
-                {
-                    this.VisitSyntaxTrivia(commentTrivia);
-                }
+                this.VisitSyntaxTrivia(trivia);
+            }
 
-                // Use Nil as the boundary of the leading comments and the token text.
-                this.documents.Push(Nil);
+            var pushDocument = this.visitingBrokenDeclaration
+                ? (Action<ILinkedDocument>)this.documentStack.Push
+                : (Action<ILinkedDocument>)this.PushDocument;
 
-                // Token text.
-                this.documents.Push(token.Type switch
-                {
-                    TokenType.NewLine =>
-                        // Normalize newlines.
-                        !this.IsBlockFirstNewLine(token) &&
-                        !this.IsBlockLastNewLine(token) &&
-                        StringUtils.HasAtLeastTwoNewlines(token.Text)
-                            ? Concat(Line, Line)
-                            : Line,
-                    _ => Text(token.Text)
-                });
-
-                // Trailing comments.
-                foreach (var syntaxTrivia in token.TrailingTrivia)
-                {
-                    this.VisitSyntaxTrivia(syntaxTrivia);
-                }
-            },
-            children =>
+            if (token.Type == TokenType.NewLine)
             {
-                /*
-                 * Head:
-                 * - If there are leading comments, join them with spaces.
-                 * - If the comments are after "[" and "{", add a Line before the comments.
-                 * - If the comments are before "]" and "}", add a Line after the comments.
-                 */
-                var leadingComments = precedingTrailingComments;
-                int position = 0;
+                int newlineCount = StringUtils.CountNewlines(token.Text);
 
-                while (position < children.Length && children[position] != Nil)
+                for (int i = 0; i < newlineCount; i++)
                 {
-                    leadingComments.Add(children[position]);
-                    position++;
+                    pushDocument(Line);
                 }
+            }
+            else
+            {
+                pushDocument(Text(token.Text));
+            }
 
-                ILinkedDocument head = Spread(leadingComments);
-
-                if (leadingComments.Count > 0)
-                {
-                    if (this.IsBlockFirstNewLine(token))
-                    {
-                        this.documents.Push(Line);
-                        this.documents.Push(head);
-                        head = Nil;
-                    }
-
-                    if (this.IsBlockCloseSyntax(token))
-                    {
-                        if (this.IsCurrentBlockOnTheSameLine())
-                        {
-                            // Handle single line block containing comments.
-                            this.documents.Push(Line);
-                        }
-
-                        this.documents.Push(head);
-                        this.documents.Push(Line);
-                        head = Nil;
-                    }
-                }
-
-                // Token text.
-                position++;
-                Debug.Assert(position < children.Length);
-                ILinkedDocument tokenText = children[position];
-
-                /*
-                 * Tail:
-                 * - Space if there are comments after a token that is not "{", "[" and NewLine.
-                 * - Nil otherwise.
-                 */
-                precedingTrailingComments.Clear();
-                var trailingComments = precedingTrailingComments;
-                position++;
-
-                while (position < children.Length)
-                {
-                    trailingComments.Add(children[position]);
-                    position++;
-                }
-
-                ILinkedDocument tail =
-                    trailingComments.Count > 0 &&
-                    token.Type != TokenType.NewLine &&
-                    !IsBlockOpenSyntax(token)
-                        ? Space
-                        : Nil;
-
-                return Concat(head, tokenText, tail);
-            });
+            foreach (var trivia in token.TrailingTrivia)
+            {
+                this.VisitSyntaxTrivia(trivia);
+            }
+        }
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
+            if (this.visitingBrokenDeclaration || this.visitingSkippedTriviaSyntax)
+            {
+                this.documentStack.Push(Text(syntaxTrivia.Text));
+                return;
+            }
+
             if (syntaxTrivia.Type == SyntaxTriviaType.SingleLineComment ||
                 syntaxTrivia.Type == SyntaxTriviaType.MultiLineComment)
             {
-                this.documents.Push(Text(syntaxTrivia.Text));
+                this.visitingComment = true;
+                this.PushDocument(Text(syntaxTrivia.Text));
+                this.visitingComment = false;
             }
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax) =>
-            this.BuildBlock(
-                syntax.OpenBrace,
-                syntax.CloseBrace,
-                syntax.Children.FirstOrDefault(),
-                syntax.Children.LastOrDefault(),
-                () => base.VisitObjectSyntax(syntax));
+            this.BuildBlock(() =>
+            {
+                this.visitingBlockOpenSyntax = true;
+                this.Visit(syntax.OpenBrace);
+                this.visitingBlockOpenSyntax = false;
+
+                this.VisitNodes(syntax.Children);
+
+                this.visitingBlockCloseSyntax = true;
+                this.Visit(syntax.CloseBrace);
+                this.visitingBlockCloseSyntax = false;
+            });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) =>
             this.Build(() => base.VisitObjectPropertySyntax(syntax), children =>
@@ -260,22 +226,21 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitArraySyntax(ArraySyntax syntax) =>
-            this.BuildBlock(
-                syntax.OpenBracket,
-                syntax.CloseBracket,
-                syntax.Children.FirstOrDefault(),
-                syntax.Children.LastOrDefault(),
-                () => base.VisitArraySyntax(syntax));
-
-        private static ILinkedDocument Text(string text)
-        {
-            if (CommonTextCache.TryGetValue(text, out TextDocument cached))
+            this.BuildBlock(() =>
             {
-                return cached;
-            }
+                this.visitingBlockOpenSyntax = true;
+                this.Visit(syntax.OpenBracket);
+                this.visitingBlockOpenSyntax = false;
 
-            return new TextDocument(text, Nil);
-        }
+                this.VisitNodes(syntax.Children);
+
+                this.visitingBlockCloseSyntax = true;
+                this.Visit(syntax.CloseBracket);
+                this.visitingBlockCloseSyntax = false;
+            });
+
+        private static ILinkedDocument Text(string text) =>
+            CommonTextCache.TryGetValue(text, out TextDocument cached) ? cached : new TextDocument(text, Nil);
 
         private static ILinkedDocument Concat(params ILinkedDocument[] combinators) =>
             Concat(combinators as IEnumerable<ILinkedDocument>);
@@ -289,23 +254,12 @@ namespace Bicep.Core.PrettyPrint
         private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators) =>
             combinators.Any() ? combinators.Aggregate((a, b) => a.Concat(Space).Concat(b)) : Nil;
 
-        private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
-
         private void BuildWithConcat(Action visitAciton) => this.Build(visitAciton, Concat);
 
-        private void BuildBlock(SyntaxBase openSyntax, SyntaxBase closeSyntax, SyntaxBase firstNewLine, SyntaxBase lastNewLine, Action visitAction) =>
-            this.Build(() =>
-            {
-                this.documentBlockContexts.Push(new DocumentBlockContext(
-                    openSyntax,
-                    closeSyntax,
-                    firstNewLine,
-                    lastNewLine));
+        private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
 
-                visitAction();
-
-                this.documentBlockContexts.Pop();
-            }, children =>
+        private void BuildBlock(Action visitAction) =>
+            this.Build(visitAction, children =>
             {
                 Debug.Assert(children.Length >= 2);
 
@@ -314,37 +268,128 @@ namespace Bicep.Core.PrettyPrint
                 ILinkedDocument lastLine = children.Length > 2 ? children[^2] : Nil;
                 ILinkedDocument closeSymbol = children[^1];
 
-                return body != Nil
-                    ? Concat(openSymbol, body, lastLine, closeSymbol)
-                    : Concat(openSymbol, closeSymbol);
+                return Concat(openSymbol, body, lastLine, closeSymbol);
             });
+
+        private void BuildDeclaration(SyntaxBase syntax, Action visitAction)
+        {
+            if (syntax.GetParseDiagnostics().Count > 0)
+            {
+                this.visitingBrokenDeclaration = true;
+                visitAction();
+                this.visitingBrokenDeclaration = false;
+
+                // Everyting left on the stack will be concatenated by the top level Concat rule defined in VisitProgram.
+                return;
+            }
+
+            this.BuildWithSpread(visitAction);
+        }
 
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {
-            int beforeCount = this.documents.Count;
+            int beforeCount = this.documentStack.Count;
 
             visitAction();
 
-            int childrenCount = this.documents.Count - beforeCount;
+            if (this.visitingBrokenDeclaration)
+            {
+                return;
+            }
+
+            int childrenCount = this.documentStack.Count - beforeCount;
 
             var children = new ILinkedDocument[childrenCount];
 
             for (int i = childrenCount - 1; i >= 0; i--)
             {
-                children[i] = this.documents.Pop();
+                children[i] = this.documentStack.Pop();
             }
 
-            this.documents.Push(buildFunc(children));
+            this.PushDocument(buildFunc(children));
         }
 
-        private bool IsCurrentBlockOnTheSameLine() => this.documentBlockContexts.Peek().FirstNewLine == null;
+        private void PushDocument(ILinkedDocument document)
+        {
+            if (this.documentStack.Count == 0)
+            {
+                this.documentStack.Push(document);
 
-        private bool IsBlockOpenSyntax(SyntaxBase syntax) => syntax == this.documentBlockContexts.Peek().OpenSyntax;
+                return;
+            }
 
-        private bool IsBlockCloseSyntax(SyntaxBase syntax) => syntax == this.documentBlockContexts.Peek().CloseSyntax;
+            ILinkedDocument top = this.documentStack.Peek();
 
-        private bool IsBlockFirstNewLine(SyntaxBase syntax) => syntax == this.documentBlockContexts.Peek().FirstNewLine;
+            if (document == Line)
+            {
+                if (top == NoLine || top == SingleLine || top == DoubleLine)
+                {
+                    // No newlines are allowed after a NoLine / SingleLine / DoubleLine.
+                    return;
+                }
 
-        private bool IsBlockLastNewLine(SyntaxBase syntax) => syntax == this.documentBlockContexts.Peek().LastNewLine;
+                if (top == Line)
+                {
+                    // Two Lines form a DoubleLine that prevents more newlines from being added.
+                    this.documentStack.Pop();
+                    this.documentStack.Push(DoubleLine);
+                }
+                else
+                {
+                    this.documentStack.Push(Line);
+                }
+            }
+            else if (document == NoLine)
+            {
+                if (top == Line || top == DoubleLine)
+                {
+                    // No newlines are allowed before a NoLine.
+                    this.documentStack.Pop();
+                }
+
+                this.documentStack.Push(document);
+            }
+            else if (document == SingleLine)
+            {
+                if (top == SingleLine)
+                {
+                    // When two SingleLines meet, the current block is empty. Remove all newlines inside the block.
+                    this.documentStack.Pop();
+                    return;
+                }
+
+                if (top == Line || top == DoubleLine)
+                {
+                    // No newlines are allowed before a SingleLine.
+                    this.documentStack.Pop();
+                }
+
+                this.documentStack.Push(document);
+            }
+            else if (visitingComment)
+            {
+                // Add a space before the comment if it's not at the begining of the file or after a newline.
+                ILinkedDocument gap = top != NoLine && top != Line && top != SingleLine && top != DoubleLine ? Space : Nil;
+
+                // Combine the comment and the document at the top of the stack. This is the key to simplify VisitToken.
+                this.documentStack.Push(Concat(this.documentStack.Pop(), gap, document));
+            }
+            else
+            {
+                if (this.visitingBlockCloseSyntax)
+                {
+                    // Insert a SingleLine before "}" and "]", which will remove extra newlines before it (by calling PushDocument).
+                    this.PushDocument(SingleLine);
+                }
+
+                this.documentStack.Push(document);
+
+                if (this.visitingBlockOpenSyntax)
+                {
+                    // Add a SingleLine after "{" and "[", which will prevent more newlines from being added after it.
+                    this.documentStack.Push(SingleLine);
+                }
+            }
+        }
     }
 }
