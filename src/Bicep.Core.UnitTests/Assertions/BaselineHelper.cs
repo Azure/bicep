@@ -61,29 +61,35 @@ Found diffs between actual and expected:
             if (isBaselineUpdate)
             {
                 output.Append(@"
-Baseline has been updated.");
+Baseline has been updated.
+");
             }
             else
             {
                 output.Append(@"
 View this diff with:
-    git diff --color-words --no-index {1} {2}");
+    git diff --color-words --no-index {1} {2}
+");
 
                 if (isWindows)
                 {
                     output.Append(@"
 Overwrite the single baseline:
     xcopy /yq {1} {2}
+
 Overwrite all baselines:
-    dotnet test -- 'TestRunParameters.Parameter(name=\\\""SetBaseLine\\\"", value=\\\""true\\\"")'");
+    dotnet test -- 'TestRunParameters.Parameter(name=\\\""SetBaseLine\\\"", value=\\\""true\\\"")'
+");
                 }
                 else
                 {
                     output.Append(@"
 Overwrite the single baseline:
     cp {1} {2}
+
 Overwrite all baselines:
-    dotnet test -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'");
+    dotnet test -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'
+");
                 }
             }
 
