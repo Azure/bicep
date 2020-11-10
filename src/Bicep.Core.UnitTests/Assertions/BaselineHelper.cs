@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Runtime.InteropServices;
+using System.Text;
 using Bicep.Core.FileSystem;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,11 +23,14 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static void SetBaseline(string actualLocation, string expectedLocation)
         {
-            actualLocation = PathHelper.ResolveAndNormalizePath(actualLocation, RepoRoot);
-            expectedLocation = PathHelper.ResolveAndNormalizePath(expectedLocation, RepoRoot);
+            actualLocation = GetAbsolutePathRelativeToRepoRoot(actualLocation);
+            expectedLocation = GetAbsolutePathRelativeToRepoRoot(expectedLocation);
 
             File.Copy(actualLocation, expectedLocation, overwrite: true);
         }
+
+        public static string GetAbsolutePathRelativeToRepoRoot(string path)
+            => PathHelper.ResolveAndNormalizePath(path, RepoRoot);
 
         private static string GetRepoRoot()
         {
@@ -41,6 +46,48 @@ namespace Bicep.Core.UnitTests.Assertions
             }
 
             throw new InvalidOperationException("Unable to determine the repo root path.");
+        }
+        
+        public static string GetAssertionFormatString(bool isBaselineUpdate)
+        {
+            var output = new StringBuilder();
+            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            output.Append(@"
+Found diffs between actual and expected:
+{0}
+");
+
+            if (isBaselineUpdate)
+            {
+                output.Append(@"
+Baseline has been updated.");
+            }
+            else
+            {
+                output.Append(@"
+View this diff with:
+    git diff --color-words --no-index {1} {2}");
+
+                if (isWindows)
+                {
+                    output.Append(@"
+Overwrite the single baseline:
+    xcopy /yq {1} {2}
+Overwrite all baselines:
+    dotnet test -- 'TestRunParameters.Parameter(name=\\\""SetBaseLine\\\"", value=\\\""true\\\"")'");
+                }
+                else
+                {
+                    output.Append(@"
+Overwrite the single baseline:
+    cp {1} {2}
+Overwrite all baselines:
+    dotnet test -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'");
+                }
+            }
+
+            return output.ToString();
         }
     }
 }
