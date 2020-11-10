@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
@@ -12,24 +11,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.PrettyPrint
 {
     [TestClass]
-    public class PrettyPrinterTests
+    public class PrettyPrinterValidSyntaxTests : PrettyPrinterTestsBase
     {
-        private static readonly PrettyPrintOptions CommonOptions = new PrettyPrintOptions(
-            NewlineOption.Auto,
-            IndentKindOption.Space,
-            2,
-            false);
-
-        [TestMethod]
-        public void PrintProgram_SyntaxHasDiagnostics_ShouldReturnNull()
-        {
-            var syntax = ParserHelper.Parse("var foo = concat(");
-
-            var output = PrettyPrinter.PrintProgram(syntax, CommonOptions);
-
-            output.Should().BeNull();
-        }
-
         [TestMethod]
 
         public void PrintProgram_TooManyNewlines_RemovesExtraNewlines()
@@ -426,7 +409,7 @@ param foo object = {
 }
 param foo object = {
 
-
+   
 
 
 }
@@ -439,7 +422,7 @@ param bar array = [
 ]
 param bar array = [
 
-
+  
 
 
 ]");

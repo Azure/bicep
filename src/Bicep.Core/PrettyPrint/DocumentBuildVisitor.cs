@@ -40,6 +40,10 @@ namespace Bicep.Core.PrettyPrint
 
         private bool visitingBlockCloseSyntax;
 
+        private bool visitingSkippedTriviaSyntax;
+
+        private bool visitingBrokenDeclaration;
+
         private bool visitingComment;
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
@@ -61,19 +65,19 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitParameterDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitParameterDeclarationSyntax(syntax));
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitVariableDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitVariableDeclarationSyntax(syntax));
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitResourceDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitResourceDeclarationSyntax(syntax));
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitModuleDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitModuleDeclarationSyntax(syntax));
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
-            this.BuildWithSpread(() => base.VisitOutputDeclarationSyntax(syntax));
+            this.BuildDeclaration(syntax, () => base.VisitOutputDeclarationSyntax(syntax));
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
             this.BuildWithSpread(() => base.VisitTernaryOperationSyntax(syntax));
@@ -124,41 +128,68 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitFunctionArgumentSyntax(syntax));
 
-        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) =>
-            this.BuildWithConcat(() => base.VisitSkippedTriviaSyntax(syntax));
+        public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
+        {
+            ILinkedDocument top = this.documentStack.Peek();
+
+            if (!this.visitingBrokenDeclaration &&
+                syntax.Elements.Length > 0 &&
+                top != NoLine &&
+                top != Line &&
+                top != SingleLine &&
+                top != DoubleLine)
+            {
+                // The skipped trivia is after some valid declaration. Insert a Space to separate them.
+                this.PushDocument(Space);
+            }
+
+            this.visitingSkippedTriviaSyntax = true;
+            base.VisitSkippedTriviaSyntax(syntax);
+            this.visitingSkippedTriviaSyntax = false;
+        }
 
         public override void VisitStringSyntax(StringSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitStringSyntax(syntax));
 
         public override void VisitToken(Token token)
         {
-            foreach (var commentTrivia in token.LeadingTrivia)
+            foreach (var trivia in token.LeadingTrivia)
             {
-                this.VisitSyntaxTrivia(commentTrivia);
+                this.VisitSyntaxTrivia(trivia);
             }
+
+            var pushDocument = this.visitingBrokenDeclaration
+                ? (Action<ILinkedDocument>)this.documentStack.Push
+                : (Action<ILinkedDocument>)this.PushDocument;
 
             if (token.Type == TokenType.NewLine)
             {
-                int newlineCount = Math.Min(StringUtils.CountNewlines(token.Text), 2);
+                int newlineCount = StringUtils.CountNewlines(token.Text);
 
                 for (int i = 0; i < newlineCount; i++)
                 {
-                    this.PushDocument(Line);
+                    pushDocument(Line);
                 }
             }
             else
             {
-                this.PushDocument(Text(token.Text));
+                pushDocument(Text(token.Text));
             }
 
-            foreach (var commentTrivia in token.TrailingTrivia)
+            foreach (var trivia in token.TrailingTrivia)
             {
-                this.VisitSyntaxTrivia(commentTrivia);
+                this.VisitSyntaxTrivia(trivia);
             }
         }
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
+            if (this.visitingBrokenDeclaration || this.visitingSkippedTriviaSyntax)
+            {
+                this.documentStack.Push(Text(syntaxTrivia.Text));
+                return;
+            }
+
             if (syntaxTrivia.Type == SyntaxTriviaType.SingleLineComment ||
                 syntaxTrivia.Type == SyntaxTriviaType.MultiLineComment)
             {
@@ -223,9 +254,9 @@ namespace Bicep.Core.PrettyPrint
         private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators) =>
             combinators.Any() ? combinators.Aggregate((a, b) => a.Concat(Space).Concat(b)) : Nil;
 
-        private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
-
         private void BuildWithConcat(Action visitAciton) => this.Build(visitAciton, Concat);
+
+        private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
 
         private void BuildBlock(Action visitAction) =>
             this.Build(visitAction, children =>
@@ -240,11 +271,31 @@ namespace Bicep.Core.PrettyPrint
                 return Concat(openSymbol, body, lastLine, closeSymbol);
             });
 
+        private void BuildDeclaration(SyntaxBase syntax, Action visitAction)
+        {
+            if (syntax.GetParseDiagnostics().Count > 0)
+            {
+                this.visitingBrokenDeclaration = true;
+                visitAction();
+                this.visitingBrokenDeclaration = false;
+
+                // Everyting left on the stack will be concatenated by the top level Concat rule defined in VisitProgram.
+                return;
+            }
+
+            this.BuildWithSpread(visitAction);
+        }
+
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)
         {
             int beforeCount = this.documentStack.Count;
 
             visitAction();
+
+            if (this.visitingBrokenDeclaration)
+            {
+                return;
+            }
 
             int childrenCount = this.documentStack.Count - beforeCount;
 

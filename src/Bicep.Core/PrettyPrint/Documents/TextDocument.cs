@@ -29,7 +29,7 @@ namespace Bicep.Core.PrettyPrint.Documents
 
         public void Layout(StringBuilder builder, string indent, string newline)
         {
-            // Normalize newlines for multi-line comments.
+            // Normalize newlines.
             var text = StringUtils.ReplaceNewlines(this.Text, newline);
 
             builder.Append(text);

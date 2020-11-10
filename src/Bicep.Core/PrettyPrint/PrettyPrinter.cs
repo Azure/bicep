@@ -14,13 +14,6 @@ namespace Bicep.Core.PrettyPrint
     {
         public static string? PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options)
         {
-            if (programSyntax.GetParseDiagnostics().Count > 0)
-            {
-                return null;
-            }
-
-            Debug.Assert(options.IndentSize >= 1 && options.IndentSize <= 1000);
-
             string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
             string newline = options.NewlineOption switch
             {
