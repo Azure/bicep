@@ -1,55 +1,55 @@
 param adminUserName string
 param adminPassword string {
-    secure:true
+  secure: true
 }
 param dnsLabelPrefix string
 param windowsOSVersion string {
-    default :'2016-Datacenter'
-    allowed : [
-        '2008-R2-SP1'
-        '2012-Datacenter'
-        '2012-R2-Datacenter'
-        '2016-Nano-Server'
-        '2016-Datacenter-with-Containers'
-        '2016-Datacenter'
-        '2019-Datacenter'
-      ]
-      metadata: {
-        'description': 'The Windows version for the VM. This will pick a fully patched image of this given Windows version.' 
-      }
+  default: '2016-Datacenter'
+  allowed: [
+    '2008-R2-SP1'
+    '2012-Datacenter'
+    '2012-R2-Datacenter'
+    '2016-Nano-Server'
+    '2016-Datacenter-with-Containers'
+    '2016-Datacenter'
+    '2019-Datacenter'
+  ]
+  metadata: {
+    'description': 'The Windows version for the VM. This will pick a fully patched image of this given Windows version.'
+  }
 }
 param vmSize string {
-    default: 'Standard_D2_v3'
-    metadata: {
-      description: 'Size of the virtual machine.'
-    }
+  default: 'Standard_D2_v3'
+  metadata: {
+    description: 'Size of the virtual machine.'
+  }
 }
 
 param location string {
-    default: resourceGroup().location
-    metadata: {
-        description: 'location for all resources'
-    }
+  default: resourceGroup().location
+  metadata: {
+    description: 'location for all resources'
+  }
 }
 
-var  storageAccountName = concat(uniqueString(resourceGroup().id), 'sawinvm')
-var nicName =  'myVMNic'
-var addressPrefix =  '10.0.0.0/16'
+var storageAccountName = concat(uniqueString(resourceGroup().id), 'sawinvm')
+var nicName = 'myVMNic'
+var addressPrefix = '10.0.0.0/16'
 var subnetName = 'Subnet'
 var subnetPrefix = '10.0.0.0/24'
-var publicIPAddressName =  'myPublicIP'
+var publicIPAddressName = 'myPublicIP'
 var vmName = 'SimpleWinVM'
-var virtualNetworkName =  'MyVNET'
+var virtualNetworkName = 'MyVNET'
 var subnetRef = '${vn.id}/subnets/${subnetName}'
-var networkSecurityGroupName =  'default-NSG'
+var networkSecurityGroupName = 'default-NSG'
 
-resource stg  'Microsoft.Storage/storageAccounts@2019-06-01' = {
-    name: storageAccountName
-    location: location
-    sku: {
-       name: 'Standard_LRS' 
-    }
-    kind: 'Storage'
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: storageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'Storage'
 }
 
 resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
@@ -58,7 +58,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {
-        domainNameLabel: dnsLabelPrefix
+      domainNameLabel: dnsLabelPrefix
     }
   }
 }
@@ -67,21 +67,21 @@ resource sg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName
   location: location
   properties: {
-      securityRules: [
-        {
-            name: 'default-allow-3389'
-            'properties': {
-              priority:  1000
-              access:  'Allow'
-              direction:  'Inbound'
-              destinationPortRange: '3389'
-              protocol:  'Tcp'
-              sourcePortRange:  '*'
-              sourceAddressPrefix:  '*'
-              destinationAddressPrefix:  '*'
-            }
-          }
-      ]
+    securityRules: [
+      {
+        name: 'default-allow-3389'
+        'properties': {
+          priority: 1000
+          access: 'Allow'
+          direction: 'Inbound'
+          destinationPortRange: '3389'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationAddressPrefix: '*'
+        }
+      }
+    ]
   }
 }
 
@@ -104,75 +104,75 @@ resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
           }
         }
       }
-    ] 
+    ]
   }
 }
 
 resource nInter 'Microsoft.Network/networkInterfaces@2020-06-01' = {
-    name: nicName
-    location: location
+  name: nicName
+  location: location
 
-    properties: {
-        ipConfigurations: [
-          {
-            name: 'ipconfig1'
-            properties: {
-              privateIPAllocationMethod: 'Dynamic'
-              publicIPAddress: {
-                id: pip.id
-              }
-              subnet: {
-                id: subnetRef
-              }
-            }
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig1'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          publicIPAddress: {
+            id: pip.id
           }
-        ]
+          subnet: {
+            id: subnetRef
+          }
+        }
       }
-    }
+    ]
+  }
+}
 
 resource VM 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: vmName
   location: location
   properties: {
     hardwareProfile: {
-        vmSize: vmSize
+      vmSize: vmSize
+    }
+    osProfile: {
+      computerName: vmName
+      adminUsername: adminUserName
+      adminPassword: adminPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: windowsOSVersion
+        version: 'latest'
       }
-      osProfile: {
-        computerName: vmName
-        adminUsername: adminUserName
-        adminPassword: adminPassword
+      osDisk: {
+        createOption: 'FromImage'
       }
-      storageProfile: {
-        imageReference: {
-          publisher: 'MicrosoftWindowsServer'
-          offer: 'WindowsServer'
-          sku: windowsOSVersion
-          version: 'latest'
+      dataDisks: [
+        {
+          diskSizeGB: 1023
+          lun: 0
+          createOption: 'Empty'
         }
-        osDisk: {
-          createOption: 'FromImage'
+      ]
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: nInter.id
         }
-        dataDisks: [
-          {
-            diskSizeGB: 1023
-            lun: 0
-            createOption: 'Empty'
-          }
-        ]
+      ]
+    }
+    diagnosticsProfile: {
+      bootDiagnostics: {
+        enabled: true
+        storageUri: stg.properties.primaryEndpoints.blob
       }
-      networkProfile: {
-        networkInterfaces: [
-          {
-            id: nInter.id
-          }
-        ]
-      }
-      diagnosticsProfile: {
-        bootDiagnostics: {
-          enabled: true
-          storageUri: stg.properties.primaryEndpoints.blob
-        }
-      }
+    }
   }
 }
 

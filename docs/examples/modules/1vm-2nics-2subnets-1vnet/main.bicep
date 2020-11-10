@@ -42,8 +42,7 @@ resource diagsAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = {
 resource nsg2 'Microsoft.Network/networkSecurityGroups@2019-08-01' = {
   name: networkSecurityGroupName2
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 // This will build a Virtual Network.

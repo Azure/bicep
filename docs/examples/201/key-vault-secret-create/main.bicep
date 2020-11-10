@@ -1,4 +1,3 @@
-
 param keyVaultName string {
   metadata: {
     description: 'Specifies the name of the key vault.'
@@ -78,8 +77,7 @@ param skuName string {
 param secretsObject object {
   secure: true
   default: {
-    secrets: [
-    ]
+    secrets: []
   }
   metadata: {
     description: 'Specifies all secrets {"secretName":"","secretValue":""} wrapped in a secure object.'
@@ -128,7 +126,6 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
     value: firstSecretValue
   }
 }
-
 /*
 TODO: Replace the first secret workaround above with this once we have loops
 

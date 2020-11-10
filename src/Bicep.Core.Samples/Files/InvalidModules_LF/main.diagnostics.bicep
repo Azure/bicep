@@ -66,8 +66,8 @@ module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
-// #completionTest(0,1,2,3,4) -> moduleAParams
-
+    // #completionTest(0,1,2,3,4) -> moduleAParams
+    
   }
 }
 

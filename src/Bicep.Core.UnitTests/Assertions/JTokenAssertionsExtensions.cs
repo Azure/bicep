@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Linq;
+using Bicep.Core.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using JsonDiffPatchDotNet;
@@ -34,8 +34,8 @@ namespace Bicep.Core.UnitTests.Assertions
             }
 
             var testPassed = diff is null;
-
-            if (!testPassed && BaselineHelper.ShouldSetBaseline(testContext))
+            var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
+            if (isBaselineUpdate)
             {
                 BaselineHelper.SetBaseline(actualLocation, expectedLocation);
             }
@@ -43,19 +43,11 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(testPassed)
-                .FailWith(@"
-Found diffs between actual and expected:
-{0}
-View this diff with:
-
-git diff --color-words --no-index {1} {2}
-
-Windows copy command:
-copy /y {1} {2}
-
-Unix copy command:
-cp {1} {2}
-", string.Join('\n', lineLogs), actualLocation, expectedLocation);
+                .FailWith(
+                    BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
+                    string.Join('\n', lineLogs),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
 
             return new AndConstraint<JTokenAssertions>(instance);
         }

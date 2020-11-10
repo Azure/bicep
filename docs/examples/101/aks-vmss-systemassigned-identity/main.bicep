@@ -35,10 +35,10 @@ param agentVMSize string {
 // vars
 var kubernetesVersion = '1.19.0'
 var subnetRef = '${vn.id}/subnets/${subnetName}'
-var addressPrefix =  '20.0.0.0/16'
+var addressPrefix = '20.0.0.0/16'
 var subnetName = 'Subnet01'
 var subnetPrefix = '20.0.0.0/24'
-var virtualNetworkName =  'MyVNET01'
+var virtualNetworkName = 'MyVNET01'
 var nodeResourceGroup = 'rg-${dnsPrefix}-${clusterName}'
 var tags = {
   environment: 'production'
@@ -64,7 +64,7 @@ resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
           addressPrefix: subnetPrefix
         }
       }
-    ] 
+    ]
   }
 }
 
@@ -74,8 +74,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   location: location
   tags: tags
   identity: {
-      type: 'SystemAssigned'
-    }
+    type: 'SystemAssigned'
+  }
   properties: {
     kubernetesVersion: kubernetesVersion
     enableRBAC: true
@@ -93,13 +93,13 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
       }
     ]
     servicePrincipalProfile: {
-        clientId: 'msi'
-      }
+      clientId: 'msi'
+    }
     nodeResourceGroup: nodeResourceGroup
     networkProfile: {
-        networkPlugin: 'azure'
-        loadBalancerSku: 'standard'
-      }
+      networkPlugin: 'azure'
+      loadBalancerSku: 'standard'
+    }
   }
 }
 

@@ -5,21 +5,21 @@ param applicationName string {
 param location string = resourceGroup().location
 
 param appServicePlanTier string {
-    default: 'F1'
-    allowed: [
-      'F1'
-      'D1'
-      'B1'
-      'B2'
-      'B3'
-      'S1'
-      'S2'
-      'S3'
-      'P1'
-      'P2'
-      'P3'
-      'P4'
-    ]
+  default: 'F1'
+  allowed: [
+    'F1'
+    'D1'
+    'B1'
+    'B2'
+    'B3'
+    'S1'
+    'S2'
+    'S3'
+    'P1'
+    'P2'
+    'P3'
+    'P4'
+  ]
 }
 
 param appServicePlanInstances int {
@@ -47,11 +47,11 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
       defaultConsistencyLevel: 'Session'
     }
     locations: [
-       {
-         locationName: location
-         failoverPriority: 0
-         isZoneRedundant: false
-       }
+      {
+        locationName: location
+        failoverPriority: 0
+        isZoneRedundant: false
+      }
     ]
     databaseAccountOfferType: 'Standard'
   }
@@ -64,8 +64,7 @@ resource farm 'Microsoft.Web/serverFarms@2020-06-01' = {
     name: appServicePlanTier
     capacity: appServicePlanInstances
   }
-  properties: {
-  }
+  properties: {}
 }
 
 resource website 'Microsoft.Web/sites@2020-06-01' = {
@@ -77,7 +76,7 @@ resource website 'Microsoft.Web/sites@2020-06-01' = {
       appSettings: [
         {
           name: 'CosmosDb:Account'
-          value: cosmos.properties.documentEndpoint 
+          value: cosmos.properties.documentEndpoint
         }
         {
           name: 'CosmosDb:Key'
