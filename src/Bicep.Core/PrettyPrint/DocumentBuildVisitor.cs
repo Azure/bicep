@@ -240,7 +240,7 @@ namespace Bicep.Core.PrettyPrint
             });
 
         private static ILinkedDocument Text(string text) =>
-            CommonTextCache.TryGetValue(text, out TextDocument cached) ? cached : new TextDocument(text, Nil);
+            CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text, Nil);
 
         private static ILinkedDocument Concat(params ILinkedDocument[] combinators) =>
             Concat(combinators as IEnumerable<ILinkedDocument>);
