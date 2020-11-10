@@ -3,14 +3,14 @@ param location string = resourceGroup().location
 
 // Specifies the names of the key-value resources. 
 param keyValueNames array = [
-    'myKey'
-    'myKey2$myLabel' // The name is a combination of key and label with $ as delimiter. The label is optional.
+  'myKey'
+  'myKey2$myLabel' // The name is a combination of key and label with $ as delimiter. The label is optional.
 ]
 
 // Specifies the values of the key-value resources. It's optional
 param keyValueValues array = [
-    'key-value without label'
-    'key-value with label'
+  'key-value without label'
+  'key-value with label'
 ]
 
 param contentType string = 'the-content-type' // suprised this isn't an enum value?

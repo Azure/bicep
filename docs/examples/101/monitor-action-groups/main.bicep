@@ -1,4 +1,3 @@
-
 param actionGroupName string
 param actionGroupShortName string
 param emailReceivers array = []

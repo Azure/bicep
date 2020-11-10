@@ -61,4 +61,3 @@ resource farm 'microsoft.web/serverFarms@2020-06-01' = {
 
 output publicUrl string = site.properties.defaultHostName
 output ftpUser string = any(site.properties).ftpUsername // TODO: workaround for missing property definition
-

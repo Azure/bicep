@@ -10,29 +10,29 @@ var method = 'GET'
 var workflowSchema = 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
 
 resource stg 'Microsoft.Logic/workflows@2019-05-01' = {
-    name: logicAppName
-    location: location
-    properties: {
-        definition: {
-            '$schema': workflowSchema
-            triggers: {
-                recurrence :{
-                type: type
-                recurrence:{
-                    frequency: frequency
-                    interval: interval
-                }
-                }
-            }
-            actions: {
-                actionType :{
-                    type: actionType
-                    inputs: {
-                        method: method
-                        uri: testUri
-                    }
-                }
-            }
+  name: logicAppName
+  location: location
+  properties: {
+    definition: {
+      '$schema': workflowSchema
+      triggers: {
+        recurrence: {
+          type: type
+          recurrence: {
+            frequency: frequency
+            interval: interval
+          }
         }
+      }
+      actions: {
+        actionType: {
+          type: actionType
+          inputs: {
+            method: method
+            uri: testUri
+          }
+        }
+      }
     }
+  }
 }

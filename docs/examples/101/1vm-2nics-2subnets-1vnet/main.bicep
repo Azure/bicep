@@ -43,8 +43,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       osDisk: {
         createOption: 'FromImage'
       }
-      dataDisks: [
-      ]
+      dataDisks: []
     }
     networkProfile: {
       networkInterfaces: [
@@ -84,8 +83,7 @@ resource diagsAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 resource nsg2 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   name: networkSecurityGroupName2
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 // This will build a Virtual Network.
