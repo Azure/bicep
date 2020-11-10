@@ -117,10 +117,22 @@ var objectLiteralType = {
 
 // #completionTest(54) -> objectVarTopLevel
 var objectVarTopLevelCompletions = objectLiteralType.f
+// #completionTest(54) -> objectVarTopLevel
+var objectVarTopLevelCompletions2 = objectLiteralType.
 
 // this does not produce any completions because mixed array items are of type "any"
 // #completionTest(60) -> mixedArrayProperties
 var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
+// #completionTest(60) -> mixedArrayProperties
+var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
 
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions = objectLiteralType.sixth[0].t
+// #completionTest(58) -> oneArrayItemProperties
+var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+
+// #completionTest(58) -> twoIndexPlusSymbols
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]

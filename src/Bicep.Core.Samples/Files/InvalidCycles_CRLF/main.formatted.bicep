@@ -31,6 +31,8 @@ var one = {
 }
 // #completionTest(15) -> empty
 var two = one.f
+// #completionTest(17) -> empty
+var twotwo = one.
 
 // resource completion cycles
 resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -39,6 +41,8 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: 'l'
   sku: {
     name: 'Premium_LRS'
+    // #completionTest(15) -> empty
+    tier: res2.
   }
   kind: 'StorageV2'
 }
@@ -47,6 +51,10 @@ resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: 'l'
   sku: {
     name: 'Premium_LRS'
+  }
+  properties: {
+    // #completionTest(21) -> empty
+    accessTier: res1.
   }
   kind: 'StorageV2'
 }
