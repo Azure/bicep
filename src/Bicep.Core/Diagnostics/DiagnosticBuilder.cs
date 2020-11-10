@@ -216,11 +216,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP036",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, string property, TypeSymbol type) => new Diagnostic(
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, TypeSymbol type) => new Diagnostic(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP037",
-                $"The property \"{property}\" is not allowed on objects of type \"{type}\".");
+                $"No other properties are allowed on objects of type \"{type}\".");
 
             public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
                 TextSpan,

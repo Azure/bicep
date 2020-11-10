@@ -106,7 +106,7 @@ resource unexpectedTopLevel 'Mock.Rp/mockType@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Mock.Rp/mockType@2020-01-01\"."),
+                ("BCP037", DiagnosticLevel.Error, "No other properties are allowed on objects of type \"Mock.Rp/mockType@2020-01-01\"."),
             });
 
             // Missing non top-level properties - should be a warning

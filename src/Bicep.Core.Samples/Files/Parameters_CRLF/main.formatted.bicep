@@ -1,6 +1,7 @@
 /* 
   This is a block comment.
 */
+
 // parameters without default value
 param myString string
 param myInt int
