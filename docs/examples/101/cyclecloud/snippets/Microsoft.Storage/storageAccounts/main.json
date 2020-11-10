@@ -6,7 +6,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "myuniquesaname",
+      "name": "exampleuniquesaname",
       "location": "eastus",
       "kind": "Storage",
       "sku": {

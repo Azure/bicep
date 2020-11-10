@@ -6,8 +6,12 @@
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
-      "name": "myManagedIdentity",
-      "location": "eastus"
+      "name": "exampleManagedIdentity",
+      "location": "eastus",
+      "tags": {
+        "TagA": "Value A",
+        "TagB": "Value B"
+      }
     }
   ]
 }

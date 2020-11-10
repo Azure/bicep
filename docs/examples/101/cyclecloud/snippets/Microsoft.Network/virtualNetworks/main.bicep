@@ -1,5 +1,5 @@
 resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-    name: 'myvnet'
+    name: 'exampleVnet'
     location: 'eastus'
     properties:{
       addressSpace: {
@@ -13,7 +13,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
           properties:{
             addressPrefix: '10.0.0.0/24'
             networkSecurityGroup: {
-              id: 'nsg Id'
+              id: 'nsg Resource Id'
             }
           }
         }
