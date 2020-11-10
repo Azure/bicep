@@ -36,7 +36,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: '${network.outputs.vnetId}/subnets/Default'
+            id: concat(network.outputs.vnetId, '/subnets/Default')
           }
           publicIPAddress: {
             id: pip.id
