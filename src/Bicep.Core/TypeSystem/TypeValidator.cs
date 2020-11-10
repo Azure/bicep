@@ -434,7 +434,7 @@ namespace Bicep.Core.TypeSystem
                                     => builder.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName),
                                 _ => builder.DisallowedPropertyWithPermissibleProperties(shouldWarn, keyName, targetType, validUnspecifiedProperties)
                             },
-                            _ => builder.DisallowedProperty(shouldWarn, keyName, targetType)
+                            _ => builder.DisallowedProperty(shouldWarn, targetType)
                         };
                     }
                     else
