@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_arguments",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "arguments"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_containerSettings",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "containerSettings"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_forceUpdateTag",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "forceUpdateTag"
@@ -71,6 +74,7 @@
     "preselect": false,
     "sortText": "2_primaryScriptUri",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "primaryScriptUri"
@@ -91,6 +95,7 @@
     "preselect": false,
     "sortText": "2_scriptContent",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "scriptContent"
@@ -111,6 +116,7 @@
     "preselect": false,
     "sortText": "2_timeout",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "timeout"

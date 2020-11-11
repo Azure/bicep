@@ -207,6 +207,10 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
 //@[4:44) Variable discriminatorKeyValueMissingCompletions2. Type: error. Declaration start char: 0, length: 76
 
+// #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
+var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
+//@[4:44) Variable discriminatorKeyValueMissingCompletions3. Type: error. Declaration start char: 0, length: 77
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[9:31) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 264
   kind: 'AzureCLI'
@@ -223,6 +227,10 @@ var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 // #completionTest(75) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
 //@[4:38) Variable discriminatorKeySetOneCompletions2. Type: error. Declaration start char: 0, length: 75
+
+// #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
+var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
+//@[4:38) Variable discriminatorKeySetOneCompletions3. Type: error. Declaration start char: 0, length: 76
 
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[9:31) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 270
@@ -243,7 +251,7 @@ var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
-//@[4:49) Variable discriminatorKeySetTwoCompletionsArrayIndexer. Type: error. Declaration start char: 0, length: 90
+//@[4:49) Variable discriminatorKeySetTwoCompletionsArrayIndexer. Type: any. Declaration start char: 0, length: 90
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
 //@[4:50) Variable discriminatorKeySetTwoCompletionsArrayIndexer2. Type: error. Declaration start char: 0, length: 90
@@ -328,6 +336,10 @@ var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.pro
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
 //@[4:45) Variable nestedDiscriminatorMissingKeyCompletions2. Type: error. Declaration start char: 0, length: 92
 
+// #completionTest(94) -> createModeIndexPlusSymbols
+var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
+//@[4:49) Variable nestedDiscriminatorMissingKeyIndexCompletions. Type: any. Declaration start char: 0, length: 96
+
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
 //@[9:28) Resource nestedDiscriminator. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 178
   name: 'test'
@@ -342,7 +354,7 @@ var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
 //@[4:34) Variable nestedDiscriminatorCompletions. Type: any. Declaration start char: 0, length: 69
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
-//@[4:35) Variable nestedDiscriminatorCompletions2. Type: error. Declaration start char: 0, length: 73
+//@[4:35) Variable nestedDiscriminatorCompletions2. Type: any. Declaration start char: 0, length: 73
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
 //@[4:35) Variable nestedDiscriminatorCompletions3. Type: error. Declaration start char: 0, length: 69
@@ -350,3 +362,6 @@ var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 //@[4:35) Variable nestedDiscriminatorCompletions4. Type: error. Declaration start char: 0, length: 72
 
+// #completionTest(79) -> defaultCreateModeIndexes
+var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
+//@[4:44) Variable nestedDiscriminatorArrayIndexCompletions. Type: error. Declaration start char: 0, length: 80

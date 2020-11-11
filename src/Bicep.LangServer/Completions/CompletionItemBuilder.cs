@@ -16,37 +16,39 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
-        public static CompletionItem WithInsertText(this CompletionItem item, string insertText)
+        public static CompletionItem WithInsertText(this CompletionItem item, string insertText, InsertTextMode insertTextMode = InsertTextMode.AsIs)
         {
             AssertNoTextEdit(item);
 
             item.InsertText = insertText;
             item.InsertTextFormat = InsertTextFormat.PlainText;
+            item.InsertTextMode = insertTextMode;
 
             return item;
         }
 
-        public static CompletionItem WithSnippet(this CompletionItem item, string snippet)
+        public static CompletionItem WithSnippet(this CompletionItem item, string snippet, InsertTextMode insertTextMode = InsertTextMode.AsIs)
         {
             AssertNoTextEdit(item);
 
             item.InsertText = snippet;
             item.InsertTextFormat = InsertTextFormat.Snippet;
+            item.InsertTextMode = insertTextMode;
 
             return item;
         }
 
-        public static CompletionItem WithPlainTextEdit(this CompletionItem item, Range range, string text)
+        public static CompletionItem WithPlainTextEdit(this CompletionItem item, Range range, string text, InsertTextMode insertTextMode = InsertTextMode.AsIs)
         {
             AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.PlainText, text);
+            SetTextEditInternal(item, range, InsertTextFormat.PlainText, text, insertTextMode);
             return item;
         }
 
-        public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet)
+        public static CompletionItem WithSnippetEdit(this CompletionItem item, Range range, string snippet, InsertTextMode insertTextMode = InsertTextMode.AsIs)
         {
             AssertNoInsertText(item);
-            SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet);
+            SetTextEditInternal(item, range, InsertTextFormat.Snippet, snippet, insertTextMode);
             return item;
         }
 
@@ -92,7 +94,7 @@ namespace Bicep.LanguageServer.Completions
             return item;
         }
 
-        private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text)
+        private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text, InsertTextMode insertTextMode)
         {
             item.InsertTextFormat = format;
             item.TextEdit = new TextEdit
@@ -100,6 +102,7 @@ namespace Bicep.LanguageServer.Completions
                 Range = range,
                 NewText = text
             };
+            item.InsertTextMode = insertTextMode;
         }
 
         private static void AssertNoTextEdit(CompletionItem item)

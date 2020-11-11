@@ -131,3 +131,9 @@ var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
 var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 // #completionTest(58) -> oneArrayItemProperties
 var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
+
+// #completionTest(65) -> objectVarTopLevelIndexes
+var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
+
+// #completionTest(58) -> twoIndexPlusSymbols
+var oneArrayIndexCompletions = objectLiteralType.sixth[0][]

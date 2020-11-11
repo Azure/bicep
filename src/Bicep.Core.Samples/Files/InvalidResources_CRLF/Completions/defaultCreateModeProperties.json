@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_apiProperties",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "apiProperties"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_backupPolicy",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "backupPolicy"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_capabilities",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "capabilities"
@@ -71,6 +74,7 @@
     "preselect": false,
     "sortText": "2_connectorOffer",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "connectorOffer"
@@ -91,6 +95,7 @@
     "preselect": false,
     "sortText": "2_consistencyPolicy",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "consistencyPolicy"
@@ -111,6 +116,7 @@
     "preselect": false,
     "sortText": "2_cors",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "cors"
@@ -131,6 +137,7 @@
     "preselect": false,
     "sortText": "2_createMode",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "createMode"
@@ -151,6 +158,7 @@
     "preselect": false,
     "sortText": "2_databaseAccountOfferType",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "databaseAccountOfferType"
@@ -171,6 +179,7 @@
     "preselect": false,
     "sortText": "2_disableKeyBasedMetadataWriteAccess",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "disableKeyBasedMetadataWriteAccess"
@@ -191,6 +200,7 @@
     "preselect": false,
     "sortText": "2_documentEndpoint",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "documentEndpoint"
@@ -211,6 +221,7 @@
     "preselect": false,
     "sortText": "2_enableAnalyticalStorage",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableAnalyticalStorage"
@@ -231,6 +242,7 @@
     "preselect": false,
     "sortText": "2_enableAutomaticFailover",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableAutomaticFailover"
@@ -251,6 +263,7 @@
     "preselect": false,
     "sortText": "2_enableCassandraConnector",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableCassandraConnector"
@@ -271,6 +284,7 @@
     "preselect": false,
     "sortText": "2_enableFreeTier",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableFreeTier"
@@ -291,6 +305,7 @@
     "preselect": false,
     "sortText": "2_enableMultipleWriteLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "enableMultipleWriteLocations"
@@ -311,6 +326,7 @@
     "preselect": false,
     "sortText": "2_failoverPolicies",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "failoverPolicies"
@@ -331,6 +347,7 @@
     "preselect": false,
     "sortText": "2_instanceId",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "instanceId"
@@ -351,6 +368,7 @@
     "preselect": false,
     "sortText": "2_ipRules",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "ipRules"
@@ -371,6 +389,7 @@
     "preselect": false,
     "sortText": "2_isVirtualNetworkFilterEnabled",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "isVirtualNetworkFilterEnabled"
@@ -391,6 +410,7 @@
     "preselect": false,
     "sortText": "2_keyVaultKeyUri",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "keyVaultKeyUri"
@@ -411,6 +431,7 @@
     "preselect": false,
     "sortText": "2_locations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "locations"
@@ -431,6 +452,7 @@
     "preselect": false,
     "sortText": "2_privateEndpointConnections",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "privateEndpointConnections"
@@ -451,6 +473,7 @@
     "preselect": false,
     "sortText": "2_provisioningState",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "provisioningState"
@@ -471,6 +494,7 @@
     "preselect": false,
     "sortText": "2_publicNetworkAccess",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "publicNetworkAccess"
@@ -491,6 +515,7 @@
     "preselect": false,
     "sortText": "2_readLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "readLocations"
@@ -511,6 +536,7 @@
     "preselect": false,
     "sortText": "2_restoreParameters",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "restoreParameters"
@@ -531,6 +557,7 @@
     "preselect": false,
     "sortText": "2_virtualNetworkRules",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "virtualNetworkRules"
@@ -551,6 +578,7 @@
     "preselect": false,
     "sortText": "2_writeLocations",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "writeLocations"

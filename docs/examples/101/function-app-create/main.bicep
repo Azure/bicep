@@ -16,8 +16,8 @@ var appInsightsName = '${appNamePrefix}-appinsights'
 var storageAccountName = format('{0}sta', replace(appNamePrefix, '-', ''))
 
 var appTags = {
-    AppID: 'myfunc'
-    AppName: 'My Function App'
+  AppID: 'myfunc'
+  AppName: 'My Function App'
 }
 
 // Storage Account
@@ -25,24 +25,24 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: storageAccountName
   location: location
   sku: {
-      name: 'Standard_LRS'
-      tier: 'Standard'
+    name: 'Standard_LRS'
+    tier: 'Standard'
   }
   kind: 'StorageV2'
   properties: {
     supportsHttpsTrafficOnly: true
     encryption: {
-        services: {
-            file: {
-                keyType: 'Account'
-                enabled: true
-            }
-            blob: {
-                keyType: 'Account'
-                enabled: true
-            }
+      services: {
+        file: {
+          keyType: 'Account'
+          enabled: true
         }
-        keySource: 'Microsoft.Storage'
+        blob: {
+          keyType: 'Account'
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
     }
     accessTier: 'Hot'
   }
@@ -83,11 +83,11 @@ resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
   location: location
   kind: 'functionapp'
   sku: {
-      name: 'Y1'
-      tier: 'Dynamic'
-      size: 'Y1'
-      family: 'Y'
-      capacity: 0
+    name: 'Y1'
+    tier: 'Dynamic'
+    size: 'Y1'
+    family: 'Y'
+    capacity: 0
   }
   properties: {
     perSiteScaling: false
@@ -110,48 +110,48 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     enabled: true
     hostNameSslStates: [
-        {
-            name: '${functionAppName}.azurewebsites.net'
-            sslState: 'Disabled'
-            hostType: 'Standard'
-        }
-        {
-            name: '${functionAppName}.scm.azurewebsites.net'
-            sslState: 'Disabled'
-            hostType: 'Standard'
-        }
+      {
+        name: '${functionAppName}.azurewebsites.net'
+        sslState: 'Disabled'
+        hostType: 'Standard'
+      }
+      {
+        name: '${functionAppName}.scm.azurewebsites.net'
+        sslState: 'Disabled'
+        hostType: 'Standard'
+      }
     ]
     serverFarmId: appService.id
     reserved: false
     isXenon: false
     hyperV: false
     siteConfig: {
-        appSettings: [
-            {
-                name: 'AzureWebJobsStorage'
-                value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
-            }
-            {
-                name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-                value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
-            }
-            {
-                name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-                value: '${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
-            }
-            {
-                name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-                value: 'InstrumentationKey=${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
-            }
-            {
-                name: 'FUNCTIONS_WORKER_RUNTIME'
-                value: functionRuntime
-            }
-            {
-                name: 'FUNCTIONS_EXTENSION_VERSION'
-                value: '~3'
-            }
-        ]
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+        }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: 'InstrumentationKey=${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: functionRuntime
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~3'
+        }
+      ]
     }
     scmSiteAlsoStopped: false
     clientAffinityEnabled: false
@@ -170,15 +170,15 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
   properties: {
     numberOfWorkers: -1
     defaultDocuments: [
-        'Default.htm'
-        'Default.html'
-        'Default.asp'
-        'index.htm'
-        'index.html'
-        'iisstart.htm'
-        'default.aspx'
-        'index.php'
-        'hostingstart.html'
+      'Default.htm'
+      'Default.html'
+      'Default.asp'
+      'index.htm'
+      'index.html'
+      'iisstart.htm'
+      'default.aspx'
+      'index.php'
+      'hostingstart.html'
     ]
     netFrameworkVersion: 'v4.0'
     phpVersion: '5.6'
@@ -195,43 +195,43 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
     alwaysOn: false
     managedPipelineMode: 'Integrated'
     virtualApplications: [
-        {
-            virtualPath: '/'
-            physicalPath: 'site\\wwwroot'
-            preloadEnabled: true
-        }
+      {
+        virtualPath: '/'
+        physicalPath: 'site\\wwwroot'
+        preloadEnabled: true
+      }
     ]
     loadBalancing: 'LeastRequests'
     experiments: {
-        rampUpRules: []
+      rampUpRules: []
     }
     autoHealEnabled: false
     cors: {
-        allowedOrigins: [
-            'https://functions.azure.com'
-            'https://functions-staging.azure.com'
-            'https://functions-next.azure.com'
-        ]
-        supportCredentials: false
+      allowedOrigins: [
+        'https://functions.azure.com'
+        'https://functions-staging.azure.com'
+        'https://functions-next.azure.com'
+      ]
+      supportCredentials: false
     }
     localMySqlEnabled: false
     ipSecurityRestrictions: [
-        {
-            ipAddress: 'Any'
-            action: 'Allow'
-            priority: 1
-            name: 'Allow all'
-            description: 'Allow all access'
-        }
+      {
+        ipAddress: 'Any'
+        action: 'Allow'
+        priority: 1
+        name: 'Allow all'
+        description: 'Allow all access'
+      }
     ]
     scmIpSecurityRestrictions: [
-        {
-            ipAddress: 'Any'
-            action: 'Allow'
-            priority: 1
-            name: 'Allow all'
-            description: 'Allow all access'
-        }
+      {
+        ipAddress: 'Any'
+        action: 'Allow'
+        priority: 1
+        name: 'Allow all'
+        description: 'Allow all access'
+      }
     ]
     scmIpSecurityRestrictionsUseMain: false
     http20Enabled: true

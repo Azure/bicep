@@ -10,7 +10,12 @@ namespace Bicep.Core.SemanticModel
     /// </summary>
     public class ErrorSymbol : Symbol
     {
-        private readonly ErrorDiagnostic error;
+        private readonly ErrorDiagnostic? error;
+
+        public ErrorSymbol() : base(LanguageConstants.ErrorName)
+        {
+            this.error = null;
+        }
 
         public ErrorSymbol(ErrorDiagnostic error) : base(error.Code)
         {
@@ -23,7 +28,10 @@ namespace Bicep.Core.SemanticModel
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
         {
-            yield return this.error;
+            if (this.error != null)
+            {
+                yield return this.error;
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
     "preselect": false,
     "sortText": "2_module",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "module"
@@ -24,6 +25,7 @@
     "preselect": false,
     "sortText": "2_module",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "module ${1:Identifier} '${2:Path}' = {\n  name: $3\n  $0\n}"
@@ -37,6 +39,7 @@
     "preselect": false,
     "sortText": "2_output",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "output"
@@ -54,6 +57,7 @@
     "preselect": false,
     "sortText": "2_output",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "output ${1:Identifier} ${2:Type} = $0"
@@ -67,6 +71,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param"
@@ -84,6 +89,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type}"
@@ -101,6 +107,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}"
@@ -118,6 +125,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type} {\n  default: $3\n  allowed: [\n    $4\n  ]\n}"
@@ -135,6 +143,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} ${2:Type} {\n  $0\n}"
@@ -152,6 +161,7 @@
     "preselect": false,
     "sortText": "2_param",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "param ${1:Identifier} string {\n  secure: true\n}"
@@ -165,6 +175,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resource"
@@ -182,6 +193,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  location: $6\n  properties: {\n    $0\n  }\n}"
@@ -199,6 +211,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  properties: {\n    $0\n  }\n}"
@@ -216,6 +229,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\n  name: $5\n  $0\n}\n"
@@ -233,6 +247,7 @@
     "preselect": false,
     "sortText": "2_resource",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:ParentType}/${4:ChildType}@${5:Version}' = {\n  name: $6\n  $0\n}"
@@ -246,6 +261,7 @@
     "preselect": false,
     "sortText": "2_targetScope",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "targetScope"
@@ -259,6 +275,7 @@
     "preselect": false,
     "sortText": "2_var",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "var"
@@ -276,6 +293,7 @@
     "preselect": false,
     "sortText": "2_var",
     "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "var ${1:Identifier} = $0"

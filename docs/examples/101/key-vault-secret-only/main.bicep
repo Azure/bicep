@@ -1,5 +1,4 @@
 // assumes key vault is in same subscription and rg as deployment
-
 param location string = 'eastus'
 
 param existingKeyVaultName string

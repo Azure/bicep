@@ -96,11 +96,11 @@ namespace Bicep.Core.TypeSystem
                     // this function does not validate item types
                     return true;
 
-                case DiscriminatedObjectType targetDiscriminated when sourceType is DiscriminatedObjectType sourceDiscriminated:
+                case DiscriminatedObjectType _ when sourceType is DiscriminatedObjectType:
                     // validation left for later
                     return true;
 
-                case DiscriminatedObjectType targetDiscriminated when sourceType is ObjectType sourceObject:
+                case DiscriminatedObjectType _ when sourceType is ObjectType:
                     // validation left for later
                     return true;
 
@@ -434,7 +434,7 @@ namespace Bicep.Core.TypeSystem
                                     => builder.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName),
                                 _ => builder.DisallowedPropertyWithPermissibleProperties(shouldWarn, keyName, targetType, validUnspecifiedProperties)
                             },
-                            _ => builder.DisallowedProperty(shouldWarn, keyName, targetType)
+                            _ => builder.DisallowedProperty(shouldWarn, targetType)
                         };
                     }
                     else

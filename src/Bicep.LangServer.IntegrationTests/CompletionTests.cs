@@ -211,6 +211,8 @@ namespace Bicep.LangServer.IntegrationTests
                 }
             }
 
+            //var serialized = JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal));
+
             return JToken.FromObject(completions.OrderBy(c => c.Label, StringComparer.Ordinal), DataSetSerialization.CreateSerializer());
         }
 

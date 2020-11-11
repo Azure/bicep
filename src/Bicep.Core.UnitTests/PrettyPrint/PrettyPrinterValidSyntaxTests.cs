@@ -11,24 +11,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.PrettyPrint
 {
     [TestClass]
-    public class PrettyPrinterTests
+    public class PrettyPrinterValidSyntaxTests : PrettyPrinterTestsBase
     {
-        private static readonly PrettyPrintOptions CommonOptions = new PrettyPrintOptions(
-            NewlineOption.Auto,
-            IndentKindOption.Space,
-            2,
-            false);
-
-        [TestMethod]
-        public void PrintProgram_SyntaxHasDiagnostics_ShouldReturnNull()
-        {
-            var syntax = ParserHelper.Parse("var foo = concat(");
-
-            var output = PrettyPrinter.PrintProgram(syntax, CommonOptions);
-
-            output.Should().BeNull();
-        }
-
         [TestMethod]
 
         public void PrintProgram_TooManyNewlines_RemovesExtraNewlines()
@@ -39,16 +23,20 @@ namespace Bicep.Core.UnitTests.PrettyPrint
 
 param foo int
 
-
+     
+     
 
 
 var bar = 1 + mod(foo, 3)
 var baz = {
     x: [
 
+  
+
 111
 222
 
+  
 
 
 333
@@ -72,11 +60,11 @@ aaa: bbb
 ccc: ddd
 
 
-
+  
 }
 }
 
-
+  
 
 
 ";
@@ -412,8 +400,8 @@ param bar array = [
         [TestMethod]
         public void PrintProgram_EmptyBlocks_ShouldFormatCorrectly()
         {
-            var programSyntax = ParserHelper.Parse(@"
-param foo object = {}
+            var programSyntax = ParserHelper.Parse(
+@"param foo object = {}
 param foo object = {
 }
 param foo object = {
@@ -421,7 +409,7 @@ param foo object = {
 }
 param foo object = {
 
-
+   
 
 
 }
@@ -434,7 +422,7 @@ param bar array = [
 ]
 param bar array = [
 
-
+  
 
 
 ]");
@@ -451,6 +439,28 @@ param bar array = []
 param bar array = []
 param bar array = []
 param bar array = []");
+        }
+
+        [TestMethod]
+        public void PrintProgram_MultilineComment_ShouldReplaceNewlinesInTheCommentToo()
+        {
+            var programSyntax = ParserHelper.Parse(string.Join("\n", new[]
+            {
+                "var foo = bar",
+                "/* a multiline\ncomment\n */",
+                "var baz = foo"
+            }));
+
+            var options = new PrettyPrintOptions(NewlineOption.CRLF, IndentKindOption.Space, 2, false);
+
+            var output = PrettyPrinter.PrintProgram(programSyntax, options);
+
+            output.Should().Be(string.Join("\r\n", new[]
+            {
+                "var foo = bar",
+                "/* a multiline\r\ncomment\r\n */",
+                "var baz = foo"
+            }));
         }
 
         [TestMethod]
@@ -649,7 +659,6 @@ null
 }
      /* I can be anywhere */
 ");
-
             var output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
 
             output.Should().Be(
@@ -660,7 +669,7 @@ null
  */
 
 /* I can be any
-where */module  /* I can be anywhere */foo  /* I can be anywhere */'./myModule' =  /* I can be anywhere */ /* I can be anywhere */{
+where */module /* I can be anywhere */ foo /* I can be anywhere */ './myModule' = /* I can be anywhere */ /* I can be anywhere */ {
   name /* I can be any where */: value // I can be anywhere
 }
 
@@ -669,10 +678,10 @@ var foo = {
 }
 
 param foo bool {
-  default: (true  /* I can be anywhere */?  /*
+  default: (true /* I can be anywhere */ ? /*
 I can be any
 where
-*/null : false /* I can be anywhere */)
+*/ null : false /* I can be anywhere */)
   /* I can be anywhere */
 }
 

@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_balance-similar-node-groups",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['balance-similar-node-groups']"
@@ -37,6 +38,7 @@
     "preselect": false,
     "sortText": "2_expander",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "expander"
@@ -57,6 +59,7 @@
     "preselect": false,
     "sortText": "2_max-empty-bulk-delete",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['max-empty-bulk-delete']"
@@ -83,6 +86,7 @@
     "preselect": false,
     "sortText": "2_max-graceful-termination-sec",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['max-graceful-termination-sec']"
@@ -109,6 +113,7 @@
     "preselect": false,
     "sortText": "2_max-total-unready-percentage",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['max-total-unready-percentage']"
@@ -135,6 +140,7 @@
     "preselect": false,
     "sortText": "2_new-pod-scale-up-delay",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['new-pod-scale-up-delay']"
@@ -161,6 +167,7 @@
     "preselect": false,
     "sortText": "2_ok-total-unready-count",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['ok-total-unready-count']"
@@ -187,6 +194,7 @@
     "preselect": false,
     "sortText": "2_scale-down-delay-after-add",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-delay-after-add']"
@@ -213,6 +221,7 @@
     "preselect": false,
     "sortText": "2_scale-down-delay-after-delete",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-delay-after-delete']"
@@ -239,6 +248,7 @@
     "preselect": false,
     "sortText": "2_scale-down-delay-after-failure",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-delay-after-failure']"
@@ -265,6 +275,7 @@
     "preselect": false,
     "sortText": "2_scale-down-unneeded-time",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-unneeded-time']"
@@ -291,6 +302,7 @@
     "preselect": false,
     "sortText": "2_scale-down-unready-time",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-unready-time']"
@@ -317,6 +329,7 @@
     "preselect": false,
     "sortText": "2_scale-down-utilization-threshold",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scale-down-utilization-threshold']"
@@ -343,6 +356,7 @@
     "preselect": false,
     "sortText": "2_scan-interval",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['scan-interval']"
@@ -369,6 +383,7 @@
     "preselect": false,
     "sortText": "2_skip-nodes-with-local-storage",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['skip-nodes-with-local-storage']"
@@ -395,6 +410,7 @@
     "preselect": false,
     "sortText": "2_skip-nodes-with-system-pods",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "['skip-nodes-with-system-pods']"

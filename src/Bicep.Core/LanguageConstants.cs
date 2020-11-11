@@ -15,7 +15,8 @@ namespace Bicep.Core
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
 
-        public const string ListSeparator = ", ";
+        public const string ErrorName = "<error>";
+        public const string MissingName = "<missing>";
 
         public const string TargetScopeKeyword = "targetScope";
         public const string ParameterKeyword = "param";
@@ -78,7 +79,7 @@ namespace Bicep.Core
 
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
-            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out TypeSymbol primitiveType))
+            if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))
             {
                 return primitiveType;
             }

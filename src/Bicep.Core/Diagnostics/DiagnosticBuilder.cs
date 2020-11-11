@@ -216,11 +216,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP036",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, string property, TypeSymbol type) => new Diagnostic(
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, TypeSymbol type) => new Diagnostic(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP037",
-                $"The property \"{property}\" is not allowed on objects of type \"{type}\".");
+                $"No other properties are allowed on objects of type \"{type}\".");
 
             public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
                 TextSpan,
@@ -673,6 +673,13 @@ namespace Bicep.Core.Diagnostics
                 "BCP116",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
+
+            public ErrorDiagnostic EmptyIndexerNotAllowed() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP117",
+                "An empty indexer is not allowed. Specify a valid expression."
+            );
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

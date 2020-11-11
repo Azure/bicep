@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Bicep.Core.Parser;
 using Bicep.Core.PrettyPrint;
@@ -24,7 +25,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void PrintProgram_ProgramWithoutDiagnostics_ShouldProduceExpectedOutput(DataSet dataSet)
+        public void PrintProgram_AnyProgram_ShouldProduceExpectedOutput(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
             var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true);
@@ -36,24 +37,29 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
-                formattedOutput!,
+                dataSet.Formatted,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
                 actualLocation: resultsFile);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void PrintProgram_ProgramWithoutDiagnostics_ShouldRoundTrip(DataSet dataSet)
+        public void PrintProgram_AnyProgram_ShouldRoundTrip(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
+            var diagnostics = program.GetParseDiagnostics();
+            var diagnosticMessages = diagnostics.Select(d => d.Message);
+
             var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true);
-
             var formattedOutput = PrettyPrinter.PrintProgram(program, options);
-            formattedOutput.Should().NotBeNull();
-
-            // The program should still be parsed without any errors after formatting.
             var formattedProgram = ParserHelper.Parse(formattedOutput!);
-            formattedProgram.GetParseDiagnostics().Should().BeEmpty();
+
+            var newDiagnostics = formattedProgram.GetParseDiagnostics();
+            var newDiagnosticMessages = newDiagnostics.Select(d => d.Message);
+
+            // Diagnostic messages should remain the same after formatting.
+            newDiagnostics.Should().HaveSameCount(diagnostics);
+            newDiagnosticMessages.Should().BeEquivalentTo(diagnosticMessages);
 
             var buffer = new StringBuilder();
             var printVisitor = new PrintVisitor(buffer,x =>
@@ -71,6 +77,6 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             formattedProgramText.Should().Be(programText);
         }
 
-        private static IEnumerable<object[]> GetData() => DataSets.DataSetsWithNoDiagnostics.ToDynamicTestData();
+        private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
     }
 }
