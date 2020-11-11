@@ -10,7 +10,7 @@ param ipAllocationMethod string {
   ]
 }
 param staticIpAddress string = ''
-param enableIPForwarding bool = false 
+param enableIPForwarding bool = false
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
   name: nicName

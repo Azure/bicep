@@ -209,7 +209,7 @@ module updateAzureVmUdr './udr.bicep' = {
   params: {
     udrName: azureVMsSubnetUDRName
     addressPrefix: ghostedSubnetPrefix
-    nextHopAddress: createNic2.outputs.assignedIp 
+    nextHopAddress: createNic2.outputs.assignedIp
   }
 }
 
