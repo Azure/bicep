@@ -8,11 +8,11 @@ var roleDefinitions = {
   contributor: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
   reader: 'acdd72a7-3385-48ef-bd42-f606fba81ae7'
 }
-var saName = take('cclocker${replace(guid(resourceGroup().id),'-','')}',24)
+var saName = take('cclocker${replace(guid(resourceGroup().id), '-', '')}', 24)
 var customData = '#cloud-config\n#\n# installs CycleCloud on the VM\n#\n\nyum_repos:\n  azure-cli:\n    baseurl: https://packages.microsoft.com/yumrepos/azure-cli\n    enabled: true\n    gpgcheck: true\n    gpgkey: https://packages.microsoft.com/keys/microsoft.asc\n    name: Azure CLI\n  cyclecloud:\n    baseurl: https://packages.microsoft.com/yumrepos/cyclecloud\n    enabled: true\n    gpgcheck: true\n    gpgkey: https://packages.microsoft.com/keys/microsoft.asc\n    name: Cycle Cloud\n\npackages:\n- java-1.8.0-openjdk-headless\n- azure-cli\n- cyclecloud8\n\nwrite_files:\n- content: |\n    [{\n        "AdType": "Application.Setting",\n        "Name": "cycleserver.installation.initial_user",\n        "Value": "ccadmin"\n    },\n    {\n        "AdType": "Application.Setting",\n        "Name": "cycleserver.installation.complete",\n        "Value": true\n    },\n    {\n        "AdType": "AuthenticatedUser",\n        "Name": "ccadmin",\n        "RawPassword": "${ccadminRawPassword}",\n        "Superuser": true\n    }] \n  owner: root:root\n  path: ./account_data.json\n  permissions: \'0644\'\n- content: |\n    {\n      "Name": "Azure",\n      "Environment": "public",\n      "AzureRMSubscriptionId": "${subscription().subscriptionId}",\n      "AzureRMUseManagedIdentity": true,\n      "Location": "westeurope",\n      "RMStorageAccount": "${saName}",\n      "RMStorageContainer": "cyclecloud"\n    }\n  owner: root:root\n  path: ./azure_data.json\n  permissions: \'0644\'\n\nruncmd:\n- sed -i --follow-symlinks "s/webServerPort=.*/webServerPort=80/g" /opt/cycle_server/config/cycle_server.properties\n- sed -i --follow-symlinks "s/webServerSslPort=.*/webServerSslPort=443/g" /opt/cycle_server/config/cycle_server.properties\n- sed -i --follow-symlinks "s/webServerEnableHttps=.*/webServerEnableHttps=true/g" /opt/cycle_server/config/cycle_server.properties\n- systemctl restart cycle_server\n- mv ./account_data.json /opt/cycle_server/config/data/\n- sleep 5\n- /opt/cycle_server/cycle_server execute "update Application.Setting set Value = false where name == \\"authorization.check_datastore_permissions\\""\n- unzip /opt/cycle_server/tools/cyclecloud-cli\n- ./cyclecloud-cli-installer/install.sh --system\n- sleep 60\n- /usr/local/bin/cyclecloud initialize --batch --url=https://localhost --verify-ssl=false --username="ccadmin" --password="${ccadminRawPassword}"\n- /usr/local/bin/cyclecloud account create -f ./azure_data.json'
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name:'cc-nsg'
+  name: 'cc-nsg'
   location: location
   properties: {
     securityRules: [
@@ -62,16 +62,16 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
 resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: 'cc-vnet'
   location: location
-  properties:{
+  properties: {
     addressSpace: {
       addressPrefixes: [
         '10.0.0.0/22'
       ]
     }
-    subnets:[
+    subnets: [
       {
         name: 'Default'
-        properties:{
+        properties: {
           addressPrefix: '10.0.0.0/24'
           networkSecurityGroup: {
             id: nsg.id
@@ -82,7 +82,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   }
 }
 
-resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' =  {
+resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   name: 'cycleserver-pip'
   location: location
   properties: {
@@ -116,11 +116,11 @@ resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   location: location
   kind: 'Storage'
   sku: {
-      name: 'Standard_LRS'
+    name: 'Standard_LRS'
   }
 }
 
-resource mid 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'= {
+resource mid 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: 'CycleCloud-MI'
   location: location
 }
@@ -131,7 +131,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${mid.id}' :{}
+      '${mid.id}': {}
     }
   }
   properties: {
@@ -162,7 +162,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         version: 'latest'
       }
       osDisk: {
-        name:  'cycleserver-os'
+        name: 'cycleserver-os'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'StandardSSD_LRS'

@@ -1,4 +1,4 @@
 resource rg 'Microsoft.Resources/resourceGroups@2019-05-01' = {
-    name: 'rg-bicep'
-    location: 'uksouth'
+  name: 'rg-bicep'
+  location: 'uksouth'
 }

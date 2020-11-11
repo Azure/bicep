@@ -1,4 +1,4 @@
-resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' =  {
+resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   name: 'examplePip'
   location: 'eastus'
   properties: {
@@ -13,8 +13,8 @@ resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' =  {
     name: 'Standard'
   }
   tags: {
-      TagA: 'Value A'
-      TagB: 'Value B'
+    TagA: 'Value A'
+    TagB: 'Value B'
   }
   zones: [
     '1'

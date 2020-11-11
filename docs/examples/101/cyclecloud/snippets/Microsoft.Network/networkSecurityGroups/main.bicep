@@ -1,5 +1,5 @@
 resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name:'exampleNsg'
+  name: 'exampleNsg'
   location: 'eastus'
   properties: {
     securityRules: [
@@ -20,7 +20,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
     ]
   }
   tags: {
-      TagA: 'Value A'
-      TagB: 'Value B'
+    TagA: 'Value A'
+    TagB: 'Value B'
   }
 }

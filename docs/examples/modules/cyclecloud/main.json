@@ -51,7 +51,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[concat(reference(resourceId('Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+                "id": "[concat(reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
               },
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
@@ -61,7 +61,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'network')]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network')]",
         "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
       ]
     },

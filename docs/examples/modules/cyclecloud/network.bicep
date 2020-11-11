@@ -2,7 +2,7 @@ param location string = resourceGroup().location
 param myIp string = '1.1.1.1'
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
-  name:'cc-nsg'
+  name: 'cc-nsg'
   location: location
   properties: {
     securityRules: [
@@ -52,16 +52,16 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
 resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: 'cc-vnet'
   location: location
-  properties:{
+  properties: {
     addressSpace: {
       addressPrefixes: [
         '10.0.0.0/22'
       ]
     }
-    subnets:[
+    subnets: [
       {
         name: 'Default'
-        properties:{
+        properties: {
           addressPrefix: '10.0.0.0/24'
           networkSecurityGroup: {
             id: nsg.id

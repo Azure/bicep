@@ -35,7 +35,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         version: 'latest'
       }
       osDisk: {
-        name:  'myvm-os'
+        name: 'myvm-os'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'StandardSSD_LRS'
@@ -51,4 +51,3 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     }
   }
 }
-  

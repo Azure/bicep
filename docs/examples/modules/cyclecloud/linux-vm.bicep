@@ -10,7 +10,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${userAssignedIdentity}' :{}
+      '${userAssignedIdentity}': {}
     }
   }
   properties: {
@@ -41,7 +41,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         version: 'latest'
       }
       osDisk: {
-        name:  'cycleserver-os'
+        name: 'cycleserver-os'
         createOption: 'FromImage'
         managedDisk: {
           storageAccountType: 'StandardSSD_LRS'
