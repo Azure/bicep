@@ -10,7 +10,7 @@ var appInsightName = toLower('appi-${appName}')
 var logAnalyticsName = toLower('la-${appName}')
 
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2019-08-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appServicePlanName  // Globally unique storage account name
   location: location// Azure Region
   sku:{
@@ -23,7 +23,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2019-08-01' = {
   }
 }
 
-resource appService 'Microsoft.Web/sites@2019-08-01' ={
+resource appService 'Microsoft.Web/sites@2020-06-01' ={
     name:webSiteName
     location:location
     identity:{
@@ -43,7 +43,7 @@ resource appService 'Microsoft.Web/sites@2019-08-01' ={
     }
      
 }
-resource appServiceLogging 'Microsoft.Web/sites/config@2019-08-01' ={
+resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' ={
     name: '${appService.name}/logs'
     properties:{
         applicationLogs:{
@@ -66,7 +66,7 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2019-08-01' ={
     }
 }
 
-resource appServiceAppSettings'Microsoft.Web/sites/config@2019-08-01' ={
+resource appServiceAppSettings'Microsoft.Web/sites/config@2020-06-01' ={
     name: '${appService.name}/appsettings'
     properties:{
         APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
@@ -76,7 +76,7 @@ resource appServiceAppSettings'Microsoft.Web/sites/config@2019-08-01' ={
         appServiceSiteExtension
     ]
 }
-resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2019-08-01' ={
+resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' ={
     name: '${appService.name}/Microsoft.ApplicationInsights.AzureWebsites'
     dependsOn:[
         appInsights
