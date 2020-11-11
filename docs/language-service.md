@@ -72,7 +72,7 @@ When your cursor is on or in a particular symbol, bicep will highlight other use
 
 You can rename any symbol such as a `param` or `resource` and bicep will intelligently rename all the uses of that symbol
 
-![rename a symbol called 'pip' into a symbol named 'publicIp' with the 'Rename symbol' feature](./images/rename-symbol.GIF)
+![rename a symbol called 'pip' into a symbol named 'publicIp' with the 'Rename symbol' feature](./images/rename-symbol.gif)
 
 ### Formatting
 
