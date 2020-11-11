@@ -90,7 +90,7 @@ You can rename any symbol such as a `param` or `resource` and bicep will intelli
   }
 ```
 
-You can change the default settings in teh following places (sorted by precedence in ascending order):
+You can change the default settings in the following places (sorted by precedence in ascending order):
 
 * VSCode global user settings
 * VSCode workspace settings
