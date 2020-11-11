@@ -19,7 +19,7 @@ import example_201_decrypt_running_windows_vm_without_aad from '../../../docs/ex
 import example_201_iot_with_storage from '../../../docs/examples/201/iot-with-storage/main.bicep'
 import example_201_vnet_peering from '../../../docs/examples/201/vnet-peering/main.bicep'
 import example_201_sql from '../../../docs/examples/201/sql/main.bicep'
-import example_201_web_app_loganalytics from '../../../docs/examples/201/appservice-loganalytics/main.bicep'
+import example_201_web_app_loganalytics from '../../../docs/examples/201/web-app-loganalytics/main.bicep'
 import example_101_deployment_script_with_storage from '../../../docs/examples/101/deployment-script-with-storage/main.bicep'
 
 export const examples = {
