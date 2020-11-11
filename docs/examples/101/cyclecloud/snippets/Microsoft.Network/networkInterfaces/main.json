@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "exampleNic",
+      "location": "eastus",
+      "properties": {
+        "dnsSettings": {},
+        "enableAcceleratedNetworking": false,
+        "enableIPForwarding": false,
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "Subnet Resource Id"
+              },
+              "publicIPAddress": {
+                "id": "PublicIPAddress Resource Id"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "NetworkSecurityGroup Resource Id"
+        }
+      },
+      "tags": {
+        "TagA": "Value A",
+        "TagB": "Value B"
+      }
+    }
+  ]
+}
