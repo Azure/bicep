@@ -7,7 +7,8 @@ This exemplar uses [Bicep](https://github.com/Azure/bicep) to deploy the Azure r
 Just edit or supply parameters to override the defaults
 
 Deployment steps
-```
+
+```bash
 bicep build *.bicep
 az deployment sub create --template-file sub.json --location uksouth
 az deployment group create --resource-group rg-bicep --template-file main.json
