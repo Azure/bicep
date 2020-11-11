@@ -343,7 +343,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var narrowedType = TypeValidator.NarrowTypeAndCollectDiagnostics(CreateTypeManager(hierarchy), obj, CreateDummyResourceType(), diagnosticWriter);
 
             diagnosticWriter.GetDiagnostics().Should().HaveCount(1);
-            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified object is missing the following required properties: \"name\".");
+            diagnosticWriter.GetDiagnostics().Single().Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"name\".");
         }
 
         [TestMethod]
@@ -656,7 +656,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property \"secure\" expected a value of type \"bool\" but the provided value is of type \"int\".",
                     "The property \"allowed\" expected a value of type \"string[]\" but the provided value is of type \"object\".",
                     "The property \"maxLength\" expected a value of type \"int\" but the provided value is of type \"bool\".",
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<string>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<string>\".",
                     "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".");
         }
 
@@ -704,10 +704,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property \"default\" expected a value of type \"int\" but the provided value is of type \"bool\".",
                     "The property \"maxValue\" expected a value of type \"int\" but the provided value is of type \"'11'\".",
                     "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<int>\".",
-                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
-                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<int>\".",
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<int>\".");
+                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<int>\".");
         }
 
         [TestMethod]
@@ -755,12 +755,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property \"default\" expected a value of type \"bool\" but the provided value is of type \"int\".",
                     "The enclosing array expected an item of type \"bool\", but the provided item was of type \"int\".",
                     "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<bool>\".",
-                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
-                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<bool>\".",
-                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
-                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<bool>\".",
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<bool>\".");
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<bool>\".");
         }
 
         [TestMethod]
@@ -807,11 +807,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
                     "The property \"allowed\" expected a value of type \"object[]\" but the provided value is of type \"object\".",
                     "The property \"default\" expected a value of type \"object\" but the provided value is of type \"bool\".",
-                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
-                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<object>\".",
-                    "The property \"minLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
-                    "The property \"maxLength\" is not allowed on objects of type \"ParameterModifier<object>\".",
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<object>\".");
+                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<object>\".");
         }
 
         [TestMethod]
@@ -859,10 +859,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     "The property \"allowed\" expected a value of type \"array[]\" but the provided value is of type \"object\".",
                     "The property \"minLength\" expected a value of type \"int\" but the provided value is of type \"object\".",
                     "The property \"description\" expected a value of type \"string\" but the provided value is of type \"int\".",
-                    "The property \"secure\" is not allowed on objects of type \"ParameterModifier<array>\".",
-                    "The property \"minValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
-                    "The property \"maxValue\" is not allowed on objects of type \"ParameterModifier<array>\".",
-                    "The property \"extra\" is not allowed on objects of type \"ParameterModifier<array>\".");
+                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".",
+                    "No other properties are allowed on objects of type \"ParameterModifier<array>\".");
         }
 
         [TestMethod]
@@ -962,7 +962,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
                 diagnosticWriter.GetDiagnostics().Should().SatisfyRespectively(
                     x => {
-                        x.Message.Should().Be("The specified object is missing the following required properties: \"fieldB\".");
+                        x.Message.Should().Be("The specified \"object\" declaration is missing the following required properties: \"fieldB\".");
                     });
 
                 // we have the discriminator key, so we should have picked the correct object, rather than returning the discriminator

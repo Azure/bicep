@@ -359,6 +359,23 @@ var azFunctions = az.a
 var sysFunctions = sys.a
 //@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
 
+// missing method name
+var missingMethodName = az.()
+//@[27:27) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// missing indexer
+var missingIndexerOnLiteralArray = [][][]
+//@[38:38) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+//@[40:40) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[33:54) [BCP057 (Error)] The name "nonExistentIdentifier" does not exist in the current context. |nonExistentIdentifier|
+//@[55:55) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+//@[60:60) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
+// empty parens - should produce expected expression diagnostic
+var emptyParens = ()
+//@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+
 // keywords can't be called like functions
 var nullness = null()
 //@[19:20) [BCP019 (Error)] Expected a new line character at this location. |(|

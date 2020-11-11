@@ -24,7 +24,7 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${uamiId}': { }
+      '${uamiId}': {}
     }
   }
   properties: {

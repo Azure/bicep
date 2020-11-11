@@ -301,6 +301,20 @@ var azFunctions = az.a
 var sysFunctions = sys.a
 //@[4:16) Variable sysFunctions. Type: error. Declaration start char: 0, length: 24
 
+// missing method name
+var missingMethodName = az.()
+//@[4:21) Variable missingMethodName. Type: error. Declaration start char: 0, length: 29
+
+// missing indexer
+var missingIndexerOnLiteralArray = [][][]
+//@[4:32) Variable missingIndexerOnLiteralArray. Type: error. Declaration start char: 0, length: 41
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[4:30) Variable missingIndexerOnIdentifier. Type: error. Declaration start char: 0, length: 61
+
+// empty parens - should produce expected expression diagnostic
+var emptyParens = ()
+//@[4:15) Variable emptyParens. Type: error. Declaration start char: 0, length: 20
+
 // keywords can't be called like functions
 var nullness = null()
 //@[4:12) Variable nullness. Type: null. Declaration start char: 0, length: 19

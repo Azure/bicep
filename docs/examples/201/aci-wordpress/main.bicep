@@ -1,17 +1,17 @@
 param storageAccountType string {
-    default: 'Standard_LRS'
-    allowed: [
-      'Standard_LRS'
-      'Standard_GRS'
-      'Standard_ZRS'
-    ]
+  default: 'Standard_LRS'
+  allowed: [
+    'Standard_LRS'
+    'Standard_GRS'
+    'Standard_ZRS'
+  ]
 }
 
 param storageAccountName string = uniqueString(resourceGroup().id)
 param siteName string = storageAccountName
 
 param mySqlPassword string {
-    secure: true
+  secure: true
 }
 
 param location string = resourceGroup().location
@@ -23,85 +23,85 @@ var wpShareName = 'wordpress-share'
 var sqlShareName = 'mysql-share'
 
 resource mi 'microsoft.managedIdentity/userAssignedIdentities@2018-11-30' = {
-    name: 'scratch'
-    location: location
+  name: 'scratch'
+  location: location
 }
 
 var roleDefinitionId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleAssignmentName = guid(mi.name, roleDefinitionId, resourceGroup().id)
 
 resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-preview' = {
-    name: roleAssignmentName
-    properties: {
-        roleDefinitionId: roleDefinitionId
-        principalId: mi.properties.principalId
-        principalType: 'ServicePrincipal'
-    }
+  name: roleAssignmentName
+  properties: {
+    roleDefinitionId: roleDefinitionId
+    principalId: mi.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
 }
 
 var uamiId = resourceId(mi.type, mi.name)
 
 resource stg 'microsoft.storage/storageAccounts@2019-06-01' = {
-    dependsOn: [
-      miRoleAssign
-    ]
-    name: storageAccountName
-    location: location
-    sku: {
-        name: storageAccountType
-    }
-    kind: 'StorageV2'
+  dependsOn: [
+    miRoleAssign
+  ]
+  name: storageAccountName
+  location: location
+  sku: {
+    name: storageAccountType
+  }
+  kind: 'StorageV2'
 }
 
 // create file share for wordpress
 var wpScriptToExecute = 'Get-AzStorageAccount -StorageAccountName ${storageAccountName} -ResourceGroupName ${resourceGroup().name} | New-AzStorageShare -Name ${wpShareName}'
 resource dScriptWp 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
-    name: '${scriptName}-${wpShareName}'
-    location: location
-    kind: 'AzurePowerShell'
-    identity: {
-        type: 'UserAssigned'
-        userAssignedIdentities: {
-            '${uamiId}': {}
-        }
+  name: '${scriptName}-${wpShareName}'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${uamiId}': {}
     }
-    properties: {
-        azPowerShellVersion: '3.0'
-        storageAccountSettings: {
-            storageAccountName: stg.name
-            storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
-        }
-        scriptContent: wpScriptToExecute
-        cleanupPreference: 'OnSuccess'
-        retentionInterval: 'P1D'
-        timeout: 'PT5M'
+  }
+  properties: {
+    azPowerShellVersion: '3.0'
+    storageAccountSettings: {
+      storageAccountName: stg.name
+      storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
     }
+    scriptContent: wpScriptToExecute
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+    timeout: 'PT5M'
+  }
 }
 
 // create second file share for sql
 var sqlScriptToExecute = 'Get-AzStorageAccount -StorageAccountName ${storageAccountName} -ResourceGroupName ${resourceGroup().name} | New-AzStorageShare -Name ${sqlShareName}'
 resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
-    name: '${scriptName}-${sqlShareName}'
-    location: location
-    kind: 'AzurePowerShell'
-    identity: {
-        type: 'UserAssigned'
-        userAssignedIdentities: {
-            '${uamiId}': {}
-        }
+  name: '${scriptName}-${sqlShareName}'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${uamiId}': {}
     }
-    properties: {
-        azPowerShellVersion: '3.0'
-        storageAccountSettings: {
-            storageAccountName: stg.name
-            storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
-        }
-        scriptContent: sqlScriptToExecute
-        cleanupPreference: 'OnSuccess'
-        retentionInterval: 'P1D'
-        timeout: 'PT5M'
-        // forceUpdateTag: currentTime // ensures script will run every time
+  }
+  properties: {
+    azPowerShellVersion: '3.0'
+    storageAccountSettings: {
+      storageAccountName: stg.name
+      storageAccountKey: listKeys(stg.id, stg.apiVersion).keys[0].value
     }
+    scriptContent: sqlScriptToExecute
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'P1D'
+    timeout: 'PT5M'
+    // forceUpdateTag: currentTime // ensures script will run every time
+  }
 }
 
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
@@ -136,8 +136,8 @@ resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
           volumeMounts: [
             {
               mountPath: '/var/www/html'
-              name: 'wordpressfile'  
-            }  
+              name: 'wordpressfile'
+            }
           ]
           resources: {
             requests: {

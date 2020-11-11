@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "exampleManagedIdentity",
+      "location": "eastus",
+      "tags": {
+        "TagA": "Value A",
+        "TagB": "Value B"
+      }
+    }
+  ]
+}

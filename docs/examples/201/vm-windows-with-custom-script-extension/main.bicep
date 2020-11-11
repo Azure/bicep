@@ -58,7 +58,7 @@ param virtualMachineSku string {
 param virtualMachineExtensionCustomScriptUri string = 'https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1'
 
 var metadata = {
-  longName: '{0}-${name}-${coalesce(suffix, '') == '' ? '': concat('-', suffix)}'
+  longName: '{0}-${name}-${coalesce(suffix, '') == '' ? '' : concat('-', suffix)}'
   shortName: '{0}${replace(name, '-', '')}${coalesce(suffix, '') == '' ? '' : suffix}'
 }
 
@@ -124,7 +124,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
 }
 
 // Virtual Network
-var subnetName =  'default'
+var subnetName = 'default'
 var virtualNetwork = {
   name: replace(metadata.longName, '{0}', 'vnet')
   location: location

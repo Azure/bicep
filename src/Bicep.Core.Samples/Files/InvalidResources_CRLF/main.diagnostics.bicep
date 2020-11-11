@@ -41,7 +41,7 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
-//@[51:55) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
 }
 
 // duplicate property at the top level
@@ -181,7 +181,7 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[92:151) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  // #completionTest(0, 1, 2) -> topLevelProperties\r\n\r\n}|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
 
 }
@@ -216,7 +216,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 }
 
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[86:148) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  // #completionTest(0,1,2) -> discriminatorProperty\r\n  \r\n}|
+//@[9:32) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeyMissing|
   // #completionTest(0,1,2) -> discriminatorProperty
   
 }
@@ -233,8 +233,12 @@ var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
 //@[76:76) [BCP020 (Error)] Expected a function or property name at this location. ||
 
+// #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
+var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
+//@[76:76) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:264) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties\r\n    \r\n  }\r\n}|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -249,8 +253,12 @@ var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
 //@[75:75) [BCP020 (Error)] Expected a function or property name at this location. ||
 
+// #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
+var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
+//@[75:75) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
+
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:270) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzurePowerShell'\r\n  // #completionTest(0,1,2) -> deploymentScriptTopLevel\r\n\r\n  properties: {\r\n    // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties\r\n    \r\n  }\r\n}|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 
@@ -267,14 +275,12 @@ var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
 
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
-//@[52:74) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
-//@[53:75) [BCP076 (Error)] Cannot index over expression of type "Microsoft.Resources/deploymentScripts@2020-10-01". Arrays or objects are required. |discriminatorKeySetTwo|
 //@[90:90) [BCP020 (Error)] Expected a function or property name at this location. ||
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[85:132) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n  kind: 'AzureCLI'\r\n\r\n  propertes: {\r\n  }\r\n}|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |incorrectPropertiesKey|
   kind: 'AzureCLI'
 
   propertes: {
@@ -335,7 +341,7 @@ resource startedTypingTypeWithoutQuotes virma
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[89:93) [BCP035 (Error)] The specified object is missing the following required properties: "name". |{\r\n}|
+//@[9:30) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |dashesInPropertyNames|
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
@@ -355,8 +361,10 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
 // #completionTest(92) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
-//@[48:77) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminatorMissingKey|
 //@[92:92) [BCP020 (Error)] Expected a function or property name at this location. ||
+
+// #completionTest(94) -> createModeIndexPlusSymbols
+var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
 
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
@@ -370,12 +378,13 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
-//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
 //@[69:69) [BCP020 (Error)] Expected a function or property name at this location. ||
 // #completionTest(72) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
-//@[38:57) [BCP076 (Error)] Cannot index over expression of type "Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview". Arrays or objects are required. |nestedDiscriminator|
 //@[72:72) [BCP020 (Error)] Expected a function or property name at this location. ||
 
+// #completionTest(79) -> defaultCreateModeIndexes
+var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
+//@[78:79) [BCP057 (Error)] The name "a" does not exist in the current context. |a|

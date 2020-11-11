@@ -1,3 +1,13 @@
+param deployTimeSuffix string = newGuid()
+//@[0:5) Identifier |param|
+//@[6:22) Identifier |deployTimeSuffix|
+//@[23:29) Identifier |string|
+//@[30:31) Assignment |=|
+//@[32:39) Identifier |newGuid|
+//@[39:40) LeftParen |(|
+//@[40:41) RightParen |)|
+//@[41:45) NewLine |\r\n\r\n|
+
 module modATest './modulea.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:15) Identifier |modATest|
@@ -334,6 +344,106 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module moduleWithCalculatedName './child/optionalParams.bicep'= {
+//@[0:6) Identifier |module|
+//@[7:31) Identifier |moduleWithCalculatedName|
+//@[32:62) StringComplete |'./child/optionalParams.bicep'|
+//@[62:63) Assignment |=|
+//@[64:65) LeftBrace |{|
+//@[65:67) NewLine |\r\n|
+  name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:51) Identifier |optionalWithAllParamsAndManualDependency|
+//@[51:52) Dot |.|
+//@[52:56) Identifier |name|
+//@[56:59) StringMiddlePiece |}${|
+//@[59:75) Identifier |deployTimeSuffix|
+//@[75:77) StringRightPiece |}'|
+//@[77:79) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
+//@[4:18) Identifier |optionalString|
+//@[18:19) Colon |:|
+//@[20:26) Identifier |concat|
+//@[26:27) LeftParen |(|
+//@[27:46) Identifier |resWithDependencies|
+//@[46:47) Dot |.|
+//@[47:49) Identifier |id|
+//@[49:50) Comma |,|
+//@[51:91) Identifier |optionalWithAllParamsAndManualDependency|
+//@[91:92) Dot |.|
+//@[92:96) Identifier |name|
+//@[96:97) RightParen |)|
+//@[97:99) NewLine |\r\n|
+    optionalInt: 42
+//@[4:15) Identifier |optionalInt|
+//@[15:16) Colon |:|
+//@[17:19) Number |42|
+//@[19:21) NewLine |\r\n|
+    optionalObj: { }
+//@[4:15) Identifier |optionalObj|
+//@[15:16) Colon |:|
+//@[17:18) LeftBrace |{|
+//@[19:20) RightBrace |}|
+//@[20:22) NewLine |\r\n|
+    optionalArray: [ ]
+//@[4:17) Identifier |optionalArray|
+//@[17:18) Colon |:|
+//@[19:20) LeftSquare |[|
+//@[21:22) RightSquare |]|
+//@[22:24) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:42) Identifier |resWithCalculatedNameDependencies|
+//@[43:76) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[77:78) Assignment |=|
+//@[79:80) LeftBrace |{|
+//@[80:82) NewLine |\r\n|
+  name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:51) Identifier |optionalWithAllParamsAndManualDependency|
+//@[51:52) Dot |.|
+//@[52:56) Identifier |name|
+//@[56:59) StringMiddlePiece |}${|
+//@[59:75) Identifier |deployTimeSuffix|
+//@[75:77) StringRightPiece |}'|
+//@[77:79) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    modADep: moduleWithCalculatedName.outputs.outputObj
+//@[4:11) Identifier |modADep|
+//@[11:12) Colon |:|
+//@[13:37) Identifier |moduleWithCalculatedName|
+//@[37:38) Dot |.|
+//@[38:45) Identifier |outputs|
+//@[45:46) Dot |.|
+//@[46:55) Identifier |outputObj|
+//@[55:57) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 output stringOutputA string = modATest.outputs.stringOutputA
 //@[0:6) Identifier |output|
 //@[7:20) Identifier |stringOutputA|
@@ -377,4 +487,15 @@ output arrayOutput array = modATest.outputs.arrayOutput
 //@[36:43) Identifier |outputs|
 //@[43:44) Dot |.|
 //@[44:55) Identifier |arrayOutput|
-//@[55:55) EndOfFile ||
+//@[55:57) NewLine |\r\n|
+output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
+//@[0:6) Identifier |output|
+//@[7:30) Identifier |modCalculatedNameOutput|
+//@[31:37) Identifier |object|
+//@[38:39) Assignment |=|
+//@[40:64) Identifier |moduleWithCalculatedName|
+//@[64:65) Dot |.|
+//@[65:72) Identifier |outputs|
+//@[72:73) Dot |.|
+//@[73:82) Identifier |outputObj|
+//@[82:82) EndOfFile ||

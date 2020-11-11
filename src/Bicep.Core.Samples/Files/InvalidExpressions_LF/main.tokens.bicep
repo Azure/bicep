@@ -1324,6 +1324,55 @@ var sysFunctions = sys.a
 //@[23:24) Identifier |a|
 //@[24:26) NewLine |\n\n|
 
+// missing method name
+//@[22:23) NewLine |\n|
+var missingMethodName = az.()
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |missingMethodName|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |az|
+//@[26:27) Dot |.|
+//@[27:28) LeftParen |(|
+//@[28:29) RightParen |)|
+//@[29:31) NewLine |\n\n|
+
+// missing indexer
+//@[18:19) NewLine |\n|
+var missingIndexerOnLiteralArray = [][][]
+//@[0:3) Identifier |var|
+//@[4:32) Identifier |missingIndexerOnLiteralArray|
+//@[33:34) Assignment |=|
+//@[35:36) LeftSquare |[|
+//@[36:37) RightSquare |]|
+//@[37:38) LeftSquare |[|
+//@[38:39) RightSquare |]|
+//@[39:40) LeftSquare |[|
+//@[40:41) RightSquare |]|
+//@[41:42) NewLine |\n|
+var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |missingIndexerOnIdentifier|
+//@[31:32) Assignment |=|
+//@[33:54) Identifier |nonExistentIdentifier|
+//@[54:55) LeftSquare |[|
+//@[55:56) RightSquare |]|
+//@[56:57) LeftSquare |[|
+//@[57:58) Number |1|
+//@[58:59) RightSquare |]|
+//@[59:60) LeftSquare |[|
+//@[60:61) RightSquare |]|
+//@[61:63) NewLine |\n\n|
+
+// empty parens - should produce expected expression diagnostic
+//@[63:64) NewLine |\n|
+var emptyParens = ()
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |emptyParens|
+//@[16:17) Assignment |=|
+//@[18:19) LeftParen |(|
+//@[19:20) RightParen |)|
+//@[20:22) NewLine |\n\n|
+
 // keywords can't be called like functions
 //@[42:43) NewLine |\n|
 var nullness = null()

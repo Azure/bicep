@@ -50,4 +50,27 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@[61:62) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
+//@[0:6) Identifier |output|
+//@[7:30) Identifier |myManagementGroupOutput|
+//@[31:37) Identifier |string|
+//@[38:39) Assignment |=|
+//@[40:60) Identifier |myManagementGroupMod|
+//@[60:61) Dot |.|
+//@[61:68) Identifier |outputs|
+//@[68:69) Dot |.|
+//@[69:77) Identifier |myOutput|
+//@[77:78) NewLine |\n|
+output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
+//@[0:6) Identifier |output|
+//@[7:27) Identifier |mySubscriptionOutput|
+//@[28:34) Identifier |string|
+//@[35:36) Assignment |=|
+//@[37:54) Identifier |mySubscriptionMod|
+//@[54:55) Dot |.|
+//@[55:62) Identifier |outputs|
+//@[62:63) Dot |.|
+//@[63:71) Identifier |myOutput|
+//@[71:71) EndOfFile ||

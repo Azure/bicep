@@ -15,6 +15,7 @@ param osDiskSizeGB int {
   minValue: 0
   maxValue: 1023
 }
+
 param agentCount int {
   default: 3
   minValue: 1
@@ -54,4 +55,4 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
   }
 }
 
-output controlPlaneFQDN string = aks.properties.fqdn 
+output controlPlaneFQDN string = aks.properties.fqdn

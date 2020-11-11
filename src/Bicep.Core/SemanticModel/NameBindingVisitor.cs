@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.SemanticModel
@@ -101,6 +99,15 @@ namespace Bicep.Core.SemanticModel
         {
             base.VisitInstanceFunctionCallSyntax(syntax);
 
+            if (!syntax.Name.IsValid)
+            {
+                // the parser produced an instance function calls with an invalid name
+                // all instance function calls must be bound to a symbol, so let's
+                // bind to a symbol without any errors (there's already a parse error)
+                this.bindings.Add(syntax, new ErrorSymbol());
+                return;
+            }
+
             if (bindings.TryGetValue(syntax.BaseExpression, out var baseSymbol) && baseSymbol is NamespaceSymbol namespaceSymbol)
             {
                 var functionSymbol = namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
@@ -136,7 +143,7 @@ namespace Bicep.Core.SemanticModel
                 .Where(symbol => symbol != null)
                 .ToList();
 
-            if (foundSymbols.Count() > 1)
+            if (foundSymbols.Count > 1)
             {
                 // ambiguous symbol
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, this.namespaces.Keys));

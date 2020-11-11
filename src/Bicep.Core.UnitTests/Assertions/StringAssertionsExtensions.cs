@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+
 using System.Linq;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -26,10 +27,10 @@ namespace Bicep.Core.UnitTests.Assertions
                 _ => "  ",
             };
 
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
         {
             const int truncate = 100;
-            var diff = InlineDiffBuilder.Diff(instance.Subject, expected);
+            var diff = InlineDiffBuilder.Diff(instance.Subject, expected, ignoreWhiteSpace: false, ignoreCase: false);
 
             var lineLogs = diff.Lines
                 .Where(line => line.Type != ChangeType.Unchanged)
@@ -41,22 +42,21 @@ namespace Bicep.Core.UnitTests.Assertions
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
 
+            var testPassed = !diff.HasDifferences;
+            var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
+            if (isBaselineUpdate)
+            {
+                BaselineHelper.SetBaseline(actualLocation, expectedLocation);
+            }
+
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
-                .ForCondition(!diff.HasDifferences)
-                .FailWith(@"
-Found diffs between actual and expected:
-{0}
-View this diff with:
-
-git diff --color-words --no-index {1} {2}
-
-Windows copy command:
-copy /y {1} {2}
-
-Unix copy command:
-cp {1} {2}
-", string.Join('\n', lineLogs), actualLocation, expectedLocation);
+                .ForCondition(testPassed)
+                .FailWith(
+                    BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
+                    string.Join('\n', lineLogs),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
+                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
 
             return new AndConstraint<StringAssertions>(instance);
         }

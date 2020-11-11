@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class LexerTests
     {
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
@@ -103,9 +105,10 @@ namespace Bicep.Core.IntegrationTests
             }
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
                 dataSet.Tokens,
                 expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
                 actualLocation: resultsFile);
