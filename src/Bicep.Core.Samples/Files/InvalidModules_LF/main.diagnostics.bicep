@@ -50,13 +50,13 @@ module './main.bicep' = {
 }
 
 module modANoName './modulea.bicep' = {
-//@[38:93) [BCP035 (Error)] The specified object is missing the following required properties: "name", "params". |{\n// #completionTest(0) -> moduleATopLevelProperties\n\n}|
+//@[7:17) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoInputs './modulea.bicep' = {
-//@[40:135) [BCP035 (Error)] The specified object is missing the following required properties: "params". |{\n  name: 'modANoInputs'\n  // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName\n  \n}|
+//@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
@@ -65,7 +65,7 @@ module modANoInputs './modulea.bicep' = {
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
-//@[10:71) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam", "objParam", "stringParamB". |{\n    // #completionTest(0,1,2,3,4) -> moduleAParams\n    \n  }|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2,3,4) -> moduleAParams
     
   }
@@ -82,7 +82,7 @@ var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
   params: {
-//@[10:95) [BCP035 (Error)] The specified object is missing the following required properties: "arrayParam". |{\n    stringParamB: ''\n    objParam: {}\n    objArray: []\n    unspecifiedInput: ''\n  }|
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam". |params|
     stringParamB: ''
     objParam: {}
     objArray: []
@@ -128,10 +128,11 @@ module moduleWithInvalidScope './empty.bicep' = {
   name: 'moduleWithInvalidScope'
   scope: moduleWithValidScope
 //@[9:29) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "module". |moduleWithValidScope|
+//@[9:29) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |moduleWithValidScope|
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
-//@[69:113) [BCP035 (Error)] The specified object is missing the following required properties: "scope". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
+//@[7:37) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "scope". |moduleWithMissingRequiredScope|
   name: 'moduleWithMissingRequiredScope'
 }
 
@@ -139,4 +140,12 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   name: 'moduleWithInvalidScope2'
   scope: managementGroup()
 //@[9:24) [BCP057 (Error)] The name "managementGroup" does not exist in the current context. |managementGroup|
+//@[9:26) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |managementGroup()|
+}
+
+module moduleWithBadScope './empty.bicep' = {
+  name: 'moduleWithBadScope'
+  scope: 'stringScope'
+//@[9:22) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "'stringScope'". |'stringScope'|
+//@[9:22) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |'stringScope'|
 }

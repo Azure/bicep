@@ -7,6 +7,7 @@
     "preselect": true,
     "sortText": "2_'managementGroup'",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "'managementGroup'"
@@ -20,6 +21,7 @@
     "preselect": true,
     "sortText": "2_'resourceGroup'",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "'resourceGroup'"
@@ -33,6 +35,7 @@
     "preselect": true,
     "sortText": "2_'subscription'",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "'subscription'"
@@ -46,6 +49,7 @@
     "preselect": true,
     "sortText": "2_'tenant'",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "'tenant'"

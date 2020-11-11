@@ -7,7 +7,7 @@ param accessPolicies array = [
     tenantId: tenant
     objectId: 'caeebed6-cfa8-45ff-9d8a-03dba4ef9a7d' // replace with your objectId
     permissions: {
-      keys: [ 
+      keys: [
         'Get'
         'List'
         'Update'
@@ -50,8 +50,8 @@ param accessPolicies array = [
 
 param enabledForDeployment bool = true
 param enabledForTemplateDeployment bool = true
-param enabledForDiskEncryption bool = true 
-param enableRbacAuthorization bool = false 
+param enabledForDiskEncryption bool = true
+param enableRbacAuthorization bool = false
 param softDeleteRetentionInDays int = 90
 
 param keyName string = 'prodKey'
@@ -59,13 +59,13 @@ param secretName string = 'bankAccountPassword'
 param secretValue string = '12345'
 
 param networkAcls object = {
-    ipRules: []
-    virtualNetworkRules: []
+  ipRules: []
+  virtualNetworkRules: []
 }
 
-resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {    
-  name: vaultName       
-  location: location 
+resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {
+  name: vaultName
+  location: location
   properties: {
     tenantId: tenant
     sku: {
@@ -89,7 +89,8 @@ resource key 'Microsoft.KeyVault/vaults/keys@2019-09-01' = {
   location: location
   properties: {
     kty: 'RSA' // key type
-    keyOps: [ // key operations
+    keyOps: [
+      // key operations
       'encrypt'
       'decrypt'
     ]

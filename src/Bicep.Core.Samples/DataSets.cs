@@ -55,8 +55,6 @@ namespace Bicep.Core.Samples
                 .Select(property => property.GetValue(null))
                 .Cast<DataSet>();
 
-        public static IEnumerable<DataSet> DataSetsWithNoDiagnostics => AllDataSets.Where(dataSet => dataSet.IsValid);
-
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");
 
         private static DataSet CreateDataSet([CallerMemberName] string? dataSetName = null) => new DataSet(dataSetName!);

@@ -75,6 +75,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs target scope value.
         /// </summary>
-        TargetScope = 1 << 12
+        TargetScope = 1 << 12,
+
+        /// <summary>
+        /// The current location needs an array index.
+        /// </summary>
+        ArrayIndex = 1 << 13
     }
 }

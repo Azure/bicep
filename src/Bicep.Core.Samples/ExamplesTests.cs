@@ -10,6 +10,8 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
+using Bicep.Core.PrettyPrint;
+using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
@@ -94,7 +96,8 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.Web/sites/config@2020-06-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults/secrets@2019-09-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults@2019-06-01\" does not have types available.",
-                "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available."
+                "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
+                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available."
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
@@ -153,6 +156,32 @@ namespace Bicep.Core.Samples
                         jsonFileName + ".actual");
                 }
             }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        public void Example_uses_consistent_formatting(ExampleData example)
+        {
+            // save all the files in the containing directory to disk so that we can test module resolution
+            var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, example.OutputFolderName, parentStream);
+
+            var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
+            var originalContents = File.ReadAllText(bicepFileName);
+            var program = ParserHelper.Parse(originalContents);
+            
+            var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true);
+
+            var formattedContents = PrettyPrinter.PrintProgram(program, printOptions);
+            formattedContents.Should().NotBeNull();
+
+            File.WriteAllText(bicepFileName + ".formatted", formattedContents);
+
+            originalContents.Should().EqualWithLineByLineDiffOutput(
+                TestContext, 
+                formattedContents!,
+                expectedLocation: example.BicepStreamName,
+                actualLocation: bicepFileName + ".formatted");
         }
     }
 }

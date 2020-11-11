@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
+using Bicep.Core.Parser;
 
 namespace Bicep.Core.PrettyPrint.Documents
 {
@@ -28,7 +29,10 @@ namespace Bicep.Core.PrettyPrint.Documents
 
         public void Layout(StringBuilder builder, string indent, string newline)
         {
-            builder.Append(this.Text);
+            // Normalize newlines.
+            var text = StringUtils.ReplaceNewlines(this.Text, newline);
+
+            builder.Append(text);
             Successor.Layout(builder, indent, newline);
         }
     }

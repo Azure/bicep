@@ -37,7 +37,7 @@ namespace Bicep.Core.Syntax
                         return identifier.Text;
 
                     case SkippedTriviaSyntax skipped:
-                        return skipped.Elements.Any() ? "<error>" : "<missing>";
+                        return skipped.Elements.Any() ? LanguageConstants.ErrorName : LanguageConstants.MissingName;
 
                     default:
                         throw new NotImplementedException($"Unexpected child node type '{this.Child.GetType().Name}'.");

@@ -34,8 +34,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
       osDisk: {
         createOption: 'FromImage'
       }
-      dataDisks: [
-      ]
+      dataDisks: []
     }
     networkProfile: {
       networkInterfaces: [

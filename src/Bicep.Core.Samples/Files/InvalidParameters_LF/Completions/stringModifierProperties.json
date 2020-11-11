@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_allowed",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "allowed"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_default",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "default"
@@ -51,6 +53,7 @@
     "preselect": false,
     "sortText": "2_maxLength",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "maxLength"
@@ -71,6 +74,7 @@
     "preselect": false,
     "sortText": "2_metadata",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "metadata"
@@ -91,6 +95,7 @@
     "preselect": false,
     "sortText": "2_minLength",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "minLength"
@@ -111,6 +116,7 @@
     "preselect": false,
     "sortText": "2_secure",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "secure"

@@ -296,10 +296,22 @@ namespace Bicep.Core.Parser
                 {
                     // array indexer
                     Token openSquare = this.reader.Read();
-                    SyntaxBase indexExpression = this.Expression(allowComplexLiterals);
-                    Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                    current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
+                    if (this.Check(TokenType.RightSquare))
+                    {
+                        // empty indexer - we are allowing this special case in the parser to help with completions
+                        SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+
+                        current = new ArrayAccessSyntax(current, openSquare, skipped, closeSquare);
+                    }
+                    else
+                    {
+                        SyntaxBase indexExpression = this.Expression(allowComplexLiterals);
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+
+                        current = new ArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
+                    }
 
                     continue;
                 }
@@ -493,8 +505,7 @@ namespace Bicep.Core.Parser
                 return new IdentifierSyntax(identifier);
             }
 
-            var span = new TextSpan(this.reader.Peek().Span.Position, 0);
-            var skipped = new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
+            var skipped = SkipEmpty(errorFunc);
             return new IdentifierSyntax(skipped);
         }
 
@@ -516,6 +527,12 @@ namespace Bicep.Core.Parser
                 default:
                     throw new NotImplementedException($"Unexpected identifier syntax type '{identifierOrSkipped.GetType().Name}'");
             }
+        }
+
+        private SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            var span = new TextSpan(this.reader.Peek().Span.Position, 0);
+            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
         }
 
         private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)

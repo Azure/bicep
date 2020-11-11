@@ -11,21 +11,39 @@ namespace Bicep.Core.UnitTests.PrettyPrint
     public class PrettyPrintOptionsTests
     {
         [DataTestMethod]
-        [DataRow(-100000)]
-        [DataRow(-100)]
         [DataRow(0)]
-        [DataRow(1)]
-        [DataRow(4)]
-        [DataRow(100)]
-        [DataRow(1000)]
-        [DataRow(2000)]
-        [DataRow(1000000)]
-        public void PrettyPrintOptions_SetIndentSize_ShouldEnsureValueDoesNotExceedLimit(long indentSize)
+        [DataRow(-1)]
+        [DataRow(-100)]
+        [DataRow(-10000)]
+        public void PrettyPrintOptions_SetIndentSizeSmallerThanOne_ShouldSetToOne(long indentSize)
         {
             var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, indentSize, false);
 
-            options.IndentSize.Should().BeGreaterOrEqualTo(1);
-            options.IndentSize.Should().BeLessOrEqualTo(1000);
+            options.IndentSize.Should().Be(1);
+        }
+
+        [DataTestMethod]
+        [DataRow(1001)]
+        [DataRow(1002)]
+        [DataRow(10000)]
+        [DataRow(1000000)]
+        public void PrettyPrintOptions_SetIndentSizeGreaterThanOneThousand_ShouldSetToOneThousand(long indentSize)
+        {
+            var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, indentSize, false);
+
+            options.IndentSize.Should().Be(1000);
+        }
+
+        [DataTestMethod]
+        [DataRow(1)]
+        [DataRow(10)]
+        [DataRow(100)]
+        [DataRow(1000)]
+        public void PrettyPrintOptions_SetIndentSizeBetweenOneAndOneThousand_ShouldSetToSpecifiedValue(long indentSize)
+        {
+            var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, indentSize, false);
+
+            options.IndentSize.Should().Be((int)indentSize);
         }
     }
 }

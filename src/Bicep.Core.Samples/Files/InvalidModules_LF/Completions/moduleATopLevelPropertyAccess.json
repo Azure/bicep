@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_name",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "name"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_outputs",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "outputs"

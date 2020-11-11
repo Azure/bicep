@@ -1,7 +1,6 @@
 /*
   This template requires a nested deployment, which we don't yet support natively
 */
-
 param _artifactsLocation string = 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/'
 param _artifactsLocationSasToken string {
   secure: true
@@ -83,36 +82,31 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
 resource natNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: NATSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource hyperVNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: hyperVSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource ghostedNsg 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: ghostedSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource azureVmsSubnet 'Microsoft.Network/networkSecurityGroups@2019-04-01' = {
   name: azureVMsSubnetNSGName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource azureVmsUdr 'Microsoft.Network/routeTables@2019-04-01' = {
   name: azureVMsSubnetUDRName
   location: location
-  properties: {
-  }
+  properties: {}
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
@@ -313,7 +307,6 @@ resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019
     }
   }
 }
-
 /*
 TODO:
 

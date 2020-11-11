@@ -11,6 +11,7 @@
     "preselect": false,
     "sortText": "2_maxLength",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "maxLength"
@@ -31,6 +32,7 @@
     "preselect": false,
     "sortText": "2_minLength",
     "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
       "newText": "minLength"

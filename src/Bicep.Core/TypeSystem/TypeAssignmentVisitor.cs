@@ -81,6 +81,9 @@ namespace Bicep.Core.TypeSystem
         public IEnumerable<Diagnostic> GetAllDiagnostics()
             => assignedTypes.Values.SelectMany(x => x.Diagnostics);
 
+        public SyntaxBase? GetParent(SyntaxBase syntax)
+            => hierarchy.GetParent(syntax);
+
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc)
         {
             if (assignedTypes.ContainsKey(syntax))
@@ -498,6 +501,8 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
+                baseType = UnwrapType(baseType);
+
                 if (baseType.TypeKind == TypeKind.Any)
                 {
                     // base expression is of type any
@@ -507,8 +512,8 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
-                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true ||
-                        TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) ||
+                        TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                     {
                         // index expression is string | int but base is any
                         return LanguageConstants.Any;
@@ -521,7 +526,7 @@ namespace Bicep.Core.TypeSystem
                 if (baseType is ArrayType baseArray)
                 {
                     // we are indexing over an array
-                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) == true)
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int))
                     {
                         // the index is of "any" type or integer type
                         // return the item type
@@ -540,11 +545,11 @@ namespace Bicep.Core.TypeSystem
                         return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
                     }
 
-                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) == true)
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                     {
                         switch (syntax.IndexExpression)
                         {
-                            case StringSyntax @string when @string.TryGetLiteralValue() is string literalValue:
+                            case StringSyntax @string when @string.TryGetLiteralValue() is { } literalValue:
                                 // indexing using a string literal so we know the name of the property
                                 return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, diagnostics);
 
@@ -552,6 +557,19 @@ namespace Bicep.Core.TypeSystem
                                 // the property name is itself an expression
                                 return GetExpressionedPropertyType(baseObject, syntax.IndexExpression);
                         }
+                    }
+
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
+                }
+
+                if (baseType is DiscriminatedObjectType)
+                {
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
+                    {
+                        // index is assignable to string
+                        // since we're not resolving the discriminator currently, we can just return the "any" type
+                        // TODO: resolve the discriminator
+                        return LanguageConstants.Any;
                     }
 
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ObjectsRequireStringIndex(indexType));
@@ -573,39 +591,33 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (baseType is ResourceType resourceType)
-                {
-                    // We're accessing a property on the resource body.
-                    baseType = resourceType.Body.Type;
-                }
+                baseType = UnwrapType(baseType);
 
-                if (baseType is ModuleType moduleType)
+                switch (baseType)
                 {
-                    // We're accessing a property on the module body.
-                    baseType = moduleType.Body.Type;
-                }
+                    case ObjectType objectType:
+                        if (!syntax.PropertyName.IsValid)
+                        {
+                            // the property is not valid
+                            // there's already a parse error for it, so we don't need to add a type error as well
+                            return ErrorType.Empty();
+                        }
 
-                if (!(baseType is ObjectType objectType))
-                {
-                    if (TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object) != true)
-                    {
+                        return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);
+
+                    case DiscriminatedObjectType _:
+                        // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+                        return LanguageConstants.Any;
+
+                    case TypeSymbol _ when TypeValidator.AreTypesAssignable(baseType, LanguageConstants.Object):
+                        // We can assign to an object, but we don't have a type for that object.
+                        // The best we can do is allow it and return the 'any' type.
+                        return LanguageConstants.Any;
+
+                    default:
                         // can only access properties of objects
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
-                    }
-
-                    // We can assign to an object, but we don't have a type for that object.
-                    // The best we can do is allow it and return the 'any' type.
-                    return LanguageConstants.Any;
                 }
-
-                if (!syntax.PropertyName.IsValid)
-                {
-                    // the property is not valid
-                    // there's already a parse error for it, so we don't need to add a type error as well
-                    return ErrorType.Empty();
-                }
-
-                return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);
             });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -644,17 +656,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (baseType is ResourceType resourceType)
-                {
-                    // We're accessing a property on the resource body.
-                    baseType = resourceType.Body.Type;
-                }
-
-                if (baseType is ModuleType moduleType)
-                {
-                    // We're accessing a property on the module body.
-                    baseType = moduleType.Body.Type;
-                }
+                baseType = UnwrapType(baseType);
 
                 if (!(baseType is ObjectType objectType))
                 {
@@ -981,5 +983,19 @@ namespace Bicep.Core.TypeSystem
                 },
                 accumulated => accumulated);
         }
+        
+        private static TypeSymbol UnwrapType(TypeSymbol baseType) =>
+            baseType switch
+            {
+                ResourceType resourceType =>
+                    // We're accessing a property on the resource body.
+                    resourceType.Body.Type,
+
+                ModuleType moduleType =>
+                    // We're accessing a property on the module body.
+                    moduleType.Body.Type,
+
+                _ => baseType
+            };
     }
 }

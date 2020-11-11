@@ -135,3 +135,9 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   name: 'moduleWithInvalidScope2'
   scope: managementGroup()
 }
+
+module moduleWithBadScope './empty.bicep' = {
+//@[7:25) Module moduleWithBadScope. Type: module. Declaration start char: 0, length: 99
+  name: 'moduleWithBadScope'
+  scope: 'stringScope'
+}
