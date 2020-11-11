@@ -2,9 +2,9 @@
 
 The bicep language service (implemented in the [bicep VS Code extension](./installing.md#install-the-bicep-vs-code-extension)) is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
 
-## Validation and type checking
+## Validation
 
-The bicep compiler has a type system that ensures your code is authored correctly. We will check the basic types that are built into the bicep language (`string`, `int`, `object`), as well as types of returned functions, and types of resources. Depending on the type of validation, you will see either a warning in yellow, which will successfully compile with `bicep build` or you will see an error in red, which will block compilation because the compiled JSON would produce an invalid ARM Template.
+The bicep compiler validates that your code is authored correctly. We always validate the syntax of each file and whenever possible also validate the return types of all expressions (functions, resource bodies, parameters, outputs, etc.). Depending on the type of validation, you will see either a warning in yellow which will successfully compile with `bicep build` or you will see an error in red which will fail to compile.
 
 ## Intellisense
 
