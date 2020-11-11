@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,9 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Decompiler
+namespace Bicep.Decompiler.BicepHelpers
 {
-    public static class Helpers
+    public static class SyntaxHelpers
     {
         public static readonly TextSpan EmptySpan = new TextSpan(0, 0);
 
@@ -20,6 +21,49 @@ namespace Bicep.Decompiler
 
         public static IdentifierSyntax CreateIdentifier(string text)
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
+
+        public static Token NewlineToken
+            => CreateToken(TokenType.NewLine, "\n");
+
+        public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
+            => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":"), value);
+
+        public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties)
+        {
+            var children = new List<SyntaxBase>();
+            children.Add(SyntaxHelpers.NewlineToken);
+
+            foreach (var property in properties)
+            {
+                children.Add(property);
+                children.Add(SyntaxHelpers.NewlineToken);
+            }
+
+            return new ObjectSyntax(
+                SyntaxHelpers.CreateToken(TokenType.LeftBrace, "{"),
+                children,
+                SyntaxHelpers.CreateToken(TokenType.RightBrace, "}"));
+        }
+
+        public static ArrayItemSyntax CreateArrayItem(SyntaxBase value)
+            => new ArrayItemSyntax(value);
+
+        public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
+        {
+            var children = new List<SyntaxBase>();
+            children.Add(SyntaxHelpers.NewlineToken);
+
+            foreach (var item in items)
+            {
+                children.Add(CreateArrayItem(item));
+                children.Add(SyntaxHelpers.NewlineToken);
+            }
+
+            return new ArraySyntax(
+                SyntaxHelpers.CreateToken(TokenType.LeftSquare, "["),
+                children,
+                SyntaxHelpers.CreateToken(TokenType.RightSquare, "]"));
+        }
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
@@ -53,18 +97,18 @@ namespace Bicep.Decompiler
 
         public static readonly IReadOnlyDictionary<string, Token> BannedBinaryOperatorLookup = new Dictionary<string, Token>(StringComparer.OrdinalIgnoreCase)
         {
-            ["add"] = Helpers.CreateToken(TokenType.Plus, "+"),
-            ["sub"] = Helpers.CreateToken(TokenType.Minus, "-"),
-            ["mul"] = Helpers.CreateToken(TokenType.Asterisk, "*"),
-            ["div"] = Helpers.CreateToken(TokenType.Slash, "/"),
-            ["mod"] = Helpers.CreateToken(TokenType.Modulo, "%"),
-            ["less"] = Helpers.CreateToken(TokenType.LessThan, "<"),
-            ["lessOrEquals"] = Helpers.CreateToken(TokenType.LessThanOrEqual, "<="),
-            ["greater"] = Helpers.CreateToken(TokenType.GreaterThan, ">"),
-            ["greaterOrEquals"] = Helpers.CreateToken(TokenType.GreaterThanOrEqual, ">="),
-            ["equals"] = Helpers.CreateToken(TokenType.Equals, "=="),
-            ["and"] = Helpers.CreateToken(TokenType.LogicalAnd, "&&"),
-            ["or"] = Helpers.CreateToken(TokenType.LogicalOr, "||"),
+            ["add"] = CreateToken(TokenType.Plus, "+"),
+            ["sub"] = CreateToken(TokenType.Minus, "-"),
+            ["mul"] = CreateToken(TokenType.Asterisk, "*"),
+            ["div"] = CreateToken(TokenType.Slash, "/"),
+            ["mod"] = CreateToken(TokenType.Modulo, "%"),
+            ["less"] = CreateToken(TokenType.LessThan, "<"),
+            ["lessOrEquals"] = CreateToken(TokenType.LessThanOrEqual, "<="),
+            ["greater"] = CreateToken(TokenType.GreaterThan, ">"),
+            ["greaterOrEquals"] = CreateToken(TokenType.GreaterThanOrEqual, ">="),
+            ["equals"] = CreateToken(TokenType.Equals, "=="),
+            ["and"] = CreateToken(TokenType.LogicalAnd, "&&"),
+            ["or"] = CreateToken(TokenType.LogicalOr, "||"),
         };
 
         private static readonly IReadOnlyDictionary<string, string> WellKnownFunctions = new []

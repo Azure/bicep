@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Decompiler
@@ -13,13 +14,6 @@ namespace Bicep.Decompiler
         private readonly Dictionary<string, Dictionary<NameType, string>> assignedNames = new Dictionary<string, Dictionary<NameType, string>>(StringComparer.OrdinalIgnoreCase);
 
         private readonly Dictionary<string, string> assignedResourceNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        private readonly IExpressionsProvider expressionsProvider;
-
-        public UniqueNamingResolver(IExpressionsProvider expressionsProvider)
-        {
-            this.expressionsProvider = expressionsProvider;
-        }
 
         private static string EscapeIdentifier(string identifier)
         {
@@ -113,7 +107,7 @@ namespace Bicep.Decompiler
 
         private string GetResourceNameKey(string typeString, LanguageExpression nameExpression)
         {
-            var nameString = expressionsProvider.SerializeExpression(nameExpression);
+            var nameString = ExpressionsEngine.SerializeExpression(nameExpression);
 
             return EscapeIdentifier($"{typeString}_{nameString}");
         }
