@@ -1,4 +1,4 @@
-targetScope='managementGroup'
+targetScope = 'managementGroup'
 
 param targetMG string
 param allowedLocations array = [

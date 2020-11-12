@@ -1,4 +1,4 @@
-targetScope='tenant'
+targetScope = 'tenant'
 
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
   name: 'myManagementGroupMod'

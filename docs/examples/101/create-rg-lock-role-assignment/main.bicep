@@ -1,4 +1,4 @@
-targetScope='subscription'
+targetScope = 'subscription'
 
 param rgName string
 param rgLocation string
