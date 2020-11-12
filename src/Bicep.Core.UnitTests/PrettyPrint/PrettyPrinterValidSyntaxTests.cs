@@ -117,7 +117,7 @@ aaa: bbb
 			}
 		]
 	}
-}",
+}".Replace("\r\n", Environment.NewLine),
             new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Tab, 5, false));
 
         [TestMethod]
