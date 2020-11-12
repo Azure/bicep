@@ -11,13 +11,13 @@ Unless otherwise specified, Bicep will assume that a given `.bicep` file is to b
 
 ```bicep
 // this file can only be deployed at a subscription scope
-target = 'subscription'
+targetScope = 'subscription'
 ```
 
 > **NOTE:** The below syntax to target multiple scopes below has not yet been implemented.
 ```bicep
 // this file can be deployed at either a tenant or managementGroup scope
-target = [
+targetScope = [
   'tenant'
   'managementGroup'
 ]
