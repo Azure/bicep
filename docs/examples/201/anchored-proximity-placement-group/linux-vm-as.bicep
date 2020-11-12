@@ -4,7 +4,6 @@ param availabilitySetId string
 param subnetId string
 param vmName string
 
-
 resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   name: '${vmName}-pip'
   location: location
