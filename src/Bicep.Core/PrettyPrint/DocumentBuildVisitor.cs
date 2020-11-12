@@ -42,7 +42,7 @@ namespace Bicep.Core.PrettyPrint
 
         private bool visitingSkippedTriviaSyntax;
 
-        private bool visitingBrokenDeclaration;
+        private bool visitingBrokenStatement;
 
         private bool visitingComment;
 
@@ -64,20 +64,23 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.EndOfFile);
             });
 
+        public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax) =>
+            this.BuildStatement(syntax, () => base.VisitTargetScopeSyntax(syntax));
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
-            this.BuildDeclaration(syntax, () => base.VisitParameterDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () => base.VisitParameterDeclarationSyntax(syntax));
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
-            this.BuildDeclaration(syntax, () => base.VisitVariableDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () => base.VisitVariableDeclarationSyntax(syntax));
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
-            this.BuildDeclaration(syntax, () => base.VisitResourceDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () => base.VisitResourceDeclarationSyntax(syntax));
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
-            this.BuildDeclaration(syntax, () => base.VisitModuleDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () => base.VisitModuleDeclarationSyntax(syntax));
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
-            this.BuildDeclaration(syntax, () => base.VisitOutputDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () => base.VisitOutputDeclarationSyntax(syntax));
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
             this.BuildWithSpread(() => base.VisitTernaryOperationSyntax(syntax));
@@ -132,14 +135,17 @@ namespace Bicep.Core.PrettyPrint
         {
             ILinkedDocument top = this.documentStack.Peek();
 
-            if (!this.visitingBrokenDeclaration &&
+            if (!this.visitingBrokenStatement &&
                 syntax.Elements.Length > 0 &&
                 top != NoLine &&
                 top != Line &&
                 top != SingleLine &&
                 top != DoubleLine)
             {
-                // The skipped trivia is after some valid declaration. Insert a Space to separate them.
+                /*
+                 * The skipped trivia is after some valid declaration which won't emit trailing whitespaces,
+                 * so insert a Space as a separator.
+                 */
                 this.documentStack.Push(Space);
             }
 
@@ -158,7 +164,7 @@ namespace Bicep.Core.PrettyPrint
                 this.VisitSyntaxTrivia(trivia);
             }
 
-            var pushDocument = this.visitingBrokenDeclaration
+            var pushDocument = this.visitingBrokenStatement
                 ? (Action<ILinkedDocument>)this.documentStack.Push
                 : (Action<ILinkedDocument>)this.PushDocument;
 
@@ -184,8 +190,15 @@ namespace Bicep.Core.PrettyPrint
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
-            if (this.visitingBrokenDeclaration || this.visitingSkippedTriviaSyntax)
+            if (this.visitingBrokenStatement || this.visitingSkippedTriviaSyntax)
             {
+                if (syntaxTrivia.Type == SyntaxTriviaType.Whitespace &&
+                    this.visitingSkippedTriviaSyntax &&
+                    this.documentStack.Peek() == Space)
+                {
+                    this.documentStack.Pop();
+                }
+
                 this.documentStack.Push(Text(syntaxTrivia.Text));
                 return;
             }
@@ -271,13 +284,13 @@ namespace Bicep.Core.PrettyPrint
                 return Concat(openSymbol, body, lastLine, closeSymbol);
             });
 
-        private void BuildDeclaration(SyntaxBase syntax, Action visitAction)
+        private void BuildStatement(SyntaxBase syntax, Action visitAction)
         {
             if (syntax.GetParseDiagnostics().Count > 0)
             {
-                this.visitingBrokenDeclaration = true;
+                this.visitingBrokenStatement = true;
                 visitAction();
-                this.visitingBrokenDeclaration = false;
+                this.visitingBrokenStatement = false;
 
                 // Everyting left on the stack will be concatenated by the top level Concat rule defined in VisitProgram.
                 return;
@@ -292,7 +305,7 @@ namespace Bicep.Core.PrettyPrint
 
             visitAction();
 
-            if (this.visitingBrokenDeclaration)
+            if (this.visitingBrokenStatement)
             {
                 return;
             }

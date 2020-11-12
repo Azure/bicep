@@ -12,9 +12,9 @@ namespace Bicep.Core.UnitTests.PrettyPrint
     public class PrettyPrinterBrokenSyntaxTests : PrettyPrinterTestsBase
     {
         [TestMethod]
-        public void PrintProgram_SkippedTriviaSyntax_ShouldPrintAsIs()
-        {
-            ProgramSyntax? programSyntax = ParserHelper.Parse(
+        public void PrintProgram_SkippedTriviaSyntax_ShouldPrintAsIs() =>
+            this.TestPrintProgram(
+// Raw.
 @"parm foo string
 ### blah blah blah
 
@@ -33,6 +33,9 @@ var baz = {
 output foobar array = [
 ]           null
 
+output pi object = {
+} /* leading whitespaces after me */        null
+
 
 
 concat('foo',             'bar')
@@ -40,11 +43,8 @@ concat('foo',             'bar')
 1 + 2
 resource vnet 'Microsoft.Network/virtualNetworks@2020-01-01' = { // some comment
              name: 'myVnet'
-}    something");
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(
+}    something",
+// Formatted.
 @"parm foo string
 ### blah blah blah
 
@@ -56,6 +56,8 @@ var baz = {} blah      blah
 
 output foobar array = [] null
 
+output pi object = {} /* leading whitespaces after me */        null
+
 concat('foo',             'bar')
 
 1 + 2
@@ -63,43 +65,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-01-01' = {
   // some comment
   name: 'myVnet'
 } something");
-        }
 
-        [TestMethod]
-        public void PrintProgram_BrokenParameterDeclarationSyntax_ShouldPrintAsIs()
-        {
-            const string programText =
-@"param  foo
-param foo =   true
-param foo    object = {
-   test: true
-anminals   [
-  
-
-    'cat'
-    'dog' something
-}
-param   foo string {
-    allowed:
-        'Dynamic'
-  
-        'Static'
-    ]
-
-
-
-}";
-            var programSyntax = ParserHelper.Parse(programText);
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(programText);
-        }
-
-        [TestMethod]
-        public void PrintProgram_BrokenVariableDeclarationSyntax_ShouldPrintAsIs()
-        {
-            const string programText =
+        [DataTestMethod]
+        // Broken targetScope assignments.
+        [DataRow(
+@"targetScope
+targetScope         =
+targetScope =###")]
+        // Broken variable declarations.
+        [DataRow(
 @"var  foo  10000
 var   foo =  /* missing '{' */ }
 var foo   = {
@@ -110,18 +84,9 @@ var   foo = [
     1,
     2,
     3
-]";
-            var programSyntax = ParserHelper.Parse(programText);
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(programText);
-        }
-
-        [TestMethod]
-        public void PrintProgram_BrokenModuleDeclarationSyntax_ShouldPrintAsIs()
-        {
-            const string programText =
+]")]
+        // Broken module declarations.
+        [DataRow(
 @"module  foo   =
 module  foo './foo'  = {
        name:
@@ -138,18 +103,9 @@ module  foo './foo'  = {
     params: {
      location: 'westus'
 // missing '}'
-}";
-            var programSyntax = ParserHelper.Parse(programText);
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(programText);
-        }
-
-        [TestMethod]
-        public void PrintProgram_BrokenResourceDeclarationSyntax_ShouldPrintAsIs()
-        {
-            const string programText =
+}")]
+        // Broken resource declarations.
+        [DataRow(
 @"resource  foo   =
 resource  foo 'Provider/Type@api-version'
 resource  foo   'Provider/Type@api-version' = {
@@ -164,32 +120,24 @@ name: 'foo'
 resource  foo  'provider'  {
   name: '${resourceName}'
   properties: concat('foo'    'bar')
-}";
-            var programSyntax = ParserHelper.Parse(programText);
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(programText);
-        }
-
-        [TestMethod]
-        public void PrintProgram_BrokenOutputDeclarationSyntax_ShouldPrintAsIs()
-        {
-            const string programText =
+}")]
+        // Broken output declarations.
+        [DataRow(
 @"output  foo   =
 output  foo string
-output  foo   object = {";
-            var programSyntax = ParserHelper.Parse(programText);
-
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
-
-            output.Should().Be(programText);
-        }
+output  foo   object = {")]
+        public void PrintProgram_BrokenStatement_ShouldPrintAsIs(string programText) =>
+            this.TestPrintProgram(programText, programText);
 
         [TestMethod]
-        public void PrintProgram_BrokenSyntaxes_ShouldFormatTheOtherValidSyntaxes()
-        {
-            const string programText = @"
+        public void PrintProgram_SomeBrokenSyntaxes_ShouldFormatTheOtherValidSyntaxes() =>
+            this.TestPrintProgram(
+// Raw.
+@"targetScope='subscription'
+
+// Broken.
+targetScope   =
+
 param   foo string
 param foo   int
 param foo string {
@@ -256,15 +204,16 @@ output foo int = mod(1, 2)
 
 
 // Broken
-output foo =          true";
-            var programSyntax = ParserHelper.Parse(programText);
+output foo =          true",
+// Formatted.
+@"targetScope = 'subscription'
 
-            string? output = PrettyPrinter.PrintProgram(programSyntax, CommonOptions);
+// Broken.
+targetScope   =
 
-            output.Should().Be(
-@"param foo string
+param foo string
 param foo int
-param foo string {} /* skipped trivia */    something
+param foo string {} /* skipped trivia */   something
 
 // Broken.
 param foo string {
@@ -319,6 +268,5 @@ output foo int = mod(1, 2)
 
 // Broken
 output foo =          true");
-        }
     }
 }
