@@ -14,6 +14,7 @@
     "frontEndEndpointName": "frontEndEndpoint",
     "loadBalancingSettingsName": "loadBalancingSettings",
     "healthProbeSettingsName": "healthProbeSettings",
+    "routingRuleName": "routingRule",
     "backendPoolName": "backendPool"
   },
   "resources": [
@@ -78,7 +79,7 @@
         ],
         "routingRules": [
           {
-            "name": "routingRule1",
+            "name": "[variables('routingRuleName')]",
             "properties": {
               "frontendEndpoints": [
                 {

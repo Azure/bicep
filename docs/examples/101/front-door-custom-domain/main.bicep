@@ -114,6 +114,9 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-01-01' = {
 // Enable a Front Door-managed certificate on the custom domain.
 resource customDomainHttpsConfiguration 'Microsoft.Network/frontDoors/frontendEndpoints/customHttpsConfiguration@2020-07-01' = {
   name: '${frontDoorName}/${frontEndEndpointCustomName}/default'
+  dependsOn: [
+    frontDoor
+  ]
   properties: {
     protocolType: 'ServerNameIndication'
     certificateSource: 'FrontDoor'
@@ -122,7 +125,4 @@ resource customDomainHttpsConfiguration 'Microsoft.Network/frontDoors/frontendEn
     }
     minimumTlsVersion: '1.2'
   }
-  dependsOn: [
-    frontDoor
-  ]
 }
