@@ -1,6 +1,6 @@
 # Key features of the Bicep VS Code extension
 
-The [bicep VS Code extension](./installing.md#install-the-bicep-vs-code-extension) is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
+The [bicep VS Code extension](/docs/installing.md#install-the-bicep-vs-code-extension) is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
 
 ## Validation
 
@@ -14,19 +14,19 @@ Bicep provides intellisense for the core language and extends to support type de
 
 Type `.` for any object to view and autocomplete its properties. Works on any `param` or `var` of type `object`, and any `resource` or `module` properties (e.g. `myModule.outputs.`).
 
-![intellisense being displayed for property access of a bicep resource](./images/resource-dot-property-intellisense.gif)
+![intellisense being displayed for property access of a bicep resource](/docs/images/resource-dot-property-intellisense.gif)
 
 ### Resource property names & property values
 
 Bicep knows the allowed properties and values for any `resource` or `module` declaration.
 
-![intellisense being displayed for available property names and property values where applicable of a bicep resource](./images/resource-property-names-and-values.gif)
+![intellisense being displayed for available property names and property values where applicable of a bicep resource](/docs/images/resource-property-names-and-values.gif)
 
 ### List all available resource types
 
 Easily explore all available resource types and api versions for a given type. You can type partial fragments of the type and bicep will narrow the list down accordingly.
 
-![intellisense being displayed for all available types for a resource](./images/list-types-intellisense.gif)
+![intellisense being displayed for all available types for a resource](/docs/images/list-types-intellisense.gif)
 
 ### Other intellisense and completions
 
@@ -38,7 +38,7 @@ Easily explore all available resource types and api versions for a given type. Y
 
 Bicep has a small set of snippets for core language keywords (`param`, `var`, `resource`, `module`, `output`). The snippets are contextual, so they should only show up in the places they are valid. We plan to convert all of the ARM Template resource snippets that are used by the ARM Tools VS Code extension into bicep snippets.
 
-![snippets for top level keywords](./images/snippets.gif)
+![snippets for top level keywords](/docs/images/snippets.gif)
 
 ## Code navigation
 
@@ -46,25 +46,25 @@ The bicep language service supports document symbols, which help power a broad s
 
 ### Go to definition, peek definition
 
-![navigating from parameter used as a property value to the parameter declaration](./images/go-to-def.gif)
+![navigating from parameter used as a property value to the parameter declaration](/docs/images/go-to-def.gif)
 
 ### Find all references, peek references
 
-![showing all times a particular symbol is referenced](./images/show-all-references.gif)
+![showing all times a particular symbol is referenced](/docs/images/show-all-references.gif)
 
 ### Outline view and breadcrumb view
 
-![screenshot of vs code with the Outline panel and breadcrumb highlighted](./images/outline-and-breadcrumb.PNG)
+![screenshot of vs code with the Outline panel and breadcrumb highlighted](/docs/images/outline-and-breadcrumb.PNG)
 
 ### Highlights
 
 When your cursor is on or in a particular symbol, bicep will highlight other uses of that symbol. The color of the highlight is different for declarations of a symbol as opposed to accessing a symbol.
 
-![showing the cursor on a symbol and the other references that are automatically highlighted](./images/highlights.gif)
+![showing the cursor on a symbol and the other references that are automatically highlighted](/docs/images/highlights.gif)
 
 ### Hovers
 
-![showing the mouse hovering over a symbol, which shows type information on a pop-up window](./images/hovers.gif)
+![showing the mouse hovering over a symbol, which shows type information on a pop-up window](/docs/images/hovers.gif)
 
 ## Refactoring
 
@@ -72,14 +72,14 @@ When your cursor is on or in a particular symbol, bicep will highlight other use
 
 You can rename any symbol such as a `param` or `resource` and bicep will intelligently rename all the uses of that symbol
 
-![rename a symbol called 'pip' into a symbol named 'publicIp' with the 'Rename symbol' feature](./images/rename-symbol.gif)
+![rename a symbol called 'pip' into a symbol named 'publicIp' with the 'Rename symbol' feature](/docs/images/rename-symbol.gif)
 
 ### Formatting
 
 * Default keybinding is `alt` + `shift` + `f` on Windows, `option` + `shift` + `f` on macOS
   * You can also format via the VS Code UI. `View` -> `Command palette...` then type `format document`
 
-![formatting a bicep file that is disorganized](./images/format.gif)
+![formatting a bicep file that is disorganized](/docs/images/format.gif)
 
 * Bicep will set the following default settings for `.bicep` files when installed:
 
@@ -100,4 +100,4 @@ You can change the default settings in the following places (sorted by precedenc
 
 For small issues like misspelled symbols or incorrect casing, bicep will offer a "Quick fix" to fix it for you.
 
-![correcting a spelling error with "quick fix"](./images/quick-fix.gif)
+![correcting a spelling error with "quick fix"](/docs/images/quick-fix.gif)
