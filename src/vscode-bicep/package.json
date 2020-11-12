@@ -5,7 +5,7 @@
   "author": "Microsoft Corporation",
   "license": "MIT",
   "version": "0.0.0-placeholder",
-  "publisher": "Azure",
+  "publisher": "ms-azuretools",
   "icon": "icons/bicep-logo-256.png",
   "preview": true,
   "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
@@ -86,7 +86,7 @@
     "test:e2e": "node ./out/test/e2e/runTests.js",
     "test:unit": "jest --config jest.config.unit.js",
     "clean": "rimraf ./out ./coverage",
-    "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
+    "package": "gulp setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && gulp resetversion"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",

@@ -7,7 +7,9 @@ class VSCodeEnvironment extends NodeEnvironment {
   async setup(): Promise<void> {
     await super.setup();
 
-    const bicepExtension = vscode.extensions.getExtension("Azure.vscode-bicep");
+    const bicepExtension = vscode.extensions.getExtension(
+      "ms-azuretools.vscode-bicep"
+    );
 
     if (!bicepExtension) {
       throw Error("Extension not found.");
