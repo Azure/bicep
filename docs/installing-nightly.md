@@ -2,6 +2,8 @@
 
 >**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of bicep. These are much more likely to have undiscovered bugs or other issues. If you find anything, please open an issue.
 
+>**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version.
+
 We are not currently publishing "nightly" releases, but you can grab the latest bits by viewing the latest Action workflows for the `main` branch (or any other branch).
 
 The easiest way to get these artifacts is through the GitHub site. Follow [this link](https://github.com/Azure/bicep/actions) to view the latest Action workflows. Find the most recent build on the `main` branch and select it:

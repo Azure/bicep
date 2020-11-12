@@ -78,34 +78,17 @@ bicep --help
 
 ## Install the Bicep VS Code extension
 
-### Manually
-* Download the [latest version of the extension](https://github.com/Azure/bicep/releases/latest/download/vscode-bicep.vsix). **NOTE**: You cannot install the vscode-bicep.vsix file by double-clicking it.
-* Open VSCode, and in the Extensions tab, select the options (...) menu in the top right corner and select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.
+### Installing inside VS code
+* Open VS Code
+* In the Extensions tab, search for "Bicep".
+* Click "Install"
 
-### Via command line (Linux / macOS)
-```sh
-# Fetch the latest Bicep VSCode extension
-curl -Lo vscode-bicep.vsix https://github.com/Azure/bicep/releases/latest/download/vscode-bicep.vsix
-# Install the extension
-code --install-extension vscode-bicep.vsix
-# Clean up the file
-rm vscode-bicep.vsix
-# Done!
-  
-```
+>**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version.
 
-### Via command line (Windows PowerShell)
-```powershell
-# Fetch the latest Bicep VSCode extension
-$vsixPath = "$env:TEMP\vscode-bicep.vsix"
-(New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/vscode-bicep.vsix", $vsixPath)
-# Install the extension
-code --install-extension $vsixPath
-# Clean up the file
-Remove-Item $vsixPath
-# Done!
-  
-```
+### Installing via the Visual Studio Marketplace
+* Open your brownser and navigate to https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
+* Click "Install" which should open VS code extension installation page
+* Click "Install" in VS Code.
 
 ### Verify the Bicep VS Code extension is running
 
