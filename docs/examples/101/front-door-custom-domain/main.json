@@ -119,22 +119,6 @@
           }
         ]
       }
-    },
-    {
-      "type": "Microsoft.Network/frontDoors/frontendEndpoints/customHttpsConfiguration",
-      "apiVersion": "2020-07-01",
-      "name": "[format('{0}/{1}/default', parameters('frontDoorName'), variables('frontEndEndpointCustomName'))]",
-      "properties": {
-        "protocolType": "ServerNameIndication",
-        "certificateSource": "FrontDoor",
-        "frontDoorCertificateSourceParameters": {
-          "certificateType": "Dedicated"
-        },
-        "minimumTlsVersion": "1.2"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/frontDoors', parameters('frontDoorName'))]"
-      ]
     }
   ]
 }
