@@ -18,6 +18,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
+using Bicep.Decompiler;
 
 namespace Bicep.Cli
 {
@@ -223,7 +224,11 @@ namespace Bicep.Cli
         {
             try
             {
-                var bicepUri = Decompiler.Decompiler.DecompileFileWithModules(filePath);
+                var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(filePath));
+                foreach (var (fileUri, bicepOutput) in filesToSave)
+                {
+                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                }
 
                 var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
                 var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);

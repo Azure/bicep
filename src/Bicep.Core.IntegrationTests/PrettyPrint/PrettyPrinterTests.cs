@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
                 dataSet.Formatted,
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
                 actualLocation: resultsFile);
         }
 

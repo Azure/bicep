@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
@@ -17,7 +18,7 @@ namespace Bicep.Decompiler
 
         private static string EscapeIdentifier(string identifier)
         {
-            return Regex.Replace(identifier, "[^a-zA-Z0-9_]+", "_").Trim('_');
+            return Regex.Replace(identifier, "[^a-zA-Z0-9]+", "_").Trim('_');
         }
 
         public string? TryLookupName(NameType nameType, string desiredName)

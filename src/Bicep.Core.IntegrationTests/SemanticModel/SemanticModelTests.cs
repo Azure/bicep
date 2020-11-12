@@ -32,23 +32,15 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
         {
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory);
             var model = compilation.GetEntrypointSemanticModel();
-
-            string getLoggingString(Diagnostic diagnostic)
-            {
-                var spanText = OutputHelper.GetSpanText(dataSet.Bicep, diagnostic);
-                var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}");
-
-                return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
-            }
             
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), diag => OutputHelper.GetDiagLoggingString(dataSet.Bicep, outputDirectory, diag));
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
                 dataSet.Diagnostics,
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
                 actualLocation: resultsFile);
         }
 
@@ -78,14 +70,14 @@ namespace Bicep.Core.IntegrationTests.SemanticModel
                 return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
                 dataSet.Symbols,
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
                 actualLocation: resultsFile);
         }
 

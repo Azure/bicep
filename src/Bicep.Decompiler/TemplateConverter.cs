@@ -15,25 +15,28 @@ using Azure.Deployments.Expression.Expressions;
 using System.IO;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Expression.Engines;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Decompiler
 {
     public class TemplateConverter
     {
         private readonly INamingResolver nameResolver;
-        private readonly string filePath;
+        private readonly IFileResolver fileResolver;
+        private readonly Uri fileUri;
         private readonly JObject template;
 
-        private TemplateConverter(string filePath, string content)
+        private TemplateConverter(IFileResolver fileResolver, Uri fileUri, string content)
         {
-            this.filePath = filePath;
+            this.fileResolver = fileResolver;
+            this.fileUri = fileUri;
             this.template = JsonConvert.DeserializeObject<JObject>(content);
             this.nameResolver = new UniqueNamingResolver();
         }
 
-        public static ProgramSyntax DecompileTemplate(string filePath, string content)
+        public static ProgramSyntax DecompileTemplate(IFileResolver fileResolver, Uri fileUri, string content)
         {
-            var instance = new TemplateConverter(filePath, content);
+            var instance = new TemplateConverter(fileResolver, fileUri, content);
 
             return instance.Parse();
         }
@@ -654,8 +657,8 @@ namespace Bicep.Decompiler
             }
 
             var nestedRelativePath = jTokenExpression.Value.ToString().Trim('/');
-            var fullNestedFilePath = Path.Combine(Path.GetDirectoryName(filePath), nestedRelativePath);
-            if (!File.Exists(fullNestedFilePath))
+            var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
+            if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
                 throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
             }
@@ -885,6 +888,28 @@ namespace Bicep.Decompiler
             return null;
         }
 
+        private static void AddSyntaxBlock(IList<SyntaxBase> syntaxes, IEnumerable<SyntaxBase> syntaxesToAdd, bool newLineBetweenItems)
+        {
+            // force enumeration
+            var syntaxesToAddArray = syntaxesToAdd.ToArray();
+
+            for (var i = 0; i < syntaxesToAddArray.Length; i++)
+            {
+                syntaxes.Add(syntaxesToAddArray[i]);
+                if (newLineBetweenItems && i < syntaxesToAddArray.Length - 1)
+                {
+                    // only add a new line between items, not after the last item
+                    syntaxes.Add(SyntaxHelpers.NewlineToken);
+                }
+            }
+
+            if (syntaxesToAdd.Any())
+            {
+                // always add a new line after a block
+                syntaxes.Add(SyntaxHelpers.NewlineToken);
+            }
+        }
+
         private ProgramSyntax Parse()
         {
             var statements = new List<SyntaxBase>();
@@ -907,10 +932,10 @@ namespace Bicep.Decompiler
 
             RegisterNames(parameters, resources, variables, outputs);
 
-            statements.AddRange(parameters.Select(ParseParam));
-            statements.AddRange(variables.Select(ParseVariable));
-            statements.AddRange(resources.Select(r => ParseResource(template, r)));
-            statements.AddRange(outputs.Select(ParseOutput));
+            AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
+            AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
+            AddSyntaxBlock(statements, resources.Select(r => ParseResource(template, r)), true);
+            AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(
                 statements.SelectMany(x => new [] { x, SyntaxHelpers.NewlineToken}),

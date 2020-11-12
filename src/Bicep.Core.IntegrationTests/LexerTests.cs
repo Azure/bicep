@@ -104,13 +104,13 @@ namespace Bicep.Core.IntegrationTests
                 return $"{token.Type} |{token.Text}|";
             }
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
                 dataSet.Tokens,
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
                 actualLocation: resultsFile);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");

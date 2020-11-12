@@ -8,33 +8,46 @@ using System.IO;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.FileSystem;
+using System.Collections.Immutable;
 
 namespace Bicep.Decompiler
 {
     public static class Decompiler
     {
-        public static Uri DecompileFileWithModules(string filePath)
+        private static Uri ChangeExtension(Uri prevUri, string newExtension)
+        {
+            var uriBuilder = new UriBuilder(prevUri);
+            var finalDot = uriBuilder.Path.LastIndexOf('.');
+            uriBuilder.Path = (finalDot >= 0 ? uriBuilder.Path.Substring(0, finalDot) : uriBuilder.Path) + $".{newExtension}";
+
+            return uriBuilder.Uri;
+        }
+
+        public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IFileResolver fileResolver, Uri jsonUri)
         {
             var decompiled = new Dictionary<Uri, ProgramSyntax>();
             var decompileQueue = new Queue<Uri>();
 
-            var entryFile = Path.ChangeExtension(filePath, "bicep");
-            var entryUri = PathHelper.FilePathToFileUrl(entryFile);
+            var entryUri = ChangeExtension(jsonUri, "bicep");
 
             decompileQueue.Enqueue(entryUri);
 
             while (decompileQueue.Any())
             {
                 var bicepUri = decompileQueue.Dequeue();
-                var jsonFile = Path.ChangeExtension(bicepUri.LocalPath, "json");
+                var currentJsonUri = ChangeExtension(bicepUri, "json");
 
                 if (decompiled.ContainsKey(bicepUri))
                 {
                     continue;
                 }
 
-                var jsonInput = File.ReadAllText(jsonFile);
-                var program = TemplateConverter.DecompileTemplate(jsonFile, jsonInput);
+                if (!fileResolver.TryRead(currentJsonUri, out var jsonInput, out _))
+                {
+                    throw new InvalidOperationException($"Failed to read {currentJsonUri}");
+                }
+
+                var program = TemplateConverter.DecompileTemplate(fileResolver, currentJsonUri, jsonInput);
                 decompiled[bicepUri] = program;
 
                 foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
@@ -53,6 +66,7 @@ namespace Bicep.Decompiler
                 }
             }
 
+            var filesToSave = new Dictionary<Uri, string>();
             foreach (var (fileUri, program) in decompiled)
             {
                 var bicepOutput = PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, false));
@@ -62,10 +76,10 @@ namespace Bicep.Decompiler
                     throw new ArgumentException($"Failed to pring bicep file {fileUri}");
                 }
 
-                File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                filesToSave[fileUri] = bicepOutput;
             }
 
-            return entryUri;
+            return (entryUri, filesToSave.ToImmutableDictionary());
         }
     }
 }
