@@ -33,7 +33,7 @@
     "color": "E7F1FA",
     "theme": "light"
   },
-  "homepage": "https://github.com/Azure/bicep/blob/main/docs/language-service.md",
+  "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep"
   ],
@@ -86,7 +86,7 @@
     "test:e2e": "node ./out/test/e2e/runTests.js",
     "test:unit": "jest --config jest.config.unit.js",
     "clean": "rimraf ./out ./coverage",
-    "package": "gulp setversion && vsce package --out ./vscode-bicep.vsix && gulp resetversion"
+    "package": "gulp setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && gulp resetversion"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
