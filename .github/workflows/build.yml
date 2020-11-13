@@ -50,8 +50,6 @@ jobs:
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1.7.2
-        with:
-          dotnet-version: 3.1.301
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
