@@ -26,7 +26,7 @@ az deployment group create -f ./main.json -g my-rg
 
 ## Deploy with parameters
 
-In our 0.1 release, there is **no** new "bicep-style" of authoring a parameters file. Since the compiled bicep file is a standard JSON ARM Template, parameters can be passed to the template in the same ways you are likely already used to.
+In our 0.2 release, there is **no** new "bicep-style" of authoring a parameters file. Since the compiled bicep file is a standard JSON ARM Template, parameters can be passed to the template in the same ways you are likely already used to.
 
 Our bicep file exposed two parameters that we can override (`location` and `name`)
 
