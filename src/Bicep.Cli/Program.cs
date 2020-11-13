@@ -212,9 +212,10 @@ namespace Bicep.Cli
 
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var hadErrors = false;
-            foreach (var filePath in arguments.Files)
+            var jsonPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
+            foreach (var jsonPath in jsonPaths)
             {
-                hadErrors |= !DecompileSingleFile(diagnosticLogger, filePath);
+                hadErrors |= !DecompileSingleFile(diagnosticLogger, jsonPath);
             }
 
             return hadErrors ? 1 : 0;
