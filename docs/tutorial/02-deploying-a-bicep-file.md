@@ -4,7 +4,7 @@ Bicep files **cannot** yet be directly deployed via the Az CLI or PowerShell Az 
 
 ## Compile your bicep file and deploy the template to a resource group
 
-Let's start by compiling and deploying the `main.bicep` file that we've been working with. I can do this via Azure PowerShell or Az CLI.
+Let's start by compiling and deploying the `main.bicep` file that we've been working with. I can do this via Azure PowerShell or Az CLI. For Powershell be sure to have the Az module installed to follow this tutorial by running `Install-Module -Name Az -AllowClobber` for [CLI download the correct version](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 **Note:** make sure you update your storage account `name` to be globally unique.
 
