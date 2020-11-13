@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
@@ -46,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
             snippetCompletions.Should().OnlyContain(c => LanguageConstants.DeclarationKeywords.Contains(c.Label));
             snippetCompletions.Should().OnlyContain(c => c.Documentation!.HasMarkupContent && c.Documentation.MarkupContent!.Kind == MarkupKind.Markdown);
 
-            var snippetsByDetail = snippetCompletions.ToDictionary(c => c.Detail);
+            var snippetsByDetail = snippetCompletions.Where(c => c.Detail != null).ToImmutableDictionaryExcludingNull(c => c.Detail, StringComparer.Ordinal);
 
             var replacementsByDetail = new Dictionary<string, IList<string>>
             {
