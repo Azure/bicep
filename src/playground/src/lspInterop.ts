@@ -9,7 +9,7 @@ export function initializeInterop(self): Promise<boolean> {
       resolve(true);
     }
   
-    const test = require('../../Bicep.Wasm/bin/Release/netstandard2.1/wwwroot/_framework/blazor.webassembly.js');  
+    const test = require('../../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework/blazor.webassembly.js');  
   });
 }
 
