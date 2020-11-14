@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parser;
 using Bicep.Core.Syntax;
 
@@ -84,6 +85,17 @@ namespace Bicep.Decompiler.BicepHelpers
                 stringTokens,
                 Enumerable.Empty<SyntaxBase>(),
                 rawSegments);
+        }
+
+        public static StringSyntax CreateInterpolatedKey(SyntaxBase syntax)
+        {
+            var startToken = CreateStringInterpolationToken(true, false, "");
+            var endToken = CreateStringInterpolationToken(false, true, "");
+
+            return new StringSyntax(
+                new [] { startToken, endToken },
+                syntax.AsEnumerable(),
+                new [] { "", "" });
         }
 
         public static string EscapeBicepString(string value)

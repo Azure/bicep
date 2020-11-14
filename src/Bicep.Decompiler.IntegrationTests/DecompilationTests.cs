@@ -17,6 +17,7 @@ using Bicep.Core.Workspaces;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -44,9 +45,9 @@ namespace Bicep.Core.IntegrationTests
             public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).JsonStreamName!;
         }
 
-        private static IEnumerable<object[]> GetExampleData()
+        private static IEnumerable<object[]> GetWorkingExampleData()
         {
-            const string pathPrefix = "Files/";
+            const string pathPrefix = "Working/";
             const string jsonExtension = ".json";
 
             foreach (var streamName in typeof(DecompilationTests).Assembly.GetManifestResourceNames().Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal)))
@@ -71,11 +72,11 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
         {
-            GetExampleData().Should().HaveCountGreaterOrEqualTo(5, "sanity check to ensure we're finding examples to test");
+            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(9, "sanity check to ensure we're finding examples to test");
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
         public void Decompiler_generates_expected_bicep_files_with_diagnostics(ExampleData example)
         {
             // save all the files in the containing directory to disk so that we can test module resolution
@@ -113,6 +114,41 @@ namespace Bicep.Core.IntegrationTests
                         expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, syntaxTree.FileUri.LocalPath)),
                         actualLocation: syntaxTree.FileUri.LocalPath + ".actual");
                 }
+            }
+        }
+
+        private static IFileResolver ReadResourceFile(string resourcePath)
+        {
+            var manifestStream = typeof(DecompilationTests).Assembly.GetManifestResourceStream(resourcePath)!;
+            var jsonContents = new StreamReader(manifestStream).ReadToEnd();
+
+            var fileDict = new Dictionary<Uri, string>
+            {
+                [new Uri($"file:///{resourcePath}")] = jsonContents,
+            };
+
+            return new InMemoryFileResolver(fileDict);
+        }
+
+        [TestMethod]
+        public void Decompiler_raises_errors_for_unsupported_features()
+        {
+            var resourcePath = "";
+            Action onDecompile = () => {
+                var fileResolver = ReadResourceFile(resourcePath);
+                Decompiler.Decompiler.DecompileFileWithModules(fileResolver, new Uri($"file:///{resourcePath}"));
+            };
+
+            using (new AssertionScope())
+            {
+                resourcePath = "NonWorking/conditional.json";
+                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Conditionals are not currently supported");
+
+                resourcePath = "NonWorking/copyloop.json";
+                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Copy loops are not currently supported");
+
+                resourcePath = "NonWorking/unknownprops.json";
+                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Unrecognized top-level resource property 'madeUpProperty'");
             }
         }
     }

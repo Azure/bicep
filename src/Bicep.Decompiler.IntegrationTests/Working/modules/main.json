@@ -72,6 +72,30 @@
                     }
                 }
             }
+        },
+        {
+            "name": "moduleWithDodgyUri",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    // custom-formatted URL - no easy way to figure out the path to this module
+                    "uri": "[concat(parameters('location'), 'abc', variables('module2Url'))]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "objectParam": {
+                        "value": "[variables('objectVar')]"
+                    },
+                    "arrayParam": {
+                        "value": "[variables('arrayVar')]"
+                    }
+                }
+            }
         }
     ],
 

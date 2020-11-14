@@ -212,5 +212,36 @@ namespace Bicep.Decompiler.ArmHelpers
 
             return (typeString, nameExpression);
         }
+
+        public static string? TryGetLocalFilePathForTemplateLink(LanguageExpression templateLinkExpression)
+        {
+            LanguageExpression? relativePath = null;
+            if (templateLinkExpression is FunctionExpression uriExpression && uriExpression.Function == "uri")
+            {
+                // it's common to format references to files using the uri function. the second param is the relative path (which should match the file system path)
+                relativePath = uriExpression.Parameters[1];
+            }
+            else if (templateLinkExpression is FunctionExpression concatExpression && concatExpression.Function == "concat")
+            {
+                if (concatExpression.Parameters[0] is FunctionExpression concatUriExpression && concatUriExpression.Function == "uri")
+                {
+                    // or sometimes the other way around - uri expression inside a concat
+                    relativePath = concatUriExpression.Parameters[1];
+                }
+                else if (concatExpression.Parameters[0] is FunctionExpression concatParametersExpression && concatParametersExpression.Function == "parameters" && concatExpression.Parameters.Length == 2)
+                {
+                    // URI prefix in a parameter
+                    relativePath = concatExpression.Parameters[1];
+                }
+            }
+
+            if (relativePath is not JTokenExpression jTokenExpression)
+            {
+                // return the original expression so that the author can fix it up rather than failing
+                return null;
+            }
+
+            return jTokenExpression.Value.ToString().Trim('/');
+        }
     }
 }

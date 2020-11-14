@@ -509,7 +509,23 @@ namespace Bicep.Decompiler
             var properties = new List<ObjectPropertySyntax>();
             foreach (var (key, value) in jObject)
             {
-                properties.Add(SyntaxHelpers.CreateObjectProperty(key, ParseJToken(value)));
+                ObjectPropertySyntax objectProperty;
+                if (ExpressionsEngine.IsLanguageExpression(key))
+                {
+                    var keySyntax = ParseString(key);
+                    if (keySyntax is not StringSyntax)
+                    {
+                        keySyntax = SyntaxHelpers.CreateInterpolatedKey(keySyntax);
+                    }
+                    
+                    objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxHelpers.CreateToken(TokenType.Colon, ":"), ParseJToken(value));
+                }
+                else
+                {
+                    objectProperty = SyntaxHelpers.CreateObjectProperty(key, ParseJToken(value));
+                }
+
+                properties.Add(objectProperty);
             }
 
             return SyntaxHelpers.CreateObject(properties);
@@ -587,46 +603,28 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private string? TryGetModuleFilePath(JObject resource)
+        private string GetModuleFilePath(JObject resource)
         {
             var templateLink = resource["properties"]?["templateLink"]?["uri"]?.Value<string>();
             if (templateLink == null)
             {
-                return null;
+                throw new NotImplementedException($"Unable to find ${resource["name"]}.properties.templateLink.uri. Decompilation of nested templates is not currently supported.");
             }
 
             var templateLinkExpression = InlineVariables(ExpressionHelpers.ParseExpression(templateLink));
 
-            LanguageExpression? relativePath = null;
-            if (templateLinkExpression is FunctionExpression uriExpression && uriExpression.Function == "uri")
+            var nestedRelativePath = ExpressionHelpers.TryGetLocalFilePathForTemplateLink(templateLinkExpression);
+            if (nestedRelativePath is null)
             {
-                // it's common to format references to files using the uri function. the second param is the relative path (which should match the file system path)
-                relativePath = uriExpression.Parameters[1];
+                // return the original expression so that the author can fix it up rather than failing
+                return $"<failed to parse {templateLink}>";
             }
-            else if (templateLinkExpression is FunctionExpression concatExpression && concatExpression.Function == "concat")
-            {
-                if (concatExpression.Parameters[0] is FunctionExpression concatUriExpression && concatUriExpression.Function == "uri")
-                {
-                    // or sometimes the other way around - uri expression inside a concat
-                    relativePath = concatExpression.Parameters[1];
-                }
-                else if (concatExpression.Parameters[0] is FunctionExpression concatParametersExpression && concatParametersExpression.Function == "parameters" && concatExpression.Parameters.Length == 2)
-                {
-                    // URI prefix in a parameter
-                    relativePath = concatExpression.Parameters[1];
-                }
-            }
-
-            if (relativePath is not JTokenExpression jTokenExpression)
-            {
-                throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
-            }
-
-            var nestedRelativePath = jTokenExpression.Value.ToString().Trim('/');
+            
             var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
             if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
-                throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
+                // return the original expression so that the author can fix it up rather than failing
+                return $"<failed to parse {templateLink}>";
             }
 
             return Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
@@ -689,50 +687,46 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
-            var moduleFilePath = TryGetModuleFilePath(resource);
-            if (moduleFilePath != null)
+            var moduleFilePath = GetModuleFilePath(resource);
+
+            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "Copy loops are not currently supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "Conditionals are not currently supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "Scope is not supported for linked/nested templates");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "SubscriptionId is not supported for linked/nested templates");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "ResourceGroup is not supported for linked/nested templates");
+            foreach (var prop in resource.Properties())
             {
-                TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "Copy loops are not currently supported");
-                TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "Conditionals are not currently supported");
-                TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "Scope is not supported for linked/nested templates");
-                TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "SubscriptionId is not supported for linked/nested templates");
-                TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "ResourceGroup is not supported for linked/nested templates");
-                foreach (var prop in resource.Properties())
+                if (!expectedDeploymentProps.Contains(prop.Name))
                 {
-                    if (!expectedDeploymentProps.Contains(prop.Name))
-                    {
-                        throw new NotImplementedException($"Unrecognized top-level resource property '{prop.Name}'");
-                    }
+                    throw new NotImplementedException($"Unrecognized top-level resource property '{prop.Name}'");
                 }
-
-                var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
-                var paramProperties = new List<ObjectPropertySyntax>();
-                foreach (var param in parameters)
-                {
-                    paramProperties.Add(SyntaxHelpers.CreateObjectProperty(param.Name, ParseJToken(param.Value["value"])));
-                }
-
-                var properties = new List<ObjectPropertySyntax>();
-                properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
-                properties.Add(SyntaxHelpers.CreateObjectProperty("params", SyntaxHelpers.CreateObject(paramProperties)));
-
-                var dependsOn = ProcessDependsOn(resource);
-                if (dependsOn != null)
-                {
-                    properties.Add(SyntaxHelpers.CreateObjectProperty("dependsOn", dependsOn));
-                }
-
-                var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
-                
-                return new ModuleDeclarationSyntax(
-                    SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
-                    SyntaxHelpers.CreateIdentifier(identifier),
-                    SyntaxHelpers.CreateStringLiteral(moduleFilePath),
-                    SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                    SyntaxHelpers.CreateObject(properties));
             }
 
-            throw new NotImplementedException($"Nested/linked deployments are not currently supported");
+            var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
+            var paramProperties = new List<ObjectPropertySyntax>();
+            foreach (var param in parameters)
+            {
+                paramProperties.Add(SyntaxHelpers.CreateObjectProperty(param.Name, ParseJToken(param.Value["value"])));
+            }
+
+            var properties = new List<ObjectPropertySyntax>();
+            properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
+            properties.Add(SyntaxHelpers.CreateObjectProperty("params", SyntaxHelpers.CreateObject(paramProperties)));
+
+            var dependsOn = ProcessDependsOn(resource);
+            if (dependsOn != null)
+            {
+                properties.Add(SyntaxHelpers.CreateObjectProperty("dependsOn", dependsOn));
+            }
+
+            var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
+            
+            return new ModuleDeclarationSyntax(
+                SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
+                SyntaxHelpers.CreateIdentifier(identifier),
+                SyntaxHelpers.CreateStringLiteral(moduleFilePath),
+                SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
+                SyntaxHelpers.CreateObject(properties));
         }
 
         public SyntaxBase ParseResource(JObject template, JToken value)

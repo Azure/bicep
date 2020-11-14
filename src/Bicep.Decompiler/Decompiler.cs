@@ -35,6 +35,11 @@ namespace Bicep.Decompiler
             while (decompileQueue.Any())
             {
                 var bicepUri = decompileQueue.Dequeue();
+                if (!bicepUri.LocalPath.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var currentJsonUri = ChangeExtension(bicepUri, "json");
 
                 if (decompiled.ContainsKey(bicepUri))

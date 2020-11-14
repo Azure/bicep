@@ -66,5 +66,30 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
             normalizedForm.Should().BeNull();
         }
+
+        [DataTestMethod]
+        [DataRow("[uri('test.com', 'path/to/file.json')]", "path/to/file.json")]
+        [DataRow("[uri('test.com', 'path/to/file.json', parameters('sasUri'))]", "path/to/file.json")]
+        [DataRow("[concat(uri('test.com', 'path/to/file.json'), parameters('sasUri'))]", "path/to/file.json")]
+        [DataRow("[concat(parameters('myUri'), '/path/to/file.json')]", "path/to/file.json")]
+        public void TryGetLocalFilePathForTemplateLink_finds_path_for_specific_expression_formats(string input, string expectedOutput)
+        {
+            var inputExpression = ExpressionHelpers.ParseExpression(input);
+            var output = ExpressionHelpers.TryGetLocalFilePathForTemplateLink(inputExpression);
+
+            output.Should().Be(expectedOutput);
+        }
+
+        [DataTestMethod]
+        [DataRow("https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/modules/Microsoft.KeyVault/vaults/keys/0.9/azuredeploy.json")]
+        [DataRow("[parameters('location')]")]
+        [DataRow("[variables('networkSettings').subnet.dse]")]
+        public void TryGetLocalFilePathForTemplateLink_fails_to_find_path_for_undecidable_expression(string input)
+        {
+            var inputExpression = ExpressionHelpers.ParseExpression(input);
+            var output = ExpressionHelpers.TryGetLocalFilePathForTemplateLink(inputExpression);
+
+            output.Should().BeNull();
+        }
     }
 }

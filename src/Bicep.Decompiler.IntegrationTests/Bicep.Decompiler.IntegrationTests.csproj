@@ -7,13 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="./Files/**/*.json" />
-    <None Remove="./Files/**/*.bicep" />
+    <None Remove="./Working/**/*.json" />
+    <None Remove="./Working/**/*.bicep" />
+    <None Remove="./NonWorking/**/*.json" />
+    <None Remove="./NonWorking/**/*.bicep" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="./Files/**/*.json" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-    <EmbeddedResource Include="./Files/**/*.bicep" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Working/**/*.json" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Working/**/*.bicep" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./NonWorking/**/*.json" LogicalName="$([System.String]::new('NonWorking/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./NonWorking/**/*.bicep" LogicalName="$([System.String]::new('NonWorking/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>
