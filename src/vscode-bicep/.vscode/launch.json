@@ -16,7 +16,7 @@
       "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
       }
     },
     {
@@ -31,7 +31,7 @@
       "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
       }
     }
   ]
