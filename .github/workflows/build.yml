@@ -69,13 +69,13 @@ jobs:
         if: ${{ matrix.publishLanguageServer == 'true' }}
         with:
           name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/netcoreapp3.1/publish/*
+          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net5.0/publish/*
       
       - name: Upload Bicep
         uses: actions/upload-artifact@v2
         with:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/netcoreapp3.1/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Code Coverage
