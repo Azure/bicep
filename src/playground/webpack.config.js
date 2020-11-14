@@ -36,7 +36,7 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: '../Bicep.Wasm/bin/Release/netstandard2.1/wwwroot/_framework', to: './_framework/' },
+        { from: '../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework', to: './_framework/' },
       ],
     }),
     new HtmlWebpackPlugin({

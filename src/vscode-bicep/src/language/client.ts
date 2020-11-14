@@ -12,7 +12,7 @@ import {
 } from "vscode-azureextensionui";
 import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 
-const dotnetRuntimeVersion = "3.1";
+const dotnetRuntimeVersion = "5.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 
