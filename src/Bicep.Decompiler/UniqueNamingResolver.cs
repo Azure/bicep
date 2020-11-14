@@ -64,8 +64,23 @@ namespace Bicep.Decompiler
             return nameByType[nameType];
         }
 
-        public string? TryLookupResourceName(string typeString, LanguageExpression nameExpression)
+        public string? TryLookupResourceName(string? typeString, LanguageExpression nameExpression)
         {
+            if (typeString is null)
+            {
+                var nameString = ExpressionsEngine.SerializeExpression(nameExpression);
+                var resourceKeySuffix = EscapeIdentifier($"_{nameString}");
+
+                var matchingResources = assignedResourceNames.Where(kvp => kvp.Key.EndsWith(resourceKeySuffix, StringComparison.OrdinalIgnoreCase));
+                if (matchingResources.Count() == 1)
+                {
+                    // only return a value if we're sure about the match
+                    return matchingResources.First().Value;
+                }
+
+                return null;
+            }
+
             // it's valid to include a trailing slash, so we need to normalize it
             typeString = typeString.TrimEnd('/');
 

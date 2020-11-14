@@ -21,8 +21,7 @@ resource fooName_baz 'Foo.Rp/bar@2019-06-01' = {
   name: '${fooName}baz'
   location: location
   dependsOn: [
-    '${fooName}bar'
-//@[4:19) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |'${fooName}bar'|
+    fooName_bar
   ]
 }
 

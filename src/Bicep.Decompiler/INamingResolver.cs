@@ -10,7 +10,7 @@ namespace Bicep.Decompiler
 
         string? TryRequestName(NameType nameType, string desiredName);
 
-        string? TryLookupResourceName(string typeString, LanguageExpression nameExpression);
+        string? TryLookupResourceName(string? typeString, LanguageExpression nameExpression);
 
         string? TryRequestResourceName(string typeString, LanguageExpression nameExpression);
     }

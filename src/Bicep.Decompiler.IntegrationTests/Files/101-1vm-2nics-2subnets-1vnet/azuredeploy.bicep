@@ -96,12 +96,9 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2019-12-
     }
   }
   dependsOn: [
-    nic1
-//@[4:8) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'nic-1'". |nic1|
-    nic2
-//@[4:8) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'nic-2'". |nic2|
-    diagStorageAccountName
-//@[4:26) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |diagStorageAccountName|
+    nic1_resource
+    nic2_resource
+    diagStorageAccountName_resource
   ]
 }
 
@@ -175,12 +172,9 @@ resource nic1_resource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     }
   }
   dependsOn: [
-    publicIPAddressName
-//@[4:23) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'publicIp'". |publicIPAddressName|
-    networkSecurityGroupName
-//@[4:28) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'NSG'". |networkSecurityGroupName|
-    virtualNetworkName
-//@[4:22) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'virtualNetwork'". |virtualNetworkName|
+    publicIpAddressName_resource
+    networkSecurityGroupName_resource
+    virtualNetworkName_resource
   ]
 }
 

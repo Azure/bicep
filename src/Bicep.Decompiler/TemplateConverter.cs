@@ -81,7 +81,7 @@ namespace Bicep.Decompiler
 
         private LanguageExpression InlineVariablesRecursive(LanguageExpression original)
         {
-            if (!(original is FunctionExpression functionExpression))
+            if (original is not FunctionExpression functionExpression)
             {
                 return original;
             }
@@ -118,15 +118,6 @@ namespace Bicep.Decompiler
             return ExpressionHelpers.FlattenStringOperations(inlined);
         }
 
-        private static LanguageExpression FormatNameExpression(IEnumerable<LanguageExpression> nameSegments)
-        {
-            var pathSegments = nameSegments
-                .SelectMany((expression, i) => i == 0 ? new [] { expression } : new [] { new JTokenExpression("/"), expression });
-            var nameExpression = ExpressionHelpers.Concat(pathSegments.ToArray());
-
-            return ExpressionHelpers.FlattenStringOperations(nameExpression);
-        }
-
         private static TypeSyntax? TryParseType(JToken? value)
         {
             var typeString = value?.Value<string>();
@@ -140,40 +131,15 @@ namespace Bicep.Decompiler
 
         private string? TryLookupResource(LanguageExpression expression)
         {
-            if (!(expression is FunctionExpression functionExpression))
+            var normalizedForm = ExpressionHelpers.TryGetResourceNormalizedForm(expression);
+            if (normalizedForm is null)
             {
-                return null;
+                // try to look it up without the type string, using the expression as-is as the name
+                // it's fairly common to refer to another resource by name only
+                return nameResolver.TryLookupResourceName(null, expression);
             }
 
-            if (functionExpression.NameEquals("concat") &&
-                functionExpression.Parameters.Length == 2 &&
-                functionExpression.Parameters[0] is JTokenExpression)
-            {
-                // this is a heuristic but appears to be quite - e.g. to format a resourceId using concat('My.Rp/type', parameters(name)) rather than resourceId().
-                // It doesn't really hurt to see if we can find a match for it.
-                functionExpression = new FunctionExpression(
-                    "resourceid",
-                    functionExpression.Parameters,
-                    new LanguageExpression[] { });
-            }
-            
-            // TODO: find resources with same name variable - this is pretty common
-
-            if (!functionExpression.NameEquals("resourceid") ||
-                functionExpression.Parameters.Length < 2)
-            {
-                return null;
-            }
-
-            var typeString = (functionExpression.Parameters[0] as JTokenExpression)?.Value.Value<string>();
-            if (typeString == null)
-            {
-                return null;
-            }
-
-            var nameExpression = FormatNameExpression(functionExpression.Parameters.Skip(1));
-
-            return nameResolver.TryLookupResourceName(typeString, nameExpression);
+            return nameResolver.TryLookupResourceName(normalizedForm.Value.typeString, normalizedForm.Value.nameExpression);
         }
 
         private SyntaxBase? TryParseJToken(JToken? value)
@@ -287,7 +253,7 @@ namespace Bicep.Decompiler
                 return SyntaxHelpers.CreateStringLiteral(stringVal);
             }
 
-            if (!(flattenedExpression is FunctionExpression functionExpression))
+            if (flattenedExpression is not FunctionExpression functionExpression)
             {
                 throw new InvalidOperationException($"Expected {nameof(FunctionExpression)}");
             }
@@ -651,7 +617,7 @@ namespace Bicep.Decompiler
                 }
             }
 
-            if (!(relativePath is JTokenExpression jTokenExpression))
+            if (relativePath is not JTokenExpression jTokenExpression)
             {
                 throw new ArgumentException($"Failed to process templateLink expression {templateLink}");
             }
@@ -675,7 +641,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            if (!(dependsOnProp.Value is JArray dependsOn))
+            if (dependsOnProp.Value is not JArray dependsOn)
             {
                 throw new InvalidOperationException($"Parsing failed for dependsOn");
             }
