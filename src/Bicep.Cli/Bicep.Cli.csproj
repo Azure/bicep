@@ -5,6 +5,8 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>bicep</AssemblyName>
     <StartupObject>Bicep.Cli.Program</StartupObject>
+    <!-- .net 5 by default does not package up the native dependencies -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
