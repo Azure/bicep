@@ -11,7 +11,7 @@
                 "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
             ],
             "env": {
-                "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/netcoreapp3.1/Bicep.LangServer.dll"
+                "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/src/Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
             },
             "stopOnEntry": false,
             "sourceMaps": true,
@@ -34,7 +34,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-cli",
-            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/netcoreapp3.1/Bicep.dll",
+            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net5.0/Bicep.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",

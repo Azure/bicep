@@ -12,8 +12,9 @@ import {
 } from "vscode-azureextensionui";
 import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 
-const dotnetRuntimeVersion = "3.1";
+const dotnetRuntimeVersion = "5.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
+const extensionId = "ms-azuretools.vscode-bicep";
 
 export async function launchLanguageServiceWithProgressReport(
   context: vscode.ExtensionContext,
@@ -41,7 +42,7 @@ async function launchLanguageService(
   getLogger().debug(`Found language server at '${languageServerPath}'.`);
 
   const serverExecutable: lsp.Executable = {
-    command: path.basename(dotnetCommandPath),
+    command: `.${path.sep}${path.basename(dotnetCommandPath)}`,
     args: [languageServerPath],
     options: {
       cwd: path.dirname(dotnetCommandPath),
@@ -92,7 +93,10 @@ async function launchLanguageService(
 async function ensureDotnetRuntimeInstalled(): Promise<string> {
   const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
     "dotnet.acquire",
-    { version: dotnetRuntimeVersion }
+    {
+      version: dotnetRuntimeVersion,
+      requestingExtensionId: extensionId,
+    }
   );
 
   if (!result) {

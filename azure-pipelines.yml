@@ -10,17 +10,26 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: 'config'
-    nugetConfigPath: 'NuGet.config'
-    noCache: true
-    verbosityRestore: 'Normal'
-- task: ComponentGovernanceComponentDetection@0
-  inputs:
-    scanType: 'Register'
-    verbosity: 'Verbose'
-    alertWarningLevel: 'High'
-    failOnAlert: true
+  - task: UseDotNet@2
+    displayName: Setup .NET Core
+    continueOnError: true
+    inputs:
+      packageType: 'sdk'
+      useGlobalJson: true
+      performMultiLevelLookup: true
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: 'config'
+      nugetConfigPath: 'NuGet.config'
+      noCache: true
+      verbosityRestore: 'Normal'
+
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      scanType: 'Register'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
+      failOnAlert: true
