@@ -4,11 +4,12 @@ We are very happy to accept community contributions to Bicep, whether those are 
 
 ## Getting Started
 
-* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) core sdk 3.1 (or later) and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
+* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) core sdk 5.0.100 and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
 * You are free to work on Bicep on any platform using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
 * Fork this repo (see [this forking guide](https://guides.github.com/activities/forking/) for more information).
 * Checkout the repo locally with `git clone git@github.com:{your_username}/bicep.git`.
-* Build the .NET solution with `dotnet build`. If this fails try running `git submodule update --init --recursive` first.
+* Change into the bicep repo directory and run `git submodule update --init --recursive`.
+* Build the .NET solution with `dotnet build`.
 
 ## Developing
 
