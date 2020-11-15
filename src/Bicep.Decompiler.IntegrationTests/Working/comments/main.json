@@ -9,8 +9,5 @@
     "variables": {
         "test": "hi", // comment
         "test2": "hi", /* multi line comment */
-        "test3": "multi
-        line
-        string"
     }, "resources": [],"outputs": {}
 }

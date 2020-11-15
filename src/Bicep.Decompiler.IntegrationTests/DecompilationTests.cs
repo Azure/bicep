@@ -18,6 +18,7 @@ using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
 using Bicep.Core.UnitTests.FileSystem;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -150,6 +151,39 @@ namespace Bicep.Core.IntegrationTests
                 resourcePath = "NonWorking/unknownprops.json";
                 onDecompile.Should().Throw<NotImplementedException>().WithMessage("Unrecognized top-level resource property 'madeUpProperty'");
             }
+        }
+
+        [DataTestMethod]
+        [DataRow("\r\n", "\\r\\n")]
+        [DataRow("\n", "\\n")]
+        public void Decompiler_handles_strings_with_newlines(string newline, string escapedNewline)
+        {
+            var template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {
+        ""multilineString"": ""multi
+        line
+        string""
+    },
+    ""resources"": [],
+    ""outputs"": {}
+}";
+
+            // replace newlines with the style passed in
+            template = string.Join(newline, Regex.Split(template, "\r?\n"));
+
+            var fileUri = new Uri("file:///path/to/main.json");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });;
+
+            var (entryPointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, fileUri);
+
+            // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
+            filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
         }
     }
 }
