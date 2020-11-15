@@ -680,6 +680,12 @@ namespace Bicep.Core.Diagnostics
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
+            public Diagnostic RuntimePropertyNotAllowed(string property) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP117",
+                $"The property \"{property}\" does not allow a runtime value."
+            );
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

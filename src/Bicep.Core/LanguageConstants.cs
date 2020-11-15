@@ -51,6 +51,8 @@ namespace Bicep.Core
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
 
+        public const string ResourceNamePropertyName = "name";
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 

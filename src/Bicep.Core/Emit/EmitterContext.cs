@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
@@ -12,7 +11,7 @@ namespace Bicep.Core.Emit
         {
             this.SemanticModel = semanticModel;
             this.VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
-            this.ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
+            this.ResourceDependencies = ResourceDependencyVisitor.GetAllResourceDependencies(semanticModel);
         }
 
         public SemanticModel.SemanticModel SemanticModel { get; }

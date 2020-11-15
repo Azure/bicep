@@ -12,12 +12,12 @@ namespace Bicep.Core.Emit
 {
     public static class EmitLimitationCalculator
     {
-        public static EmitLimitationInfo Calculate(SemanticModel.SemanticModel semanticModel)
+        public static EmitLimitationInfo Calculate(SemanticModel.SemanticModel model)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            var moduleScopeData = GetSupportedScopeInfo(semanticModel, diagnosticWriter);
-
+            var moduleScopeData = GetSupportedScopeInfo(model, diagnosticWriter);
+            DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData);
         }
 
