@@ -24,7 +24,7 @@ namespace Bicep.Decompiler.BicepHelpers
             => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
 
         public static Token NewlineToken
-            => CreateToken(TokenType.NewLine, "\n");
+            => CreateToken(TokenType.NewLine, Environment.NewLine);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
             => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":"), value);

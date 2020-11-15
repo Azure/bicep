@@ -1,27 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Cli.UnitTests;
-using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Samples;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Json;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -121,7 +110,7 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             var bicepFile = File.ReadAllText(bicepFileName);
-            bicepFile.Should().BeEquivalentTo(@"resource resName 'My.Rp/testType@2020-01-01' = {
+            bicepFile.Should().BeEquivalentToIgnoringNewlines(@"resource resName 'My.Rp/testType@2020-01-01' = {
   name: 'resName'
   properties: {
     cyclicDependency: resName.properties
@@ -170,7 +159,7 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             var bicepFile = File.ReadAllText(bicepFileName);
-            bicepFile.Should().BeEquivalentTo(@"resource resName 'My.Rp/testType@2020-01-01' = {
+            bicepFile.Should().BeEquivalentToIgnoringNewlines(@"resource resName 'My.Rp/testType@2020-01-01' = {
   name: 'resName'
   location: resourceGroup().location
   properties: {
