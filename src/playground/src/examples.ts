@@ -21,6 +21,9 @@ import example_201_vnet_peering from '../../../docs/examples/201/vnet-peering/ma
 import example_201_sql from '../../../docs/examples/201/sql/main.bicep'
 import example_201_web_app_loganalytics from '../../../docs/examples/201/web-app-loganalytics/main.bicep'
 import example_101_deployment_script_with_storage from '../../../docs/examples/101/deployment-script-with-storage/main.bicep'
+import example_101_front_door_basic from '../../../docs/examples/101/front=door-basic/main.bicep'
+import example_101_front_door_custom_domain from '../../../docs/examples/101/front=door-custom-domain/main.bicep'
+import example_101_front_door_redirect from '../../../docs/examples/101/front=door-redirect/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -47,4 +50,7 @@ export const examples = {
   '201/sql': example_201_sql,
   '201/201-web-app-loganalytics': example_201_web_app_loganalytics,
   '101/deployment-script-with-storage': example_101_deployment_script_with_storage,
+  '101/front-door-basic': example_101_front_door_basic,
+  '101/front-door-custom-domain': example_101_front_door_custom_domain,
+  '101/front-door-redirect': example_101_front_door_redirect
 }
