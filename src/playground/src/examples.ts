@@ -24,6 +24,23 @@ import example_101_deployment_script_with_storage from '../../../docs/examples/1
 import example_101_front_door_basic from '../../../docs/examples/101/front=door-basic/main.bicep'
 import example_101_front_door_custom_domain from '../../../docs/examples/101/front=door-custom-domain/main.bicep'
 import example_101_front_door_redirect from '../../../docs/examples/101/front=door-redirect/main.bicep'
+import example_101_mg_policy from '../../../docs/examples/101/mg-policy/main.bicep'
+import example_101_aks_vmss_systemassigned_identity from '../../../docs/examples/101/aks-vmss-systemassigned-identity/main.bicep'
+import example_101_app_config from '../../../docs/examples/101/app-config/main.bicep'
+import example_101_basic_publicip from '../../../docs/examples/101/basic-publicip/main.bicep'
+import example_101_container_registry from '../../../docs/examples/101/container-registry/main.bicep'
+import example_101_create_rg_lock_role_assignment from '../../../docs/examples/101/create-rg-lock-role-assignment/main.bicep'
+import example_101_function_app_create from '../../../docs/examples/101/function-app-create/main.bicep'
+import example_201_1vm_2nics_2subnets_1vnet from '../../../docs/examples/201/1vm-2nics-2subnets-1vnet/main.bicep'
+import example_201_aci_wordpress from '../../../docs/examples/201/aci-wordpress/main.bicep'
+import example_201_anchored_proximity_placement_group from '../../../docs/examples/201/anchored-proximity-placement-group/main.bicep'
+import example_201_cyclecloud from '../../../docs/examples/201/cyclecloud/main.bicep'
+import example_201_firewall_with_ip_from_prefix from '../../../docs/examples/201/firewall-with-ip-from-prefix/main.bicep'
+import example_201_log_analytics_with_solutions_and_diagnostics from '../../../docs/examples/201/log-analytics-with-solutions-and-diagnostics/main.bicep'
+import example_201_policy_with_initiative_definition_and_assignment from '../../../docs/examples/201/policy-with-initiative-definition-and-assignment/main.bicep'
+import example_201_vnet_to_vnet_bgp from '../../../docs/examples/201/vnet-to-vnet-bgp/main.bicep'
+import example_201_vwan_shared_services from '../../../docs/examples/201/vwan-shared-services/main.bicep'
+import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -52,5 +69,22 @@ export const examples = {
   '101/deployment-script-with-storage': example_101_deployment_script_with_storage,
   '101/front-door-basic': example_101_front_door_basic,
   '101/front-door-custom-domain': example_101_front_door_custom_domain,
-  '101/front-door-redirect': example_101_front_door_redirect
+  '101/front-door-redirect': example_101_front_door_redirect,
+  '101/mg-policy': example_101_mg_policy,
+  '101/aks-vmss-systemassigned-identity': example_101_aks_vmss_systemassigned_identity,
+  '101/app-config': example_101_app_config,
+  '101/basic-publicip': example_101_basic_publicip,
+  '101/container-registry': example_101_container_registry,
+  '101/create-rg-lock-role-assignment': example_101_create_rg_lock_role_assignment,
+  '101/function-app-create': example_101_function_app_create,
+  '201/1vm-2nics-2subnets-1vnet': example_201_1vm_2nics_2subnets_1vnet,
+  '201/aci-wordpress': example_201_aci_wordpress,
+  '201/anchored-proximity-placement-group': example_201_anchored_proximity_placement_group,
+  '201/cyclecloud': example_201_cyclecloud,
+  '201/firewall-with-ip-from-prefix': example_201_firewall_with_ip_from_prefix,
+  '201/log-analytics-with-solutions-and-diagnostics': example_201_log_analytics_with_solutions_and_diagnostics,
+  '201/policy-with-initiative-definition-and-assignment': example_201_policy_with_initiative_definition_and_assignment,
+  '201/vnet-to-vnet-bgp': example_201_vnet_to_vnet_bgp,
+  '201/vwan-shared-services': example_201_vwan_shared_services,
+  '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network
 }
