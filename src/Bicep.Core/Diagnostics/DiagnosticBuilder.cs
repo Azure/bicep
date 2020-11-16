@@ -683,7 +683,7 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic RuntimePropertyNotAllowed(string property) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP118",
-                $"The property \"{property}\" does not allow a runtime value."
+                $"The property \"{property}\" cannot be assigned a runtime value."
             );
 
         }
