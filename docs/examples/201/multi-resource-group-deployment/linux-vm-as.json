@@ -9,41 +9,33 @@
     "adminSshKey": {
       "type": "string"
     },
-    "availabilitySetId": {
-      "type": "string",
-      "defaultValue": ""
-    },
-    "customData": {
-      "type": "string",
-      "defaultValue": "#cloud-config\n\n"
+    "ppgId": {
+      "type": "string"
     },
     "subnetId": {
       "type": "string"
     },
     "vmName": {
       "type": "string"
-    },
-    "zone": {
-      "type": "bool",
-      "defaultValue": false
     }
   },
   "functions": [],
   "resources": [
     {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-05-01",
-      "name": "[format('{0}-pip', parameters('vmName'))]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2020-06-01",
+      "name": "as",
       "location": "[parameters('location')]",
       "properties": {
-        "publicIPAllocationMethod": "Static"
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5,
+        "proximityPlacementGroup": {
+          "id": "[parameters('ppgId')]"
+        }
       },
       "sku": {
-        "name": "Standard"
-      },
-      "zones": [
-        "1"
-      ]
+        "name": "Aligned"
+      }
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
@@ -58,17 +50,11 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[parameters('subnetId')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
               }
             }
           }
         ]
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
@@ -76,10 +62,22 @@
       "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
       "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', 'as')]"
+        },
+        "hardwareProfile": {
+          "vmSize": "Standard_B4ms"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
+            }
+          ]
+        },
         "osProfile": {
           "computerName": "[parameters('vmName')]",
           "adminUsername": "vmadmin",
-          "customData": "[base64(parameters('customData'))]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": true,
             "ssh": {
@@ -91,9 +89,6 @@
               ]
             }
           }
-        },
-        "hardwareProfile": {
-          "vmSize": "Standard_B4ms"
         },
         "storageProfile": {
           "imageReference": {
@@ -109,22 +104,10 @@
               "storageAccountType": "StandardSSD_LRS"
             }
           }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
-            }
-          ]
-        },
-        "availabilitySet": {
-          "id": "[if(parameters('zone'), json('null'), parameters('availabilitySetId'))]"
         }
       },
-      "zones": [
-        "[if(parameters('zone'), '1', json('null'))]"
-      ],
       "dependsOn": [
+        "[resourceId('Microsoft.Compute/availabilitySets', 'as')]",
         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
       ]
     }
