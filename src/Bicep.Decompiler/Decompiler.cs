@@ -16,11 +16,11 @@ namespace Bicep.Decompiler
     {
         private static Uri ChangeExtension(Uri prevUri, string newExtension)
         {
-            var uriBuilder = new UriBuilder(prevUri);
-            var finalDot = uriBuilder.Path.LastIndexOf('.');
-            uriBuilder.Path = (finalDot >= 0 ? uriBuilder.Path.Substring(0, finalDot) : uriBuilder.Path) + $".{newExtension}";
+            var uriString = prevUri.ToString();
+            var finalDot = uriString.LastIndexOf('.');
+            uriString = (finalDot >= 0 ? uriString.Substring(0, finalDot) : uriString) + $".{newExtension}";
 
-            return uriBuilder.Uri;
+            return new Uri(uriString);
         }
 
         public static (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(IFileResolver fileResolver, Uri jsonUri)
@@ -35,7 +35,7 @@ namespace Bicep.Decompiler
             while (decompileQueue.Any())
             {
                 var bicepUri = decompileQueue.Dequeue();
-                if (!bicepUri.LocalPath.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
+                if (!bicepUri.AbsolutePath.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
