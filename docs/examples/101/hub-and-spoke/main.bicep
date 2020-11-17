@@ -1,4 +1,4 @@
-targetScope='subscription'
+targetScope = 'subscription'
 
 param region string = 'westeurope'
 
@@ -54,16 +54,16 @@ module spokeVNET 'modules/vnet.bicep' = {
   }
 }
 
-module Hubfwl 'modules/fwl.bicep'= {
+module Hubfwl 'modules/fwl.bicep' = {
   name: 'hub-fwl'
   scope: resourceGroup(hubrg.name)
-  params:{
+  params: {
     prefix: 'hub'
     hubId: hubVNET.outputs.id
   }
 }
 
-module HubToSpokePeering 'modules/peering.bicep'= {
+module HubToSpokePeering 'modules/peering.bicep' = {
   name: 'hub-to-spoke-peering'
   scope: resourceGroup(hubrg.name)
   params: {
@@ -73,7 +73,7 @@ module HubToSpokePeering 'modules/peering.bicep'= {
   }
 }
 
-module SpokeToHubPeering 'modules/peering.bicep'= {
+module SpokeToHubPeering 'modules/peering.bicep' = {
   name: 'spoke-to-hub-peering'
   scope: resourceGroup(spokerg.name)
   params: {
@@ -91,4 +91,3 @@ module route 'modules/rot.bicep' = {
     azFwlIp: Hubfwl.outputs.privateIp
   }
 }
-
