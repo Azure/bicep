@@ -117,9 +117,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
-    env:
-      CI: true
-
     strategy:
       fail-fast: false
       matrix:
@@ -156,15 +153,21 @@ jobs:
           
       - name: Run unit tests
         run: npm run test:unit
+        env:
+          CI: true
         working-directory: ./src/vscode-bicep
 
       - name: Run E2E tests
         run: npm run test:e2e
+        env:
+          CI: true
         if: runner.os != 'Linux'
         working-directory: ./src/vscode-bicep
         
       - name: Run E2E tests (Linux)
         run: xvfb-run -a npm run test:e2e
+        env:
+          CI: true
         if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
 
