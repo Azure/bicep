@@ -44,31 +44,35 @@ Resource types, as the name suggests, represent the schema or shape of resources
 - `Microsoft.Authorization/roleAssignments@2018-09-01-preview`
 - many others...
 
-All of such types are considered named resource types, which are all subtypes of the `resource` type.
+All of such types are considered named resource types, which are all subtypes of the `resource` type. The `resource` type is a subtype of `object`.
 
 ### Module Types
-Module types are very similar to resource types except they involve module declarations. The `module` type is the supertype of all named module types.
+Module types are very similar to resource types except they involve module declarations. The `module` type is the supertype of all named module types. The `module` type is a subtype of `object`.
+
+### Resource Scopes
+Resource and module scopes in Bicep are represented using the `scope` type. The `scope` type is a subtype of `object`. Values of type `scope` are assignable to properties of type `scope` provided the two scopes are compatible.
 
 ## Type Assignability
 When an expression is assigned to a declaration, the type of the expression is compared against a declared type based on the assignability rules between types. For complex types such as objects and arrays, this check is performed recursively. If the types are not compatible, the type checker emits one or more warnings or errors. (While we try to return as many errors as possible, we try to avoid errors and warnings that were caused by other errors and warnings.)
 
 ## Assignability Matrix
 Type assignability determines whether a value of one type (source type) can be assigned to another type (target type). In the following matrix source types are listed horizontally and target types are listed vertically:
-| Types | `any` | `error` | `string` | `number` | `int` | `bool` | `null` | `object` | `array` | named resource | named module |
-|-|-|-|-|-|-|-|-|-|-|-|-|
-| `any`          |X| |X|X|X|X|X|X|X|X|X|
-| `error`        | | | | | | | | | | | |
-| `string`       |X| |X| | | | | | | | |
-| `number`       |X| | |X|X| | | | | | |
-| `int`          |X| | | |X| | | | | | |
-| `bool`         |X| | | | |X| | | | | |
-| `null`         |X| | | | | |X| | | | |
-| `object`       |X| | | | | | |X| | | |
-| `array`        |X| | | | | | | |X| | |
-| `resource`     |X| | | | | | | | |X| |
-| `module`       |X| | | | | | | | | |X|
-| named resource |X| | | | | | |?| |?| |
-| named module   |X| | | | | | |?| | |?|
+| Types | `any` | `error` | `string` | `number` | `int` | `bool` | `null` | `object` | `array` | named resource | named module | `scope` |
+|-|-|-|-|-|-|-|-|-|-|-|-|-|
+| `any`          |X| |X|X|X|X|X|X|X|X|X|X|
+| `error`        | | | | | | | | | | | | |
+| `string`       |X| |X| | | | | | | | | |
+| `number`       |X| | |X|X| | | | | | | |
+| `int`          |X| | | |X| | | | | | | |
+| `bool`         |X| | | | |X| | | | | | |
+| `null`         |X| | | | | |X| | | | | |
+| `object`       |X| | | | | | |X| | | | |
+| `array`        |X| | | | | | | |X| | | |
+| `resource`     |X| | | | | | | | |X| | |
+| `module`       |X| | | | | | | | | |X| |
+| `scope`        | | | | | | | | | | | |?|
+| named resource |X| | | | | | |?| |?| | |
+| named module   |X| | | | | | |?| | |?| |
 
 ### Legend
 | Mark | Source type assignable to target type? |
