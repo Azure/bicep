@@ -114,8 +114,23 @@ jobs:
 
   build-vsix:
     name: 'Build VSIX'
-    runs-on: 'ubuntu-latest'
+    runs-on: ${{ matrix.os }}
     needs: build-bicep
+
+    env:
+      CI: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
+        include:
+        - os: 'windows-latest'
+          rid: 'win-x64'
+        - os: 'ubuntu-latest'
+          rid: 'linux-x64'
+        - os: 'macos-latest'
+          rid: 'osx-x64'
 
     steps:
       - uses: actions/checkout@v2
@@ -149,9 +164,16 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
-        
+
       - name: Run E2E tests
+        run: npm run test:e2e
+        if: runner.os != 'Linux'
+        working-directory: ./src/vscode-bicep
+        
+      # In headless Linux CI machines xvfb is required to run VS Code, so need a separate path for Linux.
+      - name: Run E2E tests (Linux)
         run: xvfb-run -a npm run test:e2e
+        if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
@@ -162,10 +184,12 @@ jobs:
 
       - name: Create VSIX
         run: npm run package
+        if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v2
+        if: runner.os == 'Linux'
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
