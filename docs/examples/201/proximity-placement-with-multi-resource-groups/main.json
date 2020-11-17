@@ -173,7 +173,7 @@
             "value": "[parameters('adminSshKey')]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -349,7 +349,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2019-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -495,7 +495,7 @@
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2019-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"

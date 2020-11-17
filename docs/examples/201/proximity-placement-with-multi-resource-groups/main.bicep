@@ -33,7 +33,7 @@ module ppg './anchored-ppg.bicep' = {
   scope: resourceGroup(rganchor.name)
   params: {
     adminSshKey: adminSshKey
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'anchor'
     zone: zone
   }
@@ -45,7 +45,7 @@ module vm01 './linux-vm-as.bicep' = {
   params: {
     adminSshKey: adminSshKey
     ppgId: ppg.outputs.ppgId
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'vm01'
   }
 }
@@ -56,7 +56,7 @@ module vm02 './linux-vm-as.bicep' = {
   params: {
     adminSshKey: adminSshKey
     ppgId: ppg.outputs.ppgId
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'vm02'
   }
 }
