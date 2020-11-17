@@ -10,7 +10,7 @@ import {
 
 async function go() {
   try {
-    const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
+    const vscodeExecutablePath = await downloadAndUnzipVSCode("1.46.1");
     const cliPath = resolveCliPathFromVSCodeExecutablePath(
       vscodeExecutablePath
     );
@@ -28,6 +28,8 @@ async function go() {
       extensionTestsPath: path.resolve(__dirname, "index"),
       launchArgs: ["--enable-proposed-api"],
     });
+
+    process.exit(0);
   } catch (err) {
     console.error(err);
     process.exit(1);
