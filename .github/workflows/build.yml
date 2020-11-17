@@ -114,8 +114,16 @@ jobs:
 
   build-vsix:
     name: 'Build VSIX'
-    runs-on: 'ubuntu-latest'
+    runs-on: ${{ matrix.os }}
     needs: build-bicep
+
+    env:
+      CI: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
 
     steps:
       - uses: actions/checkout@v2
@@ -126,7 +134,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2.1.2
         with:
-          node-version: 10.x
+          node-version: 14.x
 
       - name: npm ci
         run: npm ci
@@ -149,23 +157,32 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
-        
+
       - name: Run E2E tests
+        run: npm run test:e2e
+        if: runner.os != 'Linux'
+        working-directory: ./src/vscode-bicep
+        
+      - name: Run E2E tests (Linux)
         run: xvfb-run -a npm run test:e2e
+        if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v1
+        if: runner.os == 'Linux'
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
 
       - name: Create VSIX
         run: npm run package
+        if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
         uses: actions/upload-artifact@v2
+        if: runner.os == 'Linux'
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
