@@ -17,7 +17,7 @@ All values in Bicep have one of the following types:
 | `any` | The value can be anything or allows anything. |
 | `error` | The expression has an error. |
 | `string` | Represents arbitrary text. Equivalent to JSON strings. |
-| `number` | **Not yet implemented (#486)** Represents a floating point number or a big integer. Equivalent to the JSON 
+| `number` | **Not yet implemented [#486](https://github.com/Azure/bicep/issues/486)** Represents a floating point number or a big integer. Equivalent to the JSON 
 | `int` | Represents a 32-bit integer. Is a subtype of `number`. There is no equivalent type in JSON. |
 | `bool` | Represents a boolean `true`/`false` value. Equivalent to booleans in JSON. |
 | `null` | Equivalent to `null` values in JSON. |
