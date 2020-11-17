@@ -10,7 +10,7 @@ import {
 
 async function go() {
   try {
-    const vscodeExecutablePath = await downloadAndUnzipVSCode("1.46.1");
+    const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
     const cliPath = resolveCliPathFromVSCodeExecutablePath(
       vscodeExecutablePath
     );
