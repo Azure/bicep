@@ -1,1 +1,2 @@
 *.bicep -text
+*.ts text eol=lf

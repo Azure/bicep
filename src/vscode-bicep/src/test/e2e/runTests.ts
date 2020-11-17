@@ -28,6 +28,8 @@ async function go() {
       extensionTestsPath: path.resolve(__dirname, "index"),
       launchArgs: ["--enable-proposed-api"],
     });
+
+    process.exit(0);
   } catch (err) {
     console.error(err);
     process.exit(1);
