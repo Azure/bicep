@@ -9,6 +9,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Core.Parser;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -64,8 +65,8 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static AndConstraint<StringAssertions> BeEquivalentToIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
         {
-            var normalizedActual = Regex.Replace(instance.Subject, "\r?\n", "\n");
-            var normalizedExpected = Regex.Replace(expected, "\r?\n", "\n");
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
 
             normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
 

@@ -30,7 +30,11 @@ namespace Bicep.Decompiler
         {
             this.fileResolver = fileResolver;
             this.fileUri = fileUri;
-            this.template = JsonConvert.DeserializeObject<JObject>(content);
+            this.template = JObject.Parse(content, new JsonLoadSettings
+            {
+                CommentHandling = CommentHandling.Ignore,
+                LineInfoHandling = LineInfoHandling.Load,
+            });
             this.nameResolver = new UniqueNamingResolver();
         }
 
@@ -390,12 +394,6 @@ namespace Bicep.Decompiler
                     baseSyntax = TryParseStringExpression(expression);
                     break;
                 }
-                case "__bicep_reference":
-                {
-                    var resourceRef = (expression.Parameters[0] as JTokenExpression)?.Value.Value<string>() ?? throw new InvalidOperationException("Internal error");
-                    baseSyntax = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resourceRef));
-                    break;
-                }
                 default:
                     if (TryReplaceBannedFunction(expression, out var replacedBannedSyntax))
                     {
@@ -482,6 +480,7 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseJValue(JValue value)
             => value.Type switch {
                 JTokenType.String => ParseString(value.ToString()),
+                JTokenType.Uri => ParseString(value.ToString()),
                 JTokenType.Integer => ParseIntegerJToken(value),
                 JTokenType.Date => ParseString(value.ToString()),
                 JTokenType.Float => ParseString(value.ToString()),
@@ -644,8 +643,8 @@ namespace Bicep.Decompiler
                 throw new InvalidOperationException($"Parsing failed for dependsOn");
             }
 
-            // bicep dependsOn behaves more like the 'reference' function - try to patch up this behavior
-            var dependsOnExpressions = dependsOn.Select(entry =>
+            var syntaxItems = new List<SyntaxBase>();
+            foreach (var entry in dependsOn)
             {
                 var entryString = entry.Value<string>();
                 if (entryString == null)
@@ -655,24 +654,23 @@ namespace Bicep.Decompiler
 
                 var entryExpression = ExpressionHelpers.ParseExpression(entryString);
                 var resourceRef = TryLookupResource(entryExpression);
+
+                SyntaxBase syntaxEntry;
                 if (resourceRef != null)
                 {
-                    // add a magic function - we'll turn this into an identifier later on
-                    return new FunctionExpression("__bicep_reference", new [] { new JTokenExpression(resourceRef) }, Array.Empty<LanguageExpression>());
+                    syntaxEntry = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resourceRef));
+                }
+                else
+                {
+                    // we can't output anything intelligent - convert the expression and move on.
+                    syntaxEntry = ParseJToken(entry);
                 }
 
-                // nothing we can do, leave it alone
-                return entryExpression;
-            });
-
-            // use the patched dependsOn
-            dependsOn = new JArray(dependsOnExpressions.Select(x => ExpressionsEngine.SerializeExpression(x)));
-            if (!dependsOn.Any())
-            {
-                return null;
+                
+                syntaxItems.Add(syntaxEntry);
             }
 
-            return ParseJToken(dependsOn);
+            return SyntaxHelpers.CreateArray(syntaxItems);
         }
 
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)

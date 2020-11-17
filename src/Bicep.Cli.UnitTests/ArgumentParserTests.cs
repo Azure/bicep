@@ -23,6 +23,7 @@ namespace Bicep.Cli.UnitTests
             actual.Should().Contain("build");
             actual.Should().Contain("options");
             actual.Should().Contain("--stdout");
+            actual.Should().Contain("decompile");
         }
 
         [TestMethod]
@@ -173,6 +174,32 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] {"-h"});
 
             arguments.Should().BeOfType<HelpArguments>();
+        }
+
+        [TestMethod]
+        public void DecompileNoFiles_ShouldThrow()
+        {
+            Action noFiles = () => ArgumentParser.TryParse(new[] {"decompile"});
+
+            noFiles.Should().Throw<CommandLineException>().WithMessage("At least one file must be specified to the decompile command.");
+        }
+
+        [TestMethod]
+        public void DecompileOneFile_ShouldReturnOneFile()
+        {
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "file1"}) as DecompileArguments;
+
+            arguments!.Should().NotBeNull();
+            arguments!.Files.Should().Equal("file1");
+        }
+
+        [TestMethod]
+        public void DecompileMultipleFiles_ShouldReturnAllFiles()
+        {
+            var arguments = ArgumentParser.TryParse(new[] {"decompile", "file1", "file2", "file3"}) as DecompileArguments;
+
+            arguments!.Should().NotBeNull();
+            arguments!.Files.Should().Equal("file1", "file2", "file3");
         }
     }
 }

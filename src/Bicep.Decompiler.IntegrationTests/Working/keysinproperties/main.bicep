@@ -71,8 +71,6 @@ resource storageAccountName_resource 'Microsoft.Storage/storageAccounts@2019-06-
   properties: {}
   dependsOn: [
     roleDefinitionName_resource
-    ' need to create a slight delay for the roleAssignment to replicate before the deployment script can run'
-//@[4:109) [BCP034 (Warning)] The enclosing array expected an item of type "resource | module", but the provided item was of type "' need to create a slight delay for the roleAssignment to replicate before the deployment script can run'". |' need to create a slight delay for the roleAssignment to replicate before the deployment script can run'|
   ]
 }
 
