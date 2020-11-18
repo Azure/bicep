@@ -6,13 +6,13 @@ const bicepCliExecutable = path.resolve(
   process.env.BICEP_CLI_EXECUTABLE || "../Bicep.Cli/bin/Debug/net5.0/bicep"
 );
 
-function runBicepCommand(...args) {
+function runBicepCommand(args, expectError = false) {
   const result = spawn.sync(bicepCliExecutable, args, {
     stdio: "pipe",
     encoding: "utf-8",
   });
 
-  if (result.stderr.length > 0) {
+  if (!expectError && result.stderr.length > 0) {
     console.error(result.stderr);
   }
 

@@ -3,13 +3,21 @@ const fs = require("fs");
 const runBicepCommand = require("../command");
 
 const exampleDirectory = path.resolve(__dirname, "../examples/101/aks/");
-const exampleBicepFile = path.join(exampleDirectory, "main.bicep");
-const exampleJsonFile = path.join(exampleDirectory, "main.json");
+
+function getExampleFilePath(exampleFileName, exampleFileExtension) {
+  return path.join(
+    exampleDirectory,
+    `${exampleFileName}.${exampleFileExtension}`
+  );
+}
 
 describe("bicep build", () => {
   it("should build a bicep file", () => {
-    const result = runBicepCommand("build", exampleBicepFile);
+    const exampleBicepFile = getExampleFilePath("main", "bicep");
+    const result = runBicepCommand(["build", exampleBicepFile]);
     expect(result.status).toBe(0);
+
+    const exampleJsonFile = getExampleFilePath("main", "json");
     expect(fs.existsSync(exampleJsonFile)).toBeTruthy();
 
     const jsonContents = fs.readFileSync(exampleJsonFile, {
@@ -18,8 +26,18 @@ describe("bicep build", () => {
     expect(jsonContents.length).toBeGreaterThan(0);
 
     // Building with --stdout should emit consistent result.
-    const stdoutResult = runBicepCommand("build", "--stdout", exampleBicepFile);
+    const stdoutResult = runBicepCommand(["build", "--stdout", exampleBicepFile]);
     expect(stdoutResult.status).toBe(0);
     expect(stdoutResult.stdout).toBe(jsonContents);
+  });
+
+  it("should log to stderr if a bicep file has errors", () => {
+    const exampleBicepFile = getExampleFilePath("flawed", "bicep");
+    const result = runBicepCommand(["build", exampleBicepFile], true);
+    expect(result.status).toBe(1);
+    expect(result.stderr.length).toBeGreaterThan(0);
+
+    const exampleJsonFile = getExampleFilePath("flawed", "json");
+    expect(fs.existsSync(exampleJsonFile)).toBeFalsy();
   });
 });
