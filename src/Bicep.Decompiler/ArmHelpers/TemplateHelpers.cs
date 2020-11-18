@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.ArmHelpers
@@ -21,22 +22,22 @@ namespace Bicep.Decompiler.ArmHelpers
         {
             if (HasProperty(resource, propertyName))
             {
-                throw new NotImplementedException(message);
+                throw new ConversionFailedException(message, resource);
             }
         }
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)
         {
-            var type = GetProperty(resource, "type")?.Value.Value<string>() ?? throw new ArgumentException($"Unable to parse 'type' for resource '{resource["name"]}'");
-            var name = GetProperty(resource, "name")?.Value.Value<string>() ?? throw new ArgumentException($"Unable to parse 'name' for resource '{resource["name"]}'");
-            var apiVersion = GetProperty(resource, "apiVersion")?.Value.Value<string>() ?? throw new ArgumentException($"Unable to parse 'apiVersion' for resource '{resource["name"]}'");
+            var type = GetProperty(resource, "type")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'type' for resource", resource);
+            var name = GetProperty(resource, "name")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'name' for resource", resource);
+            var apiVersion = GetProperty(resource, "apiVersion")?.Value.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'apiVersion' for resource", resource);
             
             return (type, name, apiVersion);
         }
 
         public static IEnumerable<JObject> FlattenAndNormalizeResource(JToken resourceJtoken)
         {
-            var resource = (resourceJtoken.DeepClone() as JObject) ?? throw new ArgumentException($"Unable to read resource {resourceJtoken}");
+            var resource = resourceJtoken as JObject ?? throw new ConversionFailedException($"Unable to read resource", resourceJtoken);
 
             var (parentType, parentName, _) = ParseResource(resource);
 
@@ -56,7 +57,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
             foreach (var childResource in childResourcesArray)
             {
-                var childResourceObject = childResource as JObject ?? throw new ArgumentException($"Unable to parse 'resources' for resource '{resource["name"]}'");
+                var childResourceObject = childResource as JObject ?? throw new ConversionFailedException($"Unable to read child resource", childResource);
                 
                 var (childType, childName, _) = ParseResource(childResourceObject);
 

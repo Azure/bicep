@@ -20,10 +20,10 @@ namespace Bicep.Cli.UnitTests
 
             actual.Should().Contain("--help");
             actual.Should().Contain("--version");
-            actual.Should().Contain("build");
+            actual.Should().Contain("bicep build");
             actual.Should().Contain("options");
             actual.Should().Contain("--stdout");
-            actual.Should().Contain("decompile");
+            actual.Should().Contain("bicep decompile");
         }
 
         [TestMethod]

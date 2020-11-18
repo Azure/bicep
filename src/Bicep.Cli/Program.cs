@@ -207,8 +207,9 @@ namespace Bicep.Cli
         public int Decompile(ILogger logger, DecompileArguments arguments)
         {
             logger.LogWarning(
-                "Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to .bicep. " +
-                "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.");
+                "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.\n" +
+                "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.\n" +
+                "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
 
             var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var hadErrors = false;

@@ -16,6 +16,7 @@ using System.IO;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Expression.Engines;
 using Bicep.Core.FileSystem;
+using Bicep.Decompiler.Exceptions;
 
 namespace Bicep.Decompiler
 {
@@ -51,7 +52,7 @@ namespace Bicep.Decompiler
             {
                 if (nameResolver.TryRequestName(NameType.Parameter, parameter.Name) == null)
                 {
-                    throw new InvalidOperationException($"Unable to pick unique name for parameter {parameter.Name}");
+                    throw new ConversionFailedException($"Unable to pick unique name for parameter {parameter.Name}", parameter);
                 }
             }
 
@@ -59,7 +60,7 @@ namespace Bicep.Decompiler
             {
                 if (nameResolver.TryRequestName(NameType.Output, output.Name) == null)
                 {
-                    throw new InvalidOperationException($"Unable to pick unique name for output {output.Name}");
+                    throw new ConversionFailedException($"Unable to pick unique name for output {output.Name}", output);
                 }
             }
 
@@ -67,18 +68,18 @@ namespace Bicep.Decompiler
             {
                 if (nameResolver.TryRequestName(NameType.Variable, variable.Name) == null)
                 {
-                    throw new InvalidOperationException($"Unable to pick unique name for variable {variable.Name}");
+                    throw new ConversionFailedException($"Unable to pick unique name for variable {variable.Name}", variable);
                 }
             }
 
             foreach (var resource in resources)
             {
-                var nameString = resource["name"]?.Value<string>() ?? throw new ArgumentException($"Unable to parse 'name' for resource '{resource["name"]}'");
-                var typeString = resource["type"]?.Value<string>() ?? throw new ArgumentException($"Unable to parse 'type' for resource '{resource["name"]}'");
+                var nameString = resource["name"]?.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'name' for resource '{resource["name"]}'", resource);
+                var typeString = resource["type"]?.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'type' for resource '{resource["name"]}'", resource);
 
                 if (nameResolver.TryRequestResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) == null)
                 {
-                    throw new InvalidOperationException($"Unable to pick unique name for resource {typeString} {nameString}");
+                    throw new ConversionFailedException($"Unable to pick unique name for resource {typeString} {nameString}", resource);
                 }
             }
         }
@@ -96,7 +97,7 @@ namespace Bicep.Decompiler
 
                 if (variableVal == null)
                 {
-                    throw new ArgumentException($"Unable to resolve variable {variableNameExpression.Value.ToString()}");
+                    throw new ArgumentException($"Unable to resolve variable {variableNameExpression.Value}");
                 }
 
                 if (variableVal.Type == JTokenType.String && variableVal.ToObject<string>() is string stringValue)
@@ -155,7 +156,7 @@ namespace Bicep.Decompiler
                 JArray jArray => ParseJArray(jArray),
                 JValue jValue => ParseJValue(jValue),
                 null => throw new ArgumentNullException(nameof(value)),
-                _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+                _ => throw new ConversionFailedException($"Unrecognized token type {value.Type}", value),
             };
 
         private SyntaxBase ParseJTokenExpression(JTokenExpression expression)
@@ -532,7 +533,7 @@ namespace Bicep.Decompiler
 
         public ParameterDeclarationSyntax ParseParam(JProperty value)
         {
-            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ArgumentException($"Unable to locate 'type' for parameter '{value.Name}'");
+            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
 
             var defaultValue = TryParseJToken(value.Value?["defaultValue"]);
             var objProperties = new Dictionary<string, SyntaxBase?>
@@ -582,7 +583,7 @@ namespace Bicep.Decompiler
                     defaultValue);
             }
 
-            var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ArgumentException($"Unable to find parameter {value.Name}");
+            var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
             return new ParameterDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "param"),
@@ -593,7 +594,7 @@ namespace Bicep.Decompiler
 
         public VariableDeclarationSyntax ParseVariable(JProperty value)
         {
-            var identifier = nameResolver.TryLookupName(NameType.Variable, value.Name) ?? throw new ArgumentException($"Unable to find variable {value.Name}");
+            var identifier = nameResolver.TryLookupName(NameType.Variable, value.Name) ?? throw new ConversionFailedException($"Unable to find variable {value.Name}", value);
 
             return new VariableDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "var"),
@@ -607,7 +608,7 @@ namespace Bicep.Decompiler
             var templateLink = resource["properties"]?["templateLink"]?["uri"]?.Value<string>();
             if (templateLink == null)
             {
-                throw new NotImplementedException($"Unable to find ${resource["name"]}.properties.templateLink.uri. Decompilation of nested templates is not currently supported.");
+                throw new ConversionFailedException($"Unable to find ${resource["name"]}.properties.templateLink.uri. Decompilation of nested templates is not currently supported.", resource);
             }
 
             var templateLinkExpression = InlineVariables(ExpressionHelpers.ParseExpression(templateLink));
@@ -640,7 +641,7 @@ namespace Bicep.Decompiler
 
             if (dependsOnProp.Value is not JArray dependsOn)
             {
-                throw new InvalidOperationException($"Parsing failed for dependsOn");
+                throw new ConversionFailedException($"Parsing failed for dependsOn - expected an array", resource);
             }
 
             var syntaxItems = new List<SyntaxBase>();
@@ -649,7 +650,7 @@ namespace Bicep.Decompiler
                 var entryString = entry.Value<string>();
                 if (entryString == null)
                 {
-                    throw new InvalidOperationException($"Parsing failed for dependsOn");
+                    throw new ConversionFailedException($"Parsing failed for dependsOn - expected a string value", entry);
                 }
 
                 var entryExpression = ExpressionHelpers.ParseExpression(entryString);
@@ -687,16 +688,16 @@ namespace Bicep.Decompiler
 
             var moduleFilePath = GetModuleFilePath(resource);
 
-            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "Copy loops are not currently supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "Conditionals are not currently supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "Scope is not supported for linked/nested templates");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "SubscriptionId is not supported for linked/nested templates");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "ResourceGroup is not supported for linked/nested templates");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "The 'subscriptionId' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "The 'resourceGroup' property is not supported");
             foreach (var prop in resource.Properties())
             {
                 if (!expectedDeploymentProps.Contains(prop.Name))
                 {
-                    throw new NotImplementedException($"Unrecognized top-level resource property '{prop.Name}'");
+                    throw new ConversionFailedException($"Unrecognized top-level resource property '{prop.Name}'", prop);
                 }
             }
 
@@ -729,7 +730,7 @@ namespace Bicep.Decompiler
 
         public SyntaxBase ParseResource(JObject template, JToken value)
         {
-            var resource = (value as JObject) ?? throw new ArgumentException($"Incorrect resource format");
+            var resource = (value as JObject) ?? throw new ConversionFailedException($"Incorrect resource format", value);
 
             // mandatory properties
             var (typeString, nameString, apiVersionString) = TemplateHelpers.ParseResource(resource);
@@ -767,9 +768,9 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
-            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "Copy loops are not currently supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "Conditionals are not currently supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "Scope is not supported for resources");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
+            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
             foreach (var prop in resource.Properties())
@@ -781,13 +782,13 @@ namespace Bicep.Decompiler
 
                 if (!expectedResourceProps.Contains(prop.Name))
                 {
-                    throw new NotImplementedException($"Unrecognized top-level resource property '{prop.Name}'");
+                    throw new ConversionFailedException($"Unrecognized top-level resource property '{prop.Name}'", prop);
                 }
 
                 var valueSyntax = TryParseJToken(prop.Value);
                 if (valueSyntax == null)
                 {
-                    throw new InvalidOperationException($"Parsing failed for top-level property {prop.Name} with value {prop.Value}");
+                    throw new ConversionFailedException($"Parsing failed for property value {prop.Value}", prop.Value);
                 }
 
                 topLevelProperties.Add(SyntaxHelpers.CreateObjectProperty(prop.Name, valueSyntax));
@@ -811,8 +812,8 @@ namespace Bicep.Decompiler
 
         public OutputDeclarationSyntax ParseOutput(JProperty value)
         {
-            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ArgumentException($"Unable to locate 'type' for output '{value.Name}'");
-            var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ArgumentException($"Unable to find output {value.Name}");
+            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for output '{value.Name}'", value);
+            var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ConversionFailedException($"Unable to find output {value.Name}", value);
 
             return new OutputDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "output"),
@@ -872,9 +873,10 @@ namespace Bicep.Decompiler
         {
             var statements = new List<SyntaxBase>();
 
-            if ((template["functions"] as JArray)?.Any() == true)
+            var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray;
+            if (functions?.Any() == true)
             {
-                throw new NotImplementedException($"User defined functions are not currently supported");
+                throw new ConversionFailedException($"User defined functions are not currently supported", functions);
             }
 
             var targetScope = ParseTargetScope(template);
@@ -884,15 +886,18 @@ namespace Bicep.Decompiler
             }
 
             var parameters = (TemplateHelpers.GetProperty(template, "parameters")?.Value as JObject ?? new JObject()).Properties();
-            var resources = (TemplateHelpers.GetProperty(template, "resources")?.Value as JArray ?? new JArray()).SelectMany(TemplateHelpers.FlattenAndNormalizeResource);
+            var resources = TemplateHelpers.GetProperty(template, "resources")?.Value as JArray ?? new JArray();
             var variables = (TemplateHelpers.GetProperty(template, "variables")?.Value as JObject ?? new JObject()).Properties();
             var outputs = (TemplateHelpers.GetProperty(template, "outputs")?.Value as JObject ?? new JObject()).Properties();
 
-            RegisterNames(parameters, resources, variables, outputs);
+            // FlattenAndNormalizeResource has side effects, so use .ToArray() to force single enumeration
+            var flattenedResources = resources.SelectMany(TemplateHelpers.FlattenAndNormalizeResource).ToArray();
+
+            RegisterNames(parameters, flattenedResources, variables, outputs);
 
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
-            AddSyntaxBlock(statements, resources.Select(r => ParseResource(template, r)), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(r => ParseResource(template, r)), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(

@@ -60,8 +60,9 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.Should().BeEquivalentTo(
-                    "Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to .bicep. You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible."
-                );
+                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
+                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
                 result.Should().Be(0);
             }
 
@@ -103,7 +104,9 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.Should().BeEquivalentTo(
-                    "Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to .bicep. You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
+                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.",
                     $"{bicepFileName}(4,23) : Error BCP079: This expression is referencing its own declaration, which is not allowed."
                 );
                 result.Should().Be(1);
@@ -153,8 +156,9 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.Should().BeEquivalentTo(
-                    "Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to .bicep. You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible."
-                );
+                    "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
+                    "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
+                    "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
                 result.Should().Be(0);
             }
 

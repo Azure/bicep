@@ -19,6 +19,7 @@ using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
 using Bicep.Core.UnitTests.FileSystem;
 using System.Text.RegularExpressions;
+using Bicep.Decompiler.Exceptions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -143,13 +144,13 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
                 resourcePath = "NonWorking/conditional.json";
-                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Conditionals are not currently supported");
+                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[75:17]: The 'condition' property is not supported");
 
                 resourcePath = "NonWorking/copyloop.json";
-                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Copy loops are not currently supported");
+                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[11:9]: The 'copy' property is not supported");
 
                 resourcePath = "NonWorking/unknownprops.json";
-                onDecompile.Should().Throw<NotImplementedException>().WithMessage("Unrecognized top-level resource property 'madeUpProperty'");
+                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[15:29]: Unrecognized top-level resource property 'madeUpProperty'");
             }
         }
 
