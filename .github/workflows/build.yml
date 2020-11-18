@@ -64,6 +64,12 @@ jobs:
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
+      - name: Run Bicep E2E Tests
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
         if: ${{ matrix.publishLanguageServer == 'true' }}
