@@ -18,35 +18,6 @@ module network './network.bicep' = {
   }
 }
 
-resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
-  name: 'cycleserver-pip'
-  location: location
-  properties: {
-    publicIPAllocationMethod: 'Dynamic'
-  }
-}
-
-resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: 'cycleserver-nic'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: concat(network.outputs.vnetId, '/subnets/Default')
-          }
-          publicIPAddress: {
-            id: pip.id
-          }
-        }
-      }
-    ]
-  }
-}
-
 resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: saName
   location: location
@@ -61,12 +32,12 @@ resource mid 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   location: location
 }
 
-module vm './linux-vm.bicep' = {
+module vm './cycleserver-vm.bicep' = {
   name: 'cycleserver'
   params: {
     csadminSshKey: csadminSshKey
     customData: customData
-    nicId: nic.id
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     userAssignedIdentity: mid.id
   }
 }
@@ -76,5 +47,6 @@ resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   properties: {
     roleDefinitionId: tenantResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.contributor)
     principalId: mid.properties.principalId
+    principalType: 'ServicePrincipal'
   }
 }

@@ -1,8 +1,37 @@
 param location string = resourceGroup().location
 param csadminSshKey string
 param customData string = ''
-param nicId string
+param subnetId string
 param userAssignedIdentity string
+
+resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
+  name: 'cycleserver-pip'
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+  }
+}
+
+resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: 'cycleserver-nic'
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: subnetId
+          }
+          publicIPAddress: {
+            id: pip.id
+          }
+        }
+      }
+    ]
+  }
+}
 
 resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: 'cycleserver'
@@ -37,7 +66,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       imageReference: {
         publisher: 'OpenLogic'
         offer: 'CentOS'
-        sku: '7.7'
+        sku: '8_2'
         version: 'latest'
       }
       osDisk: {
@@ -51,7 +80,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: nicId
+          id: nic.id
         }
       ]
     }

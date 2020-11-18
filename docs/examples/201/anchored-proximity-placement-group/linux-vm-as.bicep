@@ -4,20 +4,6 @@ param availabilitySetId string
 param subnetId string
 param vmName string
 
-resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
-  name: '${vmName}-pip'
-  location: location
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-  sku: {
-    name: 'Standard'
-  }
-  zones: [
-    '1'
-  ]
-}
-
 resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   name: '${vmName}-nic'
   location: location
@@ -29,9 +15,6 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: subnetId
-          }
-          publicIPAddress: {
-            id: pip.id
           }
         }
       }
