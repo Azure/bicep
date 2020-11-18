@@ -13,7 +13,7 @@
       "type": "string",
       "defaultValue": ""
     },
-    "nicId": {
+    "subnetId": {
       "type": "string"
     },
     "userAssignedIdentity": {
@@ -22,6 +22,40 @@
   },
   "functions": [],
   "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "cycleserver-pip",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "cycleserver-nic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'cycleserver-pip')]"
+      ]
+    },
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
@@ -57,7 +91,7 @@
           "imageReference": {
             "publisher": "OpenLogic",
             "offer": "CentOS",
-            "sku": "7.7",
+            "sku": "8_2",
             "version": "latest"
           },
           "osDisk": {
@@ -71,11 +105,14 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[parameters('nicId')]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
             }
           ]
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
+      ]
     }
   ]
 }

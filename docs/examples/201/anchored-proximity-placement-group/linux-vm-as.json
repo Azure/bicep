@@ -22,21 +22,6 @@
   "functions": [],
   "resources": [
     {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-05-01",
-      "name": "[format('{0}-pip', parameters('vmName'))]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "publicIPAllocationMethod": "Static"
-      },
-      "sku": {
-        "name": "Standard"
-      },
-      "zones": [
-        "1"
-      ]
-    },
-    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-05-01",
       "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -49,17 +34,11 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[parameters('subnetId')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
               }
             }
           }
         ]
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Compute/virtualMachines",

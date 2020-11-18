@@ -37,7 +37,7 @@ module vmA './linux-vm-az.bicep' = {
   params: {
     adminSshKey: adminSshKey
     proximityPlacementGroupId: ppg1.id
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'anchor'
     zone: 1
   }
@@ -48,7 +48,7 @@ module vm01 './linux-vm-as.bicep' = {
   params: {
     adminSshKey: adminSshKey
     availabilitySetId: as1.id
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'vm01'
   }
 }
@@ -58,7 +58,7 @@ module vm02 './linux-vm-as.bicep' = {
   params: {
     adminSshKey: adminSshKey
     availabilitySetId: as1.id
-    subnetId: concat(network.outputs.vnetId, '/subnets/Default')
+    subnetId: '${network.outputs.vnetId}/subnets/Default'
     vmName: 'vm02'
   }
 }

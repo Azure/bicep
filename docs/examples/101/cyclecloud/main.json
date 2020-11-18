@@ -16,7 +16,7 @@
     },
     "myIp": {
       "type": "string",
-      "defaultValue": "1.1.1.1"
+      "defaultValue": "20.49.199.4"
     }
   },
   "functions": [],
@@ -192,7 +192,7 @@
           "imageReference": {
             "publisher": "OpenLogic",
             "offer": "CentOS",
-            "sku": "7.7",
+            "sku": "8_2",
             "version": "latest"
           },
           "osDisk": {
@@ -222,7 +222,8 @@
       "name": "[guid(resourceGroup().id)]",
       "properties": {
         "roleDefinitionId": "[tenantResourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').contributor)]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')).principalId]"
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')).principalId]",
+        "principalType": "ServicePrincipal"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')]"
