@@ -22,6 +22,10 @@ updates:
     directory: "/src/playground"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/src/Bicep.Cli.E2eTests"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
