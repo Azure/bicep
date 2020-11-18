@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Bicep.Core.Parser;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -123,5 +125,15 @@ namespace Bicep.Core.Samples
 
             return builder.ToImmutable();
         }
+
+        public static string AddDiagsToSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
+            => OutputHelper.AddDiagsToSourceText<T>(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, getSpanFunc, diagsFunc);
+
+        public static string AddDiagsToSourceText<TPositionable>(DataSet dataSet, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
+            where TPositionable : IPositionable
+            => OutputHelper.AddDiagsToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, item => item.Span, diagsFunc);
+
+        public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
+            => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
     }
 }

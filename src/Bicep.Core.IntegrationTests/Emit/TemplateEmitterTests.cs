@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -88,7 +88,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 

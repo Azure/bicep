@@ -24,3 +24,13 @@ export function getSemanticTokens(content: string): languages.SemanticTokens {
 export function compileAndEmitDiagnostics(content: string): {template: string, diagnostics: editor.IMarkerData[]} {
   return interop.invokeMethod('CompileAndEmitDiagnostics', content);
 }
+
+export function decompile(jsonContent: string): string {
+  const { bicepFile, error } = interop.invokeMethod('Decompile', jsonContent);
+
+  if (error) {
+    throw error;
+  }
+
+  return bicepFile;
+}

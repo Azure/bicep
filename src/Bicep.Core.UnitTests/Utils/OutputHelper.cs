@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
-using Bicep.Core.Samples;
 using Bicep.Core.Text;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Core.UnitTests.Utils
 {
     public static class OutputHelper
     {
@@ -19,10 +19,9 @@ namespace Bicep.Core.IntegrationTests
             .Replace("\n", "\\n")
             .Replace("\t", "\\t");
 
-        public static string AddDiagsToSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
+        public static string AddDiagsToSourceText<T>(string bicepOutput, string newlineSequence, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
         {
-            var newlineSequence = dataSet.HasCrLfNewlines() ? "\r\n" : "\n";
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.Bicep);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
 
             var itemsByLine = items
                 .Select(item => {
@@ -31,7 +30,7 @@ namespace Bicep.Core.IntegrationTests
                 })
                 .ToLookup(t => t.line);
 
-            var sourceTextLines = dataSet.Bicep.Split(newlineSequence);
+            var sourceTextLines = bicepOutput.Split(newlineSequence);
             var stringBuilder = new StringBuilder();
 
             for (var i = 0; i < sourceTextLines.Length; i++)
@@ -49,9 +48,9 @@ namespace Bicep.Core.IntegrationTests
             return stringBuilder.ToString();
         }
 
-        public static string AddDiagsToSourceText<TPositionable>(DataSet dataSet, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
+        public static string AddDiagsToSourceText<TPositionable>(string bicepOutput, string newlineSequence, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
             where TPositionable : IPositionable
-            => AddDiagsToSourceText(dataSet, items, item => item.Span, diagsFunc);
+            => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
 
         public static string GetSpanText(string sourceText, IPositionable positionable)
         {
@@ -60,7 +59,12 @@ namespace Bicep.Core.IntegrationTests
             return EscapeWhitespace(spanText);
         }
 
-        public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
-            => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
+        public static string GetDiagLoggingString(string sourceText, string outputDirectory, Diagnostic diagnostic)
+        {
+            var spanText = GetSpanText(sourceText, diagnostic);
+            var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}");
+
+            return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
+        }
     }
 }

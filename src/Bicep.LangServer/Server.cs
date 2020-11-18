@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -42,6 +43,7 @@ namespace Bicep.LanguageServer
         
         private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
+            BicepDeploymentsInterop.Initialize();
             server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options =>
             {
                 options

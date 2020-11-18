@@ -112,13 +112,13 @@ namespace Bicep.Core.IntegrationTests
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 
                 dataSet.Syntax,
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
                 actualLocation: resultsFile);
         }
 

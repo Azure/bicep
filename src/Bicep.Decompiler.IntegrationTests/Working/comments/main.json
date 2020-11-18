@@ -1,0 +1,13 @@
+{ // single line comment
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",/*
+    multi
+    line
+    comment
+    */
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "test": "hi", // comment
+        "test2": "hi", /* multi line comment */
+    }, "resources": [],"outputs": {}
+}

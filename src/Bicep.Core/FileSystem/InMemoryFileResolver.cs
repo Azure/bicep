@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 
-namespace Bicep.Core.UnitTests.FileSystem
+namespace Bicep.Core.FileSystem
 {
     public class InMemoryFileResolver : IFileResolver
     {

@@ -42,6 +42,29 @@ namespace Bicep.Wasm
             };
         }
 
+        public record DecompileResult(string? bicepFile, string? error);
+
+        [JSInvokable]
+        public DecompileResult Decompile(string jsonContent)
+        {
+            var jsonUri = new Uri("inmemory:///main.json");
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
+                [jsonUri] = jsonContent,
+            });
+
+            try
+            {
+                var (entrypointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, jsonUri);
+
+                return new DecompileResult(filesToSave[entrypointUri], null);
+            }
+            catch (Exception exception)
+            {
+                return new DecompileResult(null, exception.Message);
+            }
+        }
+
         [JSInvokable]
         public object GetSemanticTokensLegend()
         {
