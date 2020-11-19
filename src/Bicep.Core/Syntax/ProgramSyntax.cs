@@ -27,11 +27,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(SyntaxVisitor visitor)
             => visitor.VisitProgramSyntax(this);
 
-        public override TextSpan Span => this.Children.Any()
-            ? TextSpan.Between(this.Children.First(), this.EndOfFile)
-            : this.EndOfFile.Span;
-
-        public TextSpan FullSpan => TextSpan.Between(new TextSpan(0, 0), this.EndOfFile);
+        public override TextSpan Span => TextSpan.Between(new TextSpan(0, 0), this.EndOfFile);
 
         // TODO: Should we have a DeclarationSyntax abstract class?
         public IEnumerable<SyntaxBase> Declarations => this.Children.Where(c => c is INamedDeclarationSyntax);
