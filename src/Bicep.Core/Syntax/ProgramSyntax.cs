@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<Diagnostic> LexerDiagnostics { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitProgramSyntax(this);
 
         public override TextSpan Span => this.Children.Any()

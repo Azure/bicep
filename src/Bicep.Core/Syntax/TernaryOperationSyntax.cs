@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase FalseExpression { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitTernaryOperationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTernaryOperationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.ConditionExpression, this.FalseExpression);
     }

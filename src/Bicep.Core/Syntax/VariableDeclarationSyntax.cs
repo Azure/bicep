@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Keyword, Value);
     }

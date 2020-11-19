@@ -6,7 +6,7 @@ using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
 {
-    public abstract class SyntaxVisitor
+    public abstract class SyntaxVisitor : ISyntaxVisitor
     {
         public void Visit(SyntaxBase? node)
         {

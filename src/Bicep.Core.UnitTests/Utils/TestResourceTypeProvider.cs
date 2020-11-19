@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 
@@ -17,7 +18,7 @@ namespace Bicep.Core.UnitTests.Utils
             => true;
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => throw new NotImplementedException();
+            => Enumerable.Empty<ResourceTypeReference>();
 
         public static IResourceTypeProvider Create()
             => new TestResourceTypeProvider();

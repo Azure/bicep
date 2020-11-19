@@ -3,27 +3,38 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Parser;
 using Bicep.Core.SemanticModel;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions.Execution;
 using FluentAssertions;
 using System;
+using Bicep.Core.TypeSystem;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Core.UnitTests.Utils
 {
     public static class CompilationHelper
     {
+        public static Compilation CreateCompilation(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
+        {
+            var (uriDictionary, entryUri) = CreateFileDictionary(files);
+
+            return CreateCompilation(resourceTypeProvider, uriDictionary, entryUri);
+        }
+
+        public static Compilation CreateCompilation(params (string fileName, string fileContents)[] files)
+            => CreateCompilation(new AzResourceTypeProvider(), files);
+
         public static (string? jsonOutput, IEnumerable<Diagnostic> diagnostics) Compile(params (string fileName, string fileContents)[] files)
+        {
+            var (uriDictionary, entryUri) = CreateFileDictionary(files);
+
+            return Compile(CreateCompilation(new AzResourceTypeProvider(), uriDictionary, entryUri));
+        }
+
+        private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");
 
@@ -32,13 +43,18 @@ namespace Bicep.Core.IntegrationTests
                 x => x.fileContents);
             var entryUri = new Uri($"file:///path/to/main.bicep");
 
-            return Compile(uriDictionary, entryUri);
+            return (uriDictionary, entryUri);
         }
 
-        public static (string? jsonOutput, IEnumerable<Diagnostic> diagnostics) Compile(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
+        private static Compilation CreateCompilation(IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
         {
             var syntaxTreeGrouping = SyntaxFactory.CreateForFiles(files, entryFileUri);
-            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
+
+            return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+        }
+
+        private static (string? jsonOutput, IEnumerable<Diagnostic> diagnostics) Compile(Compilation compilation)
+        {
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
             
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
@@ -68,7 +84,7 @@ namespace Bicep.Core.IntegrationTests
 
         public static void AssertFailureWithDiagnostics(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri, IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics)
         {
-            var (jsonOutput, diagnostics) = Compile(files, entryFileUri);
+            var (jsonOutput, diagnostics) = Compile(CreateCompilation(new AzResourceTypeProvider(), files, entryFileUri));
             using (new AssertionScope())
             {
                 jsonOutput.Should().BeNull();
@@ -78,7 +94,7 @@ namespace Bicep.Core.IntegrationTests
 
         public static string AssertSuccessWithTemplateOutput(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
         {
-            var (jsonOutput, diagnostics) = Compile(files, entryFileUri);
+            var (jsonOutput, diagnostics) = Compile(CreateCompilation(new AzResourceTypeProvider(), files, entryFileUri));
             using (new AssertionScope())
             {
                 jsonOutput.Should().NotBeNull();

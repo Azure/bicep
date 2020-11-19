@@ -32,25 +32,25 @@ param location string {
   default: resourceGroup().location
 }
 
-var virtualMachineName = 'VM-MultiNic'
-var nic1 = 'nic-1'
-var nic2 = 'nic-2'
-var virtualNetworkName = 'virtualNetwork'
+var virtualMachineName_var = 'VM-MultiNic'
+var nic1_var = 'nic-1'
+var nic2_var = 'nic-2'
+var virtualNetworkName_var = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
-var publicIPAddressName = 'publicIp'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
-var diagStorageAccountName = 'diags${uniqueString(resourceGroup().id)}'
-var networkSecurityGroupName = 'NSG'
-var networkSecurityGroupName2 = '${subnet2Name}-nsg'
+var publicIPAddressName_var = 'publicIp'
+var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet1Name)
+var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet2Name)
+var diagStorageAccountName_var = 'diags${uniqueString(resourceGroup().id)}'
+var networkSecurityGroupName_var = 'NSG'
+var networkSecurityGroupName2_var = '${subnet2Name}-nsg'
 
-resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2019-12-01' = {
-  name: virtualMachineName
+resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
+  name: virtualMachineName_var
   location: location
   properties: {
     osProfile: {
-      computerName: virtualMachineName
+      computerName: virtualMachineName_var
       adminUsername: adminUsername
       adminPassword: adminPassword
       windowsConfiguration: {
@@ -78,32 +78,32 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2019-12-
           properties: {
             primary: true
           }
-          id: nic1_resource.id
+          id: nic1.id
         }
         {
           properties: {
             primary: false
           }
-          id: nic2_resource.id
+          id: nic2.id
         }
       ]
     }
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: true
-        storageUri: reference(diagStorageAccountName_resource.id, '2019-06-01').primaryEndpoints.blob
+        storageUri: reference(diagStorageAccountName.id, '2019-06-01').primaryEndpoints.blob
       }
     }
   }
   dependsOn: [
-    nic1_resource
-    nic2_resource
-    diagStorageAccountName_resource
+    nic1
+    nic2
+    diagStorageAccountName
   ]
 }
 
-resource diagStorageAccountName_resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: diagStorageAccountName
+resource diagStorageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: diagStorageAccountName_var
   location: location
   sku: {
     name: storageAccountType
@@ -111,13 +111,13 @@ resource diagStorageAccountName_resource 'Microsoft.Storage/storageAccounts@2019
   kind: 'StorageV2'
 }
 
-resource networkSecurityGroupName2_resource 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName2
+resource networkSecurityGroupName2 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName2_var
   location: location
 }
 
-resource virtualNetworkName_resource 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: virtualNetworkName
+resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: virtualNetworkName_var
   location: location
   properties: {
     addressSpace: {
@@ -137,19 +137,19 @@ resource virtualNetworkName_resource 'Microsoft.Network/virtualNetworks@2020-05-
         properties: {
           addressPrefix: '10.0.1.0/24'
           networkSecurityGroup: {
-            id: networkSecurityGroupName2_resource.id
+            id: networkSecurityGroupName2.id
           }
         }
       }
     ]
   }
   dependsOn: [
-    networkSecurityGroupName2_resource
+    networkSecurityGroupName2
   ]
 }
 
-resource nic1_resource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: nic1
+resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: nic1_var
   location: location
   properties: {
     ipConfigurations: [
@@ -162,24 +162,24 @@ resource nic1_resource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
           privateIPAllocationMethod: 'Dynamic'
           publicIpAddress: {
 //@[10:25) [BCP089 (Warning)] The property "publicIpAddress" is not allowed on objects of type "NetworkInterfaceIPConfigurationPropertiesFormat". Did you mean "publicIPAddress"? |publicIpAddress|
-            id: publicIpAddressName_resource.id
+            id: publicIpAddressName.id
           }
         }
       }
     ]
     networkSecurityGroup: {
-      id: networkSecurityGroupName_resource.id
+      id: networkSecurityGroupName.id
     }
   }
   dependsOn: [
-    publicIpAddressName_resource
-    networkSecurityGroupName_resource
-    virtualNetworkName_resource
+    publicIpAddressName
+    networkSecurityGroupName
+    virtualNetworkName
   ]
 }
 
-resource nic2_resource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: nic2
+resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: nic2_var
   location: location
   properties: {
     ipConfigurations: [
@@ -195,20 +195,20 @@ resource nic2_resource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     ]
   }
   dependsOn: [
-    virtualNetworkName_resource
+    virtualNetworkName
   ]
 }
 
-resource publicIpAddressName_resource 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
-  name: publicIPAddressName
+resource publicIpAddressName 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
+  name: publicIPAddressName_var
   location: location
   properties: {
     publicIPAllocationMethod: 'Dynamic'
   }
 }
 
-resource networkSecurityGroupName_resource 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName
+resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName_var
   location: location
   properties: {
     securityRules: [

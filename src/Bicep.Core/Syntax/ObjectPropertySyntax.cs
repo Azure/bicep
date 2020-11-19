@@ -33,7 +33,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.Key, this.Value);
     }

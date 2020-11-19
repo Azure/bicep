@@ -6,6 +6,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using System;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Core.IntegrationTests
 {

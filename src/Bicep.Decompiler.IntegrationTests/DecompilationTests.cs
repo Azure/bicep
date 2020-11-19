@@ -17,9 +17,9 @@ using Bicep.Core.Workspaces;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
-using Bicep.Core.UnitTests.FileSystem;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
+using Bicep.Decompiler;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -87,7 +87,7 @@ namespace Bicep.Core.IntegrationTests
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
 
-            var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
+            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
 
             var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
             var workspace = new Workspace();
@@ -138,7 +138,7 @@ namespace Bicep.Core.IntegrationTests
             var resourcePath = "";
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
-                Decompiler.Decompiler.DecompileFileWithModules(fileResolver, new Uri($"file:///{resourcePath}"));
+                TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(),fileResolver, new Uri($"file:///{resourcePath}"));
             };
 
             using (new AssertionScope())
@@ -181,7 +181,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });;
 
-            var (entryPointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, fileUri);
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 
             // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");

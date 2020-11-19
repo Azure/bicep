@@ -358,35 +358,6 @@ namespace Bicep.Core.TypeSystem
                         continue;
                     }
 
-                    TypeMismatchErrorFactory typeMismatchErrorFactory = (expectedType, actualType, errorExpression) =>
-                    {
-                        var builder = DiagnosticBuilder.ForPosition(errorExpression);
-                        var shouldWarn = ShouldWarn(targetType);
-
-                        if (actualType is StringLiteralType)
-                        {
-                            string? suggestedStringLiteral = null;
-
-                            if (expectedType is StringLiteralType)
-                            {
-                                suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, expectedType.Name.AsEnumerable());
-                            }
-
-                            if (expectedType is UnionType unionType && unionType.Members.All(typeReference => typeReference.Type is StringLiteralType))
-                            {
-                                var stringLiteralCandidates = unionType.Members.Select(typeReference => typeReference.Type.Name).OrderBy(x => x);
-                                suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, stringLiteralCandidates);
-                            }
-
-                            if (suggestedStringLiteral != null)
-                            {
-                                return builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, declaredProperty.Name, expectedType, actualType.Name, suggestedStringLiteral);
-                            }
-                        }
-
-                        return builder.PropertyTypeMismatch(shouldWarn, declaredProperty.Name, expectedType, actualType);
-                    };
-
                     // declared property is specified in the value object
                     // validate type
                     var narrowedType = NarrowTypeInternal(
@@ -394,7 +365,7 @@ namespace Bicep.Core.TypeSystem
                         declaredPropertySyntax.Value,
                         declaredProperty.TypeReference.Type,
                         diagnosticWriter,
-                        typeMismatchErrorFactory,
+                        GetPropertyMismatchErrorFactory(ShouldWarn(targetType), declaredProperty.Name),
                         skipConstantCheckForProperty,
                         skipTypeErrors: true);
                         
@@ -467,34 +438,7 @@ namespace Bicep.Core.TypeSystem
                     TypeMismatchErrorFactory typeMismatchErrorFactory;
                     if (extraProperty.TryGetKeyText() is string keyName)
                     {
-                        typeMismatchErrorFactory = (expectedType, actualType, errorExpression) =>
-                        {
-                            var builder = DiagnosticBuilder.ForPosition(errorExpression);
-                            var shouldWarn = ShouldWarn(targetType);
-
-                            if (actualType is StringLiteralType)
-                            {
-                                string? suggestedStringLiteral = null;
-
-                                if (expectedType is StringLiteralType)
-                                {
-                                    suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, expectedType.Name.AsEnumerable());
-                                }
-
-                                if (expectedType is UnionType unionType && unionType.Members.All(typeReference => typeReference.Type is StringLiteralType))
-                                {
-                                    var stringLiteralCandidates = unionType.Members.Select(typeReference => typeReference.Type.Name).OrderBy(s => s);
-                                    suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, stringLiteralCandidates);
-                                }
-
-                                if (suggestedStringLiteral != null)
-                                {
-                                    return builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, keyName, expectedType, actualType.Name, suggestedStringLiteral);
-                                }
-                            }
-
-                            return builder.PropertyTypeMismatch(shouldWarn, keyName, expectedType, actualType);
-                        };
+                        typeMismatchErrorFactory = GetPropertyMismatchErrorFactory(ShouldWarn(targetType), keyName);
                     }
                     else
                     {
@@ -515,6 +459,37 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
+        }
+
+        private static TypeMismatchErrorFactory GetPropertyMismatchErrorFactory(bool shouldWarn, string propertyName)
+        {
+            return (expectedType, actualType, errorExpression) =>
+            {
+                var builder = DiagnosticBuilder.ForPosition(errorExpression);
+
+                if (actualType is StringLiteralType)
+                {
+                    string? suggestedStringLiteral = null;
+
+                    if (expectedType is StringLiteralType)
+                    {
+                        suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, expectedType.Name.AsEnumerable());
+                    }
+
+                    if (expectedType is UnionType unionType && unionType.Members.All(typeReference => typeReference.Type is StringLiteralType))
+                    {
+                        var stringLiteralCandidates = unionType.Members.Select(typeReference => typeReference.Type.Name).OrderBy(s => s);
+                        suggestedStringLiteral = SpellChecker.GetSpellingSuggestion(actualType.Name, stringLiteralCandidates);
+                    }
+
+                    if (suggestedStringLiteral != null)
+                    {
+                        return builder.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, propertyName, expectedType, actualType.Name, suggestedStringLiteral);
+                    }
+                }
+
+                return builder.PropertyTypeMismatch(shouldWarn, propertyName, expectedType, actualType);
+            };
         }
     }
 }

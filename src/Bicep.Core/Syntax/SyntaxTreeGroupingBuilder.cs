@@ -157,7 +157,7 @@ namespace Bicep.Core.Syntax
             return pathChar >= 0 && pathChar <= 31;
         }
 
-        private bool ValidateModulePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool ValidateModulePath(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (pathName.Length == 0)
             {

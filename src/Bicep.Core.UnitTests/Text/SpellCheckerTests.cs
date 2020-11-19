@@ -10,7 +10,6 @@ namespace Bicep.Core.UnitTests.Text
     public class SpellCheckerTests
     {
         [DataTestMethod]
-        [DataRow(null)]
         [DataRow(new string[0])]
         public void GetSpellingSuggestion_NullOrEmptyCandidatesEnumerable_ReturnsNull(string[] candidates)
         {

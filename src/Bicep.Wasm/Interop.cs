@@ -16,6 +16,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
+using Bicep.Decompiler;
 
 namespace Bicep.Wasm
 {
@@ -55,7 +56,7 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, jsonUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }

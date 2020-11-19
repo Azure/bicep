@@ -37,7 +37,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Keyword, Body);
 

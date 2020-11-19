@@ -16,7 +16,7 @@ namespace Bicep.Core.Syntax
 
         public Token Literal { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitBooleanLiteralSyntax(this);
 
         public override TextSpan Span

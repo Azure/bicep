@@ -226,7 +226,7 @@ namespace Bicep.Cli
         {
             try
             {
-                var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(filePath));
+                var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(filePath));
                 foreach (var (fileUri, bicepOutput) in filesToSave)
                 {
                     File.WriteAllText(fileUri.LocalPath, bicepOutput);

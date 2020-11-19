@@ -16,6 +16,15 @@ namespace Bicep.Decompiler
 
         private readonly Dictionary<string, string> assignedResourceNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        private static string GetNamingSuffix(NameType nameType)
+            => nameType switch {
+                NameType.Output => "out",
+                NameType.Resource => "res",
+                NameType.Variable => "var",
+                NameType.Parameter => "param",
+                _ => nameType.ToString().ToUpperInvariant(),
+            };
+
         private static string EscapeIdentifier(string identifier)
         {
             return Regex.Replace(identifier, "[^a-zA-Z0-9]+", "_").Trim('_');
@@ -58,7 +67,7 @@ namespace Bicep.Decompiler
                 }
                 
                 // TODO technically a naming clash is still possible here but unlikely
-                nameByType[nameType] = $"{desiredName}_{nameType.ToString().ToLowerInvariant()}";
+                nameByType[nameType] = $"{desiredName}_{GetNamingSuffix(nameType)}";
             }
 
             return nameByType[nameType];
