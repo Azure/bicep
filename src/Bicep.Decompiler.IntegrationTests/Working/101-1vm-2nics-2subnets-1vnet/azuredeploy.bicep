@@ -54,8 +54,8 @@ resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       adminUsername: adminUsername
       adminPassword: adminPassword
       windowsConfiguration: {
-        provisionVmAgent: 'true'
-//@[8:24) [BCP089 (Warning)] The property "provisionVmAgent" is not allowed on objects of type "WindowsConfiguration". Did you mean "provisionVMAgent"? |provisionVmAgent|
+        provisionVMAgent: 'true'
+//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool" but the provided value is of type "'true'". |'true'|
       }
     }
     hardwareProfile: {
@@ -152,8 +152,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
             id: subnet1Ref
           }
           privateIPAllocationMethod: 'Dynamic'
-          publicIpAddress: {
-//@[10:25) [BCP089 (Warning)] The property "publicIpAddress" is not allowed on objects of type "NetworkInterfaceIPConfigurationPropertiesFormat". Did you mean "publicIPAddress"? |publicIpAddress|
+          publicIPAddress: {
             id: publicIpAddressName.id
           }
         }

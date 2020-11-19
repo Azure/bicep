@@ -91,9 +91,9 @@ namespace Bicep.Core.Decompiler.Rewriters
             {
                 stringLiteralCandidates = stringLiteralType.AsEnumerable();
             }
-            else if (declaredType is UnionType unionType && unionType.Members.All(x => x is StringLiteralType))
+            else if (declaredType is UnionType unionType && unionType.Members.All(x => x.Type is StringLiteralType))
             {
-                stringLiteralCandidates = unionType.Members.OfType<StringLiteralType>();
+                stringLiteralCandidates = unionType.Members.Select(x => (StringLiteralType)x.Type);
             }
 
             var insensitiveMatch = stringLiteralCandidates.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, actualType.Name));

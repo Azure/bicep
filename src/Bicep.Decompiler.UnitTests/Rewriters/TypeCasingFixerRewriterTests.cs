@@ -56,7 +56,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 new TypeProperty("lowerCaseEnumProp", new StringLiteralType("myenum")),
                 new TypeProperty("pascalCaseEnumProp", new StringLiteralType("MyEnum")),
                 new TypeProperty("lowerCaseEnumUnionProp", UnionType.Create(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
-                new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum>"), new StringLiteralType("BlahBlah"))));
+                new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(typeDefinition.AsEnumerable());
 
             var compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", bicepFile));
@@ -74,7 +74,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
     lowerCaseEnumProp: 'myenum'
     pascalCaseEnumProp: 'MyEnum'
     lowerCaseEnumUnionProp: 'myenum'
-    pascalCaseEnumUnionProp: 'myenum'
+    pascalCaseEnumUnionProp: 'MyEnum'
   }
 }");
         }

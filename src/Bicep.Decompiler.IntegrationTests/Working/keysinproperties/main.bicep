@@ -79,8 +79,7 @@ resource scriptName 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
   location: location
   kind: 'AzurePowerShell'
   identity: {
-    type: 'userAssigned'
-//@[10:24) [BCP088 (Warning)] The property "type" expected a value of type "'UserAssigned'" but the provided value is of type "'userAssigned'". Did you mean "'UserAssigned'"? |'userAssigned'|
+    type: 'UserAssigned'
     userAssignedIdentities: {
       '${identityName.id}': {}
     }
@@ -140,8 +139,7 @@ resource sftpContainerGroupName 'Microsoft.ContainerInstance/containerGroups@201
       type: 'Public'
       ports: [
         {
-          protocol: 'Tcp'
-//@[20:25) [BCP088 (Warning)] The property "protocol" expected a value of type "'TCP' | 'UDP'" but the provided value is of type "'Tcp'". Did you mean "'TCP'"? |'Tcp'|
+          protocol: 'TCP'
           port: 22
         }
       ]
