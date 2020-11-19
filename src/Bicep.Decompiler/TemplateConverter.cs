@@ -331,7 +331,7 @@ namespace Bicep.Decompiler
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
                     var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal) ?? throw new ArgumentException($"Unable to find parameter {stringVal}");
-                    baseSyntax = SyntaxHelpers.CreateIdentifier(resolved);
+                    baseSyntax = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resolved));
                     break;
                 }
                 case "variables":
@@ -343,7 +343,7 @@ namespace Bicep.Decompiler
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
                     var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal) ?? throw new ArgumentException($"Unable to find variable {stringVal}");
-                    baseSyntax = SyntaxHelpers.CreateIdentifier(resolved);
+                    baseSyntax = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resolved));
                     break;
                 }
                 case "reference":
@@ -370,7 +370,7 @@ namespace Bicep.Decompiler
                     if (resourceName != null)
                     {
                         baseSyntax = new PropertyAccessSyntax(
-                            SyntaxHelpers.CreateIdentifier(resourceName),
+                            new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resourceName)),
                             SyntaxHelpers.CreateToken(TokenType.Dot, "."),
                             SyntaxHelpers.CreateIdentifier("id"));
                     }

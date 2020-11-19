@@ -86,15 +86,16 @@ namespace Bicep.Core.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, example.OutputFolderName, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
+            var typeProvider = TestResourceTypeProvider.Create();
 
-            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
+            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
 
             var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
-            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
+            var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
             var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
 
             using (new AssertionScope())
