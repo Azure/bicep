@@ -12,10 +12,13 @@ namespace Bicep.Core.Parser
         private static Regex NewLineRegex { get; } = new Regex("(\r\n|\r|\n)");
 
         public static string EscapeBicepString(string value)
+            => EscapeBicepString(value, "'", "'");
+
+        public static string EscapeBicepString(string value, string startString, string endString)
         {
             var buffer = new StringBuilder(value.Length + 2);
 
-            buffer.Append('\'');
+            buffer.Append(startString);
             for (var i = 0; i < value.Length; i++)
             {
                 switch (value[i])
@@ -43,7 +46,7 @@ namespace Bicep.Core.Parser
                         break;
                 }
             }
-            buffer.Append('\'');
+            buffer.Append(endString);
 
             return buffer.ToString();
         }

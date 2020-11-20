@@ -79,14 +79,17 @@ namespace Bicep.Decompiler
                 }
             }
 
-            RewriteSyntax(resourceTypeProvider, workspace, entryUri, (semanticModel, syntax) => new DependsOnRemovalRewriter(semanticModel).Rewrite(syntax));
+            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
+            RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
             for (var i = 0; i < 5; i++)
             {
                 // This is a little weird. If there are casing issues nested inside casing issues (e.g. in an object), then the inner casing issue will have no type information
                 // available, as the compilation will not have associated a type with it (since there was no match on the outer object). So we need to correct the outer issue first,
                 // and then move to the inner one. We need to recompute the entire compilation to do this. It feels simpler to just do this in passes over the file, rather than on demand.
-                // At some point it may be worth optimizing this so that it bails out early if no changes were made in the previous pass.
-                RewriteSyntax(resourceTypeProvider, workspace, entryUri, (semanticModel, syntax) => new TypeCasingFixerRewriter(semanticModel).Rewrite(syntax));
+                if (!RewriteSyntax(resourceTypeProvider, workspace, entryUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
+                {
+                    break;
+                }
             }
 
             return (entryUri, PrintFiles(workspace));
@@ -103,8 +106,9 @@ namespace Bicep.Decompiler
             return filesToSave.ToImmutableDictionary();
         }
 
-        private static void RewriteSyntax(IResourceTypeProvider resourceTypeProvider, Workspace workspace, Uri entryUri, Func<SemanticModel, ProgramSyntax, ProgramSyntax> rewriteFunc)
+        private static bool RewriteSyntax(IResourceTypeProvider resourceTypeProvider, Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
+            var hasChanges = false;
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, entryUri);
             var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
 
@@ -113,10 +117,11 @@ namespace Bicep.Decompiler
                 var entryFile = syntaxTreeGrouping.EntryPoint;
                 var entryModel = compilation.GetEntrypointSemanticModel();
 
-                var newProgramSyntax = rewriteFunc(compilation.GetSemanticModel(syntaxTree), syntaxTree.ProgramSyntax);
+                var newProgramSyntax = rewriteVisitorBuilder(compilation.GetSemanticModel(syntaxTree)).Rewrite(syntaxTree.ProgramSyntax);
 
                 if (!object.ReferenceEquals(syntaxTree.ProgramSyntax, newProgramSyntax))
                 {
+                    hasChanges = true;
                     var newSyntaxTree = new SyntaxTree(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
                     workspace.UpsertSyntaxTrees(newSyntaxTree.AsEnumerable());
 
@@ -124,6 +129,8 @@ namespace Bicep.Decompiler
                     compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
                 }
             }
+
+            return hasChanges;
         }
     }
 }

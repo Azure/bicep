@@ -112,14 +112,14 @@ namespace Bicep.Decompiler.ArmHelpers
                     // recurse
                     var flattenedParameter = FlattenStringOperations(parameter);
                     
-                    if (parameter is FunctionExpression childFunction && childFunction.NameEquals("concat"))
+                    if (flattenedParameter is FunctionExpression childFunction && childFunction.NameEquals("concat"))
                     {
                         // concat directly inside a concat - break it out
                         concatExpressions.AddRange(childFunction.Parameters);
                         continue;
                     }
 
-                    concatExpressions.Add(parameter);
+                    concatExpressions.Add(flattenedParameter);
                 }
 
                 // overwrite the original expression
