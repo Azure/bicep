@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 
 namespace Bicep.Core.Syntax
@@ -276,8 +277,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO what to do with diagnostics?
-            return new ProgramSyntax(children, endOfFile, syntax.LexerDiagnostics);
+            return new ProgramSyntax(children, endOfFile, Enumerable.Empty<Diagnostic>());
         }
         void ISyntaxVisitor.VisitProgramSyntax(ProgramSyntax syntax) => ReplaceCurrent(syntax, ReplaceProgramSyntax);
 
@@ -316,8 +316,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO what to do with diagnostics?
-            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, syntax.Diagnostics);
+            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, Enumerable.Empty<Diagnostic>());
         }
         void ISyntaxVisitor.VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) => ReplaceCurrent(syntax, ReplaceSkippedTriviaSyntax);
 
