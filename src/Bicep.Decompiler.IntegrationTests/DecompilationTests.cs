@@ -74,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
         {
-            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(9, "sanity check to ensure we're finding examples to test");
+            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(10, "sanity check to ensure we're finding examples to test");
         }
 
         [DataTestMethod]

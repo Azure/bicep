@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core;
 
 namespace Bicep.Decompiler
 {
@@ -18,10 +19,12 @@ namespace Bicep.Decompiler
 
         private static string GetNamingSuffix(NameType nameType)
             => nameType switch {
-                NameType.Output => "out",
-                NameType.Resource => "res",
-                NameType.Variable => "var",
-                NameType.Parameter => "param",
+                // The naming suffix is just used in case of naming clashes, to pick a unique name for a symbol in the generated bicep file.
+                // These do not need to match the keyword names, but it's probably most understandable to the user if they do.
+                NameType.Output => LanguageConstants.OutputKeyword,
+                NameType.Resource => LanguageConstants.ResourceKeyword,
+                NameType.Variable => LanguageConstants.VariableKeyword,
+                NameType.Parameter => LanguageConstants.ParameterKeyword,
                 _ => nameType.ToString().ToUpperInvariant(),
             };
 
