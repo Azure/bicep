@@ -91,8 +91,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO do something about the span
-            return new SeparatedSyntaxList(elements, separators, syntax.Span);
+            return new SeparatedSyntaxList(elements, separators, new TextSpan(0, 0));
         }
         void ISyntaxVisitor.VisitSeparatedSyntaxList(SeparatedSyntaxList syntax) => ReplaceCurrent(syntax, ReplaceSeparatedSyntaxList);
 
@@ -243,8 +242,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO calculate value correctly here
-            return new BooleanLiteralSyntax(literal, syntax.Value);
+            return new BooleanLiteralSyntax(literal, bool.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceBooleanLiteralSyntax);
 
@@ -258,8 +256,13 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO calculate segmentValues correctly here
-            return new StringSyntax(stringTokens, expressions, syntax.SegmentValues);
+            var segmentValues = Lexer.TryGetRawStringSegments(stringTokens.ToArray());
+            if (segmentValues == null)
+            {
+                throw new ArgumentException($"Failed to parse string tokens");
+            }
+
+            return new StringSyntax(stringTokens, expressions, segmentValues);
         }
         void ISyntaxVisitor.VisitStringSyntax(StringSyntax syntax) => ReplaceCurrent(syntax, ReplaceStringSyntax);
 
@@ -273,7 +276,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO what to do with lexerDiagnostics?
+            // TODO what to do with diagnostics?
             return new ProgramSyntax(children, endOfFile, syntax.LexerDiagnostics);
         }
         void ISyntaxVisitor.VisitProgramSyntax(ProgramSyntax syntax) => ReplaceCurrent(syntax, ReplaceProgramSyntax);
@@ -287,8 +290,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO calculate value correctly here
-            return new NumericLiteralSyntax(literal, syntax.Value);
+            return new NumericLiteralSyntax(literal, int.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitNumericLiteralSyntax(NumericLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceNumericLiteralSyntax);
 
@@ -314,15 +316,15 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            // TODO what to do with span & diagnostics?
-            return new SkippedTriviaSyntax(syntax.Span, elements, syntax.Diagnostics);
+            // TODO what to do with diagnostics?
+            return new SkippedTriviaSyntax(new TextSpan(0, 0), elements, syntax.Diagnostics);
         }
         void ISyntaxVisitor.VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax) => ReplaceCurrent(syntax, ReplaceSkippedTriviaSyntax);
 
         protected virtual ObjectSyntax ReplaceObjectSyntax(ObjectSyntax syntax)
         {
             var hasChanges = Rewrite(syntax.OpenBrace, out var openBrace);
-            hasChanges |= Rewrite(syntax.Properties, out var properties);
+            hasChanges |= Rewrite(syntax.Children, out var children);
             hasChanges |= Rewrite(syntax.CloseBrace, out var closeBrace);
 
             if (!hasChanges)
@@ -330,7 +332,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ObjectSyntax(openBrace, properties, closeBrace);
+            return new ObjectSyntax(openBrace, children, closeBrace);
         }
         void ISyntaxVisitor.VisitObjectSyntax(ObjectSyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectSyntax);
 

@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Emit;
 using Bicep.Core.SemanticModel;
 using Bicep.Core.Syntax;
+using Bicep.Decompiler.Visitors;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
@@ -22,13 +23,13 @@ namespace Bicep.Core.Decompiler.Rewriters
         {
             if (syntax.Body is not ObjectSyntax objectSyntax)
             {
-                return syntax;
+                return base.ReplaceResourceDeclarationSyntax(syntax);
             }
 
             var dependsOnProperty = objectSyntax.SafeGetPropertyByName("dependsOn");
             if (dependsOnProperty is null)
             {
-                return syntax;
+                return base.ReplaceResourceDeclarationSyntax(syntax);
             }
 
             var builtInDependencies = new HashSet<Symbol>();
@@ -39,13 +40,13 @@ namespace Bicep.Core.Decompiler.Rewriters
                     continue;
                 }
 
-                var dependencies = ResourceDependencyTestVisitor.GetResourceDependencies(semanticModel, property);
+                var dependencies = ResourceDependencyFinderVisitor.GetResourceDependencies(semanticModel, property);
                 builtInDependencies.UnionWith(dependencies);
             }
 
             if (dependsOnProperty.Value is not ArraySyntax dependsOnArray)
             {
-                return syntax;
+                return base.ReplaceResourceDeclarationSyntax(syntax);
             }
 
             var newDependsOnArrayChildren = new List<SyntaxBase>();
@@ -72,7 +73,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             if (newDependsOnArrayChildren.Count == dependsOnArray.Children.Length)
             {
-                return syntax;
+                return base.ReplaceResourceDeclarationSyntax(syntax);
             }
 
             var newChildren = new List<SyntaxBase>();

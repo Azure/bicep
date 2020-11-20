@@ -26,7 +26,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             var declaredType = semanticModel.GetDeclaredType(syntax);
             if (declaredType is not ObjectType objectType)
             {
-                return syntax;
+                return base.ReplaceObjectSyntax(syntax);
             }
             
             var newChildren = new List<SyntaxBase>();
@@ -63,7 +63,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             if (Enumerable.SequenceEqual(newChildren, syntax.Children))
             {
-                return syntax;
+                return base.ReplaceObjectSyntax(syntax);
             }
 
             return new ObjectSyntax(
@@ -72,18 +72,45 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.CloseBrace);
         }
 
+        protected override PropertyAccessSyntax ReplacePropertyAccessSyntax(PropertyAccessSyntax syntax)
+        {
+            var baseType = semanticModel.GetDeclaredType(syntax.BaseExpression);
+            if (baseType is not ObjectType objectType)
+            {
+                return base.ReplacePropertyAccessSyntax(syntax);
+            }
+
+            var propertyName = syntax.PropertyName.IdentifierName;
+            if (objectType.Properties.ContainsKey(propertyName))
+            {
+                return base.ReplacePropertyAccessSyntax(syntax);
+            }
+
+            var insensitivePropertyName = objectType.Properties.Keys.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x, propertyName));
+            if (insensitivePropertyName is null)
+            {
+                return base.ReplacePropertyAccessSyntax(syntax);
+            }
+
+            var propertySyntax = new IdentifierSyntax(new Token(TokenType.Identifier, new TextSpan(0, 0), insensitivePropertyName, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
+            return new PropertyAccessSyntax(
+                syntax.BaseExpression,
+                syntax.Dot,
+                propertySyntax);
+        }
+
         protected override StringSyntax ReplaceStringSyntax(StringSyntax syntax)
         {
             var declaredType = semanticModel.GetDeclaredType(syntax);
 
             if (semanticModel.GetTypeInfo(syntax) is not StringLiteralType actualType)
             {
-                return syntax;
+                return base.ReplaceStringSyntax(syntax);
             }
 
             if (declaredType is null || TypeValidator.AreTypesAssignable(actualType, declaredType))
             {
-                return syntax;
+                return base.ReplaceStringSyntax(syntax);
             }
 
             var stringLiteralCandidates = Enumerable.Empty<StringLiteralType>();
@@ -99,7 +126,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             var insensitiveMatch = stringLiteralCandidates.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, actualType.Name));
             if (insensitiveMatch == null)
             {
-                return syntax;
+                return base.ReplaceStringSyntax(syntax);
             }
 
             var stringToken = new Token(TokenType.StringComplete, new TextSpan(0, 0), insensitiveMatch.Name, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());

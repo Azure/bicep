@@ -9,45 +9,6 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
-    public class ResourceDependencyTestVisitor : SyntaxVisitor
-    {
-        private readonly SemanticModel.SemanticModel semanticModel;
-        private readonly HashSet<DeclaredSymbol> resourceDependencies;
-
-        public ResourceDependencyTestVisitor(SemanticModel.SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-            this.resourceDependencies = new HashSet<DeclaredSymbol>();
-        }
-
-        public static HashSet<DeclaredSymbol> GetResourceDependencies(SemanticModel.SemanticModel semanticModel, SyntaxBase syntax)
-        {
-            var visitor = new ResourceDependencyTestVisitor(semanticModel);
-            visitor.Visit(syntax);
-
-            return visitor.resourceDependencies;
-        }
-
-        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-        {
-            var symbol = semanticModel.GetSymbolInfo(syntax);
-            switch (symbol)
-            {
-                case ResourceSymbol resourceSymbol:
-                    resourceDependencies.Add(resourceSymbol);
-                    return;
-                case ModuleSymbol moduleSymbol:
-                    resourceDependencies.Add(moduleSymbol);
-                    return;
-                case VariableSymbol variableSymbol:
-                    Visit(variableSymbol.DeclaringSyntax);
-                    return;
-                default:
-                    return;
-            }
-        }
-    }
-
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel.SemanticModel model;

@@ -46,7 +46,13 @@ resource resA 'My.Rp/resA@2020-01-01' = {
     lowerCaseEnumUnionProp: 'MyEnum'
     pascalCaseEnumUnionProp: 'myenum'
   }
-}";
+}
+
+output myObj object = {
+  lowerCaseProp: resA.properties.lowerCaseProp
+  camelcaseprop: resA.properties.camelcaseprop
+}
+";
 
             var typeDefinition = ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new TypeProperty("lowercaseprop", LanguageConstants.String),
@@ -76,6 +82,73 @@ resource resA 'My.Rp/resA@2020-01-01' = {
     lowerCaseEnumUnionProp: 'myenum'
     pascalCaseEnumUnionProp: 'MyEnum'
   }
+}
+
+output myObj object = {
+  lowerCaseProp: resA.properties.lowercaseprop
+  camelcaseprop: resA.properties.camelCaseProp
+}");
+        }
+
+        [TestMethod]
+        public void Nested_casing_issues_take_multiple_passes_to_correct()
+        {
+            var bicepFile = @"
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+  properties: {
+    lowerCaseObj: {
+      lowerCaseStr: 'test'
+    }
+  }
+}
+
+output myObj object = {
+  lowerCaseProp: resA.properties.lowerCaseObj.lowerCaseStr
+}
+";
+
+            var typeDefinition = ResourceTypeProviderHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new TypeProperty("lowercaseobj", new NamedObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
+                  new TypeProperty("lowercasestr", LanguageConstants.String)
+                }, null)));
+            var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(typeDefinition.AsEnumerable());
+
+            var compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", bicepFile));
+            var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            var firstPassBicepFile = PrintHelper.PrettyPrint(newProgramSyntax);
+            firstPassBicepFile.Should().Be(
+@"resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+  properties: {
+    lowercaseobj: {
+      lowerCaseStr: 'test'
+    }
+  }
+}
+
+output myObj object = {
+  lowerCaseProp: resA.properties.lowercaseobj.lowerCaseStr
+}");
+
+            compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", firstPassBicepFile));
+            rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
+
+            newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+  properties: {
+    lowercaseobj: {
+      lowercasestr: 'test'
+    }
+  }
+}
+
+output myObj object = {
+  lowerCaseProp: resA.properties.lowercaseobj.lowercasestr
 }");
         }
     }
