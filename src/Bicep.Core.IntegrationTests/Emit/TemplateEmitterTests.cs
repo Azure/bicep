@@ -207,6 +207,37 @@ param dependency string
             }
         }
 
+        [TestMethod]
+        public void Emitter_should_generate_correct_extension_scope_property_and_correct_dependsOn()
+        {
+            var (json, diags) = CompilationHelper.Compile(@"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+}
+
+resource resourceB 'My.Rp/myResource@2020-01-01' = {
+  scope: resourceA
+  name: 'resourceB'
+}
+
+resource resourceC 'My.Rp/myResource@2020-01-01' = {
+  scope: resourceB
+  name: 'resourceC'
+}");
+
+            json.Should().NotBeNull();
+            var template = JObject.Parse(json!);
+
+            using (new AssertionScope())
+            {
+                template.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.ToString().Should().Be("[format('My.Rp/myResource/{0}', 'resourceA')]");
+                template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.ToString().Should().Be("[resourceId('My.Rp/myResource', 'resourceA')]");
+                
+                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.ToString().Should().Be("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.SelectToken("$.resources[?(@.name == 'resourceC')].dependsOn[0]")!.ToString().Should().Be("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+            }
+        }
+
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath)
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);

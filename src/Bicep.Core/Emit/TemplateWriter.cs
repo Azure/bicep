@@ -30,13 +30,14 @@ namespace Bicep.Core.Emit
         }.ToImmutableArray();
 
         private static ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
-            "dependsOn",
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
         private static ImmutableHashSet<string> ModulePropertiesToOmit = new [] {
             LanguageConstants.ModuleParamsPropertyName,
-            LanguageConstants.ModuleScopePropertyName,
-            "dependsOn",
+            LanguageConstants.ResourceScopePropertyName,
+            LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
         private static SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
@@ -221,7 +222,6 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
-
             if (resourceSymbol.DeclaringResource.IfCondition is IfConditionSyntax ifCondition)
             {
                 this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
@@ -229,6 +229,10 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
+            if (context.SemanticModel.EmitLimitationInfo.ResoureScopeData[resourceSymbol] is ResourceSymbol scopeResource)
+            {
+                this.emitter.EmitProperty("scope", () => this.emitter.EmitUnqualifiedResourceId(scopeResource));
+            }
             this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.DeclaringResource.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
@@ -240,10 +244,8 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleParameters(ModuleSymbol moduleSymbol)
         {
-            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
-            var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
-
-            if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
+            var paramsValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleParamsPropertyName);
+            if (paramsValue is not ObjectSyntax paramsObjectSyntax)
             {
                 // 'params' is optional if the module has no required params
                 return;
@@ -359,11 +361,10 @@ namespace Bicep.Core.Emit
                 switch (dependency)
                 {
                     case ResourceSymbol resourceDependency:
-                        var typeReference = EmitHelpers.GetTypeReference(resourceDependency);
-                        emitter.EmitResourceIdReference(resourceDependency.DeclaringResource, typeReference);
+                        emitter.EmitResourceIdReference(resourceDependency);
                         break;
                     case ModuleSymbol moduleDependency:
-                        emitter.EmitModuleResourceIdExpression(moduleDependency);
+                        emitter.EmitResourceIdReference(moduleDependency);
                         break;
                     default:
                         throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");

@@ -14,7 +14,6 @@ namespace Bicep.Core.Semantics
 
         public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax) this.DeclaringSyntax;
 
-
         public override void Accept(SymbolVisitor visitor) => visitor.VisitResourceSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Resource;

@@ -684,6 +684,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP118",
                 "Expected the \"{\" character or the \"if\" keyword at this location.");
+
+            public Diagnostic InvalidExtensionResourceScope() => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP119",
+                $"Unsupported scope for extension resource deployment. Expected a resource reference.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

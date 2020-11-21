@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "redisCacheName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "redisShardCount": {
+      "type": "int"
+    },
+    "redisCacheCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "diagsStorageAccountId": {
+      "type": "string"
+    },
+    "enableNonSslPort": {
+      "type": "bool",
+      "defaultValue": false
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Cache/Redis",
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('redisCacheName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enableNonSslPort": "[parameters('enableNonSslPort')]",
+        "shardCount": "[parameters('redisShardCount')]",
+        "sku": {
+          "capacity": "[parameters('redisCacheCapacity')]",
+          "family": "P",
+          "name": "Premium"
+        }
+      }
+    },
+    {
+      "type": "microsoft.insights/diagnosticSettings",
+      "apiVersion": "2015-07-01",
+      "scope": "[format('Microsoft.Cache/Redis/{0}', parameters('redisCacheName'))]",
+      "name": "service",
+      "location": "[parameters('location')]",
+      "properties": {
+        "storageAccountId": "[parameters('diagsStorageAccountId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cache/Redis', parameters('redisCacheName'))]"
+      ]
+    }
+  ]
+}

@@ -8,6 +8,10 @@
         "description": "101/aadds-dual-region-replica-sets"
     },
     {
+        "filePath": "101/aad-domainservices/main.bicep",
+        "description": "101 - AAD DomainServices"
+    },
+    {
         "filePath": "101/aci-linuxcontainer-public-ip/main.bicep",
         "description": "101/aci-linuxcontainer-public-ip"
     },
@@ -184,6 +188,10 @@
         "description": "101/redis-cache"
     },
     {
+        "filePath": "101/resource-with-lock/main.bicep",
+        "description": "101 - Resource with a lock"
+    },
+    {
         "filePath": "101/sql-database/main.bicep",
         "description": "101/sql-database"
     },
@@ -240,6 +248,10 @@
         "description": "201/cdn-with-storage-account"
     },
     {
+        "filePath": "201/cloud-shell-vnet/main.bicep",
+        "description": "201 - Cloud Shell with Vnet"
+    },
+    {
         "filePath": "201/cyclecloud/main.bicep",
         "description": "201/cyclecloud"
     },
@@ -278,6 +290,14 @@
     {
         "filePath": "201/proximity-placement-with-multi-resource-groups/main.bicep",
         "description": "201/proximity-placement-with-multi-resource-groups"
+    },
+    {
+        "filePath": "201/redis-premium-cluster-diagnostics/main.bicep",
+        "description": "201 - Redis Premium with cluster diagnostics"
+    },
+    {
+        "filePath": "201/redis-premium-persistence/main.bicep",
+        "description": "201 - Redis Premium with persistence"
     },
     {
         "filePath": "201/servicebus-create-queue/main.bicep",
