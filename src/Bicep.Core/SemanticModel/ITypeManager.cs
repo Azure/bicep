@@ -9,8 +9,6 @@ namespace Bicep.Core.SemanticModel
 {
     public interface ITypeManager
     {
-        IResourceTypeProvider ResourceTypeProvider { get; }
-
         TypeSymbol GetTypeInfo(SyntaxBase syntax);
 
         TypeSymbol? GetDeclaredType(SyntaxBase syntax);

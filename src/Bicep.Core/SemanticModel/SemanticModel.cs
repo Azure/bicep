@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.SemanticModel.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -15,20 +13,38 @@ namespace Bicep.Core.SemanticModel
 {
     public class SemanticModel
     {
-        private readonly ITypeManager typeManager;
-        private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
 
-        public SemanticModel(FileSymbol root, ITypeManager typeManager, IDictionary<SyntaxBase, Symbol> bindings, ResourceScopeType targetScope)
+        public SemanticModel(Compilation compilation, SyntaxTree syntaxTree)
         {
-            this.Root = root;
-            this.typeManager = typeManager;
-            this.TargetScope = targetScope;
-            this.bindings = bindings.ToImmutableDictionary();
+            Compilation = compilation;
+            SyntaxTree = syntaxTree;
+
+            // create this in locked mode by default
+            // this blocks accidental type or binding queries until binding is done
+            // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
+            var symbolContext = new SymbolContext(compilation, this);
+            SymbolContext = symbolContext;
+
+            Binder = new Binder(syntaxTree, symbolContext);
+            TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder);
+
+            // name binding is done
+            // allow type queries now
+            symbolContext.Unlock();
+
             this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
         }
 
-        public IResourceTypeProvider ResourceTypeProvider => this.typeManager.ResourceTypeProvider;
+        public SyntaxTree SyntaxTree { get; }
+
+        public Binder Binder { get; }
+
+        public ISymbolContext SymbolContext { get; }
+
+        public Compilation Compilation { get; }
+
+        public ITypeManager TypeManager { get; }
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
@@ -44,11 +60,11 @@ namespace Bicep.Core.SemanticModel
         public IReadOnlyList<Diagnostic> GetSemanticDiagnostics()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
-            
+
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
             visitor.Visit(this.Root);
 
-            var typeValidationDiagnostics = typeManager.GetAllDiagnostics();
+            var typeValidationDiagnostics = TypeManager.GetAllDiagnostics();
             diagnosticWriter.WriteMultiple(typeValidationDiagnostics);
 
             diagnosticWriter.WriteMultiple(EmitLimitationInfo.Diagnostics);
@@ -66,33 +82,31 @@ namespace Bicep.Core.SemanticModel
         public bool HasErrors()
             => GetAllDiagnostics().Any(x => x.Level == DiagnosticLevel.Error);
 
-        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.typeManager.GetTypeInfo(syntax);
+        public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.TypeManager.GetTypeInfo(syntax);
 
-        public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.typeManager.GetDeclaredType(syntax);
+        public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.TypeManager.GetDeclaredType(syntax);
 
-        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.typeManager.GetDeclaredTypeAssignment(syntax);
+        public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) => this.TypeManager.GetDeclaredTypeAssignment(syntax);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
         /// </summary>
         /// <param name="syntax">the syntax node</param>
-        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
+        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.Binder.GetSymbolInfo(syntax);
 
         /// <summary>
         /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
         /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
         /// </summary>
         /// <param name="symbol">The symbol</param>
-        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.bindings
-            .Where(binding => ReferenceEquals(binding.Value, symbol))
-            .Select(binding => binding.Key);
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol) => this.Binder.FindReferences(symbol);
 
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
-        public FileSymbol Root { get; }
+        public FileSymbol Root => this.Binder.FileSymbol;
 
-        public ResourceScopeType TargetScope { get; }
+        public ResourceScopeType TargetScope => this.Binder.TargetScope;
     }
 }

@@ -22,6 +22,8 @@ namespace Bicep.Core.Syntax
             FileUri = fileUri;
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
+            Hierarchy = new SyntaxHierarchy();
+            Hierarchy.AddRoot(ProgramSyntax);
         }
 
         public Uri FileUri { get; }
@@ -29,5 +31,7 @@ namespace Bicep.Core.Syntax
         public ImmutableArray<int> LineStarts { get; }
 
         public ProgramSyntax ProgramSyntax { get; }
+
+        public SyntaxHierarchy Hierarchy { get; }
     }
 }
