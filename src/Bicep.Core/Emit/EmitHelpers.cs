@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.Resources;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit

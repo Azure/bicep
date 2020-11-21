@@ -10,7 +10,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;
 using System.Linq;
 using System;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Diagnostics
 {

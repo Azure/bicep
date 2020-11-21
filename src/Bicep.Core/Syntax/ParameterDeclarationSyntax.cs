@@ -5,7 +5,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax

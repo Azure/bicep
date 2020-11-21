@@ -4,18 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
-        private readonly SemanticModel.SemanticModel model;
+        private readonly SemanticModel model;
         private IDictionary<DeclaredSymbol, HashSet<DeclaredSymbol>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetResourceDependencies(SemanticModel.SemanticModel model)
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetResourceDependencies(SemanticModel model)
         {
             var visitor = new ResourceDependencyVisitor(model);
             visitor.Visit(model.Root.Syntax);
@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
             return output.ToImmutableDictionary();
         }
 
-        private ResourceDependencyVisitor(SemanticModel.SemanticModel model)
+        private ResourceDependencyVisitor(SemanticModel model)
         {
             this.model = model;
             this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<DeclaredSymbol>>();

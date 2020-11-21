@@ -7,7 +7,7 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parser;
 using Bicep.Core.Resources;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -8,8 +8,8 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.SemanticModel.Namespaces;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -19,7 +19,7 @@ using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
+using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
