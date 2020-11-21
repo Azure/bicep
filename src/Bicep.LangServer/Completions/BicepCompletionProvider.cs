@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;

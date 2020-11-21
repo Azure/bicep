@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     class TokenReader
     {

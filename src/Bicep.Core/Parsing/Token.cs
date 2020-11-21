@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     [DebuggerDisplay("{Type} = {Text}")]
     public class Token : SyntaxBase

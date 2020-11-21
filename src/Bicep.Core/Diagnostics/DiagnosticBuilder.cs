@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;

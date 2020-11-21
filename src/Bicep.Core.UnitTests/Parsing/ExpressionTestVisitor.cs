@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.UnitTests.Parser
+namespace Bicep.Core.UnitTests.Parsing
 {
     public sealed class ExpressionTestVisitor : SyntaxVisitor
     {

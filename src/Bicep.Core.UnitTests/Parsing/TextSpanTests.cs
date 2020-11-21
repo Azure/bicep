@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Parser
+namespace Bicep.Core.UnitTests.Parsing
 {
     [TestClass]
     public class TextSpanTests

@@ -6,7 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     /// <summary>
     /// Visitor responsible for collecting all the parse diagnostics from the parse tree.

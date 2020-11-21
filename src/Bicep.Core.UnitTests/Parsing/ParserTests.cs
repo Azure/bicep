@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 using System;
 using System.Text;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Parser
+namespace Bicep.Core.UnitTests.Parsing
 {
     [TestClass]
     public class ParserTests

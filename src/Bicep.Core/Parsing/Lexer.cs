@@ -9,7 +9,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public class Lexer
     {

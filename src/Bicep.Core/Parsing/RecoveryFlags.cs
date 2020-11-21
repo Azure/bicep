@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     /// <summary>
     /// Flags that control the parser recovery behavior.

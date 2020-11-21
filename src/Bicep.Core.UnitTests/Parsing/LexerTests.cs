@@ -4,12 +4,12 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Parser
+namespace Bicep.Core.UnitTests.Parsing
 {
     [TestClass]
     public class LexerTests

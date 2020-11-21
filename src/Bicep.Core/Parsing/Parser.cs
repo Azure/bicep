@@ -10,7 +10,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.Extensions;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public class Parser
     {

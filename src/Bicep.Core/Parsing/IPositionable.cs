@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public interface IPositionable
     {

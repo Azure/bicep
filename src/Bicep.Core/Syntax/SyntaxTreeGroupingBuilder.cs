@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public class TextSpan : IPositionable, IEquatable<TextSpan>
     {

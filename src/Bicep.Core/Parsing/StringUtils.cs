@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public static class StringUtils
     {

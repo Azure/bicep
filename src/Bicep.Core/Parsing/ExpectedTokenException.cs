@@ -4,7 +4,7 @@ using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 
-namespace Bicep.Core.Parser
+namespace Bicep.Core.Parsing
 {
     public class ExpectedTokenException : Exception
     {
