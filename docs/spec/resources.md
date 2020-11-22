@@ -82,11 +82,11 @@ resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
 
 **Note:** Conditions are not yet implemented ([#186](https://github.com/Azure/bicep/issues/186)).
 
-Resources may be deployed if and only if a specified condition evaluated to `true`. Otherwise, resource deployment will be skipped. This is accomplished by adding a `when` keyword and a boolean expression to the resource declaration. The template compiled from the below example will deploy the DNS zone if the `deployZone` parameter evaluates to `true`:
+Resources may be deployed if and only if a specified condition evaluated to `true`. Otherwise, resource deployment will be skipped. This is accomplished by adding a `if` keyword and a boolean expression to the resource declaration. The template compiled from the below example will deploy the DNS zone if the `deployZone` parameter evaluates to `true`:
 ```
 param deployZone bool
 
-resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' when (deployZone) = {
+resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (deployZone) {
   name: 'myZone'
   location: 'global'
 }
