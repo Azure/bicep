@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Emit
 {
