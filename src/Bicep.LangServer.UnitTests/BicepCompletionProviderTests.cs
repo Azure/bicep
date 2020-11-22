@@ -369,6 +369,28 @@ output length int =
                 });
         }
 
+        [DataTestMethod]
+        [DataRow("// |")]
+        [DataRow("/* |")]
+        [DataRow("param foo // |")]
+        [DataRow("param foo /* |")]
+        [DataRow("param /*| */ foo")]
+        [DataRow(@"/*
+*
+* |
+*/")]
+        public void CommentShouldNotGiveAnyCompletions(string codeFragment)
+        {
+        var grouping = SyntaxFactory.CreateFromText(codeFragment);
+        var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+        var provider = new BicepCompletionProvider();
+
+        var offset = codeFragment.IndexOf('|');
+
+        var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
+
+        completions.Should().BeEmpty();
+        }
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {
             completions.Should().SatisfyRespectively(
