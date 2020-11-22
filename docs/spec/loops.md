@@ -1,9 +1,9 @@
 # Loops
 > **Note:** Not implemented yet.
 
-Loops may be used iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
+Loops may be used to iterate over an array to declare multiple resources or to set an array property inside a resource declaration. Iteration over the array occurs over the elements of the array. The index of the iteration is also available.
 
-A new scope is created inside the loop body. Identifiers declared in the outer scope may be accessed inside the inner scope, but identifiers declared in the inner scope will not be added to the outer scope. [Resources](./resources.md), [variables](./variables.md), and [parameters](./parameters.md) may be declared at the scope of the file may be referenced within the loop body. Multiple loops may be nested inside each other.
+A new scope is created inside the loop body. Identifiers declared in the outer scope may be accessed inside the inner scope, but identifiers declared in the inner scope will not be added to the outer scope. [Resources](./resources.md), [variables](./variables.md), and [parameters](./parameters.md) declared at the scope of the file may be referenced within the loop body. Multiple loops may be nested inside each other.
 
 Filtering the loop is also allowed via the `where` keyword. (See the examples below for more details.)
 
@@ -41,7 +41,7 @@ resource[] storageAccountResources 'Microsoft.Storage/storageAccounts@2019-06-01
 ```
 
 ### Use the loop index
-In the example below, we are iteration over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
+In the example below, we are iterating over the `storageConfiguration` array variable. Within the loop body, `config` stores the current element from the array and `i` stores the 0-based index of the current array element. Both are referenced from within the loop body.
 
 ```
 param storageAccountNamePrefix string
