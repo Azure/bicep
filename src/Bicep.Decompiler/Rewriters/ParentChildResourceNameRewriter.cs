@@ -4,8 +4,8 @@
 using System;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -13,9 +13,9 @@ namespace Bicep.Core.Decompiler.Rewriters
 {
     public class ParentChildResourceNameRewriter : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel.SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel;
 
-        public ParentChildResourceNameRewriter(SemanticModel.SemanticModel semanticModel)
+        public ParentChildResourceNameRewriter(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
         }

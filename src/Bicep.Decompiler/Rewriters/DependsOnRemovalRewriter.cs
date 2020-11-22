@@ -3,8 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Emit;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Decompiler.Visitors;
 
@@ -12,9 +11,9 @@ namespace Bicep.Core.Decompiler.Rewriters
 {
     public class DependsOnRemovalRewriter : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel.SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel;
 
-        public DependsOnRemovalRewriter(SemanticModel.SemanticModel semanticModel)
+        public DependsOnRemovalRewriter(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
         }

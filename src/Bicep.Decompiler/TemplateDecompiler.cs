@@ -11,7 +11,7 @@ using Bicep.Core.FileSystem;
 using System.Collections.Immutable;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Decompiler.Rewriters;
 

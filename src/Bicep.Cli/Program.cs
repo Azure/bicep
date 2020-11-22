@@ -7,7 +7,7 @@ using System.Text;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
 using Bicep.Core.Emit;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;

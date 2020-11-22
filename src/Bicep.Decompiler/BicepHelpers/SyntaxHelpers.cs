@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Decompiler.BicepHelpers

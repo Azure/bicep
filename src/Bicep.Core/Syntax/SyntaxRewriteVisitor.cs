@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {

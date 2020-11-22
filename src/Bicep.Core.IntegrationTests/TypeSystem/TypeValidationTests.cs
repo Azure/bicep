@@ -5,7 +5,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static Core.SemanticModel.SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
         {
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(definedTypes);
 

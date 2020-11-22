@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -14,9 +15,9 @@ namespace Bicep.Core.Decompiler.Rewriters
 {
     public class TypeCasingFixerRewriter : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel.SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel;
 
-        public TypeCasingFixerRewriter(SemanticModel.SemanticModel semanticModel)
+        public TypeCasingFixerRewriter(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
         }

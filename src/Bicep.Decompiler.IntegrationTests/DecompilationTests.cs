@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
