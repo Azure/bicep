@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 
