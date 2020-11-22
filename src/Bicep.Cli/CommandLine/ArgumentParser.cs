@@ -23,6 +23,8 @@ namespace Bicep.Cli.CommandLine
                     return ParseBuild(args[1..]);
                 case CliConstants.CommandDecompile:
                     return ParseDecompile(args[1..]);
+                case CliConstants.CommandClean:
+                    return ParseClean(args[1..]);
                 case CliConstants.ArgumentHelp:
                 case CliConstants.ArgumentHelpShort:
                     return new HelpArguments();
@@ -75,6 +77,12 @@ Usage:
     Arguments:
       <files>     The list of one or more .json files to decompile
 
+  {exeName} clean [options] [<directories>...]
+    Clean the directory by removing all the built templates
+
+    Arguments:
+      <directories>     The list of one or more directories to clean
+
   {exeName} [options]
     Options:
       --version  -v   Shows bicep version information
@@ -93,6 +101,11 @@ Usage:
         private static DecompileArguments ParseDecompile(string[] files)
         {
             return new DecompileArguments(files);
+        }
+
+        private static CleanArguments ParseClean(string[] files)
+        {
+            return new CleanArguments(files);
         }
     }
 }

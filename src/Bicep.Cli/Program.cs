@@ -59,6 +59,8 @@ namespace Bicep.Cli
                             return Build(logger, buildArguments);
                         case DecompileArguments decompileArguments:
                             return Decompile(logger, decompileArguments);
+                        case CleanArguments cleanArguments:
+                            return Clean(logger, cleanArguments);
                         case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);
                             return 0;
@@ -120,6 +122,21 @@ namespace Bicep.Cli
             return diagnosticLogger.HasLoggedErrors ? 1 : 0;
         }
 
+        private int Clean(ILogger logger, CleanArguments arguments)
+        {
+            var diagnosticLogger = new BicepDiagnosticLogger(logger);
+            var bicepDirectories = arguments.BicepDirectories.Select(f => PathHelper.ResolvePath(f)).ToArray();
+            foreach (string bicepDirectory in bicepDirectories)
+            {
+                var bicepPaths = Directory.GetFiles(bicepDirectory, "*.bicep");
+                foreach(string bicepPath in bicepPaths)
+                {
+                    CleanJsonFiles(diagnosticLogger, bicepPath);
+                }
+            }
+            return diagnosticLogger.HasLoggedErrors ? 1 : 0;
+        }
+
         private bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
         {
             var success = true;
@@ -133,6 +150,11 @@ namespace Bicep.Cli
             }
 
             return success;
+        }
+        private void CleanJsonFiles(IDiagnosticLogger logger, string bicepPath)
+        {
+            bicepPath = Path.ChangeExtension(bicepPath, ".json");
+            RemoveFile(bicepPath);
         }
 
         private void BuildSingleFile(IDiagnosticLogger logger, string bicepPath, string outputPath)
@@ -191,7 +213,17 @@ namespace Bicep.Cli
                 throw new BicepException(exception.Message, exception);
             }
         }
-
+        private static void RemoveFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException(exception.Message, exception);
+            }
+        }
         private static FileStream CreateFileStream(string path)
         {
             try

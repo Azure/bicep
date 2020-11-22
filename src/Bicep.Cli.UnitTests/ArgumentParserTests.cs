@@ -24,6 +24,7 @@ namespace Bicep.Cli.UnitTests
             actual.Should().Contain("options");
             actual.Should().Contain("--stdout");
             actual.Should().Contain("bicep decompile");
+            actual.Should().Contain("bicep clean");
         }
 
         [TestMethod]
@@ -200,6 +201,33 @@ namespace Bicep.Cli.UnitTests
 
             arguments!.Should().NotBeNull();
             arguments!.Files.Should().Equal("file1", "file2", "file3");
+        }
+
+        [TestMethod]
+        public void CleanNoDirectories_ShouldThrow()
+        {
+            Action noDirectories = () => ArgumentParser.TryParse(new[] { "clean" });
+
+            noDirectories.Should().Throw<CommandLineException>().WithMessage("At least one directory must be specified to the clean command.");
+        }
+
+        [TestMethod]
+        public void CleanOneDirectory_ShouldReturnOneDirectory()
+        {
+            var arguments = (CleanArguments?)ArgumentParser.TryParse(new[] { "clean", "/directory1" });
+
+            // using classic assert so R# understands the value is not null
+            Assert.IsNotNull(arguments);
+            arguments!.BicepDirectories.Should().Equal("/directory1");
+        }
+
+        [TestMethod]
+        public void CleanMultipleDirectories_ShouldReturnAllDirectories()
+        {
+            var arguments = (CleanArguments?)ArgumentParser.TryParse(new[] { "clean", "/directory1", "/directory2", "/directory3" });
+
+            Assert.IsNotNull(arguments);
+            arguments!.BicepDirectories.Should().Equal("/directory1", "/directory2", "/directory3");
         }
     }
 }
