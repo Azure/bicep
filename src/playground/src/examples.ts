@@ -31,6 +31,7 @@ import example_101_basic_publicip from '../../../docs/examples/101/basic-publici
 import example_101_container_registry from '../../../docs/examples/101/container-registry/main.bicep'
 import example_101_create_rg_lock_role_assignment from '../../../docs/examples/101/create-rg-lock-role-assignment/main.bicep'
 import example_101_function_app_create from '../../../docs/examples/101/function-app-create/main.bicep'
+import example_101_redis_cache from '../../../docs/examples/101/redis-cache/main.bicep'
 import example_201_1vm_2nics_2subnets_1vnet from '../../../docs/examples/201/1vm-2nics-2subnets-1vnet/main.bicep'
 import example_201_aci_wordpress from '../../../docs/examples/201/aci-wordpress/main.bicep'
 import example_201_anchored_proximity_placement_group from '../../../docs/examples/201/anchored-proximity-placement-group/main.bicep'
@@ -77,6 +78,7 @@ export const examples = {
   '101/container-registry': example_101_container_registry,
   '101/create-rg-lock-role-assignment': example_101_create_rg_lock_role_assignment,
   '101/function-app-create': example_101_function_app_create,
+  '101/redis-cache': example_101_redis_cache,
   '201/1vm-2nics-2subnets-1vnet': example_201_1vm_2nics_2subnets_1vnet,
   '201/aci-wordpress': example_201_aci_wordpress,
   '201/anchored-proximity-placement-group': example_201_anchored_proximity_placement_group,
