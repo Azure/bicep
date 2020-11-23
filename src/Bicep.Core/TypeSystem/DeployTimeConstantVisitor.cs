@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem
     public sealed class DeployTimeConstantVisitor : SyntaxVisitor
     {
 
-        private readonly SemanticModel.SemanticModel model;
+        private readonly SemanticModel model;
         private readonly IDiagnosticWriter diagnosticWriter;
 
         // used for logging the property when we detect a run time property
@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem
         // whether a runtimeValue is allowed for the currentSymbol
         private bool runtimeValueAllowed;
 
-        private DeployTimeConstantVisitor(SemanticModel.SemanticModel model, IDiagnosticWriter diagnosticWriter)
+        private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             this.model = model;
             this.diagnosticWriter = diagnosticWriter;
@@ -30,7 +30,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         // entry point for this visitor
-        public static void ValidateDeployTimeConstants(SemanticModel.SemanticModel model, IDiagnosticWriter diagnosticWriter)
+        public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             new DeployTimeConstantVisitor(model, diagnosticWriter).Visit(model.Root.Syntax);
         }
