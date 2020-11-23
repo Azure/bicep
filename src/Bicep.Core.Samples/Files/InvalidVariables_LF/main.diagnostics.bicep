@@ -148,7 +148,7 @@ var rgName = resourceGroup().name
 
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
-//@[38:46) [BCP053 (Error)] The type "environment" does not contain property "location". Available properties include "name". |location|
+//@[38:46) [BCP053 (Error)] The type "environment" does not contain property "location". Available properties include "name", "properties". |location|
 
 var invalidEnvironmentVar = environment().aosdufhsad
 //@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "locations", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". |aosdufhsad|

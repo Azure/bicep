@@ -113,6 +113,9 @@ var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
 //@[4:18) Variable deploymentName. Type: string. Declaration start char: 0, length: 38
+var templateLinkUri = deployment().properties.templateLink.uri
+//@[4:19) Variable templateLinkUri. Type: string. Declaration start char: 0, length: 62
+
 var portalEndpoint = environment().portal
 //@[4:18) Variable portalEndpoint. Type: string. Declaration start char: 0, length: 41
 var loginEndpoint = environment().authentication.loginEndpoint

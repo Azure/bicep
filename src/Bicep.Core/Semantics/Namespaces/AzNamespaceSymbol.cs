@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -98,20 +99,29 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static NamedObjectType GetDeploymentReturnType(ResourceScopeType targetScope)
         {
-            if (targetScope.HasFlag(ResourceScopeType.ResourceGroupScope))
-            {
-                // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
-                return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
-                {
-                    new TypeProperty("name", LanguageConstants.String),
-                }, null);
-            }
-
-            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
+            // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
+            // Properties such as 'template', 'templateHash', 'parameters' depend on the codegen, and feel like they could be fragile.
+            IEnumerable<TypeProperty> properties = new []
             {
                 new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("location", LanguageConstants.String),
-            }, null);
+                new TypeProperty("properties", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("templateLink", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    {
+                        new TypeProperty("uri", LanguageConstants.String)
+                    }, null))
+                }, null)),
+            };
+
+            if (!targetScope.HasFlag(ResourceScopeType.ResourceGroupScope))
+            {
+                // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
+                var locationProperty = new TypeProperty("location", LanguageConstants.String);
+                properties = properties.Concat(locationProperty.AsEnumerable());
+            }
+
+            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()

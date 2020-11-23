@@ -663,6 +663,31 @@ var deploymentName = deployment().name
 //@[34:38)   IdentifierSyntax
 //@[34:38)    Identifier |name|
 //@[38:39) NewLine |\n|
+var templateLinkUri = deployment().properties.templateLink.uri
+//@[0:62) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |templateLinkUri|
+//@[20:21)  Assignment |=|
+//@[22:62)  PropertyAccessSyntax
+//@[22:58)   PropertyAccessSyntax
+//@[22:45)    PropertyAccessSyntax
+//@[22:34)     FunctionCallSyntax
+//@[22:32)      IdentifierSyntax
+//@[22:32)       Identifier |deployment|
+//@[32:33)      LeftParen |(|
+//@[33:34)      RightParen |)|
+//@[34:35)     Dot |.|
+//@[35:45)     IdentifierSyntax
+//@[35:45)      Identifier |properties|
+//@[45:46)    Dot |.|
+//@[46:58)    IdentifierSyntax
+//@[46:58)     Identifier |templateLink|
+//@[58:59)   Dot |.|
+//@[59:62)   IdentifierSyntax
+//@[59:62)    Identifier |uri|
+//@[62:64) NewLine |\n\n|
+
 var portalEndpoint = environment().portal
 //@[0:41) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
