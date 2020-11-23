@@ -98,6 +98,9 @@ namespace Bicep.Core.TypeSystem
 
                 case ObjectPropertySyntax objectProperty:
                     return GetObjectPropertyType(objectProperty);
+
+                case StringSyntax @string:
+                    return GetStringType(@string);
             }
 
             return null;
@@ -210,6 +213,23 @@ namespace Bicep.Core.TypeSystem
             {
                 // this array is a value of the property
                 // the declared type should be the same as the array and we should propagate the flags
+                return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+            }
+
+            return null;
+        }
+
+        private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
+        {
+            var parent = this.hierarchy.GetParent(syntax);
+
+            // we are only handling paths in the AST that are going to produce a declared type
+            // strings can exist under a variable declaration, but variables don't have declared types,
+            // so we don't need to check that case
+            if (parent is ObjectPropertySyntax || parent is ArrayItemSyntax)
+            {
+                // this string is a value of the property
+                // the declared type should be the same as the string and we should propagate the flags
                 return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
             }
 

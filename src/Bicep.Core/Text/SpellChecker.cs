@@ -11,7 +11,7 @@ namespace Bicep.Core.Text
     {
         public static string? GetSpellingSuggestion(string name, IEnumerable<string> candidates)
         {
-            if (candidates?.Any() != true)
+            if (candidates.Any() != true)
             {
                 return null;
             }

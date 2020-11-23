@@ -27,7 +27,7 @@ namespace Bicep.Core.Syntax
 
         public Token CloseBracket { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitArraySyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArraySyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.OpenBracket, this.CloseBracket);
 

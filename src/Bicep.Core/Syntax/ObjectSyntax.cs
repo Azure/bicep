@@ -27,7 +27,7 @@ namespace Bicep.Core.Syntax
 
         public Token CloseBrace { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitObjectSyntax(this);
 
         public override TextSpan Span

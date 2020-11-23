@@ -48,6 +48,10 @@ namespace Bicep.Decompiler
 
         private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)
         {
+            // Register names in order: parameters, outputs, resources, variables to deal with naming clashes.
+            // This avoids renaming 'external' template symbolic names (params & outputs) where possible,
+            // and prioritizes picking a shorter resource name over a shorter variable name.
+
             foreach (var parameter in parameters)
             {
                 if (nameResolver.TryRequestName(NameType.Parameter, parameter.Name) == null)
@@ -64,14 +68,6 @@ namespace Bicep.Decompiler
                 }
             }
 
-            foreach (var variable in variables)
-            {
-                if (nameResolver.TryRequestName(NameType.Variable, variable.Name) == null)
-                {
-                    throw new ConversionFailedException($"Unable to pick unique name for variable {variable.Name}", variable);
-                }
-            }
-
             foreach (var resource in resources)
             {
                 var nameString = resource["name"]?.Value<string>() ?? throw new ConversionFailedException($"Unable to parse 'name' for resource '{resource["name"]}'", resource);
@@ -80,6 +76,14 @@ namespace Bicep.Decompiler
                 if (nameResolver.TryRequestResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) == null)
                 {
                     throw new ConversionFailedException($"Unable to pick unique name for resource {typeString} {nameString}", resource);
+                }
+            }
+
+            foreach (var variable in variables)
+            {
+                if (nameResolver.TryRequestName(NameType.Variable, variable.Name) == null)
+                {
+                    throw new ConversionFailedException($"Unable to pick unique name for variable {variable.Name}", variable);
                 }
             }
         }
@@ -327,7 +331,7 @@ namespace Bicep.Decompiler
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
                     var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal) ?? throw new ArgumentException($"Unable to find parameter {stringVal}");
-                    baseSyntax = SyntaxHelpers.CreateIdentifier(resolved);
+                    baseSyntax = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resolved));
                     break;
                 }
                 case "variables":
@@ -339,7 +343,7 @@ namespace Bicep.Decompiler
 
                     var stringVal = jTokenExpression.Value.Value<string>()!;
                     var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal) ?? throw new ArgumentException($"Unable to find variable {stringVal}");
-                    baseSyntax = SyntaxHelpers.CreateIdentifier(resolved);
+                    baseSyntax = new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resolved));
                     break;
                 }
                 case "reference":
@@ -366,7 +370,7 @@ namespace Bicep.Decompiler
                     if (resourceName != null)
                     {
                         baseSyntax = new PropertyAccessSyntax(
-                            SyntaxHelpers.CreateIdentifier(resourceName),
+                            new VariableAccessSyntax(SyntaxHelpers.CreateIdentifier(resourceName)),
                             SyntaxHelpers.CreateToken(TokenType.Dot, "."),
                             SyntaxHelpers.CreateIdentifier("id"));
                     }
@@ -603,8 +607,11 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private string GetModuleFilePath(JObject resource)
+        private SyntaxBase GetModuleFilePath(JObject resource)
         {
+            StringSyntax createFakeModulePath(string templateLinkExpression)
+                => SyntaxHelpers.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
+
             var templateLink = resource["properties"]?["templateLink"]?["uri"]?.Value<string>();
             if (templateLink == null)
             {
@@ -617,17 +624,18 @@ namespace Bicep.Decompiler
             if (nestedRelativePath is null)
             {
                 // return the original expression so that the author can fix it up rather than failing
-                return $"<failed to parse {templateLink}>";
+                return createFakeModulePath(templateLink);
             }
             
             var nestedUri = fileResolver.TryResolveModulePath(fileUri, nestedRelativePath);
             if (nestedUri == null || !fileResolver.TryRead(nestedUri, out _, out _))
             {
                 // return the original expression so that the author can fix it up rather than failing
-                return $"<failed to parse {templateLink}>";
+                return createFakeModulePath(templateLink);
             }
 
-            return Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
+            var filePath = Path.ChangeExtension(nestedRelativePath, "bicep").Replace("\\", "/");
+            return SyntaxHelpers.CreateStringLiteral(filePath);
         }
 
         private SyntaxBase? ProcessDependsOn(JObject resource)
@@ -686,8 +694,6 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
-            var moduleFilePath = GetModuleFilePath(resource);
-
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
@@ -723,7 +729,7 @@ namespace Bicep.Decompiler
             return new ModuleDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
                 SyntaxHelpers.CreateIdentifier(identifier),
-                SyntaxHelpers.CreateStringLiteral(moduleFilePath),
+                GetModuleFilePath(resource),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
                 SyntaxHelpers.CreateObject(properties));
         }

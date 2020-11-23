@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core;
 
 namespace Bicep.Decompiler
 {
@@ -15,6 +16,17 @@ namespace Bicep.Decompiler
         private readonly Dictionary<string, Dictionary<NameType, string>> assignedNames = new Dictionary<string, Dictionary<NameType, string>>(StringComparer.OrdinalIgnoreCase);
 
         private readonly Dictionary<string, string> assignedResourceNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        private static string GetNamingSuffix(NameType nameType)
+            => nameType switch {
+                // The naming suffix is just used in case of naming clashes, to pick a unique name for a symbol in the generated bicep file.
+                // These do not need to match the keyword names, but it's probably most understandable to the user if they do.
+                NameType.Output => LanguageConstants.OutputKeyword,
+                NameType.Resource => LanguageConstants.ResourceKeyword,
+                NameType.Variable => LanguageConstants.VariableKeyword,
+                NameType.Parameter => LanguageConstants.ParameterKeyword,
+                _ => nameType.ToString().ToUpperInvariant(),
+            };
 
         private static string EscapeIdentifier(string identifier)
         {
@@ -58,7 +70,7 @@ namespace Bicep.Decompiler
                 }
                 
                 // TODO technically a naming clash is still possible here but unlikely
-                nameByType[nameType] = $"{desiredName}_{nameType.ToString().ToLowerInvariant()}";
+                nameByType[nameType] = $"{desiredName}_{GetNamingSuffix(nameType)}";
             }
 
             return nameByType[nameType];
