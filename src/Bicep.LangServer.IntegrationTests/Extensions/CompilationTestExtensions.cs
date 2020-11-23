@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 

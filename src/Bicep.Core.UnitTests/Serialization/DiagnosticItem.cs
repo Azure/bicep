@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.UnitTests.Serialization

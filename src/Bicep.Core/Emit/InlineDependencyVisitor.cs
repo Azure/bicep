@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -12,11 +12,11 @@ namespace Bicep.Core.Emit
 {
     public class InlineDependencyVisitor : SyntaxVisitor
     {
-        private readonly SemanticModel.SemanticModel model;
+        private readonly SemanticModel model;
         private IDictionary<VariableSymbol, bool> shouldInlineCache;
         private VariableSymbol? currentDeclaration;
 
-        public static ImmutableHashSet<VariableSymbol> GetVariablesToInline(SemanticModel.SemanticModel model)
+        public static ImmutableHashSet<VariableSymbol> GetVariablesToInline(SemanticModel model)
         {
             var visitor = new InlineDependencyVisitor(model);
             visitor.Visit(model.Root.Syntax);
@@ -27,7 +27,7 @@ namespace Bicep.Core.Emit
                 .ToImmutableHashSet();
         }
 
-        private InlineDependencyVisitor(SemanticModel.SemanticModel model)
+        private InlineDependencyVisitor(SemanticModel model)
         {
             this.model = model;
             this.shouldInlineCache = new Dictionary<VariableSymbol, bool>();

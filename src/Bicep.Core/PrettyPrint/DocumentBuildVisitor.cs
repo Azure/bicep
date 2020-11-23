@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Documents;
 using Bicep.Core.PrettyPrint.DocumentCombinators;
 using Bicep.Core.Syntax;
