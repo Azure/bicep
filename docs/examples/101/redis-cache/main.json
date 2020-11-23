@@ -20,7 +20,7 @@
   },
   "functions": [],
   "variables": {
-    "redisCacheName": "[concat(parameters('environmentName'), uniqueString(resourceGroup().id))]"
+    "redisCacheName": "[format('{0}{1}', parameters('environmentName'), uniqueString(resourceGroup().id))]"
   },
   "resources": [
     {
