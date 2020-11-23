@@ -177,7 +177,7 @@
             "value": "[resourceId('Microsoft.Compute/proximityPlacementGroups', 'Zone1')]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -339,7 +339,7 @@
             "value": "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -369,21 +369,6 @@
           "functions": [],
           "resources": [
             {
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2020-05-01",
-              "name": "[format('{0}-pip', parameters('vmName'))]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publicIPAllocationMethod": "Static"
-              },
-              "sku": {
-                "name": "Standard"
-              },
-              "zones": [
-                "1"
-              ]
-            },
-            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -396,17 +381,11 @@
                       "privateIPAllocationMethod": "Dynamic",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
-                      },
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
                       }
                     }
                   }
                 ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
-              ]
+              }
             },
             {
               "type": "Microsoft.Compute/virtualMachines",
@@ -487,7 +466,7 @@
             "value": "[resourceId('Microsoft.Compute/availabilitySets', 'as1')]"
           },
           "subnetId": {
-            "value": "[concat(reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value, '/subnets/Default')]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"
@@ -517,21 +496,6 @@
           "functions": [],
           "resources": [
             {
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2020-05-01",
-              "name": "[format('{0}-pip', parameters('vmName'))]",
-              "location": "[parameters('location')]",
-              "properties": {
-                "publicIPAllocationMethod": "Static"
-              },
-              "sku": {
-                "name": "Standard"
-              },
-              "zones": [
-                "1"
-              ]
-            },
-            {
               "type": "Microsoft.Network/networkInterfaces",
               "apiVersion": "2020-05-01",
               "name": "[format('{0}-nic', parameters('vmName'))]",
@@ -544,17 +508,11 @@
                       "privateIPAllocationMethod": "Dynamic",
                       "subnet": {
                         "id": "[parameters('subnetId')]"
-                      },
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
                       }
                     }
                   }
                 ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', format('{0}-pip', parameters('vmName')))]"
-              ]
+              }
             },
             {
               "type": "Microsoft.Compute/virtualMachines",

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -171,7 +172,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static LanguageExpression FormatLocallyScopedResourceId(SemanticModel.SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        public static LanguageExpression FormatLocallyScopedResourceId(SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
             var initialArgs = new JTokenExpression(fullyQualifiedType).AsEnumerable();
             switch (semanticModel.TargetScope)

@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Text.RegularExpressions;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -57,6 +59,16 @@ namespace Bicep.Core.UnitTests.Assertions
                     string.Join('\n', lineLogs),
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> BeEquivalentToIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
 
             return new AndConstraint<StringAssertions>(instance);
         }

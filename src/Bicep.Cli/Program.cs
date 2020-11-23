@@ -3,10 +3,11 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Bicep.Cli.CommandLine;
 using Bicep.Cli.Logging;
 using Bicep.Core.Emit;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
+using Bicep.Decompiler;
 
 namespace Bicep.Cli
 {
@@ -35,6 +37,7 @@ namespace Bicep.Cli
 
         public static int Main(string[] args)
         {
+            BicepDeploymentsInterop.Initialize();
             var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error);
             return program.Run(args);
         }
@@ -47,28 +50,27 @@ namespace Bicep.Cli
                 // the only value in using the dotnet logging framework is that we can easily implement filters
                 // and logging to multiple targets in the future (stdout AND a log file, for example)
                 // it does not help us with formatting of the messages however, so we will have to workaround that
-                IDiagnosticLogger logger = new BicepDiagnosticLogger(loggerFactory.CreateLogger("bicep"));
+                var logger = loggerFactory.CreateLogger("bicep");
                 try
                 {
-                    switch (ArgumentParser.Parse(args))
+                    switch (ArgumentParser.TryParse(args))
                     {
                         case BuildArguments buildArguments: // build
-                            Build(logger, buildArguments);
-                            break;
+                            return Build(logger, buildArguments);
+                        case DecompileArguments decompileArguments:
+                            return Decompile(logger, decompileArguments);
                         case VersionArguments _: // --version
                             ArgumentParser.PrintVersion(this.outputWriter);
-                            break;
+                            return 0;
                         case HelpArguments _: // --help
                             ArgumentParser.PrintUsage(this.outputWriter);
-                            break;
-                        case UnrecognizedArguments unrecognizedArguments: // everything else
+                            return 0;
+                        default:
                             var exeName = ArgumentParser.GetExeName();
-                            this.errorWriter.WriteLine($"Unrecognized arguments '{unrecognizedArguments.SuppliedArguments}' specified. Use '{exeName} --help' to view available options.");
+                            var arguments = string.Join(' ', args);
+                            this.errorWriter.WriteLine($"Unrecognized arguments '{arguments}' specified. Use '{exeName} --help' to view available options.");
                             return 1;
                     }
-
-                    // return non-zero exit code on errors
-                    return logger.HasLoggedErrors ? 1 : 0;
                 }
                 catch (CommandLineException exception)
                 {
@@ -97,20 +99,25 @@ namespace Bicep.Cli
             });
         }
 
-        private void Build(IDiagnosticLogger logger, BuildArguments arguments)
+        private int Build(ILogger logger, BuildArguments arguments)
         {
+            var diagnosticLogger = new BicepDiagnosticLogger(logger);
             var bicepPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
             if (arguments.OutputToStdOut)
             {
-                BuildManyFilesToStdOut(logger, bicepPaths);
-                return;
+                BuildManyFilesToStdOut(diagnosticLogger, bicepPaths);
+            }
+            else
+            {
+                foreach (string bicepPath in bicepPaths)
+                {
+                    string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
+                    BuildSingleFile(diagnosticLogger, bicepPath, outputPath);
+                }
             }
 
-            foreach (string bicepPath in bicepPaths)
-            {
-                string outputPath = PathHelper.GetDefaultOutputPath(bicepPath);
-                BuildSingleFile(logger, bicepPath, outputPath);
-            }
+            // return non-zero exit code on errors
+            return diagnosticLogger.HasLoggedErrors ? 1 : 0;
         }
 
         private bool LogDiagnosticsAndCheckSuccess(IDiagnosticLogger logger, Compilation compilation)
@@ -194,6 +201,46 @@ namespace Bicep.Cli
             catch (Exception exception)
             {
                 throw new BicepException(exception.Message, exception);
+            }
+        }
+
+        public int Decompile(ILogger logger, DecompileArguments arguments)
+        {
+            logger.LogWarning(
+                "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.\n" +
+                "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.\n" +
+                "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues.");
+
+            var diagnosticLogger = new BicepDiagnosticLogger(logger);
+            var hadErrors = false;
+            var jsonPaths = arguments.Files.Select(f => PathHelper.ResolvePath(f)).ToArray();
+            foreach (var jsonPath in jsonPaths)
+            {
+                hadErrors |= !DecompileSingleFile(diagnosticLogger, jsonPath);
+            }
+
+            return hadErrors ? 1 : 0;
+        }
+
+        private bool DecompileSingleFile(IDiagnosticLogger logger, string filePath)
+        {
+            try
+            {
+                var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(filePath));
+                foreach (var (fileUri, bicepOutput) in filesToSave)
+                {
+                    File.WriteAllText(fileUri.LocalPath, bicepOutput);
+                }
+
+                var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), bicepUri);
+                var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping);
+
+                return LogDiagnosticsAndCheckSuccess(logger, compilation);
+            }
+            catch (Exception exception)
+            {
+                this.errorWriter.WriteLine($"{filePath}: Decompilation failed with fatal error \"{exception.Message}\"");
+                return false;
             }
         }
     }

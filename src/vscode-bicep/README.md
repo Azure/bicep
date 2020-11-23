@@ -6,6 +6,8 @@ The [bicep VS Code extension](/docs/installing.md#install-the-bicep-vs-code-exte
 
 The bicep compiler validates that your code is authored correctly. We always validate the syntax of each file and whenever possible also validate the return types of all expressions (functions, resource bodies, parameters, outputs, etc.). Depending on the type of validation, you will see either a warning in yellow which will successfully compile with `bicep build` or you will see an error in red which will fail to compile either. Bicep is more restrictive than ARM Templates, so certain behaviors in ARM Templates that you have used may not be supported and result in an error in bicep. For example, we no longer allow math functions like `add()` because we support the `+` operator.
 
+See [Bicep Type System](/docs/spec/types.md) for more information about Bicep data types and the type validation rules.
+
 ## Intellisense
 
 Bicep provides intellisense for the core language and extends to support type definitions for all resource types in Azure.

@@ -4,13 +4,13 @@
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.CodeAction;
 using System.Linq;
 using System;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Diagnostics
 {

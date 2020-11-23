@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;

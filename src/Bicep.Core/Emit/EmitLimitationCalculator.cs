@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -12,7 +12,7 @@ namespace Bicep.Core.Emit
 {
     public static class EmitLimitationCalculator
     {
-        public static EmitLimitationInfo Calculate(SemanticModel.SemanticModel model)
+        public static EmitLimitationInfo Calculate(SemanticModel model)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
@@ -21,7 +21,7 @@ namespace Bicep.Core.Emit
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData);
         }
 
-        public static ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> GetSupportedScopeInfo(SemanticModel.SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        public static ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> GetSupportedScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             var moduleScopeData = new Dictionary<ModuleSymbol, ScopeHelper.ScopeData>();
 

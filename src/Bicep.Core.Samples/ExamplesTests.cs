@@ -12,7 +12,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
@@ -141,7 +141,7 @@ namespace Bicep.Core.Samples
             
                 result.Status.Should().Be(EmitStatus.Succeeded);
 
-                if (result.Status == EmitStatus.Succeeded && exampleExists)
+                if (result.Status == EmitStatus.Succeeded)
                 {
                     stream.Position = 0;
                     var generated = new StreamReader(stream).ReadToEnd();
@@ -151,7 +151,7 @@ namespace Bicep.Core.Samples
 
                     actual.Should().EqualWithJsonDiffOutput(
                         TestContext, 
-                        JToken.Parse(File.ReadAllText(jsonFileName)),
+                        exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
                         example.JsonStreamName,
                         jsonFileName + ".actual");
                 }

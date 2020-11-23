@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
             {
-                Range = programSyntax.FullSpan.ToRange(context.LineStarts),
+                Range = programSyntax.Span.ToRange(context.LineStarts),
                 NewText = output
             }));
         }

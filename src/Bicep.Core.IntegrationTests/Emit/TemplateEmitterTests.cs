@@ -8,7 +8,7 @@ using System.Linq;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -88,7 +88,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: OutputHelper.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 

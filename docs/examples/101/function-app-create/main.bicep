@@ -129,19 +129,19 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
       appSettings: [
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
+          value: appInsights.properties.InstrumentationKey
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: 'InstrumentationKey=${reference(appInsights.id, '2018-05-01-preview').InstrumentationKey}'
+          value: 'InstrumentationKey=${appInsights.properties.InstrumentationKey}'
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -246,7 +246,7 @@ resource functionAppConfig 'Microsoft.Web/sites/config@2020-06-01' = {
 resource functionAppBinding 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
   name: '${functionApp.name}/${functionApp.name}.azurewebsites.net'
   properties: {
-    siteName: functionAppName
+    siteName: functionApp.name
     hostNameType: 'Verified'
   }
 }

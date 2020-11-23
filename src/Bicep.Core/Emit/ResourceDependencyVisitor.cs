@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
@@ -23,11 +23,11 @@ namespace Bicep.Core.Emit
         // shared data structure across all ResourceDependencyVisitors; our only "state" during traversals
         // Instead of traversing through variables repeatedly, we pre-calculate variable-resource dependencies before we build the graph
         private static Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>> variableDependencies = new Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>>();
-        private readonly SemanticModel.SemanticModel model;
+        private readonly SemanticModel model;
         // resource dependencies specific to each ResourceDependencyVisitor
         private HashSet<DeclaredSymbol> resourceDependencies;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetAllResourceDependencies(SemanticModel.SemanticModel model) 
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetAllResourceDependencies(SemanticModel model) 
         {
             var allResourceDependencies = new Dictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>>();
             var declaredSymbols = model.Root.AllDeclarations.ToList(); // gets all declaredSymbols in the document (entry point)
@@ -45,14 +45,14 @@ namespace Bicep.Core.Emit
             return allResourceDependencies.ToImmutableDictionary();
         }
 
-        public static ImmutableHashSet<DeclaredSymbol> GetResourceDependencies(SemanticModel.SemanticModel model, SyntaxBase syntax)
+        public static ImmutableHashSet<DeclaredSymbol> GetResourceDependencies(SemanticModel model, SyntaxBase syntax)
         {
             var visitor = new ResourceDependencyVisitor(model);
             visitor.Visit(syntax);
             return visitor.resourceDependencies.ToImmutableHashSet();
         }
 
-        private ResourceDependencyVisitor(SemanticModel.SemanticModel model)
+        private ResourceDependencyVisitor(SemanticModel model)
         {
             this.model = model;
             this.resourceDependencies = new HashSet<DeclaredSymbol>();

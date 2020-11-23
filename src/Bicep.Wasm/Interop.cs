@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Bicep.Core.Emit;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
@@ -40,6 +40,29 @@ namespace Bicep.Wasm
                 template = output,
                 diagnostics = diagnostics,
             };
+        }
+
+        public record DecompileResult(string? bicepFile, string? error);
+
+        [JSInvokable]
+        public DecompileResult Decompile(string jsonContent)
+        {
+            var jsonUri = new Uri("inmemory:///main.json");
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
+                [jsonUri] = jsonContent,
+            });
+
+            try
+            {
+                var (entrypointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, jsonUri);
+
+                return new DecompileResult(filesToSave[entrypointUri], null);
+            }
+            catch (Exception exception)
+            {
+                return new DecompileResult(null, exception.Message);
+            }
         }
 
         [JSInvokable]

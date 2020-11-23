@@ -1,0 +1,70 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
+        "childPrefix": {
+            "type": "string",
+            "defaultValue": "[newGuid()]"
+        }
+    },
+    "variables": {
+        "fooName": "Foo!"
+    },
+    "resources": [
+        {
+            "type": "Foo.Rp/bar",
+            "name": "[concat(variables('fooName'), 'bar')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "foo": "bar"
+            },
+            "resources": [
+                {
+                    "type": "child1",
+                    "name": "steve",
+                    "apiVersion": "2019-06-01",
+                    "properties": {
+                        "foo": "bar"
+                    },
+                    "resources": [
+                        {
+                            "type": "child2",
+                            "name": "louise",
+                            "apiVersion": "2019-06-01",
+                            "properties": {
+                                "foo": "bar"
+                            },
+                            "dependsOn": [
+                                "[resourceId('Foo.Rp/bar/child1', concat(variables('fooName'), 'bar'), 'steve')]"
+                            ]
+                        }
+                    ],
+                    "dependsOn": [
+                        "[resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar'))]"
+                    ]
+                },
+                {
+                    "type": "Foo.Rp/bar/child1",
+                    "name": "[concat(variables('fooName'), 'bar', '/', parameters('childPrefix'))]",
+                    "apiVersion": "2019-06-01",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                        "foo": "bar"
+                    },
+                    "dependsOn": [
+                        "[resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar'))]"
+                    ]
+                }
+            ]
+        }
+    ],
+    "outputs": {}
+}

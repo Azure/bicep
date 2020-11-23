@@ -5,6 +5,7 @@ An individual `.bicep` file is composed of the following declarations, in any or
 * [Parameters](./parameters.md)
 * [Variables](./variables.md) 
 * [Resources](./resources.md)
+* [Modules](./modules.md)
 * [Outputs](./outputs.md)
 
 ## Whitespace
@@ -31,6 +32,7 @@ this */
 ```
 
 ## Literals
+The sections below cover common types of literals you will encounter in Bicep. See [Bicep Data Types](./types.md) for additional information about the type system and validation rules.
 
 ### Strings
 Strings are defined by a sequence of characters between single quote (`'`) characters, and must be declared on a single line.

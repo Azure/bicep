@@ -43,6 +43,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes.Az.Un
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes.UnitTests", "bicep-types-az\src\Bicep.SerializedTypes.UnitTests\Bicep.SerializedTypes.UnitTests.csproj", "{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{61643BA1-BE82-4430-A3D3-CB7A16E747E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler", "src\Bicep.Decompiler\Bicep.Decompiler.csproj", "{4CD48B4A-6297-49FC-90AC-5DF9213C1527}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.IntegrationTests", "src\Bicep.Decompiler.IntegrationTests\Bicep.Decompiler.IntegrationTests.csproj", "{695560CE-C6C3-4FCD-A488-09F06E608297}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +117,18 @@ Global
 		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{695560CE-C6C3-4FCD-A488-09F06E608297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{695560CE-C6C3-4FCD-A488-09F06E608297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{695560CE-C6C3-4FCD-A488-09F06E608297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{695560CE-C6C3-4FCD-A488-09F06E608297}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +149,9 @@ Global
 		{39F6D713-EF43-4A23-B101-9CF06C8471C8} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
 		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
 		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
+		{4CD48B4A-6297-49FC-90AC-5DF9213C1527} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
+		{695560CE-C6C3-4FCD-A488-09F06E608297} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
+		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

@@ -151,11 +151,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2018-05-01-preview').InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('appInsightsName'))).InstrumentationKey)]"
             },
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",

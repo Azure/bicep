@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Wasm.LanguageHelpers
 {

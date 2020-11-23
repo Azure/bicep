@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;

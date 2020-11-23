@@ -1,0 +1,63 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+          "type": "string",
+          "defaultValue": "[resourceGroup().location]",
+          "metadata": {
+            "description": "Location for all resources."
+          }
+        }
+    },
+    "variables": {
+        "fooName": "Foo!"
+    },
+    "resources": [
+        {
+            "type": "Foo.Rp/bar",
+            "name": "[concat(variables('fooName'), 'bar')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "foo": "bar"
+            }
+        },
+        {
+            "type": "Foo.Rp/bar",
+            "name": "[concat(variables('fooName'), 'baz')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat(variables('fooName'), 'bar')]"
+            ]
+        },
+        {
+            "type": "Foo.Rp/bar",
+            "name": "[concat(variables('fooName'), 'blah')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar'))]"
+            ]
+        },
+        {
+            "type": "Foo.Rp/bar",
+            "name": "[concat(variables('fooName'), 'blah2')]",
+            "apiVersion": "2019-06-01",
+            "location": "[parameters('location')]",
+            "properties": {
+                "foobar": "[reference(concat(variables('fooName'), 'bar')).foo]",
+                "foobarFull": "[reference(concat(variables('fooName'), 'bar'), '2019-06-01', 'Full').properties.foo]",
+                "foobarLocation": "[reference(concat(variables('fooName'), 'bar'), '2019-06-01', 'Full').location]",
+                "foobarResId": "[reference(resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar'))).foo]",
+                "foobarResIdFull": "[reference(resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar')), '2019-06-01', 'Full').properties.foo]",
+                "foobarResIdLocation": "[reference(resourceId('Foo.Rp/bar', concat(variables('fooName'), 'bar')), '2019-06-01', 'Full').location]",
+            },
+            "dependsOn": [
+                "[concat('Foo.Rp/bar', variables('fooName'), 'bar')]"
+            ]
+        }
+    ],
+    "outputs": {}
+}
