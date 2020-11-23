@@ -65,9 +65,9 @@
       "type": "string",
       "value": "[resourceGroup().location]"
     },
-    "crossRegion": {
+    "isWestUs": {
       "type": "bool",
-      "value": "[if(equals(resourceGroup().location, deployment().location), false(), true())]"
+      "value": "[if(not(equals(resourceGroup().location, 'westus')), false(), true())]"
     },
     "expressionBasedIndexer": {
       "type": "string",

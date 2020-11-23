@@ -180,27 +180,23 @@ output rgLocation string = resourceGroup().location
 //@[43:51) Identifier |location|
 //@[51:55) NewLine |\r\n\r\n|
 
-output crossRegion bool = resourceGroup().location == deployment().location ? false : true
+output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 //@[0:6) Identifier |output|
-//@[7:18) Identifier |crossRegion|
-//@[19:23) Identifier |bool|
-//@[24:25) Assignment |=|
-//@[26:39) Identifier |resourceGroup|
-//@[39:40) LeftParen |(|
-//@[40:41) RightParen |)|
-//@[41:42) Dot |.|
-//@[42:50) Identifier |location|
-//@[51:53) Equals |==|
-//@[54:64) Identifier |deployment|
-//@[64:65) LeftParen |(|
-//@[65:66) RightParen |)|
-//@[66:67) Dot |.|
-//@[67:75) Identifier |location|
-//@[76:77) Question |?|
-//@[78:83) FalseKeyword |false|
-//@[84:85) Colon |:|
-//@[86:90) TrueKeyword |true|
-//@[90:94) NewLine |\r\n\r\n|
+//@[7:15) Identifier |isWestUs|
+//@[16:20) Identifier |bool|
+//@[21:22) Assignment |=|
+//@[23:36) Identifier |resourceGroup|
+//@[36:37) LeftParen |(|
+//@[37:38) RightParen |)|
+//@[38:39) Dot |.|
+//@[39:47) Identifier |location|
+//@[48:50) NotEquals |!=|
+//@[51:59) StringComplete |'westus'|
+//@[60:61) Question |?|
+//@[62:67) FalseKeyword |false|
+//@[68:69) Colon |:|
+//@[70:74) TrueKeyword |true|
+//@[74:78) NewLine |\r\n\r\n|
 
 output expressionBasedIndexer string = {
 //@[0:6) Identifier |output|
