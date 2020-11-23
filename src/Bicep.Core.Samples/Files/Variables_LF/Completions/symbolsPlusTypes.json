@@ -1708,6 +1708,20 @@
     }
   },
   {
+    "label": "templateLinkUri",
+    "kind": "variable",
+    "detail": "templateLinkUri",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateLinkUri",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "templateLinkUri"
+    }
+  },
+  {
     "label": "tenant",
     "kind": "function",
     "detail": "tenant()",

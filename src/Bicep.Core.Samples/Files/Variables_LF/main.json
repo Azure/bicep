@@ -81,6 +81,7 @@
     "expressionIndexOnAny": "[createObject()[resourceGroup().location]]",
     "anyIndexOnAny": "[true()[false()]]",
     "deploymentName": "[deployment().name]",
+    "templateLinkUri": "[deployment().properties.templateLink.uri]",
     "portalEndpoint": "[environment().portal]",
     "loginEndpoint": "[environment().authentication.loginEndpoint]",
     "firstLocation": "[environment().locations[0].displayName]",
