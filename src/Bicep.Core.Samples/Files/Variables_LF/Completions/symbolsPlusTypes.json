@@ -406,6 +406,20 @@
     }
   },
   {
+    "label": "deploymentName",
+    "kind": "variable",
+    "detail": "deploymentName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_deploymentName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "deploymentName"
+    }
+  },
+  {
     "label": "div",
     "kind": "variable",
     "detail": "div",
@@ -557,6 +571,20 @@
     "textEdit": {
       "range": {},
       "newText": "first($0)"
+    }
+  },
+  {
+    "label": "firstLocation",
+    "kind": "variable",
+    "detail": "firstLocation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_firstLocation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "firstLocation"
     }
   },
   {
@@ -921,6 +949,20 @@
     "textEdit": {
       "range": {},
       "newText": "listKeys($0)"
+    }
+  },
+  {
+    "label": "loginEndpoint",
+    "kind": "variable",
+    "detail": "loginEndpoint",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loginEndpoint",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loginEndpoint"
     }
   },
   {
@@ -1299,6 +1341,20 @@
     "textEdit": {
       "range": {},
       "newText": "pickZones($0)"
+    }
+  },
+  {
+    "label": "portalEndpoint",
+    "kind": "variable",
+    "detail": "portalEndpoint",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_portalEndpoint",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "portalEndpoint"
     }
   },
   {

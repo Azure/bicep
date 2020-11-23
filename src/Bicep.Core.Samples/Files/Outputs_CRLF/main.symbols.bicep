@@ -51,8 +51,8 @@ output myArr array = [
 output rgLocation string = resourceGroup().location
 //@[7:17) Output rgLocation. Type: string. Declaration start char: 0, length: 51
 
-output crossRegion bool = resourceGroup().location == deployment().location ? false : true
-//@[7:18) Output crossRegion. Type: bool. Declaration start char: 0, length: 90
+output isWestUs bool = resourceGroup().location != 'westus' ? false : true
+//@[7:15) Output isWestUs. Type: bool. Declaration start char: 0, length: 74
 
 output expressionBasedIndexer string = {
 //@[7:29) Output expressionBasedIndexer. Type: string. Declaration start char: 0, length: 140

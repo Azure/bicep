@@ -119,6 +119,15 @@ var resourceGroup = ''
 var rgName = resourceGroup().name
 //@[4:10) Variable rgName. Type: error. Declaration start char: 0, length: 33
 
+// this does not work at the resource group scope
+var invalidLocationVar = deployment().location
+//@[4:22) Variable invalidLocationVar. Type: error. Declaration start char: 0, length: 46
+
+var invalidEnvironmentVar = environment().aosdufhsad
+//@[4:25) Variable invalidEnvironmentVar. Type: error. Declaration start char: 0, length: 52
+var invalidEnvAuthVar = environment().authentication.asdgdsag
+//@[4:21) Variable invalidEnvAuthVar. Type: error. Declaration start char: 0, length: 61
+
 // invalid use of reserved namespace
 var az = 1
 //@[4:6) Variable az. Type: int. Declaration start char: 0, length: 10

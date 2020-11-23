@@ -146,6 +146,15 @@ var resourceGroup = ''
 var rgName = resourceGroup().name
 //@[13:26) [BCP059 (Error)] The name "resourceGroup" is not a function. |resourceGroup|
 
+// this does not work at the resource group scope
+var invalidLocationVar = deployment().location
+//@[38:46) [BCP053 (Error)] The type "environment" does not contain property "location". Available properties include "name". |location|
+
+var invalidEnvironmentVar = environment().aosdufhsad
+//@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "locations", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". |aosdufhsad|
+var invalidEnvAuthVar = environment().authentication.asdgdsag
+//@[53:61) [BCP053 (Error)] The type "authentication" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". |asdgdsag|
+
 // invalid use of reserved namespace
 var az = 1
 //@[4:6) [BCP084 (Error)] The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys". |az|

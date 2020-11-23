@@ -54,6 +54,65 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("displayName", LanguageConstants.String),
             });
         }
+        
+        private static NamedObjectType GetEnvironmentReturnType()
+        {
+            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("gallery", LanguageConstants.String),
+                new TypeProperty("graph", LanguageConstants.String),
+                new TypeProperty("portal", LanguageConstants.String),
+                new TypeProperty("graphAudience", LanguageConstants.String),
+                new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
+                new TypeProperty("batch", LanguageConstants.String),
+                new TypeProperty("media", LanguageConstants.String),
+                new TypeProperty("sqlManagement", LanguageConstants.String),
+                new TypeProperty("vmImageAliasDoc", LanguageConstants.String),
+                new TypeProperty("resourceManager", LanguageConstants.String),
+                new TypeProperty("authentication", new NamedObjectType("authentication", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("loginEndpoint", LanguageConstants.String),
+                    new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+                    new TypeProperty("tenant", LanguageConstants.String),
+                    new TypeProperty("identityProvider", LanguageConstants.String),
+                }, null)),
+                new TypeProperty("suffixes", new NamedObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("acrLoginServer", LanguageConstants.String),
+                    new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
+                    new TypeProperty("azureDatalakeStoreFileSystem", LanguageConstants.String),
+                    new TypeProperty("keyvaultDns", LanguageConstants.String),
+                    new TypeProperty("sqlServerHostname", LanguageConstants.String),
+                    new TypeProperty("storage", LanguageConstants.String),
+                }, null)),
+                new TypeProperty("locations", new TypedArrayType(new NamedObjectType("locations", TypeSymbolValidationFlags.Default, new []
+                {
+                    new  TypeProperty("id", LanguageConstants.String),
+                    new  TypeProperty("name", LanguageConstants.String),
+                    new  TypeProperty("displayName", LanguageConstants.String),
+                    new  TypeProperty("longitude", LanguageConstants.String),
+                }, null), TypeSymbolValidationFlags.Default)),
+            }, null);
+        }
+
+        private static NamedObjectType GetDeploymentReturnType(ResourceScopeType targetScope)
+        {
+            if (targetScope.HasFlag(ResourceScopeType.ResourceGroupScope))
+            {
+                // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
+                return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("name", LanguageConstants.String),
+                }, null);
+            }
+
+            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("location", LanguageConstants.String),
+            }, null);
+        }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()
         {
@@ -90,10 +149,9 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             // TODO: Add schema for return type
-            yield return FunctionOverload.CreateFixed("deployment", LanguageConstants.Object);
+            yield return FunctionOverload.CreateFixed("deployment", GetDeploymentReturnType(resourceScope));
 
-            // TODO: Add schema for return type
-            yield return FunctionOverload.CreateFixed("environment", LanguageConstants.Object);
+            yield return FunctionOverload.CreateFixed("environment", GetEnvironmentReturnType());
 
             // TODO: This is based on docs. Verify
             yield return FunctionOverload.CreateWithVarArgs("resourceId", LanguageConstants.String, 2, LanguageConstants.String);
