@@ -984,7 +984,7 @@ namespace Bicep.Core.TypeSystem
                 accumulated => accumulated);
         }
         
-        private static TypeSymbol UnwrapType(TypeSymbol baseType) =>
+        public static TypeSymbol UnwrapType(TypeSymbol baseType) =>
             baseType switch
             {
                 ResourceType resourceType =>

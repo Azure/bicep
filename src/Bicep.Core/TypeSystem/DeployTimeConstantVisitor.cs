@@ -49,6 +49,12 @@ namespace Bicep.Core.TypeSystem
             this.runtimeValueAllowed = true;
         }
 
+        public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+        {
+            // if (syntax.IndexExpression.)
+            // base.VisitArrayAccessSyntax(syntax);
+        }
+
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
             bool priorRuntimeValueAllowed = this.runtimeValueAllowed;
@@ -57,7 +63,7 @@ namespace Bicep.Core.TypeSystem
             {
                 this.currentSymbol = keyIdentifier.IdentifierName;
                 // right now we only check for the name property (using resourceNamePropertyName but the name is same for modules)
-                if (!keyIdentifier.IdentifierName.Equals(LanguageConstants.ResourceNamePropertyName, System.StringComparison.Ordinal))
+                if (!LanguageConstants.IdentifierComparer.Equals(keyIdentifier.IdentifierName, LanguageConstants.ResourceNamePropertyName))
                 {
                     this.runtimeValueAllowed = true;
                 }
@@ -69,36 +75,29 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
+            base.VisitPropertyAccessSyntax(syntax);
             if (!this.runtimeValueAllowed)
             {
                 if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
                 {
                     // validate only on resource and module symbols
-                    // TODO these switch cases are so redundant.....
-                    switch (model.GetSymbolInfo(variableAccessSyntax))
+                    var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
+                    switch (baseSymbol)
                     {
                         case ResourceSymbol resourceSymbol:
-                            if ((resourceSymbol.Type is ResourceType resourceType) &&
-                            (resourceType.Body is ObjectType resourceBodyObj))
+                        case ModuleSymbol moduleSymbol:
+                            if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol) baseSymbol).Type) is ObjectType bodyObj)
                             {
                                 var property = syntax.PropertyName.IdentifierName;
-                                if (resourceBodyObj.Properties.TryGetValue(property, out var propertyType) &&
+                                if (bodyObj.Properties.TryGetValue(property, out var propertyType) &&
                                 !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
                                 {
                                     AppendError(syntax);
                                 }
                             }
-                            break;
-                        case ModuleSymbol moduleSymbol:
-                            if ((moduleSymbol.Type is ModuleType moduleType) &&
-                                (moduleType.Body is ObjectType moduleBodyObj))
+                            else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol) baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
                             {
-                                var property = syntax.PropertyName.IdentifierName;
-                                if (moduleBodyObj.Properties.TryGetValue(property, out var propertyType) &&
-                                !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
-                                {
-                                    AppendError(syntax);
-                                }
+                                // TODO
                             }
                             break;
                     }
@@ -115,10 +114,10 @@ namespace Bicep.Core.TypeSystem
                             model.GetSymbolInfo(nestedVariableAccessSyntax) is ModuleSymbol moduleSymbol)
                         {
                             AppendError(syntax);
+                            this.runtimeValueAllowed = true;
                         }
                     }
                 }
-                base.VisitPropertyAccessSyntax(syntax);
             }
         }
 
@@ -126,5 +125,6 @@ namespace Bicep.Core.TypeSystem
         {
             this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(currentSymbol));
         }
+
     }
 }

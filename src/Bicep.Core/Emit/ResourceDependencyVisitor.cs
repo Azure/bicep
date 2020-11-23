@@ -33,25 +33,14 @@ namespace Bicep.Core.Emit
             var declaredSymbols = model.Root.AllDeclarations.ToList(); // gets all declaredSymbols in the document (entry point)
 
             // we need to precompute variable dependencies to reuse them when traversing resources or modules
-            for(int i = 0; i < declaredSymbols.Count; i++) 
+            foreach(var variableSymbol in declaredSymbols.OfType<VariableSymbol>()) 
             {
-                if (declaredSymbols[i] is VariableSymbol variableSymbol)
-                {
-                    variableDependencies[variableSymbol] = GetResourceDependencies(model, variableSymbol.DeclaringSyntax);
-                }
+                variableDependencies[variableSymbol] = GetResourceDependencies(model, variableSymbol.DeclaringSyntax);
             }
 
-            for (int i = 0; i < declaredSymbols.Count; i++)
+            foreach(var declaredSymbol in declaredSymbols.Where(symbol => symbol is ModuleSymbol || symbol is ResourceSymbol))
             {
-                switch(declaredSymbols[i])
-                {
-                    case ModuleSymbol moduleSymbol:
-                        allResourceDependencies[moduleSymbol] = GetResourceDependencies(model, moduleSymbol.DeclaringSyntax);
-                        continue;
-                    case ResourceSymbol resourceSymbol:
-                        allResourceDependencies[resourceSymbol] = GetResourceDependencies(model, resourceSymbol.DeclaringSyntax);
-                        continue;
-                }
+                allResourceDependencies[declaredSymbol] = GetResourceDependencies(model, declaredSymbol.DeclaringSyntax);
             }
             return allResourceDependencies.ToImmutableDictionary();
         }
