@@ -4,7 +4,7 @@ param redisCacheFamily string
 param redisCacheCapacity int
 param location string
 
-var redisCacheName = concat(environmentName, uniqueString(resourceGroup().id))
+var redisCacheName = '${environmentName}${uniqueString(resourceGroup().id)}'
 
 resource redisCache 'Microsoft.Cache/redis@2019-07-01' = {
   name: redisCacheName
