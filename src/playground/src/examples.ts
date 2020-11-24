@@ -12,6 +12,7 @@ import example_101_vm_simple_linux from '../../../docs/examples/101/vm-simple-li
 import example_101_key_vault_secret_only from '../../../docs/examples/101/key-vault-secret-only/main.bicep'
 import example_101_website_with_container from '../../../docs/examples/101/website-with-container/main.bicep'
 import example_101_1vm_2nics_2subnets_1vnet from '../../../docs/examples/101/1vm-2nics-2subnets-1vnet/main.bicep'
+import example_101_web_app_windows from '../../../docs/examples/101/web-app-windows/main.bicep'
 import example_201_vm_windows_with_custom_script_extension from '../../../docs/examples/201/vm-windows-with-custom-script-extension/main.bicep'
 import example_201_key_vault_secret_create from '../../../docs/examples/201/key-vault-secret-create/main.bicep'
 import example_201_vm_push_cert_windows from '../../../docs/examples/201/vm-push-cert-windows/main.bicep'
@@ -59,6 +60,7 @@ export const examples = {
   '101/key-vault-secret-only': example_101_key_vault_secret_only,
   '101/website-with-container': example_101_website_with_container,
   '101/1vm-2nics-2subnets-1vnet': example_101_1vm_2nics_2subnets_1vnet,
+  '101/web-app-windows': example_101_web_app_windows,
   '201/vm-windows-with-custom-script-extension': example_201_vm_windows_with_custom_script_extension,
   '201/key-vault-secret-create': example_201_key_vault_secret_create,
   '201/vm-push-cert-windows': example_201_vm_push_cert_windows,
