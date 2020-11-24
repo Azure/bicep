@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
-using Bicep.SerializedTypes.Az;
 
 namespace Bicep.Core.TypeSystem.Az
 {

@@ -8,7 +8,7 @@ We are very happy to accept community contributions to Bicep, whether those are 
 * You are free to work on Bicep on any platform using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
 * Fork this repo (see [this forking guide](https://guides.github.com/activities/forking/) for more information).
 * Checkout the repo locally with `git clone git@github.com:{your_username}/bicep.git`.
-* Change into the bicep repo directory and run `git submodule update --init --recursive`.
+* If `git status` shows untracked files in the `bicep-types-az` directory, remove the directory via `rm -r bicep-types-az` on Linux/Mac or `rmdir /S bicep-types-az` on Windows. (This is only needed once.)
 * Build the .NET solution with `dotnet build`.
 
 ## Developing
