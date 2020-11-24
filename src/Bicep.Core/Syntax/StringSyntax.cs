@@ -22,7 +22,7 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<string> SegmentValues { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitStringSyntax(this);
 
         public override TextSpan Span

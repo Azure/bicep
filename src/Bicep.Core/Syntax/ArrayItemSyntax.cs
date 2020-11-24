@@ -16,7 +16,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayItemSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayItemSyntax(this);
 
         public override TextSpan Span => this.Value.Span;
     }

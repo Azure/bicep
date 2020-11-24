@@ -21,7 +21,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax PropertyName { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, PropertyName);
     }

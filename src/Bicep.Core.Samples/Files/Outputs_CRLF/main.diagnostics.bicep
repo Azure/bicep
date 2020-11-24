@@ -41,7 +41,7 @@ output myArr array = [
 
 output rgLocation string = resourceGroup().location
 
-output crossRegion bool = resourceGroup().location == deployment().location ? false : true
+output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 
 output expressionBasedIndexer string = {
   eastus: {

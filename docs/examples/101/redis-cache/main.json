@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "type": "string"
+    },
+    "redisCacheSku": {
+      "type": "string"
+    },
+    "redisCacheFamily": {
+      "type": "string"
+    },
+    "redisCacheCapacity": {
+      "type": "int"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "redisCacheName": "[format('{0}{1}', parameters('environmentName'), uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cache/Redis",
+      "apiVersion": "2019-07-01",
+      "name": "[variables('redisCacheName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enableNonSslPort": false,
+        "minimumTlsVersion": "1.2",
+        "sku": {
+          "family": "[parameters('redisCacheFamily')]",
+          "capacity": "[parameters('redisCacheCapacity')]",
+          "name": "[parameters('redisCacheSku')]"
+        }
+      }
+    }
+  ]
+}

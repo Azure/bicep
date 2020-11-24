@@ -16,7 +16,7 @@ namespace Bicep.Core.Syntax
 
         public int Value { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitNumericLiteralSyntax(this);
 
         public override TextSpan Span

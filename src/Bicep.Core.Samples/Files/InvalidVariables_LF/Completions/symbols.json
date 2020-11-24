@@ -420,6 +420,48 @@
     }
   },
   {
+    "label": "invalidEnvAuthVar",
+    "kind": "variable",
+    "detail": "invalidEnvAuthVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidEnvAuthVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidEnvAuthVar"
+    }
+  },
+  {
+    "label": "invalidEnvironmentVar",
+    "kind": "variable",
+    "detail": "invalidEnvironmentVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidEnvironmentVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidEnvironmentVar"
+    }
+  },
+  {
+    "label": "invalidLocationVar",
+    "kind": "variable",
+    "detail": "invalidLocationVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidLocationVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidLocationVar"
+    }
+  },
+  {
     "label": "invalidNamespaceAssignment",
     "kind": "variable",
     "detail": "invalidNamespaceAssignment",

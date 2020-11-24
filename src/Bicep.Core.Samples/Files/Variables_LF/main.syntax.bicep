@@ -647,6 +647,109 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[40:41)   RightSquare |]|
 //@[41:43) NewLine |\n\n|
 
+var deploymentName = deployment().name
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |deploymentName|
+//@[19:20)  Assignment |=|
+//@[21:38)  PropertyAccessSyntax
+//@[21:33)   FunctionCallSyntax
+//@[21:31)    IdentifierSyntax
+//@[21:31)     Identifier |deployment|
+//@[31:32)    LeftParen |(|
+//@[32:33)    RightParen |)|
+//@[33:34)   Dot |.|
+//@[34:38)   IdentifierSyntax
+//@[34:38)    Identifier |name|
+//@[38:39) NewLine |\n|
+var templateLinkUri = deployment().properties.templateLink.uri
+//@[0:62) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |templateLinkUri|
+//@[20:21)  Assignment |=|
+//@[22:62)  PropertyAccessSyntax
+//@[22:58)   PropertyAccessSyntax
+//@[22:45)    PropertyAccessSyntax
+//@[22:34)     FunctionCallSyntax
+//@[22:32)      IdentifierSyntax
+//@[22:32)       Identifier |deployment|
+//@[32:33)      LeftParen |(|
+//@[33:34)      RightParen |)|
+//@[34:35)     Dot |.|
+//@[35:45)     IdentifierSyntax
+//@[35:45)      Identifier |properties|
+//@[45:46)    Dot |.|
+//@[46:58)    IdentifierSyntax
+//@[46:58)     Identifier |templateLink|
+//@[58:59)   Dot |.|
+//@[59:62)   IdentifierSyntax
+//@[59:62)    Identifier |uri|
+//@[62:64) NewLine |\n\n|
+
+var portalEndpoint = environment().portal
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |portalEndpoint|
+//@[19:20)  Assignment |=|
+//@[21:41)  PropertyAccessSyntax
+//@[21:34)   FunctionCallSyntax
+//@[21:32)    IdentifierSyntax
+//@[21:32)     Identifier |environment|
+//@[32:33)    LeftParen |(|
+//@[33:34)    RightParen |)|
+//@[34:35)   Dot |.|
+//@[35:41)   IdentifierSyntax
+//@[35:41)    Identifier |portal|
+//@[41:42) NewLine |\n|
+var loginEndpoint = environment().authentication.loginEndpoint
+//@[0:62) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |loginEndpoint|
+//@[18:19)  Assignment |=|
+//@[20:62)  PropertyAccessSyntax
+//@[20:48)   PropertyAccessSyntax
+//@[20:33)    FunctionCallSyntax
+//@[20:31)     IdentifierSyntax
+//@[20:31)      Identifier |environment|
+//@[31:32)     LeftParen |(|
+//@[32:33)     RightParen |)|
+//@[33:34)    Dot |.|
+//@[34:48)    IdentifierSyntax
+//@[34:48)     Identifier |authentication|
+//@[48:49)   Dot |.|
+//@[49:62)   IdentifierSyntax
+//@[49:62)    Identifier |loginEndpoint|
+//@[62:63) NewLine |\n|
+var firstLocation = environment().locations[0].displayName
+//@[0:58) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:17)  IdentifierSyntax
+//@[4:17)   Identifier |firstLocation|
+//@[18:19)  Assignment |=|
+//@[20:58)  PropertyAccessSyntax
+//@[20:46)   ArrayAccessSyntax
+//@[20:43)    PropertyAccessSyntax
+//@[20:33)     FunctionCallSyntax
+//@[20:31)      IdentifierSyntax
+//@[20:31)       Identifier |environment|
+//@[31:32)      LeftParen |(|
+//@[32:33)      RightParen |)|
+//@[33:34)     Dot |.|
+//@[34:43)     IdentifierSyntax
+//@[34:43)      Identifier |locations|
+//@[43:44)    LeftSquare |[|
+//@[44:45)    NumericLiteralSyntax
+//@[44:45)     Number |0|
+//@[45:46)    RightSquare |]|
+//@[46:47)   Dot |.|
+//@[47:58)   IdentifierSyntax
+//@[47:58)    Identifier |displayName|
+//@[58:60) NewLine |\n\n|
+
 var namedPropertyIndexer = {
 //@[0:48) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

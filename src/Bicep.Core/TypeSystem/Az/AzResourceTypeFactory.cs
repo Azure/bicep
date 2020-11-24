@@ -9,21 +9,21 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeFactory
     {
-        private readonly Dictionary<SerializedTypes.Concrete.TypeBase, TypeSymbol> typeCache;
+        private readonly Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
 
         public AzResourceTypeFactory()
         {
-            typeCache = new Dictionary<SerializedTypes.Concrete.TypeBase, TypeSymbol>();
+            typeCache = new Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol>();
         }
 
-        public ResourceType GetResourceType(SerializedTypes.Concrete.ResourceType resourceType)
+        public ResourceType GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             var output = GetTypeSymbol(resourceType, false) as ResourceType;
 
             return output ?? throw new ArgumentException("Unable to deserialize resource type", nameof(resourceType));
         }
 
-        private TypeSymbol GetTypeSymbol(SerializedTypes.Concrete.TypeBase serializedType, bool isResourceBodyType)
+        private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
         {
             if (!typeCache.TryGetValue(serializedType, out var typeSymbol))
             {
@@ -34,33 +34,33 @@ namespace Bicep.Core.TypeSystem.Az
             return typeSymbol;
         }
 
-        private ITypeReference GetTypeReference(SerializedTypes.Concrete.ITypeReference input, bool isResourceBodyType)
+        private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input, bool isResourceBodyType)
             => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType));
 
-        private TypeProperty GetTypeProperty(string name, SerializedTypes.Concrete.ObjectProperty input)
+        private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectProperty input)
         {
             var type = input.Type ?? throw new ArgumentException();
 
             return new TypeProperty(name, GetTypeReference(type, false), GetTypePropertyFlags(input));
         }
 
-        private static TypePropertyFlags GetTypePropertyFlags(SerializedTypes.Concrete.ObjectProperty input)
+        private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectProperty input)
         {
             var flags = TypePropertyFlags.None;
 
-            if (input.Flags.HasFlag(SerializedTypes.Concrete.ObjectPropertyFlags.Required))
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required))
             {
                 flags |= TypePropertyFlags.Required;
             }
-            if (input.Flags.HasFlag(SerializedTypes.Concrete.ObjectPropertyFlags.ReadOnly))
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly))
             {
                 flags |= TypePropertyFlags.ReadOnly;
             }
-            if (input.Flags.HasFlag(SerializedTypes.Concrete.ObjectPropertyFlags.WriteOnly))
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.WriteOnly))
             {
                 flags |= TypePropertyFlags.WriteOnly;
             }
-            if (input.Flags.HasFlag(SerializedTypes.Concrete.ObjectPropertyFlags.DeployTimeConstant))
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant))
             {
                 flags |= TypePropertyFlags.SkipInlining;
             }
@@ -68,37 +68,37 @@ namespace Bicep.Core.TypeSystem.Az
             return flags;
         }
 
-        private TypeSymbol ToTypeSymbol(SerializedTypes.Concrete.TypeBase typeBase, bool isResourceBodyType)
+        private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
             {
-                case SerializedTypes.Concrete.BuiltInType builtInType:
+                case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch {
-                        SerializedTypes.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
-                        SerializedTypes.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
-                        SerializedTypes.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
-                        SerializedTypes.Concrete.BuiltInTypeKind.Int => LanguageConstants.Int,
-                        SerializedTypes.Concrete.BuiltInTypeKind.String => LanguageConstants.String,
-                        SerializedTypes.Concrete.BuiltInTypeKind.Object => LanguageConstants.Object,
-                        SerializedTypes.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
-                        SerializedTypes.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Int => LanguageConstants.Int,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.String => LanguageConstants.String,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Object => LanguageConstants.Object,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
+                        Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
                         _ => throw new ArgumentException(),
                     };
-                case SerializedTypes.Concrete.ObjectType objectType:
+                case Azure.Bicep.Types.Concrete.ObjectType objectType:
                 {
                     var name = objectType.Name ?? string.Empty;
-                    var properties = objectType.Properties ?? new Dictionary<string, SerializedTypes.Concrete.ObjectProperty>();
+                    var properties = objectType.Properties ?? new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>();
                     var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, false) : null;
 
                     return new NamedObjectType(name, GetValidationFlags(isResourceBodyType), properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
                 }
-                case SerializedTypes.Concrete.ArrayType arrayType:
+                case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                 {
                     var itemType = arrayType.ItemType ?? throw new ArgumentException();
 
                     return new TypedArrayType(GetTypeReference(itemType, false), GetValidationFlags(isResourceBodyType));
                 }
-                case SerializedTypes.Concrete.ResourceType resourceType:
+                case Azure.Bicep.Types.Concrete.ResourceType resourceType:
                 {
                     var name = resourceType.Name ?? throw new ArgumentException();
                     var body = resourceType.Body ?? throw new ArgumentException();                    
@@ -106,15 +106,15 @@ namespace Bicep.Core.TypeSystem.Az
 
                     return new ResourceType(resourceTypeReference, GetTypeReference(body, true));
                 }
-                case SerializedTypes.Concrete.UnionType unionType:
+                case Azure.Bicep.Types.Concrete.UnionType unionType:
                 {
                     var elements = unionType.Elements ?? throw new ArgumentException();
                     return UnionType.Create(elements.Select(x => GetTypeReference(x, false)));
                 }
-                case SerializedTypes.Concrete.StringLiteralType stringLiteralType:
+                case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     var value = stringLiteralType.Value ?? throw new ArgumentException();
                     return new StringLiteralType(value);
-                case SerializedTypes.Concrete.DiscriminatedObjectType discriminatedObjectType:
+                case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                 {
                     var name = discriminatedObjectType.Name ?? throw new ArgumentException();
                     var discriminator = discriminatedObjectType.Discriminator ?? throw new ArgumentException();
@@ -130,9 +130,9 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
-        private NamedObjectType ToCombinedType(IEnumerable<KeyValuePair<string, SerializedTypes.Concrete.ObjectProperty>> baseProperties, string name, SerializedTypes.Concrete.ITypeReference extendedType, bool isResourceBodyType)
+        private NamedObjectType ToCombinedType(IEnumerable<KeyValuePair<string, Azure.Bicep.Types.Concrete.ObjectProperty>> baseProperties, string name, Azure.Bicep.Types.Concrete.ITypeReference extendedType, bool isResourceBodyType)
         {
-            if (!(extendedType.Type is SerializedTypes.Concrete.ObjectType objectType))
+            if (!(extendedType.Type is Azure.Bicep.Types.Concrete.ObjectType objectType))
             {
                 throw new ArgumentException();
             }

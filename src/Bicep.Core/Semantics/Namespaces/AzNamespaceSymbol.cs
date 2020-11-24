@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -54,6 +55,74 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("displayName", LanguageConstants.String),
             });
         }
+        
+        private static NamedObjectType GetEnvironmentReturnType()
+        {
+            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("gallery", LanguageConstants.String),
+                new TypeProperty("graph", LanguageConstants.String),
+                new TypeProperty("portal", LanguageConstants.String),
+                new TypeProperty("graphAudience", LanguageConstants.String),
+                new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
+                new TypeProperty("batch", LanguageConstants.String),
+                new TypeProperty("media", LanguageConstants.String),
+                new TypeProperty("sqlManagement", LanguageConstants.String),
+                new TypeProperty("vmImageAliasDoc", LanguageConstants.String),
+                new TypeProperty("resourceManager", LanguageConstants.String),
+                new TypeProperty("authentication", new NamedObjectType("authentication", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("loginEndpoint", LanguageConstants.String),
+                    new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+                    new TypeProperty("tenant", LanguageConstants.String),
+                    new TypeProperty("identityProvider", LanguageConstants.String),
+                }, null)),
+                new TypeProperty("suffixes", new NamedObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("acrLoginServer", LanguageConstants.String),
+                    new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
+                    new TypeProperty("azureDatalakeStoreFileSystem", LanguageConstants.String),
+                    new TypeProperty("keyvaultDns", LanguageConstants.String),
+                    new TypeProperty("sqlServerHostname", LanguageConstants.String),
+                    new TypeProperty("storage", LanguageConstants.String),
+                }, null)),
+                new TypeProperty("locations", new TypedArrayType(new NamedObjectType("locations", TypeSymbolValidationFlags.Default, new []
+                {
+                    new  TypeProperty("id", LanguageConstants.String),
+                    new  TypeProperty("name", LanguageConstants.String),
+                    new  TypeProperty("displayName", LanguageConstants.String),
+                    new  TypeProperty("longitude", LanguageConstants.String),
+                }, null), TypeSymbolValidationFlags.Default)),
+            }, null);
+        }
+
+        private static NamedObjectType GetDeploymentReturnType(ResourceScopeType targetScope)
+        {
+            // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
+            // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
+            // Properties such as 'template', 'templateHash', 'parameters' depend on the codegen, and feel like they could be fragile.
+            IEnumerable<TypeProperty> properties = new []
+            {
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("properties", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                {
+                    new TypeProperty("templateLink", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    {
+                        new TypeProperty("uri", LanguageConstants.String)
+                    }, null))
+                }, null)),
+            };
+
+            if (!targetScope.HasFlag(ResourceScopeType.ResourceGroupScope))
+            {
+                // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
+                var locationProperty = new TypeProperty("location", LanguageConstants.String);
+                properties = properties.Concat(locationProperty.AsEnumerable());
+            }
+
+            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, properties, null);
+        }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()
         {
@@ -90,10 +159,9 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             // TODO: Add schema for return type
-            yield return FunctionOverload.CreateFixed("deployment", LanguageConstants.Object);
+            yield return FunctionOverload.CreateFixed("deployment", GetDeploymentReturnType(resourceScope));
 
-            // TODO: Add schema for return type
-            yield return FunctionOverload.CreateFixed("environment", LanguageConstants.Object);
+            yield return FunctionOverload.CreateFixed("environment", GetEnvironmentReturnType());
 
             // TODO: This is based on docs. Verify
             yield return FunctionOverload.CreateWithVarArgs("resourceId", LanguageConstants.String, 2, LanguageConstants.String);

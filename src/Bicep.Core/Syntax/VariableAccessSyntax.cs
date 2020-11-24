@@ -15,7 +15,7 @@ namespace Bicep.Core.Syntax
         public IdentifierSyntax Name { get; }
 
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableAccessSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableAccessSyntax(this);
 
         public override TextSpan Span => this.Name.Span;
     }

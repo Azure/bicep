@@ -84,6 +84,13 @@ var expressionIndexOnAny = any({
 
 var anyIndexOnAny = any(true)[any(false)]
 
+var deploymentName = deployment().name
+var templateLinkUri = deployment().properties.templateLink.uri
+
+var portalEndpoint = environment().portal
+var loginEndpoint = environment().authentication.loginEndpoint
+var firstLocation = environment().locations[0].displayName
+
 var namedPropertyIndexer = {
   foo: 's'
 }['foo']

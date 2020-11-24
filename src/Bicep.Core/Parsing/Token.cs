@@ -21,7 +21,7 @@ namespace Bicep.Core.Parsing
 
         public TokenType Type { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitToken(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitToken(this);
 
         public override TextSpan Span { get; }
 
