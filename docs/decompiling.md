@@ -34,5 +34,5 @@ See [Export Template](https://aka.ms/armexport) for guidance. Use `bicep decompi
 ## Current Limitations
 The following are temporary limiations on the `bicep decompile` command:
 * Templates using copy loops or conditionals cannot be decompiled
-* Nested templates cannot be decompiled
-* Cross-scope linked templates cannot be decompiled
+* Nested templates can only be decompiled if they are using ['inner' expression evaluation scope](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates).
+* The 'scope' property is unsupported for extension resource declarations.

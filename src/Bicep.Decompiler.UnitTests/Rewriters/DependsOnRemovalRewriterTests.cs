@@ -75,6 +75,70 @@ resource resC 'My.Rp/resB@2020-01-01' = {
   }
 }");
         }
+        [TestMethod]
+        public void Unneccessary_dependsOn_statements_are_removed_for_modules()
+        {
+            var bicepFile = @"
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+}
+
+module modB 'modb.bicep' = {
+  name: 'modB'
+  params: {
+    resA: resA.name
+  }
+  dependsOn: [
+    resA
+  ]
+}
+
+var varA = resA.name
+var varB = {
+  resA: varA
+  modB: modB.name
+}
+
+module modC 'modC.bicep' = {
+  name: 'modC'
+  params: {
+    resA: varB
+  }
+  dependsOn: [
+    resA
+    modB
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+}
+
+module modB 'modb.bicep' = {
+  name: 'modB'
+  params: {
+    resA: resA.name
+  }
+}
+
+var varA = resA.name
+var varB = {
+  resA: varA
+  modB: modB.name
+}
+
+module modC 'modC.bicep' = {
+  name: 'modC'
+  params: {
+    resA: varB
+  }
+}");
+        }
 
         [TestMethod]
         public void Necessary_dependsOn_statements_are_not_removed()
@@ -102,6 +166,38 @@ resource resB 'My.Rp/resB@2020-01-01' = {
 
 resource resB 'My.Rp/resB@2020-01-01' = {
   name: 'resB'
+  dependsOn: [
+    resA
+  ]
+}");
+        }
+
+        [TestMethod]
+        public void Necessary_dependsOn_statements_are_not_removed_for_modules()
+        {
+            var bicepFile = @"
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+}
+
+module modB 'modb.bicep' = {
+  name: 'modB'
+  dependsOn: [
+    resA
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'resA'
+}
+
+module modB 'modb.bicep' = {
+  name: 'modB'
   dependsOn: [
     resA
   ]
