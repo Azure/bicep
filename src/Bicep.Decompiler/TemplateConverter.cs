@@ -682,9 +682,46 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateArray(syntaxItems);
         }
 
+        private SyntaxBase? TryGetScopeProperty(JObject resource)
+        {
+            var subscriptionId = TemplateHelpers.GetProperty(resource, "subscriptionId");
+            var resourceGroup = TemplateHelpers.GetProperty(resource, "resourceGroup");
+
+            switch (subscriptionId, resourceGroup)
+            {
+                case (JProperty subId, JProperty rgName):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("resourceGroup"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(subId.Value), SyntaxHelpers.CreateToken(TokenType.Comma, ",")),
+                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+                case (null, JProperty rgName):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("resourceGroup"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+                case (JProperty subId, null):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("subscription"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(subId.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+            }
+
+            return null;
+        }
+
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
         {
-            var expectedDeploymentProps = new HashSet<string>(new [] {
+            var expectedProps = new HashSet<string>(new [] {
                 "name",
                 "type",
                 "apiVersion",
@@ -694,14 +731,22 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
+            var propsToOmit = new HashSet<string>(new [] {
+                "resourceGroup",
+                "subscriptionId",
+            }, StringComparer.OrdinalIgnoreCase);
+
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "The 'subscriptionId' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "The 'resourceGroup' property is not supported");
             foreach (var prop in resource.Properties())
             {
-                if (!expectedDeploymentProps.Contains(prop.Name))
+                if (propsToOmit.Contains(prop.Name))
+                {
+                    continue;
+                }
+
+                if (!expectedProps.Contains(prop.Name))
                 {
                     throw new ConversionFailedException($"Unrecognized top-level resource property '{prop.Name}'", prop);
                 }
@@ -716,6 +761,13 @@ namespace Bicep.Decompiler
 
             var properties = new List<ObjectPropertySyntax>();
             properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
+
+            var scope = TryGetScopeProperty(resource);
+            if (scope is not null)
+            {
+                properties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
+            }
+
             properties.Add(SyntaxHelpers.CreateObjectProperty("params", SyntaxHelpers.CreateObject(paramProperties)));
 
             var dependsOn = ProcessDependsOn(resource);
