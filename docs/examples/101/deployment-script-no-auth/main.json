@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "location": "westus"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "kind": "AzurePowerShell",
+      "name": "simple-script-2",
+      "location": "[variables('location')]",
+      "properties": {
+        "azPowerShellVersion": "3.0",
+        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"",
+        "forceUpdateTag": "[parameters('timestamp')]",
+        "retentionInterval": "PT4H"
+      }
+    }
+  ],
+  "outputs": {
+    "scriptOutput": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', 'simple-script-2')).outputs.test]"
+    }
+  }
+}
