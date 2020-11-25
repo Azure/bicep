@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageaccountlocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "storageaccountName": {
+      "type": "string"
+    },
+    "storageaccountkind": {
+      "type": "string"
+    },
+    "storgeaccountglobalRedundancy": {
+      "type": "string",
+      "defaultValue": "Premium_LRS"
+    },
+    "fileshareFolderName": {
+      "type": "string",
+      "defaultValue": "profilecontainers"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "filesharelocation": "[format('{0}/default/{1}', parameters('storageaccountName'), parameters('fileshareFolderName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[parameters('storageaccountName')]",
+      "location": "[parameters('storageaccountlocation')]",
+      "kind": "[parameters('storageaccountkind')]",
+      "sku": {
+        "name": "[parameters('storgeaccountglobalRedundancy')]"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[variables('filesharelocation')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
+      ]
+    }
+  ]
+}
