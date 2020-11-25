@@ -8,16 +8,14 @@ namespace Bicep.Core.Semantics
 {
     public sealed class SymbolContext : ISymbolContext
     {
-        private readonly ITypeManager typeManager;
-        private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly Compilation compilation;
+        private readonly SemanticModel semanticModel;
         private bool unlocked;
 
-        public SymbolContext(ITypeManager typeManager, IReadOnlyDictionary<SyntaxBase,Symbol> bindings, Compilation compilation)
+        public SymbolContext(Compilation compilation, SemanticModel semanticModel)
         {
-            this.typeManager = typeManager;
-            this.bindings = bindings;
             this.compilation = compilation;
+            this.semanticModel = semanticModel;
         }
 
         public ITypeManager TypeManager
@@ -25,16 +23,7 @@ namespace Bicep.Core.Semantics
             get
             {
                 this.CheckLock();
-                return this.typeManager;
-            }
-        }
-
-        public IReadOnlyDictionary<SyntaxBase, Symbol> Bindings
-        {
-            get
-            {
-                this.CheckLock();
-                return this.bindings;
+                return this.semanticModel.TypeManager;
             }
         }
 

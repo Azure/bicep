@@ -342,6 +342,42 @@ var rgName = resourceGroup().name
 //@[29:33) Identifier |name|
 //@[33:35) NewLine |\n\n|
 
+// this does not work at the resource group scope
+//@[49:50) NewLine |\n|
+var invalidLocationVar = deployment().location
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |invalidLocationVar|
+//@[23:24) Assignment |=|
+//@[25:35) Identifier |deployment|
+//@[35:36) LeftParen |(|
+//@[36:37) RightParen |)|
+//@[37:38) Dot |.|
+//@[38:46) Identifier |location|
+//@[46:48) NewLine |\n\n|
+
+var invalidEnvironmentVar = environment().aosdufhsad
+//@[0:3) Identifier |var|
+//@[4:25) Identifier |invalidEnvironmentVar|
+//@[26:27) Assignment |=|
+//@[28:39) Identifier |environment|
+//@[39:40) LeftParen |(|
+//@[40:41) RightParen |)|
+//@[41:42) Dot |.|
+//@[42:52) Identifier |aosdufhsad|
+//@[52:53) NewLine |\n|
+var invalidEnvAuthVar = environment().authentication.asdgdsag
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |invalidEnvAuthVar|
+//@[22:23) Assignment |=|
+//@[24:35) Identifier |environment|
+//@[35:36) LeftParen |(|
+//@[36:37) RightParen |)|
+//@[37:38) Dot |.|
+//@[38:52) Identifier |authentication|
+//@[52:53) Dot |.|
+//@[53:61) Identifier |asdgdsag|
+//@[61:63) NewLine |\n\n|
+
 // invalid use of reserved namespace
 //@[36:37) NewLine |\n|
 var az = 1

@@ -33,23 +33,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli.IntegrationTests", "src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj", "{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Types", "Types", "{4BF029F4-21C7-4751-B3B1-0586AD17525D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes", "bicep-types-az\src\Bicep.SerializedTypes\Bicep.SerializedTypes.csproj", "{29A01BDE-25AB-44BA-8657-D5C66CBD519D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes.Az", "bicep-types-az\src\Bicep.SerializedTypes.Az\Bicep.SerializedTypes.Az.csproj", "{39F6D713-EF43-4A23-B101-9CF06C8471C8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes.Az.UnitTests", "bicep-types-az\src\Bicep.SerializedTypes.Az.UnitTests\Bicep.SerializedTypes.Az.UnitTests.csproj", "{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.SerializedTypes.UnitTests", "bicep-types-az\src\Bicep.SerializedTypes.UnitTests\Bicep.SerializedTypes.UnitTests.csproj", "{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{61643BA1-BE82-4430-A3D3-CB7A16E747E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler", "src\Bicep.Decompiler\Bicep.Decompiler.csproj", "{4CD48B4A-6297-49FC-90AC-5DF9213C1527}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler", "src\Bicep.Decompiler\Bicep.Decompiler.csproj", "{4CD48B4A-6297-49FC-90AC-5DF9213C1527}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.IntegrationTests", "src\Bicep.Decompiler.IntegrationTests\Bicep.Decompiler.IntegrationTests.csproj", "{695560CE-C6C3-4FCD-A488-09F06E608297}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.IntegrationTests", "src\Bicep.Decompiler.IntegrationTests\Bicep.Decompiler.IntegrationTests.csproj", "{695560CE-C6C3-4FCD-A488-09F06E608297}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,22 +91,6 @@ Global
 		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{29A01BDE-25AB-44BA-8657-D5C66CBD519D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{29A01BDE-25AB-44BA-8657-D5C66CBD519D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{29A01BDE-25AB-44BA-8657-D5C66CBD519D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{29A01BDE-25AB-44BA-8657-D5C66CBD519D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39F6D713-EF43-4A23-B101-9CF06C8471C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39F6D713-EF43-4A23-B101-9CF06C8471C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39F6D713-EF43-4A23-B101-9CF06C8471C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39F6D713-EF43-4A23-B101-9CF06C8471C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CD48B4A-6297-49FC-90AC-5DF9213C1527}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -145,10 +119,6 @@ Global
 		{29A1AE2B-D47D-41DD-9824-279475D9B6C2} = {B02251C3-B01E-40EB-B145-2B03F25FE653}
 		{0DE47D02-2BBE-4352-9E38-79A374F9C41E} = {76F6CBAF-FE81-4B56-B0DB-DE6FD7174771}
 		{34D7A843-55CB-4A3A-B268-2D4ABB7044D3} = {B02251C3-B01E-40EB-B145-2B03F25FE653}
-		{29A01BDE-25AB-44BA-8657-D5C66CBD519D} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
-		{39F6D713-EF43-4A23-B101-9CF06C8471C8} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
-		{97A5C9AD-5043-42C7-B823-FE7C2C6D9C48} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
-		{F7EF3463-D8D3-4C76-A743-D1BAF1D72AA0} = {4BF029F4-21C7-4751-B3B1-0586AD17525D}
 		{4CD48B4A-6297-49FC-90AC-5DF9213C1527} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
 		{695560CE-C6C3-4FCD-A488-09F06E608297} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}
 		{F3AF01F6-24E8-4129-80B6-84AC070B5C7D} = {61643BA1-BE82-4430-A3D3-CB7A16E747E3}

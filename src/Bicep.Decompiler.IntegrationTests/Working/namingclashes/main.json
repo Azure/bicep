@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "name1": {
+          "type": "string"
+      },
+      "nAmE2": {
+          "type": "string"
+      }
+  },
+  "variables": {
+      "name1": "[parameters('name1')]",
+      "NamE2": "[parameters('name2')]"
+  },
+  "resources": [
+      {
+          "name": "name1",
+          "type": "Microsoft.Resources/resourceGroups",
+          "apiVersion": "2020-06-01",
+          "location": "West US",
+          "properties": {
+              "val1": "[variables('name1')]"
+          }
+      },
+      {
+          "name": "naME2",
+          "type": "Microsoft.Resources/resourceGroups",
+          "apiVersion": "2020-06-01",
+          "location": "West US",
+          "properties": {
+              "val2": "[variables('name2')]"
+          }
+      }
+  ],
+  "outputs": {
+    "name1": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/resourceGroups', 'name1')).val1]"
+    },
+    "Name2": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/resourceGroups', 'name2')).val2]"
+    }
+  }
+}

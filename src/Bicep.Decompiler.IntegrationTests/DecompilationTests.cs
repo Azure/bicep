@@ -17,9 +17,9 @@ using Bicep.Core.Workspaces;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
-using Bicep.Core.UnitTests.FileSystem;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
+using Bicep.Decompiler;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -74,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
         {
-            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(9, "sanity check to ensure we're finding examples to test");
+            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(10, "sanity check to ensure we're finding examples to test");
         }
 
         [DataTestMethod]
@@ -86,15 +86,16 @@ namespace Bicep.Core.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, example.OutputFolderName, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
+            var typeProvider = new AzResourceTypeProvider();
 
-            var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
+            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
 
             var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
-            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
+            var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
             var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
 
             using (new AssertionScope())
@@ -138,7 +139,7 @@ namespace Bicep.Core.IntegrationTests
             var resourcePath = "";
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
-                Decompiler.Decompiler.DecompileFileWithModules(fileResolver, new Uri($"file:///{resourcePath}"));
+                TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(),fileResolver, new Uri($"file:///{resourcePath}"));
             };
 
             using (new AssertionScope())
@@ -181,7 +182,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });;
 
-            var (entryPointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, fileUri);
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 
             // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");

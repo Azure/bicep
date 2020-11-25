@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -78,13 +79,15 @@ namespace Bicep.Decompiler.BicepHelpers
 
         public static StringSyntax CreateStringLiteral(string value)
         {
-            var stringTokens = new [] { CreateStringLiteralToken(value) };
-            var rawSegments = Lexer.TryGetRawStringSegments(stringTokens) ?? throw new ArgumentException($"Error parsing string {value}");
+            return new StringSyntax(CreateStringLiteralToken(value).AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
+        }
 
-            return new StringSyntax(
-                stringTokens,
-                Enumerable.Empty<SyntaxBase>(),
-                rawSegments);
+        public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
+        {
+            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, EmptySpan, $"/*{comment.Replace("*/", "*\\/")}*/");
+            var stringToken = new Token(TokenType.StringComplete, EmptySpan, $"'{EscapeBicepString(value)}'", EmptyTrivia, trailingTrivia.AsEnumerable());
+
+            return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
         }
 
         public static StringSyntax CreateInterpolatedKey(SyntaxBase syntax)

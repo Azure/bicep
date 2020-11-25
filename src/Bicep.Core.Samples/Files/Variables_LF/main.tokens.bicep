@@ -425,6 +425,69 @@ var anyIndexOnAny = any(true)[any(false)]
 //@[40:41) RightSquare |]|
 //@[41:43) NewLine |\n\n|
 
+var deploymentName = deployment().name
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |deploymentName|
+//@[19:20) Assignment |=|
+//@[21:31) Identifier |deployment|
+//@[31:32) LeftParen |(|
+//@[32:33) RightParen |)|
+//@[33:34) Dot |.|
+//@[34:38) Identifier |name|
+//@[38:39) NewLine |\n|
+var templateLinkUri = deployment().properties.templateLink.uri
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |templateLinkUri|
+//@[20:21) Assignment |=|
+//@[22:32) Identifier |deployment|
+//@[32:33) LeftParen |(|
+//@[33:34) RightParen |)|
+//@[34:35) Dot |.|
+//@[35:45) Identifier |properties|
+//@[45:46) Dot |.|
+//@[46:58) Identifier |templateLink|
+//@[58:59) Dot |.|
+//@[59:62) Identifier |uri|
+//@[62:64) NewLine |\n\n|
+
+var portalEndpoint = environment().portal
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |portalEndpoint|
+//@[19:20) Assignment |=|
+//@[21:32) Identifier |environment|
+//@[32:33) LeftParen |(|
+//@[33:34) RightParen |)|
+//@[34:35) Dot |.|
+//@[35:41) Identifier |portal|
+//@[41:42) NewLine |\n|
+var loginEndpoint = environment().authentication.loginEndpoint
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |loginEndpoint|
+//@[18:19) Assignment |=|
+//@[20:31) Identifier |environment|
+//@[31:32) LeftParen |(|
+//@[32:33) RightParen |)|
+//@[33:34) Dot |.|
+//@[34:48) Identifier |authentication|
+//@[48:49) Dot |.|
+//@[49:62) Identifier |loginEndpoint|
+//@[62:63) NewLine |\n|
+var firstLocation = environment().locations[0].displayName
+//@[0:3) Identifier |var|
+//@[4:17) Identifier |firstLocation|
+//@[18:19) Assignment |=|
+//@[20:31) Identifier |environment|
+//@[31:32) LeftParen |(|
+//@[32:33) RightParen |)|
+//@[33:34) Dot |.|
+//@[34:43) Identifier |locations|
+//@[43:44) LeftSquare |[|
+//@[44:45) Number |0|
+//@[45:46) RightSquare |]|
+//@[46:47) Dot |.|
+//@[47:58) Identifier |displayName|
+//@[58:60) NewLine |\n\n|
+
 var namedPropertyIndexer = {
 //@[0:3) Identifier |var|
 //@[4:24) Identifier |namedPropertyIndexer|

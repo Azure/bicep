@@ -111,6 +111,18 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 //@[4:17) Variable anyIndexOnAny. Type: any. Declaration start char: 0, length: 41
 
+var deploymentName = deployment().name
+//@[4:18) Variable deploymentName. Type: string. Declaration start char: 0, length: 38
+var templateLinkUri = deployment().properties.templateLink.uri
+//@[4:19) Variable templateLinkUri. Type: string. Declaration start char: 0, length: 62
+
+var portalEndpoint = environment().portal
+//@[4:18) Variable portalEndpoint. Type: string. Declaration start char: 0, length: 41
+var loginEndpoint = environment().authentication.loginEndpoint
+//@[4:17) Variable loginEndpoint. Type: string. Declaration start char: 0, length: 62
+var firstLocation = environment().locations[0].displayName
+//@[4:17) Variable firstLocation. Type: string. Declaration start char: 0, length: 58
+
 var namedPropertyIndexer = {
 //@[4:24) Variable namedPropertyIndexer. Type: 's'. Declaration start char: 0, length: 48
   foo: 's'
