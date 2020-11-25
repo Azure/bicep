@@ -176,6 +176,11 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
+            if (expression is IfExpressionSyntax ifExpressionSyntax)
+            {
+                return NarrowTypeInternal(typeManager, ifExpressionSyntax.ConsequenceExpression, targetType, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
+            }
+
             // object assignability check
             if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
             {

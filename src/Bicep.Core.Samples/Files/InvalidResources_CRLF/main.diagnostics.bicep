@@ -24,7 +24,7 @@ resource foo 'ddd'
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
-//@[20:20) [BCP018 (Error)] Expected the "{" character at this location. ||
+//@[20:20) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
 
 // wrong resource type
 resource foo 'ddd'={

@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parsing
 {
@@ -190,7 +190,19 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
-            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
+            
+            var body = this.WithRecovery(() => 
+            {
+                var current = reader.Peek();
+                return current.Type switch
+                {
+                    TokenType.LeftBrace => this.Object(),
+                    TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.ConditionalObject(),
+                    _ => throw new ExpectedTokenException(current, b => b.ExpectedBodyStart())
+                };
+            },
+            GetSuppressionFlag(assignment),
+            TokenType.NewLine);
 
             return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
         }
@@ -207,7 +219,18 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
-            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
+            var body = this.WithRecovery(() => 
+            {
+                var current = reader.Peek();
+                return current.Type switch
+                {
+                    TokenType.LeftBrace => this.Object(),
+                    TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.ConditionalObject(),
+                    _ => throw new ExpectedTokenException(current, b => b.ExpectedBodyStart())
+                };
+            },
+            GetSuppressionFlag(assignment),
+            TokenType.NewLine);
 
             return new ModuleDeclarationSyntax(keyword, name, path, assignment, body);
         }
@@ -837,6 +860,15 @@ namespace Bicep.Core.Parsing
 
                 return new ObjectPropertySyntax(key, colon, value);
             }, RecoveryFlags.None, TokenType.NewLine);
+        }
+
+        private SyntaxBase ConditionalObject()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.IfKeyword);
+            var conditionExpression = this.WithRecovery(() => this.ParenthesizedExpression(true), RecoveryFlags.None, TokenType.LeftBrace, TokenType.NewLine);
+            var @object = this.WithRecovery(this.Object, GetSuppressionFlag(conditionExpression), TokenType.NewLine);
+
+            return new IfExpressionSyntax(keyword, conditionExpression, @object);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)

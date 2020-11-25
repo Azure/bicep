@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
@@ -225,7 +223,16 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body, ResourcePropertiesToOmit);
+
+            if (resourceSymbol.Body is IfExpressionSyntax conditionalBody)
+            {
+                this.emitter.EmitProperty("condition", conditionalBody.ConditionExpression);
+                this.emitter.EmitObjectProperties((ObjectSyntax)conditionalBody.ConsequenceExpression, ResourcePropertiesToOmit);
+            }
+            else
+            {
+                this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.Body, ResourcePropertiesToOmit);
+            }
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
@@ -236,7 +243,9 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleParameters(ModuleSymbol moduleSymbol)
         {
-            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
+            var moduleBody = (ObjectSyntax)(moduleSymbol.DeclaringModule.Body is IfExpressionSyntax conditionalBody
+                ? conditionalBody.ConsequenceExpression
+                : moduleSymbol.DeclaringModule.Body);
             var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
 
             if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
@@ -262,7 +271,7 @@ namespace Bicep.Core.Emit
                     writer.WriteStartObject();
                     this.emitter.EmitProperty("value", propertySyntax.Value);
                     writer.WriteEndObject();
-                }                        
+                }
             }
 
             writer.WriteEndObject();
@@ -277,9 +286,16 @@ namespace Bicep.Core.Emit
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            var moduleBody = (ObjectSyntax) moduleSymbol.DeclaringModule.Body;
+            if (moduleSymbol.DeclaringModule.Body is IfExpressionSyntax conditionalBody)
+            {
+                this.emitter.EmitProperty("condition", conditionalBody.ConditionExpression);
+                this.emitter.EmitObjectProperties((ObjectSyntax)conditionalBody.ConsequenceExpression, ModulePropertiesToOmit);
+            }
+            else
+            {
+                this.emitter.EmitObjectProperties((ObjectSyntax)moduleSymbol.DeclaringModule.Body, ModulePropertiesToOmit);
+            }
 
-            this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);

@@ -6,7 +6,6 @@ using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
@@ -171,6 +170,12 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitModuleDeclarationSyntax(syntax);
+        }
+
+        public override void VisitIfExpressionSyntax(IfExpressionSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitIfExpressionSyntax(syntax);
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)

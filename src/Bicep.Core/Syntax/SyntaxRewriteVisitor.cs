@@ -531,5 +531,20 @@ namespace Bicep.Core.Syntax
             return new VariableAccessSyntax(name);
         }
         void ISyntaxVisitor.VisitVariableAccessSyntax(VariableAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableAccessSyntax);
+
+        protected virtual IfExpressionSyntax ReplaceIfExpressionSyntax(IfExpressionSyntax syntax)
+        {
+            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            hasChanges |= Rewrite(syntax.ConditionExpression, out var conditionExpression);
+            hasChanges |= Rewrite(syntax.ConsequenceExpression, out var consequenceExpression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new IfExpressionSyntax(keyword, conditionExpression, consequenceExpression);
+        }
+        void ISyntaxVisitor.VisitIfExpressionSyntax(IfExpressionSyntax syntax) => ReplaceCurrent(syntax, ReplaceIfExpressionSyntax);
     }
 }
