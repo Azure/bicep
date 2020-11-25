@@ -8,9 +8,20 @@ If you haven't already, follow [these instructions](../installing.md) to install
 
 Let's start by creating a blank file `main.bicep` and compiling it by running:
 
-```bash
-bicep build main.bicep
-```
+
+1. Create the blank main.bicep file
+  - Windows
+    ```bash
+    fsutil file createnew main.bicep 0
+    ```
+  - Linux
+    ```bash
+    touch main.bicep
+    ```
+2. Run bicep build
+  ```bash
+  bicep build main.bicep
+  ```
 
 You should get an output json file of the same name in your current directory -- in this case `main.json`. It should be a skeleton ARM JSON template:
 
