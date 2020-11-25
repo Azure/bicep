@@ -9,8 +9,6 @@ namespace Bicep.Core.Semantics
     {
         ITypeManager TypeManager { get; }
 
-        IReadOnlyDictionary<SyntaxBase, Symbol> Bindings { get; }
-
         Compilation Compilation { get; }
     }
 }
