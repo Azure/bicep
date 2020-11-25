@@ -13,18 +13,24 @@ You can use this command to get to a starting point for Bicep authoring. Note th
 You can pass an exported template directly to the `bicep decompile` command to effectively export a resource group to a `.bicep` file.
 
 ### Azure CLI
+The following will create a file named 'main.bicep' in the current directory:
 ```sh
 az group export --name "your_resource_group_name" > main.json
 bicep decompile main.json
 ```
-
 ### Azure PowerShell
+The following will create a file named 'main.bicep' in the current directory:
 ```powershell
 Export-AzResourceGroup -ResourceGroupName "your_resource_group_name" -Path ./main.json
 bicep decompile main.json
 ```
 
-## Limitations
+### Azure Portal
+See [Export Template](https://aka.ms/armexport) for guidance. Use `bicep decompile <filename>` on the downloaded file.
+
+
+## Current Limitations
+The following are temporary limiations on the `bicep decompile` command:
 * Templates using copy loops or conditionals cannot be decompiled
 * Nested templates cannot be decompiled
 * Cross-scope linked templates cannot be decompiled
