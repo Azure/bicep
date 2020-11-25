@@ -13,6 +13,7 @@ namespace Bicep.Core.TypeSystem
     public sealed class DeployTimeConstantVisitor : SyntaxVisitor
     {
 
+        private readonly string[] DeployTimeConstantKeys = { LanguageConstants.ResourceNamePropertyName }; 
         private readonly SemanticModel model;
         private readonly IDiagnosticWriter diagnosticWriter;
 
@@ -80,23 +81,27 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
+        public override void VisitObjectSyntax(ObjectSyntax syntax)
+        {
+            ObjectPropertySyntax? objectPropertySyntax;
+            foreach (var deployTimeIdentifier in this.DeployTimeConstantKeys)
+            {
+                if ((objectPropertySyntax = ObjectSyntaxExtensions.SafeGetPropertyByName(syntax, deployTimeIdentifier)) != null)
+                {
+                    this.currentSymbol = deployTimeIdentifier;
+                    this.VisitObjectPropertySyntax(objectPropertySyntax);
+                }
+            }
+        }
+
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            // runtimeValueAllowed should only be false if we are going through a module or resource's objectPropertySyntax
-            if (syntax.Key is IdentifierSyntax keyIdentifier)
+            base.VisitObjectPropertySyntax(syntax);
+            // if an error is found at the end we emit it and move on to the next key of this object declaration.
+            if (this.errorSyntax != null)
             {
-                this.currentSymbol = keyIdentifier.IdentifierName;
-                // right now we only check for the name property (using resourceNamePropertyName but the name is same for modules)
-                if (LanguageConstants.IdentifierComparer.Equals(keyIdentifier.IdentifierName, LanguageConstants.ResourceNamePropertyName))
-                {
-                    base.VisitObjectPropertySyntax(syntax);
-                    // if an error is found at the end we emit it and move on to the next key of this object declaration.
-                    if (this.errorSyntax != null)
-                    {
-                        this.AppendError(this.errorSyntax);
-                        this.errorSyntax = null;
-                    }
-                }
+                this.AppendError(this.errorSyntax);
+                this.errorSyntax = null;
             }
         }
 
