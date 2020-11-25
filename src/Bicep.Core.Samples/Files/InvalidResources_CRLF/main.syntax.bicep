@@ -799,6 +799,439 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[0:174) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |runtimeValidRes1|
+//@[26:72)  StringSyntax
+//@[26:72)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[73:74)  Assignment |=|
+//@[75:174)  ObjectSyntax
+//@[75:76)   LeftBrace |{|
+//@[76:78)   NewLine |\r\n|
+  name: 'name1'
+//@[2:15)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:15)    StringSyntax
+//@[8:15)     StringComplete |'name1'|
+//@[15:17)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+  properties: {
+//@[2:54)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:54)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    evictionPolicy: 'Deallocate'
+//@[4:32)     ObjectPropertySyntax
+//@[4:18)      IdentifierSyntax
+//@[4:18)       Identifier |evictionPolicy|
+//@[18:19)      Colon |:|
+//@[20:32)      StringSyntax
+//@[20:32)       StringComplete |'Deallocate'|
+//@[32:34)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:329) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |runtimeValidRes2|
+//@[26:76)  StringSyntax
+//@[26:76)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[77:78)  Assignment |=|
+//@[79:329)  ObjectSyntax
+//@[79:80)   LeftBrace |{|
+//@[80:82)   NewLine |\r\n|
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+//@[2:89)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:89)    FunctionCallSyntax
+//@[8:14)     IdentifierSyntax
+//@[8:14)      Identifier |concat|
+//@[14:15)     LeftParen |(|
+//@[15:66)     FunctionArgumentSyntax
+//@[15:65)      FunctionCallSyntax
+//@[15:21)       IdentifierSyntax
+//@[15:21)        Identifier |concat|
+//@[21:22)       LeftParen |(|
+//@[22:42)       FunctionArgumentSyntax
+//@[22:41)        PropertyAccessSyntax
+//@[22:38)         VariableAccessSyntax
+//@[22:38)          IdentifierSyntax
+//@[22:38)           Identifier |runtimeValidRes1|
+//@[38:39)         Dot |.|
+//@[39:41)         IdentifierSyntax
+//@[39:41)          Identifier |id|
+//@[41:42)        Comma |,|
+//@[43:64)       FunctionArgumentSyntax
+//@[43:64)        PropertyAccessSyntax
+//@[43:59)         VariableAccessSyntax
+//@[43:59)          IdentifierSyntax
+//@[43:59)           Identifier |runtimeValidRes1|
+//@[59:60)         Dot |.|
+//@[60:64)         IdentifierSyntax
+//@[60:64)          Identifier |name|
+//@[64:65)       RightParen |)|
+//@[65:66)      Comma |,|
+//@[67:88)     FunctionArgumentSyntax
+//@[67:88)      PropertyAccessSyntax
+//@[67:83)       VariableAccessSyntax
+//@[67:83)        IdentifierSyntax
+//@[67:83)         Identifier |runtimeValidRes1|
+//@[83:84)       Dot |.|
+//@[84:88)       IdentifierSyntax
+//@[84:88)        Identifier |type|
+//@[88:89)     RightParen |)|
+//@[89:91)   NewLine |\r\n|
+  kind:'AzureCLI'
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[7:17)    StringSyntax
+//@[7:17)     StringComplete |'AzureCLI'|
+//@[17:19)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+  properties: {
+//@[2:112)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:112)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    azCliVersion: '2.0'
+//@[4:23)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |azCliVersion|
+//@[16:17)      Colon |:|
+//@[18:23)      StringSyntax
+//@[18:23)       StringComplete |'2.0'|
+//@[23:25)     NewLine |\r\n|
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+//@[4:65)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |retentionInterval|
+//@[21:22)      Colon |:|
+//@[23:65)      PropertyAccessSyntax
+//@[23:50)       PropertyAccessSyntax
+//@[23:39)        VariableAccessSyntax
+//@[23:39)         IdentifierSyntax
+//@[23:39)          Identifier |runtimeValidRes1|
+//@[39:40)        Dot |.|
+//@[40:50)        IdentifierSyntax
+//@[40:50)         Identifier |properties|
+//@[50:51)       Dot |.|
+//@[51:65)       IdentifierSyntax
+//@[51:65)        Identifier |evictionPolicy|
+//@[65:67)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:129) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes1|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:129)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes1.location
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     Dot |.|
+//@[25:33)     IdentifierSyntax
+//@[25:33)      Identifier |location|
+//@[33:35)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:132) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes2|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:132)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes1['location']
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    ArrayAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     LeftSquare |[|
+//@[25:35)     StringSyntax
+//@[25:35)      StringComplete |'location'|
+//@[35:36)     RightSquare |]|
+//@[36:38)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:292) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes3|
+//@[28:78)  StringSyntax
+//@[28:78)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[79:80)  Assignment |=|
+//@[81:292)  ObjectSyntax
+//@[81:82)   LeftBrace |{|
+//@[82:84)   NewLine |\r\n|
+  name: runtimeValidRes1.properties.evictionPolicy
+//@[2:50)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:50)    PropertyAccessSyntax
+//@[8:35)     PropertyAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      Dot |.|
+//@[25:35)      IdentifierSyntax
+//@[25:35)       Identifier |properties|
+//@[35:36)     Dot |.|
+//@[36:50)     IdentifierSyntax
+//@[36:50)      Identifier |evictionPolicy|
+//@[50:52)   NewLine |\r\n|
+  kind:'AzureCLI'
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[7:17)    StringSyntax
+//@[7:17)     StringComplete |'AzureCLI'|
+//@[17:19)   NewLine |\r\n|
+  location: 'eastus'
+//@[2:20)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:20)    StringSyntax
+//@[12:20)     StringComplete |'eastus'|
+//@[20:22)   NewLine |\r\n|
+  properties: {
+//@[2:112)   ObjectPropertySyntax
+//@[2:12)    IdentifierSyntax
+//@[2:12)     Identifier |properties|
+//@[12:13)    Colon |:|
+//@[14:112)    ObjectSyntax
+//@[14:15)     LeftBrace |{|
+//@[15:17)     NewLine |\r\n|
+    azCliVersion: '2.0'
+//@[4:23)     ObjectPropertySyntax
+//@[4:16)      IdentifierSyntax
+//@[4:16)       Identifier |azCliVersion|
+//@[16:17)      Colon |:|
+//@[18:23)      StringSyntax
+//@[18:23)       StringComplete |'2.0'|
+//@[23:25)     NewLine |\r\n|
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+//@[4:65)     ObjectPropertySyntax
+//@[4:21)      IdentifierSyntax
+//@[4:21)       Identifier |retentionInterval|
+//@[21:22)      Colon |:|
+//@[23:65)      PropertyAccessSyntax
+//@[23:50)       PropertyAccessSyntax
+//@[23:39)        VariableAccessSyntax
+//@[23:39)         IdentifierSyntax
+//@[23:39)          Identifier |runtimeValidRes1|
+//@[39:40)        Dot |.|
+//@[40:50)        IdentifierSyntax
+//@[40:50)         Identifier |properties|
+//@[50:51)       Dot |.|
+//@[51:65)       IdentifierSyntax
+//@[51:65)        Identifier |evictionPolicy|
+//@[65:67)     NewLine |\r\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:5)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:149) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes4|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:149)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes1['properties'].evictionPolicy
+//@[2:53)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:53)    PropertyAccessSyntax
+//@[8:38)     ArrayAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      LeftSquare |[|
+//@[25:37)      StringSyntax
+//@[25:37)       StringComplete |'properties'|
+//@[37:38)      RightSquare |]|
+//@[38:39)     Dot |.|
+//@[39:53)     IdentifierSyntax
+//@[39:53)      Identifier |evictionPolicy|
+//@[53:55)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:152) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes5|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:152)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes1['properties']['evictionPolicy']
+//@[2:56)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:56)    ArrayAccessSyntax
+//@[8:38)     ArrayAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      LeftSquare |[|
+//@[25:37)      StringSyntax
+//@[25:37)       StringComplete |'properties'|
+//@[37:38)      RightSquare |]|
+//@[38:39)     LeftSquare |[|
+//@[39:55)     StringSyntax
+//@[39:55)      StringComplete |'evictionPolicy'|
+//@[55:56)     RightSquare |]|
+//@[56:58)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:149) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes6|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:149)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes1.properties['evictionPolicy']
+//@[2:53)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:53)    ArrayAccessSyntax
+//@[8:35)     PropertyAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      Dot |.|
+//@[25:35)      IdentifierSyntax
+//@[25:35)       Identifier |properties|
+//@[35:36)     LeftSquare |[|
+//@[36:52)     StringSyntax
+//@[36:52)      StringComplete |'evictionPolicy'|
+//@[52:53)     RightSquare |]|
+//@[53:55)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:144) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes7|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:144)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes2.properties.azCliVersion
+//@[2:48)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:48)    PropertyAccessSyntax
+//@[8:35)     PropertyAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes2|
+//@[24:25)      Dot |.|
+//@[25:35)      IdentifierSyntax
+//@[25:35)       Identifier |properties|
+//@[35:36)     Dot |.|
+//@[36:48)     IdentifierSyntax
+//@[36:48)      Identifier |azCliVersion|
+//@[48:50)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[0:151) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|

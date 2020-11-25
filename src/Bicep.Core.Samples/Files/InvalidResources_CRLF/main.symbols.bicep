@@ -152,6 +152,67 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   '${undefinedSymbol}': true
 }
 
+resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[9:25) Resource runtimeValidRes1. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 174
+  name: 'name1'
+  location: 'eastus'
+  properties: {
+    evictionPolicy: 'Deallocate'
+  }
+}
+
+resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:25) Resource runtimeValidRes2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 329
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes1. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 129
+  name: runtimeValidRes1.location
+}
+
+resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes2. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 132
+  name: runtimeValidRes1['location']
+}
+
+resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:27) Resource runtimeInvalidRes3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 292
+  name: runtimeValidRes1.properties.evictionPolicy
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
+  name: runtimeValidRes1['properties'].evictionPolicy
+}
+
+resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 152
+  name: runtimeValidRes1['properties']['evictionPolicy']
+}
+
+resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
+  name: runtimeValidRes1.properties['evictionPolicy']
+}
+
+resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes7. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 144
+  name: runtimeValidRes2.properties.azCliVersion
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties

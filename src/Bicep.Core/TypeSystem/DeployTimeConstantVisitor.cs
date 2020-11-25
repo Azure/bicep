@@ -3,12 +3,12 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
     /// <summary>
-    /// Visitor used to collect errors caused by property assignments to run-time variables,
-    /// currently, we only run this on the "name" property of resources and modules
+    /// Visitor used to collect errors caused by property assignments to run-time values when that is not allowed
     /// </summary>
     public sealed class DeployTimeConstantVisitor : SyntaxVisitor
     {
@@ -18,113 +18,125 @@ namespace Bicep.Core.TypeSystem
 
         // used for logging the property when we detect a run time property
         private string currentSymbol;
-        // whether a runtimeValue is allowed for the currentSymbol
-        private bool runtimeValueAllowed;
+
+        // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
+        private SyntaxBase? errorSyntax;
 
         private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             this.model = model;
             this.diagnosticWriter = diagnosticWriter;
-            this.runtimeValueAllowed = true;
             this.currentSymbol = "";
         }
 
-        // entry point for this visitor
+        // entry point for this visitor. We only iterate through modules and resources
         public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
-            new DeployTimeConstantVisitor(model, diagnosticWriter).Visit(model.Root.Syntax);
-        }
-
-        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-        {
-            this.runtimeValueAllowed = false;
-            base.VisitResourceDeclarationSyntax(syntax);
-            this.runtimeValueAllowed = true;
-        }
-
-        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
-        {
-            this.runtimeValueAllowed = false;
-            base.VisitModuleDeclarationSyntax(syntax);
-            this.runtimeValueAllowed = true;
+            var deploymentTimeConstantVisitor = new DeployTimeConstantVisitor(model, diagnosticWriter);
+            foreach (var declaredSymbol in model.Root.AllDeclarations.Where(symbol => symbol is ModuleSymbol || symbol is ResourceSymbol))
+            {
+                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
+            }
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            // if (syntax.IndexExpression.)
-            // base.VisitArrayAccessSyntax(syntax);
+            base.VisitArrayAccessSyntax(syntax);
+            if (this.errorSyntax != null)
+            {
+                // Due to the nature of visitPropertyAccessSyntax, we have to visit every level of this
+                // nested errorSyntax recursively. The last one will be shown to the user.
+                this.errorSyntax = syntax;
+            }
+            else if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
+            {
+                // validate only on resource and module symbols
+                var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
+                switch (baseSymbol)
+                {
+                    case ResourceSymbol:
+                    case ModuleSymbol:
+                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType bodyObj)
+                        {
+                            switch (syntax.IndexExpression)
+                            {
+                                case StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } literalValue:
+                                    if (bodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
+                                    !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                                    {
+                                        this.errorSyntax = syntax;
+                                    }
+                                    // TODO this doesn't handle string interpolation
+                                    break;
+                            }
+                            
+                        }
+                        else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
+                        {
+                            // TODO
+                        }
+                        break;
+                }
+            };
         }
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            bool priorRuntimeValueAllowed = this.runtimeValueAllowed;
             // runtimeValueAllowed should only be false if we are going through a module or resource's objectPropertySyntax
-            if (!this.runtimeValueAllowed && syntax.Key is IdentifierSyntax keyIdentifier) 
+            if (syntax.Key is IdentifierSyntax keyIdentifier)
             {
                 this.currentSymbol = keyIdentifier.IdentifierName;
                 // right now we only check for the name property (using resourceNamePropertyName but the name is same for modules)
-                if (!LanguageConstants.IdentifierComparer.Equals(keyIdentifier.IdentifierName, LanguageConstants.ResourceNamePropertyName))
+                if (LanguageConstants.IdentifierComparer.Equals(keyIdentifier.IdentifierName, LanguageConstants.ResourceNamePropertyName))
                 {
-                    this.runtimeValueAllowed = true;
+                    base.VisitObjectPropertySyntax(syntax);
+                    // if an error is found at the end we emit it and move on to the next key of this object declaration.
+                    if (this.errorSyntax != null)
+                    {
+                        this.AppendError(this.errorSyntax);
+                        this.errorSyntax = null;
+                    }
                 }
             }
-            base.VisitObjectPropertySyntax(syntax);
-            // restore the value prior to the visit
-            this.runtimeValueAllowed = priorRuntimeValueAllowed;
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             base.VisitPropertyAccessSyntax(syntax);
-            if (!this.runtimeValueAllowed)
+            if (this.errorSyntax != null)
             {
-                if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
+                // Due to the nature of visitPropertyAccessSyntax, we have to visit every level of this
+                // nested errorSyntax recursively. The last one will be shown to the user.
+                this.errorSyntax = syntax;
+            }
+            else if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
+            {
+                // validate only on resource and module symbols
+                var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
+                switch (baseSymbol)
                 {
-                    // validate only on resource and module symbols
-                    var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
-                    switch (baseSymbol)
-                    {
-                        case ResourceSymbol resourceSymbol:
-                        case ModuleSymbol moduleSymbol:
-                            if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol) baseSymbol).Type) is ObjectType bodyObj)
-                            {
-                                var property = syntax.PropertyName.IdentifierName;
-                                if (bodyObj.Properties.TryGetValue(property, out var propertyType) &&
-                                !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
-                                {
-                                    AppendError(syntax);
-                                }
-                            }
-                            else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol) baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
-                            {
-                                // TODO
-                            }
-                            break;
-                    }
-                }
-                else if (syntax.BaseExpression is PropertyAccessSyntax propertyAccessSyntax) 
-                {
-                    while (propertyAccessSyntax.BaseExpression is PropertyAccessSyntax nestedPropertyAccessSyntax)
-                    {
-                        propertyAccessSyntax = nestedPropertyAccessSyntax;
-                    }
-                    if (propertyAccessSyntax.BaseExpression is VariableAccessSyntax nestedVariableAccessSyntax)
-                    {
-                        if (model.GetSymbolInfo(nestedVariableAccessSyntax) is ResourceSymbol resourceSymbol ||
-                            model.GetSymbolInfo(nestedVariableAccessSyntax) is ModuleSymbol moduleSymbol)
+                    case ResourceSymbol:
+                    case ModuleSymbol:
+                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType bodyObj)
                         {
-                            AppendError(syntax);
-                            this.runtimeValueAllowed = true;
+                            var property = syntax.PropertyName.IdentifierName;
+                            if (bodyObj.Properties.TryGetValue(property, out var propertyType) &&
+                            !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                            {
+                                this.errorSyntax = syntax;
+                            }
                         }
-                    }
+                        else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
+                        {
+                            // TODO
+                        }
+                        break;
                 }
             }
         }
-
         private void AppendError(SyntaxBase syntax)
         {
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(currentSymbol));
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentSymbol));
         }
-
     }
 }

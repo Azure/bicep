@@ -141,3 +141,48 @@ module moduleWithBadScope './empty.bicep' = {
   name: 'moduleWithBadScope'
   scope: 'stringScope'
 }
+
+resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[9:25) Resource runtimeValidRes1. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 190
+  name: 'runtimeValidRes1Name'
+  location: 'westeurope'
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_GRS'
+  }
+}
+
+module runtimeValidModule1 'empty.bicep' = {
+//@[7:26) Module runtimeValidModule1. Type: module. Declaration start char: 0, length: 136
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+}
+
+module runtimeInvalidModule1 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule1. Type: module. Declaration start char: 0, length: 82
+  name: runtimeValidRes1.location
+}
+
+module runtimeInvalidModule2 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule2. Type: module. Declaration start char: 0, length: 85
+  name: runtimeValidRes1['location']
+}
+
+module runtimeInvalidModule3 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule3. Type: module. Declaration start char: 0, length: 82
+  name: runtimeValidRes1.sku.name
+}
+
+module runtimeInvalidModule4 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule4. Type: module. Declaration start char: 0, length: 85
+  name: runtimeValidRes1.sku['name']
+}
+
+module runtimeInvalidModule5 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule5. Type: module. Declaration start char: 0, length: 88
+  name: runtimeValidRes1['sku']['name']
+}
+
+module runtimeInvalidModule6 'empty.bicep' = {
+//@[7:28) Module runtimeInvalidModule6. Type: module. Declaration start char: 0, length: 85
+  name: runtimeValidRes1['sku'].name
+}

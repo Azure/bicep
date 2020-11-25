@@ -180,6 +180,65 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
 }
 
+resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'name1'
+  location: 'eastus'
+  properties: {
+    evictionPolicy: 'Deallocate'
+  }
+}
+
+resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1.location
+//@[8:33) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.location|
+}
+
+resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['location']
+//@[8:36) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['location']|
+}
+
+resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: runtimeValidRes1.properties.evictionPolicy
+//@[8:50) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.properties.evictionPolicy|
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['properties'].evictionPolicy
+//@[8:53) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['properties'].evictionPolicy|
+}
+
+resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['properties']['evictionPolicy']
+//@[8:56) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['properties']['evictionPolicy']|
+}
+
+resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1.properties['evictionPolicy']
+//@[8:53) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.properties['evictionPolicy']|
+}
+
+resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2.properties.azCliVersion
+//@[8:48) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2.properties.azCliVersion|
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
