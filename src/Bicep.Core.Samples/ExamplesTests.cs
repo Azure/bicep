@@ -98,7 +98,8 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.KeyVault/vaults@2019-06-01\" does not have types available.",
                 "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
                 "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available.",
-                "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available."
+                "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
+                "Resource type \"Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available."                
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
