@@ -17,10 +17,9 @@ resource hp 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
   location: wvdbackplanelocation
   properties: {
     friendlyName: hostpoolFriendlyName
-    hostPoolType : hostPoolType
-    loadBalancerType : loadBalancerType
+    hostPoolType: hostPoolType
+    loadBalancerType: loadBalancerType
     preferredAppGroupType: preferredAppGroupType
-    
   }
 }
 
@@ -29,21 +28,20 @@ resource ag 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-previe
   name: appgroupName
   location: wvdbackplanelocation
   properties: {
-      friendlyName: appgroupNameFriendlyName
-      applicationGroupType: applicationgrouptype
-      hostPoolArmPath: hp.id
-    }
+    friendlyName: appgroupNameFriendlyName
+    applicationGroupType: applicationgrouptype
+    hostPoolArmPath: hp.id
   }
+}
 
 //Create WVD Workspace
 resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
   name: workspaceName
   location: wvdbackplanelocation
   properties: {
-      friendlyName: workspaceNameFriendlyName
-      applicationGroupReferences: [
-        ag.id
-      ]
+    friendlyName: workspaceNameFriendlyName
+    applicationGroupReferences: [
+      ag.id
+    ]
   }
 }
-  
