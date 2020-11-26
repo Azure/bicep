@@ -44,7 +44,6 @@
       "[bicep]": {
         "editor.tabSize": 2,
         "editor.insertSpaces": true,
-        "editor.suggest.statusBar.visible": true,
         "editor.suggestSelection": "first",
         "editor.suggest.snippetsPreventQuickSuggestions": false,
         "editor.suggest.showWords": false
