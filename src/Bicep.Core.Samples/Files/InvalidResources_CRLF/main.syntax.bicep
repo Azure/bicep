@@ -79,6 +79,36 @@ resource foo 'ddd'={
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource foo 'ddd'=if (1 + 1 == 2) {
+//@[0:39) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:18)  StringSyntax
+//@[13:18)   StringComplete |'ddd'|
+//@[18:19)  Assignment |=|
+//@[19:39)  IfExpressionSyntax
+//@[19:21)   Identifier |if|
+//@[22:34)   ParenthesizedExpressionSyntax
+//@[22:23)    LeftParen |(|
+//@[23:33)    BinaryOperationSyntax
+//@[23:28)     BinaryOperationSyntax
+//@[23:24)      NumericLiteralSyntax
+//@[23:24)       Number |1|
+//@[25:26)      Plus |+|
+//@[27:28)      NumericLiteralSyntax
+//@[27:28)       Number |1|
+//@[29:31)     Equals |==|
+//@[32:33)     NumericLiteralSyntax
+//@[32:33)      Number |2|
+//@[33:34)    RightParen |)|
+//@[35:39)   ObjectSyntax
+//@[35:36)    LeftBrace |{|
+//@[36:38)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // using string interpolation for the resource type
 //@[51:53) NewLine |\r\n|
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
@@ -100,6 +130,32 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+//@[0:74) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:58)  StringSyntax
+//@[13:26)   StringLeftPiece |'Microsoft.${|
+//@[26:34)   VariableAccessSyntax
+//@[26:34)    IdentifierSyntax
+//@[26:34)     Identifier |provider|
+//@[34:58)   StringRightPiece |}/foos@2020-02-02-alpha'|
+//@[58:59)  Assignment |=|
+//@[60:74)  IfExpressionSyntax
+//@[60:62)   Identifier |if|
+//@[63:69)   ParenthesizedExpressionSyntax
+//@[63:64)    LeftParen |(|
+//@[64:68)    BooleanLiteralSyntax
+//@[64:68)     TrueKeyword |true|
+//@[68:69)    RightParen |)|
+//@[70:74)   ObjectSyntax
+//@[70:71)    LeftBrace |{|
+//@[71:73)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // missing required property
 //@[28:30) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
@@ -115,6 +171,123 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[52:54)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[0:77) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:77)  IfExpressionSyntax
+//@[52:54)   Identifier |if|
+//@[55:72)   ParenthesizedExpressionSyntax
+//@[55:56)    LeftParen |(|
+//@[56:71)    BinaryOperationSyntax
+//@[56:60)     VariableAccessSyntax
+//@[56:60)      IdentifierSyntax
+//@[56:60)       Identifier |name|
+//@[61:63)     Equals |==|
+//@[64:71)     StringSyntax
+//@[64:71)      StringComplete |'value'|
+//@[71:72)    RightParen |)|
+//@[73:77)   ObjectSyntax
+//@[73:74)    LeftBrace |{|
+//@[74:76)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// missing condition
+//@[20:22) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[0:74) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:74)  IfExpressionSyntax
+//@[52:54)   Identifier |if|
+//@[55:55)   SkippedTriviaSyntax
+//@[55:74)   ObjectSyntax
+//@[55:56)    LeftBrace |{|
+//@[56:58)    NewLine |\r\n|
+  name: 'foo'
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// empty condition
+//@[18:20) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[0:77) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:77)  IfExpressionSyntax
+//@[52:54)   Identifier |if|
+//@[55:57)   SkippedTriviaSyntax
+//@[55:56)    LeftParen |(|
+//@[56:57)    RightParen |)|
+//@[58:77)   ObjectSyntax
+//@[58:59)    LeftBrace |{|
+//@[59:61)    NewLine |\r\n|
+  name: 'foo'
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// invalid condition type
+//@[25:27) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[0:80) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:80)  IfExpressionSyntax
+//@[52:54)   Identifier |if|
+//@[55:60)   ParenthesizedExpressionSyntax
+//@[55:56)    LeftParen |(|
+//@[56:59)    NumericLiteralSyntax
+//@[56:59)     Number |123|
+//@[59:60)    RightParen |)|
+//@[61:80)   ObjectSyntax
+//@[61:62)    LeftBrace |{|
+//@[62:64)    NewLine |\r\n|
+  name: 'foo'
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property at the top level

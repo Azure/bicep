@@ -32,8 +32,18 @@ resource foo 'ddd'={
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
 }
 
+resource foo 'ddd'=if (1 + 1 == 2) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
+}
+
 // using string interpolation for the resource type
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
+}
+
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
 }
@@ -42,6 +52,33 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
+//@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
+}
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:56) [BCP018 (Error)] Expected the "(" character at this location. |{|
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:60) [BCP046 (Error)] Expected a value of type "bool". |(123)|
+  name: 'foo'
 }
 
 // duplicate property at the top level

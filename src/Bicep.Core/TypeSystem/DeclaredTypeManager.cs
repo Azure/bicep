@@ -128,16 +128,16 @@ namespace Bicep.Core.TypeSystem
             // because all variable access nodes are normally bound to something, this should always return true
             // (if not, the following code handles that gracefully)
             var symbol = this.binder.GetSymbolInfo(syntax);
-            
+
             switch (symbol)
             {
                 case ResourceSymbol resourceSymbol when IsCycleFree(resourceSymbol):
                     // the declared type of the body is more useful to us than the declared type of the resource itself
-                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Body);
+                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.ResolvedBody);
 
                 case ModuleSymbol moduleSymbol when IsCycleFree(moduleSymbol):
                     // the declared type of the body is more useful to us than the declared type of the module itself
-                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.Body);
+                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.ResolvedBody);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
@@ -258,6 +258,12 @@ namespace Bicep.Core.TypeSystem
                 : new DeclaredTypeAssignment(typeRef, syntax, flags);
 
             var parent = this.binder.GetParent(syntax);
+
+            if (parent is IfExpressionSyntax ifExpressionSyntax)
+            {
+                parent = this.binder.GetParent(ifExpressionSyntax);
+            }
+
             if (parent == null)
             {
                 return null;

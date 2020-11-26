@@ -332,6 +332,12 @@ namespace Bicep.Core.TypeSystem
                     positionable = declarationParent.Name;
                     blockName = declarationParent.Keyword.Text;
                 }
+                else if (parent is IfExpressionSyntax ifExpressionSyntax &&
+                    typeManager.GetParent(ifExpressionSyntax) is INamedDeclarationSyntax declarationAncestor)
+                {
+                    positionable = declarationAncestor.Name;
+                    blockName = declarationAncestor.Keyword.Text;
+                }
 
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties, blockName));
 

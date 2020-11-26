@@ -158,12 +158,12 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
         {
-            if (!(resourceSyntax.Body is ObjectSyntax objectSyntax))
+            if (resourceSyntax.ResolvedBody is not ObjectSyntax objectSyntax)
             {
                 // this condition should have already been validated by the type checker
-                throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
+                throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)} or {typeof(IfExpressionSyntax)}, but found {resourceSyntax.ResolvedBody.GetType()}");
             }
-            
+
             // this condition should have already been validated by the type checker
             var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
             return  ConvertExpression(namePropertySyntax.Value);
@@ -171,12 +171,12 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GetModuleNameExpression(ModuleDeclarationSyntax moduleSyntax)
         {
-            if (!(moduleSyntax.Body is ObjectSyntax objectSyntax))
+            if (moduleSyntax.ResolvedBody is not ObjectSyntax objectSyntax)
             {
                 // this condition should have already been validated by the type checker
-                throw new ArgumentException($"Expected module syntax to have type {typeof(ObjectSyntax)}, but found {moduleSyntax.Body.GetType()}");
+                throw new ArgumentException($"Expected module syntax to have type {typeof(ObjectSyntax)} or {typeof(IfExpressionSyntax)}, but found {moduleSyntax.ResolvedBody.GetType()}");
             }
-            
+
             // this condition should have already been validated by the type checker
             var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
             return  ConvertExpression(namePropertySyntax.Value);

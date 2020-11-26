@@ -27,7 +27,7 @@ namespace Bicep.Core.Emit
 
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
-                var scopeProperty = (moduleSymbol.DeclaringModule.Body as ObjectSyntax)?.SafeGetPropertyByName(LanguageConstants.ModuleScopePropertyName);
+                var scopeProperty = (moduleSymbol.DeclaringModule.ResolvedBody as ObjectSyntax)?.SafeGetPropertyByName(LanguageConstants.ModuleScopePropertyName);
                 if (scopeProperty == null)
                 {
                     // no scope provided - assume the parent scope

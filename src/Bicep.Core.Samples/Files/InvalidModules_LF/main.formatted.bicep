@@ -19,9 +19,29 @@ module missingValue '' =
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {}
 
+module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {}
+
 module moduleWithSelfCycle './main.bicep' = {}
 
+module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {}
+
 module './main.bicep' = {
+
+}
+
+module './main.bicep' = if (1 + 2 == 3) {
+
+}
+
+module './main.bicep' = if {
+
+}
+
+module './main.bicep' = if () {
+
+}
+
+module './main.bicep' = if ('true') {
 
 }
 
@@ -29,9 +49,20 @@ module modANoName './modulea.bicep' = {
   // #completionTest(0) -> moduleATopLevelProperties
 }
 
+module modANoNameWithCondition './modulea.bicep' = if (true) {
+  // #completionTest(0) -> moduleAWithConditionTopLevelProperties
+}
+
 module modANoInputs './modulea.bicep' = {
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+}
+
+module modANoInputsWithCondition './modulea.bicep' = if (length([
+  'foo'
+]) == 1) {
+  name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
 }
 
 module modAEmptyInputs './modulea.bicep' = {
@@ -41,11 +72,24 @@ module modAEmptyInputs './modulea.bicep' = {
   }
 }
 
+module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
+  name: 'modANoInputs'
+  params: {
+    // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+  }
+}
+
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
 
+// #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
+var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
+
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
+
+// #completionTest(82) -> moduleAWithConditionOutputs
+var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'

@@ -1,0 +1,86 @@
+[
+  {
+    "label": "arrayOutput",
+    "kind": "property",
+    "detail": "arrayOutput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `array`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOutput"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "objOutput",
+    "kind": "property",
+    "detail": "objOutput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `object`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "objOutput"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "stringOutputA",
+    "kind": "property",
+    "detail": "stringOutputA",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stringOutputA",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stringOutputA"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "stringOutputB",
+    "kind": "property",
+    "detail": "stringOutputB",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stringOutputB",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stringOutputB"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  }
+]

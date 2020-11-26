@@ -38,6 +38,9 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
+        public SyntaxBase ResolvedBody =>
+            this.Body is IfExpressionSyntax conditionalBody ? conditionalBody.ConsequenceExpression : this.Body;
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitResourceDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Keyword, Body);

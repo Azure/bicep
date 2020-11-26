@@ -15,12 +15,36 @@ resource foo 'ddd'=
 resource foo 'ddd'={
 }
 
+resource foo 'ddd'=if (1 + 1 == 2) {
+}
+
 // using string interpolation for the resource type
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 }
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+}
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+  name: 'foo'
 }
 
 // duplicate property at the top level

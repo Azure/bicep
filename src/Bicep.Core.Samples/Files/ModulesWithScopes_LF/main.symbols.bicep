@@ -12,6 +12,12 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
 }
 
+module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
+//@[7:37) Module mySubscriptionModWithCondition. Type: module. Declaration start char: 0, length: 199
+  name: 'mySubscriptionModWithCondition'
+  scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
+}
+
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@[7:30) Output myManagementGroupOutput. Type: string. Declaration start char: 0, length: 77
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput

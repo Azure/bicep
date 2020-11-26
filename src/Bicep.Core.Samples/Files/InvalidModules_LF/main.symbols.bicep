@@ -35,13 +35,43 @@ module moduleWithInterpPath './${interp}.bicep' = {
 
 }
 
+module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
+//@[7:39) Module moduleWithConditionAndInterpPath. Type: error. Declaration start char: 0, length: 76
+
+}
+
 module moduleWithSelfCycle './main.bicep' = {
 //@[7:26) Module moduleWithSelfCycle. Type: error. Declaration start char: 0, length: 48
 
 }
 
+module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
+//@[7:38) Module moduleWithConditionAndSelfCycle. Type: error. Declaration start char: 0, length: 80
+
+}
+
 module './main.bicep' = {
 //@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 28
+
+}
+
+module './main.bicep' = if (1 + 2 == 3) {
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 44
+
+}
+
+module './main.bicep' = if {
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 31
+
+}
+
+module './main.bicep' = if () {
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 34
+
+}
+
+module './main.bicep' = if ('true') {
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 40
 
 }
 
@@ -51,10 +81,25 @@ module modANoName './modulea.bicep' = {
 
 }
 
+module modANoNameWithCondition './modulea.bicep' = if (true) {
+//@[7:30) Module modANoNameWithCondition. Type: module. Declaration start char: 0, length: 129
+// #completionTest(0) -> moduleAWithConditionTopLevelProperties
+
+}
+
 module modANoInputs './modulea.bicep' = {
 //@[7:19) Module modANoInputs. Type: module. Declaration start char: 0, length: 135
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
+}
+
+module modANoInputsWithCondition './modulea.bicep' = if (length([
+//@[7:32) Module modANoInputsWithCondition. Type: module. Declaration start char: 0, length: 191
+  'foo'
+]) == 1) {
+  name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   
 }
 
@@ -67,13 +112,30 @@ module modAEmptyInputs './modulea.bicep' = {
   }
 }
 
+module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
+//@[7:35) Module modAEmptyInputsWithCondition. Type: module. Declaration start char: 0, length: 183
+  name: 'modANoInputs'
+  params: {
+    // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+    
+  }
+}
+
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
 //@[4:35) Variable modulePropertyAccessCompletions. Type: error. Declaration start char: 0, length: 55
 
+// #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
+var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
+//@[4:48) Variable moduleWithConditionPropertyAccessCompletions. Type: error. Declaration start char: 0, length: 81
+
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 //@[4:28) Variable moduleOutputsCompletions. Type: error. Declaration start char: 0, length: 56
+
+// #completionTest(82) -> moduleAWithConditionOutputs
+var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
+//@[4:41) Variable moduleWithConditionOutputsCompletions. Type: error. Declaration start char: 0, length: 82
 
 module modAUnspecifiedInputs './modulea.bicep' = {
 //@[7:28) Module modAUnspecifiedInputs. Type: module. Declaration start char: 0, length: 180
