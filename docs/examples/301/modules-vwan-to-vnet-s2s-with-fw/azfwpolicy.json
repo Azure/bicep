@@ -1,0 +1,145 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the resource should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "policyname": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name to use for the Firewall Policy"
+      }
+    },
+    "dnsservers": {
+      "type": "array",
+      "metadata": {
+        "description": "Specify custom DNS Servers for Azure Firewall"
+      },
+      "defaultValue": [
+        "168.63.129.16"
+      ]
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('policyname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "threatIntelMode": "Alert",
+        "dnsSettings": {
+          "servers": "[parameters('dnsservers')]",
+          "enableProxy": true
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/Platform-Rules', parameters('policyname'))]",
+      "properties": {
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Azure-KMS",
+            "priority": 100,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "Azure-KMS-Service",
+                "description": "Allow traffic from all Address Spaces to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "ipProtocols": [
+                  "TCP"
+                ],
+                "destinationPorts": [
+                  "1688"
+                ],
+                "destinationIpGroups": [],
+                "destinationAddresses": [],
+                "destinationFqdns": [
+                  "kms.core.windows.net"
+                ]
+              }
+            ]
+          },
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Windows-Update",
+            "priority": 200,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Http",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Http",
+                    "port": 80
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              },
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Https",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Https",
+                    "port": 443
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "name": {
+      "type": "string",
+      "value": "[parameters('policyname')]"
+    },
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/firewallPolicies', parameters('policyname'))]"
+    }
+  }
+}

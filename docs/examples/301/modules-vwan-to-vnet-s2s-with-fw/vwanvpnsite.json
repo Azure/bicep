@@ -1,0 +1,83 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vpnsitename": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the VPN Site"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the vpnsite should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "addressprefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the VPN Sites local IP Addresses"
+      }
+    },
+    "bgppeeringpddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+      }
+    },
+    "ipaddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the VPN Sites VPN Device IP Address"
+      }
+    },
+    "wanid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the resource ID of the Virtual WAN where the VPN Site should be created"
+      }
+    },
+    "remotesiteasn": {
+      "type": "int",
+      "metadata": {
+        "description": "BGP ASN"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/vpnSites",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vpnsitename')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('addressprefix')]"
+          ]
+        },
+        "bgpProperties": {
+          "asn": "[parameters('remotesiteasn')]",
+          "bgpPeeringAddress": "[parameters('bgppeeringpddress')]",
+          "peerWeight": 0
+        },
+        "deviceProperties": {
+          "linkSpeedInMbps": 0
+        },
+        "ipAddress": "[parameters('ipaddress')]",
+        "virtualWan": {
+          "id": "[parameters('wanid')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnsitename'))]"
+    }
+  }
+}

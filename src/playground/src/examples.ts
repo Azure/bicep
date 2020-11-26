@@ -44,6 +44,7 @@ import example_201_policy_with_initiative_definition_and_assignment from '../../
 import example_201_vnet_to_vnet_bgp from '../../../docs/examples/201/vnet-to-vnet-bgp/main.bicep'
 import example_201_vwan_shared_services from '../../../docs/examples/201/vwan-shared-services/main.bicep'
 import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
+import example_301_modules_vwan_to_vnet_s2s_with_fw from '../../../docs/examples/301/modules-vwan-to-vnet-s2s-with-fw/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -92,5 +93,6 @@ export const examples = {
   '201/policy-with-initiative-definition-and-assignment': example_201_policy_with_initiative_definition_and_assignment,
   '201/vnet-to-vnet-bgp': example_201_vnet_to_vnet_bgp,
   '201/vwan-shared-services': example_201_vwan_shared_services,
-  '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network
+  '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network,
+  '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw
 }

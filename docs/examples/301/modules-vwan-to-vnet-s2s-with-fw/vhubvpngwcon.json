@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hubvpngwname": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the Virtual Hub where the Vpn Vonnection should be created."
+      }
+    },
+    "psk": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Specifies the PSK to use for the VPN Connection"
+      }
+    },
+    "vpnsiteid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the resource id to the VWAN Vpn Site to connect to"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/vpnGateways/vpnConnections",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/HubToOnPremConnection', parameters('hubvpngwname'))]",
+      "properties": {
+        "connectionBandwidth": 10,
+        "enableBgp": true,
+        "sharedKey": "[parameters('psk')]",
+        "remoteVpnSite": {
+          "id": "[parameters('vpnsiteid')]"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the resource should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubvpngwname": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name to use for the Virtual Hub VPN Gateway resource."
+      }
+    },
+    "hubid": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual WAN ID"
+      }
+    },
+    "asn": {
+      "type": "int",
+      "metadata": {
+        "description": "BGP ASN"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/vpnGateways",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('hubvpngwname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "virtualHub": {
+          "id": "[parameters('hubid')]"
+        },
+        "bgpSettings": {
+          "asn": "[parameters('asn')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))]"
+    },
+    "name": {
+      "type": "string",
+      "value": "[parameters('hubvpngwname')]"
+    },
+    "gwpublicip": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].publicIpAddress]"
+    },
+    "gwprivateip": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].privateIpAddress]"
+    },
+    "bgpasn": {
+      "type": "int",
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).bgpSettings.asn]"
+    }
+  }
+}

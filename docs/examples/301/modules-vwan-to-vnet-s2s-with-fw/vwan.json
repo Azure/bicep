@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Azure location where the resource should be created."
+      },
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "wantype": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the type of Virtual WAN."
+      },
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "Basic"
+      ]
+    },
+    "wanname": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name to use for the Virtual WAN resources."
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualWans",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('wanname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "type": "[parameters('wantype')]",
+        "disableVpnEncryption": false,
+        "allowBranchToBranchTraffic": true,
+        "office365LocalBreakoutCategory": "None"
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualWans', parameters('wanname'))]"
+    }
+  }
+}
