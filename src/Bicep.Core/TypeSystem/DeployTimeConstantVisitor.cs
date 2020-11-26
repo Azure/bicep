@@ -3,6 +3,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.TypeSystem
@@ -13,7 +14,13 @@ namespace Bicep.Core.TypeSystem
     public sealed class DeployTimeConstantVisitor : SyntaxVisitor
     {
 
-        private readonly string[] DeployTimeConstantKeys = { LanguageConstants.ResourceNamePropertyName }; 
+        // These constants currently resolve to the same name.
+        private readonly HashSet<string> DeployTimeConstantKeys = new HashSet<string>()
+        { 
+            LanguageConstants.ResourceNamePropertyName,
+            LanguageConstants.ModuleNamePropertyName
+        }; 
+
         private readonly SemanticModel model;
         private readonly IDiagnosticWriter diagnosticWriter;
 
@@ -61,24 +68,26 @@ namespace Bicep.Core.TypeSystem
                         {
                             switch (syntax.IndexExpression)
                             {
-                                case StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } literalValue:
-                                    if (bodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
-                                    !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                                case StringSyntax stringSyntax:
+                                    if (stringSyntax.TryGetLiteralValue() is string literalValue)
                                     {
+                                        if (bodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
+                                        !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                                        {
+                                            this.errorSyntax = syntax;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // we will block string interpolation on module and resource properties
                                         this.errorSyntax = syntax;
                                     }
-                                    // TODO this doesn't handle string interpolation
                                     break;
                             }
-                            
-                        }
-                        else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
-                        {
-                            // TODO
                         }
                         break;
                 }
-            };
+            }
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
@@ -130,10 +139,6 @@ namespace Bicep.Core.TypeSystem
                             {
                                 this.errorSyntax = syntax;
                             }
-                        }
-                        else if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is DiscriminatedObjectType discriminatedBodyObj)
-                        {
-                            // TODO
                         }
                         break;
                 }

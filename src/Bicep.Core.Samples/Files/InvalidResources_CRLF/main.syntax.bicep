@@ -1232,6 +1232,92 @@ resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+var magicString1 = 'location'
+//@[0:29) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |magicString1|
+//@[17:18)  Assignment |=|
+//@[19:29)  StringSyntax
+//@[19:29)   StringComplete |'location'|
+//@[29:31) NewLine |\r\n|
+resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:139) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes8|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:139)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes2['${magicString1}']
+//@[2:43)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:43)    ArrayAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes2|
+//@[24:25)     LeftSquare |[|
+//@[25:42)     StringSyntax
+//@[25:28)      StringLeftPiece |'${|
+//@[28:40)      VariableAccessSyntax
+//@[28:40)       IdentifierSyntax
+//@[28:40)        Identifier |magicString1|
+//@[40:42)      StringRightPiece |}'|
+//@[42:43)     RightSquare |]|
+//@[43:45)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
+//@[132:134) NewLine |\r\n|
+var magicString2 = 'name'
+//@[0:25) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |magicString2|
+//@[17:18)  Assignment |=|
+//@[19:25)  StringSyntax
+//@[19:25)   StringComplete |'name'|
+//@[25:27) NewLine |\r\n|
+resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:139) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:27)  IdentifierSyntax
+//@[9:27)   Identifier |runtimeInvalidRes9|
+//@[28:87)  StringSyntax
+//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[88:89)  Assignment |=|
+//@[90:139)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:93)   NewLine |\r\n|
+  name: runtimeValidRes2['${magicString2}']
+//@[2:43)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:43)    ArrayAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes2|
+//@[24:25)     LeftSquare |[|
+//@[25:42)     StringSyntax
+//@[25:28)      StringLeftPiece |'${|
+//@[28:40)      VariableAccessSyntax
+//@[28:40)       IdentifierSyntax
+//@[28:40)        Identifier |magicString2|
+//@[40:42)      StringRightPiece |}'|
+//@[42:43)     RightSquare |]|
+//@[43:45)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[0:151) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|

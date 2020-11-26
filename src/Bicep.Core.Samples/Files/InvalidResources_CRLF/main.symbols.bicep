@@ -213,6 +213,21 @@ resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020
   name: runtimeValidRes2.properties.azCliVersion
 }
 
+var magicString1 = 'location'
+//@[4:16) Variable magicString1. Type: 'location'. Declaration start char: 0, length: 29
+resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes8. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
+  name: runtimeValidRes2['${magicString1}']
+}
+
+// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
+var magicString2 = 'name'
+//@[4:16) Variable magicString2. Type: 'name'. Declaration start char: 0, length: 25
+resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes9. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
+  name: runtimeValidRes2['${magicString2}']
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties

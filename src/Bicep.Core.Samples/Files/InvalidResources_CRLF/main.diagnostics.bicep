@@ -239,6 +239,19 @@ resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[8:48) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2.properties.azCliVersion|
 }
 
+var magicString1 = 'location'
+resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString1}']
+//@[8:43) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2['${magicString1}']|
+}
+
+// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
+var magicString2 = 'name'
+resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString2}']
+//@[8:43) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2['${magicString2}']|
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties

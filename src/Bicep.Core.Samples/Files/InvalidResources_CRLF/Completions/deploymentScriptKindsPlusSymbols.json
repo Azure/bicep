@@ -826,6 +826,34 @@
     }
   },
   {
+    "label": "magicString1",
+    "kind": "variable",
+    "detail": "magicString1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_magicString1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "magicString1"
+    }
+  },
+  {
+    "label": "magicString2",
+    "kind": "variable",
+    "detail": "magicString2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_magicString2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "magicString2"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -1285,6 +1313,34 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes7"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes8",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes8",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes8",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes8"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes9",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes9",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes9",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes9"
     }
   },
   {
