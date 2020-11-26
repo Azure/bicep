@@ -4,36 +4,21 @@
   "parameters": {
     "serverName": {
       "type": "string",
-      "metadata": {
-        "description": "The name of the SQL logical server."
-      },
       "defaultValue": "[uniqueString('sql', resourceGroup().id)]"
     },
     "sqlDBName": {
       "type": "string",
-      "metadata": {
-        "description": "The name of the SQL Database."
-      },
       "defaultValue": "SampleDB"
     },
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Location for all resources."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "administratorLogin": {
-      "type": "string",
-      "metadata": {
-        "description": "The administrator username of the SQL logical server."
-      }
+      "type": "string"
     },
     "administratorLoginPassword": {
-      "type": "secureString",
-      "metadata": {
-        "description": "The administrator password of the SQL logical server."
-      }
+      "type": "secureString"
     }
   },
   "functions": [],
