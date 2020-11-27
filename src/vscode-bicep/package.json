@@ -43,7 +43,10 @@
     "configurationDefaults": {
       "[bicep]": {
         "editor.tabSize": 2,
-        "editor.insertSpaces": true
+        "editor.insertSpaces": true,
+        "editor.suggestSelection": "first",
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggest.showWords": false
       }
     },
     "configuration": {
