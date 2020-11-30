@@ -1,10 +1,6 @@
 param serverName string = uniqueString('sql', resourceGroup().id)
-param sqlDBName string {
-  default: 'SampleDB'
-}
-param location string {
-  default: resourceGroup().location
-}
+param sqlDBName string = 'SampleDB'
+param location string = resourceGroup().location
 param administratorLogin string
 param administratorLoginPassword string {
   secure: true
