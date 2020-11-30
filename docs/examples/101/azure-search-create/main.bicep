@@ -42,9 +42,7 @@ param hostingMode string {
   ]
 }
 
-param location string {
-  default: resourceGroup().location
-}
+param location string = resourceGroup().location
 
 resource search 'Microsoft.Search/searchServices@2020-08-01' = {
   name: name
