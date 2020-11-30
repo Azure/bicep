@@ -1,12 +1,8 @@
 param name string
 param image string = 'mcr.microsoft.com/azuredocs/aci-helloworld'
 param port int = 80
-param cpuCores int {
-  default: 1
-}
-param memoryinGb int {
-  default: 2
-}
+param cpuCores int = 1
+param memoryinGb int = 2
 param restartPolicy string {
   default: 'Always'
   allowed: [
