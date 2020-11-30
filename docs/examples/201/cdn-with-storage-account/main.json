@@ -9,8 +9,8 @@
   },
   "functions": [],
   "variables": {
-    "storageAccountName": "[format('{0}{1}', 'storage', uniqueString(resourceGroup().id))]",
-    "endPointName": "[format('{0}{1}', 'endpoint-', uniqueString(resourceGroup().id))]",
+    "storageAccountName": "[format('storage{0}', uniqueString(resourceGroup().id))]",
+    "endPointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",
     "profileName": "CdnProfile1"
   },
   "resources": [
@@ -22,8 +22,7 @@
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
-      },
-      "properties": {}
+      }
     },
     {
       "type": "Microsoft.Cdn/profiles",
@@ -32,8 +31,7 @@
       "name": "[variables('profileName')]",
       "sku": {
         "name": "Standard_Akamai"
-      },
-      "properties": {}
+      }
     },
     {
       "type": "Microsoft.Cdn/profiles/endpoints",
@@ -41,7 +39,7 @@
       "location": "[parameters('location')]",
       "name": "[variables('endPointName')]",
       "properties": {
-        "originHostHeader": "[replace(replace(reference(variables('storageAccountName')).primaryEndpoints.blob, 'https://', ''), '/', '')]",
+        "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]",
         "isHttpAllowed": true,
         "isHttpsAllowed": true,
         "queryStringCachingBehavior": "IgnoreQueryString",
@@ -57,21 +55,24 @@
           {
             "name": "origin1",
             "properties": {
-              "hostName": "[replace(replace(reference(variables('storageAccountName')).primaryEndpoints.blob, 'https://', ''), '/', '')]"
+              "hostName": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]"
             }
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
     }
   ],
   "outputs": {
     "hostName": {
       "type": "string",
-      "value": "[reference(variables('endPointName')).hostName]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).hostName]"
     },
     "originHostHeader": {
       "type": "string",
-      "value": "[reference(variables('endPointName')).originHostHeader]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
     }
   }
 }

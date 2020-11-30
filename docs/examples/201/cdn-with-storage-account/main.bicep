@@ -49,5 +49,5 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-04-15' = {
   }
 }
 
-output hostName string = endpoint.properties.hostname
+output hostName string = endpoint.properties.hostName
 output originHostHeader string = endpoint.properties.originHostHeader
