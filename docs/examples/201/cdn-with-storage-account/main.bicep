@@ -1,6 +1,4 @@
-param location string {
-  default: resourceGroup().location
-}
+param location string = resourceGroup().location
 
 var storageAccountName = format('{0}{1}', 'storage', uniqueString(resourceGroup().id))
 var endPointName = format('{0}{1}', 'endpoint-', uniqueString(resourceGroup().id))
