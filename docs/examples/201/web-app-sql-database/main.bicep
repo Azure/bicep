@@ -19,13 +19,11 @@ param skuCapacity int {
   minValue: 1
   default: 1
 }
-param sqlAdministratorLogin string {}
+param sqlAdministratorLogin string 
 param sqlAdministratorLoginPassword string {
   secure: true
 }
-param location string {
-  default: resourceGroup().location
-}
+param location string = resourceGroup().location
 
 var hostingPlanName = 'hostingplan${uniqueString(resourceGroup().id)}'
 var webSiteName = 'webSite${uniqueString(resourceGroup().id)}'
