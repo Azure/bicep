@@ -12,7 +12,7 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
 }
 
 resource serviceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2017-04-01' = {
-  name: format('{0}/{1}', serviceBusNamespaceName, serviceBusQueueName)
+  name: '${serviceBusNamespace.name}/${serviceBusQueueName}'
   properties: {
     lockDuration: 'PT5M'
     maxSizeInMegabytes: 1024
@@ -26,7 +26,4 @@ resource serviceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2017-04-01' = {
     enablePartitioning: false
     enableExpress: false
   }
-  dependsOn: [
-    serviceBusNamespace
-  ]
 }
