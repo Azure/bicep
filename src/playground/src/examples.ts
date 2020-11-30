@@ -1,3 +1,4 @@
+import example_101_wvd_backplane from '../../../docs/examples/101/wvd-backplane/main.bicep'
 import example_101_vm_simple_windows from '../../../docs/examples/101/vm-simple-windows/main.bicep'
 import example_101_logic_app_create from '../../../docs/examples/101/logic-app-create/main.bicep'
 import example_101_storage_blob_container from '../../../docs/examples/101/storage-blob-container/main.bicep'
@@ -70,6 +71,7 @@ export const examples = {
   '101/storage-blob-container': example_101_storage_blob_container,
   '101/website-with-container': example_101_website_with_container,
   '101/web-app-windows': example_101_web_app_windows,
+  '101/wvd-backplane': example_101_wvd_backplane, 
   '101/vm-simple-linux': example_101_vm_simple_linux,
   '101/vm-simple-windows': example_101_vm_simple_windows,
   '101/vnet-two-subnets': example_101_vnet_two_subnets,

@@ -57,7 +57,7 @@ namespace Bicep.Decompiler
                     throw new InvalidOperationException($"Failed to read {currentJsonUri}");
                 }
 
-                var program = TemplateConverter.DecompileTemplate(fileResolver, currentJsonUri, jsonInput);
+                var program = TemplateConverter.DecompileTemplate(workspace, fileResolver, currentJsonUri, jsonInput);
                 var syntaxTree = new SyntaxTree(bicepUri, ImmutableArray<int>.Empty, program);
                 workspace.UpsertSyntaxTrees(syntaxTree.AsEnumerable());
 

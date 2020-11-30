@@ -32,6 +32,8 @@ Once the tooling is installed, you can start the [bicep tutorial](./docs/tutoria
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
 
+If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
+
 ## How does Bicep work?
 
 First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](./docs/installing.md#bicep-vs-code-extension), then compile that code into an ARM template using the [Bicep CLI](./docs/installing.md#bicep-cli):

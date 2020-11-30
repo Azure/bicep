@@ -133,26 +133,19 @@ namespace Bicep.Core.IntegrationTests
             return new InMemoryFileResolver(fileDict);
         }
 
-        [TestMethod]
-        public void Decompiler_raises_errors_for_unsupported_features()
+        [DataTestMethod]
+        [DataRow("NonWorking/conditional.json", "[75:17]: The 'condition' property is not supported")]
+        [DataRow("NonWorking/copyloop.json", "[11:9]: The 'copy' property is not supported")]
+        [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
+        [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
+        public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
-            var resourcePath = "";
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
                 TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(),fileResolver, new Uri($"file:///{resourcePath}"));
             };
 
-            using (new AssertionScope())
-            {
-                resourcePath = "NonWorking/conditional.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[75:17]: The 'condition' property is not supported");
-
-                resourcePath = "NonWorking/copyloop.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[11:9]: The 'copy' property is not supported");
-
-                resourcePath = "NonWorking/unknownprops.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[15:29]: Unrecognized top-level resource property 'madeUpProperty'");
-            }
+            onDecompile.Should().Throw<ConversionFailedException>().WithMessage(expectedMessage);
         }
 
         [DataTestMethod]

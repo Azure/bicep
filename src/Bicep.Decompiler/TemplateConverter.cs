@@ -17,31 +17,36 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Expression.Engines;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler.Exceptions;
+using Bicep.Core.Workspaces;
+using System.Collections.Immutable;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Decompiler
 {
     public class TemplateConverter
     {
         private readonly INamingResolver nameResolver;
+        private readonly Workspace workspace;
         private readonly IFileResolver fileResolver;
         private readonly Uri fileUri;
         private readonly JObject template;
 
-        private TemplateConverter(IFileResolver fileResolver, Uri fileUri, string content)
+        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri fileUri, JObject template)
         {
+            this.workspace = workspace;
             this.fileResolver = fileResolver;
             this.fileUri = fileUri;
-            this.template = JObject.Parse(content, new JsonLoadSettings
-            {
-                CommentHandling = CommentHandling.Ignore,
-                LineInfoHandling = LineInfoHandling.Load,
-            });
+            this.template = template;
             this.nameResolver = new UniqueNamingResolver();
         }
 
-        public static ProgramSyntax DecompileTemplate(IFileResolver fileResolver, Uri fileUri, string content)
+        public static ProgramSyntax DecompileTemplate(Workspace workspace, IFileResolver fileResolver, Uri fileUri, string content)
         {
-            var instance = new TemplateConverter(fileResolver, fileUri, content);
+            var instance = new TemplateConverter(workspace, fileResolver, fileUri, JObject.Parse(content, new JsonLoadSettings
+            {
+                CommentHandling = CommentHandling.Ignore,
+                LineInfoHandling = LineInfoHandling.Load,
+            }));
 
             return instance.Parse();
         }
@@ -607,16 +612,10 @@ namespace Bicep.Decompiler
                 ParseJToken(value.Value));
         }
 
-        private SyntaxBase GetModuleFilePath(JObject resource)
+        private SyntaxBase GetModuleFilePath(JObject resource, string templateLink)
         {
             StringSyntax createFakeModulePath(string templateLinkExpression)
                 => SyntaxHelpers.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
-
-            var templateLink = resource["properties"]?["templateLink"]?["uri"]?.Value<string>();
-            if (templateLink == null)
-            {
-                throw new ConversionFailedException($"Unable to find ${resource["name"]}.properties.templateLink.uri. Decompilation of nested templates is not currently supported.", resource);
-            }
 
             var templateLinkExpression = InlineVariables(ExpressionHelpers.ParseExpression(templateLink));
 
@@ -682,9 +681,46 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateArray(syntaxItems);
         }
 
+        private SyntaxBase? TryGetScopeProperty(JObject resource)
+        {
+            var subscriptionId = TemplateHelpers.GetProperty(resource, "subscriptionId");
+            var resourceGroup = TemplateHelpers.GetProperty(resource, "resourceGroup");
+
+            switch (subscriptionId, resourceGroup)
+            {
+                case (JProperty subId, JProperty rgName):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("resourceGroup"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(subId.Value), SyntaxHelpers.CreateToken(TokenType.Comma, ",")),
+                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+                case (null, JProperty rgName):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("resourceGroup"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(rgName.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+                case (JProperty subId, null):
+                    return new FunctionCallSyntax(
+                        SyntaxHelpers.CreateIdentifier("subscription"),
+                        SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                        new [] { 
+                            new FunctionArgumentSyntax(ParseJToken(subId.Value), null),
+                        },
+                        SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+            }
+
+            return null;
+        }
+
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
         {
-            var expectedDeploymentProps = new HashSet<string>(new [] {
+            var expectedProps = new HashSet<string>(new [] {
                 "name",
                 "type",
                 "apiVersion",
@@ -694,14 +730,22 @@ namespace Bicep.Decompiler
                 "comments",
             }, StringComparer.OrdinalIgnoreCase);
 
+            var propsToOmit = new HashSet<string>(new [] {
+                "resourceGroup",
+                "subscriptionId",
+            }, StringComparer.OrdinalIgnoreCase);
+
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "subscriptionId", "The 'subscriptionId' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "resourceGroup", "The 'resourceGroup' property is not supported");
             foreach (var prop in resource.Properties())
             {
-                if (!expectedDeploymentProps.Contains(prop.Name))
+                if (propsToOmit.Contains(prop.Name))
+                {
+                    continue;
+                }
+
+                if (!expectedProps.Contains(prop.Name))
                 {
                     throw new ConversionFailedException($"Unrecognized top-level resource property '{prop.Name}'", prop);
                 }
@@ -716,6 +760,13 @@ namespace Bicep.Decompiler
 
             var properties = new List<ObjectPropertySyntax>();
             properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
+
+            var scope = TryGetScopeProperty(resource);
+            if (scope is not null)
+            {
+                properties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
+            }
+
             properties.Add(SyntaxHelpers.CreateObjectProperty("params", SyntaxHelpers.CreateObject(paramProperties)));
 
             var dependsOn = ProcessDependsOn(resource);
@@ -726,10 +777,49 @@ namespace Bicep.Decompiler
 
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
             
+            var nestedTemplate = TemplateHelpers.GetNestedProperty(resource, "properties", "template");
+            if (nestedTemplate is not null)
+            {
+                if (nestedTemplate is not JObject nestedTemplateObject)
+                {
+                    throw new ConversionFailedException($"Expected template objectfor {typeString} {nameString}", nestedTemplate);
+                }
+
+                var expressionEvaluationScope = TemplateHelpers.GetNestedProperty(resource, "properties", "expressionEvaluationOptions", "scope")?.ToString();
+                if (!StringComparer.OrdinalIgnoreCase.Equals(expressionEvaluationScope, "inner"))
+                {
+                    throw new ConversionFailedException($"Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information {typeString} {nameString}", nestedTemplate);
+                }
+            
+                var filePath = $"./nested_{identifier}.bicep";
+                var nestedModuleUri = fileResolver.TryResolveModulePath(fileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
+                if (workspace.TryGetSyntaxTree(nestedModuleUri, out _))
+                {
+                    throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
+                }
+
+                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject);
+                var nestedSyntaxTree = new SyntaxTree(nestedModuleUri, ImmutableArray<int>.Empty, nestedConverter.Parse());
+                workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
+
+                return new ModuleDeclarationSyntax(
+                    SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
+                    SyntaxHelpers.CreateIdentifier(identifier),
+                    SyntaxHelpers.CreateStringLiteral(filePath),
+                    SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
+                    SyntaxHelpers.CreateObject(properties));
+            }
+
+            var templateLink = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri");
+            if (templateLink?.Value<string>() is not string templateLinkString)
+            {
+                throw new ConversionFailedException($"Unable to find {resource["name"]}.properties.templateLink.uri for linked template.", resource);
+            }
+            
             return new ModuleDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
                 SyntaxHelpers.CreateIdentifier(identifier),
-                GetModuleFilePath(resource),
+                GetModuleFilePath(resource, templateLinkString),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
                 SyntaxHelpers.CreateObject(properties));
         }
