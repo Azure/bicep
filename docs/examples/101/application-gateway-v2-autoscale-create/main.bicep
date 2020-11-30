@@ -76,7 +76,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
         name: 'appGatewayIpConfig'
         properties: {
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnetName)
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, subnetName)
           }
         }
       }
@@ -149,8 +149,4 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
       }
     ]
   }
-  dependsOn: [
-    virtualNetwork
-    publicIP
-  ]
 }
