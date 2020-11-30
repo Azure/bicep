@@ -21,7 +21,7 @@ param adminPassword string {
 }
 param location string = resourceGroup().location
 
-var namingInfix = toLower(substring(concat(vmssName, uniqueString(resourceGroup().id)), 0, 9))
+var namingInfix = toLower(substring('${vmssName}${uniqueString(resourceGroup().id)}', 0, 9))
 var longNamingInfix = toLower(vmssName)
 var addressPrefix = '10.0.0.0/16'
 var subnetPrefix = '10.0.0.0/24'
