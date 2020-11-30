@@ -1,6 +1,4 @@
-param vmSku string {
-  default: 'Standard_A1_v2'
-}
+param vmSku string = 'Standard_A1_v2'
 param windowsOSVersion string {
   default: '2019-Datacenter'
   allowed: [
