@@ -1,9 +1,9 @@
 param location string = resourceGroup().location
 
-var storageAccountName = format('{0}{1}', 'storage', uniqueString(resourceGroup().id))
-var endPointName = format('{0}{1}', 'endpoint-', uniqueString(resourceGroup().id))
+var storageAccountName = 'storage${uniqueString(resourceGroup().id)}'
+var endPointName = 'endpoint-${uniqueString(resourceGroup().id)}'
 var profileName = 'CdnProfile1'
-var storageAccountHostName = replace(replace(reference(storageAccountName).primaryEndpoints.blob, 'https://', ''), '/', '')
+var storageAccountHostName = replace(replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   location: location
@@ -12,7 +12,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' =
   sku: {
     name: 'Standard_LRS'
   }
-  properties: {}
 }
 
 resource cdnProfile 'Microsoft.Cdn/profiles@2020-04-15' = {
@@ -21,7 +20,6 @@ resource cdnProfile 'Microsoft.Cdn/profiles@2020-04-15' = {
   sku: {
     name: 'Standard_Akamai'
   }
-  properties: {}
 }
 
 resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-04-15' = {
@@ -51,5 +49,5 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-04-15' = {
   }
 }
 
-output hostName string = reference(endPointName).hostName
-output originHostHeader string = reference(endPointName).originHostHeader
+output hostName string = endpoint.properties.hostname
+output originHostHeader string = endpoint.properties.originHostHeader
