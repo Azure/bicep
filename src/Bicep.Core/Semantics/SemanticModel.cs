@@ -38,7 +38,7 @@ namespace Bicep.Core.Semantics
 
         public SyntaxTree SyntaxTree { get; }
 
-        public Binder Binder { get; }
+        public IBinder Binder { get; }
 
         public ISymbolContext SymbolContext { get; }
 

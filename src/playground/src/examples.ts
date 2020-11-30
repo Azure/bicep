@@ -1,3 +1,4 @@
+import example_101_wvd_backplane from '../../../docs/examples/101/wvd-backplane/main.bicep'
 import example_101_vm_simple_windows from '../../../docs/examples/101/vm-simple-windows/main.bicep'
 import example_101_logic_app_create from '../../../docs/examples/101/logic-app-create/main.bicep'
 import example_101_storage_blob_container from '../../../docs/examples/101/storage-blob-container/main.bicep'
@@ -63,6 +64,7 @@ export const examples = {
   '101/1vm-2nics-2subnets-1vnet': example_101_1vm_2nics_2subnets_1vnet,
   '101/web-app-windows': example_101_web_app_windows,
   '101/data-factory-v2-blob-to-blob-copy': example_101_data_factory_v2_blob_to_blob_copy,
+  '101/wvd-backplane': example_101_wvd_backplane,  
   '201/vm-windows-with-custom-script-extension': example_201_vm_windows_with_custom_script_extension,
   '201/key-vault-secret-create': example_201_key_vault_secret_create,
   '201/vm-push-cert-windows': example_201_vm_push_cert_windows,

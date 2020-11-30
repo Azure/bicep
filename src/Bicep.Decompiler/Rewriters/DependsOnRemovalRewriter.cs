@@ -18,17 +18,17 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        private ObjectSyntax? TryGetReplacementBody(SyntaxBase bodySyntax)
         {
-            if (syntax.Body is not ObjectSyntax objectSyntax)
+            if (bodySyntax is not ObjectSyntax objectSyntax)
             {
-                return base.ReplaceResourceDeclarationSyntax(syntax);
+                return null;
             }
 
             var dependsOnProperty = objectSyntax.SafeGetPropertyByName("dependsOn");
             if (dependsOnProperty is null)
             {
-                return base.ReplaceResourceDeclarationSyntax(syntax);
+                return null;
             }
 
             var builtInDependencies = new HashSet<Symbol>();
@@ -45,7 +45,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             if (dependsOnProperty.Value is not ArraySyntax dependsOnArray)
             {
-                return base.ReplaceResourceDeclarationSyntax(syntax);
+                return null;
             }
 
             var newDependsOnArrayChildren = new List<SyntaxBase>();
@@ -72,7 +72,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             if (newDependsOnArrayChildren.Count == dependsOnArray.Children.Length)
             {
-                return base.ReplaceResourceDeclarationSyntax(syntax);
+                return null;
             }
 
             var newChildren = new List<SyntaxBase>();
@@ -96,15 +96,42 @@ namespace Bicep.Core.Decompiler.Rewriters
                 newChildren.Add(child);
             }
 
+            return new ObjectSyntax(
+                objectSyntax.OpenBrace,
+                newChildren,
+                objectSyntax.CloseBrace);
+        }
+
+        protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            var replacementBody = TryGetReplacementBody(syntax.Body);
+            if (replacementBody is null)
+            {
+                return base.ReplaceResourceDeclarationSyntax(syntax);
+            }
+
             return new ResourceDeclarationSyntax(
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Type,
                 syntax.Assignment,
-                new ObjectSyntax(
-                    objectSyntax.OpenBrace,
-                    newChildren,
-                    objectSyntax.CloseBrace));
+                replacementBody);
+        }
+
+        protected override ModuleDeclarationSyntax ReplaceModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            var replacementBody = TryGetReplacementBody(syntax.Body);
+            if (replacementBody is null)
+            {
+                return base.ReplaceModuleDeclarationSyntax(syntax);
+            }
+
+            return new ModuleDeclarationSyntax(
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Path,
+                syntax.Assignment,
+                replacementBody);
         }
     }
 }

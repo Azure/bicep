@@ -1477,10 +1477,10 @@
     "preselect": true,
     "sortText": "1_{}",
     "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
+    "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{$0}"
+      "newText": "{\n\t$0\n}"
     }
   }
 ]

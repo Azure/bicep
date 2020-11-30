@@ -86,10 +86,12 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.AppConfiguration/configurationStores@2020-07-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.DataFactory/factories/pipelines@2018-06-01\" does not have types available.",
+                "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
+                "Resource type \"Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available."  
                 "Resource type \"Microsoft.KeyVault/vaults@2019-06-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults/keys@2019-09-01\" does not have types available.",
-                "Resource type \"Microsoft.KeyVault/vaults/secrets@2019-09-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available.",
+                "Resource type \"Microsoft.KeyVault/vaults/secrets@2019-09-01\" does not have types available.",
                 "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
                 "Resource type \"Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.Sql/servers@2020-02-02-preview\" does not have types available.",

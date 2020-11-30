@@ -121,7 +121,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 properties = properties.Concat(locationProperty.AsEnumerable());
             }
 
-            return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, properties, null);
+            return new NamedObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
         }
 
         private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()
