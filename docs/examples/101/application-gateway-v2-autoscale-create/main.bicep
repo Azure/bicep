@@ -1,30 +1,12 @@
-param virtualNetworkName string {
-  default: 'Application-Vnet'
-}
-param vnetAddressPrefix string {
-  default: '10.0.0.0/16'
-}
-param subnetName string {
-  default: 'ApplicationGatewaySubnet'
-}
-param subnetPrefix string {
-  default: '10.0.0.0/24'
-}
-param applicationGatewayName string {
-  default: 'applicationGatewayV2'
-}
-param minCapacity int {
-  default: 2
-}
-param maxCapacity int {
-  default: 10
-}
-param frontendPort int {
-  default: 80
-}
-param backendPort int {
-  default: 80
-}
+param virtualNetworkName string = 'Application-Vnet'
+param vnetAddressPrefix string = '10.0.0.0/16'
+param subnetName string = 'ApplicationGatewaySubnet'
+param subnetPrefix string = '10.0.0.0/24'
+param applicationGatewayName string = 'applicationGatewayV2'
+param minCapacity int = 2
+param maxCapacity int = 10
+param frontendPort int = 80
+param backendPort int = 80
 param backendIPAddresses array {
   default: [
     {
