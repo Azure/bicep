@@ -14,9 +14,7 @@ param sku string {
     'Premium'
   ]
 }
-param skuCount int {
-  default: 1
-}
+param skuCount int = 1
 param location string = resourceGroup().location
 
 resource apiManagement 'Microsoft.ApiManagement/service@2020-06-01-preview' = {
