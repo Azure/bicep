@@ -4,9 +4,7 @@ param dnsLabelPrefix string {
   minLength: 1
   maxLength: 62
 }
-param vmSize string {
-  default: 'Standard_A2_v2'
-}
+param vmSize string = 'Standard_A2_v2'
 param domainToJoin string
 param domainUserName string
 param domainPassword string {
