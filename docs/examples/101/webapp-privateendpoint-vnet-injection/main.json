@@ -208,10 +208,10 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/VirtualNetwork', parameters('site2_Name'))]",
       "properties": {
-        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet2Name'))]"
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet2Name')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet2Name')), '/')[1])]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet2Name')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet2Name')), '/')[1])]",
         "[resourceId('Microsoft.Web/sites', parameters('site2_Name'))]"
       ]
     },
@@ -222,7 +222,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "subnet": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnet1Name'))]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet1Name')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet1Name')), '/')[1])]"
         },
         "privateLinkServiceConnections": [
           {
@@ -237,7 +237,7 @@
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet1Name')), '/')[0], split(format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnet1Name')), '/')[1])]",
         "[resourceId('Microsoft.Web/sites', parameters('site1_Name'))]"
       ]
     },
