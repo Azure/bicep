@@ -80,7 +80,7 @@ resource dataFactoryPipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-
   name: '${dataFactory.name}/${pipelineName}'
   properties: {
     activities: [
-      {
+      any({
         name: 'MyCopyActivity'
         type: 'Copy'
         policy: {
@@ -120,7 +120,7 @@ resource dataFactoryPipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-
             properties: {}
           }
         ]
-      }
+      })
     ]
   }
   dependsOn: [
