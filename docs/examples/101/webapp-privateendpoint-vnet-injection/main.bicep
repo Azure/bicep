@@ -90,7 +90,7 @@ resource webApp2 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: serverFarm.id
   }
 }
-resource webApp2AppSettings 'Microsoft.Web/sites/config@2018-11-01' = {
+resource webApp2AppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${webApp2.name}/appsettings'
   properties: {
     'WEBSITE_DNS_SERVER': '168.63.129.16'
@@ -98,14 +98,14 @@ resource webApp2AppSettings 'Microsoft.Web/sites/config@2018-11-01' = {
   }
 }
 
-resource webApp1Config 'Microsoft.Web/sites/config@2019-08-01' = {
+resource webApp1Config 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${webApp1.name}/web'
   properties: {
     ftpsState: 'AllAllowed'
   }
 }
 
-resource webApp2Config 'Microsoft.Web/sites/config@2019-08-01' = {
+resource webApp2Config 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${webApp2.name}/web'
   properties: {
     ftpsState: 'AllAllowed'

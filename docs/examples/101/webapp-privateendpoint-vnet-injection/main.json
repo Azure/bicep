@@ -147,7 +147,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/appsettings', parameters('site2_Name'))]",
       "properties": {
         "WEBSITE_DNS_SERVER": "168.63.129.16",
@@ -159,7 +159,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', parameters('site1_Name'))]",
       "properties": {
         "ftpsState": "AllAllowed"
@@ -170,7 +170,7 @@
     },
     {
       "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}/web', parameters('site2_Name'))]",
       "properties": {
         "ftpsState": "AllAllowed"
