@@ -7,7 +7,7 @@ param hubid string {
 }
 param asn int {
   metadata: {
-    description: 'BGP AS number for the VPN Gateway'
+    description: 'BGP AS-number for the VPN Gateway'
   }
 }
 
