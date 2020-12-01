@@ -19,7 +19,7 @@ param skuCapacity int {
   minValue: 1
   default: 1
 }
-param sqlAdministratorLogin string 
+param sqlAdministratorLogin string
 param sqlAdministratorLoginPassword string {
   secure: true
 }
