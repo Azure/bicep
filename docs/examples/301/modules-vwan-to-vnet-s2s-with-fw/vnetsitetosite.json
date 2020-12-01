@@ -86,12 +86,14 @@
         "connectionType": "IPsec",
         "connectionProtocol": "IKEv2",
         "virtualNetworkGateway1": {
-          "id": "[parameters('vpngwid')]"
+          "id": "[parameters('vpngwid')]",
+          "properties": {}
         },
         "enableBgp": true,
         "sharedKey": "[parameters('psk')]",
         "localNetworkGateway2": {
-          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
+          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]",
+          "properties": {}
         }
       },
       "dependsOn": [

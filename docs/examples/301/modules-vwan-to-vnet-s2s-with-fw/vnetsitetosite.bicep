@@ -70,11 +70,13 @@ resource s2sconnection 'Microsoft.Network/connections@2020-06-01' = {
     connectionProtocol: 'IKEv2'
     virtualNetworkGateway1: {
       id: vpngwid
+      properties: {}
     }
     enableBgp: true
     sharedKey: psk
     localNetworkGateway2: {
       id: localnetworkgw.id
+      properties: {}
     }
   }
 }
