@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "localnetworkgwname": {
+      "type": "string"
+    },
+    "connectionname": {
+      "type": "string",
+      "defaultValue": "onprem-hub-cn"
+    },
+    "addressprefixes": {
+      "type": "array",
+      "metadata": {
+        "description": "Specifices the address prefixes of the remote site"
+      }
+    },
+    "bgppeeringpddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the VPN Sites BGP Peering IP Addresses"
+      }
+    },
+    "gwipaddress": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the VPN Sites VPN Device IP Address"
+      }
+    },
+    "vpngwid": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifices the resource ID of the VPN Gateway to connect to the site to site vpn"
+      }
+    },
+    "psk": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Specifies the pre-shared key to use for the VPN Connection"
+      }
+    },
+    "remotesiteasn": {
+      "type": "int",
+      "metadata": {
+        "description": "BGP AS-number used by the remote site"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/localNetworkGateways",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('localnetworkgwname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "localNetworkAddressSpace": {
+          "addressPrefixes": "[parameters('addressprefixes')]"
+        },
+        "gatewayIpAddress": "[parameters('gwipaddress')]",
+        "bgpSettings": {
+          "asn": "[parameters('remotesiteasn')]",
+          "bgpPeeringAddress": "[parameters('bgppeeringpddress')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/connections",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('connectionname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "connectionType": "IPsec",
+        "connectionProtocol": "IKEv2",
+        "virtualNetworkGateway1": {
+          "id": "[parameters('vpngwid')]",
+          "properties": {}
+        },
+        "enableBgp": true,
+        "sharedKey": "[parameters('psk')]",
+        "localNetworkGateway2": {
+          "id": "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]",
+          "properties": {}
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
+      ]
+    }
+  ]
+}
