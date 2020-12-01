@@ -131,7 +131,7 @@ resource webApp2Binding 'Microsoft.Web/sites/hostNameBindings@2019-08-01' = {
 resource webApp2NetworkConfig 'Microsoft.Web/sites/networkConfig@2020-06-01' = {
   name: '${webApp2.name}/VirtualNetwork'
   properties: {
-    subnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, subnet2Name)
+    subnetResourceId: subnet2.id
   }
 }
 
@@ -140,7 +140,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {
   location: location
   properties: {
     subnet: {
-      id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, subnet1Name)
+      id: subnet1.id
     }
     privateLinkServiceConnections: [
       {
