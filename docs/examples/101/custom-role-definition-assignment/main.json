@@ -33,7 +33,7 @@
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(concat(variables('roleName'), parameters('principalId')))]",
+      "name": "[guid(variables('roleName'), parameters('principalId'), subscription().subscriptionId)]",
       "properties": {
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('roleName')))]",
         "principalId": "[parameters('principalId')]"
