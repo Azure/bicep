@@ -22,15 +22,15 @@ param asn int {
 
 resource hubvpngw 'Microsoft.Network/vpnGateways@2020-06-01' = {
   name: hubvpngwname
-  location: location   
-  properties: {        
-      virtualHub: {
-          id: hubid
-      }
-      bgpSettings: {
-          asn: asn
-      }     
-  }     
+  location: location
+  properties: {
+    virtualHub: {
+      id: hubid
+    }
+    bgpSettings: {
+      asn: asn
+    }
+  }
 }
 
 output id string = hubvpngw.id

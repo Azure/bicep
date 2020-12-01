@@ -18,11 +18,11 @@ param vpnsiteid string {
 resource hubvpnconnection 'Microsoft.Network/vpnGateways/vpnConnections@2020-05-01' = {
   name: '${hubvpngwname}/HubToOnPremConnection'
   properties: {
-      connectionBandwidth: 10
-      enableBgp: true
-      sharedKey: psk
-      remoteVpnSite: {
-          id: vpnsiteid
-      }
-  }    
+    connectionBandwidth: 10
+    enableBgp: true
+    sharedKey: psk
+    remoteVpnSite: {
+      id: vpnsiteid
+    }
+  }
 }

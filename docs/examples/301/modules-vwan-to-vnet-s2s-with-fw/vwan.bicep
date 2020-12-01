@@ -7,8 +7,8 @@ param location string {
 param wantype string {
   default: 'Standard'
   allowed: [
-      'Standard'
-      'Basic'
+    'Standard'
+    'Basic'
   ]
   metadata: {
     description: 'Specifies the type of Virtual WAN.'
@@ -24,10 +24,10 @@ resource wan 'Microsoft.Network/virtualWans@2020-06-01' = {
   name: wanname
   location: location
   properties: {
-      type: wantype
-      disableVpnEncryption: false
-      allowBranchToBranchTraffic: true
-      office365LocalBreakoutCategory: 'None'
+    type: wantype
+    disableVpnEncryption: false
+    allowBranchToBranchTraffic: true
+    office365LocalBreakoutCategory: 'None'
   }
 }
 

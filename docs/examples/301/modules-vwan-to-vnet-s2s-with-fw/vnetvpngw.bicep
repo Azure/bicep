@@ -25,7 +25,6 @@ param asn int {
   }
 }
 
-
 resource vpngwpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: vpngwpipname
   location: location
@@ -33,40 +32,40 @@ resource vpngwpip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
     name: 'Standard'
   }
   properties: {
-    publicIPAllocationMethod: 'Static'    
+    publicIPAllocationMethod: 'Static'
   }
 }
 
 resource vpngw 'Microsoft.Network/virtualNetworkGateways@2020-06-01' = {
   name: vpngwname
-  location: location    
+  location: location
   properties: {
-      gatewayType: 'Vpn'
-      ipConfigurations: [
-          {
-              name: 'default'
-              properties: {
-                  privateIPAllocationMethod: 'Dynamic'
-                  subnet: {
-                      id: subnetref
-                  }
-                  publicIPAddress: {
-                      id: vpngwpip.id
-                  }
-              }
+    gatewayType: 'Vpn'
+    ipConfigurations: [
+      {
+        name: 'default'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: subnetref
           }
-      ]
-      activeActive: false
-      enableBgp: true
-      bgpSettings: {
-          asn: asn
+          publicIPAddress: {
+            id: vpngwpip.id
+          }
+        }
       }
-      vpnType: 'RouteBased'
-      vpnGatewayGeneration: 'Generation1'
-      sku: {
-          name: 'VpnGw1AZ'
-          tier: 'VpnGw1AZ'
-      }
+    ]
+    activeActive: false
+    enableBgp: true
+    bgpSettings: {
+      asn: asn
+    }
+    vpnType: 'RouteBased'
+    vpnGatewayGeneration: 'Generation1'
+    sku: {
+      name: 'VpnGw1AZ'
+      tier: 'VpnGw1AZ'
+    }
   }
 }
 

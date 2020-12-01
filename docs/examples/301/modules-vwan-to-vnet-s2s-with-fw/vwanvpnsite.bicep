@@ -39,24 +39,24 @@ resource vpnsite 'Microsoft.Network/vpnSites@2020-06-01' = {
   name: vpnsitename
   location: location
   properties: {
-      addressSpace :{
-          addressPrefixes: [
-            addressprefix
-          ]
-      }
-      bgpProperties: {
-          asn: remotesiteasn
-          bgpPeeringAddress: bgppeeringpddress
-          peerWeight: 0
-      }
-      deviceProperties: {
-          linkSpeedInMbps: 0
-      }
-      ipAddress: ipaddress
-      virtualWan: {
-          id: wanid
-      }        
-  }       
+    addressSpace: {
+      addressPrefixes: [
+        addressprefix
+      ]
+    }
+    bgpProperties: {
+      asn: remotesiteasn
+      bgpPeeringAddress: bgppeeringpddress
+      peerWeight: 0
+    }
+    deviceProperties: {
+      linkSpeedInMbps: 0
+    }
+    ipAddress: ipaddress
+    virtualWan: {
+      id: wanid
+    }
+  }
 }
 
 output id string = vpnsite.id
