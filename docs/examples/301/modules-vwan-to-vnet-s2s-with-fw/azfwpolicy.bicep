@@ -1,14 +1,5 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resource should be created.'
-  }
-}
-param policyname string {
-  metadata: {
-    description: 'Specifies the name to use for the Firewall Policy'
-  }
-}
+param location string = resourceGroup().location
+param policyname string
 param dnsservers array {
   default: [
     '168.63.129.16'

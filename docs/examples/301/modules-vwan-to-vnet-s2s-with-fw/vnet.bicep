@@ -1,14 +1,5 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resource should be created.'
-  }
-}
-param vnetname string {
-  metadata: {
-    description: 'Specifies the name to use for the VNet.'
-  }
-}
+param location string = resourceGroup().location
+param vnetname string
 param addressprefix string {
   default: '10.0.1.0/24'
   metadata: {
@@ -187,3 +178,4 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
 
 output id string = vnet.id
 output subnets array = vnet.properties.subnets
+output vnetaddress array = any(vnet.properties.addressSpace.addressPrefixes)

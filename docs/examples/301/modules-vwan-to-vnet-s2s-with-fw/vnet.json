@@ -4,16 +4,10 @@
   "parameters": {
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resource should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "vnetname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the VNet."
-      }
+      "type": "string"
     },
     "addressprefix": {
       "type": "string",
@@ -215,6 +209,10 @@
     "subnets": {
       "type": "array",
       "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets]"
+    },
+    "vnetaddress": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
     }
   }
 }

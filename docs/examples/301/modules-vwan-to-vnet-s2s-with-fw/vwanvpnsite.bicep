@@ -1,14 +1,5 @@
-param vpnsitename string {
-  metadata: {
-    description: 'Specifies the name of the VPN Site'
-  }
-}
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the vpnsite should be created.'
-  }
-}
+param vpnsitename string
+param location string = resourceGroup().location
 param addressprefix string {
   metadata: {
     description: 'Specifices the VPN Sites local IP Addresses'
@@ -31,7 +22,7 @@ param wanid string {
 }
 param remotesiteasn int {
   metadata: {
-    description: 'BGP ASN'
+    description: 'BGP AS-Number used by the remote site'
   }
 }
 

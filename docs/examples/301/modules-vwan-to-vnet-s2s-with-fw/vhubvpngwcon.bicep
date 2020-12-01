@@ -1,12 +1,8 @@
-param hubvpngwname string {
-  metadata: {
-    description: 'Specifies the name of the Virtual Hub where the Vpn Vonnection should be created.'
-  }
-}
+param hubvpngwname string
 param psk string {
   secure: true
   metadata: {
-    description: 'Specifies the PSK to use for the VPN Connection'
+    description: 'Specifies the pre-shared key to use for the VPN Connection'
   }
 }
 param vpnsiteid string {

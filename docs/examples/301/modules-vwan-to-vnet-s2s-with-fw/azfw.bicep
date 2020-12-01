@@ -1,11 +1,5 @@
-param location string {
-  default: resourceGroup().location
-}
-param fwname string {
-  metadata: {
-    description: 'Name of the Azure Firewall Resource'
-  }
-}
+param location string = resourceGroup().location
+param fwname string
 param fwtype string {
   allowed: [
     'VNet'

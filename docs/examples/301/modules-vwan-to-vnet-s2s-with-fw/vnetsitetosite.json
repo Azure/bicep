@@ -2,25 +2,16 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "localnetworkgwname": {
+    "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the name of Local Network Gateway"
-      }
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "localnetworkgwname": {
+      "type": "string"
     },
     "connectionname": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the name of VPN Connection"
-      },
       "defaultValue": "onprem-hub-cn"
-    },
-    "location": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resources should be created."
-      },
-      "defaultValue": "[resourceGroup().location]"
     },
     "addressprefixes": {
       "type": "array",
@@ -49,13 +40,13 @@
     "psk": {
       "type": "secureString",
       "metadata": {
-        "description": "Specifies the PSK to use for the VPN Connection"
+        "description": "Specifies the pre-shared key to use for the VPN Connection"
       }
     },
     "remotesiteasn": {
       "type": "int",
       "metadata": {
-        "description": "BGP ASN"
+        "description": "BGP AS-number used by the remote site"
       }
     }
   },

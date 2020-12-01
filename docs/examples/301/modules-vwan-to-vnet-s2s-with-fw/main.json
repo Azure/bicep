@@ -26,8 +26,9 @@
     "psk": {
       "type": "secureString",
       "metadata": {
-        "description": "PSK to use for the site to site tunnel between Virtual Hub and On-Prem VNet"
-      }
+        "description": "Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet"
+      },
+      "defaultValue": "[uniqueString(subscription().id)]"
     }
   },
   "functions": [],
@@ -99,16 +100,10 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "vnetname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the VNet."
-              }
+              "type": "string"
             },
             "addressprefix": {
               "type": "string",
@@ -310,6 +305,10 @@
             "subnets": {
               "type": "array",
               "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets]"
+            },
+            "vnetaddress": {
+              "type": "array",
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
             }
           }
         }
@@ -351,22 +350,13 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "vpngwpipname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the VM resource."
-              }
+              "type": "string"
             },
             "vpngwname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the VM resource."
-              }
+              "type": "string"
             },
             "subnetref": {
               "type": "string",
@@ -377,7 +367,7 @@
             "asn": {
               "type": "int",
               "metadata": {
-                "description": "BGP ASN"
+                "description": "BGP AS-number to use for the VPN Gateway"
               }
             }
           },
@@ -482,16 +472,10 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "policyname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the Firewall Policy"
-              }
+              "type": "string"
             },
             "dnsservers": {
               "type": "array",
@@ -660,7 +644,11 @@
             },
             "pipname": {
               "type": "string",
-              "defaultValue": "super-pip"
+              "defaultValue": "firewall-pip"
+            },
+            "ipprefixname": {
+              "type": "string",
+              "defaultValue": "firewall-ipprefix"
             },
             "ipprefixlength": {
               "type": "int",
@@ -674,10 +662,6 @@
                 30,
                 31
               ]
-            },
-            "ipprefixname": {
-              "type": "string",
-              "defaultValue": "super-ipprefix"
             }
           },
           "functions": [],
@@ -766,10 +750,7 @@
               "defaultValue": "[resourceGroup().location]"
             },
             "fwname": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the Azure Firewall Resource"
-              }
+              "type": "string"
             },
             "fwtype": {
               "type": "string",
@@ -907,10 +888,10 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
+            },
+            "wanname": {
+              "type": "string"
             },
             "wantype": {
               "type": "string",
@@ -922,12 +903,6 @@
                 "Standard",
                 "Basic"
               ]
-            },
-            "wanname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the Virtual WAN resources."
-              }
             }
           },
           "functions": [],
@@ -987,16 +962,10 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "hubname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the Virtual Hub resources."
-              }
+              "type": "string"
             },
             "hubaddressprefix": {
               "type": "string",
@@ -1035,6 +1004,10 @@
             "name": {
               "type": "string",
               "value": "[parameters('hubname')]"
+            },
+            "vhubaddress": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
             }
           }
         }
@@ -1068,16 +1041,10 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "policyname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the Firewall Policy"
-              }
+              "type": "string"
             },
             "dnsservers": {
               "type": "array",
@@ -1251,10 +1218,7 @@
               "defaultValue": "[resourceGroup().location]"
             },
             "fwname": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of the Azure Firewall Resource"
-              }
+              "type": "string"
             },
             "fwtype": {
               "type": "string",
@@ -1394,27 +1358,21 @@
           "parameters": {
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resource should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "hubvpngwname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name to use for the Virtual Hub VPN Gateway resource."
-              }
+              "type": "string"
             },
             "hubid": {
               "type": "string",
               "metadata": {
-                "description": "Virtual WAN ID"
+                "description": "Virtual Hub ID"
               }
             },
             "asn": {
               "type": "int",
               "metadata": {
-                "description": "BGP ASN"
+                "description": "BGP AS number for the VPN Gateway"
               }
             }
           },
@@ -1482,7 +1440,7 @@
             "value": "[parameters('vwanlocation')]"
           },
           "addressprefix": {
-            "value": "10.0.0.0/20"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2019-10-01').outputs.vnetaddress.value[0]]"
           },
           "bgppeeringpddress": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2019-10-01').outputs.vpngwbgpaddress.value]"
@@ -1502,16 +1460,10 @@
           "contentVersion": "1.0.0.0",
           "parameters": {
             "vpnsitename": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name of the VPN Site"
-              }
+              "type": "string"
             },
             "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the vpnsite should be created."
-              },
               "defaultValue": "[resourceGroup().location]"
             },
             "addressprefix": {
@@ -1541,7 +1493,7 @@
             "remotesiteasn": {
               "type": "int",
               "metadata": {
-                "description": "BGP ASN"
+                "description": "BGP AS-Number used by the remote site"
               }
             }
           },
@@ -1582,6 +1534,7 @@
         }
       },
       "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy')]",
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-vwan-rg', parameters('nameprefix')))]"
@@ -1613,15 +1566,12 @@
           "contentVersion": "1.0.0.0",
           "parameters": {
             "hubvpngwname": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the name of the Virtual Hub where the Vpn Vonnection should be created."
-              }
+              "type": "string"
             },
             "psk": {
               "type": "secureString",
               "metadata": {
-                "description": "Specifies the PSK to use for the VPN Connection"
+                "description": "Specifies the pre-shared key to use for the VPN Connection"
               }
             },
             "vpnsiteid": {
@@ -1674,7 +1624,7 @@
           },
           "addressprefixes": {
             "value": [
-              "10.10.0.0/24"
+              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2019-10-01').outputs.vhubaddress.value]"
             ]
           },
           "connectionname": {
@@ -1700,25 +1650,16 @@
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "parameters": {
-            "localnetworkgwname": {
+            "location": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the name of Local Network Gateway"
-              }
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "localnetworkgwname": {
+              "type": "string"
             },
             "connectionname": {
               "type": "string",
-              "metadata": {
-                "description": "Specifies the name of VPN Connection"
-              },
               "defaultValue": "onprem-hub-cn"
-            },
-            "location": {
-              "type": "string",
-              "metadata": {
-                "description": "Specifies the Azure location where the resources should be created."
-              },
-              "defaultValue": "[resourceGroup().location]"
             },
             "addressprefixes": {
               "type": "array",
@@ -1747,13 +1688,13 @@
             "psk": {
               "type": "secureString",
               "metadata": {
-                "description": "Specifies the PSK to use for the VPN Connection"
+                "description": "Specifies the pre-shared key to use for the VPN Connection"
               }
             },
             "remotesiteasn": {
               "type": "int",
               "metadata": {
-                "description": "BGP ASN"
+                "description": "BGP AS-number used by the remote site"
               }
             }
           },
@@ -1803,6 +1744,7 @@
       },
       "dependsOn": [
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-hubvnet-rg', parameters('nameprefix')))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')]",
         "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')]"
       ]

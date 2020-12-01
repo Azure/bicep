@@ -8,7 +8,11 @@
     },
     "pipname": {
       "type": "string",
-      "defaultValue": "super-pip"
+      "defaultValue": "firewall-pip"
+    },
+    "ipprefixname": {
+      "type": "string",
+      "defaultValue": "firewall-ipprefix"
     },
     "ipprefixlength": {
       "type": "int",
@@ -22,10 +26,6 @@
         30,
         31
       ]
-    },
-    "ipprefixname": {
-      "type": "string",
-      "defaultValue": "super-ipprefix"
     }
   },
   "functions": [],

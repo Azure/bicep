@@ -3,16 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "vpnsitename": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name of the VPN Site"
-      }
+      "type": "string"
     },
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the vpnsite should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "addressprefix": {
@@ -42,7 +36,7 @@
     "remotesiteasn": {
       "type": "int",
       "metadata": {
-        "description": "BGP ASN"
+        "description": "BGP AS-Number used by the remote site"
       }
     }
   },

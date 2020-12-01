@@ -4,16 +4,10 @@
   "parameters": {
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resource should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "hubname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the Virtual Hub resources."
-      }
+      "type": "string"
     },
     "hubaddressprefix": {
       "type": "string",
@@ -52,6 +46,10 @@
     "name": {
       "type": "string",
       "value": "[parameters('hubname')]"
+    },
+    "vhubaddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
     }
   }
 }

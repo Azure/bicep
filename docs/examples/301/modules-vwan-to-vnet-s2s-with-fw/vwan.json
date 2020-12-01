@@ -4,10 +4,10 @@
   "parameters": {
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resource should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
+    },
+    "wanname": {
+      "type": "string"
     },
     "wantype": {
       "type": "string",
@@ -19,12 +19,6 @@
         "Standard",
         "Basic"
       ]
-    },
-    "wanname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the Virtual WAN resources."
-      }
     }
   },
   "functions": [],

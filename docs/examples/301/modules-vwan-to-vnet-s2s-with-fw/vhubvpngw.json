@@ -4,27 +4,21 @@
   "parameters": {
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resource should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "hubvpngwname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the Virtual Hub VPN Gateway resource."
-      }
+      "type": "string"
     },
     "hubid": {
       "type": "string",
       "metadata": {
-        "description": "Virtual WAN ID"
+        "description": "Virtual Hub ID"
       }
     },
     "asn": {
       "type": "int",
       "metadata": {
-        "description": "BGP ASN"
+        "description": "BGP AS number for the VPN Gateway"
       }
     }
   },

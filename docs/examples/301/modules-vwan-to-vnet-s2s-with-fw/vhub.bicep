@@ -1,14 +1,5 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resource should be created.'
-  }
-}
-param hubname string {
-  metadata: {
-    description: 'Specifies the name to use for the Virtual Hub resources.'
-  }
-}
+param location string = resourceGroup().location
+param hubname string
 param hubaddressprefix string {
   default: '10.10.0.0/24'
   metadata: {
@@ -34,3 +25,4 @@ resource hub 'Microsoft.Network/virtualHubs@2020-06-01' = {
 
 output id string = hub.id
 output name string = hub.name
+output vhubaddress string = hub.properties.addressPrefix

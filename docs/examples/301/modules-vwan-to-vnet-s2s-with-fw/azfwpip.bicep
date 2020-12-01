@@ -1,9 +1,6 @@
-param location string {
-  default: resourceGroup().location
-}
-param pipname string {
-  default: 'super-pip'
-}
+param location string = resourceGroup().location
+param pipname string = 'firewall-pip'
+param ipprefixname string = 'firewall-ipprefix'
 param ipprefixlength int {
   default: 31
   allowed: [
@@ -15,9 +12,6 @@ param ipprefixlength int {
   metadata: {
     description: 'Specifies the size of the Public IP Prefix'
   }
-}
-param ipprefixname string {
-  default: 'super-ipprefix'
 }
 
 resource fwipprefix 'Microsoft.Network/publicIPPrefixes@2020-06-01' = {

@@ -1,19 +1,6 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resource should be created.'
-  }
-}
-param vpngwpipname string {
-  metadata: {
-    description: 'Specifies the name to use for the VM resource.'
-  }
-}
-param vpngwname string {
-  metadata: {
-    description: 'Specifies the name to use for the VM resource.'
-  }
-}
+param location string = resourceGroup().location
+param vpngwpipname string
+param vpngwname string
 param subnetref string {
   metadata: {
     description: 'Specifies the resource id of the subnet to connect the VM to.'
@@ -21,7 +8,7 @@ param subnetref string {
 }
 param asn int {
   metadata: {
-    description: 'BGP ASN'
+    description: 'BGP AS-number to use for the VPN Gateway'
   }
 }
 

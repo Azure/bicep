@@ -7,10 +7,7 @@
       "defaultValue": "[resourceGroup().location]"
     },
     "fwname": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Azure Firewall Resource"
-      }
+      "type": "string"
     },
     "fwtype": {
       "type": "string",

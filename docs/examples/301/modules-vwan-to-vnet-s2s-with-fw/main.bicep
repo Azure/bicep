@@ -20,8 +20,9 @@ param nameprefix string {
 }
 param psk string {
   secure: true
+  default: uniqueString(subscription().id)
   metadata: {
-    'description': 'PSK to use for the site to site tunnel between Virtual Hub and On-Prem VNet'
+    'description': 'Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet'
   }
 }
 
@@ -119,7 +120,7 @@ module vwan './vwan.bicep' = {
   }
 }
 
-module vhub 'vhub.bicep' = {
+module vhub './vhub.bicep' = {
   name: 'vhub-deploy'
   scope: resourceGroup(vwanrg.name)
   params: {
@@ -139,7 +140,7 @@ module vhubfwpolicy './azfwpolicy.bicep' = {
   }
 }
 
-module vhubfw 'azfw.bicep' = {
+module vhubfw './azfw.bicep' = {
   name: 'vhubfw-deploy'
   scope: resourceGroup(vwanrg.name)
   params: {
@@ -152,7 +153,7 @@ module vhubfw 'azfw.bicep' = {
   }
 }
 
-module vhubvpngw 'vhubvpngw.bicep' = {
+module vhubvpngw './vhubvpngw.bicep' = {
   name: 'vhubvpngw'
   scope: resourceGroup(vwanrg.name)
   params: {
@@ -169,7 +170,7 @@ module vwanvpnsite './vwanvpnsite.bicep' = {
   params: {
     vpnsitename: '${location}-vpnsite'
     location: vwanlocation
-    addressprefix: '10.0.0.0/20'
+    addressprefix: vnet.outputs.vnetaddress[0]
     bgppeeringpddress: vpngw.outputs.vpngwbgpaddress
     ipaddress: vpngw.outputs.vpngwip
     remotesiteasn: vpngw.outputs.bgpasn
@@ -194,7 +195,7 @@ module vnets2s './vnetsitetosite.bicep' = {
     location: location
     localnetworkgwname: lgwname
     addressprefixes: [
-      '10.10.0.0/24'
+      vhub.outputs.vhubaddress
     ]
     connectionname: vpnconname
     bgppeeringpddress: vhubvpngw.outputs.gwprivateip

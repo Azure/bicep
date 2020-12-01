@@ -1,20 +1,6 @@
-param localnetworkgwname string {
-  metadata: {
-    description: 'Specifies the name of Local Network Gateway'
-  }
-}
-param connectionname string {
-  default: 'onprem-hub-cn'
-  metadata: {
-    description: 'Specifies the name of VPN Connection'
-  }
-}
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resources should be created.'
-  }
-}
+param location string = resourceGroup().location
+param localnetworkgwname string
+param connectionname string = 'onprem-hub-cn'
 param addressprefixes array {
   metadata: {
     description: 'Specifices the address prefixes of the remote site'
@@ -38,12 +24,12 @@ param vpngwid string {
 param psk string {
   secure: true
   metadata: {
-    description: 'Specifies the PSK to use for the VPN Connection'
+    description: 'Specifies the pre-shared key to use for the VPN Connection'
   }
 }
 param remotesiteasn int {
   metadata: {
-    description: 'BGP ASN'
+    description: 'BGP AS-number used by the remote site'
   }
 }
 

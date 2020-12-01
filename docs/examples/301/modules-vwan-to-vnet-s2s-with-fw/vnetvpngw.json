@@ -4,22 +4,13 @@
   "parameters": {
     "location": {
       "type": "string",
-      "metadata": {
-        "description": "Specifies the Azure location where the resource should be created."
-      },
       "defaultValue": "[resourceGroup().location]"
     },
     "vpngwpipname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the VM resource."
-      }
+      "type": "string"
     },
     "vpngwname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name to use for the VM resource."
-      }
+      "type": "string"
     },
     "subnetref": {
       "type": "string",
@@ -30,7 +21,7 @@
     "asn": {
       "type": "int",
       "metadata": {
-        "description": "BGP ASN"
+        "description": "BGP AS-number to use for the VPN Gateway"
       }
     }
   },

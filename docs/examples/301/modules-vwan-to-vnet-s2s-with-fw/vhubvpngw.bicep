@@ -1,22 +1,13 @@
-param location string {
-  default: resourceGroup().location
-  metadata: {
-    description: 'Specifies the Azure location where the resource should be created.'
-  }
-}
-param hubvpngwname string {
-  metadata: {
-    description: 'Specifies the name to use for the Virtual Hub VPN Gateway resource.'
-  }
-}
+param location string = resourceGroup().location
+param hubvpngwname string
 param hubid string {
   metadata: {
-    description: 'Virtual WAN ID'
+    description: 'Virtual Hub ID'
   }
 }
 param asn int {
   metadata: {
-    description: 'BGP ASN'
+    description: 'BGP AS number for the VPN Gateway'
   }
 }
 

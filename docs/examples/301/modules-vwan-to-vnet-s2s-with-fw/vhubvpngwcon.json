@@ -3,15 +3,12 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "hubvpngwname": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the name of the Virtual Hub where the Vpn Vonnection should be created."
-      }
+      "type": "string"
     },
     "psk": {
       "type": "secureString",
       "metadata": {
-        "description": "Specifies the PSK to use for the VPN Connection"
+        "description": "Specifies the pre-shared key to use for the VPN Connection"
       }
     },
     "vpnsiteid": {
