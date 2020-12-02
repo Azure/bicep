@@ -1,3 +1,4 @@
+import example_101_wvd_backplane from '../../../docs/examples/101/wvd-backplane/main.bicep'
 import example_101_vm_simple_windows from '../../../docs/examples/101/vm-simple-windows/main.bicep'
 import example_101_logic_app_create from '../../../docs/examples/101/logic-app-create/main.bicep'
 import example_101_storage_blob_container from '../../../docs/examples/101/storage-blob-container/main.bicep'
@@ -33,6 +34,7 @@ import example_101_container_registry from '../../../docs/examples/101/container
 import example_101_create_rg_lock_role_assignment from '../../../docs/examples/101/create-rg-lock-role-assignment/main.bicep'
 import example_101_function_app_create from '../../../docs/examples/101/function-app-create/main.bicep'
 import example_101_redis_cache from '../../../docs/examples/101/redis-cache/main.bicep'
+import example_101_data_factory_v2_blob_to_blob_copy from '../../../docs/examples/101/data-factory-v2-blob-to-blob-copy/main.bicep'
 import example_201_1vm_2nics_2subnets_1vnet from '../../../docs/examples/201/1vm-2nics-2subnets-1vnet/main.bicep'
 import example_201_aci_wordpress from '../../../docs/examples/201/aci-wordpress/main.bicep'
 import example_201_anchored_proximity_placement_group from '../../../docs/examples/201/anchored-proximity-placement-group/main.bicep'
@@ -43,6 +45,7 @@ import example_201_policy_with_initiative_definition_and_assignment from '../../
 import example_201_vnet_to_vnet_bgp from '../../../docs/examples/201/vnet-to-vnet-bgp/main.bicep'
 import example_201_vwan_shared_services from '../../../docs/examples/201/vwan-shared-services/main.bicep'
 import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
+import example_301_modules_vwan_to_vnet_s2s_with_fw from '../../../docs/examples/301/modules-vwan-to-vnet-s2s-with-fw/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -61,6 +64,8 @@ export const examples = {
   '101/website-with-container': example_101_website_with_container,
   '101/1vm-2nics-2subnets-1vnet': example_101_1vm_2nics_2subnets_1vnet,
   '101/web-app-windows': example_101_web_app_windows,
+  '101/data-factory-v2-blob-to-blob-copy': example_101_data_factory_v2_blob_to_blob_copy,
+  '101/wvd-backplane': example_101_wvd_backplane,  
   '201/vm-windows-with-custom-script-extension': example_201_vm_windows_with_custom_script_extension,
   '201/key-vault-secret-create': example_201_key_vault_secret_create,
   '201/vm-push-cert-windows': example_201_vm_push_cert_windows,
@@ -90,5 +95,6 @@ export const examples = {
   '201/policy-with-initiative-definition-and-assignment': example_201_policy_with_initiative_definition_and_assignment,
   '201/vnet-to-vnet-bgp': example_201_vnet_to_vnet_bgp,
   '201/vwan-shared-services': example_201_vwan_shared_services,
-  '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network
+  '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network,
+  '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw
 }

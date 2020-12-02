@@ -9,6 +9,8 @@ bicep decompile "path/to/file.json"
 
 You can use this command to get to a starting point for Bicep authoring. Note that because there is no guaranteed conversion from JSON to Bicep, decompilation may fail, or you may be left with errors/warnings in the generated Bicep file to fix up. See [Limitations](#limiations) for some details of what is not currently possible.
 
+You can also use the "Decompile" button in the [Bicep Playground](https://aka.ms/bicepdemo)
+
 ## Exporting a resource group
 You can pass an exported template directly to the `bicep decompile` command to effectively export a resource group to a `.bicep` file.
 
@@ -32,5 +34,5 @@ See [Export Template](https://aka.ms/armexport) for guidance. Use `bicep decompi
 ## Current Limitations
 The following are temporary limiations on the `bicep decompile` command:
 * Templates using copy loops or conditionals cannot be decompiled
-* Nested templates cannot be decompiled
-* Cross-scope linked templates cannot be decompiled
+* Nested templates can only be decompiled if they are using ['inner' expression evaluation scope](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates).
+* The 'scope' property is unsupported for extension resource declarations.

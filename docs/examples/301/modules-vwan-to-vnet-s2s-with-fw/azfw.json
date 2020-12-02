@@ -1,0 +1,112 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "fwname": {
+      "type": "string"
+    },
+    "fwtype": {
+      "type": "string",
+      "metadata": {
+        "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+      },
+      "allowedValues": [
+        "VNet",
+        "vWAN"
+      ]
+    },
+    "fwpolicyid": {
+      "type": "string",
+      "metadata": {
+        "description": "Resoruce ID to the Firewall Policy to associate with the Azure Firewall"
+      }
+    },
+    "hubid": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN"
+      },
+      "defaultValue": ""
+    },
+    "hubpublicipcount": {
+      "type": "int",
+      "metadata": {
+        "description": "Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN"
+      },
+      "defaultValue": 1
+    },
+    "subnetid": {
+      "type": "string",
+      "metadata": {
+        "description": "AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network"
+      },
+      "defaultValue": ""
+    },
+    "publicipid": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Firewall Public IP ID, used when deploying Azure Firewall to Virtual Network"
+      },
+      "defaultValue": ""
+    }
+  },
+  "functions": [],
+  "variables": {
+    "hubfwproperties": {
+      "properties": {
+        "sku": {
+          "name": "AZFW_Hub",
+          "tier": "Standard"
+        },
+        "virtualHub": {
+          "id": "[parameters('hubid')]"
+        },
+        "hubIPAddresses": {
+          "publicIPs": {
+            "count": "[parameters('hubpublicipcount')]"
+          }
+        },
+        "firewallPolicy": {
+          "id": "[parameters('fwpolicyid')]"
+        }
+      }
+    },
+    "vnetfwproperties": {
+      "properties": {
+        "sku": {
+          "name": "AZFW_VNet",
+          "tier": "Standard"
+        },
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}-vnetIPConf', parameters('fwname'))]",
+            "properties": {
+              "subnet": {
+                "id": "[parameters('subnetid')]"
+              },
+              "publicIPAddress": {
+                "id": "[parameters('publicipid')]"
+              }
+            }
+          }
+        ],
+        "firewallPolicy": {
+          "id": "[parameters('fwpolicyid')]"
+        }
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('fwname')]",
+      "location": "[parameters('location')]",
+      "properties": "[if(equals(parameters('fwtype'), 'VNet'), variables('vnetfwproperties').properties, if(equals(parameters('fwtype'), 'vWAN'), variables('hubfwproperties').properties, null()))]"
+    }
+  ]
+}
