@@ -34,6 +34,7 @@ import example_101_container_registry from '../../../docs/examples/101/container
 import example_101_create_rg_lock_role_assignment from '../../../docs/examples/101/create-rg-lock-role-assignment/main.bicep'
 import example_101_function_app_create from '../../../docs/examples/101/function-app-create/main.bicep'
 import example_101_redis_cache from '../../../docs/examples/101/redis-cache/main.bicep'
+import example_101_data_factory_v2_blob_to_blob_copy from '../../../docs/examples/101/data-factory-v2-blob-to-blob-copy/main.bicep'
 import example_201_1vm_2nics_2subnets_1vnet from '../../../docs/examples/201/1vm-2nics-2subnets-1vnet/main.bicep'
 import example_201_aci_wordpress from '../../../docs/examples/201/aci-wordpress/main.bicep'
 import example_201_anchored_proximity_placement_group from '../../../docs/examples/201/anchored-proximity-placement-group/main.bicep'
@@ -44,6 +45,7 @@ import example_201_policy_with_initiative_definition_and_assignment from '../../
 import example_201_vnet_to_vnet_bgp from '../../../docs/examples/201/vnet-to-vnet-bgp/main.bicep'
 import example_201_vwan_shared_services from '../../../docs/examples/201/vwan-shared-services/main.bicep'
 import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
+import example_301_modules_vwan_to_vnet_s2s_with_fw from '../../../docs/examples/301/modules-vwan-to-vnet-s2s-with-fw/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -55,6 +57,7 @@ export const examples = {
   '101/container-registry': example_101_container_registry,
   '101/cosmosdb-webapp': example_101_cosmosdb_webapp,
   '101/create-rg-lock-role-assignment': example_101_create_rg_lock_role_assignment,
+  '101/data-factory-v2-blob-to-blob-copy': example_101_data_factory_v2_blob_to_blob_copy,
   '101/databricks-workspace': example_101_databricks_workspace,
   '101/databricks-all-in-one-template-for-vnet-injection': example_101_databricks_all_in_one_template_for_vnet_injection,
   '101/deployment-script-with-storage': example_101_deployment_script_with_storage,
@@ -92,5 +95,6 @@ export const examples = {
   '201/vnet-to-vnet-bgp': example_201_vnet_to_vnet_bgp,
   '201/vwan-shared-services': example_201_vwan_shared_services,
   '201/web-app-loganalytics': example_201_web_app_loganalytics,
+  '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw,
   '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network
 }

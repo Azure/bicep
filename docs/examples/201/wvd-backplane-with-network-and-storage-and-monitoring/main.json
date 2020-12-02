@@ -1,0 +1,640 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "resourceGroupPrefrix": {
+      "type": "string",
+      "defaultValue": "NINJA-WE-P-RG-WVD-BICEP-WVD-"
+    },
+    "hostpoolName": {
+      "type": "string",
+      "defaultValue": "myBicepHostpool"
+    },
+    "hostpoolFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep deployed Hostpool"
+    },
+    "appgroupName": {
+      "type": "string",
+      "defaultValue": "myBicepAppGroup"
+    },
+    "appgroupNameFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep deployed Appgroup"
+    },
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "myBicepWorkspace"
+    },
+    "workspaceNameFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep deployed Workspace"
+    },
+    "preferredAppGroupType": {
+      "type": "string",
+      "defaultValue": "Desktop"
+    },
+    "wvdbackplanelocation": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "hostPoolType": {
+      "type": "string",
+      "defaultValue": "pooled"
+    },
+    "loadBalancerType": {
+      "type": "string",
+      "defaultValue": "BreadthFirst"
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "myNinjaBicepLAWorkspace"
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "bicep-vnet"
+    },
+    "vnetaddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/15"
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24"
+    },
+    "vnetLocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "bicep-subnet"
+    },
+    "storageaccountlocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "storageaccountName": {
+      "type": "string",
+      "defaultValue": "bicepsa"
+    },
+    "storageaccountkind": {
+      "type": "string",
+      "defaultValue": "FileStorage"
+    },
+    "storgeaccountglobalRedundancy": {
+      "type": "string",
+      "defaultValue": "Premium_LRS"
+    },
+    "fileshareFolderName": {
+      "type": "string",
+      "defaultValue": "profilecontainers"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
+      "location": "westeurope"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
+      "location": "westeurope"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
+      "location": "westeurope"
+    },
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]",
+      "location": "westeurope"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "wvdbackplane",
+      "resourceGroup": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "hostpoolName": {
+            "value": "[parameters('hostpoolName')]"
+          },
+          "hostpoolFriendlyName": {
+            "value": "[parameters('hostpoolFriendlyName')]"
+          },
+          "appgroupName": {
+            "value": "[parameters('appgroupName')]"
+          },
+          "appgroupNameFriendlyName": {
+            "value": "[parameters('appgroupNameFriendlyName')]"
+          },
+          "workspaceName": {
+            "value": "[parameters('workspaceName')]"
+          },
+          "workspaceNameFriendlyName": {
+            "value": "[parameters('workspaceNameFriendlyName')]"
+          },
+          "preferredAppGroupType": {
+            "value": "[parameters('preferredAppGroupType')]"
+          },
+          "applicationgrouptype": {
+            "value": "[parameters('preferredAppGroupType')]"
+          },
+          "wvdbackplanelocation": {
+            "value": "[parameters('wvdbackplanelocation')]"
+          },
+          "hostPoolType": {
+            "value": "[parameters('hostPoolType')]"
+          },
+          "loadBalancerType": {
+            "value": "[parameters('loadBalancerType')]"
+          },
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
+          "logAnalyticsResourceGroup": {
+            "value": "[format('{0}MONITOR', parameters('resourceGroupPrefrix'))]"
+          },
+          "wvdBackplaneResourceGroup": {
+            "value": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "hostpoolName": {
+              "type": "string"
+            },
+            "hostpoolFriendlyName": {
+              "type": "string"
+            },
+            "appgroupName": {
+              "type": "string"
+            },
+            "appgroupNameFriendlyName": {
+              "type": "string"
+            },
+            "workspaceName": {
+              "type": "string"
+            },
+            "workspaceNameFriendlyName": {
+              "type": "string"
+            },
+            "applicationgrouptype": {
+              "type": "string",
+              "defaultValue": "Desktop"
+            },
+            "preferredAppGroupType": {
+              "type": "string",
+              "defaultValue": "Desktop"
+            },
+            "wvdbackplanelocation": {
+              "type": "string",
+              "defaultValue": "eastus"
+            },
+            "hostPoolType": {
+              "type": "string",
+              "defaultValue": "pooled"
+            },
+            "loadBalancerType": {
+              "type": "string",
+              "defaultValue": "BreadthFirst"
+            },
+            "logAnalyticsWorkspaceName": {
+              "type": "string"
+            },
+            "logAnalyticslocation": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "logAnalyticsWorkspaceSku": {
+              "type": "string",
+              "defaultValue": "pergb2018"
+            },
+            "logAnalyticsResourceGroup": {
+              "type": "string"
+            },
+            "wvdBackplaneResourceGroup": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.DesktopVirtualization/hostPools",
+              "apiVersion": "2019-12-10-preview",
+              "name": "[parameters('hostpoolName')]",
+              "location": "[parameters('wvdbackplanelocation')]",
+              "properties": {
+                "friendlyName": "[parameters('hostpoolFriendlyName')]",
+                "hostPoolType": "[parameters('hostPoolType')]",
+                "loadBalancerType": "[parameters('loadBalancerType')]",
+                "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
+              }
+            },
+            {
+              "type": "Microsoft.DesktopVirtualization/applicationGroups",
+              "apiVersion": "2019-12-10-preview",
+              "name": "[parameters('appgroupName')]",
+              "location": "[parameters('wvdbackplanelocation')]",
+              "properties": {
+                "friendlyName": "[parameters('appgroupNameFriendlyName')]",
+                "applicationGroupType": "[parameters('applicationgrouptype')]",
+                "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DesktopVirtualization/workspaces",
+              "apiVersion": "2019-12-10-preview",
+              "name": "[parameters('workspaceName')]",
+              "location": "[parameters('wvdbackplanelocation')]",
+              "properties": {
+                "friendlyName": "[parameters('workspaceNameFriendlyName')]",
+                "applicationGroupReferences": [
+                  "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "LAWorkspace",
+              "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "logAnalyticsWorkspaceName": {
+                    "value": "[parameters('logAnalyticsWorkspaceName')]"
+                  },
+                  "logAnalyticslocation": {
+                    "value": "[parameters('logAnalyticslocation')]"
+                  },
+                  "logAnalyticsWorkspaceSku": {
+                    "value": "[parameters('logAnalyticsWorkspaceSku')]"
+                  },
+                  "hostpoolName": {
+                    "value": "[parameters('hostpoolName')]"
+                  },
+                  "workspaceName": {
+                    "value": "[parameters('workspaceName')]"
+                  },
+                  "logAnalyticsResourceGroup": {
+                    "value": "[parameters('logAnalyticsResourceGroup')]"
+                  },
+                  "wvdBackplaneResourceGroup": {
+                    "value": "[parameters('wvdBackplaneResourceGroup')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "logAnalyticsWorkspaceName": {
+                      "type": "string"
+                    },
+                    "logAnalyticslocation": {
+                      "type": "string",
+                      "defaultValue": "westeurope"
+                    },
+                    "logAnalyticsWorkspaceSku": {
+                      "type": "string",
+                      "defaultValue": "pergb2018"
+                    },
+                    "hostpoolName": {
+                      "type": "string"
+                    },
+                    "workspaceName": {
+                      "type": "string"
+                    },
+                    "logAnalyticsResourceGroup": {
+                      "type": "string"
+                    },
+                    "wvdBackplaneResourceGroup": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.OperationalInsights/workspaces",
+                      "apiVersion": "2020-08-01",
+                      "name": "[parameters('logAnalyticsWorkspaceName')]",
+                      "location": "[parameters('logAnalyticslocation')]",
+                      "properties": {
+                        "sku": {
+                          "name": "[parameters('logAnalyticsWorkspaceSku')]"
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myBicepLADiag",
+                      "resourceGroup": "[parameters('wvdBackplaneResourceGroup')]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "parameters": {
+                          "logAnalyticslocation": {
+                            "value": "[parameters('logAnalyticslocation')]"
+                          },
+                          "logAnalyticsWorkspaceID": {
+                            "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                          },
+                          "hostpoolName": {
+                            "value": "[parameters('hostpoolName')]"
+                          },
+                          "workspaceName": {
+                            "value": "[parameters('workspaceName')]"
+                          }
+                        },
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "parameters": {
+                            "logAnalyticsWorkspaceID": {
+                              "type": "string"
+                            },
+                            "logAnalyticslocation": {
+                              "type": "string",
+                              "defaultValue": "westeurope"
+                            },
+                            "hostpoolName": {
+                              "type": "string"
+                            },
+                            "workspaceName": {
+                              "type": "string"
+                            }
+                          },
+                          "functions": [],
+                          "variables": {
+                            "hostpoolDiagName": "[format('{0}/Microsoft.Insights/hostpool-diag', parameters('hostpoolName'))]",
+                            "workspaceDiagName": "[format('{0}/Microsoft.Insights/workspacepool-diag', parameters('workspaceName'))]"
+                          },
+                          "resources": [
+                            {
+                              "type": "Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings",
+                              "apiVersion": "2017-05-01-preview",
+                              "name": "[variables('hostpoolDiagName')]",
+                              "location": "[parameters('logAnalyticslocation')]",
+                              "properties": {
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                                "logs": [
+                                  {
+                                    "category": "Checkpoint",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Error",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Management",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Connection",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "HostRegistration",
+                                    "enabled": "True"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings",
+                              "apiVersion": "2017-05-01-preview",
+                              "name": "[variables('workspaceDiagName')]",
+                              "location": "[parameters('logAnalyticslocation')]",
+                              "properties": {
+                                "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                                "logs": [
+                                  {
+                                    "category": "Checkpoint",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Error",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Management",
+                                    "enabled": "True"
+                                  },
+                                  {
+                                    "category": "Feed",
+                                    "enabled": "True"
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
+                "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}MONITOR', parameters('resourceGroupPrefrix')))]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}BACKPLANE', parameters('resourceGroupPrefrix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "wvdnetwork",
+      "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          },
+          "vnetaddressPrefix": {
+            "value": "[parameters('vnetaddressPrefix')]"
+          },
+          "subnetPrefix": {
+            "value": "[parameters('subnetPrefix')]"
+          },
+          "vnetLocation": {
+            "value": "[parameters('vnetLocation')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "vnetName": {
+              "type": "string"
+            },
+            "vnetaddressPrefix": {
+              "type": "string"
+            },
+            "subnetPrefix": {
+              "type": "string"
+            },
+            "vnetLocation": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "subnetName": {
+              "type": "string",
+              "defaultValue": "WVD"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualnetworks",
+              "apiVersion": "2015-05-01-preview",
+              "name": "[parameters('vnetName')]",
+              "location": "[parameters('vnetLocation')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('vnetaddressPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "[parameters('subnetName')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetPrefix')]"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}NETWORK', parameters('resourceGroupPrefrix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "wvdFileServices",
+      "resourceGroup": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "storageaccountlocation": {
+            "value": "[parameters('storageaccountlocation')]"
+          },
+          "storageaccountName": {
+            "value": "[parameters('storageaccountName')]"
+          },
+          "storageaccountkind": {
+            "value": "[parameters('storageaccountkind')]"
+          },
+          "storgeaccountglobalRedundancy": {
+            "value": "[parameters('storgeaccountglobalRedundancy')]"
+          },
+          "fileshareFolderName": {
+            "value": "[parameters('fileshareFolderName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "storageaccountlocation": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "storageaccountName": {
+              "type": "string"
+            },
+            "storageaccountkind": {
+              "type": "string"
+            },
+            "storgeaccountglobalRedundancy": {
+              "type": "string",
+              "defaultValue": "Premium_LRS"
+            },
+            "fileshareFolderName": {
+              "type": "string",
+              "defaultValue": "profilecontainers"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "filesharelocation": "[format('{0}/default/{1}', parameters('storageaccountName'), parameters('fileshareFolderName'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2020-08-01-preview",
+              "name": "[parameters('storageaccountName')]",
+              "location": "[parameters('storageaccountlocation')]",
+              "kind": "[parameters('storageaccountkind')]",
+              "sku": {
+                "name": "[parameters('storgeaccountglobalRedundancy')]"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+              "apiVersion": "2020-08-01-preview",
+              "name": "[variables('filesharelocation')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageaccountName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}FILESERVICES', parameters('resourceGroupPrefrix')))]"
+      ]
+    }
+  ]
+}
