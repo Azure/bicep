@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Bicep.Core.Emit;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
@@ -16,6 +16,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
+using Bicep.Decompiler;
 
 namespace Bicep.Wasm
 {
@@ -55,7 +56,7 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, jsonUri);
+                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }

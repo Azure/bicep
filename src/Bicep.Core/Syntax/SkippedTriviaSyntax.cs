@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public ImmutableArray<Diagnostic> Diagnostics { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitSkippedTriviaSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitSkippedTriviaSyntax(this);
 
         public override TextSpan Span { get; }
     }

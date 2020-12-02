@@ -7,9 +7,9 @@ using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.SemanticModel.Namespaces;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -19,7 +19,7 @@ using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using SymbolKind = Bicep.Core.SemanticModel.SymbolKind;
+using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -369,6 +369,28 @@ output length int =
                 });
         }
 
+        [DataTestMethod]
+        [DataRow("// |")]
+        [DataRow("/* |")]
+        [DataRow("param foo // |")]
+        [DataRow("param foo /* |")]
+        [DataRow("param /*| */ foo")]
+        [DataRow(@"/*
+*
+* |
+*/")]
+        public void CommentShouldNotGiveAnyCompletions(string codeFragment)
+        {
+        var grouping = SyntaxFactory.CreateFromText(codeFragment);
+        var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
+        var provider = new BicepCompletionProvider();
+
+        var offset = codeFragment.IndexOf('|');
+
+        var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, offset));
+
+        completions.Should().BeEmpty();
+        }
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {
             completions.Should().SatisfyRespectively(

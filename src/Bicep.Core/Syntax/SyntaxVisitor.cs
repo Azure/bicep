@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public abstract class SyntaxVisitor
+    public abstract class SyntaxVisitor : ISyntaxVisitor
     {
         public void Visit(SyntaxBase? node)
         {

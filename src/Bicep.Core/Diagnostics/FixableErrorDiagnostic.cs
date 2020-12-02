@@ -10,14 +10,14 @@ namespace Bicep.Core.Diagnostics
         private readonly CodeFix fix;
         private readonly IEnumerable<CodeFix>? additionalFixes;
 
-        public FixableErrorDiagnostic(Parser.TextSpan span, string code, string message, CodeFix fix)
+        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, CodeFix fix)
             : base(span, code, message)
         {
             this.fix = fix;
             this.additionalFixes = null;
         }
 
-        public FixableErrorDiagnostic(Parser.TextSpan span, string code, string message, CodeFix fix, params CodeFix[] additionalFixes)
+        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, CodeFix fix, params CodeFix[] additionalFixes)
             : this(span, code, message, fix)
         {
             this.additionalFixes = additionalFixes;

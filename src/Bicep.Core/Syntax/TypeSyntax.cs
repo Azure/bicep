@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -18,7 +18,7 @@ namespace Bicep.Core.Syntax
 
         public string TypeName => this.Identifier.Text;
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
         {
             visitor.VisitTypeSyntax(this);
         }

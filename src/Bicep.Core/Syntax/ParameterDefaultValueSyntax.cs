@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -18,7 +18,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase DefaultValue { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitParameterDefaultValueSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitParameterDefaultValueSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.AssignmentToken, this.DefaultValue);
     }

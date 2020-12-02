@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -25,7 +25,7 @@ namespace Bicep.Core.Syntax
 
         public Token CloseSquare { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(BaseExpression, CloseSquare);
     }

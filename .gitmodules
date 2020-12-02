@@ -1,3 +1,0 @@
-[submodule "bicep-types-az"]
-	path = bicep-types-az
-	url = https://github.com/Azure/bicep-types-az.git

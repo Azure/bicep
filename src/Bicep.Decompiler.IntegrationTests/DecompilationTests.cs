@@ -14,12 +14,12 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
-using Bicep.Core.UnitTests.FileSystem;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
+using Bicep.Decompiler;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -74,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
         {
-            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(9, "sanity check to ensure we're finding examples to test");
+            GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(10, "sanity check to ensure we're finding examples to test");
         }
 
         [DataTestMethod]
@@ -86,15 +86,16 @@ namespace Bicep.Core.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, example.OutputFolderName, parentStream);
             var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
+            var typeProvider = new AzResourceTypeProvider();
 
-            var (bicepUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
+            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), PathHelper.FilePathToFileUrl(jsonFileName));
 
             var syntaxTrees = filesToSave.Select(kvp => SyntaxTree.Create(kvp.Key, kvp.Value));
             var workspace = new Workspace();
             workspace.UpsertSyntaxTrees(syntaxTrees);
 
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), workspace, bicepUri);
-            var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
+            var compilation = new Compilation(typeProvider, syntaxTreeGrouping);
             var diagnosticsBySyntaxTree = compilation.GetAllDiagnosticsBySyntaxTree();
 
             using (new AssertionScope())
@@ -132,26 +133,19 @@ namespace Bicep.Core.IntegrationTests
             return new InMemoryFileResolver(fileDict);
         }
 
-        [TestMethod]
-        public void Decompiler_raises_errors_for_unsupported_features()
+        [DataTestMethod]
+        [DataRow("NonWorking/conditional.json", "[75:17]: The 'condition' property is not supported")]
+        [DataRow("NonWorking/copyloop.json", "[11:9]: The 'copy' property is not supported")]
+        [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
+        [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
+        public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
-            var resourcePath = "";
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
-                Decompiler.Decompiler.DecompileFileWithModules(fileResolver, new Uri($"file:///{resourcePath}"));
+                TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(),fileResolver, new Uri($"file:///{resourcePath}"));
             };
 
-            using (new AssertionScope())
-            {
-                resourcePath = "NonWorking/conditional.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[75:17]: The 'condition' property is not supported");
-
-                resourcePath = "NonWorking/copyloop.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[11:9]: The 'copy' property is not supported");
-
-                resourcePath = "NonWorking/unknownprops.json";
-                onDecompile.Should().Throw<ConversionFailedException>().WithMessage("[15:29]: Unrecognized top-level resource property 'madeUpProperty'");
-            }
+            onDecompile.Should().Throw<ConversionFailedException>().WithMessage(expectedMessage);
         }
 
         [DataTestMethod]
@@ -181,7 +175,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });;
 
-            var (entryPointUri, filesToSave) = Decompiler.Decompiler.DecompileFileWithModules(fileResolver, fileUri);
+            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestResourceTypeProvider.Create(), fileResolver, fileUri);
 
             // this behavior is actaully controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");

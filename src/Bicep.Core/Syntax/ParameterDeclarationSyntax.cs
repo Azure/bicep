@@ -4,8 +4,8 @@
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
@@ -34,7 +34,7 @@ namespace Bicep.Core.Syntax
         // This is a modifier of the parameter and not a modifier of the type
         public SyntaxBase? Modifier { get; }
 
-        public override void Accept(SyntaxVisitor visitor)
+        public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(Type, Modifier));

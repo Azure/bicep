@@ -24,6 +24,9 @@ namespace Bicep.Core.Workspaces
                 .Where(kvp => fileUri.IsBaseOf(kvp.Key))
                 .Select(kvp => kvp.Value);
 
+        public ImmutableDictionary<Uri, SyntaxTree> GetActiveSyntaxTrees()
+            => activeSyntaxTrees.ToImmutableDictionary();
+
         public (ImmutableArray<SyntaxTree> added, ImmutableArray<SyntaxTree> removed) UpsertSyntaxTrees(IEnumerable<SyntaxTree> syntaxTrees)
         {
             var addedTrees = new List<SyntaxTree>();

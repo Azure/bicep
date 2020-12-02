@@ -4,14 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.Syntax
 {
     public abstract class SyntaxBase : IPositionable
     {
-        public abstract void Accept(SyntaxVisitor visitor);
+        public abstract void Accept(ISyntaxVisitor visitor);
 
         public abstract TextSpan Span { get; }
 

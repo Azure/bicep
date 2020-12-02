@@ -96,6 +96,46 @@
                     }
                 }
             }
+        },
+        {
+            "name": "moduleWithRg",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('module1Url')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            },
+            "resourceGroup": "[concat('test', variables('module1Url'))]"
+        },
+        {
+            "name": "moduleWithRgAndSub",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('module1Url')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            },
+            "resourceGroup": "[concat('test', variables('module1Url'))]",
+            "subscriptionId": "[concat(variables('module1Url'), 'test')]"
+        },
+        {
+            "name": "moduleWithSub",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('module1Url')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            },
+            "subscriptionId": "[concat(variables('module1Url'), 'test')]"
         }
     ],
 

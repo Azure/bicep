@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -15,7 +15,7 @@ namespace Bicep.Core.Syntax
 
         public Token NullKeyword { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitNullLiteralSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitNullLiteralSyntax(this);
 
         public override TextSpan Span => this.NullKeyword.Span;
     }

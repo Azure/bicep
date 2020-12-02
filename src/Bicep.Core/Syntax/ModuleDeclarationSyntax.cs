@@ -3,7 +3,8 @@
 
 using System.Collections.Generic;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
@@ -37,13 +38,13 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Keyword, Body);
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel.SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
             foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)

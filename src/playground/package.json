@@ -8,18 +8,17 @@
     "start": "npm run build-wasm && webpack serve",
     "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
     "webpack": "webpack",
-    "package": "gulp setversion && npm run build && gulp resetversion"
+    "package": "nbgv-setversion && npm run build && nbgv-setversion --reset"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/pako": "^1.0.1",
-    "@types/react": "^16.9.56",
-    "@types/react-dom": "^16.9.9",
+    "@types/react": "^16.14.2",
+    "@types/react-dom": "^17.0.0",
     "copy-webpack-plugin": "^6.3.2",
     "css-loader": "^5.0.1",
     "file-loader": "^6.2.0",
-    "gulp": "^4.0.2",
     "html-webpack-plugin": "^4.5.0",
     "monaco-editor-webpack-plugin": "^2.0.0",
     "nerdbank-gitversioning": "^3.3.37",

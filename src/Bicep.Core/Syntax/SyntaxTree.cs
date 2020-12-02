@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
+using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
@@ -11,7 +12,7 @@ namespace Bicep.Core.Syntax
     {
         public static SyntaxTree Create(Uri fileUri, string fileContents)
         {
-            var parser = new Parser.Parser(fileContents);
+            var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             
             return new SyntaxTree(fileUri, lineStarts, parser.Program());
@@ -22,6 +23,8 @@ namespace Bicep.Core.Syntax
             FileUri = fileUri;
             LineStarts = lineStarts;
             ProgramSyntax = programSyntax;
+            Hierarchy = new SyntaxHierarchy();
+            Hierarchy.AddRoot(ProgramSyntax);
         }
 
         public Uri FileUri { get; }
@@ -29,5 +32,7 @@ namespace Bicep.Core.Syntax
         public ImmutableArray<int> LineStarts { get; }
 
         public ProgramSyntax ProgramSyntax { get; }
+
+        public SyntaxHierarchy Hierarchy { get; }
     }
 }

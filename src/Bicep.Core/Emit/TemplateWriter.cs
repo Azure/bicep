@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.SemanticModel;
-using Bicep.Core.SemanticModel.Namespaces;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
@@ -40,7 +40,7 @@ namespace Bicep.Core.Emit
             "dependsOn",
         }.ToImmutableHashSet();
 
-        private static SemanticModel.SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
+        private static SemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
             {
@@ -55,7 +55,7 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionEmitter emitter;
 
-        public TemplateWriter(JsonTextWriter writer, SemanticModel.SemanticModel semanticModel)
+        public TemplateWriter(JsonTextWriter writer, SemanticModel semanticModel)
         {
             this.writer = writer;
             this.context = new EmitterContext(semanticModel);

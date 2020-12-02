@@ -3,7 +3,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;

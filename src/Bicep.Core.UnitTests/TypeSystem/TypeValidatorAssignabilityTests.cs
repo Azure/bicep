@@ -6,12 +6,13 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -1113,6 +1114,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
             return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null));
         }
 
-        private TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) => new TypeManager(TestResourceTypeProvider.Create(), new Dictionary<SyntaxBase, Symbol>(), new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>(), hierarchy, ResourceScopeType.ResourceGroupScope);
+        private static TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) 
+        {
+            var binderMock = new Mock<IBinder>();
+            binderMock.Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
+                .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
+
+            return new TypeManager(TestResourceTypeProvider.Create(), binderMock.Object);
+        }
     }
 }

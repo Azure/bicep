@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -11,8 +11,11 @@ namespace Bicep.Core.TypeSystem
         {
             // The name of the type should be set to the escaped string value (including quotes).
             // This affects how the type is displayed to the user, and is also used to compare two string literals types for equality.
+            RawStringValue = value;
         }
 
         public override TypeKind TypeKind => TypeKind.StringLiteral;
+
+        public string RawStringValue { get; }
     }
 }

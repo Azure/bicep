@@ -1,0 +1,176 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Decompiler.Rewriters;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Bicep.Core.IntegrationTests.ArmHelpers
+{
+    [TestClass]
+    public class ParentChildResourceNameRewriterTests
+    {
+        [TestMethod]
+        public void Parent_snytax_common_variable_reference_can_be_replaced()
+        {
+            var bicepFile = @"
+var parentName = 'resA'
+        
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: parentName
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: '${parentName}/resB'
+  dependsOn: [
+    resA
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: parentName
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: '${resA.name}/resB'
+  dependsOn: [
+    resA
+  ]
+}");
+        }
+
+        [TestMethod]
+        public void Parent_snytax_common_variable_reference_in_string_can_be_replaced()
+        {
+            var bicepFile = @"
+var parentName = 'resA'
+        
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: '${parentName}'
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: '${parentName}/resB'
+  dependsOn: [
+    resA
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: '${parentName}'
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: '${resA.name}/resB'
+  dependsOn: [
+    resA
+  ]
+}");
+        }
+
+        [TestMethod]
+        public void Parent_snytax_common_multiple_variable_references_in_string_can_be_replaced()
+        {
+            var bicepFile = @"
+param parentName string = 'resA'
+var parentSuffix = 'suffix'
+var test = 'hello'
+
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'a${parentName}b${parentSuffix}'
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: 'a${parentName}b${parentSuffix}/${test}'
+  dependsOn: [
+    resA
+  ]
+}
+
+resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
+  name: 'a${parentName}b${parentSuffix}/${test}/test'
+  dependsOn: [
+    resB
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"param parentName string = 'resA'
+var parentSuffix = 'suffix'
+var test = 'hello'
+
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: 'a${parentName}b${parentSuffix}'
+}
+
+resource resB 'My.Rp/resA/childB@2020-01-01' = {
+  name: '${resA.name}/${test}'
+  dependsOn: [
+    resA
+  ]
+}
+
+resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
+  name: '${resB.name}/test'
+  dependsOn: [
+    resB
+  ]
+}");
+        }
+
+        [TestMethod]
+        public void Mismatching_resource_type_will_not_be_replaced()
+        {
+            var bicepFile = @"
+var parentName = 'resA'
+        
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: '${parentName}'
+}
+
+resource resB 'My.Rp/resB/childB@2020-01-01' = {
+  name: '${parentName}/resB'
+  dependsOn: [
+    resA
+  ]
+}";
+
+            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
+
+            var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
+            PrintHelper.PrettyPrint(newProgramSyntax).Should().Be(
+@"var parentName = 'resA'
+
+resource resA 'My.Rp/resA@2020-01-01' = {
+  name: '${parentName}'
+}
+
+resource resB 'My.Rp/resB/childB@2020-01-01' = {
+  name: '${parentName}/resB'
+  dependsOn: [
+    resA
+  ]
+}");
+        }
+    }
+}

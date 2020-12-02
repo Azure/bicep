@@ -1,0 +1,16 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "test": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "test": "[concat('abc', format('{0}/{2}.{1}', concat('def', parameters('test'), 'ghi'), parameters('test'), 'jkl', 'mno'))]",
+        "concats": "[concat(concat(concat(concat(concat(concat('abc'), 'def'), 'ghi'), 'jkl'), 'lmo'), 'pqr')]",
+        "formats": "[format('>>{0}<<>>{1}<<', 'abc', format('---{0}---', format('{0}.{1}', 'abc', 'def')))]"
+    },
+    "resources": [],
+    "outputs": {}
+}

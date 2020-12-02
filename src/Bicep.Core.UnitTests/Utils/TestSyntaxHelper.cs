@@ -3,12 +3,13 @@
 
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestSyntaxHelper
     {
-        public static bool NodeShouldBeBound(ISymbolReference symbolReference, Core.SemanticModel.SemanticModel semanticModel)
+        public static bool NodeShouldBeBound(ISymbolReference symbolReference, SemanticModel semanticModel)
         {
             if (!(symbolReference is InstanceFunctionCallSyntax instanceFunctionCallSyntax))
             {

@@ -89,6 +89,12 @@ var doubleString = "bad string"
 var resourceGroup = ''
 var rgName = resourceGroup().name
 
+// this does not work at the resource group scope
+var invalidLocationVar = deployment().location
+
+var invalidEnvironmentVar = environment().aosdufhsad
+var invalidEnvAuthVar = environment().authentication.asdgdsag
+
 // invalid use of reserved namespace
 var az = 1
 

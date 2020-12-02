@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         public Token CloseParen { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Name, CloseParen);
     }

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -32,7 +32,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Value { get; }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitOutputDeclarationSyntax(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitOutputDeclarationSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Keyword, Value);
 

@@ -93,5 +93,23 @@ namespace Bicep.Core.Syntax
                 _ => ResourceScopeType.None,
             };
         }
+
+        public static ResourceScopeType GetTargetScope(SyntaxTree syntaxTree)
+        {
+            var defaultTargetScope = ResourceScopeType.ResourceGroupScope;
+            var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
+            if (targetSyntax == null)
+            {
+                return defaultTargetScope;
+            }
+
+            var targetScope = SyntaxHelper.GetTargetScope(targetSyntax);
+            if (targetScope == ResourceScopeType.None)
+            {
+                return defaultTargetScope;
+            }
+
+            return targetScope;
+        }
     }
 }

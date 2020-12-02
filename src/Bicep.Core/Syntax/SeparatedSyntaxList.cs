@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -61,7 +61,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public override void Accept(SyntaxVisitor visitor) => visitor.VisitSeparatedSyntaxList(this);
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitSeparatedSyntaxList(this);
 
         public override TextSpan Span { get; }
     }

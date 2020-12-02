@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parser;
-using Bicep.Core.SemanticModel;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -17,21 +17,15 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly IDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new Dictionary<SyntaxBase, DeclaredTypeAssignment?>();
 
-        private readonly SyntaxHierarchy hierarchy;
-        private readonly ITypeManager typeManager;
         private readonly IResourceTypeProvider resourceTypeProvider;
-        private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-        private readonly IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax;
-        private readonly ResourceScopeType targetScope;
+        private readonly ITypeManager typeManager;
+        private readonly IBinder binder;
 
-        public DeclaredTypeManager(SyntaxHierarchy hierarchy, ITypeManager typeManager, IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<SyntaxBase, Symbol> bindings, IReadOnlyDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySyntax, ResourceScopeType targetScope)
+        public DeclaredTypeManager(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IBinder binder)
         {
-            this.hierarchy = hierarchy;
-            this.typeManager = typeManager;
             this.resourceTypeProvider = resourceTypeProvider;
-            this.bindings = bindings;
-            this.cyclesBySyntax = cyclesBySyntax;
-            this.targetScope = targetScope;
+            this.typeManager = typeManager;
+            this.binder = binder;
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax)
@@ -98,6 +92,9 @@ namespace Bicep.Core.TypeSystem
 
                 case ObjectPropertySyntax objectProperty:
                     return GetObjectPropertyType(objectProperty);
+
+                case StringSyntax @string:
+                    return GetStringType(@string);
             }
 
             return null;
@@ -109,7 +106,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetModuleType(ModuleDeclarationSyntax syntax)
         {
-            if (!(bindings.TryGetValue(syntax, out var symbol) && symbol is ModuleSymbol moduleSymbol))
+            if (this.binder.GetSymbolInfo(syntax) is not ModuleSymbol moduleSymbol)
             {
                 return new DeclaredTypeAssignment(ErrorType.Empty(), syntax);
             }
@@ -119,18 +116,18 @@ namespace Bicep.Core.TypeSystem
                 return new DeclaredTypeAssignment(ErrorType.Create(failureDiagnostic), syntax);
             }
 
-            return new DeclaredTypeAssignment(syntax.GetDeclaredType(targetScope, moduleSemanticModel), syntax);
+            return new DeclaredTypeAssignment(syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel), syntax);
         }
 
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
             // references to symbols can be involved in cycles
             // we should not try to obtain the declared type for such symbols because we will likely never finish
-            bool IsCycleFree(DeclaredSymbol declaredSymbol) => !this.cyclesBySyntax.ContainsKey(declaredSymbol);
+            bool IsCycleFree(DeclaredSymbol declaredSymbol) => this.binder.TryGetCycle(declaredSymbol) is null;
 
             // because all variable access nodes are normally bound to something, this should always return true
             // (if not, the following code handles that gracefully)
-            this.bindings.TryGetValue(syntax, out var symbol);
+            var symbol = this.binder.GetSymbolInfo(syntax);
             
             switch (symbol)
             {
@@ -201,7 +198,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetArrayType(ArraySyntax syntax)
         {
-            var parent = this.hierarchy.GetParent(syntax);
+            var parent = this.binder.GetParent(syntax);
 
             // we are only handling paths in the AST that are going to produce a declared type
             // arrays can exist under a variable declaration, but variables don't have declared types,
@@ -216,9 +213,26 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
+        private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
+        {
+            var parent = this.binder.GetParent(syntax);
+
+            // we are only handling paths in the AST that are going to produce a declared type
+            // strings can exist under a variable declaration, but variables don't have declared types,
+            // so we don't need to check that case
+            if (parent is ObjectPropertySyntax || parent is ArrayItemSyntax)
+            {
+                // this string is a value of the property
+                // the declared type should be the same as the string and we should propagate the flags
+                return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+            }
+
+            return null;
+        }
+
         private DeclaredTypeAssignment? GetArrayItemType(ArrayItemSyntax syntax)
         {
-            var parent = this.hierarchy.GetParent(syntax);
+            var parent = this.binder.GetParent(syntax);
             switch (parent)
             {
                 case ArraySyntax _:
@@ -243,7 +257,7 @@ namespace Bicep.Core.TypeSystem
                 ? null
                 : new DeclaredTypeAssignment(typeRef, syntax, flags);
 
-            var parent = this.hierarchy.GetParent(syntax);
+            var parent = this.binder.GetParent(syntax);
             if (parent == null)
             {
                 return null;
@@ -293,7 +307,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetObjectPropertyType(ObjectPropertySyntax syntax)
         {
             var propertyName = syntax.TryGetKeyText();
-            var parent = this.hierarchy.GetParent(syntax);
+            var parent = this.binder.GetParent(syntax);
             if (propertyName == null || !(parent is ObjectSyntax parentObject))
             {
                 // the property name is an interpolated string (expression) OR the parent is missing OR the parent is not ObjectSyntax

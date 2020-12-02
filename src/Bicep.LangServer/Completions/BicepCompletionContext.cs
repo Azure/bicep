@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parser;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -74,6 +74,15 @@ namespace Bicep.LanguageServer.Completions
                 // this indicates a bug
                 throw new ArgumentException($"The specified offset {offset} is outside the span of the specified {nameof(ProgramSyntax)} node.");
             }
+            
+            // the check at the beginning guarantees we have at least 1 node
+            var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
+
+            var matchingTriviaType = FindTriviaMatchingOffset(syntaxTree.ProgramSyntax, offset)?.Type;
+            if (matchingTriviaType is not null && (matchingTriviaType == SyntaxTriviaType.MultiLineComment || matchingTriviaType == SyntaxTriviaType.SingleLineComment)) {
+                //we're in a comment, no hints here
+                return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null);
+            }
 
             var declarationInfo = FindLastNodeOfType<INamedDeclarationSyntax, SyntaxBase>(matchingNodes);
             var objectInfo = FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
@@ -101,9 +110,6 @@ namespace Bicep.LanguageServer.Completions
                 // check if we're inside an expression
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes), BicepCompletionContextKind.Expression);
             }
-
-            // the check at the beginning guarantees we have at least 1 node
-            var replacementRange = GetReplacementRange(syntaxTree, matchingNodes[^1], offset);
 
             return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
         }
@@ -133,6 +139,16 @@ namespace Bicep.LanguageServer.Completions
             return nodes;
         }
 
+        /// <summary>
+        /// Returnes trivia which span contains the specified offset.
+        /// </summary>
+        /// <param name="syntax">The program node</param>
+        /// <param name="offset">The offset</param>
+        private static SyntaxTrivia? FindTriviaMatchingOffset(ProgramSyntax syntax, int offset)
+        {
+            return syntax.TryFindMostSpecificTriviaInclusive(offset, current => true);
+        }
+        
         private static BicepCompletionContextKind ConvertFlag(bool value, BicepCompletionContextKind flag) => value ? flag : BicepCompletionContextKind.None;
 
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)

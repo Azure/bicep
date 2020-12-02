@@ -15,6 +15,22 @@ namespace Bicep.Decompiler.ArmHelpers
         public static JProperty? GetProperty(JObject parent, string name)
             => parent.Property(name, StringComparison.OrdinalIgnoreCase);
 
+        public static JToken? GetNestedProperty(JObject parent, params string[] names)
+        {
+            JToken? current = parent;
+            foreach (var name in names)
+            {
+                if (current is not JObject currentObject)
+                {
+                    return null;
+                }
+
+                current = GetProperty(currentObject, name)?.Value;
+            }
+
+            return current;
+        }
+
         public static bool HasProperty(JObject parent, string name)
             => GetProperty(parent, name) != null;
 
