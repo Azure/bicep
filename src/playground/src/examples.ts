@@ -46,6 +46,7 @@ import example_201_vnet_to_vnet_bgp from '../../../docs/examples/201/vnet-to-vne
 import example_201_vwan_shared_services from '../../../docs/examples/201/vwan-shared-services/main.bicep'
 import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
 import example_301_modules_vwan_to_vnet_s2s_with_fw from '../../../docs/examples/301/modules-vwan-to-vnet-s2s-with-fw/main.bicep'
+import example_301_function_app_with_custom_domain_managed_certificate from '../../../docs/examples/301/function-app-with-custom-domain-managed-certificate/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -96,5 +97,6 @@ export const examples = {
   '201/vnet-to-vnet-bgp': example_201_vnet_to_vnet_bgp,
   '201/vwan-shared-services': example_201_vwan_shared_services,
   '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network,
-  '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw
+  '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw,
+  '301/function-app-with-custom-domain-managed-certificate': example_301_function_app_with_custom_domain_managed_certificate
 }

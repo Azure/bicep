@@ -141,10 +141,10 @@ resource functionAppCustomHostCertificate 'Microsoft.Web/certificates@2020-06-01
   dependsOn: [
     functionAppCustomHost
   ]
-  properties: {
+  properties: any({
     serverFarmId: hostingPlan.id
     canonicalName: '${applicationName}.${dnsZone}'
-  }
+  })
 }
 
 // we need to use a module to enable sni, as ARM forbids using resource with this same type-name combination twice in one deployment.
