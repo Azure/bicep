@@ -73,7 +73,7 @@ Bicep will compile a template that uses the resource group `$schema` by default:
 }
 ```
 
-However, you can deploy templates to any scope by specifying the `targetScope` property. See [Deploying modules to a different scope](./05-creating-modules.md#deploying-modules-to-a-different-scope) for details.
+However, you can deploy templates to any scope by specifying the `targetScope` property. See [Resource Scopes spec](../spec/resource-scopes.md) for details.
 
 ## Next steps
 
