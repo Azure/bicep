@@ -29,11 +29,8 @@ You should get an output json file of the same name in your current directory --
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
   "functions": [],
-  "variables": {},
-  "resources": [],
-  "outputs": {}
+  "resources": []
 }
 ```
 
@@ -65,9 +62,7 @@ When we compile the template with `bicep build main.bicep`, we see the following
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -79,8 +74,7 @@ When we compile the template with `bicep build main.bicep`, we see the following
         "name": "Standard_LRS"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }
 ```
 
@@ -106,7 +100,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 Notice the `parameters` can be referenced directly via their name in bicep, compared to requiring `[parameters('location')]` in ARM template JSON.
 
-The end of the parameter declaration (`= 'eastus'`) is only the *default* value. It can be optionally overridden at deployment time.
+The end of the parameter declarations (`= 'eastus', = 'uniquestorage001'`) are *default* values. They can be optionally overridden at deployment time.
 
 Let's compile with `bicep build main.bicep` and look at the output:
 
@@ -125,7 +119,6 @@ Let's compile with `bicep build main.bicep` and look at the output:
     }
   },
   "functions": [],
-  "variables": {},
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -137,8 +130,7 @@ Let's compile with `bicep build main.bicep` and look at the output:
         "name": "Standard_LRS"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }
 ```
 
