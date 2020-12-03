@@ -73,7 +73,7 @@ Bicep will compile a template that uses the resource group `$schema` by default:
 }
 ```
 
-However, you can deploy this template to any scope with the [correct command](https://docs.microsoft.com/azure/azure-resource-manager/templates/deploy-to-subscription). Note that this is a temporary workaround until Bicep has better support for deploying resources to any scope in Azure.
+However, you can deploy templates to any scope by specifying the `targetScope` property. See [Deploying modules to a different scope](./05-creating-modules.md#deploying-modules-to-a-different-scope) for details.
 
 ## Next steps
 
