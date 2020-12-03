@@ -1222,6 +1222,20 @@
     }
   },
   {
+    "label": "runtimeInvalidRes10",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes10",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes10",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes10"
+    }
+  },
+  {
     "label": "runtimeInvalidRes2",
     "kind": "interface",
     "detail": "runtimeInvalidRes2",
@@ -1359,6 +1373,20 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes2"
+    }
+  },
+  {
+    "label": "runtimeValidRes3",
+    "kind": "interface",
+    "detail": "runtimeValidRes3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes3"
     }
   },
   {

@@ -625,6 +625,26 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:25) Identifier |runtimeValidRes3|
+//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
+  name: '${runtimeValidRes1.name}_v1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:27) Identifier |runtimeValidRes1|
+//@[27:28) Dot |.|
+//@[28:32) Identifier |name|
+//@[32:37) StringRightPiece |}_v1'|
+//@[37:39) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[0:8) Identifier |resource|
 //@[9:27) Identifier |runtimeInvalidRes1|
@@ -850,6 +870,26 @@ resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[40:42) StringRightPiece |}'|
 //@[42:43) RightSquare |]|
 //@[43:45) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:28) Identifier |runtimeInvalidRes10|
+//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90) Assignment |=|
+//@[91:92) LeftBrace |{|
+//@[92:94) NewLine |\r\n|
+  name: '${runtimeValidRes3.location}'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:11) StringLeftPiece |'${|
+//@[11:27) Identifier |runtimeValidRes3|
+//@[27:28) Dot |.|
+//@[28:36) Identifier |location|
+//@[36:38) StringRightPiece |}'|
+//@[38:40) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|

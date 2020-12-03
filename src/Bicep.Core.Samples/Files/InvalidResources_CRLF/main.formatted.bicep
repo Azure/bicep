@@ -140,6 +140,10 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
 }
 
+resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.name}_v1'
+}
+
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
 }
@@ -183,6 +187,10 @@ resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
+}
+
+resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes3.location}'
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

@@ -198,6 +198,10 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
 }
 
+resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.name}_v1'
+}
+
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
 //@[8:33) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.location|
@@ -250,6 +254,11 @@ var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
 //@[8:43) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2['${magicString2}']|
+}
+
+resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes3.location}'
+//@[11:36) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes3.location|
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
