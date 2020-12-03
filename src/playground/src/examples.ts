@@ -69,6 +69,7 @@ import example_201_wvd_backplane_with_network_and_storage_and_monitoring from '.
 import example_301_modules_vwan_to_vnet_s2s_with_fw from '../../../docs/examples/301/modules-vwan-to-vnet-s2s-with-fw/main.bicep'
 import example_301_nested_vms_in_virtual_network from '../../../docs/examples/301/nested-vms-in-virtual-network/main.bicep'
 import example_301_servicebus_namespace_vnet from '../../../docs/examples/301/servicebus-namespace-vnet/main.bicep'
+import example_301_function_app_with_custom_domain_managed_certificate from '../../../docs/examples/301/function-app-with-custom-domain-managed-certificate/main.bicep'
 
 export const examples = {
   'blank': '',
@@ -142,5 +143,6 @@ export const examples = {
   '201/wvd-backplane-with-network-and-storage-and-monitoring': example_201_wvd_backplane_with_network_and_storage_and_monitoring,
   '301/modules-vwan-to-vnet-s2s-with-fw': example_301_modules_vwan_to_vnet_s2s_with_fw,
   '301/nested-vms-in-virtual-network': example_301_nested_vms_in_virtual_network,
-  '301/servicebus-namespace-vnet': example_301_servicebus_namespace_vnet
+  '301/servicebus-namespace-vnet': example_301_servicebus_namespace_vnet,
+  '301/function-app-with-custom-domain-managed-certificate': example_301_function_app_with_custom_domain_managed_certificate
 }
