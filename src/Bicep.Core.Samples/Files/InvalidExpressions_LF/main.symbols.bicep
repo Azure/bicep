@@ -223,9 +223,9 @@ var test1 = listKeys('abcd')
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[4:9) Variable test2. Type: error. Declaration start char: 0, length: 42
 
-// just 'list' 
-var test3 = list('abcd', '2020-01-01')
-//@[4:9) Variable test3. Type: error. Declaration start char: 0, length: 38
+// just 'lis' instead of 'list'
+var test3 = lis('abcd', '2020-01-01')
+//@[4:9) Variable test3. Type: error. Declaration start char: 0, length: 37
 
 var sampleObject = {
 //@[4:16) Variable sampleObject. Type: object. Declaration start char: 0, length: 190
