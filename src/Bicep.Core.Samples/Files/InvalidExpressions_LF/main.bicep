@@ -145,8 +145,8 @@ var test1 = listKeys('abcd')
 // list spelled wrong 
 var test2 = lsitKeys('abcd', '2020-01-01')
 
-// just 'list' 
-var test3 = list('abcd', '2020-01-01')
+// just 'lis' instead of 'list'
+var test3 = lis('abcd', '2020-01-01')
 
 var sampleObject = {
   myInt: 42

@@ -886,19 +886,19 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 //@[41:42) RightParen |)|
 //@[42:44) NewLine |\n\n|
 
-// just 'list' 
-//@[15:16) NewLine |\n|
-var test3 = list('abcd', '2020-01-01')
+// just 'lis' instead of 'list'
+//@[31:32) NewLine |\n|
+var test3 = lis('abcd', '2020-01-01')
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |test3|
 //@[10:11) Assignment |=|
-//@[12:16) Identifier |list|
-//@[16:17) LeftParen |(|
-//@[17:23) StringComplete |'abcd'|
-//@[23:24) Comma |,|
-//@[25:37) StringComplete |'2020-01-01'|
-//@[37:38) RightParen |)|
-//@[38:40) NewLine |\n\n|
+//@[12:15) Identifier |lis|
+//@[15:16) LeftParen |(|
+//@[16:22) StringComplete |'abcd'|
+//@[22:23) Comma |,|
+//@[24:36) StringComplete |'2020-01-01'|
+//@[36:37) RightParen |)|
+//@[37:39) NewLine |\n\n|
 
 var sampleObject = {
 //@[0:3) Identifier |var|
