@@ -49,6 +49,7 @@ import example_201_cyclecloud from '../../../docs/examples/201/cyclecloud/main.b
 import example_201_decrypt_running_windows_vm_without_aad from '../../../docs/examples/201/decrypt-running-windows-vm-without-aad/main.bicep'
 import example_201_event_hub_and_consumer_group from '../../../docs/examples/201/event-hub-and-consumer-group/main.bicep'
 import example_201_firewall_with_ip_from_prefix from '../../../docs/examples/201/firewall-with-ip-from-prefix/main.bicep'
+import example_201_front_door_with_web_application_firewall from '../../../docs/examples/201/front-door-with-webapplication-firewall/main.bicep'
 import example_201_iot_with_storage from '../../../docs/examples/201/iot-with-storage/main.bicep'
 import example_201_key_vault_secret_create from '../../../docs/examples/201/key-vault-secret-create/main.bicep'
 import example_201_log_analytics_with_solutions_and_diagnostics from '../../../docs/examples/201/log-analytics-with-solutions-and-diagnostics/main.bicep'
@@ -124,6 +125,7 @@ export const examples = {
   '201/decrypt-running-windows-vm-without-aad': example_201_decrypt_running_windows_vm_without_aad,
   '201/event-hub-and-consumer-group': example_201_event_hub_and_consumer_group,
   '201/firewall-with-ip-from-prefix': example_201_firewall_with_ip_from_prefix,
+  '201/front-door-with-webapplication-firewall': example_201_front_door_with_web_application_firewall,
   '201/iot-with-storage': example_201_iot_with_storage,
   '201/key-vault-secret-create': example_201_key_vault_secret_create,
   '201/log-analytics-with-solutions-and-diagnostics': example_201_log_analytics_with_solutions_and_diagnostics,
