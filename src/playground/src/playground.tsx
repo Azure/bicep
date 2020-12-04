@@ -29,8 +29,12 @@ export const Playground : React.FC = () => {
   async function loadExample(filePath: string) {
     withLoader(async () => {
       const response = await fetch(`examples/${filePath}`);
-      const bicepText = await response.text();
-  
+      
+      if (!response.ok) {
+        throw response.text();
+      }
+
+      const bicepText = await response.text();  
       setInitialContent(bicepText);
     });
   }

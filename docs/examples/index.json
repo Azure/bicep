@@ -277,6 +277,10 @@
         "description": "201/wvd-backplane-with-network-and-storage-and-monitoring"
     },
     {
+        "filePath": "301/function-app-with-custom-domain-managed-certificate/main.bicep",
+        "description": "301/function-app-with-custom-domain-managed-certificate"
+    },
+    {
         "filePath": "301/modules-vwan-to-vnet-s2s-with-fw/main.bicep",
         "description": "301/modules-vwan-to-vnet-s2s-with-fw"
     },

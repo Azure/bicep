@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "functionAppName": {
+      "type": "string"
+    },
+    "functionAppHostname": {
+      "type": "string"
+    },
+    "certificateThumbprint": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('functionAppName'), parameters('functionAppHostname'))]",
+      "properties": {
+        "sslState": "SniEnabled",
+        "thumbprint": "[parameters('certificateThumbprint')]"
+      }
+    }
+  ]
+}
