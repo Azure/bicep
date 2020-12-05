@@ -9,15 +9,6 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
-    /// <summary> Class <c>ResourceDependencyVisitor</c>  provides two public methods: <c>GetAllResourceDependencies, GetResourceDependencies</c>
-    /// The dependency graph currently tracks dependencies between three types of declared symbols: Resource, Module, (indirectly) Variables
-    /// Modules and Resources only give immediate dependencies (NOT NESTED). Given three resources/modules a,b,c, 
-    /// i.e. if a depends on b, and b depends on c,
-    /// the graph would be {a: {b}, b: {c}}
-    /// However, variables need to be evaluated for NESTED dependencies:
-    /// i.e. if a (module/resource) depends on b (variable), and b depends c(module/resource)
-    /// the graph would be {a: {c}} 
-    /// </summary>
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         // shared data structure across all ResourceDependencyVisitors; our only "state" during traversals
@@ -58,32 +49,6 @@ namespace Bicep.Core.Emit
             this.resourceDependencies = new HashSet<DeclaredSymbol>();
         }
 
-        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-        {
-            if (!(this.model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol))
-            {
-                throw new InvalidOperationException("Unbound declaration");
-            }
-            base.VisitResourceDeclarationSyntax(syntax);
-        }
-
-        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
-        {
-            if (!(this.model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol))
-            {
-                throw new InvalidOperationException("Unbound declaration");
-            }
-            base.VisitModuleDeclarationSyntax(syntax);
-        }
-
-        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-        {
-            if (!(this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol))
-            {
-                throw new InvalidOperationException("Unbound declaration");
-            }
-            base.VisitVariableDeclarationSyntax(syntax);
-        }
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             VisitVariableAccessSyntaxInternal(syntax);
