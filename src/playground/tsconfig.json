@@ -9,6 +9,10 @@
     "inlineSources": false,
     "declaration": true,
     "stripInternal": true,
+    "resolveJsonModule": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
     "jsx": "react",
     "lib": [
       "es2016",
