@@ -209,6 +209,10 @@
         "description": "201/firewall-with-ip-from-prefix"
     },
     {
+        "filePath": "201/front-door-with-webapplication-firewall/main.bicep",
+        "description": "201/front-door-with-webapplication-firewall"
+    },
+    {
         "filePath": "201/iot-with-storage/main.bicep",
         "description": "201/iot-with-storage"
     },
