@@ -14,6 +14,10 @@
       "type": "bool",
       "defaultValue": false
     },
+    "frontDoorWafDeployed": {
+      "type": "bool",
+      "defaultValue": false
+    },
     "frontDoorWafNamePrefix": {
       "type": "string",
       "defaultValue": "AzFdWafTestingBicep"
@@ -34,16 +38,16 @@
   "functions": [],
   "variables": {
     "frontDoorNameLower": "[toLower(parameters('frontDoorName'))]",
-    "backendPool1Name": "[concat(variables('frontDoorNameLower'), '-', 'backendPool', '1')]",
-    "healthProbe1Name": "[concat(variables('frontDoorNameLower'), '-', 'healthProbe', '1')]",
-    "frontendEndpoint1Name": "[concat(variables('frontDoorNameLower'), '-', 'frontendEndpoint', '1')]",
-    "loadBalancing1Name": "[concat(variables('frontDoorNameLower'), '-', 'loadBalancing', '1')]",
-    "routingRule1Name": "[concat(variables('frontDoorNameLower'), '-', 'routingRule', '1')]",
-    "routingRule2Name": "[concat(variables('frontDoorNameLower'), '-', 'routingRule', '2')]",
-    "frontendEndpoint1hostName": "[concat(variables('frontDoorNameLower'), '.azurefd.net')]",
+    "backendPool1Name": "[format('{0}-backendPool1', variables('frontDoorNameLower'))]",
+    "healthProbe1Name": "[format('{0}-healthProbe1', variables('frontDoorNameLower'))]",
+    "frontendEndpoint1Name": "[format('{0}-frontendEndpoint1', variables('frontDoorNameLower'))]",
+    "loadBalancing1Name": "[format('{0}-loadBalancing1', variables('frontDoorNameLower'))]",
+    "routingRule1Name": "[format('{0}-routingRule1', variables('frontDoorNameLower'))]",
+    "routingRule2Name": "[format('{0}-routingRule2', variables('frontDoorNameLower'))]",
+    "frontendEndpoint1hostName": "[format('{0}.azurefd.net', variables('frontDoorNameLower'))]",
     "backendExampleTarget": "api.myip.com",
     "redirectExampleTarget": "api.myip.com",
-    "frontDoorWafName": "[concat(toLower(parameters('frontDoorWafNamePrefix')), uniqueString(subscription().subscriptionId, resourceGroup().id, parameters('frontDoorWafNamePrefix')))]"
+    "frontDoorWafName": "[format('{0}{1}', parameters('frontDoorWafNamePrefix'), uniqueString(subscription().subscriptionId, resourceGroup().id, parameters('frontDoorWafNamePrefix')))]"
   },
   "resources": [
     {
