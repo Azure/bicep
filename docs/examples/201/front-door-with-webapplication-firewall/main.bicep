@@ -1,6 +1,7 @@
 param frontDoorName string = 'AzFd-TestingBicep-999'
 param frontDoorEnabledState bool = true
 param healthProbe1EnabledState bool = false
+param frontDoorWafDeployed bool = false // Used for conditions once available in bicep 0.3
 param frontDoorWafNamePrefix string = 'AzFdWafTestingBicep'
 param frontDoorWafEnabledState bool = true
 param frontDoorWafMode string {
@@ -12,18 +13,19 @@ param frontDoorWafMode string {
 }
 
 var frontDoorNameLower = toLower(frontDoorName)
-var backendPool1Name = concat(frontDoorNameLower, '-', 'backendPool', '1')
-var healthProbe1Name = concat(frontDoorNameLower, '-', 'healthProbe', '1')
-var frontendEndpoint1Name = concat(frontDoorNameLower, '-', 'frontendEndpoint', '1')
-var loadBalancing1Name = concat(frontDoorNameLower, '-', 'loadBalancing', '1')
-var routingRule1Name = concat(frontDoorNameLower, '-', 'routingRule', '1')
-var routingRule2Name = concat(frontDoorNameLower, '-', 'routingRule', '2')
+var backendPool1Name = '${frontDoorNameLower}-backendPool1'
 
-var frontendEndpoint1hostName = concat(frontDoorNameLower, '.azurefd.net')
+var healthProbe1Name = '${frontDoorNameLower}-healthProbe1'
+var frontendEndpoint1Name = '${frontDoorNameLower}-frontendEndpoint1'
+var loadBalancing1Name = '${frontDoorNameLower}-loadBalancing1'
+var routingRule1Name = '${frontDoorNameLower}-routingRule1'
+var routingRule2Name = '${frontDoorNameLower}-routingRule2'
+
+var frontendEndpoint1hostName = '${frontDoorNameLower}.azurefd.net'
 var backendExampleTarget = 'api.myip.com'
 var redirectExampleTarget = 'api.myip.com'
 
-var frontDoorWafName = concat(toLower(frontDoorWafNamePrefix), uniqueString(subscription().subscriptionId, resourceGroup().id, frontDoorWafNamePrefix))
+var frontDoorWafName = '${frontDoorWafNamePrefix}${uniqueString(subscription().subscriptionId, resourceGroup().id, frontDoorWafNamePrefix)}'
 
 resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
   name: frontDoorNameLower
