@@ -30,7 +30,7 @@ To get going with bicep, start by [installing the tooling](./docs/installing.md)
 
 Once the tooling is installed, you can start the [bicep tutorial](./docs/tutorial/01-simple-template.md), which walks you through the structure and capabilities of bicep, deploying bicep files, and converting an ARM template into the equivalent bicep file.
 
-Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo).
+Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VSCode Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
 
