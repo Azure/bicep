@@ -68,6 +68,6 @@ namespace Bicep.Core.Syntax
 
         void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax);
 
-        void VisitIfExpressionSyntax(IfExpressionSyntax syntax);
+        void VisitIfConditionSyntax(IfConditionSyntax syntax);
     }
 }

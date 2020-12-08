@@ -85,6 +85,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
+            this.Visit(syntax.IfCondition);
             this.Visit(syntax.Body);
         }
 
@@ -94,6 +95,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
+            this.Visit(syntax.IfCondition);
             this.Visit(syntax.Body);
         }
 
@@ -181,11 +183,10 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
-        public virtual void VisitIfExpressionSyntax(IfExpressionSyntax syntax)
+        public virtual void VisitIfConditionSyntax(IfConditionSyntax syntax)
         {
             this.Visit(syntax.Keyword);
             this.Visit(syntax.ConditionExpression);
-            this.Visit(syntax.ConsequenceExpression);
         }
 
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)

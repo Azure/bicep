@@ -115,6 +115,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.Name,
                 syntax.Type,
                 syntax.Assignment,
+                syntax.IfCondition,
                 replacementBody);
         }
 
@@ -131,6 +132,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.Name,
                 syntax.Path,
                 syntax.Assignment,
+                syntax.IfCondition,
                 replacementBody);
         }
     }

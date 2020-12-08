@@ -134,7 +134,12 @@ namespace Bicep.Core.TypeSystem
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
-            
+
+                if (syntax.IfCondition is IfConditionSyntax ifConditionSyntax)
+                {
+                    diagnostics.WriteMultiple(this.ValidateIfCondition(ifConditionSyntax));
+                }
+
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
             });
 
@@ -156,6 +161,11 @@ namespace Bicep.Core.TypeSystem
                 if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                }
+
+                if (syntax.IfCondition is IfConditionSyntax ifConditionSyntax)
+                {
+                    diagnostics.WriteMultiple(this.ValidateIfCondition(ifConditionSyntax));
                 }
                 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
@@ -738,31 +748,6 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
-        public override void VisitIfExpressionSyntax(IfExpressionSyntax syntax)
-            => AssignType(syntax, () =>
-            {
-                var errors = new List<ErrorDiagnostic>();
-
-                var conditionType = typeManager.GetTypeInfo(syntax.ConditionExpression);
-                CollectErrors(errors, conditionType);
-
-                var consequenceType = typeManager.GetTypeInfo(syntax.ConsequenceExpression);
-                CollectErrors(errors, conditionType);
-
-                if (PropagateErrorType(errors, conditionType, consequenceType))
-                {
-                    return ErrorType.Create(errors);
-                }
-
-                if (!TypeValidator.AreTypesAssignable(conditionType, LanguageConstants.Bool))
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(LanguageConstants.Bool));
-                }
-
-                // TODO: return consequenceType | null once we support strict null checks.
-                return consequenceType;
-            });
-
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
             errors.AddRange(reference.Type.GetDiagnostics());
@@ -990,6 +975,23 @@ namespace Bicep.Core.TypeSystem
                     return accumulated;
                 },
                 accumulated => accumulated);
+        }
+
+        private IEnumerable<Diagnostic> ValidateIfCondition(IfConditionSyntax syntax)
+        {
+            var conditionType = typeManager.GetTypeInfo(syntax.ConditionExpression);
+
+            if (conditionType is ErrorType)
+            {
+                return conditionType.GetDiagnostics();
+            }
+
+            if (!TypeValidator.AreTypesAssignable(conditionType, LanguageConstants.Bool))
+            {
+                return DiagnosticBuilder.ForPosition(syntax.ConditionExpression).ValueTypeMismatch(LanguageConstants.Bool).AsEnumerable();
+            }
+
+            return Enumerable.Empty<Diagnostic>();
         }
         
         private static TypeSymbol UnwrapType(TypeSymbol baseType) =>

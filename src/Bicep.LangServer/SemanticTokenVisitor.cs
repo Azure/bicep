@@ -172,10 +172,10 @@ namespace Bicep.LanguageServer
             base.VisitModuleDeclarationSyntax(syntax);
         }
 
-        public override void VisitIfExpressionSyntax(IfExpressionSyntax syntax)
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            base.VisitIfExpressionSyntax(syntax);
+            base.VisitIfConditionSyntax(syntax);
         }
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)

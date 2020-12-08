@@ -34,6 +34,10 @@ namespace Bicep.Core
 
         public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
 
+        public static ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
+            .Add(TargetScopeKeyword)
+            .Add(IfKeyword);
+
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";

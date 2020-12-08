@@ -221,14 +221,14 @@ namespace Bicep.Core.Emit
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
 
-            if (resourceSymbol.DeclaringResource.Body is IfExpressionSyntax conditionalBody)
+            if (resourceSymbol.DeclaringResource.IfCondition is IfConditionSyntax ifCondition)
             {
-                this.emitter.EmitProperty("condition", conditionalBody.ConditionExpression);
+                this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
             }
 
             this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.DeclaringResource.ResolvedBody, ResourcePropertiesToOmit);
+            this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.DeclaringResource.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
@@ -239,7 +239,7 @@ namespace Bicep.Core.Emit
 
         private void EmitModuleParameters(ModuleSymbol moduleSymbol)
         {
-            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.ResolvedBody;
+            var moduleBody = (ObjectSyntax)moduleSymbol.DeclaringModule.Body;
             var paramsBody = moduleBody.Properties.FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName));
 
             if (!(paramsBody?.Value is ObjectSyntax paramsObjectSyntax))
@@ -275,9 +275,9 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            if (moduleSymbol.DeclaringModule.Body is IfExpressionSyntax conditionalBody)
+            if (moduleSymbol.DeclaringModule.IfCondition is IfConditionSyntax ifCondition)
             {
-                this.emitter.EmitProperty("condition", conditionalBody.ConditionExpression);
+                this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
             }
 
             this.emitter.EmitProperty("type", NestedDeploymentResourceType);
@@ -285,7 +285,7 @@ namespace Bicep.Core.Emit
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            this.emitter.EmitObjectProperties((ObjectSyntax)moduleSymbol.DeclaringModule.ResolvedBody, ModulePropertiesToOmit);
+            this.emitter.EmitObjectProperties((ObjectSyntax)moduleSymbol.DeclaringModule.Body, ModulePropertiesToOmit);
 
 
             var scopeData = context.ModuleScopeData[moduleSymbol];

@@ -56,7 +56,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
-//@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
 //@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
 }
 

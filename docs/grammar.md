@@ -18,7 +18,7 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "=" object NL
+resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "=" ifCondition? object NL
 
 moduleDecl -> "module" IDENTIFIER(name) interpString(type) "=" object NL
 
@@ -84,6 +84,8 @@ functionCall -> IDENTIFIER "(" argumentList? ")"
 argumentList -> expression ("," expression)*
 
 parenthesizedExpression -> "(" expression ")"
+
+ifCondition -> "if" parenthesizedExpression
 
 interpString ->  interpStringLeftPiece ( expression interpStringMiddlePiece )* expression interpStringRightPiece | literalString
 interpStringLeftPiece -> "'" STRINGCHAR* "${"

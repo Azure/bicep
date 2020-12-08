@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase body)
+        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifExpression, SyntaxBase body)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -19,12 +19,14 @@ namespace Bicep.Core.Syntax
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax), typeof(IfExpressionSyntax));
+            AssertSyntaxType(ifExpression, nameof(ifExpression), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
+            AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
             this.Path = path;
             this.Assignment = assignment;
+            this.IfCondition = ifExpression;
             this.Body = body;
         }
 
@@ -36,11 +38,9 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Assignment { get; }
 
-        public SyntaxBase Body { get; }
+        public SyntaxBase? IfCondition { get; }
 
-        public SyntaxBase ResolvedBody => this.Body is IfExpressionSyntax conditionalBody
-            ? conditionalBody.ConsequenceExpression
-            : this.Body;
+        public SyntaxBase Body { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 

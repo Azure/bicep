@@ -133,11 +133,11 @@ namespace Bicep.Core.TypeSystem
             {
                 case ResourceSymbol resourceSymbol when IsCycleFree(resourceSymbol):
                     // the declared type of the body is more useful to us than the declared type of the resource itself
-                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.ResolvedBody);
+                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Body);
 
                 case ModuleSymbol moduleSymbol when IsCycleFree(moduleSymbol):
                     // the declared type of the body is more useful to us than the declared type of the module itself
-                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.ResolvedBody);
+                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.Body);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
@@ -258,11 +258,6 @@ namespace Bicep.Core.TypeSystem
                 : new DeclaredTypeAssignment(typeRef, syntax, flags);
 
             var parent = this.binder.GetParent(syntax);
-
-            if (parent is IfExpressionSyntax ifExpressionSyntax)
-            {
-                parent = this.binder.GetParent(ifExpressionSyntax);
-            }
 
             if (parent == null)
             {

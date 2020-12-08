@@ -163,6 +163,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Type, out var type);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
+            hasChanges |= RewriteNullable(syntax.IfCondition, out var ifExpression);
             hasChanges |= Rewrite(syntax.Body, out var body);
 
             if (!hasChanges)
@@ -170,7 +171,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
+            return new ResourceDeclarationSyntax(keyword, name, type, assignment, ifExpression, body);
         }
         void ISyntaxVisitor.VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceDeclarationSyntax);
 
@@ -180,6 +181,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Path, out var path);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
+            hasChanges |= RewriteNullable(syntax.IfCondition, out var ifExpression);
             hasChanges |= Rewrite(syntax.Body, out var body);
 
             if (!hasChanges)
@@ -187,7 +189,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ModuleDeclarationSyntax(keyword, name, path, assignment, body);
+            return new ModuleDeclarationSyntax(keyword, name, path, assignment, ifExpression, body);
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
@@ -532,19 +534,18 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitVariableAccessSyntax(VariableAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableAccessSyntax);
 
-        protected virtual IfExpressionSyntax ReplaceIfExpressionSyntax(IfExpressionSyntax syntax)
+        protected virtual IfConditionSyntax ReplaceIfExpressionSyntax(IfConditionSyntax syntax)
         {
             var hasChanges = Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.ConditionExpression, out var conditionExpression);
-            hasChanges |= Rewrite(syntax.ConsequenceExpression, out var consequenceExpression);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new IfExpressionSyntax(keyword, conditionExpression, consequenceExpression);
+            return new IfConditionSyntax(keyword, conditionExpression);
         }
-        void ISyntaxVisitor.VisitIfExpressionSyntax(IfExpressionSyntax syntax) => ReplaceCurrent(syntax, ReplaceIfExpressionSyntax);
+        void ISyntaxVisitor.VisitIfConditionSyntax(IfConditionSyntax syntax) => ReplaceCurrent(syntax, ReplaceIfExpressionSyntax);
     }
 }
