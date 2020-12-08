@@ -106,13 +106,13 @@ steps:
       projects: ./src/installer-win/installer.proj
       arguments: '--configuration $(BuildConfiguration)'
 
-  - task: onebranch.pipeline.signing@1
-    displayName: Sign Windows Setup
-    inputs:
-      command: 'sign'
-      signing_profile: 'external_distribution'
-      files_to_sign: '**/*.exe'
-      search_root: '$(Build.SourcesDirectory)/src/installer-win/bin/release/net46/'
+  # - task: onebranch.pipeline.signing@1
+  #   displayName: Sign Windows Setup
+  #   inputs:
+  #     command: 'sign'
+  #     signing_profile: 'external_distribution'
+  #     files_to_sign: '**/*.exe'
+  #     search_root: '$(Build.SourcesDirectory)/src/installer-win/bin/release/net46/'
 
   - task: CopyFiles@2
     displayName: Copy Windows Setup to output
