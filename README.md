@@ -26,7 +26,7 @@ Bicep compiles down to standard ARM Template JSON files, which means the ARM JSO
 
 ## Get started with Bicep
 
-To get going with bicep, start by [installing the tooling](./docs/installing.md).
+To get going with bicep, start by [installing the tooling](./docs/installing.md) or use the [VSCode Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
 Once the tooling is installed, you can start the [bicep tutorial](./docs/tutorial/01-simple-template.md), which walks you through the structure and capabilities of bicep, deploying bicep files, and converting an ARM template into the equivalent bicep file.
 
