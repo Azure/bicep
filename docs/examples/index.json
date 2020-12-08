@@ -1,4 +1,3 @@
-
 [
     {
         "filePath": "101/1vm-2nics-2subnets-1vnet/main.bicep",
@@ -135,6 +134,10 @@
     {
         "filePath": "101/monitor-action-groups/main.bicep",
         "description": "101/monitor-action-groups"
+    },
+    {
+        "filePath": "101/nat-gateway-vnet/main.bicep",
+        "description": "101/nat-gateway-vnet"
     },
     {
         "filePath": "101/redis-cache/main.bicep",
