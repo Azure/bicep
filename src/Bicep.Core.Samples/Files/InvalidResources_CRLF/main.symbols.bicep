@@ -43,6 +43,23 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
 }
 
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 83
+}
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 54
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 56
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 60
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 61
+
 // missing condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 74

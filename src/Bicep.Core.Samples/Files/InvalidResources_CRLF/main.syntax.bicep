@@ -205,6 +205,100 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[0:83) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:83)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:83)   SkippedTriviaSyntax
+//@[55:56)    LeftParen |(|
+//@[56:57)    LeftBrace |{|
+//@[58:61)    StringComplete |'a'|
+//@[61:62)    Colon |:|
+//@[63:64)    Identifier |b|
+//@[65:66)    RightBrace |}|
+//@[66:67)    Dot |.|
+//@[67:68)    Identifier |a|
+//@[69:71)    Equals |==|
+//@[72:77)    StringComplete |'foo'|
+//@[77:78)    RightParen |)|
+//@[79:80)    LeftBrace |{|
+//@[80:82)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:1)  SkippedTriviaSyntax
+//@[1:5) NewLine |\r\n\r\n|
+
+// simulate typing if condition
+//@[31:33) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[0:54) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:54)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[54:54)   SkippedTriviaSyntax
+//@[54:54)  SkippedTriviaSyntax
+//@[54:58) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[0:56) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:56)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:56)   SkippedTriviaSyntax
+//@[55:56)    LeftParen |(|
+//@[56:56)  SkippedTriviaSyntax
+//@[56:60) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[0:60) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:60)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:60)   SkippedTriviaSyntax
+//@[55:56)    LeftParen |(|
+//@[56:60)    TrueKeyword |true|
+//@[60:60)  SkippedTriviaSyntax
+//@[60:64) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[0:61) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:61)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:61)   ParenthesizedExpressionSyntax
+//@[55:56)    LeftParen |(|
+//@[56:60)    BooleanLiteralSyntax
+//@[56:60)     TrueKeyword |true|
+//@[60:61)    RightParen |)|
+//@[61:61)  SkippedTriviaSyntax
+//@[61:65) NewLine |\r\n\r\n|
+
 // missing condition
 //@[20:22) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {

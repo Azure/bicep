@@ -64,6 +64,22 @@ module './main.bicep' = if (1 + 2 == 3) {
 
 }
 
+module './main.bicep' = if
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[26:26) [BCP018 (Error)] Expected the "(" character at this location. ||
+
+module './main.bicep' = if (
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+module './main.bicep' = if (true
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[32:32) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+module './main.bicep' = if (true)
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[33:33) [BCP018 (Error)] Expected the "{" character at this location. ||
+
 module './main.bicep' = if {
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
 //@[27:28) [BCP018 (Error)] Expected the "(" character at this location. |{|
@@ -82,6 +98,7 @@ module './main.bicep' = if ('true') {
 }
 
 module modANoName './modulea.bicep' = {
+//@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
 //@[7:17) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
@@ -92,6 +109,12 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
 
 }
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+//@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
+
+}
+//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
 
 module modANoInputs './modulea.bicep' = {
 //@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|

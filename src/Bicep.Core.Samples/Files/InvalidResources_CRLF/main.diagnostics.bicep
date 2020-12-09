@@ -60,6 +60,28 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
 }
 
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+}
+//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[54:54) [BCP018 (Error)] Expected the "(" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:56) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[60:60) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[61:61) [BCP018 (Error)] Expected the "{" character at this location. ||
+
 // missing condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|

@@ -60,6 +60,18 @@ module './main.bicep' = if (1 + 2 == 3) {
 
 }
 
+module './main.bicep' = if
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 26
+
+module './main.bicep' = if (
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 28
+
+module './main.bicep' = if (true
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 32
+
+module './main.bicep' = if (true)
+//@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 33
+
 module './main.bicep' = if {
 //@[7:7) Module <missing>. Type: error. Declaration start char: 0, length: 31
 
@@ -84,6 +96,11 @@ module modANoName './modulea.bicep' = {
 module modANoNameWithCondition './modulea.bicep' = if (true) {
 //@[7:30) Module modANoNameWithCondition. Type: module. Declaration start char: 0, length: 129
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
+
+}
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+//@[7:17) Module modANoName. Type: error. Declaration start char: 0, length: 68
 
 }
 

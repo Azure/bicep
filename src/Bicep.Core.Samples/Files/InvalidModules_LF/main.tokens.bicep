@@ -162,6 +162,40 @@ module './main.bicep' = if (1 + 2 == 3) {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module './main.bicep' = if
+//@[0:6) Identifier |module|
+//@[7:21) StringComplete |'./main.bicep'|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |if|
+//@[26:28) NewLine |\n\n|
+
+module './main.bicep' = if (
+//@[0:6) Identifier |module|
+//@[7:21) StringComplete |'./main.bicep'|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |if|
+//@[27:28) LeftParen |(|
+//@[28:30) NewLine |\n\n|
+
+module './main.bicep' = if (true
+//@[0:6) Identifier |module|
+//@[7:21) StringComplete |'./main.bicep'|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |if|
+//@[27:28) LeftParen |(|
+//@[28:32) TrueKeyword |true|
+//@[32:34) NewLine |\n\n|
+
+module './main.bicep' = if (true)
+//@[0:6) Identifier |module|
+//@[7:21) StringComplete |'./main.bicep'|
+//@[22:23) Assignment |=|
+//@[24:26) Identifier |if|
+//@[27:28) LeftParen |(|
+//@[28:32) TrueKeyword |true|
+//@[32:33) RightParen |)|
+//@[33:35) NewLine |\n\n|
+
 module './main.bicep' = if {
 //@[0:6) Identifier |module|
 //@[7:21) StringComplete |'./main.bicep'|
@@ -230,6 +264,30 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 //@[62:63) NewLine |\n|
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
 //@[63:65) NewLine |\n\n|
+
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+//@[0:6) Identifier |module|
+//@[7:17) Identifier |modANoName|
+//@[18:35) StringComplete |'./modulea.bicep'|
+//@[36:37) Assignment |=|
+//@[38:40) Identifier |if|
+//@[41:42) LeftParen |(|
+//@[42:43) LeftBrace |{|
+//@[44:47) StringComplete |'a'|
+//@[47:48) Colon |:|
+//@[49:50) Identifier |b|
+//@[51:52) RightBrace |}|
+//@[52:53) Dot |.|
+//@[53:54) Identifier |a|
+//@[55:57) Equals |==|
+//@[58:62) TrueKeyword |true|
+//@[62:63) RightParen |)|
+//@[64:65) LeftBrace |{|
+//@[65:67) NewLine |\n\n|
 
 }
 //@[0:1) RightBrace |}|

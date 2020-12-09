@@ -33,6 +33,14 @@ module './main.bicep' = if (1 + 2 == 3) {
 
 }
 
+module './main.bicep' = if
+
+module './main.bicep' = if (
+
+module './main.bicep' = if (true
+
+module './main.bicep' = if (true)
+
 module './main.bicep' = if {
 
 }
@@ -51,6 +59,10 @@ module modANoName './modulea.bicep' = {
 
 module modANoNameWithCondition './modulea.bicep' = if (true) {
   // #completionTest(0) -> moduleAWithConditionTopLevelProperties
+}
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+
 }
 
 module modANoInputs './modulea.bicep' = {

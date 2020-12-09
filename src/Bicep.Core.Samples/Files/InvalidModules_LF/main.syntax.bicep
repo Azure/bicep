@@ -241,6 +241,69 @@ module './main.bicep' = if (1 + 2 == 3) {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module './main.bicep' = if
+//@[0:26) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:21)  StringSyntax
+//@[7:21)   StringComplete |'./main.bicep'|
+//@[22:23)  Assignment |=|
+//@[24:26)  IfConditionSyntax
+//@[24:26)   Identifier |if|
+//@[26:26)   SkippedTriviaSyntax
+//@[26:26)  SkippedTriviaSyntax
+//@[26:28) NewLine |\n\n|
+
+module './main.bicep' = if (
+//@[0:28) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:21)  StringSyntax
+//@[7:21)   StringComplete |'./main.bicep'|
+//@[22:23)  Assignment |=|
+//@[24:28)  IfConditionSyntax
+//@[24:26)   Identifier |if|
+//@[27:28)   SkippedTriviaSyntax
+//@[27:28)    LeftParen |(|
+//@[28:28)  SkippedTriviaSyntax
+//@[28:30) NewLine |\n\n|
+
+module './main.bicep' = if (true
+//@[0:32) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:21)  StringSyntax
+//@[7:21)   StringComplete |'./main.bicep'|
+//@[22:23)  Assignment |=|
+//@[24:32)  IfConditionSyntax
+//@[24:26)   Identifier |if|
+//@[27:32)   SkippedTriviaSyntax
+//@[27:28)    LeftParen |(|
+//@[28:32)    TrueKeyword |true|
+//@[32:32)  SkippedTriviaSyntax
+//@[32:34) NewLine |\n\n|
+
+module './main.bicep' = if (true)
+//@[0:33) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:7)  IdentifierSyntax
+//@[7:7)   SkippedTriviaSyntax
+//@[7:21)  StringSyntax
+//@[7:21)   StringComplete |'./main.bicep'|
+//@[22:23)  Assignment |=|
+//@[24:33)  IfConditionSyntax
+//@[24:26)   Identifier |if|
+//@[27:33)   ParenthesizedExpressionSyntax
+//@[27:28)    LeftParen |(|
+//@[28:32)    BooleanLiteralSyntax
+//@[28:32)     TrueKeyword |true|
+//@[32:33)    RightParen |)|
+//@[33:33)  SkippedTriviaSyntax
+//@[33:35) NewLine |\n\n|
+
 module './main.bicep' = if {
 //@[0:31) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -345,6 +408,36 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 
 }
 //@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+//@[0:68) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:17)  IdentifierSyntax
+//@[7:17)   Identifier |modANoName|
+//@[18:35)  StringSyntax
+//@[18:35)   StringComplete |'./modulea.bicep'|
+//@[36:37)  Assignment |=|
+//@[38:68)  IfConditionSyntax
+//@[38:40)   Identifier |if|
+//@[41:68)   SkippedTriviaSyntax
+//@[41:42)    LeftParen |(|
+//@[42:43)    LeftBrace |{|
+//@[44:47)    StringComplete |'a'|
+//@[47:48)    Colon |:|
+//@[49:50)    Identifier |b|
+//@[51:52)    RightBrace |}|
+//@[52:53)    Dot |.|
+//@[53:54)    Identifier |a|
+//@[55:57)    Equals |==|
+//@[58:62)    TrueKeyword |true|
+//@[62:63)    RightParen |)|
+//@[64:65)    LeftBrace |{|
+//@[65:67)    NewLine |\n\n|
+
+}
+//@[0:1)    RightBrace |}|
+//@[1:1)  SkippedTriviaSyntax
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {
