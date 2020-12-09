@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import * as path from "path";
 import * as cp from "child_process";
+import * as fs from "fs";
 import {
   runTests,
   downloadAndUnzipVSCode,
@@ -18,6 +19,8 @@ async function go() {
     // some of our builds run as root in a container, which requires passing
     // the user data folder path to vs code itself
     const userDataDir = path.resolve(__dirname, "user-data");
+
+    fs.mkdirSync(userDataDir, { recursive: true });
 
     // Install .NET Install Tool as a dependency.
     cp.spawnSync(
