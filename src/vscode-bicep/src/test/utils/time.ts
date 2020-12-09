@@ -7,15 +7,19 @@ export function sleep(ms: number): Promise<void> {
 export async function retryWhile<T>(
   func: () => Promise<T>,
   predicate: (result: T) => boolean,
-  retryOptions = {
-    interval: 2000,
-    count: 3,
-  }
+  retryOptions?: Readonly<{
+    interval?: number;
+    count?: number;
+  }>
 ): Promise<T> {
   let result = await func();
 
-  while (predicate(result) && retryOptions.count--) {
+  const interval = retryOptions?.interval ?? 2000;
+  let count = retryOptions?.count ?? 3;
+
+  while (predicate(result) && count--) {
     result = await func();
+    await sleep(interval);
   }
 
   return result;
