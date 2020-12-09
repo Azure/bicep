@@ -15,10 +15,18 @@ async function go() {
       vscodeExecutablePath
     );
 
+    // some of our builds run as root in a container, which requires passing
+    // the user data folder path to vs code itself
+    const userDataDir = path.resolve(__dirname, "user-data");
+
     // Install .NET Install Tool as a dependency.
     cp.spawnSync(
       cliPath,
-      ["--install-extension", "ms-dotnettools.vscode-dotnet-runtime"],
+      [
+        "--install-extension",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        `--user-data-dir="${userDataDir}"`,
+      ],
       { encoding: "utf-8", stdio: "inherit" }
     );
 
@@ -26,7 +34,7 @@ async function go() {
       vscodeExecutablePath,
       extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
       extensionTestsPath: path.resolve(__dirname, "index"),
-      launchArgs: ["--enable-proposed-api"],
+      launchArgs: ["--enable-proposed-api", `--user-data-dir="${userDataDir}"`],
     });
 
     process.exit(0);

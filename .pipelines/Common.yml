@@ -71,6 +71,9 @@ stages:
       # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
     
     steps:
+    - script: sudo apt-get update && sudo apt-get install -y xvfb libgtk2.0-0 libxss-dev libgconf-2-4 libasound2
+      displayName: Install dependencies
+    
     - task: NodeTool@0 
       displayName: Setup Node.js
       inputs:
@@ -104,10 +107,17 @@ stages:
       displayName: Run unit tests
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
 
-    # xvfb is missing in the container image
-    # - script: xvfb-run -a npm run test:e2e
-    #   displayName: Run E2E tests
-    #   workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    - script: /usr/bin/Xvfb :99 -screen 0 1024x768x24 & sleep 2
+      displayName: Start Xvfb
+    
+    - script: node ./out/test/e2e/runTests.js 
+      displayName: Run E2E tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+      env:
+        DISPLAY: ':99.0'
+    
+    - script: killall Xvfb
+      displayName: Kill Xvfb
 
     - script: npm run package
       displayName: Create VSIX
