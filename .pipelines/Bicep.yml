@@ -80,7 +80,9 @@ steps:
   displayName: Copy bicep to output
   inputs:
     sourceFolder: '$(Build.SourcesDirectory)/src/Bicep.Cli/bin/$(BuildConfiguration)/$(TargetFramework)/${{ parameters.rid }}/publish/'
-    contents: '**'
+    contents: |
+      **
+      !**/*.pdb
     targetFolder: '$(Build.SourcesDirectory)/out/bicep-$(BuildConfiguration)-${{ parameters.rid }}/'
 
 - ${{ if eq(parameters.rid, 'win-x64') }}:
