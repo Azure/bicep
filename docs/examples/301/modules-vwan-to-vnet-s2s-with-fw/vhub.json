@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "hubname": {
+      "type": "string"
+    },
+    "hubaddressprefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the Virtual Hub Address Prefix."
+      },
+      "defaultValue": "10.10.0.0/24"
+    },
+    "wanid": {
+      "type": "string",
+      "metadata": {
+        "description": "Virtual WAN ID"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualHubs",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('hubname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressPrefix": "[parameters('hubaddressprefix')]",
+        "virtualWan": {
+          "id": "[parameters('wanid')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))]"
+    },
+    "name": {
+      "type": "string",
+      "value": "[parameters('hubname')]"
+    },
+    "vhubaddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
+    }
+  }
+}

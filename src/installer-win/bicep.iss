@@ -35,7 +35,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "bicep\bicep.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "bicep\bicep.pdb"; DestDir: "{app}"; Flags: ignoreversion
+Source: "bicep\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SetPath.ps1"; DestDir: "{app}\setup"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 

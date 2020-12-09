@@ -1,10 +1,10 @@
 import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
 
-let interop;
+let interop: any;
 
-export function initializeInterop(self): Promise<boolean> {
+export function initializeInterop(self: any): Promise<boolean> {
   return new Promise<boolean>((resolve, reject) => {
-    self['BicepInitialize'] = (newInterop) => {
+    self['BicepInitialize'] = (newInterop: any) => {
       interop = newInterop;
       resolve(true);
     }

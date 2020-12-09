@@ -395,7 +395,7 @@ namespace Bicep.LanguageServer.Completions
                     const string arrayLabel = "[]";
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Value)
                         .WithLabel(arrayLabel)
-                        .WithSnippetEdit(replacementRange, "[$0]")
+                        .WithSnippetEdit(replacementRange, "[\n\t$0\n]", InsertTextMode.AdjustIndentation)
                         .WithDetail(arrayLabel)
                         .Preselect()
                         .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
@@ -423,7 +423,7 @@ namespace Bicep.LanguageServer.Completions
             const string objectLabel = "{}";
             return CompletionItemBuilder.Create(CompletionItemKind.Value)
                 .WithLabel(objectLabel)
-                .WithSnippetEdit(replacementRange, "{$0}")
+                .WithSnippetEdit(replacementRange, "{\n\t$0\n}", InsertTextMode.AdjustIndentation)
                 .WithDetail(objectLabel)
                 .Preselect()
                 .WithSortText(GetSortText(objectLabel, CompletionPriority.High));

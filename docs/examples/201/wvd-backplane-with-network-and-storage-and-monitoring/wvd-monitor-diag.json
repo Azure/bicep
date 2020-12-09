@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logAnalyticsWorkspaceID": {
+      "type": "string"
+    },
+    "logAnalyticslocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "hostpoolName": {
+      "type": "string"
+    },
+    "workspaceName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "hostpoolDiagName": "[format('{0}/Microsoft.Insights/hostpool-diag', parameters('hostpoolName'))]",
+    "workspaceDiagName": "[format('{0}/Microsoft.Insights/workspacepool-diag', parameters('workspaceName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[variables('hostpoolDiagName')]",
+      "location": "[parameters('logAnalyticslocation')]",
+      "properties": {
+        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+        "logs": [
+          {
+            "category": "Checkpoint",
+            "enabled": "True"
+          },
+          {
+            "category": "Error",
+            "enabled": "True"
+          },
+          {
+            "category": "Management",
+            "enabled": "True"
+          },
+          {
+            "category": "Connection",
+            "enabled": "True"
+          },
+          {
+            "category": "HostRegistration",
+            "enabled": "True"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "name": "[variables('workspaceDiagName')]",
+      "location": "[parameters('logAnalyticslocation')]",
+      "properties": {
+        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+        "logs": [
+          {
+            "category": "Checkpoint",
+            "enabled": "True"
+          },
+          {
+            "category": "Error",
+            "enabled": "True"
+          },
+          {
+            "category": "Management",
+            "enabled": "True"
+          },
+          {
+            "category": "Feed",
+            "enabled": "True"
+          }
+        ]
+      }
+    }
+  ]
+}

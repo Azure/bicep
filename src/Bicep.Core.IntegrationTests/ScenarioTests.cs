@@ -94,5 +94,29 @@ output vnetstate string = vnet.properties.provisioningState
             jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
             jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
         }
+
+        [TestMethod]
+        public void Test_Issue982()
+        {
+            var bicepContents = @"
+param functionApp object
+param serverFarmId string
+
+output config object = list(format('{0}/config/appsettings', functionAppResource.id), functionAppResource.apiVersion)
+
+resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
+  name: functionApp.name
+  location: resourceGroup().location
+  kind: 'functionApp'
+  properties: {
+    httpsOnly: true
+    serverFarmId: serverFarmId
+  }
+}
+";
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(bicepContents);
+            jsonOutput.Should().Contain("[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
+        }
     }
 }

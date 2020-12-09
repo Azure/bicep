@@ -1,0 +1,170 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "systemName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "dataFactoryName": "[format('df{0}', parameters('systemName'))]",
+    "storageAccountName": "[format('sa{0}', parameters('systemName'))]",
+    "blobContainerName": "[format('blob{0}', parameters('systemName'))]",
+    "pipelineName": "[format('pipe{0}', parameters('systemName'))]",
+    "dataFactoryLinkedServiceName": "ArmtemplateStorageLinkedService",
+    "DataFactoryDataSetInName": "ArmtemplateTestDatasetIn",
+    "DataFactoryDataSetOutName": "ArmtemplateTestDatasetOut"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories",
+      "apiVersion": "2018-06-01",
+      "name": "[variables('dataFactoryName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      }
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/linkedservices",
+      "apiVersion": "2018-06-01",
+      "name": "[format('{0}/{1}', variables('dataFactoryName'), variables('dataFactoryLinkedServiceName'))]",
+      "properties": {
+        "type": "AzureBlobStorage",
+        "typeProperties": {
+          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', variables('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2020-08-01-preview').keys[0].value)]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/datasets",
+      "apiVersion": "2018-06-01",
+      "name": "[format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetInName'))]",
+      "properties": {
+        "linkedServiceName": {
+          "referenceName": "[variables('dataFactoryLinkedServiceName')]",
+          "type": "LinkedServiceReference"
+        },
+        "type": "Binary",
+        "typeProperties": {
+          "location": {
+            "type": "AzureBlobStorageLocation",
+            "container": "[format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName'))]",
+            "folderPath": "input",
+            "fileName": "emp.txt"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[0], split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[1], split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[2])]",
+        "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/datasets",
+      "apiVersion": "2018-06-01",
+      "name": "[format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName'))]",
+      "properties": {
+        "linkedServiceName": {
+          "referenceName": "[variables('dataFactoryLinkedServiceName')]",
+          "type": "LinkedServiceReference"
+        },
+        "type": "Binary",
+        "typeProperties": {
+          "location": {
+            "type": "AzureBlobStorageLocation",
+            "container": "[format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName'))]",
+            "folderPath": "output"
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[0], split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[1], split(format('{0}/default/{1}', variables('storageAccountName'), variables('blobContainerName')), '/')[2])]",
+        "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DataFactory/factories/pipelines",
+      "apiVersion": "2018-06-01",
+      "name": "[format('{0}/{1}', variables('dataFactoryName'), variables('pipelineName'))]",
+      "properties": {
+        "activities": [
+          {
+            "name": "MyCopyActivity",
+            "type": "Copy",
+            "policy": {
+              "timeout": "7.00:00:00",
+              "retry": 0,
+              "retryIntervalInSeconds": 30,
+              "secureOutput": false,
+              "secureInput": false
+            },
+            "typeProperties": {
+              "source": {
+                "type": "BinarySource",
+                "storeSettings": {
+                  "type": "AzureBlobStorageReadSettings",
+                  "recursive": true
+                }
+              },
+              "sink": {
+                "type": "BinarySink",
+                "storeSettings": {
+                  "type": "AzureBlobStorageWriterSettings"
+                }
+              },
+              "enableStaging": false
+            },
+            "inputs": [
+              {
+                "referenceName": "[variables('DataFactoryDataSetInName')]",
+                "type": "DatasetReference",
+                "properties": {}
+              }
+            ],
+            "outputs": [
+              {
+                "referenceName": "[variables('DataFactoryDataSetOutName')]",
+                "type": "DatasetReference",
+                "properties": {}
+              }
+            ]
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DataFactory/factories', variables('dataFactoryName'))]",
+        "[resourceId('Microsoft.DataFactory/factories/datasets', split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetInName')), '/')[0], split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetInName')), '/')[1])]",
+        "[resourceId('Microsoft.DataFactory/factories/datasets', split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[0], split(format('{0}/{1}', variables('dataFactoryName'), variables('DataFactoryDataSetOutName')), '/')[1])]"
+      ]
+    }
+  ]
+}

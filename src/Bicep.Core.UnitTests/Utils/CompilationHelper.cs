@@ -73,7 +73,7 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             return (jsonOutput, diagnostics);
-        }        
+        }
 
         public static void AssertFailureWithDiagnostics(string fileContents,  IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics)
         {
@@ -90,6 +90,13 @@ namespace Bicep.Core.UnitTests.Utils
                 jsonOutput.Should().BeNull();
                 diagnostics.Should().HaveDiagnostics(expectedDiagnostics);
             }
+        }
+
+        public static string AssertSuccessWithTemplateOutput(string fileContents)
+        {
+            var entryFileUri = new Uri("file:///main.bicep");
+
+            return AssertSuccessWithTemplateOutput(new Dictionary<Uri, string> { [entryFileUri] = fileContents }, entryFileUri);
         }
 
         public static string AssertSuccessWithTemplateOutput(IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
