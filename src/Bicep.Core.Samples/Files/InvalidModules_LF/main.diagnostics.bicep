@@ -110,6 +110,17 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 
 }
 
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[35:49) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
+
+}
+
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[34:48) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
+
+}
+
+
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
 

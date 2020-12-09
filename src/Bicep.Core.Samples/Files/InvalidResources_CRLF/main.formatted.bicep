@@ -52,6 +52,15 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (123) {
   name: 'foo'
 }
 
+// runtime functions are no allowed in resource conditions
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+  name: 'foo'
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+  name: 'foo'
+}
+
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'foo'

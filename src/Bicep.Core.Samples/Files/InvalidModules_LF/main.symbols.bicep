@@ -99,6 +99,17 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 
 }
 
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[7:34) Module modWithReferenceInCondition. Type: error. Declaration start char: 0, length: 149
+
+}
+
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[7:33) Module modWithListKeysInCondition. Type: error. Declaration start char: 0, length: 102
+
+}
+
+
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) Module modANoName. Type: error. Declaration start char: 0, length: 68
 

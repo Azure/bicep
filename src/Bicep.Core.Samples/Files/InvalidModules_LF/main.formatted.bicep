@@ -61,6 +61,10 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
   // #completionTest(0) -> moduleAWithConditionTopLevelProperties
 }
 
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {}
+
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {}
+
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 
 }

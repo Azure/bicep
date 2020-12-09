@@ -255,6 +255,66 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// runtime functions are no allowed in resource conditions
+//@[58:60) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[51:52) Assignment |=|
+//@[53:55) Identifier |if|
+//@[56:57) LeftParen |(|
+//@[57:66) Identifier |reference|
+//@[66:67) LeftParen |(|
+//@[67:109) StringComplete |'Micorosft.Management/managementGroups/MG'|
+//@[109:110) Comma |,|
+//@[111:123) StringComplete |'2020-05-01'|
+//@[123:124) RightParen |)|
+//@[124:125) Dot |.|
+//@[125:129) Identifier |name|
+//@[130:132) Equals |==|
+//@[133:144) StringComplete |'something'|
+//@[144:145) RightParen |)|
+//@[146:147) LeftBrace |{|
+//@[147:149) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[0:8) Identifier |resource|
+//@[9:12) Identifier |foo|
+//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[51:52) Assignment |=|
+//@[53:55) Identifier |if|
+//@[56:57) LeftParen |(|
+//@[57:65) Identifier |listKeys|
+//@[65:66) LeftParen |(|
+//@[66:71) StringComplete |'foo'|
+//@[71:72) Comma |,|
+//@[73:85) StringComplete |'2020-05-01'|
+//@[85:86) RightParen |)|
+//@[86:87) Dot |.|
+//@[87:90) Identifier |bar|
+//@[91:93) Equals |==|
+//@[94:98) TrueKeyword |true|
+//@[98:99) RightParen |)|
+//@[100:101) LeftBrace |{|
+//@[101:103) NewLine |\r\n|
+  name: 'foo'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:13) StringComplete |'foo'|
+//@[13:15) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // duplicate property at the top level
 //@[38:40) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {

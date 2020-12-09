@@ -410,6 +410,89 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[0:149) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:34)  IdentifierSyntax
+//@[7:34)   Identifier |modWithReferenceInCondition|
+//@[35:49)  StringSyntax
+//@[35:49)   StringComplete |'./main.bicep'|
+//@[50:51)  Assignment |=|
+//@[52:144)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:144)   ParenthesizedExpressionSyntax
+//@[55:56)    LeftParen |(|
+//@[56:143)    BinaryOperationSyntax
+//@[56:128)     PropertyAccessSyntax
+//@[56:123)      FunctionCallSyntax
+//@[56:65)       IdentifierSyntax
+//@[56:65)        Identifier |reference|
+//@[65:66)       LeftParen |(|
+//@[66:109)       FunctionArgumentSyntax
+//@[66:108)        StringSyntax
+//@[66:108)         StringComplete |'Micorosft.Management/managementGroups/MG'|
+//@[108:109)        Comma |,|
+//@[110:122)       FunctionArgumentSyntax
+//@[110:122)        StringSyntax
+//@[110:122)         StringComplete |'2020-05-01'|
+//@[122:123)       RightParen |)|
+//@[123:124)      Dot |.|
+//@[124:128)      IdentifierSyntax
+//@[124:128)       Identifier |name|
+//@[129:131)     Equals |==|
+//@[132:143)     StringSyntax
+//@[132:143)      StringComplete |'something'|
+//@[143:144)    RightParen |)|
+//@[145:149)  ObjectSyntax
+//@[145:146)   LeftBrace |{|
+//@[146:148)   NewLine |\n\n|
+
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[0:102) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |modWithListKeysInCondition|
+//@[34:48)  StringSyntax
+//@[34:48)   StringComplete |'./main.bicep'|
+//@[49:50)  Assignment |=|
+//@[51:97)  IfConditionSyntax
+//@[51:53)   Identifier |if|
+//@[54:97)   ParenthesizedExpressionSyntax
+//@[54:55)    LeftParen |(|
+//@[55:96)    BinaryOperationSyntax
+//@[55:88)     PropertyAccessSyntax
+//@[55:84)      FunctionCallSyntax
+//@[55:63)       IdentifierSyntax
+//@[55:63)        Identifier |listKeys|
+//@[63:64)       LeftParen |(|
+//@[64:70)       FunctionArgumentSyntax
+//@[64:69)        StringSyntax
+//@[64:69)         StringComplete |'foo'|
+//@[69:70)        Comma |,|
+//@[71:83)       FunctionArgumentSyntax
+//@[71:83)        StringSyntax
+//@[71:83)         StringComplete |'2020-05-01'|
+//@[83:84)       RightParen |)|
+//@[84:85)      Dot |.|
+//@[85:88)      IdentifierSyntax
+//@[85:88)       Identifier |bar|
+//@[89:91)     Equals |==|
+//@[92:96)     BooleanLiteralSyntax
+//@[92:96)      TrueKeyword |true|
+//@[96:97)    RightParen |)|
+//@[98:102)  ObjectSyntax
+//@[98:99)   LeftBrace |{|
+//@[99:101)   NewLine |\n\n|
+
+}
+//@[0:1)   RightBrace |}|
+//@[1:4) NewLine |\n\n\n|
+
+
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[0:68) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
