@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 
 import { expectDefined, expectRange } from "../utils/assert";
-import { sleep } from "../utils/time";
+import { retryWhile, sleep } from "../utils/time";
 import { executeHoverProviderCommand } from "./commands";
 import { readExampleFile } from "./examples";
 
@@ -29,7 +29,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
-    const hovers = await executeHoverProviderCommand(
+    const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
       new vscode.Position(1, 7)
     );
@@ -44,7 +44,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a variable name", async () => {
-    const hovers = await executeHoverProviderCommand(
+    const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
       new vscode.Position(53, 10)
     );
@@ -59,7 +59,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a resource symbolic name", async () => {
-    const hovers = await executeHoverProviderCommand(
+    const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
       new vscode.Position(111, 10)
     );
@@ -74,7 +74,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over an output name", async () => {
-    const hovers = await executeHoverProviderCommand(
+    const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
       new vscode.Position(186, 14)
     );
@@ -89,7 +89,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a function name", async () => {
-    const hovers = await executeHoverProviderCommand(
+    const hovers = await executeHoverProviderCommandWithRetry(
       document.uri,
       new vscode.Position(19, 60)
     );
@@ -102,6 +102,16 @@ describe("hover", (): void => {
       contents: ["function uniqueString(string): string"],
     });
   });
+
+  function executeHoverProviderCommandWithRetry(
+    documentUri: vscode.Uri,
+    position: vscode.Position
+  ) {
+    return retryWhile(
+      async () => await executeHoverProviderCommand(documentUri, position),
+      (hovers) => hovers === undefined || hovers.length === 0
+    );
+  }
 
   function expectHovers(
     hovers: vscode.Hover[] | undefined,
