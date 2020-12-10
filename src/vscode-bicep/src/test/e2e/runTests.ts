@@ -16,21 +16,18 @@ async function go() {
       vscodeExecutablePath
     );
 
-    // some of our builds run as root in a container, which requires passing
-    // the user data folder path to vs code itself
-    const userDataDir = path.resolve(__dirname, "user-data");
-    const userDataArgument = `--user-data-dir="${userDataDir}"`;
+    const isRoot = os.userInfo().username === "root";
 
-    const isRoot = os.userInfo().username == "root";
+    // some of our builds run as root in a container, which requires passing
+    // the user data folder relative path to vs code itself
+    const userDataDir = "./.vscode-test/user-data";
+    const userDataArguments = isRoot ? ["--user-data-dir", userDataDir] : [];
 
     const extensionInstallArguments = [
       "--install-extension",
       "ms-dotnettools.vscode-dotnet-runtime",
+      ...userDataArguments,
     ];
-
-    if (isRoot) {
-      extensionInstallArguments.push(userDataArgument);
-    }
 
     // Install .NET Install Tool as a dependency.
     cp.spawnSync(cliPath, extensionInstallArguments, {
@@ -42,9 +39,8 @@ async function go() {
       vscodeExecutablePath,
       extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
       extensionTestsPath: path.resolve(__dirname, "index"),
-      launchArgs: isRoot
-        ? ["--enable-proposed-api", userDataArgument]
-        : ["--enable-proposed-api"],
+      extensionTestsEnv: { NODE_ENV: "test" },
+      launchArgs: ["--enable-proposed-api", ...userDataArguments],
     });
 
     process.exit(0);

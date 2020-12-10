@@ -3,6 +3,7 @@
 import * as vscode from "vscode";
 import * as winston from "winston";
 import * as Transport from "winston-transport";
+import * as path from "path";
 import { MESSAGE } from "triple-beam";
 
 export interface Logger {
@@ -33,7 +34,18 @@ export class WinstonLogger implements Logger, vscode.Disposable {
             : `${entry.timestamp} ${entry.level}: ${entry.message}`
         )
       ),
-      transports: [new outputChannelTransport(outputChannel)],
+      transports: [
+        new outputChannelTransport(outputChannel),
+        ...(isTestEnv()
+          ? [
+              new winston.transports.File({
+                dirname: path.resolve(__dirname, "../.."),
+                filename: "bicep.log",
+                options: { flags: "w" },
+              }),
+            ]
+          : []),
+      ],
     });
   }
 
@@ -73,6 +85,10 @@ class outputChannelTransport extends Transport {
   }
 }
 
+function isTestEnv() {
+  return process.env.NODE_ENV === "test";
+}
+
 export function createLogger(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
@@ -98,6 +114,6 @@ export function getLogger(): Logger {
   return logger;
 }
 
-if (process.env.NODE_ENV === "test") {
+if (isTestEnv()) {
   exports.resetLogger = () => (logger = undefined);
 }

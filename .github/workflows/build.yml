@@ -175,11 +175,16 @@ jobs:
         run: npm run test:e2e
         if: runner.os != 'Linux'
         working-directory: ./src/vscode-bicep
-        
+
       # In headless Linux CI machines xvfb is required to run VS Code, so need a separate path for Linux.
       - name: Run E2E tests (Linux)
         run: xvfb-run -a npm run test:e2e
         if: runner.os == 'Linux'
+        working-directory: ./src/vscode-bicep
+
+      - name: Show extension logs of E2E tests
+        run: cat ./bicep.log
+        if: ${{ always() }}
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
