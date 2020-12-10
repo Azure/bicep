@@ -88,6 +88,10 @@
         "description": "101/deployment-script-with-storage"
     },
     {
+        "filePath": "101/eventhub-namespace/main.bicep",
+        "description": "101/eventhub-namespace"
+    },
+    {
         "filePath": "101/expressroute-circuit-create/main.bicep",
         "description": "101/expressroute-circuit-create"
     },
