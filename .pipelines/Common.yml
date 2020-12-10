@@ -115,7 +115,12 @@ stages:
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
       env:
         DISPLAY: ':99.0'
-    
+
+    - script: cat ./bicep.log
+      displayName: Show extension logs of E2E tests
+      condition: always()
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
     - script: killall Xvfb
       displayName: Kill Xvfb
 

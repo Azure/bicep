@@ -11,3 +11,4 @@ tsconfig.json
 gulpfile.js
 jest.config.*.js
 vsc-extension-quickstart.md
+bicep.log
