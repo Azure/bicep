@@ -64,6 +64,13 @@ param missingTypeWithTabAfter
 //@[6:29) Identifier |missingTypeWithTabAfter|
 //@[30:32) NewLine |\n\n|
 
+// #completionTest(20) -> paramTypes
+//@[36:37) NewLine |\n|
+param trailingSpace  
+//@[0:5) Identifier |param|
+//@[6:19) Identifier |trailingSpace|
+//@[21:23) NewLine |\n\n|
+
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 //@[61:62) NewLine |\n|
 param partialType str

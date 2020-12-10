@@ -26,6 +26,10 @@ output foo
 output spaceAfterId 
 //@[20:20) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
 
+// #completionTest(25) -> outputTypes
+output spacesAfterCursor  
+//@[26:26) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
+
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
 //@[19:22) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |obj|

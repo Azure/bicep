@@ -12,6 +12,10 @@ resource fo/o
 resource foo 'ddd'
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 18
 
+// #completionTest(23) -> resourceTypes
+resource trailingSpace  
+//@[9:22) Resource trailingSpace. Type: error. Declaration start char: 0, length: 24
+
 // #completionTest(19,20) -> object
 resource foo 'ddd'= 
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 20

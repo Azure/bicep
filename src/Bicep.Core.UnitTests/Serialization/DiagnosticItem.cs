@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Newtonsoft.Json;
 
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.Serialization
             this.ErrorCode = diagnostic.Code;
             this.Level = diagnostic.Level.ToString();
             this.Span = diagnostic.Span;
-            this.SpanText = contents[new Range(diagnostic.Span.Position, diagnostic.Span.Position + diagnostic.Span.Length)];
+            this.SpanText = contents[new Range(diagnostic.Span.Position, diagnostic.GetEndPosition())];
         }
 
         public string Message { get; }

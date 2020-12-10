@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
@@ -72,7 +73,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                 }
 
                 // this is the position of the end of the comment
-                var commentEndPosition = PositionHelper.GetPosition(this.lineStarts, syntaxTrivia.Span.Position + syntaxTrivia.Span.Length);
+                var commentEndPosition = PositionHelper.GetPosition(this.lineStarts, syntaxTrivia.GetEndPosition());
 
                 // the trigger should apply to the char index at the next line
                 var triggerPosition = new Position(commentEndPosition.Line + 1, charIndex);

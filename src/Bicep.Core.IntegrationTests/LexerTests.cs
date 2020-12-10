@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
@@ -46,7 +47,7 @@ namespace Bicep.Core.IntegrationTests
             foreach (Token token in lexer.GetTokens())
             {
                 // lookup the text of the token in original contents by token's span
-                string tokenText = dataSet.Bicep[new Range(token.Span.Position, token.Span.Position + token.Span.Length)];
+                string tokenText = dataSet.Bicep[new Range(token.Span.Position, token.GetEndPosition())];
 
                 tokenText.Should().Be(token.Text, "because token text at location should match original contents at the same location");
             }

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Linq;
+
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Extensions
@@ -10,5 +9,8 @@ namespace Bicep.Core.Extensions
     {
         public static TextSpan ToZeroLengthSpan(this IPositionable positionable)
             => new TextSpan(positionable.Span.Position, 0);
+
+        public static int GetEndPosition(this IPositionable positionable)
+            => positionable.Span.Position + positionable.Span.Length;
     }
 }
