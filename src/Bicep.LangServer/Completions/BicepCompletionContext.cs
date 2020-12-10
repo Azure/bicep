@@ -153,7 +153,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
         {
-            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => parameter.Name.Span.Length > 0 && parameter.Type.Span.Position == offset) ||
+            // local function
+            bool IsStuff(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && type.Span.Position == offset;
+
+            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => IsStuff(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
@@ -164,7 +167,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ParameterType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output=> output.Name.Span.Length > 0 && output.Type.Span.Position == offset) ||
+            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => IsStuff(output.Name, output.Type)) ||
                 SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is an output declaration
@@ -175,7 +178,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.OutputType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => resource.Name.Span.Length > 0 && resource.Type.Span.Position == offset) ||
+            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => IsStuff(resource.Name, resource.Type)) ||
                 SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
                 SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
@@ -189,7 +192,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ResourceType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => module.Name.Span.Length > 0 && module.Path.Span.Position == offset) ||
+            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => IsStuff(module.Name, module.Path)) ||
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
             {
                 // the most specific matching node is a module declaration
