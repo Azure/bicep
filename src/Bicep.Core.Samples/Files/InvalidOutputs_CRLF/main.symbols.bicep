@@ -24,6 +24,10 @@ output foo
 output spaceAfterId 
 //@[7:19) Output spaceAfterId. Type: any. Declaration start char: 0, length: 20
 
+// #completionTest(25) -> outputTypes
+output spacesAfterCursor  
+//@[7:24) Output spacesAfterCursor. Type: any. Declaration start char: 0, length: 26
+
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
 //@[7:18) Output partialType. Type: error. Declaration start char: 0, length: 22

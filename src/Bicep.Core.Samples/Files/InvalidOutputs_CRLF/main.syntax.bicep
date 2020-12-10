@@ -76,6 +76,18 @@ output spaceAfterId
 //@[20:20)  SkippedTriviaSyntax
 //@[20:24) NewLine |\r\n\r\n|
 
+// #completionTest(25) -> outputTypes
+//@[37:39) NewLine |\r\n|
+output spacesAfterCursor  
+//@[0:26) OutputDeclarationSyntax
+//@[0:6)  Identifier |output|
+//@[7:24)  IdentifierSyntax
+//@[7:24)   Identifier |spacesAfterCursor|
+//@[26:26)  SkippedTriviaSyntax
+//@[26:26)  SkippedTriviaSyntax
+//@[26:26)  SkippedTriviaSyntax
+//@[26:30) NewLine |\r\n\r\n|
+
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 //@[62:64) NewLine |\r\n|
 output partialType obj
