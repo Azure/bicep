@@ -153,76 +153,53 @@ namespace Bicep.LanguageServer.Completions
 
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
         {
-            if (matchingNodes.Count < 2)
-            {
-                return BicepCompletionContextKind.None;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => parameter.Name.Span.Length > 0 && parameter.Type.Span.Position == offset))
+            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => parameter.Name.Span.Length > 0 && parameter.Type.Span.Position == offset) ||
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
                 // the declaration syntax is "param <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
-                return BicepCompletionContextKind.ParameterType;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output=> output.Name.Span.Length > 0 && output.Type.Span.Position == offset))
-            {
-                // the most specific matching node is an output declaration
-                // the declaration syntax is "output <identifier> <type> ..."
-                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
-                return BicepCompletionContextKind.OutputType;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => resource.Name.Span.Length > 0 && resource.Type.Span.Position == offset))
-            {
-                // the most specific matching node is a resource declaration
-                // the declaration syntax is "resource <identifier> '<type>' ..."
-                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
-                return BicepCompletionContextKind.ResourceType;
-            }
-
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => module.Name.Span.Length > 0 && module.Path.Span.Position == offset))
-            {
-                // the most specific matching node is a module declaration
-                // the declaration syntax is "module <identifier> '<path>' ..."
-                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position
-                return BicepCompletionContextKind.ModulePath;
-            }
-
-
-            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
-            {
+                // OR
                 // we are in a token that is inside a TypeSyntax node, which is inside a parameter node
                 return BicepCompletionContextKind.ParameterType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output=> output.Name.Span.Length > 0 && output.Type.Span.Position == offset) ||
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
+                // the most specific matching node is an output declaration
+                // the declaration syntax is "output <identifier> <type> ..."
+                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
+                // OR
                 // we are in a token that is inside a TypeSyntax node, which is inside an output node
                 return BicepCompletionContextKind.OutputType;
             }
 
-
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
+            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => resource.Name.Span.Length > 0 && resource.Type.Span.Position == offset) ||
+                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
+                SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
+                // the most specific matching node is a resource declaration
+                // the declaration syntax is "resource <identifier> '<type>' ..."
+                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
+                // OR
                 // we are in a token that is inside a StringSyntax node, which is inside a resource declaration
+                // OR
+                // we have an identifier in the place of a type in a resoure (this allows us to show completions when user just types virtualMachines instead of 'virtualMachines')
                 return BicepCompletionContextKind.ResourceType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
+            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => module.Name.Span.Length > 0 && module.Path.Span.Position == offset) ||
+                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
             {
+                // the most specific matching node is a module declaration
+                // the declaration syntax is "module <identifier> '<path>' ..."
+                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position
+                // OR
                 // we are in a token that is inside a StringSyntax node, which is inside a module declaration
                 return BicepCompletionContextKind.ModulePath;
             }
 
-
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
-            {
-                // we have an identifier in the place of a type in a resoure
-                return BicepCompletionContextKind.ResourceType;
-            }
-            
             return BicepCompletionContextKind.None;
         }
 
