@@ -12,6 +12,11 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2020-04-01' = {
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
     }
+    locations: [
+      {
+        locationName: location
+      }
+    ]
   }
 }
 
