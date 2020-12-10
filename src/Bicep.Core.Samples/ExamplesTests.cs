@@ -98,7 +98,7 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.DataFactory/factories/pipelines@2018-06-01\" does not have types available.",
                 "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.", 
-                "Resource type \"Microsoft.EventHub/namespaces@2018-01-01-preview \" does not have types available.", 
+                "Resource type \"Microsoft.EventHub/namespaces@2018-01-01-preview\" does not have types available.", 
                 "Resource type \"Microsoft.KeyVault/vaults@2019-06-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults/keys@2019-09-01\" does not have types available.",
                 "Resource type \"Microsoft.KeyVault/vaults/secrets@2018-02-14\" does not have types available.",
