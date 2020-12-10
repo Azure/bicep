@@ -13,17 +13,16 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2018-01-01-preview' = 
     tier: eventHubSku
     capacity: 1
   }
-  properties:{
+  properties: {
     isAutoInflateEnabled: false
     maximumThroughputUnits: 0
   }
 }
 
-resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2017-04-01' ={
+resource eventHub 'Microsoft.EventHub/namespaces/eventhubs@2017-04-01' = {
   name: '${eventHubNamespace.name}/${eventHubName}'
-  properties : {
+  properties: {
     messageRetentionInDays: 7
     partitionCount: 1
   }
-
 }
