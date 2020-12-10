@@ -154,9 +154,9 @@ namespace Bicep.LanguageServer.Completions
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
         {
             // local function
-            bool IsStuff(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && type.Span.Position == offset;
+            bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.Span.Position + name.Span.Length && offset <= type.Span.Position;
 
-            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => IsStuff(parameter.Name, parameter.Type)) ||
+            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
@@ -167,7 +167,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ParameterType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => IsStuff(output.Name, output.Type)) ||
+            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckTypeIsExpected(output.Name, output.Type)) ||
                 SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is an output declaration
@@ -178,7 +178,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.OutputType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => IsStuff(resource.Name, resource.Type)) ||
+            if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeIsExpected(resource.Name, resource.Type)) ||
                 SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
                 SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Completions
                 return BicepCompletionContextKind.ResourceType;
             }
 
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => IsStuff(module.Name, module.Path)) ||
+            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => CheckTypeIsExpected(module.Name, module.Path)) ||
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
             {
                 // the most specific matching node is a module declaration
