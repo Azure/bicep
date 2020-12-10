@@ -44,6 +44,10 @@
         "description": "101/container-registry"
     },
     {
+        "filePath": "101/cosmosdb-free/main.bicep",
+        "description": "101/cosmosdb-free"
+    },
+    {
         "filePath": "101/cosmosdb-webapp/main.bicep",
         "description": "101/cosmosdb-webapp"
     },
