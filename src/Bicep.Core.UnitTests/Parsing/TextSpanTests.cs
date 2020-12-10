@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -153,6 +154,16 @@ namespace Bicep.Core.UnitTests.Parsing
             var second = TextSpan.Parse(str);
             second.Position.Should().Be(expectedPosition);
             second.Length.Should().Be(expectedLength);
+        }
+
+        [DataTestMethod]
+        [DataRow("[0:0]")]
+        [DataRow("[0:1]")]
+        [DataRow("[123:134]")]
+        public void GetEndPosition_ShouldReturnExpectedValue(string str)
+        {
+            var span = TextSpan.Parse(str);
+            span.GetEndPosition().Should().Be(span.Position + span.Length);
         }
     }
 }

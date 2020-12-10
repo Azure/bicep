@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -154,7 +155,7 @@ namespace Bicep.LanguageServer.Completions
         private static BicepCompletionContextKind GetDeclarationTypeFlags(IList<SyntaxBase> matchingNodes, int offset)
         {
             // local function
-            bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.Span.Position + name.Span.Length && offset <= type.Span.Position;
+            bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.GetEndPosition() && offset <= type.Span.Position;
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
@@ -415,7 +416,7 @@ namespace Bicep.LanguageServer.Completions
                            !resource.Assignment.Span.ContainsInclusive(offset) &&
                            resource.Body is SkippedTriviaSyntax && offset == resource.Body.Span.Position;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.Span.Position + token.Span.Length:
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check the type
                     return matchingNodes[^2] is ResourceDeclarationSyntax;
@@ -436,7 +437,7 @@ namespace Bicep.LanguageServer.Completions
                            !module.Assignment.Span.ContainsInclusive(offset) &&
                            module.Body is SkippedTriviaSyntax && offset == module.Body.Span.Position;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.Span.Position + token.Span.Length:
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check the type
                     return matchingNodes[^2] is ModuleDeclarationSyntax;
@@ -478,7 +479,7 @@ namespace Bicep.LanguageServer.Completions
                     
                     break;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.Span.Position + token.Span.Length:
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check if parent is of the right type
                     var parent = matchingNodes[^2];
