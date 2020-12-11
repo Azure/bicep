@@ -27,12 +27,12 @@
     "minimumArgumentCount": 3,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, param2: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, param1: string, param2: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
       "param1: string",
       "param2: string",
-      "...rest: string[]"
+      "... : string"
     ]
   },
   {
@@ -134,11 +134,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
       "param1: string",
-      "...rest: string[]"
+      "... : string"
     ]
   },
   {
@@ -172,11 +172,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
       "param1: string",
-      "...rest: string[]"
+      "... : string"
     ]
   },
   {
@@ -197,11 +197,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
       "param1: string",
-      "...rest: string[]"
+      "... : string"
     ]
   }
 ]

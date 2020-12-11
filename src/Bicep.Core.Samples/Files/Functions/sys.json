@@ -85,10 +85,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "any",
     "flags": "default",
-    "typeSignature": "(param0: any, ...rest: any[]): any",
+    "typeSignature": "(param0: any, ... : any): any",
     "parameterTypeSignatures": [
       "param0: any",
-      "...rest: any[]"
+      "... : any"
     ]
   },
   {
@@ -99,10 +99,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "array",
     "flags": "default",
-    "typeSignature": "(param0: array, ...rest: array[]): array",
+    "typeSignature": "(param0: array, ... : array): array",
     "parameterTypeSignatures": [
       "param0: array",
-      "...rest: array[]"
+      "... : array"
     ]
   },
   {
@@ -113,10 +113,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "bool | int | string",
     "flags": "default",
-    "typeSignature": "(param0: bool | int | string, ...rest: (bool | int | string)[]): string",
+    "typeSignature": "(param0: bool | int | string, ... : bool | int | string): string",
     "parameterTypeSignatures": [
       "param0: bool | int | string",
-      "...rest: (bool | int | string)[]"
+      "... : bool | int | string"
     ]
   },
   {
@@ -269,10 +269,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "any",
     "flags": "default",
-    "typeSignature": "(param0: string, ...rest: any[]): string",
+    "typeSignature": "(param0: string, ... : any): string",
     "parameterTypeSignatures": [
       "param0: string",
-      "...rest: any[]"
+      "... : any"
     ]
   },
   {
@@ -283,10 +283,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
-      "...rest: string[]"
+      "... : string"
     ]
   },
   {
@@ -326,11 +326,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "object",
     "flags": "default",
-    "typeSignature": "(param0: object, param1: object, ...rest: object[]): object",
+    "typeSignature": "(param0: object, param1: object, ... : object): object",
     "parameterTypeSignatures": [
       "param0: object",
       "param1: object",
-      "...rest: object[]"
+      "... : object"
     ]
   },
   {
@@ -342,11 +342,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "array",
     "flags": "default",
-    "typeSignature": "(param0: array, param1: array, ...rest: array[]): array",
+    "typeSignature": "(param0: array, param1: array, ... : array): array",
     "parameterTypeSignatures": [
       "param0: array",
       "param1: array",
-      "...rest: array[]"
+      "... : array"
     ]
   },
   {
@@ -424,10 +424,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "int",
     "flags": "default",
-    "typeSignature": "(param0: int, ...rest: int[]): int",
+    "typeSignature": "(param0: int, ... : int): int",
     "parameterTypeSignatures": [
       "param0: int",
-      "...rest: int[]"
+      "... : int"
     ]
   },
   {
@@ -451,10 +451,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "int",
     "flags": "default",
-    "typeSignature": "(param0: int, ...rest: int[]): int",
+    "typeSignature": "(param0: int, ... : int): int",
     "parameterTypeSignatures": [
       "param0: int",
-      "...rest: int[]"
+      "... : int"
     ]
   },
   {
@@ -696,11 +696,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "object",
     "flags": "default",
-    "typeSignature": "(param0: object, param1: object, ...rest: object[]): object",
+    "typeSignature": "(param0: object, param1: object, ... : object): object",
     "parameterTypeSignatures": [
       "param0: object",
       "param1: object",
-      "...rest: object[]"
+      "... : object"
     ]
   },
   {
@@ -712,11 +712,11 @@
     "minimumArgumentCount": 2,
     "variableParameterType": "array",
     "flags": "default",
-    "typeSignature": "(param0: array, param1: array, ...rest: array[]): array",
+    "typeSignature": "(param0: array, param1: array, ... : array): array",
     "parameterTypeSignatures": [
       "param0: array",
       "param1: array",
-      "...rest: array[]"
+      "... : array"
     ]
   },
   {
@@ -727,10 +727,10 @@
     "minimumArgumentCount": 1,
     "variableParameterType": "string",
     "flags": "default",
-    "typeSignature": "(param0: string, ...rest: string[]): string",
+    "typeSignature": "(param0: string, ... : string): string",
     "parameterTypeSignatures": [
       "param0: string",
-      "...rest: string[]"
+      "... : string"
     ]
   },
   {

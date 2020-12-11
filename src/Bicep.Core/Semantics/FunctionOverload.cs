@@ -47,8 +47,7 @@ namespace Bicep.Core.Semantics
 
             if (variableParameterType != null)
             {
-                var restParameterType = variableParameterType.TypeKind == TypeKind.Union ? $"({variableParameterType})[]": $"{variableParameterType}[]";
-                builder.Add($"...rest: {restParameterType}");
+                builder.Add($"... : {variableParameterType}");
             }
 
             this.ParameterTypeSignatures = builder.ToImmutable();
