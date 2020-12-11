@@ -170,10 +170,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             // TODO: This is based on docs. Verify
-            yield return FunctionOverload.CreateWithVarArgs("resourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("subscriptionResourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("tenantResourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("extensionResourceId", LanguageConstants.String, 3, LanguageConstants.String);
+            yield return new FunctionOverloadBuilder("resourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("subscriptionResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("tenantResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("extensionResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(3, LanguageConstants.String)
+                .Build();
 
             // TODO: Not sure about return type
             yield return new FunctionOverload("providers", LanguageConstants.Array, 1, 2, Enumerable.Repeat(LanguageConstants.String, 2), null);

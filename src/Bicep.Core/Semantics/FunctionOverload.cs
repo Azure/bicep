@@ -132,14 +132,5 @@ namespace Bicep.Core.Semantics
 
         public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
             new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);
-
-        public static FunctionOverload CreateWithVarArgs(string name, TypeSymbol returnType, int minimumArgumentCount, TypeSymbol argumentType) =>
-            new FunctionOverload(
-                name,
-                returnType,
-                minimumArgumentCount,
-                maximumArgumentCount: null,
-                Enumerable.Repeat(argumentType, minimumArgumentCount),
-                argumentType);
     }
 }

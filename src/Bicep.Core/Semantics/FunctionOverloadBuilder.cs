@@ -73,14 +73,29 @@ namespace Bicep.Core.Semantics
 
         public FunctionOverloadBuilder WithFixedParameters(params TypeSymbol[] parameterTypes)
         {
+            this.fixedParameterTypes.Clear();
             foreach (TypeSymbol parameterType in parameterTypes)
             {
                 this.fixedParameterTypes.Add(parameterType);
             }
 
-            // TODO: Ensure these values are accurate regardless of call order on With* methods.
             this.minimumArgumentCount = parameterTypes.Length;
             this.maximumArgumentCount = parameterTypes.Length;
+
+            return this;
+        }
+
+        public FunctionOverloadBuilder WithVariableParameters(int minimumArgumentCount, TypeSymbol parameterType)
+        {
+            this.fixedParameterTypes.Clear();
+            for (int i = 0; i < minimumArgumentCount; i++)
+            {
+                this.fixedParameterTypes.Add(parameterType);
+            }
+
+            this.minimumArgumentCount = minimumArgumentCount;
+            this.maximumArgumentCount = null;
+            this.variableParameterType = parameterType;
 
             return this;
         }
