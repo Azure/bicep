@@ -41,12 +41,12 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task EmptyFileShouldProduceDeclarationCompletions()
         {
             const string expectedSetName = "declarations";
-            var uri = DocumentUri.From($"/{this.TestContext!.TestName}");
+            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
 
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(string.Empty, uri);
 
             var actual = await GetActualCompletions(client, uri, new Position(0, 0));
-            var actualLocation = FileHelper.SaveResultFile(this.TestContext!, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
+            var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{this.TestContext.TestName}_{expectedSetName}", actual.ToString(Formatting.Indented));
             
             var expectedStr = DataSets.Completions.TryGetValue(GetFullSetName(expectedSetName));
             if (expectedStr == null)
@@ -116,7 +116,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
 
             var actual = JToken.Parse(single.Key);
-            var actualLocation = FileHelper.SaveResultFile(this.TestContext!, $"{dataSet.Name}_{setName}_Actual.json", actual.ToString(Formatting.Indented));
+            var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{dataSet.Name}_{setName}_Actual.json", actual.ToString(Formatting.Indented));
 
             var expected = expectedInfo.Value.content;
             var expectedLocation = expectedInfo.Value.scope switch

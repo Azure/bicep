@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
@@ -25,6 +26,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
 
+        [NotNull]
         public TestContext? TestContext { get; set; }
 
         private static IFileResolver CreateEmptyFileResolver()
@@ -42,7 +44,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -86,7 +88,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -153,7 +155,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
 
             const int version = 42;
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -215,7 +217,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
 
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             manager.GetCompilation(uri).Should().BeNull();
         }
@@ -231,7 +233,7 @@ namespace Bicep.LangServer.UnitTests
 
             var manager = new BicepCompilationManager(server.Object, new BicepCompilationProvider(TestResourceTypeProvider.Create(), CreateEmptyFileResolver()), new Workspace());
 
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             manager.CloseCompilation(uri);
 
@@ -264,7 +266,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(server.Object, provider.Object, new Workspace());
 
             const int version = 74;
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, version, "fake");
@@ -312,7 +314,7 @@ namespace Bicep.LangServer.UnitTests
             const string expectedMessage = "Internal bicep exception.";
 
             const int version = 74;
-            var uri = DocumentUri.File(this.TestContext!.TestName);
+            var uri = DocumentUri.File(this.TestContext.TestName);
             
             // start by failing
             bool failUpsert = true;
