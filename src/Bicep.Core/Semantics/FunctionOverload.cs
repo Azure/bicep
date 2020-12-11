@@ -39,15 +39,19 @@ namespace Bicep.Core.Semantics
             this.VariableParameterType = variableParameterType;
             this.Flags = flags;
 
-            this.ParameterTypeSignatures = fixedTypes
-                .Select((parameterType, i) => $"param{i}: {parameterType}")
-                .ToImmutableArray();
+            var builder = ImmutableArray.CreateBuilder<string>();
+            for (int i = 0; i < fixedTypes.Length; i++)
+            {
+                builder.Add($"param{i}: {fixedTypes[i]}");
+            }
 
             if (variableParameterType != null)
             {
                 var restParameterType = variableParameterType.TypeKind == TypeKind.Union ? $"({variableParameterType})[]": $"{variableParameterType}[]";
-                this.ParameterTypeSignatures.Add($"...rest: {restParameterType}");
+                builder.Add($"...rest: {restParameterType}");
             }
+
+            this.ParameterTypeSignatures = builder.ToImmutable();
 
             this.TypeSignature = $"({string.Join(", ", this.ParameterTypeSignatures)}): {returnType}";
         }
