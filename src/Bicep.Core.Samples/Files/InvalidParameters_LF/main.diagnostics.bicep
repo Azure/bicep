@@ -32,6 +32,10 @@ param missingTypeWithSpaceAfter
 param missingTypeWithTabAfter	
 //@[30:30) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
 
+// #completionTest(20) -> paramTypes
+param trailingSpace  
+//@[21:21) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". ||
+
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
 //@[18:21) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |str|

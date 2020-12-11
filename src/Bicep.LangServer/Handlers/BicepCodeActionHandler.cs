@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -42,7 +43,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(fixable =>
                     fixable.Span.ContainsInclusive(requestStartOffset) ||
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= fixable.Span.Position && fixable.Span.Position + fixable.Span.Length <= requestEndOffset))
+                    (requestStartOffset <= fixable.Span.Position && fixable.GetEndPosition() <= requestEndOffset))
                 .OfType<IFixable>()
                 .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
 

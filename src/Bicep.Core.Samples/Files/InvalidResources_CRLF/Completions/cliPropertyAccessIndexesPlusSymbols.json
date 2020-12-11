@@ -1852,6 +1852,20 @@
     }
   },
   {
+    "label": "trailingSpace",
+    "kind": "interface",
+    "detail": "trailingSpace",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_trailingSpace",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "trailingSpace"
+    }
+  },
+  {
     "label": "trim",
     "kind": "function",
     "detail": "trim()",

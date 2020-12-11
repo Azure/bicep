@@ -265,9 +265,9 @@ var test1 = listKeys('abcd')
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[12:20) [BCP082 (Error)] The name "lsitKeys" does not exist in the current context. Did you mean "listKeys"? |lsitKeys|
 
-// just 'list' 
-var test3 = list('abcd', '2020-01-01')
-//@[12:16) [BCP082 (Error)] The name "list" does not exist in the current context. Did you mean "last"? |list|
+// just 'lis' instead of 'list'
+var test3 = lis('abcd', '2020-01-01')
+//@[12:15) [BCP057 (Error)] The name "lis" does not exist in the current context. |lis|
 
 var sampleObject = {
   myInt: 42

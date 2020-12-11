@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string GetSpanText(string sourceText, IPositionable positionable)
         {
-            var spanText = sourceText[new Range(positionable.Span.Position, positionable.Span.Position + positionable.Span.Length)];
+            var spanText = sourceText[new Range(positionable.Span.Position, positionable.GetEndPosition())];
 
             return EscapeWhitespace(spanText);
         }

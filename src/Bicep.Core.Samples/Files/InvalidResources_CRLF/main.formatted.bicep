@@ -7,6 +7,9 @@ resource foo
 resource fo/o
 resource foo 'ddd'
 
+// #completionTest(23) -> resourceTypes
+resource trailingSpace  
+
 // #completionTest(19,20) -> object
 resource foo 'ddd'= 
 

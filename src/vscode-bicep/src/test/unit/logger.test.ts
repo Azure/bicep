@@ -8,6 +8,9 @@ jest.mock("winston", () => ({
     errors: jest.fn(),
     printf: jest.fn(),
   },
+  transports: {
+    File: jest.fn(),
+  },
 }));
 
 import * as vscode from "vscode";

@@ -1,0 +1,136 @@
+parameters:
+  - name: official
+    type: boolean
+
+stages:
+- stage: build
+  jobs:
+  - job: bicep_windows
+    pool:
+      type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        rid: win-x64
+  
+  - job: bicep_linux
+    pool:
+      type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        rid: linux-x64
+
+  - job: bicep_osx
+    pool:
+      type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        rid: osx-x64
+
+  - job: vsix
+    dependsOn: bicep_windows
+    pool:
+      type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: true # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    
+    steps:
+    - script: sudo apt-get update && sudo apt-get install -y xvfb libgtk2.0-0 libxss-dev libgconf-2-4 libasound2
+      displayName: Install dependencies
+    
+    - task: NodeTool@0 
+      displayName: Setup Node.js
+      inputs:
+        versionSpec: 10.x
+    
+    - script: npm ci
+      displayName: npm ci
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    
+    - script: npm run compile
+      displayName: Compile
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    
+    - script: npm run lint
+      displayName: Run lint
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    
+    # downloads to $(Pipeline.Workspace)/{artifact}
+    - download: current
+      displayName: Download language server
+      artifact: drop_build_bicep_windows
+    
+    - task: CopyFiles@2
+      displayName: Copy language server for packaging
+      inputs:
+        sourceFolder: '$(Pipeline.Workspace)/drop_build_bicep_windows/bicep.LangServer/'
+        contents: '*.*'
+        targetFolder: '$(Build.SourcesDirectory)/src/vscode-bicep/bicepLanguageServer'
+    
+    - script: npm run test:unit
+      displayName: Run unit tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
+    - script: /usr/bin/Xvfb :99 -screen 0 1024x768x24 & sleep 2
+      displayName: Start Xvfb
+    
+    - script: node ./out/test/e2e/runTests.js 
+      displayName: Run E2E tests
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+      env:
+        DISPLAY: ':99.0'
+
+    - script: cat ./bicep.log
+      displayName: Show extension logs of E2E tests
+      condition: always()
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+
+    - script: killall Xvfb
+      displayName: Kill Xvfb
+
+    - script: npm run package
+      displayName: Create VSIX
+      workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
+    
+    - task: CopyFiles@2
+      displayName: Copy VSIX to output
+      inputs:
+        sourceFolder: '$(Build.SourcesDirectory)/src/vscode-bicep/'
+        contents: '*.vsix'
+        targetFolder: '$(Build.SourcesDirectory)/out/vscode-bicep'
