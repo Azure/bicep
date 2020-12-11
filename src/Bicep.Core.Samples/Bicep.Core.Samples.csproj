@@ -22,12 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Files\InvalidResources_CRLF\Completions\cliPropertyAccessIndexesPlusSymbols.json">
-      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
