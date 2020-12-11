@@ -680,10 +680,10 @@ namespace Bicep.Core.Diagnostics
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
-            public Diagnostic RuntimePropertyNotAllowed(string property) => new ErrorDiagnostic(
+            public Diagnostic DeployTimeConstantRequired(string property) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP118",
-                $"The property \"{property}\" cannot be assigned a runtime value. Accessible resource properties are \"id\", \"name\", and \"type\" and module properties are \"name\""
+                $"The property \"{property}\" needs to be a deploy time constant."
             );
 
         }

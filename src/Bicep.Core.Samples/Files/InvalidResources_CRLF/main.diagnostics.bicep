@@ -209,17 +209,17 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.location|
+//@[8:33) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['location']|
+//@[8:36) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: runtimeValidRes1.properties.evictionPolicy
-//@[8:50) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.properties.evictionPolicy|
+//@[8:50) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1.properties.evictionPolicy|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {
@@ -230,40 +230,40 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[8:53) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['properties'].evictionPolicy|
+//@[8:53) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1['properties'].evictionPolicy|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[8:56) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1['properties']['evictionPolicy']|
+//@[8:56) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1['properties']['evictionPolicy']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[8:53) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes1.properties['evictionPolicy']|
+//@[8:53) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes1.properties['evictionPolicy']|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
-//@[8:48) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2.properties.azCliVersion|
+//@[8:48) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes2.properties.azCliVersion|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
-//@[8:43) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2['${magicString1}']|
+//@[8:43) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes2['${magicString1}']|
 }
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
-//@[8:43) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes2['${magicString2}']|
+//@[8:43) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes2['${magicString2}']|
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
-//@[11:36) [BCP118 (Error)] The property "name" cannot be assigned a runtime value. Accessible resource properties are "id", "name", and "type" and module properties are "name" |runtimeValidRes3.location|
+//@[11:36) [BCP118 (Error)] The property "name" needs to be a deploy time constant. |runtimeValidRes3.location|
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

@@ -11,9 +11,7 @@ namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
-        // shared data structure across all ResourceDependencyVisitors; our only "state" during traversals
-        // Instead of traversing through variables repeatedly, we pre-calculate variable-resource dependencies before we build the graph
-        private static Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>> variableDependencies = new Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>>();
+        private Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>> variableDependencies;
         private readonly SemanticModel model;
         // resource dependencies specific to each ResourceDependencyVisitor
         private HashSet<DeclaredSymbol> resourceDependencies;
@@ -22,11 +20,12 @@ namespace Bicep.Core.Emit
         {
             var allResourceDependencies = new Dictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>>();
             var declaredSymbols = model.Root.AllDeclarations.ToList(); // gets all declaredSymbols in the document (entry point)
+            var visitor = new ResourceDependencyVisitor(model);
 
             // we need to precompute variable dependencies to reuse them when traversing resources or modules
-            foreach(var variableSymbol in declaredSymbols.OfType<VariableSymbol>()) 
+            foreach(var variableSymbol in model.Root.VariableDeclarations) 
             {
-                variableDependencies[variableSymbol] = GetResourceDependencies(model, variableSymbol.DeclaringSyntax);
+                visitor.variableDependencies[variableSymbol] = GetResourceDependencies(model, variableSymbol.DeclaringSyntax);
             }
 
             foreach(var declaredSymbol in declaredSymbols.Where(symbol => symbol is ModuleSymbol || symbol is ResourceSymbol))
@@ -47,6 +46,7 @@ namespace Bicep.Core.Emit
         {
             this.model = model;
             this.resourceDependencies = new HashSet<DeclaredSymbol>();
+            this.variableDependencies = new Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>>();
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

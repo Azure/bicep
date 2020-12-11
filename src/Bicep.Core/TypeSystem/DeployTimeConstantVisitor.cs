@@ -3,8 +3,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -14,37 +13,56 @@ namespace Bicep.Core.TypeSystem
     public sealed class DeployTimeConstantVisitor : SyntaxVisitor
     {
 
-        // These constants currently resolve to the same name.
-        private readonly HashSet<string> DeployTimeConstantKeys = new HashSet<string>()
-        { 
-            LanguageConstants.ResourceNamePropertyName,
-            LanguageConstants.ModuleNamePropertyName
-        }; 
-
         private readonly SemanticModel model;
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        // used for logging the property when we detect a run time property
-        private string currentSymbol;
+        private ObjectType? bodyObj;
 
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
+        private string? currentSymbol;
+
 
         private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             this.model = model;
             this.diagnosticWriter = diagnosticWriter;
-            this.currentSymbol = "";
         }
 
         // entry point for this visitor. We only iterate through modules and resources
         public static void ValidateDeployTimeConstants(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
             var deploymentTimeConstantVisitor = new DeployTimeConstantVisitor(model, diagnosticWriter);
-            foreach (var declaredSymbol in model.Root.AllDeclarations.Where(symbol => symbol is ModuleSymbol || symbol is ResourceSymbol))
+            foreach (var declaredSymbol in model.Root.ResourceDeclarations)
             {
                 deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
             }
+            foreach (var declaredSymbol in model.Root.ModuleDeclarations)
+            {
+                deploymentTimeConstantVisitor.Visit(declaredSymbol.DeclaringSyntax);
+            }
+        }
+
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            if (model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol &&
+                resourceSymbol.Type is ResourceType resourceType &&
+                resourceType.Body is ObjectType bodyObj)
+            {
+                this.bodyObj = bodyObj;
+            }
+            base.VisitResourceDeclarationSyntax(syntax);
+        }
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            if (model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol &&
+                moduleSymbol.Type is ModuleType moduleType &&
+                moduleType.Body is ObjectType bodyObj)
+            {
+                this.bodyObj = bodyObj;
+            }
+            base.VisitModuleDeclarationSyntax(syntax);
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
@@ -72,7 +90,7 @@ namespace Bicep.Core.TypeSystem
                                     if (stringSyntax.TryGetLiteralValue() is string literalValue)
                                     {
                                         if (bodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
-                                        !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                                        !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                                         {
                                             this.errorSyntax = syntax;
                                         }
@@ -92,13 +110,17 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
         {
-            ObjectPropertySyntax? objectPropertySyntax;
-            foreach (var deployTimeIdentifier in this.DeployTimeConstantKeys)
+            if (this.bodyObj == null)
             {
-                if ((objectPropertySyntax = ObjectSyntaxExtensions.SafeGetPropertyByName(syntax, deployTimeIdentifier)) != null)
+                return;
+            }
+
+            foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
+            {
+                if (this.bodyObj.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) && propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    this.currentSymbol = deployTimeIdentifier;
-                    this.VisitObjectPropertySyntax(objectPropertySyntax);
+                    this.currentSymbol = deployTimeIdentifier.Key;
+                    this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
                 }
             }
         }
@@ -135,7 +157,7 @@ namespace Bicep.Core.TypeSystem
                         {
                             var property = syntax.PropertyName.IdentifierName;
                             if (bodyObj.Properties.TryGetValue(property, out var propertyType) &&
-                            !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining))
+                            !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                             {
                                 this.errorSyntax = syntax;
                             }
@@ -146,7 +168,11 @@ namespace Bicep.Core.TypeSystem
         }
         private void AppendError(SyntaxBase syntax)
         {
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentSymbol));
+            if (this.currentSymbol == null)
+            {
+                throw new NullReferenceException($"current symbol is null in DeployTimeConstant for syntax {syntax.ToString()}");
+            }
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).DeployTimeConstantRequired(this.currentSymbol));
         }
     }
 }

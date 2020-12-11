@@ -62,7 +62,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
             if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant))
             {
-                flags |= TypePropertyFlags.SkipInlining;
+                flags |= TypePropertyFlags.DeployTimeConstant;
             }
 
             return flags;

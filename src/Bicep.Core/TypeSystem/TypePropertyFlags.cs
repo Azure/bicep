@@ -35,6 +35,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The property does not require inlining.
         /// </summary>
-        SkipInlining = 1 << 4,
+        DeployTimeConstant = 1 << 4,
     }
 }
