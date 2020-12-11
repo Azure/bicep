@@ -28,6 +28,10 @@
         "description": "101/application-gateway-v2-autoscale-create"
     },
     {
+        "filePath": "101/azure-bastion/main.bicep",
+        "description": "101/azure-bastion"
+    },
+    {
         "filePath": "101/azure-search-create/main.bicep",
         "description": "101/azure-search-create"
     },
