@@ -130,12 +130,6 @@ namespace Bicep.Core.Semantics
             return FunctionMatchResult.Match;
         }
 
-        public static FunctionOverload CreateFixed(string name, TypeSymbol returnType, params TypeSymbol[] argumentTypes) => 
-            new FunctionOverload(name, returnType, argumentTypes.Length, argumentTypes.Length, argumentTypes, variableParameterType: null);
-
-        public static FunctionOverload CreateFixed(string name, ReturnTypeBuilderDelegate returnTypeBuilder, params TypeSymbol[] argumentTypes) => 
-            new FunctionOverload(name, returnTypeBuilder, returnTypeBuilder(Enumerable.Empty<FunctionArgumentSyntax>()), argumentTypes.Length, argumentTypes.Length, argumentTypes, variableParameterType: null);
-
         public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
             new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);
 
