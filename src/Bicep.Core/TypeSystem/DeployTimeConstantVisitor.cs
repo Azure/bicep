@@ -45,20 +45,26 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.GetSymbolInfo(syntax.Body) is ObjectType bodyObj)
+            if (model.GetSymbolInfo(syntax.Body) is ResourceSymbol resourceSymbol &&
+                resourceSymbol.Type is ResourceType resourceType &&
+                resourceType.Body is ObjectType bodyObj)
             {
                 this.bodyObj = bodyObj;
             }
             base.VisitResourceDeclarationSyntax(syntax);
+            this.bodyObj = null;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            if (model.GetTypeInfo(syntax.Body) is ObjectType bodyObj)
+            if (model.GetSymbolInfo(syntax.Body) is ModuleSymbol moduleSymbol &&
+                moduleSymbol.Type is ModuleType moduleType &&
+                moduleType.Body is ObjectType bodyObj)
             {
                 this.bodyObj = bodyObj;
             }
             base.VisitModuleDeclarationSyntax(syntax);
+            this.bodyObj = null;
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
