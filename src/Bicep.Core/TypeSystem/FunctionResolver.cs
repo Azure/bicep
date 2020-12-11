@@ -50,7 +50,7 @@ namespace Bicep.Core.TypeSystem
 
         public ImmutableDictionary<string, FunctionSymbol> GetKnownFunctions()
             => this.FunctionCache.Values.ToImmutableDictionaryExcludingNullValues(symbol => symbol.Name, LanguageConstants.IdentifierComparer);
-        
+
         private Symbol? TryGetBannedFunction(IdentifierSyntax identifierSyntax)
         {
             if (BannedFunctions.TryGetValue(identifierSyntax.IdentifierName, out var banned))
