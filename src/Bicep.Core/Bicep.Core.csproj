@@ -11,8 +11,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="Azure.Deployments.Expression" Version="1.0.112" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.4" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.4" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.1.14" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.14" />
   </ItemGroup>
 
 </Project>
