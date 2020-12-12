@@ -45,7 +45,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.GetSymbolInfo(syntax.Body) is ResourceSymbol resourceSymbol &&
+            if (model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol &&
                 resourceSymbol.Type is ResourceType resourceType &&
                 resourceType.Body is ObjectType bodyObj)
             {
@@ -57,7 +57,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            if (model.GetSymbolInfo(syntax.Body) is ModuleSymbol moduleSymbol &&
+            if (model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol &&
                 moduleSymbol.Type is ModuleType moduleType &&
                 moduleType.Body is ObjectType bodyObj)
             {
