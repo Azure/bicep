@@ -3,6 +3,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Linq;
 using System;
 
 namespace Bicep.Core.TypeSystem
@@ -16,11 +17,11 @@ namespace Bicep.Core.TypeSystem
         private readonly SemanticModel model;
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        private ObjectType? bodyObj;
-
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
-        private string? currentSymbol;
+        private string? currentProperty;
+        private ObjectType? bodyObj;
+        private ObjectType? referencedBodyObj;
 
 
         private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
@@ -64,7 +65,9 @@ namespace Bicep.Core.TypeSystem
                 this.bodyObj = bodyObj;
             }
             base.VisitModuleDeclarationSyntax(syntax);
+            // reset both the current object and referenced object's bodyObj
             this.bodyObj = null;
+            this.referencedBodyObj = null;
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
@@ -84,23 +87,25 @@ namespace Bicep.Core.TypeSystem
                 {
                     case ResourceSymbol:
                     case ModuleSymbol:
-                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType bodyObj)
+                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType referencedBodyObj)
                         {
                             switch (syntax.IndexExpression)
                             {
                                 case StringSyntax stringSyntax:
                                     if (stringSyntax.TryGetLiteralValue() is string literalValue)
                                     {
-                                        if (bodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
+                                        if (referencedBodyObj.Properties.TryGetValue(literalValue, out var propertyType) &&
                                         !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                                         {
                                             this.errorSyntax = syntax;
+                                            this.referencedBodyObj = referencedBodyObj;
                                         }
                                     }
                                     else
                                     {
-                                        // we will block string interpolation on module and resource properties
+                                        // we will block referencing module and resource properties using string interpolation 
                                         this.errorSyntax = syntax;
+                                        this.referencedBodyObj = referencedBodyObj;
                                     }
                                     break;
                             }
@@ -121,7 +126,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (this.bodyObj.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) && propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    this.currentSymbol = deployTimeIdentifier.Key;
+                    this.currentProperty = deployTimeIdentifier.Key;
                     this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
                 }
             }
@@ -155,13 +160,14 @@ namespace Bicep.Core.TypeSystem
                 {
                     case ResourceSymbol:
                     case ModuleSymbol:
-                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType bodyObj)
+                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType referencedBodyObj)
                         {
                             var property = syntax.PropertyName.IdentifierName;
-                            if (bodyObj.Properties.TryGetValue(property, out var propertyType) &&
+                            if (referencedBodyObj.Properties.TryGetValue(property, out var propertyType) &&
                             !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                             {
                                 this.errorSyntax = syntax;
+                                this.referencedBodyObj = referencedBodyObj;
                             }
                         }
                         break;
@@ -170,11 +176,20 @@ namespace Bicep.Core.TypeSystem
         }
         private void AppendError(SyntaxBase syntax)
         {
-            if (this.currentSymbol == null)
+            if (this.currentProperty == null)
             {
-                throw new NullReferenceException($"current symbol is null in DeployTimeConstant for syntax {syntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.currentProperty)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
             }
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).DeployTimeConstantRequired(this.currentSymbol));
+            if (this.bodyObj == null)
+            {
+                throw new NullReferenceException($"{nameof(this.bodyObj)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+            }
+            if (this.referencedBodyObj == null)
+            {
+                throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+            }
+            var usableKeys = this.bodyObj.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys));
         }
     }
 }
