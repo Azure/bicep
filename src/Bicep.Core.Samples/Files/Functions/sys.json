@@ -1,0 +1,790 @@
+[
+  {
+    "name": "any",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: any): any",
+    "parameterTypeSignatures": [
+      "param0: any"
+    ]
+  },
+  {
+    "name": "array",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: any): array",
+    "parameterTypeSignatures": [
+      "param0: any"
+    ]
+  },
+  {
+    "name": "base64",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "base64ToJson",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): any",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "base64ToString",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "bool",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: any): bool",
+    "parameterTypeSignatures": [
+      "param0: any"
+    ]
+  },
+  {
+    "name": "coalesce",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "any",
+    "flags": "default",
+    "typeSignature": "(param0: any, ... : any): any",
+    "parameterTypeSignatures": [
+      "param0: any",
+      "... : any"
+    ]
+  },
+  {
+    "name": "concat",
+    "fixedParameterTypes": [
+      "array"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "array",
+    "flags": "default",
+    "typeSignature": "(param0: array, ... : array): array",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "... : array"
+    ]
+  },
+  {
+    "name": "concat",
+    "fixedParameterTypes": [
+      "bool | int | string"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "bool | int | string",
+    "flags": "default",
+    "typeSignature": "(param0: bool | int | string, ... : bool | int | string): string",
+    "parameterTypeSignatures": [
+      "param0: bool | int | string",
+      "... : bool | int | string"
+    ]
+  },
+  {
+    "name": "contains",
+    "fixedParameterTypes": [
+      "object",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: object, param1: string): bool",
+    "parameterTypeSignatures": [
+      "param0: object",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "contains",
+    "fixedParameterTypes": [
+      "array",
+      "any"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: array, param1: any): bool",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "param1: any"
+    ]
+  },
+  {
+    "name": "contains",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): bool",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "dataUri",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: any): string",
+    "parameterTypeSignatures": [
+      "param0: any"
+    ]
+  },
+  {
+    "name": "dataUriToString",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "dateTimeAdd",
+    "fixedParameterTypes": [
+      "string",
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, param2: string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "param2: string"
+    ]
+  },
+  {
+    "name": "empty",
+    "fixedParameterTypes": [
+      "array | null | object | string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array | null | object | string): bool",
+    "parameterTypeSignatures": [
+      "param0: array | null | object | string"
+    ]
+  },
+  {
+    "name": "endsWith",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): bool",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "first",
+    "fixedParameterTypes": [
+      "array"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array): any",
+    "parameterTypeSignatures": [
+      "param0: array"
+    ]
+  },
+  {
+    "name": "first",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "format",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "any",
+    "flags": "default",
+    "typeSignature": "(param0: string, ... : any): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "... : any"
+    ]
+  },
+  {
+    "name": "guid",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "indexOf",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): int",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "int",
+    "fixedParameterTypes": [
+      "int | string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: int | string): int",
+    "parameterTypeSignatures": [
+      "param0: int | string"
+    ]
+  },
+  {
+    "name": "intersection",
+    "fixedParameterTypes": [
+      "object",
+      "object"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "object",
+    "flags": "default",
+    "typeSignature": "(param0: object, param1: object, ... : object): object",
+    "parameterTypeSignatures": [
+      "param0: object",
+      "param1: object",
+      "... : object"
+    ]
+  },
+  {
+    "name": "intersection",
+    "fixedParameterTypes": [
+      "array",
+      "array"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "array",
+    "flags": "default",
+    "typeSignature": "(param0: array, param1: array, ... : array): array",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "param1: array",
+      "... : array"
+    ]
+  },
+  {
+    "name": "json",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): any",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "last",
+    "fixedParameterTypes": [
+      "array"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array): any",
+    "parameterTypeSignatures": [
+      "param0: array"
+    ]
+  },
+  {
+    "name": "last",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "lastIndexOf",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): int",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "length",
+    "fixedParameterTypes": [
+      "array | object | string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array | object | string): int",
+    "parameterTypeSignatures": [
+      "param0: array | object | string"
+    ]
+  },
+  {
+    "name": "max",
+    "fixedParameterTypes": [
+      "int"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "int",
+    "flags": "default",
+    "typeSignature": "(param0: int, ... : int): int",
+    "parameterTypeSignatures": [
+      "param0: int",
+      "... : int"
+    ]
+  },
+  {
+    "name": "max",
+    "fixedParameterTypes": [
+      "array"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array): int",
+    "parameterTypeSignatures": [
+      "param0: array"
+    ]
+  },
+  {
+    "name": "min",
+    "fixedParameterTypes": [
+      "int"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "int",
+    "flags": "default",
+    "typeSignature": "(param0: int, ... : int): int",
+    "parameterTypeSignatures": [
+      "param0: int",
+      "... : int"
+    ]
+  },
+  {
+    "name": "min",
+    "fixedParameterTypes": [
+      "array"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: array): int",
+    "parameterTypeSignatures": [
+      "param0: array"
+    ]
+  },
+  {
+    "name": "newGuid",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "paramDefaultsOnly",
+    "typeSignature": "(): string",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "padLeft",
+    "fixedParameterTypes": [
+      "int | string",
+      "int",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(param0: int | string, param1: int, param2: string): string",
+    "parameterTypeSignatures": [
+      "param0: int | string",
+      "param1: int",
+      "param2: string"
+    ]
+  },
+  {
+    "name": "range",
+    "fixedParameterTypes": [
+      "int",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: int, param1: int): array",
+    "parameterTypeSignatures": [
+      "param0: int",
+      "param1: int"
+    ]
+  },
+  {
+    "name": "replace",
+    "fixedParameterTypes": [
+      "string",
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, param2: string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "param2: string"
+    ]
+  },
+  {
+    "name": "skip",
+    "fixedParameterTypes": [
+      "array",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: array, param1: int): array",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "param1: int"
+    ]
+  },
+  {
+    "name": "skip",
+    "fixedParameterTypes": [
+      "string",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: int): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: int"
+    ]
+  },
+  {
+    "name": "split",
+    "fixedParameterTypes": [
+      "string",
+      "array | string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: array | string): array",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: array | string"
+    ]
+  },
+  {
+    "name": "startsWith",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): bool",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "string",
+    "fixedParameterTypes": [
+      "any"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: any): string",
+    "parameterTypeSignatures": [
+      "param0: any"
+    ]
+  },
+  {
+    "name": "substring",
+    "fixedParameterTypes": [
+      "string",
+      "int",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: int, param2: int): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: int",
+      "param2: int"
+    ]
+  },
+  {
+    "name": "take",
+    "fixedParameterTypes": [
+      "array",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: array, param1: int): array",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "param1: int"
+    ]
+  },
+  {
+    "name": "take",
+    "fixedParameterTypes": [
+      "string",
+      "int"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: int): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: int"
+    ]
+  },
+  {
+    "name": "toLower",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "toUpper",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "trim",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "union",
+    "fixedParameterTypes": [
+      "object",
+      "object"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "object",
+    "flags": "default",
+    "typeSignature": "(param0: object, param1: object, ... : object): object",
+    "parameterTypeSignatures": [
+      "param0: object",
+      "param1: object",
+      "... : object"
+    ]
+  },
+  {
+    "name": "union",
+    "fixedParameterTypes": [
+      "array",
+      "array"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "array",
+    "flags": "default",
+    "typeSignature": "(param0: array, param1: array, ... : array): array",
+    "parameterTypeSignatures": [
+      "param0: array",
+      "param1: array",
+      "... : array"
+    ]
+  },
+  {
+    "name": "uniqueString",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "uri",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "uriComponent",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "uriComponentToString",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "utcNow",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 1,
+    "flags": "paramDefaultsOnly",
+    "typeSignature": "(param0: string): string",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  }
+]

@@ -1,0 +1,207 @@
+[
+  {
+    "name": "deployment",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): deployment",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "environment",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): environment",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "extensionResourceId",
+    "fixedParameterTypes": [
+      "string",
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 3,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, param2: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "param2: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "pickZones",
+    "fixedParameterTypes": [
+      "string",
+      "string",
+      "string",
+      "int",
+      "int"
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 5,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, param2: string, param3: int, param4: int): array",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "param2: string",
+      "param3: int",
+      "param4: int"
+    ]
+  },
+  {
+    "name": "providers",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): array",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "reference",
+    "fixedParameterTypes": [
+      "string",
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 3,
+    "flags": "requiresInlining",
+    "typeSignature": "(param0: string, param1: string, param2: string): object",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "param2: string"
+    ]
+  },
+  {
+    "name": "resourceGroup",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): resourceGroup",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "resourceGroup",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): resourceGroup",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "resourceGroup",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string): resourceGroup",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string"
+    ]
+  },
+  {
+    "name": "resourceId",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "subscription",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): subscription",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "subscription",
+    "fixedParameterTypes": [
+      "string"
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(param0: string): subscription",
+    "parameterTypeSignatures": [
+      "param0: string"
+    ]
+  },
+  {
+    "name": "subscriptionResourceId",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "tenant",
+    "fixedParameterTypes": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): tenant",
+    "parameterTypeSignatures": []
+  },
+  {
+    "name": "tenantResourceId",
+    "fixedParameterTypes": [
+      "string",
+      "string"
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameterType": "string",
+    "flags": "default",
+    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "param0: string",
+      "param1: string",
+      "... : string"
+    ]
+  }
+]

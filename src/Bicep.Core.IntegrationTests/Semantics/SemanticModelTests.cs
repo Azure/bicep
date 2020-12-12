@@ -176,23 +176,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets.ToDynamicTestData();
-
-        private static bool FilterSymbol(Symbol symbol)
-        {
-            switch (symbol.Kind)
-            {
-                // namespace and function symbols don't have locations
-                // type symbols will have their own tests
-                case SymbolKind.Namespace:
-                case SymbolKind.Function:
-                case SymbolKind.Type:
-                    return false;
-
-                // allow everything else
-                default:
-                    return true;
-            }
-        }
     }
 }
 
