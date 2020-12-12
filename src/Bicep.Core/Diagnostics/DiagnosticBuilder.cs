@@ -683,7 +683,7 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP118",
-                $"The property \"{property}\" cannot be set using runtime properties. You can only reference the following properties: {ToQuotedString(usableProperties)}."
+                $"The property \"{property}\" cannot be set using runtime properties. You can only reference the following properties: {ToQuotedString(usableProperties.OrderBy(s => s))}."
             );
 
         }
