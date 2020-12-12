@@ -152,6 +152,10 @@
         "description": "101/nat-gateway-vnet"
     },
     {
+        "filePath": "101/private-dns-zone/main.bicep",
+        "description": "101/private-dns-zone"
+    },
+    {
         "filePath": "101/redis-cache/main.bicep",
         "description": "101/redis-cache"
     },
