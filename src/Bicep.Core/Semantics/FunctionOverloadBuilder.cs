@@ -71,7 +71,10 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public FunctionOverloadBuilder WithFixedParameters(params TypeSymbol[] parameterTypes)
+        public FunctionOverloadBuilder WithFixedParameters(params TypeSymbol[] parameterTypes) => 
+            this.WithOptionalFixedParameters(parameterTypes.Length, parameterTypes);
+
+        public FunctionOverloadBuilder WithOptionalFixedParameters(int minimumArgumentCount, params TypeSymbol[] parameterTypes)
         {
             this.fixedParameterTypes.Clear();
             foreach (TypeSymbol parameterType in parameterTypes)
@@ -79,8 +82,17 @@ namespace Bicep.Core.Semantics
                 this.fixedParameterTypes.Add(parameterType);
             }
 
-            this.minimumArgumentCount = parameterTypes.Length;
+            this.minimumArgumentCount = minimumArgumentCount;
             this.maximumArgumentCount = parameterTypes.Length;
+
+            return this;
+        }
+
+        public FunctionOverloadBuilder WithFixedParametersAndOptionalVariableParameters(TypeSymbol variableArgumentType, params TypeSymbol[] fixedArgumentTypes)
+        {
+            this.WithFixedParameters(fixedArgumentTypes);
+            this.maximumArgumentCount = null;
+            this.variableParameterType = variableArgumentType;
 
             return this;
         }

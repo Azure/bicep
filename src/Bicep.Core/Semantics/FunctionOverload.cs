@@ -129,8 +129,5 @@ namespace Bicep.Core.Semantics
 
             return FunctionMatchResult.Match;
         }
-
-        public static FunctionOverload CreatePartialFixed(string name, TypeSymbol returnType, IEnumerable<TypeSymbol> fixedArgumentTypes, TypeSymbol variableArgumentType) => 
-            new FunctionOverload(name, returnType, fixedArgumentTypes.Count(), null, fixedArgumentTypes, variableArgumentType);
     }
 }

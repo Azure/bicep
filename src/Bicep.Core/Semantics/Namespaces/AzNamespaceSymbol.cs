@@ -133,6 +133,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
             var allScopes = ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope;
+            
             yield return (new FunctionOverloadBuilder("tenant").WithDynamicReturnType(GetRestrictedTenantReturnValue).WithFixedParameters().Build(), allScopes);
 
             yield return (new FunctionOverloadBuilder("managementGroup").WithDynamicReturnType(GetRestrictedManagementGroupReturnValue).WithFixedParameters().Build(), ResourceScopeType.ManagementGroupScope);
@@ -155,6 +156,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     yield return functionOverload;
                 }
+
                 // TODO: add banned function to explain why a given function isn't available
             }
 
@@ -191,14 +193,24 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             // TODO: Not sure about return type
-            yield return new FunctionOverload("providers", LanguageConstants.Array, 1, 2, Enumerable.Repeat(LanguageConstants.String, 2), null);
+            yield return new FunctionOverloadBuilder("providers")
+                .WithReturnType(LanguageConstants.Array)
+                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String)
+                .Build();
 
             // TODO: return type is string[]
-            yield return new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null);
+            yield return new FunctionOverloadBuilder("pickZones")
+                .WithReturnType(LanguageConstants.Array)
+                .WithOptionalFixedParameters(3, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int)
+                .Build();
 
-            // the use of FunctionPlacementConstraints.Resources prevents use of these functions anywhere where they can't be directly inlined into a resource body
-            yield return new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null, FunctionFlags.RequiresInlining);
-            yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]*"), FunctionFlags.RequiresInlining);
+            yield return new FunctionOverloadBuilder("reference")
+                .WithReturnType(LanguageConstants.Object)
+                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String)
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
+
+            yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object}, null, new Regex("^list[a-zA-Z]*"), FunctionFlags.RequiresInlining);
         }
 
         public AzNamespaceSymbol(ResourceScopeType resourceScope)

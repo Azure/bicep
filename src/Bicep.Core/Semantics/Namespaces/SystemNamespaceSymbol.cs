@@ -19,26 +19,26 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Array)
                 .WithVariableParameters(1, LanguageConstants.Array)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.String)
                 .WithVariableParameters(1, UnionType.Create(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool))
                 .Build(),
-            
-            FunctionOverload.CreatePartialFixed("format", LanguageConstants.String, new[]
-            {
-                LanguageConstants.String
-            }, LanguageConstants.Any),
+
+            new FunctionOverloadBuilder("format")
+                .WithReturnType(LanguageConstants.String)
+                .WithFixedParametersAndOptionalVariableParameters(LanguageConstants.Any, LanguageConstants.String)
+                .Build(),
 
             new FunctionOverloadBuilder("base64")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
-            new FunctionOverload("padLeft", LanguageConstants.String, 2, 3, new[]
-            {
-                UnionType.Create(LanguageConstants.String, LanguageConstants.Int), LanguageConstants.Int, LanguageConstants.String
-            }, null),
+
+            new FunctionOverloadBuilder("padLeft")
+                .WithReturnType(LanguageConstants.String)
+                .WithOptionalFixedParameters(2, UnionType.Create(LanguageConstants.String, LanguageConstants.Int), LanguageConstants.Int, LanguageConstants.String)
+                .Build(),
 
             new FunctionOverloadBuilder("replace")
                 .WithReturnType(LanguageConstants.String)
@@ -54,12 +54,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("length")
                 .WithReturnType(LanguageConstants.Int)
                 .WithFixedParameters(UnionType.Create(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array))
                 .Build(),
-            
+
             new FunctionOverloadBuilder("split")
                 .WithReturnType(LanguageConstants.Array)
                 .WithFixedParameters(LanguageConstants.String, UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
@@ -86,7 +86,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("trim")
-                .WithReturnType( LanguageConstants.String)
+                .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
 
@@ -95,7 +95,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFixedParameters(LanguageConstants.String, LanguageConstants.String)
                 .Build(),
 
-            new FunctionOverload("substring", LanguageConstants.String, 2, 3, new[] {LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null),
+            new FunctionOverloadBuilder("substring")
+                .WithReturnType(LanguageConstants.String)
+                .WithOptionalFixedParameters(2, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int)
+                .Build(),
 
             new FunctionOverloadBuilder("take")
                 .WithReturnType(LanguageConstants.Array)
@@ -121,17 +124,17 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(UnionType.Create(LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.Array, LanguageConstants.String))
                 .Build(),
-            
+
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(LanguageConstants.Object, LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(LanguageConstants.Array, LanguageConstants.Any)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(LanguageConstants.String, LanguageConstants.String)
@@ -166,12 +169,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("last")
                 .WithReturnType(LanguageConstants.Any)
                 .WithFixedParameters(LanguageConstants.Array)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("last")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
@@ -186,17 +189,17 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Int)
                 .WithFixedParameters(LanguageConstants.String, LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("startsWith")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(LanguageConstants.String, LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("endsWith")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithFixedParameters(LanguageConstants.String, LanguageConstants.String)
                 .Build(),
-            
+
             // TODO: Needs to support number type as well
             new FunctionOverloadBuilder("min")
                 .WithReturnType(LanguageConstants.Int)
@@ -207,7 +210,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Int)
                 .WithFixedParameters(LanguageConstants.Array)
                 .Build(),
-            
+
             // TODO: Needs to support number type as well
             new FunctionOverloadBuilder("max")
                 .WithReturnType(LanguageConstants.Int)
@@ -223,37 +226,37 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Array)
                 .WithFixedParameters(LanguageConstants.Int, LanguageConstants.Int)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("base64ToString")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("base64ToJson")
                 .WithReturnType(LanguageConstants.Any)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("uriComponentToString")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("uriComponent")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("dataUriToString")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("dataUri")
                 .WithReturnType(LanguageConstants.String)
                 .WithFixedParameters(LanguageConstants.Any)
                 .Build(),
-            
+
             new FunctionOverloadBuilder("array")
                 .WithReturnType(LanguageConstants.Array)
                 .WithFixedParameters(LanguageConstants.Any)
@@ -280,11 +283,23 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFixedParameters(LanguageConstants.String)
                 .Build(),
 
-            new FunctionOverload("dateTimeAdd", LanguageConstants.String, 2, 3, Enumerable.Repeat(LanguageConstants.String, 3), null),
+            new FunctionOverloadBuilder("dateTimeAdd")
+                .WithReturnType(LanguageConstants.String)
+                .WithOptionalFixedParameters(2, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String)
+                .Build(),
 
             // newGuid and utcNow are only allowed in parameter default values
-            new FunctionOverload("utcNow", LanguageConstants.String, 0, 1, Enumerable.Repeat(LanguageConstants.String, 1), null, FunctionFlags.ParamDefaultsOnly),
-            new FunctionOverload("newGuid", LanguageConstants.String, 0, 0, Enumerable.Empty<TypeSymbol>(), null, FunctionFlags.ParamDefaultsOnly),
+            new FunctionOverloadBuilder("utcNow")
+                .WithReturnType(LanguageConstants.String)
+                .WithOptionalFixedParameters(0, LanguageConstants.String)
+                .WithFlags(FunctionFlags.ParamDefaultsOnly)
+                .Build(),
+
+            new FunctionOverloadBuilder("newGuid")
+                .WithReturnType(LanguageConstants.String)
+                .WithFixedParameters()
+                .WithFlags(FunctionFlags.ParamDefaultsOnly)
+                .Build(),
         }.ToImmutableArray();
 
         // TODO: Add copyIndex here when we support loops.
