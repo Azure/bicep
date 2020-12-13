@@ -186,8 +186,11 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app1Name')), '/')[1])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app1Name'))), '/')[2])]",
         "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app2Name')), '/')[1])]",
-        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[1])]"
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app2Name'))), '/')[2])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps', split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[0], split(format('{0}/{1}', parameters('serviceName'), parameters('app3Name')), '/')[1])]",
+        "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[2])]"
       ]
     }
   ]
