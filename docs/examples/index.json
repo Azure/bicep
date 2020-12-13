@@ -36,6 +36,10 @@
         "description": "101/azure-search-create"
     },
     {
+        "filePath": "101/azure-spring-cloud/main.bicep",
+        "description": "101/azure-spring-cloud"
+    },
+    {
         "filePath": "101/basic-publicip/main.bicep",
         "description": "101/basic-publicip"
     },
