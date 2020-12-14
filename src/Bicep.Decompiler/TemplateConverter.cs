@@ -637,6 +637,30 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateStringLiteral(filePath);
         }
 
+        private SyntaxBase? ProcessCondition(JObject resource)
+        {
+            JProperty? conditionProperty = TemplateHelpers.GetProperty(resource, "condition");
+
+            if (conditionProperty == null)
+            {
+                return null;
+            }
+
+            SyntaxBase conditionExpression = ParseJToken(conditionProperty.Value);
+
+            if (conditionExpression is not ParenthesizedExpressionSyntax)
+            {
+                conditionExpression = new ParenthesizedExpressionSyntax(
+                    SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                    conditionExpression,
+                    SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+            }
+
+            return new IfConditionSyntax(
+                SyntaxHelpers.CreateToken(TokenType.Identifier, "if"),
+                conditionExpression);
+        }
+
         private SyntaxBase? ProcessDependsOn(JObject resource)
         {
             var dependsOnProp = TemplateHelpers.GetProperty(resource, "dependsOn");
@@ -721,6 +745,7 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
         {
             var expectedProps = new HashSet<string>(new [] {
+                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -736,7 +761,6 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
             foreach (var prop in resource.Properties())
             {
@@ -750,6 +774,8 @@ namespace Bicep.Decompiler
                     throw new ConversionFailedException($"Unrecognized top-level resource property '{prop.Name}'", prop);
                 }
             }
+
+            var ifCondition = ProcessCondition(resource);
 
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();
@@ -807,8 +833,7 @@ namespace Bicep.Decompiler
                     SyntaxHelpers.CreateIdentifier(identifier),
                     SyntaxHelpers.CreateStringLiteral(filePath),
                     SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                    // TODO: implement decompiling condtional deployments.
-                    null,
+                    ifCondition,
                     SyntaxHelpers.CreateObject(properties));
             }
 
@@ -823,8 +848,7 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                // TODO: implement decompiling condtional deployments.
-                null,
+                ifCondition,
                 SyntaxHelpers.CreateObject(properties));
         }
 
@@ -841,6 +865,7 @@ namespace Bicep.Decompiler
             }
             
             var expectedResourceProps = new HashSet<string>(new [] {
+                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -862,6 +887,7 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new [] {
+                "condition",
                 "type",
                 "apiVersion",
                 "dependsOn",
@@ -869,7 +895,6 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
@@ -907,8 +932,7 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                // TODO: implement decompiling conditional resources.
-                null,
+                ProcessCondition(resource),
                 SyntaxHelpers.CreateObject(topLevelProperties));
         }
 

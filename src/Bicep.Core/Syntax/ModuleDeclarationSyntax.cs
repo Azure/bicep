@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifExpression, SyntaxBase body)
+        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -19,14 +19,14 @@ namespace Bicep.Core.Syntax
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(ifExpression, nameof(ifExpression), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
+            AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
             AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
             this.Path = path;
             this.Assignment = assignment;
-            this.IfCondition = ifExpression;
+            this.IfCondition = ifCondition;
             this.Body = body;
         }
 
