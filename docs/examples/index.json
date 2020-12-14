@@ -132,6 +132,10 @@
         "description": "101/function-premium-vnet-integration"
     },
     {
+        "filePath": "101/hdinsight-spark-linux/main.bicep",
+        "description": "101/hdinsight-spark-linux"
+    },
+    {
         "filePath": "101/hub-and-spoke/main.bicep",
         "description": "101/hub-and-spoke"
     },
