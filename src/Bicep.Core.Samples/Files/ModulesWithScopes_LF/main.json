@@ -270,6 +270,224 @@
           }
         }
       }
+    },
+    {
+      "condition": "[equals(length('foo'), 3)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "mySubscriptionModWithCondition",
+      "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "functions": [],
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "functions": [],
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2019-10-01').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod2",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "functions": [],
+                  "resources": [
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "functions": [],
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "contentVersion": "1.0.0.0",
+                          "functions": [],
+                          "resources": [],
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2019-10-01').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myTenantMod",
+              "scope": "/",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "functions": [],
+                  "resources": [],
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
+            },
+            "myOutputRgMod": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2019-10-01').outputs.myOutput.value]"
+            },
+            "myOutputRgMod2": {
+              "type": "string",
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2019-10-01').outputs.myOutput.value]"
+            }
+          }
+        }
+      }
     }
   ],
   "outputs": {

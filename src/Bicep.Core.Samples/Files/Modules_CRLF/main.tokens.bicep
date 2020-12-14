@@ -101,6 +101,43 @@ module modB './child/moduleb.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |modBWithCondition|
+//@[25:48) StringComplete |'./child/moduleb.bicep'|
+//@[49:50) Assignment |=|
+//@[51:53) Identifier |if|
+//@[54:55) LeftParen |(|
+//@[55:56) Number |1|
+//@[57:58) Plus |+|
+//@[59:60) Number |1|
+//@[61:63) Equals |==|
+//@[64:65) Number |2|
+//@[65:66) RightParen |)|
+//@[67:68) LeftBrace |{|
+//@[68:70) NewLine |\r\n|
+  name: 'modBWithCondition'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) StringComplete |'modBWithCondition'|
+//@[27:29) NewLine |\r\n|
+  params: {
+//@[2:8) Identifier |params|
+//@[8:9) Colon |:|
+//@[10:11) LeftBrace |{|
+//@[11:13) NewLine |\r\n|
+    location: 'East US'
+//@[4:12) Identifier |location|
+//@[12:13) Colon |:|
+//@[14:23) StringComplete |'East US'|
+//@[23:25) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@[0:6) Identifier |module|
 //@[7:28) Identifier |optionalWithNoParams1|

@@ -128,7 +128,7 @@ namespace Bicep.Core.TypeSystem
             // because all variable access nodes are normally bound to something, this should always return true
             // (if not, the following code handles that gracefully)
             var symbol = this.binder.GetSymbolInfo(syntax);
-            
+
             switch (symbol)
             {
                 case ResourceSymbol resourceSymbol when IsCycleFree(resourceSymbol):
@@ -258,6 +258,7 @@ namespace Bicep.Core.TypeSystem
                 : new DeclaredTypeAssignment(typeRef, syntax, flags);
 
             var parent = this.binder.GetParent(syntax);
+
             if (parent == null)
             {
                 return null;

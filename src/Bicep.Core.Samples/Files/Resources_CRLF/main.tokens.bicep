@@ -1017,4 +1017,65 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+param shouldDeployVm bool = true
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |shouldDeployVm|
+//@[21:25) Identifier |bool|
+//@[26:27) Assignment |=|
+//@[28:32) TrueKeyword |true|
+//@[32:34) NewLine |\r\n|
+resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
+//@[0:8) Identifier |resource|
+//@[9:24) Identifier |vmWithCondition|
+//@[25:71) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[72:73) Assignment |=|
+//@[74:76) Identifier |if|
+//@[77:78) LeftParen |(|
+//@[78:92) Identifier |shouldDeployVm|
+//@[92:93) RightParen |)|
+//@[94:95) LeftBrace |{|
+//@[95:97) NewLine |\r\n|
+  name: 'vmName'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'vmName'|
+//@[16:18) NewLine |\r\n|
+  location: 'westus'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'westus'|
+//@[20:22) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    osProfile: {
+//@[4:13) Identifier |osProfile|
+//@[13:14) Colon |:|
+//@[15:16) LeftBrace |{|
+//@[16:18) NewLine |\r\n|
+      windowsConfiguration: {
+//@[6:26) Identifier |windowsConfiguration|
+//@[26:27) Colon |:|
+//@[28:29) LeftBrace |{|
+//@[29:31) NewLine |\r\n|
+        enableAutomaticUpdates: true
+//@[8:30) Identifier |enableAutomaticUpdates|
+//@[30:31) Colon |:|
+//@[32:36) TrueKeyword |true|
+//@[36:38) NewLine |\r\n|
+      }
+//@[6:7) RightBrace |}|
+//@[7:9) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

@@ -1,0 +1,86 @@
+[
+  {
+    "label": "arrayParam",
+    "kind": "property",
+    "detail": "arrayParam (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `array`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayParam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayParam"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "objParam",
+    "kind": "property",
+    "detail": "objParam (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `object`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objParam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "objParam"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "stringParamA",
+    "kind": "property",
+    "detail": "stringParamA",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stringParamA",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stringParamA"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "stringParamB",
+    "kind": "property",
+    "detail": "stringParamB (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stringParamB",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stringParamB"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

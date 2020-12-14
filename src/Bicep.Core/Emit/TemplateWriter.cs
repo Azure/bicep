@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Newtonsoft.Json;
@@ -224,9 +222,14 @@ namespace Bicep.Core.Emit
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
 
+            if (resourceSymbol.DeclaringResource.IfCondition is IfConditionSyntax ifCondition)
+            {
+                this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+            }
+
             this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            this.emitter.EmitObjectProperties((ObjectSyntax) resourceSymbol.Body, ResourcePropertiesToOmit);
+            this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.DeclaringResource.Body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
@@ -263,7 +266,7 @@ namespace Bicep.Core.Emit
                     writer.WriteStartObject();
                     this.emitter.EmitProperty("value", propertySyntax.Value);
                     writer.WriteEndObject();
-                }                        
+                }
             }
 
             writer.WriteEndObject();
@@ -273,14 +276,18 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
+            if (moduleSymbol.DeclaringModule.IfCondition is IfConditionSyntax ifCondition)
+            {
+                this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+            }
+
             this.emitter.EmitProperty("type", NestedDeploymentResourceType);
             this.emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            var moduleBody = (ObjectSyntax) moduleSymbol.DeclaringModule.Body;
+            this.emitter.EmitObjectProperties((ObjectSyntax)moduleSymbol.DeclaringModule.Body, ModulePropertiesToOmit);
 
-            this.emitter.EmitObjectProperties(moduleBody, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);

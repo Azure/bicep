@@ -25,14 +25,72 @@ resource foo 'ddd'={
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 23
 }
 
+resource foo 'ddd'=if (1 + 1 == 2) {
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 39
+}
+
 // using string interpolation for the resource type
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 //@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 64
 }
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 74
+}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 55
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 83
+}
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 54
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 56
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 60
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 61
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 74
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 80
+  name: 'foo'
+}
+
+// runtime functions are no allowed in resource conditions
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 165
+  name: 'foo'
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 119
+  name: 'foo'
 }
 
 // duplicate property at the top level

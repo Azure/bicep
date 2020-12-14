@@ -3,22 +3,20 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Bicep.Cli.CommandLine;
+using Bicep.Cli.CommandLine.Arguments;
 using Bicep.Cli.Logging;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Bicep.Cli.CommandLine.Arguments;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Bicep.Cli
 {

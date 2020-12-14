@@ -29,10 +29,15 @@ resource trailingSpace
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
-//@[20:20) [BCP018 (Error)] Expected the "{" character at this location. ||
+//@[20:20) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
 
 // wrong resource type
 resource foo 'ddd'={
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
+}
+
+resource foo 'ddd'=if (1 + 1 == 2) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
 }
@@ -43,10 +48,77 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 //@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
 }
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
+}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
+//@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+}
+//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[54:54) [BCP018 (Error)] Expected the "(" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:56) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[60:60) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[61:61) [BCP018 (Error)] Expected the "{" character at this location. ||
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:56) [BCP018 (Error)] Expected the "(" character at this location. |{|
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:60) [BCP046 (Error)] Expected a value of type "bool". |(123)|
+  name: 'foo'
+}
+
+// runtime functions are no allowed in resource conditions
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[57:66) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. |reference|
+  name: 'foo'
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[57:65) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. |listKeys|
+  name: 'foo'
 }
 
 // duplicate property at the top level

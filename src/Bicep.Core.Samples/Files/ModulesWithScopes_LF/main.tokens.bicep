@@ -52,6 +52,39 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
+//@[0:6) Identifier |module|
+//@[7:37) Identifier |mySubscriptionModWithCondition|
+//@[38:66) StringComplete |'modules/subscription.bicep'|
+//@[67:68) Assignment |=|
+//@[69:71) Identifier |if|
+//@[72:73) LeftParen |(|
+//@[73:79) Identifier |length|
+//@[79:80) LeftParen |(|
+//@[80:85) StringComplete |'foo'|
+//@[85:86) RightParen |)|
+//@[87:89) Equals |==|
+//@[90:91) Number |3|
+//@[91:92) RightParen |)|
+//@[93:94) LeftBrace |{|
+//@[94:95) NewLine |\n|
+  name: 'mySubscriptionModWithCondition'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:40) StringComplete |'mySubscriptionModWithCondition'|
+//@[40:41) NewLine |\n|
+  scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |subscription|
+//@[21:22) LeftParen |(|
+//@[22:60) StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[60:61) RightParen |)|
+//@[61:62) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@[0:6) Identifier |output|
 //@[7:30) Identifier |myManagementGroupOutput|
