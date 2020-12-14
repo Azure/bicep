@@ -56,6 +56,10 @@
         "description": "101/cosmosdb-free"
     },
     {
+        "filePath": "101/cosmosdb-private-endpoint/main.bicep",
+        "description": "101/cosmosdb-private-endpoint"
+    },
+    {
         "filePath": "101/cosmosdb-webapp/main.bicep",
         "description": "101/cosmosdb-webapp"
     },
