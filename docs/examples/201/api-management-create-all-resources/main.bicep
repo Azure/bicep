@@ -243,7 +243,7 @@ resource exampleLogger 'Microsoft.ApiManagement/service/loggers@2020-06-01-previ
 }
 
 resource identityProvider 'Microsoft.ApiManagement/service/identityProviders@2020-06-01-preview' = {
-  name: 'google'
+  name: any('${apiManagementService.name}/google')
   properties: {
     clientId: 'googleClientId'
     clientSecret: googleClientSecret

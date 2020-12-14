@@ -364,7 +364,7 @@
     {
       "type": "Microsoft.ApiManagement/service/identityProviders",
       "apiVersion": "2020-06-01-preview",
-      "name": "google",
+      "name": "[format('{0}/google', variables('apiManagementServiceName'))]",
       "properties": {
         "clientId": "googleClientId",
         "clientSecret": "[parameters('googleClientSecret')]"
