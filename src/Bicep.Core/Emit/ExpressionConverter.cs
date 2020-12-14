@@ -158,27 +158,27 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GetResourceNameExpression(ResourceDeclarationSyntax resourceSyntax)
         {
-            if (!(resourceSyntax.Body is ObjectSyntax objectSyntax))
+            if (resourceSyntax.Body is not ObjectSyntax objectSyntax)
             {
                 // this condition should have already been validated by the type checker
                 throw new ArgumentException($"Expected resource syntax to have type {typeof(ObjectSyntax)}, but found {resourceSyntax.Body.GetType()}");
             }
-            
+
             // this condition should have already been validated by the type checker
-            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected resource syntax body to contain property 'name'");
+            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException("Expected resource syntax body to contain property 'name'");
             return  ConvertExpression(namePropertySyntax.Value);
         }
 
         private LanguageExpression GetModuleNameExpression(ModuleDeclarationSyntax moduleSyntax)
         {
-            if (!(moduleSyntax.Body is ObjectSyntax objectSyntax))
+            if (moduleSyntax.Body is not ObjectSyntax objectSyntax)
             {
                 // this condition should have already been validated by the type checker
                 throw new ArgumentException($"Expected module syntax to have type {typeof(ObjectSyntax)}, but found {moduleSyntax.Body.GetType()}");
             }
-            
+
             // this condition should have already been validated by the type checker
-            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            var namePropertySyntax = objectSyntax.SafeGetPropertyByName("name") ?? throw new ArgumentException("Expected module syntax body to contain property 'name'");
             return  ConvertExpression(namePropertySyntax.Value);
         }
 

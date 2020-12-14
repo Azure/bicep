@@ -12,7 +12,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class SymbolValidator
+    public static class SymbolValidator
     {
         private delegate IEnumerable<string> GetNameSuggestions();
         private delegate ErrorDiagnostic GetMissingNameError(DiagnosticBuilder.DiagnosticBuilderInternal builder, string? suggestedName);
