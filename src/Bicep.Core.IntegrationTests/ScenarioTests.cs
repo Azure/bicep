@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using System;
 using Bicep.Core.UnitTests.Utils;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -117,6 +118,48 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
 
             var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(bicepContents);
             jsonOutput.Should().Contain("[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
+        }
+
+        [TestMethod]
+        public void Test_Issue1093()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///path/to/main.bicep")] = @"
+targetScope = 'managementGroup'
+
+module bicep3rg 'resourceGroup.bicep' = {
+  name: 'rg30'
+  params: {
+    rgName: 'bicep3-rg'
+  }  
+  scope: subscription('DEV1')
+}
+module bicep4rg 'resourceGroup.bicep' = {
+  name: 'rg31'
+  params: {
+    rgName: 'bicep4-rg'
+  }
+  scope: subscription('DEV2')
+}
+",
+                [new Uri("file:///path/to/resourceGroup.bicep")] = @"
+param rgName string
+param location string = 'westeurope'
+
+targetScope = 'subscription'
+
+resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: rgName
+  location: location
+}",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
+
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.resources[?(@.name == 'rg30')].location")!.Should().DeepEqual("[deployment().location]");
+            template.SelectToken("$.resources[?(@.name == 'rg31')].location")!.Should().DeepEqual("[deployment().location]");
         }
     }
 }

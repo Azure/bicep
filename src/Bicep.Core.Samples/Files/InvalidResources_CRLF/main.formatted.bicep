@@ -16,11 +16,53 @@ resource foo 'ddd'=
 // wrong resource type
 resource foo 'ddd' = {}
 
+resource foo 'ddd' = if (1 + 1 == 2) {}
+
 // using string interpolation for the resource type
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = {}
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = if (true) {}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+}
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (123) {
+  name: 'foo'
+}
+
+// runtime functions are no allowed in resource conditions
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+  name: 'foo'
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+  name: 'foo'
+}
 
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {

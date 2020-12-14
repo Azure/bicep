@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Parsing
 {
@@ -17,7 +17,7 @@ namespace Bicep.Core.Parsing
         private readonly TokenReader reader;
 
         private readonly ImmutableArray<Diagnostic> lexerDiagnostics;
-        
+
         public Parser(string text)
         {
             // treating the lexer as an implementation detail of the parser
@@ -33,7 +33,7 @@ namespace Bicep.Core.Parsing
         public ProgramSyntax Program()
         {
             var declarationsOrTokens = new List<SyntaxBase>();
-            
+
             while (!this.IsAtEnd())
             {
                 // this produces either a declaration node, skipped tokens node or just a token
@@ -87,7 +87,7 @@ namespace Bicep.Core.Parsing
         private static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)
         {
             // local function
-            RecoveryFlags ConvertFlags(bool suppress) => suppress ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None;
+            static RecoveryFlags ConvertFlags(bool suppress) => suppress ? RecoveryFlags.SuppressDiagnostics : RecoveryFlags.None;
 
             /*
              * When we have an incomplete declarations like "param\n",
@@ -190,9 +190,27 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
-            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
+            var ifCondition = this.WithRecoveryNullable(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
+                        TokenType.LeftBrace => null,
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.LeftBrace,
+                TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(keyword, name, type, assignment, body);
+            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.ConditionExpression is SkippedTriviaSyntax
+                ? RecoveryFlags.SuppressDiagnostics
+                : GetSuppressionFlag(ifCondition ?? assignment);
+
+            var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
+
+            return new ResourceDeclarationSyntax(keyword, name, type, assignment, ifCondition, body);
         }
 
         private SyntaxBase ModuleDeclaration()
@@ -207,9 +225,27 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
-            var body = this.WithRecovery(this.Object, GetSuppressionFlag(assignment), TokenType.NewLine);
+            var ifCondition = this.WithRecoveryNullable(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
+                        TokenType.LeftBrace => null,
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.LeftBrace,
+                TokenType.NewLine);
 
-            return new ModuleDeclarationSyntax(keyword, name, path, assignment, body);
+            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.ConditionExpression is SkippedTriviaSyntax
+                ? RecoveryFlags.SuppressDiagnostics
+                : GetSuppressionFlag(ifCondition ?? assignment);
+
+            var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
+
+            return new ModuleDeclarationSyntax(keyword, name, path, assignment, ifCondition, body);
         }
 
         private Token? NewLineOrEof()
@@ -419,7 +455,7 @@ namespace Bicep.Core.Parsing
         /// </summary>
         private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, bool allowComplexLiterals)
         {
-           var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
+            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
             var argumentNodes = FunctionCallArguments(allowComplexLiterals);
 
@@ -597,7 +633,7 @@ namespace Bicep.Core.Parsing
 
                         // Things start to get hairy to build the string if we return an uneven number of tokens and expressions.
                         // Rather than trying to add two expression nodes, combine them.
-                        var combined = new [] { interpExpression, skippedSyntax };
+                        var combined = new[] { interpExpression, skippedSyntax };
                         interpExpression = new SkippedTriviaSyntax(TextSpan.Between(combined.First(), combined.Last()), combined, Enumerable.Empty<Diagnostic>());
                     }
 
@@ -722,16 +758,17 @@ namespace Bicep.Core.Parsing
                 // if newline token is returned, we must not expect another (could be beginning of a new item)
                 if (itemOrToken is ArrayItemSyntax)
                 {
-                    if (Check(TokenType.Comma)) {
+                    if (Check(TokenType.Comma))
+                    {
                         var token = this.reader.Read();
                         var skippedSyntax = new SkippedTriviaSyntax(
-                            token.Span, 
-                            token.AsEnumerable(), 
+                            token.Span,
+                            token.AsEnumerable(),
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         itemsOrTokens.Add(skippedSyntax);
                     }
-                    
+
                     // items must be followed by newlines
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
@@ -784,11 +821,12 @@ namespace Bicep.Core.Parsing
                 // if newline token is returned, we must not expect another (could be beginning of a new property)
                 if (propertyOrToken is ObjectPropertySyntax)
                 {
-                    if (Check(TokenType.Comma)) {
+                    if (Check(TokenType.Comma))
+                    {
                         var token = this.reader.Read();
                         var skippedSyntax = new SkippedTriviaSyntax(
-                            token.Span, 
-                            token.AsEnumerable(), 
+                            token.Span,
+                            token.AsEnumerable(),
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         propertiesOrTokens.Add(skippedSyntax);
@@ -837,6 +875,14 @@ namespace Bicep.Core.Parsing
 
                 return new ObjectPropertySyntax(key, colon, value);
             }, RecoveryFlags.None, TokenType.NewLine);
+        }
+
+        private SyntaxBase IfCondition()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.IfKeyword);
+            var conditionExpression = this.WithRecovery(() => this.ParenthesizedExpression(true), RecoveryFlags.None, TokenType.LeftBrace, TokenType.NewLine);
+
+            return new IfConditionSyntax(keyword, conditionExpression);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)

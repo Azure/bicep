@@ -17,6 +17,10 @@
     },
     "cosmosDb": {
       "type": "object"
+    },
+    "shouldDeployVm": {
+      "type": "bool",
+      "defaultValue": true
     }
   },
   "functions": [],
@@ -238,6 +242,20 @@
       "name": "test",
       "properties": {
         "[[resourceGroup().location]": "[[resourceGroup().location]"
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "condition": "[parameters('shouldDeployVm')]",
+      "name": "vmName",
+      "location": "westus",
+      "properties": {
+        "osProfile": {
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
+        }
       }
     }
   ],

@@ -40,6 +40,10 @@
         "description": "101/azure-spring-cloud"
     },
     {
+        "filePath": "101/azurefirewall-create-with-zones/main.bicep",
+        "description": "101/azurefirewall-create-with-zones"
+    },
+    {
         "filePath": "101/basic-publicip/main.bicep",
         "description": "101/basic-publicip"
     },
@@ -54,6 +58,10 @@
     {
         "filePath": "101/cosmosdb-free/main.bicep",
         "description": "101/cosmosdb-free"
+    },
+    {
+        "filePath": "101/cosmosdb-private-endpoint/main.bicep",
+        "description": "101/cosmosdb-private-endpoint"
     },
     {
         "filePath": "101/cosmosdb-webapp/main.bicep",
@@ -128,6 +136,10 @@
         "description": "101/function-premium-vnet-integration"
     },
     {
+        "filePath": "101/hdinsight-spark-linux/main.bicep",
+        "description": "101/hdinsight-spark-linux"
+    },
+    {
         "filePath": "101/hub-and-spoke/main.bicep",
         "description": "101/hub-and-spoke"
     },
@@ -154,6 +166,10 @@
     {
         "filePath": "101/nat-gateway-vnet/main.bicep",
         "description": "101/nat-gateway-vnet"
+    },
+    {
+        "filePath": "101/private-dns-zone/main.bicep",
+        "description": "101/private-dns-zone"
     },
     {
         "filePath": "101/redis-cache/main.bicep",

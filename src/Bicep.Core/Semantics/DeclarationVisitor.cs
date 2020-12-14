@@ -37,7 +37,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitResourceDeclarationSyntax(syntax);
 
-            var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Body);
+            var symbol = new ResourceSymbol(this.context, syntax.Name.IdentifierName, syntax);
             this.declaredSymbols.Add(symbol);
         }
 

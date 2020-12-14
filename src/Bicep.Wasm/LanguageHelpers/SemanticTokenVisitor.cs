@@ -169,6 +169,12 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitModuleDeclarationSyntax(syntax);
         }
 
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitIfConditionSyntax(syntax);
+        }
+
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {
             base.VisitSkippedTriviaSyntax(syntax);
