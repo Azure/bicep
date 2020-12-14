@@ -192,6 +192,10 @@
         "description": "101/vnet-two-subnets"
     },
     {
+        "filePath": "101/web-app-linux/main.bicep",
+        "description": "101/web-app-linux"
+    },
+    {
         "filePath": "101/web-app-windows/main.bicep",
         "description": "101/web-app-windows"
     },
