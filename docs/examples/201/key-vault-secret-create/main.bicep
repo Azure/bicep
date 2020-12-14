@@ -84,7 +84,7 @@ param secretsObject object {
   }
 }
 
-resource vault 'Microsoft.KeyVault/vaults@2019-06-01' = {
+resource vault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: keyVaultName
   location: location
   tags: {

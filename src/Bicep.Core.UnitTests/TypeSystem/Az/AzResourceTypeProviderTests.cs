@@ -212,38 +212,35 @@ resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
         private static string CreateSerializedTypes(ResourceTypeReference resourceTypeReference)
         {
             var typeFactory = new Azure.Bicep.Types.Concrete.TypeFactory(Enumerable.Empty<Azure.Bicep.Types.Concrete.TypeBase>());
-            var stringType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType { Kind = Azure.Bicep.Types.Concrete.BuiltInTypeKind.String });
-            var apiVersionType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.StringLiteralType { Value = resourceTypeReference.ApiVersion });
-            var typeType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.StringLiteralType { Value = resourceTypeReference.FullyQualifiedType });
-            var propertiesType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType
-            {
-                Name = "Properties",
-                Properties = new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
+            var stringType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.BuiltInType(Azure.Bicep.Types.Concrete.BuiltInTypeKind.String));
+            var apiVersionType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.StringLiteralType(resourceTypeReference.ApiVersion));
+            var typeType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.StringLiteralType(resourceTypeReference.FullyQualifiedType));
+            var propertiesType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(
+                "Properties",
+                new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
                 {
-                    ["readwrite"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.None },
-                    ["readonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly },
-                    ["writeonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.WriteOnly },
-                    ["required"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required },
-                }
-            });
-            var bodyType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType
-            {
-                Name = resourceTypeReference.FormatName(),
-                Properties = new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
-                {
-                    ["name"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required },
-                    ["type"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(typeType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly },
-                    ["apiVersion"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(apiVersionType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly },
-                    ["id"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(stringType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly },
-                    ["properties"] = new Azure.Bicep.Types.Concrete.ObjectProperty { Type = typeFactory.GetReference(propertiesType), Flags = Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required },
+                    ["readwrite"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.None),
+                    ["readonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
+                    ["writeonly"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.WriteOnly),
+                    ["required"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
                 },
-            });
+                null));
+            var bodyType = typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(
+                resourceTypeReference.FormatName(),
+                new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>
+                {
+                    ["name"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
+                    ["type"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(typeType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
+                    ["apiVersion"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(apiVersionType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
+                    ["id"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(stringType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.DeployTimeConstant | Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly),
+                    ["properties"] = new Azure.Bicep.Types.Concrete.ObjectProperty(typeFactory.GetReference(propertiesType), Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required),
+                },
+                null));
 
-            typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType
-            {
-                Name = resourceTypeReference.FormatName(),
-                Body = typeFactory.GetReference(bodyType),
-            });
+            typeFactory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(
+                resourceTypeReference.FormatName(),
+                Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup,
+                typeFactory.GetReference(bodyType)));
 
             return TypeSerializer.Serialize(typeFactory.GetTypes());
         }

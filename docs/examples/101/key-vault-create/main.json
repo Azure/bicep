@@ -107,9 +107,6 @@
     }
   },
   "functions": [],
-  "variables": {
-    "keySize": 4096
-  },
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
@@ -135,15 +132,13 @@
       "type": "Microsoft.KeyVault/vaults/keys",
       "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('vaultName'), parameters('keyName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "kty": "RSA",
         "keyOps": [
           "encrypt",
           "decrypt"
         ],
-        "keySize": "[if(equals(variables('keySize'), -1), null(), variables('keySize'))]",
-        "curveName": ""
+        "keySize": 4096
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('vaultName'))]"
@@ -153,7 +148,6 @@
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2018-02-14",
       "name": "[format('{0}/{1}', parameters('vaultName'), parameters('secretName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "value": "[parameters('secretValue')]"
       },

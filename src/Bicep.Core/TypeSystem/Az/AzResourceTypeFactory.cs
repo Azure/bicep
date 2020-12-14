@@ -34,14 +34,12 @@ namespace Bicep.Core.TypeSystem.Az
             return typeSymbol;
         }
 
-        private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input, bool isResourceBodyType)
-            => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType));
+        private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input)
+            => new DeferredTypeReference(() => GetTypeSymbol(input.Type, false));
 
         private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectProperty input)
         {
-            var type = input.Type ?? throw new ArgumentException();
-
-            return new TypeProperty(name, GetTypeReference(type, false), GetTypePropertyFlags(input));
+            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input));
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectProperty input)
@@ -86,44 +84,33 @@ namespace Bicep.Core.TypeSystem.Az
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
                 {
-                    var name = objectType.Name ?? string.Empty;
-                    var properties = objectType.Properties ?? new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectProperty>();
-                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, false) : null;
+                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+                    var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                    return new NamedObjectType(name, GetValidationFlags(isResourceBodyType), properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+                    return new NamedObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
                 }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                 {
-                    var itemType = arrayType.ItemType ?? throw new ArgumentException();
-
-                    return new TypedArrayType(GetTypeReference(itemType, false), GetValidationFlags(isResourceBodyType));
+                    return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
                 }
                 case Azure.Bicep.Types.Concrete.ResourceType resourceType:
                 {
-                    var name = resourceType.Name ?? throw new ArgumentException();
-                    var body = resourceType.Body ?? throw new ArgumentException();                    
-                    var resourceTypeReference = ResourceTypeReference.Parse(name);
+                    var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
+                    var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
-                    return new ResourceType(resourceTypeReference, GetTypeReference(body, true));
+                    return new ResourceType(resourceTypeReference, bodyType);
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                 {
-                    var elements = unionType.Elements ?? throw new ArgumentException();
-                    return UnionType.Create(elements.Select(x => GetTypeReference(x, false)));
+                    return UnionType.Create(unionType.Elements.Select(x => GetTypeReference(x)));
                 }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    var value = stringLiteralType.Value ?? throw new ArgumentException();
-                    return new StringLiteralType(value);
+                    return new StringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                 {
-                    var name = discriminatedObjectType.Name ?? throw new ArgumentException();
-                    var discriminator = discriminatedObjectType.Discriminator ?? throw new ArgumentException();
-                    var elements = discriminatedObjectType.Elements ?? throw new ArgumentException();
-                    var baseProperties = discriminatedObjectType.BaseProperties ?? throw new ArgumentException();
+                    var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                    var elementReferences = elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
-
-                    return new DiscriminatedObjectType(name, GetValidationFlags(isResourceBodyType), discriminator, elementReferences);
+                    return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
                 }
                 default:
                     throw new ArgumentException();
@@ -137,10 +124,9 @@ namespace Bicep.Core.TypeSystem.Az
                 throw new ArgumentException();
             }
 
-            var properties = objectType.Properties ?? throw new ArgumentException();
-            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, false) : null;
+            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
 
-            var extendedProperties = properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+            var extendedProperties = objectType.Properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
             foreach (var property in baseProperties.Where(x => !extendedProperties.ContainsKey(x.Key)))
             {
                 extendedProperties[property.Key] = property.Value;
