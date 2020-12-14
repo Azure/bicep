@@ -8,7 +8,7 @@ var webSiteName = toLower('wapp-${webAppName}')
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appServicePlanName
-  location: location 
+  location: location
   sku: {
     name: sku
   }
