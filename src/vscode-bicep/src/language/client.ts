@@ -91,6 +91,8 @@ async function launchLanguageService(
 }
 
 async function ensureDotnetRuntimeInstalled(): Promise<string> {
+  getLogger().info("Acquiring dotnet runtime...");
+
   const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
     "dotnet.acquire",
     {
@@ -100,7 +102,10 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
   );
 
   if (!result) {
-    throw new Error(`Failed to install .NET runtime v${dotnetRuntimeVersion}.`);
+    const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}.`;
+
+    getLogger().error(errorMessage);
+    throw new Error(errorMessage);
   }
 
   return path.resolve(result.dotnetPath);

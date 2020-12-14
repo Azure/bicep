@@ -27,6 +27,13 @@ resource foo 'ddd'
 //@[13:18) StringComplete |'ddd'|
 //@[18:22) NewLine |\r\n\r\n|
 
+// #completionTest(23) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource trailingSpace  
+//@[0:8) Identifier |resource|
+//@[9:22) Identifier |trailingSpace|
+//@[24:28) NewLine |\r\n\r\n|
+
 // #completionTest(19,20) -> object
 //@[35:37) NewLine |\r\n|
 resource foo 'ddd'= 

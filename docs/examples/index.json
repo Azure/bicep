@@ -28,6 +28,10 @@
         "description": "101/application-gateway-v2-autoscale-create"
     },
     {
+        "filePath": "101/azure-bastion/main.bicep",
+        "description": "101/azure-bastion"
+    },
+    {
         "filePath": "101/azure-search-create/main.bicep",
         "description": "101/azure-search-create"
     },
@@ -42,6 +46,10 @@
     {
         "filePath": "101/container-registry/main.bicep",
         "description": "101/container-registry"
+    },
+    {
+        "filePath": "101/cosmosdb-free/main.bicep",
+        "description": "101/cosmosdb-free"
     },
     {
         "filePath": "101/cosmosdb-webapp/main.bicep",
@@ -86,6 +94,10 @@
     {
         "filePath": "101/deployment-script-with-storage/main.bicep",
         "description": "101/deployment-script-with-storage"
+    },
+    {
+        "filePath": "101/eventhub-namespace/main.bicep",
+        "description": "101/eventhub-namespace"
     },
     {
         "filePath": "101/expressroute-circuit-create/main.bicep",

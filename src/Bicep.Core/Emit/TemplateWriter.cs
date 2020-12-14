@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -290,6 +291,27 @@ namespace Bicep.Core.Emit
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);
+
+            if (scopeData.RequestedScope != ResourceScopeType.ResourceGroupScope)
+            {
+                // if we're deploying to a scope other than resource group, we need to supply a location
+                if (this.context.SemanticModel.TargetScope == ResourceScopeType.ResourceGroupScope)
+                {
+                    // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
+                    this.emitter.EmitProperty("location", new FunctionExpression(
+                        "resourceGroup",
+                        new LanguageExpression[] { },
+                        new LanguageExpression[] { new JTokenExpression("location") }));
+                }
+                else
+                {
+                    // at all other scopes we can just use deployment().location
+                    this.emitter.EmitProperty("location", new FunctionExpression(
+                        "deployment",
+                        new LanguageExpression[] { },
+                        new LanguageExpression[] { new JTokenExpression("location") }));
+                }
+            }
 
             writer.WritePropertyName("properties");
             {

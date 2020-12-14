@@ -57,6 +57,8 @@ namespace Bicep.Core.Samples
 
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");
 
+        public static ImmutableDictionary<string, string> Functions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestFunctionsPrefix}");
+
         private static DataSet CreateDataSet([CallerMemberName] string? dataSetName = null) => new DataSet(dataSetName!);
     }
 }

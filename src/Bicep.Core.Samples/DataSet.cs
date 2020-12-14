@@ -25,8 +25,10 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
-        public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestCompletionsDirectory = "Completions";
+        public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
+        public const string TestFunctionsDirectory = "Functions";
+        public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
 
         public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
 

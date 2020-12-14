@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var formattedOutput = PrettyPrinter.PrintProgram(program, options);
             formattedOutput.Should().NotBeNull();
 
-            var resultsFile = FileHelper.SaveResultFile(this.TestContext!, Path.Combine(dataSet.Name, DataSet.TestFileMainFormatted), formattedOutput!);
+            var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainFormatted), formattedOutput!);
 
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 

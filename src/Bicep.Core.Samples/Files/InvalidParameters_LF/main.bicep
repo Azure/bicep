@@ -22,6 +22,9 @@ param missingTypeWithSpaceAfter
 // tab after identifier #completionTest(30) -> paramTypes
 param missingTypeWithTabAfter	
 
+// #completionTest(20) -> paramTypes
+param trailingSpace  
+
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
 

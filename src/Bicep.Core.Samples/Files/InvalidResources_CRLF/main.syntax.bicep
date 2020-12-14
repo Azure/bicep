@@ -53,6 +53,19 @@ resource foo 'ddd'
 //@[18:18)  SkippedTriviaSyntax
 //@[18:22) NewLine |\r\n\r\n|
 
+// #completionTest(23) -> resourceTypes
+//@[39:41) NewLine |\r\n|
+resource trailingSpace  
+//@[0:24) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:22)  IdentifierSyntax
+//@[9:22)   Identifier |trailingSpace|
+//@[24:24)  SkippedTriviaSyntax
+//@[24:24)  SkippedTriviaSyntax
+//@[24:24)  SkippedTriviaSyntax
+//@[24:24)  SkippedTriviaSyntax
+//@[24:28) NewLine |\r\n\r\n|
+
 // #completionTest(19,20) -> object
 //@[35:37) NewLine |\r\n|
 resource foo 'ddd'= 

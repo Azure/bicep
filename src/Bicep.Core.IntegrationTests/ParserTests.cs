@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
+using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -163,7 +164,7 @@ namespace Bicep.Core.IntegrationTests
 
                 base.VisitInternal(node);
 
-                this.maxPosition.Should().Be(span.Position + span.Length);
+                this.maxPosition.Should().Be(span.GetEndPosition());
             }
 
             public override void VisitToken(Token token)
@@ -172,7 +173,7 @@ namespace Bicep.Core.IntegrationTests
 
                 var span = token.Span;
                 span.Position.Should().BeGreaterOrEqualTo(this.maxPosition);
-                this.maxPosition = span.Position + span.Length;
+                this.maxPosition = span.GetEndPosition();
             }
         }
     }

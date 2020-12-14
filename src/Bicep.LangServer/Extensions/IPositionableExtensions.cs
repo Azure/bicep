@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -25,13 +26,13 @@ namespace Bicep.LanguageServer.Extensions
             new Range
             {
                 Start = PositionHelper.GetPosition(lineStarts, positionable.Span.Position),
-                End = PositionHelper.GetPosition(lineStarts, positionable.Span.Position + positionable.Span.Length)
+                End = PositionHelper.GetPosition(lineStarts, positionable.GetEndPosition())
             };
 
         public static IEnumerable<Range> ToRangeSpanningLines(this IPositionable positionable, ImmutableArray<int> lineStarts)
         {
             var start = PositionHelper.GetPosition(lineStarts, positionable.Span.Position);
-            var end = PositionHelper.GetPosition(lineStarts, positionable.Span.Position + positionable.Span.Length);
+            var end = PositionHelper.GetPosition(lineStarts, positionable.GetEndPosition());
 
             while (start.Line < end.Line)
             {

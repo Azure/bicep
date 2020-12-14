@@ -840,20 +840,6 @@
     }
   },
   {
-    "label": "listKeys",
-    "kind": "function",
-    "detail": "listKeys()",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "3_listKeys",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "listKeys($0)"
-    }
-  },
-  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -1425,6 +1411,20 @@
     "textEdit": {
       "range": {},
       "newText": "toUpper($0)"
+    }
+  },
+  {
+    "label": "trailingSpace",
+    "kind": "interface",
+    "detail": "trailingSpace",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_trailingSpace",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "trailingSpace"
     }
   },
   {
