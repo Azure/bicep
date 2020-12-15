@@ -46,12 +46,12 @@
       },
       "defaultValue": "Standard_A2_v2"
     },
-    "storageNewOrExisting": {
-      "type": "string",
+    "createNewStorageAccount": {
+      "type": "bool",
       "metadata": {
         "description": "Determines whether or not a new storage account should be provisioned."
       },
-      "defaultValue": "new"
+      "defaultValue": true
     },
     "storageAccountName": {
       "type": "string",
@@ -74,14 +74,14 @@
       },
       "defaultValue": "[resourceGroup().name]"
     },
-    "virtualNetworkNewOrExisting": {
-      "type": "string",
+    "createNewVnet": {
+      "type": "bool",
       "metadata": {
         "description": "Determines whether or not a new virtual network should be provisioned."
       },
-      "defaultValue": "new"
+      "defaultValue": true
     },
-    "virtualNetworkName": {
+    "vnetName": {
       "type": "string",
       "metadata": {
         "description": "Name of the virtual network"
@@ -111,35 +111,35 @@
       },
       "defaultValue": "10.0.0.0/24"
     },
-    "virtualNetworkResourceGroupName": {
+    "vnetResourceGroupName": {
       "type": "string",
       "metadata": {
         "description": "Name of the resource group for the existing virtual network"
       },
       "defaultValue": "[resourceGroup().name]"
     },
-    "publicIpNewOrExisting": {
-      "type": "string",
+    "createNewPublicIP": {
+      "type": "bool",
       "metadata": {
         "description": "Determines whether or not a new public ip should be provisioned."
       },
-      "defaultValue": "new"
+      "defaultValue": true
     },
-    "publicIpName": {
+    "publicIPName": {
       "type": "string",
       "metadata": {
         "description": "Name of the public ip address"
       },
       "defaultValue": "PublicIp"
     },
-    "publicIpDns": {
+    "publicIPDns": {
       "type": "string",
       "metadata": {
         "description": "DNS of the public ip address for the VM"
       },
       "defaultValue": "[format('linux-vm-{0}', uniqueString(resourceGroup().id))]"
     },
-    "publicIpResourceGroupName": {
+    "publicIPResourceGroupName": {
       "type": "string",
       "metadata": {
         "description": "Name of the resource group for the public ip address"
@@ -149,26 +149,13 @@
   },
   "functions": [],
   "variables": {
-    "nicName": "[format('{0}-nic', parameters('vmName'))]",
-    "linuxConfiguration": {
-      "disablePasswordAuthentication": true,
-      "ssh": {
-        "publicKeys": [
-          {
-            "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]",
-            "keyData": "[parameters('adminPasswordOrKey')]"
-          }
-        ]
-      }
-    },
-    "publicIpAddressId": {
-      "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
-    },
-    "networkSecurityGroupName": "default-NSG"
+    "storageAccountId": "[if(parameters('createNewStorageAccount'), resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')))]",
+    "subnetId": "[if(parameters('createNewVnet'), resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('vnetName'), parameters('subnetName')), '/')[0], split(format('{0}/{1}', parameters('vnetName'), parameters('subnetName')), '/')[1]), resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName')))]",
+    "publicIPId": "[if(parameters('createNewPublicIP'), resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName')), resourceId(parameters('publicIPResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIPName')))]"
   },
   "resources": [
     {
-      "condition": "[equals(parameters('storageNewOrExisting'), 'new')]",
+      "condition": "[parameters('createNewStorageAccount')]",
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2017-06-01",
       "name": "[parameters('storageAccountName')]",
@@ -179,23 +166,23 @@
       }
     },
     {
-      "condition": "[equals(parameters('publicIpNewOrExisting'), 'new')]",
+      "condition": "[parameters('createNewPublicIP')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2017-09-01",
-      "name": "[parameters('publicIpName')]",
+      "name": "[parameters('publicIPName')]",
       "location": "[parameters('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic",
         "dnsSettings": {
-          "domainNameLabel": "[parameters('publicIpDns')]"
+          "domainNameLabel": "[parameters('publicIPDns')]"
         }
       }
     },
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "condition": "[parameters('createNewVnet')]",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-08-01",
-      "name": "[variables('networkSecurityGroupName')]",
+      "name": "default-NSG",
       "location": "[parameters('location')]",
       "properties": {
         "securityRules": [
@@ -216,35 +203,37 @@
       }
     },
     {
-      "condition": "[equals(parameters('virtualNetworkNewOrExisting'), 'new')]",
+      "condition": "[parameters('createNewVnet')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2017-09-01",
-      "name": "[parameters('virtualNetworkName')]",
+      "name": "[parameters('vnetName')]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": "[parameters('addressPrefixes')]"
-        },
-        "subnets": [
-          {
-            "name": "[parameters('subnetName')]",
-            "properties": {
-              "addressPrefix": "[parameters('subnetPrefix')]",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
-              }
-            }
-          }
-        ]
+        }
+      }
+    },
+    {
+      "condition": "[parameters('createNewVnet')]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2017-09-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetPrefix')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-NSG')]"
+        }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'default-NSG')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ]
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2017-09-01",
-      "name": "[variables('nicName')]",
+      "name": "[format('{0}-nic', parameters('vmName'))]",
       "location": "[parameters('location')]",
       "properties": {
         "ipConfigurations": [
@@ -253,16 +242,18 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
-                "id": "[resourceId(parameters('virtualNetworkResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets/', parameters('virtualNetworkName'), parameters('subnetName'))]"
+                "id": "[variables('subnetId')]"
               },
-              "publicIPAddress": "[if(not(equals(parameters('publicIpNewOrExisting'), 'none')), variables('publicIpAddressId'), null())]"
+              "publicIPAddress": {
+                "id": "[variables('publicIPId')]"
+              }
             }
           }
         ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/{1}', parameters('vnetName'), parameters('subnetName')), '/')[0], split(format('{0}/{1}', parameters('vnetName'), parameters('subnetName')), '/')[1])]"
       ]
     },
     {
@@ -278,7 +269,7 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+          "linuxConfiguration": "[if(not(equals(parameters('authenticationType'), 'password')), createObject('disablePasswordAuthentication', true(), 'ssh', createObject('publicKeys', createArray(createObject('path', format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername')), 'keyData', parameters('adminPasswordOrKey'))))), null())]"
         },
         "storageProfile": {
           "imageReference": {
@@ -295,19 +286,19 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"
             }
           ]
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2017-06-01').primaryEndpoints.blob]"
+            "storageUri": "[reference(variables('storageAccountId')).primaryEndpoints.blob]"
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
       ]
     }

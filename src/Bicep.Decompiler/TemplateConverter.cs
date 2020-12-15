@@ -182,7 +182,9 @@ namespace Bicep.Decompiler
 
         private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
         {
-            if (SyntaxHelpers.BannedBinaryOperatorLookup.TryGetValue(expression.Function, out var bannedOperator))
+            var binaryOperator = SyntaxHelpers.TryGetBinaryOperatorReplacement(expression.Function);
+
+            if (binaryOperator != null)
             {
                 if (expression.Parameters.Length != 2)
                 {
@@ -194,14 +196,11 @@ namespace Bicep.Decompiler
                     throw new ArgumentException($"Expected 0 properties for binary function {expression.Function}");
                 }
 
-                // Need to copy the banned operator or we may get a duplicate key exception when creating the syntax hierarchy.
-                var bannedOperatorCopy = SyntaxHelpers.CreateToken(bannedOperator.Type, bannedOperator.Text);
-
                 syntax = new ParenthesizedExpressionSyntax(
                     SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
                     new BinaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
-                        bannedOperatorCopy,
+                        binaryOperator,
                         ParseLanguageExpression(expression.Parameters[1])),
                     SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
                 return true;

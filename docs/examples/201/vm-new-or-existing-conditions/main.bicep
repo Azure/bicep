@@ -37,11 +37,11 @@ param vmSize string {
   }
   default: 'Standard_A2_v2'
 }
-param storageNewOrExisting string {
+param createNewStorageAccount bool {
   metadata: {
     description: 'Determines whether or not a new storage account should be provisioned.'
   }
-  default: 'new'
+  default: true
 }
 param storageAccountName string {
   metadata: {
@@ -61,13 +61,13 @@ param storageAccountResourceGroupName string {
   }
   default: resourceGroup().name
 }
-param virtualNetworkNewOrExisting string {
+param createNewVnet bool {
   metadata: {
     description: 'Determines whether or not a new virtual network should be provisioned.'
   }
-  default: 'new'
+  default: true
 }
-param virtualNetworkName string {
+param vnetName string {
   metadata: {
     description: 'Name of the virtual network'
   }
@@ -93,55 +93,42 @@ param subnetPrefix string {
   }
   default: '10.0.0.0/24'
 }
-param virtualNetworkResourceGroupName string {
+param vnetResourceGroupName string {
   metadata: {
     description: 'Name of the resource group for the existing virtual network'
   }
   default: resourceGroup().name
 }
-param publicIpNewOrExisting string {
+param createNewPublicIP bool {
   metadata: {
     description: 'Determines whether or not a new public ip should be provisioned.'
   }
-  default: 'new'
+  default: true
 }
-param publicIpName string {
+param publicIPName string {
   metadata: {
     description: 'Name of the public ip address'
   }
   default: 'PublicIp'
 }
-param publicIpDns string {
+param publicIPDns string {
   metadata: {
     description: 'DNS of the public ip address for the VM'
   }
   default: 'linux-vm-${uniqueString(resourceGroup().id)}'
 }
-param publicIpResourceGroupName string {
+param publicIPResourceGroupName string {
   metadata: {
     description: 'Name of the resource group for the public ip address'
   }
   default: resourceGroup().name
 }
 
-var nicName = '${vmName}-nic'
-var linuxConfiguration = {
-  disablePasswordAuthentication: true
-  ssh: {
-    publicKeys: [
-      {
-        path: '/home/${adminUsername}/.ssh/authorized_keys'
-        keyData: adminPasswordOrKey
-      }
-    ]
-  }
-}
-var publicIpAddressId = {
-  id: resourceId(publicIpResourceGroupName, 'Microsoft.Network/publicIPAddresses', publicIpName)
-}
-var networkSecurityGroupName = 'default-NSG'
+var storageAccountId = createNewStorageAccount ? storageAccount.id : resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts/', storageAccountName)
+var subnetId = createNewVnet ? subnet.id : resourceId(vnetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, subnetName)
+var publicIPId = createNewPublicIP ? publicIP.id : resourceId(publicIPResourceGroupName, 'Microsoft.Network/publicIPAddresses', publicIPName)
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = if (storageNewOrExisting == 'new') {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = if (createNewStorageAccount) {
   name: storageAccountName
   location: location
   kind: 'Storage'
@@ -150,19 +137,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = if (sto
   }
 }
 
-resource publicIp 'Microsoft.Network/publicIPAddresses@2017-09-01' = if (publicIpNewOrExisting == 'new') {
-  name: publicIpName
+resource publicIP 'Microsoft.Network/publicIPAddresses@2017-09-01' = if (createNewPublicIP) {
+  name: publicIPName
   location: location
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {
-      domainNameLabel: publicIpDns
+      domainNameLabel: publicIPDns
     }
   }
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = if (virtualNetworkNewOrExisting == 'new') {
-  name: networkSecurityGroupName
+resource nsg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = if (createNewVnet) {
+  name: 'default-NSG'
   location: location
   properties: {
     securityRules: [
@@ -183,29 +170,28 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2019-08-01' = if (virtualN
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2017-09-01' = if (virtualNetworkNewOrExisting == 'new') {
-  name: virtualNetworkName
+resource vnet 'Microsoft.Network/virtualNetworks@2017-09-01' = if (createNewVnet) {
+  name: vnetName
   location: location
   properties: {
     addressSpace: {
       addressPrefixes: addressPrefixes
     }
-    subnets: [
-      {
-        name: subnetName
-        properties: {
-          addressPrefix: subnetPrefix
-          networkSecurityGroup: {
-            id: nsg.id
-          }
-        }
-      }
-    ]
+  }
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2017-09-01' = if (createNewVnet) {
+  name: '${vnet.name}/${subnetName}'
+  properties: {
+    addressPrefix: subnetPrefix
+    networkSecurityGroup: {
+      id: nsg.id
+    }
   }
 }
 
 resource nic 'Microsoft.Network/networkInterfaces@2017-09-01' = {
-  name: nicName
+  name: '${vmName}-nic'
   location: location
   properties: {
     ipConfigurations: [
@@ -214,17 +200,15 @@ resource nic 'Microsoft.Network/networkInterfaces@2017-09-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId(virtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets/', virtualNetworkName, subnetName)
+            id: subnetId
           }
-          publicIPAddress: any(!(publicIpNewOrExisting == 'none') ? publicIpAddressId : null)
+          publicIPAddress: {
+            id: publicIPId
+          }
         }
       }
     ]
   }
-  dependsOn: [
-    publicIp
-    vnet
-  ]
 }
 
 resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
@@ -238,7 +222,17 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
-      linuxConfiguration: any((authenticationType == 'password') ? null : linuxConfiguration)
+      linuxConfiguration: any(authenticationType != 'password' ? {
+        disablePasswordAuthentication: true
+        ssh: {
+          publicKeys: [
+            {
+              path: '/home/${adminUsername}/.ssh/authorized_keys'
+              keyData: adminPasswordOrKey
+            }
+          ]
+        }
+      } : null)
     }
     storageProfile: {
       imageReference: {
@@ -262,11 +256,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: true
-        storageUri: reference(resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts/', storageAccountName), '2017-06-01').primaryEndpoints.blob
+        storageUri: reference(storageAccountId).primaryEndpoints.blob
       }
     }
   }
-  dependsOn: [
-    storageAccount
-  ]
 }
