@@ -38,7 +38,7 @@ output storageId string = stg.id
 output computedStorageName string = stg.name
 ```
 
-You may find you need properties other properties like `apiVersion` for functions like [list*](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions-resource#list).
+You may find you need other properties like `apiVersion` for functions like [list*](https://docs.microsoft.com/azure/azure-resource-manager/templates/template-functions-resource#list).
 
 ## Retrieving "run-time" properties
 
