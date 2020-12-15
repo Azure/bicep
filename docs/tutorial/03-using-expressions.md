@@ -2,7 +2,7 @@
 
 In the first tutorial, we declared a basic storage account resource and augmented that declaration with references to declared parameters and variables. These references are forms of **expressions**.
 
-Even though the bicep language is still in its infancy, you can already write some powerful expressions to take advantage of in your bicep files.
+Even though the bicep language is still in its infancy, you can already write some powerful expressions to take advantage of it in your bicep files.
 
 ## Using a bicep function
 

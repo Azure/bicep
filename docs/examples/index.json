@@ -36,6 +36,14 @@
         "description": "101/azure-search-create"
     },
     {
+        "filePath": "101/azure-sentinel/main.bicep",
+        "description": "101/azure-sentinel"
+    },
+    {
+        "filePath": "101/azure-spring-cloud/main.bicep",
+        "description": "101/azure-spring-cloud"
+    },
+    {
         "filePath": "101/azurefirewall-create-with-zones/main.bicep",
         "description": "101/azurefirewall-create-with-zones"
     },
@@ -190,6 +198,10 @@
     {
         "filePath": "101/vnet-two-subnets/main.bicep",
         "description": "101/vnet-two-subnets"
+    },
+    {
+        "filePath": "101/web-app-linux/main.bicep",
+        "description": "101/web-app-linux"
     },
     {
         "filePath": "101/web-app-windows/main.bicep",

@@ -52,7 +52,7 @@ resource sqlserverName_databaseName 'Microsoft.Sql/servers/databases@2020-08-01-
   }
 }
 
-resource sqlserverName_AllowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2015-05-01-preview' = {
+resource sqlserverName_AllowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2014-04-01' = {
   name: '${sqlserver.name}/AllowAllWindowsAzureIps'
   properties: {
     endIpAddress: '0.0.0.0'

@@ -73,7 +73,7 @@
     },
     {
       "type": "Microsoft.Sql/servers/firewallRules",
-      "apiVersion": "2015-05-01-preview",
+      "apiVersion": "2014-04-01",
       "name": "[format('{0}/AllowAllWindowsAzureIps', variables('sqlserverName'))]",
       "properties": {
         "endIpAddress": "0.0.0.0",

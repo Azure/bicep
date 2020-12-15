@@ -96,7 +96,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2019-06-01",
+      "apiVersion": "2019-09-01",
       "name": "[parameters('keyVaultName')]",
       "location": "[parameters('location')]",
       "tags": {
