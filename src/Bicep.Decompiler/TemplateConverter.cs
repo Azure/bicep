@@ -194,11 +194,14 @@ namespace Bicep.Decompiler
                     throw new ArgumentException($"Expected 0 properties for binary function {expression.Function}");
                 }
 
+                // Need to copy the banned operator or we may get a duplicate key exception when creating the syntax hierarchy.
+                var bannedOperatorCopy = SyntaxHelpers.CreateToken(bannedOperator.Type, bannedOperator.Text);
+
                 syntax = new ParenthesizedExpressionSyntax(
                     SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
                     new BinaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
-                        bannedOperator,
+                        bannedOperatorCopy,
                         ParseLanguageExpression(expression.Parameters[1])),
                     SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
                 return true;

@@ -6,8 +6,6 @@ param baseUrl string {
   }
   default: 'https://my.base/url'
 }
-param shouldDeployModule bool = 'true'
-//@[32:38) [BCP027 (Error)] The parameter expects a default value of type "bool" but provided value is of type "'true'". |'true'|
 param NetworkWatcherName string {
   metadata: {
     description: 'Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>'
@@ -86,7 +84,7 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
   ]
 }
 
-module module1Deploy 'nested/module1.bicep' = if (shouldDeployModule) {
+module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". |params|
@@ -99,7 +97,7 @@ module module1Deploy 'nested/module1.bicep' = if (shouldDeployModule) {
   }
 }
 
-module module2Deploy 'nested/module2.bicep' = if (shouldDeployModule) {
+module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". |params|

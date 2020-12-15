@@ -17,10 +17,6 @@
         "description": "Base URL for the reference templates and scripts"
       }
     },
-    "shouldDeployModule": {
-      "type": "bool",
-      "defaultValue": "true"
-    },
     "NetworkWatcherName": {
       "type": "string",
       "defaultValue": "[concat('NetworkWatcher_', parameters('location'))]",
@@ -110,7 +106,7 @@
       ]
     },
     {
-      "condition": "[parameters('shouldDeployModule')]",
+      "condition": "[equals(add(1, 2), 3)]",
       "name": "module1Deploy",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
@@ -134,7 +130,7 @@
       }
     },
     {
-      "condition": "[parameters('shouldDeployModule')]",
+      "condition": "[equals(add(1, 2), 3)]",
       "name": "module2Deploy",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",

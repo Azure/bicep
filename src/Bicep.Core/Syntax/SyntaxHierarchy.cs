@@ -45,12 +45,19 @@ namespace Bicep.Core.Syntax
 
             protected override void VisitInternal(SyntaxBase node)
             {
-                var parent = currentParents.Count <= 0 ? null : currentParents.Peek();
-                parentMap.Add(node, parent);
+                try
+                {
+                    var parent = currentParents.Count <= 0 ? null : currentParents.Peek();
+                    parentMap.Add(node, parent);
 
-                currentParents.Push(node);
-                base.VisitInternal(node);
-                currentParents.Pop();
+                    currentParents.Push(node);
+                    base.VisitInternal(node);
+                    currentParents.Pop();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
     }
