@@ -83,10 +83,8 @@ resource keyvault 'Microsoft.KeyVault/vaults@2019-09-01' = {
 }
 
 // create key
-var keySize = 4096
 resource key 'Microsoft.KeyVault/vaults/keys@2019-09-01' = {
   name: '${keyvault.name}/${keyName}'
-  location: location
   properties: {
     kty: 'RSA' // key type
     keyOps: [
@@ -94,15 +92,13 @@ resource key 'Microsoft.KeyVault/vaults/keys@2019-09-01' = {
       'encrypt'
       'decrypt'
     ]
-    keySize: keySize == -1 ? null : keySize
-    curveName: ''
+    keySize: 4096
   }
 }
 
 // create secret
 resource secret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
   name: '${keyvault.name}/${secretName}'
-  location: location
   properties: {
     value: secretValue
   }
