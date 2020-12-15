@@ -2,10 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "eastus"
-    },
     "existingKeyVaultName": {
       "type": "string"
     },
@@ -23,7 +19,6 @@
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', parameters('existingKeyVaultName'), parameters('secretName'))]",
-      "location": "[parameters('location')]",
       "properties": {
         "value": "[parameters('secretValue')]"
       }

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "app1Name": {
+      "type": "string"
+    },
+    "app2Name": {
+      "type": "string"
+    },
+    "app3Name": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app1Name')]",
+      "properties": {
+        "public": true,
+        "activeDeploymentName": "default"
+      }
+    },
+    {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app2Name')]",
+      "properties": {
+        "public": false,
+        "activeDeploymentName": "default"
+      }
+    },
+    {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app3Name')]",
+      "properties": {
+        "public": false,
+        "activeDeploymentName": "default"
+      }
+    }
+  ]
+}
