@@ -26,7 +26,7 @@
     "scriptName": "createFileShare",
     "identityName": "scratch",
     "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-    "roleDefinitionName": "[guid(variables('identityName'), variables('roleDefinitionId'))]",
+    "roleAssignmentName": "[guid(variables('identityName'), variables('roleDefinitionId'))]",
     "sftpContainerName": "sftp",
     "sftpContainerGroupName": "sftp-group",
     "sftpContainerImage": "atmoz/sftp:latest",
@@ -43,7 +43,7 @@
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[variables('roleDefinitionName')]",
+      "name": "[variables('roleAssignmentName')]",
       "properties": {
         "roleDefinitionId": "[variables('roleDefinitionId')]",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))).principalId]",
@@ -63,7 +63,7 @@
       },
       "kind": "StorageV2",
       "dependsOn": [
-        "[resourceId('Microsoft.Authorization/roleAssignments', variables('roleDefinitionName'))]"
+        "[resourceId('Microsoft.Authorization/roleAssignments', variables('roleAssignmentName'))]"
       ]
     },
     {

@@ -9,7 +9,7 @@ param location string = resourceGroup().location
 var scriptName = 'createFileShare'
 var identityName = 'scratch'
 var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-var roleDefinitionName = guid(identityName, roleDefinitionId)
+var roleAssignmentName = guid(identityName, roleDefinitionId)
 var sftpContainerName = 'sftp'
 var sftpContainerGroupName = 'sftp-group'
 var sftpContainerImage = 'atmoz/sftp:latest'
@@ -22,7 +22,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: roleDefinitionName
+  name: roleAssignmentName
   properties: {
     roleDefinitionId: roleDefinitionId
     principalId: managedIdentity.properties.principalId
@@ -120,7 +120,7 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01'
           readOnly: false
           shareName: fileShareName
           storageAccountName: storageAccount.name
-          storageAccountKey: listKeys(storageAccountName, '2020-08-01-preview').keys[0].value
+          storageAccountKey: listKeys(storageAccount.name, storageAccount.apiVersion).keys[0].value
         }
       }
     ]
