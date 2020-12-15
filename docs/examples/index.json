@@ -4,6 +4,10 @@
         "description": "101/1vm-2nics-2subnets-1vnet"
     },
     {
+        "filePath": "101/aadds-dual-region-replica-sets/main.bicep",
+        "description": "101/aadds-dual-region-replica-sets"
+    },
+    {
         "filePath": "101/aci-linuxcontainer-public-ip/main.bicep",
         "description": "101/aci-linuxcontainer-public-ip"
     },
