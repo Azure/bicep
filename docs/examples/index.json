@@ -220,6 +220,10 @@
         "description": "201/1vm-2nics-2subnets-1vnet"
     },
     {
+        "filePath": "201/aci-sftp-files/main.bicep",
+        "description": "201/aci-sftp-files"
+    },
+    {
         "filePath": "201/aci-wordpress/main.bicep",
         "description": "201/aci-wordpress"
     },
