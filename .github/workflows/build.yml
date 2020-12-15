@@ -309,3 +309,19 @@ jobs:
           asset_path: ./bicep-setup-win-x64/bicep-setup-win-x64.exe
           asset_name: bicep-setup-win-x64.exe
           asset_content_type: binary/octet-stream
+      
+      - name: Zip language server
+        uses: papeloto/action-zip@v1
+        with:
+          files: ./Bicep.LangServer
+          dest: ./bicep-langserver.zip
+      
+      - name: Upload bicep-langserver.zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ./bicep-langserver.zip
+          asset_name: bicep-langserver.zip
+          asset_content_type: application/zip
