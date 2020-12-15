@@ -29,10 +29,15 @@ resource trailingSpace
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
-//@[20:20) [BCP018 (Error)] Expected the "{" character at this location. ||
+//@[20:20) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
 
 // wrong resource type
 resource foo 'ddd'={
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
+}
+
+resource foo 'ddd'=if (1 + 1 == 2) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". |'ddd'|
 }
@@ -43,10 +48,77 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
 //@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
 }
 
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[13:58) [BCP047 (Error)] String interpolation is unsupported for specifying the resource type. |'Microsoft.${provider}/foos@2020-02-02-alpha'|
+}
+
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". |foo|
+//@[56:60) [BCP057 (Error)] The name "name" does not exist in the current context. |name|
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+}
+//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+// simulate typing if condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[54:54) [BCP018 (Error)] Expected the "(" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:56) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[60:60) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[61:61) [BCP018 (Error)] Expected the "{" character at this location. ||
+
+// missing condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:56) [BCP018 (Error)] Expected the "(" character at this location. |{|
+  name: 'foo'
+}
+
+// empty condition
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+  name: 'foo'
+}
+
+// invalid condition type
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[55:60) [BCP046 (Error)] Expected a value of type "bool". |(123)|
+  name: 'foo'
+}
+
+// runtime functions are no allowed in resource conditions
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[57:66) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. |reference|
+  name: 'foo'
+}
+
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[57:65) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. |listKeys|
+  name: 'foo'
 }
 
 // duplicate property at the top level
@@ -209,17 +281,17 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[8:33) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
+//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: runtimeValidRes1.properties.evictionPolicy
-//@[8:50) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
+//@[8:50) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
   kind:'AzureCLI'
   location: 'eastus'
   properties: {
@@ -230,40 +302,40 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[8:53) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
+//@[8:53) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[8:56) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
+//@[8:56) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[8:53) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
+//@[8:53) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
-//@[8:48) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2.properties.azCliVersion|
+//@[8:48) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2.properties.azCliVersion|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
-//@[8:43) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString1}']|
+//@[8:43) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString1}']|
 }
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 var magicString2 = 'name'
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString2}']
-//@[8:43) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString2}']|
+//@[8:43) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString2}']|
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
-//@[11:36) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes3.location|
+//@[11:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "apiVersion", "id", "name", "type". |runtimeValidRes3.location|
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

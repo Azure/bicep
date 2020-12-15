@@ -25,12 +25,18 @@ namespace Bicep.Core
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
 
+        public const string IfKeyword = "if";
+
         public const string TargetScopeTypeTenant = "tenant";
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
         public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
+
+        public static ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
+            .Add(TargetScopeKeyword)
+            .Add(IfKeyword);
 
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";

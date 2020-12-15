@@ -249,3 +249,18 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
     '[resourceGroup().location]': '[resourceGroup().location]'
   }
 }
+
+param shouldDeployVm bool = true
+//@[6:20) Parameter shouldDeployVm. Type: bool. Declaration start char: 0, length: 32
+resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
+//@[9:24) Resource vmWithCondition. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 263
+  name: 'vmName'
+  location: 'westus'
+  properties: {
+    osProfile: {
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+      }
+    }
+  }
+}

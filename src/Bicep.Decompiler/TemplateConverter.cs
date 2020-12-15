@@ -807,6 +807,8 @@ namespace Bicep.Decompiler
                     SyntaxHelpers.CreateIdentifier(identifier),
                     SyntaxHelpers.CreateStringLiteral(filePath),
                     SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
+                    // TODO: implement decompiling condtional deployments.
+                    null,
                     SyntaxHelpers.CreateObject(properties));
             }
 
@@ -815,12 +817,14 @@ namespace Bicep.Decompiler
             {
                 throw new ConversionFailedException($"Unable to find {resource["name"]}.properties.templateLink.uri for linked template.", resource);
             }
-            
+
             return new ModuleDeclarationSyntax(
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
+                // TODO: implement decompiling condtional deployments.
+                null,
                 SyntaxHelpers.CreateObject(properties));
         }
 
@@ -903,6 +907,8 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
+                // TODO: implement decompiling conditional resources.
+                null,
                 SyntaxHelpers.CreateObject(topLevelProperties));
         }
 

@@ -133,17 +133,18 @@ namespace Bicep.Core.Semantics.Namespaces
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
             var allScopes = ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope;
-            yield return (FunctionOverload.CreateFixed("tenant", GetRestrictedTenantReturnValue), allScopes);
+            
+            yield return (new FunctionOverloadBuilder("tenant").WithDynamicReturnType(GetRestrictedTenantReturnValue).WithFixedParameters().Build(), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue), ResourceScopeType.ManagementGroupScope);
-            yield return (FunctionOverload.CreateFixed("managementGroup", GetRestrictedManagementGroupReturnValue, LanguageConstants.String), ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
+            yield return (new FunctionOverloadBuilder("managementGroup").WithDynamicReturnType(GetRestrictedManagementGroupReturnValue).WithFixedParameters().Build(), ResourceScopeType.ManagementGroupScope);
+            yield return (new FunctionOverloadBuilder("managementGroup").WithDynamicReturnType(GetRestrictedManagementGroupReturnValue).WithFixedParameters(LanguageConstants.String).Build(), ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
 
-            yield return (FunctionOverload.CreateFixed("subscription", GetSubscriptionReturnValue), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
-            yield return (FunctionOverload.CreateFixed("subscription", GetRestrictedSubscriptionReturnValue, LanguageConstants.String), allScopes);
+            yield return (new FunctionOverloadBuilder("subscription").WithDynamicReturnType(GetSubscriptionReturnValue).WithFixedParameters().Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (new FunctionOverloadBuilder("subscription").WithDynamicReturnType(GetRestrictedSubscriptionReturnValue).WithFixedParameters(LanguageConstants.String).Build(), allScopes);
 
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetResourceGroupReturnValue), ResourceScopeType.ResourceGroupScope);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
-            yield return (FunctionOverload.CreateFixed("resourceGroup", GetRestrictedResourceGroupReturnValue, LanguageConstants.String, LanguageConstants.String), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetResourceGroupReturnValue).WithFixedParameters().Build(), ResourceScopeType.ResourceGroupScope);
+            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetRestrictedResourceGroupReturnValue).WithFixedParameters(LanguageConstants.String).Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetRestrictedResourceGroupReturnValue).WithFixedParameters(LanguageConstants.String, LanguageConstants.String).Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
         }
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScopeType resourceScope)
@@ -155,29 +156,61 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     yield return functionOverload;
                 }
+
                 // TODO: add banned function to explain why a given function isn't available
             }
 
             // TODO: Add schema for return type
-            yield return FunctionOverload.CreateFixed("deployment", GetDeploymentReturnType(resourceScope));
+            yield return new FunctionOverloadBuilder("deployment")
+                .WithReturnType(GetDeploymentReturnType(resourceScope))
+                .WithFixedParameters()
+                .Build();
 
-            yield return FunctionOverload.CreateFixed("environment", GetEnvironmentReturnType());
+            yield return new FunctionOverloadBuilder("environment")
+                .WithReturnType(GetEnvironmentReturnType())
+                .WithFixedParameters()
+                .Build();
 
             // TODO: This is based on docs. Verify
-            yield return FunctionOverload.CreateWithVarArgs("resourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("subscriptionResourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("tenantResourceId", LanguageConstants.String, 2, LanguageConstants.String);
-            yield return FunctionOverload.CreateWithVarArgs("extensionResourceId", LanguageConstants.String, 3, LanguageConstants.String);
+            yield return new FunctionOverloadBuilder("resourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("subscriptionResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("tenantResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(2, LanguageConstants.String)
+                .Build();
+
+            yield return new FunctionOverloadBuilder("extensionResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithVariableParameters(3, LanguageConstants.String)
+                .Build();
 
             // TODO: Not sure about return type
-            yield return new FunctionOverload("providers", LanguageConstants.Array, 1, 2, Enumerable.Repeat(LanguageConstants.String, 2), null);
+            yield return new FunctionOverloadBuilder("providers")
+                .WithReturnType(LanguageConstants.Array)
+                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String)
+                .Build();
 
             // TODO: return type is string[]
-            yield return new FunctionOverload("pickZones", LanguageConstants.Array, 3, 5, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int}, null);
+            yield return new FunctionOverloadBuilder("pickZones")
+                .WithReturnType(LanguageConstants.Array)
+                .WithOptionalFixedParameters(3, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int)
+                .Build();
 
-            // the use of FunctionPlacementConstraints.Resources prevents use of these functions anywhere where they can't be directly inlined into a resource body
-            yield return new FunctionOverload("reference", LanguageConstants.Object, 1, 3, Enumerable.Repeat(LanguageConstants.String, 3), null, FunctionFlags.RequiresInlining);
-            yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] { LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object }, null, new Regex("^list[a-zA-Z]*"), FunctionFlags.RequiresInlining);
+            yield return new FunctionOverloadBuilder("reference")
+                .WithReturnType(LanguageConstants.Object)
+                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String)
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
+
+            yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object}, null, new Regex("^list[a-zA-Z]*"), FunctionFlags.RequiresInlining);
         }
 
         public AzNamespaceSymbol(ResourceScopeType resourceScope)

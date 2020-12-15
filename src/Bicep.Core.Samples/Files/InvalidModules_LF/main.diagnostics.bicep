@@ -31,11 +31,16 @@ module
 // #completionTest(24,25) -> object
 module missingValue '' = 
 //@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
-//@[25:25) [BCP018 (Error)] Expected the "{" character at this location. ||
+//@[25:25) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
 //@[28:47) [BCP092 (Error)] String interpolation is not supported in module paths. |'./${interp}.bicep'|
+
+}
+
+module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
+//@[40:59) [BCP092 (Error)] String interpolation is not supported in module paths. |'./${interp}.bicep'|
 
 }
 
@@ -44,21 +49,97 @@ module moduleWithSelfCycle './main.bicep' = {
 
 }
 
+module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
+//@[39:53) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
+
+}
+
 module './main.bicep' = {
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
 
 }
 
+module './main.bicep' = if (1 + 2 == 3) {
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+
+}
+
+module './main.bicep' = if
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[26:26) [BCP018 (Error)] Expected the "(" character at this location. ||
+
+module './main.bicep' = if (
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+
+module './main.bicep' = if (true
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[32:32) [BCP018 (Error)] Expected the ")" character at this location. ||
+
+module './main.bicep' = if (true)
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[33:33) [BCP018 (Error)] Expected the "{" character at this location. ||
+
+module './main.bicep' = if {
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[27:28) [BCP018 (Error)] Expected the "(" character at this location. |{|
+
+}
+
+module './main.bicep' = if () {
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+//@[28:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+
+}
+
+module './main.bicep' = if ('true') {
+//@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
+
+}
+
 module modANoName './modulea.bicep' = {
+//@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
 //@[7:17) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
 }
 
+module modANoNameWithCondition './modulea.bicep' = if (true) {
+//@[7:30) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |modANoNameWithCondition|
+// #completionTest(0) -> moduleAWithConditionTopLevelProperties
+
+}
+
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[35:49) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
+
+}
+
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[34:48) [BCP094 (Error)] This module references itself, which is not allowed. |'./main.bicep'|
+
+}
+
+
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
+//@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
+
+}
+//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
+
 module modANoInputs './modulea.bicep' = {
 //@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+  
+}
+
+module modANoInputsWithCondition './modulea.bicep' = if (length([
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputsWithCondition|
+  'foo'
+]) == 1) {
+  name: 'modANoInputs'
+  // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   
 }
 
@@ -71,13 +152,30 @@ module modAEmptyInputs './modulea.bicep' = {
   }
 }
 
+module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
+  name: 'modANoInputs'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+    // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+    
+  }
+}
+
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
 //@[54:55) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
 
+// #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
+var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
+//@[80:81) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". |o|
+
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 //@[55:56) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
+
+// #completionTest(82) -> moduleAWithConditionOutputs
+var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
+//@[81:82) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
   name: 'modAUnspecifiedInputs'
@@ -165,30 +263,30 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.location|
+//@[8:33) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['location']|
+//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP118 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku'].name|
 }

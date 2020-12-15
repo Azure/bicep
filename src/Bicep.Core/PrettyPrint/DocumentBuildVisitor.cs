@@ -28,7 +28,7 @@ namespace Bicep.Core.PrettyPrint
         private static readonly ILinkedDocument DoubleLine = new NestDocument(0, Line);
 
         private static readonly ImmutableDictionary<string, TextDocument> CommonTextCache =
-            LanguageConstants.DeclarationKeywords
+            LanguageConstants.ContextualKeywords
             .Concat(LanguageConstants.Keywords.Keys)
             .Concat(new[] { "(", ")", "[", "]", "{", "}", "=", ":", "+", "-", "*", "/", "!" })
             .Concat(new[] { "name", "properties", "string", "bool", "int", "array", "object" })

@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
-using Bicep.Core.CodeAction;
-using System.Linq;
-using System;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -680,12 +680,16 @@ namespace Bicep.Core.Diagnostics
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
-            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties) => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new ErrorDiagnostic(
                 TextSpan,
                 "BCP118",
+                "Expected the \"{\" character or the \"if\" keyword at this location.");
+
+            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP119",
                 $"The property \"{property}\" cannot be set using runtime properties. You can only reference the following properties: {ToQuotedString(usableProperties.OrderBy(s => s))}."
             );
-
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

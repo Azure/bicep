@@ -52,15 +52,27 @@ namespace Bicep.Core.Semantics
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.Default;
+            this.Visit(syntax.IfCondition);
             allowedFlags = FunctionFlags.RequiresInlining;
-            base.VisitResourceDeclarationSyntax(syntax);
+            this.Visit(syntax.Body);
             allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.Default;
+            this.Visit(syntax.IfCondition);
             allowedFlags = FunctionFlags.RequiresInlining;
-            base.VisitModuleDeclarationSyntax(syntax);
+            this.Visit(syntax.Body);
             allowedFlags = FunctionFlags.Default;
         }
 
