@@ -1,14 +1,13 @@
-.vscode/**
-.vscode-test/**
-coverage/**
-typings/**
-out/test/**
-test/**
-src/**
-**/*.map
-.gitignore
-tsconfig.json
-gulpfile.js
-jest.config.*.js
-vsc-extension-quickstart.md
-bicep.log
+# ignore all by default
+*
+*/**
+
+# allow the following
+!out/**/*
+!bicepLanguageServer/**/*
+!icons/**/*
+!language-configuration.json
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE.txt
