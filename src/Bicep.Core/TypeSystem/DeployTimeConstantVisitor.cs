@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace Bicep.Core.TypeSystem
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
         private string? currentProperty;
+        private string? accessedSymbol;
         private ObjectType? bodyObj;
         private ObjectType? referencedBodyObj;
 
@@ -65,15 +67,42 @@ namespace Bicep.Core.TypeSystem
                 this.bodyObj = bodyObj;
             }
             base.VisitModuleDeclarationSyntax(syntax);
-            // reset both the current object and referenced object's bodyObj
             this.bodyObj = null;
-            this.referencedBodyObj = null;
+        }
+
+        public override void VisitObjectSyntax(ObjectSyntax syntax)
+        {
+            if (this.bodyObj == null)
+            {
+                return;
+            }
+
+            foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
+            {
+                if (this.bodyObj.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) &&
+                    propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                {
+                    this.currentProperty = deployTimeIdentifier.Key;
+                    this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
+                    this.currentProperty = null;
+                }
+            }
+        }
+
+        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+        {
+            base.VisitObjectPropertySyntax(syntax);
+            // if an error is found at the end we emit it and move on to the next key of this object declaration.
+            if (this.errorSyntax != null)
+            {
+                this.AppendError();
+            }
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             base.VisitArrayAccessSyntax(syntax);
-            if (this.errorSyntax != null)
+            if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
                 // Due to the nature of visitPropertyAccessSyntax, we have to visit every level of this
                 // nested errorSyntax recursively. The last one will be shown to the user.
@@ -81,6 +110,10 @@ namespace Bicep.Core.TypeSystem
             }
             else if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
             {
+                if (this.errorSyntax != null)
+                {
+                    this.AppendError();
+                }
                 // validate only on resource and module symbols
                 var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
                 switch (baseSymbol)
@@ -98,6 +131,7 @@ namespace Bicep.Core.TypeSystem
                                         !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                                         {
                                             this.errorSyntax = syntax;
+                                            this.accessedSymbol = baseSymbol.Name;
                                             this.referencedBodyObj = referencedBodyObj;
                                         }
                                     }
@@ -105,6 +139,7 @@ namespace Bicep.Core.TypeSystem
                                     {
                                         // we will block referencing module and resource properties using string interpolation 
                                         this.errorSyntax = syntax;
+                                        this.accessedSymbol = baseSymbol.Name;
                                         this.referencedBodyObj = referencedBodyObj;
                                     }
                                     break;
@@ -115,38 +150,10 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public override void VisitObjectSyntax(ObjectSyntax syntax)
-        {
-            if (this.bodyObj == null)
-            {
-                return;
-            }
-
-            foreach (var deployTimeIdentifier in ObjectSyntaxExtensions.ToNamedPropertyDictionary(syntax))
-            {
-                if (this.bodyObj.Properties.TryGetValue(deployTimeIdentifier.Key, out var propertyType) && propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                {
-                    this.currentProperty = deployTimeIdentifier.Key;
-                    this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
-                }
-            }
-        }
-
-        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-        {
-            base.VisitObjectPropertySyntax(syntax);
-            // if an error is found at the end we emit it and move on to the next key of this object declaration.
-            if (this.errorSyntax != null)
-            {
-                this.AppendError(this.errorSyntax);
-                this.errorSyntax = null;
-            }
-        }
-
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             base.VisitPropertyAccessSyntax(syntax);
-            if (this.errorSyntax != null)
+            if (this.errorSyntax != null && TextSpan.AreOverlapping(this.errorSyntax, syntax))
             {
                 // Due to the nature of visitPropertyAccessSyntax, we have to visit every level of this
                 // nested errorSyntax recursively. The last one will be shown to the user.
@@ -154,6 +161,10 @@ namespace Bicep.Core.TypeSystem
             }
             else if (syntax.BaseExpression is VariableAccessSyntax variableAccessSyntax)
             {
+                if (this.errorSyntax != null)
+                {
+                    this.AppendError();
+                }
                 // validate only on resource and module symbols
                 var baseSymbol = model.GetSymbolInfo(variableAccessSyntax);
                 switch (baseSymbol)
@@ -167,6 +178,7 @@ namespace Bicep.Core.TypeSystem
                             !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                             {
                                 this.errorSyntax = syntax;
+                                this.accessedSymbol = baseSymbol.Name;
                                 this.referencedBodyObj = referencedBodyObj;
                             }
                         }
@@ -174,22 +186,35 @@ namespace Bicep.Core.TypeSystem
                 }
             }
         }
-        private void AppendError(SyntaxBase syntax)
+
+        private void AppendError()
         {
+            if (this.errorSyntax == null)
+            {
+                throw new NullReferenceException($"{nameof(this.errorSyntax)} is null in DeployTimeConstant");
+            }
             if (this.currentProperty == null)
             {
-                throw new NullReferenceException($"{nameof(this.currentProperty)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.currentProperty)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
             }
             if (this.bodyObj == null)
             {
-                throw new NullReferenceException($"{nameof(this.bodyObj)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.bodyObj)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
             }
             if (this.referencedBodyObj == null)
             {
-                throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
             }
-            var usableKeys = this.bodyObj.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys));
+            if (this.accessedSymbol == null)
+            {
+                throw new NullReferenceException($"{nameof(this.accessedSymbol)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
+            }
+            var usableKeys = this.referencedBodyObj.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol));
+
+            this.errorSyntax = null;
+            this.referencedBodyObj = null;
+            this.accessedSymbol = null;
         }
     }
 }

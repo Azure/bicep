@@ -167,6 +167,13 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   '${undefinedSymbol}': true
 }
 
+module validModule './module.bicep' = {
+  name: 'storageDeploy'
+  params: {
+    name: 'contoso'
+  }
+}
+
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: 'name1'
   location: 'eastus'
@@ -187,6 +194,14 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes1.name}_v1'
+}
+
+resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(validModule['name'], 'v1')
+}
+
+resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${validModule.name}_v1'
 }
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -236,6 +251,18 @@ resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
+}
+
+resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: validModule.params['name']
+}
+
+resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+}
+
+resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
