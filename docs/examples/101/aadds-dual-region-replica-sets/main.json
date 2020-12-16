@@ -1,0 +1,242 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "domainName": {
+      "type": "string",
+      "defaultValue": "aaddscontoso.com"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.AAD/domainServices",
+      "apiVersion": "2020-01-01",
+      "name": "[parameters('domainName')]",
+      "location": "West Europe",
+      "properties": {
+        "domainName": "[parameters('domainName')]",
+        "domainSecuritySettings": {
+          "ntlmV1": "Enabled",
+          "syncKerberosPasswords": "Enabled",
+          "syncNtlmPasswords": "Enabled",
+          "syncOnPremPasswords": "Enabled",
+          "tlsV1": "Enabled"
+        },
+        "filteredSync": "Disabled",
+        "ldapsSettings": {
+          "externalAccess": "Disabled",
+          "ldaps": "Disabled"
+        },
+        "notificationSettings": {
+          "notifyDcAdmins": "Enabled",
+          "notifyGlobalAdmins": "Enabled",
+          "additionalRecipients": []
+        },
+        "replicaSets": [
+          {
+            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')).subnets[0].id]",
+            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01', 'full').location]"
+          },
+          {
+            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')).subnets[0].id]",
+            "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01', 'full').location]"
+          }
+        ],
+        "sku": "Enterprise"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "aadds-eus-nsg",
+      "location": "East US",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowSyncWithAzureAD",
+            "properties": {
+              "access": "Allow",
+              "priority": 101,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "AzureActiveDirectoryDomainServices",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
+            }
+          },
+          {
+            "name": "AllowPSRemoting",
+            "properties": {
+              "access": "Allow",
+              "priority": 301,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "AzureActiveDirectoryDomainServices",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "5986"
+            }
+          },
+          {
+            "name": "AllowRD",
+            "properties": {
+              "access": "Allow",
+              "priority": 201,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "CorpNetSaw",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "aadds-eus-vnet",
+      "location": "East US",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/24"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "aadds-subnet",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-eus-nsg')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-eus-nsg')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "aadds-weu-nsg",
+      "location": "West Europe",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowSyncWithAzureAD",
+            "properties": {
+              "access": "Allow",
+              "priority": 101,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "AzureActiveDirectoryDomainServices",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
+            }
+          },
+          {
+            "name": "AllowPSRemoting",
+            "properties": {
+              "access": "Allow",
+              "priority": 301,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "AzureActiveDirectoryDomainServices",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "5986"
+            }
+          },
+          {
+            "name": "AllowRD",
+            "properties": {
+              "access": "Allow",
+              "priority": 201,
+              "direction": "Inbound",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "CorpNetSaw",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "aadds-weu-vnet",
+      "location": "West Europe",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.1.0.0/24"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "aadds-subnet",
+            "properties": {
+              "addressPrefix": "10.1.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-weu-nsg')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'aadds-weu-nsg')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}-peering-{2}', 'aadds-eus-vnet', 'aadds-eus-vnet', 'aadds-weu-vnet')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}-peering-{2}', 'aadds-weu-vnet', 'aadds-weu-vnet', 'aadds-eus-vnet')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
+      ]
+    }
+  ]
+}

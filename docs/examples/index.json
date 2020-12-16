@@ -4,6 +4,10 @@
         "description": "101/1vm-2nics-2subnets-1vnet"
     },
     {
+        "filePath": "101/aadds-dual-region-replica-sets/main.bicep",
+        "description": "101/aadds-dual-region-replica-sets"
+    },
+    {
         "filePath": "101/aci-linuxcontainer-public-ip/main.bicep",
         "description": "101/aci-linuxcontainer-public-ip"
     },
@@ -34,6 +38,10 @@
     {
         "filePath": "101/azure-search-create/main.bicep",
         "description": "101/azure-search-create"
+    },
+    {
+        "filePath": "101/azure-sentinel/main.bicep",
+        "description": "101/azure-sentinel"
     },
     {
         "filePath": "101/azure-spring-cloud/main.bicep",
@@ -218,6 +226,10 @@
     {
         "filePath": "201/1vm-2nics-2subnets-1vnet/main.bicep",
         "description": "201/1vm-2nics-2subnets-1vnet"
+    },
+    {
+        "filePath": "201/aci-sftp-files/main.bicep",
+        "description": "201/aci-sftp-files"
     },
     {
         "filePath": "201/aci-wordpress/main.bicep",
