@@ -685,10 +685,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP118",
                 "Expected the \"{\" character or the \"if\" keyword at this location.");
 
-            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties) => new ErrorDiagnostic(
+            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP119",
-                $"The property \"{property}\" cannot be set using runtime properties. You can only reference the following properties: {ToQuotedString(usableProperties.OrderBy(s => s))}."
+                $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
             );
         }
 

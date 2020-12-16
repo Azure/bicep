@@ -20,6 +20,7 @@ namespace Bicep.Core.TypeSystem
         // Since we collect errors top down, we will collect and overwrite this variable and emit it in the end
         private SyntaxBase? errorSyntax;
         private string? currentProperty;
+        private string? accessedSymbol;
         private ObjectType? bodyObj;
         private ObjectType? referencedBodyObj;
 
@@ -53,7 +54,9 @@ namespace Bicep.Core.TypeSystem
                 this.bodyObj = bodyObj;
             }
             base.VisitResourceDeclarationSyntax(syntax);
+            // reset both the current object and referenced object's bodyObj
             this.bodyObj = null;
+            this.referencedBodyObj = null;
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -98,6 +101,7 @@ namespace Bicep.Core.TypeSystem
                                         !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                                         {
                                             this.errorSyntax = syntax;
+                                            this.accessedSymbol = baseSymbol.Name;
                                             this.referencedBodyObj = referencedBodyObj;
                                         }
                                     }
@@ -105,6 +109,7 @@ namespace Bicep.Core.TypeSystem
                                     {
                                         // we will block referencing module and resource properties using string interpolation 
                                         this.errorSyntax = syntax;
+                                        this.accessedSymbol = baseSymbol.Name;
                                         this.referencedBodyObj = referencedBodyObj;
                                     }
                                     break;
@@ -128,6 +133,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     this.currentProperty = deployTimeIdentifier.Key;
                     this.VisitObjectPropertySyntax(deployTimeIdentifier.Value);
+                    this.currentProperty = null;
+                    this.accessedSymbol = null;
                 }
             }
         }
@@ -167,6 +174,7 @@ namespace Bicep.Core.TypeSystem
                             !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                             {
                                 this.errorSyntax = syntax;
+                                this.accessedSymbol = baseSymbol.Name;
                                 this.referencedBodyObj = referencedBodyObj;
                             }
                         }
@@ -188,8 +196,12 @@ namespace Bicep.Core.TypeSystem
             {
                 throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
             }
+            if (this.accessedSymbol == null)
+            {
+                throw new NullReferenceException($"{nameof(this.accessedSymbol)} is null in DeployTimeConstant for syntax {syntax.ToString()}");
+            }
             var usableKeys = this.bodyObj.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys));
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol));
         }
     }
 }

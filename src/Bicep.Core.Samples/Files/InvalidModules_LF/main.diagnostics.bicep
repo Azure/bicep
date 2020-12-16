@@ -263,30 +263,30 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.location|
+//@[8:33) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['location']|
+//@[8:36) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP119 (Error)] The property "name" cannot be set using runtime properties. You can only reference the following properties: "name". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "name". |runtimeValidRes1['sku'].name|
 }
