@@ -257,6 +257,13 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
 }
 
+module validModule './module.bicep' = {
+  name: 'storageDeploy'
+  params: {
+    name: 'contoso'
+  }
+}
+
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: 'name1'
   location: 'eastus'
@@ -277,6 +284,14 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes1.name}_v1'
+}
+
+resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(validModule['name'], 'v1')
+}
+
+resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${validModule.name}_v1'
 }
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -336,6 +351,30 @@ resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: '${runtimeValidRes3.location}'
 //@[11:36) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes3 are "apiVersion", "id", "name", "type". |runtimeValidRes3.location|
+}
+
+resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: validModule.params['name']
+//@[8:34) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params['name']|
+//@[20:26) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
+}
+
+resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+//@[15:40) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[42:70) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[72:117) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
+//@[119:142) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params.name|
+//@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
+}
+
+resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
+//@[11:36) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[39:67) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[70:115) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
+//@[118:144) [BCP119 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule['params'].name|
+//@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |'params'|
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

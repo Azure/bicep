@@ -214,6 +214,14 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   '${undefinedSymbol}': true
 }
 
+module validModule './module.bicep' = {
+//@[7:18) Module validModule. Type: module. Declaration start char: 0, length: 106
+  name: 'storageDeploy'
+  params: {
+    name: 'contoso'
+  }
+}
+
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 //@[9:25) Resource runtimeValidRes1. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 174
   name: 'name1'
@@ -237,6 +245,16 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[9:25) Resource runtimeValidRes3. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
   name: '${runtimeValidRes1.name}_v1'
+}
+
+resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
+  name: concat(validModule['name'], 'v1')
+}
+
+resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 126
+  name: '${validModule.name}_v1'
 }
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -298,6 +316,21 @@ resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[9:28) Resource runtimeInvalidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
   name: '${runtimeValidRes3.location}'
+}
+
+resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes11. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
+  name: validModule.params['name']
+}
+
+resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes12. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 240
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+}
+
+resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes13. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 243
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

@@ -1502,6 +1502,48 @@
     }
   },
   {
+    "label": "runtimeInvalidRes11",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes11",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes11",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes11"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes12",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes12",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes12",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes12"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes13",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes13",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes13",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes13"
+    }
+  },
+  {
     "label": "runtimeInvalidRes2",
     "kind": "interface",
     "detail": "runtimeInvalidRes2",
@@ -1653,6 +1695,34 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes3"
+    }
+  },
+  {
+    "label": "runtimeValidRes4",
+    "kind": "interface",
+    "detail": "runtimeValidRes4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes4"
+    }
+  },
+  {
+    "label": "runtimeValidRes5",
+    "kind": "interface",
+    "detail": "runtimeValidRes5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes5"
     }
   },
   {
@@ -1975,6 +2045,20 @@
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
+    }
+  },
+  {
+    "label": "validModule",
+    "kind": "module",
+    "detail": "validModule",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_validModule",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "validModule"
     }
   }
 ]
