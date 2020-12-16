@@ -73,6 +73,10 @@ namespace Bicep.Core.Emit
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 0:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.SubscriptionScope };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
+                            return new ScopeData { 
+                                RequestedScope = ResourceScopeType.SubscriptionScope, 
+                                SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 1:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.ResourceGroupScope, 
