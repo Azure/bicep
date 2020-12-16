@@ -94,7 +94,7 @@
   "devDependencies": {
     "@types/jest": "^26.0.19",
     "@types/mocha": "^8.2.0",
-    "@types/node": "^14.14.13",
+    "@types/node": "^14.14.14",
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.14.0",
     "@types/webpack": "^4.41.25",
