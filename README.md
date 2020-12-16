@@ -94,7 +94,7 @@ The language syntax and the tooling. Now is the best time to make breaking chang
 Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, that usually means working with some non-Azure APIs (i.e. creating kubernetes deployments or users in a database), so we expect to provide some extensibility points. That being said, in the 0.1 release, you can only create Azure resources that are exposed through the ARM API.
 
 **What happens to my existing ARM Template investments?**
-One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. We plan to ship a "decompiler", which will convert an ARM template into an equivalent Bicep file. We also will support using a standard ARM template as a Bicep module without converting it to bicep.
+One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://github.com/Azure/bicep/blob/main/docs/decompiling.md) for usage information.
 
 ## Reference
 
