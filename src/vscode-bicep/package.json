@@ -119,7 +119,7 @@
   },
   "dependencies": {
     "triple-beam": "^1.3.0",
-    "vscode-azureextensionui": "^0.38.1",
+    "vscode-azureextensionui": "^0.38.2",
     "vscode-languageclient": "^7.0.0",
     "winston": "^3.3.3",
     "winston-transport": "^4.4.0"
