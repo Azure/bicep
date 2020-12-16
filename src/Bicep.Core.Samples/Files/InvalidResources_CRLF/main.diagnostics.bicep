@@ -465,3 +465,34 @@ var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 //@[78:79) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'selfScope'
+  scope: selfScope
+//@[9:18) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |selfScope|
+}
+
+var notAResource = {
+  im: 'not'
+  a: 'resource!'
+}
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope'
+  scope: notAResource
+//@[9:21) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "object". |notAResource|
+//@[9:21) [BCP119 (Error)] Unsupported scope for extension resource deployment. Expected a resource reference. |notAResource|
+}
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope2'
+  scope: resourceGroup()
+//@[9:24) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "resourceGroup". |resourceGroup()|
+//@[9:24) [BCP119 (Error)] Unsupported scope for extension resource deployment. Expected a resource reference. |resourceGroup()|
+}
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope3'
+  scope: subscription()
+//@[9:23) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "subscription". |subscription()|
+//@[9:23) [BCP119 (Error)] Unsupported scope for extension resource deployment. Expected a resource reference. |subscription()|
+}

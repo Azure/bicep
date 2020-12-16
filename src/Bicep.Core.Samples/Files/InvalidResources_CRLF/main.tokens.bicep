@@ -1445,4 +1445,111 @@ var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 //@[77:78) LeftSquare |[|
 //@[78:79) Identifier |a|
 //@[79:80) RightSquare |]|
-//@[80:80) EndOfFile ||
+//@[80:84) NewLine |\r\n\r\n|
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |selfScope|
+//@[19:50) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[51:52) Assignment |=|
+//@[53:54) LeftBrace |{|
+//@[54:56) NewLine |\r\n|
+  name: 'selfScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'selfScope'|
+//@[19:21) NewLine |\r\n|
+  scope: selfScope
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |selfScope|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var notAResource = {
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |notAResource|
+//@[17:18) Assignment |=|
+//@[19:20) LeftBrace |{|
+//@[20:22) NewLine |\r\n|
+  im: 'not'
+//@[2:4) Identifier |im|
+//@[4:5) Colon |:|
+//@[6:11) StringComplete |'not'|
+//@[11:13) NewLine |\r\n|
+  a: 'resource!'
+//@[2:3) Identifier |a|
+//@[3:4) Colon |:|
+//@[5:16) StringComplete |'resource!'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\r\n|
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:21) Identifier |invalidScope|
+//@[22:53) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[54:55) Assignment |=|
+//@[56:57) LeftBrace |{|
+//@[57:59) NewLine |\r\n|
+  name: 'invalidScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:22) StringComplete |'invalidScope'|
+//@[22:24) NewLine |\r\n|
+  scope: notAResource
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |notAResource|
+//@[21:23) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:22) Identifier |invalidScope2|
+//@[23:54) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[55:56) Assignment |=|
+//@[57:58) LeftBrace |{|
+//@[58:60) NewLine |\r\n|
+  name: 'invalidScope2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:23) StringComplete |'invalidScope2'|
+//@[23:25) NewLine |\r\n|
+  scope: resourceGroup()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:22) Identifier |resourceGroup|
+//@[22:23) LeftParen |(|
+//@[23:24) RightParen |)|
+//@[24:26) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:22) Identifier |invalidScope3|
+//@[23:54) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[55:56) Assignment |=|
+//@[57:58) LeftBrace |{|
+//@[58:60) NewLine |\r\n|
+  name: 'invalidScope3'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:23) StringComplete |'invalidScope3'|
+//@[23:25) NewLine |\r\n|
+  scope: subscription()
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |subscription|
+//@[21:22) LeftParen |(|
+//@[22:23) RightParen |)|
+//@[23:25) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

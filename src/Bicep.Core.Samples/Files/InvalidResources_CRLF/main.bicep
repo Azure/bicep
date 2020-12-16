@@ -352,3 +352,27 @@ var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'selfScope'
+  scope: selfScope
+}
+
+var notAResource = {
+  im: 'not'
+  a: 'resource!'
+}
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope'
+  scope: notAResource
+}
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope2'
+  scope: resourceGroup()
+}
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope3'
+  scope: subscription()
+}

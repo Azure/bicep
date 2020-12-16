@@ -742,6 +742,48 @@
     }
   },
   {
+    "label": "invalidScope",
+    "kind": "interface",
+    "detail": "invalidScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope"
+    }
+  },
+  {
+    "label": "invalidScope2",
+    "kind": "interface",
+    "detail": "invalidScope2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope2"
+    }
+  },
+  {
+    "label": "invalidScope3",
+    "kind": "interface",
+    "detail": "invalidScope3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope3"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -1064,6 +1106,20 @@
     }
   },
   {
+    "label": "notAResource",
+    "kind": "variable",
+    "detail": "notAResource",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_notAResource",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "notAResource"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",
@@ -1201,6 +1257,20 @@
     "textEdit": {
       "range": {},
       "newText": "resrefvar"
+    }
+  },
+  {
+    "label": "selfScope",
+    "kind": "interface",
+    "detail": "selfScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_selfScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "selfScope"
     }
   },
   {

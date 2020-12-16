@@ -245,9 +245,9 @@
       }
     },
     {
+      "condition": "[parameters('shouldDeployVm')]",
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2020-06-01",
-      "condition": "[parameters('shouldDeployVm')]",
       "name": "vmName",
       "location": "westus",
       "properties": {
@@ -257,6 +257,42 @@
           }
         }
       }
+    },
+    {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+      "name": "extension1",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
+      ]
+    },
+    {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1')]",
+      "name": "extension2",
+      "dependsOn": [
+        "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1')]"
+      ]
+    },
+    {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "extensionDependencies",
+      "properties": {
+        "res1": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
+        "res1runtime": "[reference(resourceId('Microsoft.Compute/virtualMachines', 'vmName')).something]",
+        "res2": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1')]",
+        "res2runtime": "[reference(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1')).something]",
+        "res3": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1'), 'My.Rp/extensionResource', 'extension2')]",
+        "res3runtime": "[reference(extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1'), 'My.Rp/extensionResource', 'extension2')).something]"
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1')]",
+        "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension1'), 'My.Rp/extensionResource', 'extension2')]",
+        "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
+      ]
     }
   ],
   "outputs": {
