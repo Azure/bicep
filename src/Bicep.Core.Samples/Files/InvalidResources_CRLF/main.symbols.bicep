@@ -427,3 +427,32 @@ var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 //@[4:44) Variable nestedDiscriminatorArrayIndexCompletions. Type: error. Declaration start char: 0, length: 80
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+//@[9:18) Resource selfScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 98
+  name: 'selfScope'
+  scope: selfScope
+}
+
+var notAResource = {
+//@[4:16) Variable notAResource. Type: object. Declaration start char: 0, length: 54
+  im: 'not'
+  a: 'resource!'
+}
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+//@[9:21) Resource invalidScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 107
+  name: 'invalidScope'
+  scope: notAResource
+}
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+//@[9:22) Resource invalidScope2. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 112
+  name: 'invalidScope2'
+  scope: resourceGroup()
+}
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+//@[9:22) Resource invalidScope3. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 111
+  name: 'invalidScope3'
+  scope: subscription()
+}

@@ -264,3 +264,28 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
     }
   }
 }
+
+resource extension1 'My.Rp/extensionResource@2020-12-01' = {
+//@[9:19) Resource extension1. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 111
+  name: 'extension1'
+  scope: vmWithCondition
+}
+
+resource extension2 'My.Rp/extensionResource@2020-12-01' = {
+//@[9:19) Resource extension2. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 106
+  name: 'extension2'
+  scope: extension1
+}
+
+resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
+//@[9:30) Resource extensionDependencies. Type: My.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 359
+  name: 'extensionDependencies'
+  properties: {
+    res1: vmWithCondition.id
+    res1runtime: vmWithCondition.properties.something
+    res2: extension1.id
+    res2runtime: extension1.properties.something
+    res3: extension2.id
+    res3runtime: extension2.properties.something
+  }
+}

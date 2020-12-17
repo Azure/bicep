@@ -91,15 +91,23 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitResourceIdReference(ResourceDeclarationSyntax resourceSyntax, ResourceTypeReference typeReference)
+        public void EmitUnqualifiedResourceId(ResourceSymbol resourceSymbol)
         {
-            var resourceIdExpression = converter.GetLocallyScopedResourceIdExpression(resourceSyntax, typeReference);
+            var unqualifiedResourceId = converter.GetUnqualifiedResourceId(resourceSymbol);
+            var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
+
+            writer.WriteValue(serialized);
+        }
+
+        public void EmitResourceIdReference(ResourceSymbol resourceSymbol)
+        {
+            var resourceIdExpression = converter.GetLocallyScopedResourceId(resourceSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
         }
 
-        public void EmitModuleResourceIdExpression(ModuleSymbol moduleSymbol)
+        public void EmitResourceIdReference(ModuleSymbol moduleSymbol)
         {
             var resourceIdExpression = converter.GetModuleResourceIdExpression(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);

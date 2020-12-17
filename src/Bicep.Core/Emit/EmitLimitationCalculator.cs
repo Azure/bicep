@@ -17,8 +17,36 @@ namespace Bicep.Core.Emit
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
             var moduleScopeData = GetSupportedScopeInfo(semanticModel, diagnosticWriter);
+            var resourceScopeData = GetResoureScopeInfo(semanticModel, diagnosticWriter);
 
-            return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData);
+            return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
+        }
+
+        public static ImmutableDictionary<ResourceSymbol, ResourceSymbol?> GetResoureScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            var scopeInfo = new Dictionary<ResourceSymbol, ResourceSymbol?>();
+
+            foreach (var resourceSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                var scopeValue = resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
+                if (scopeValue is null)
+                {
+                    scopeInfo[resourceSymbol] = null;
+                    continue;
+                }
+
+                var scopeSymbol = semanticModel.GetSymbolInfo(scopeValue);
+                if (scopeSymbol is not ResourceSymbol targetResourceSymbol)
+                {
+                    scopeInfo[resourceSymbol] = null;
+                    diagnosticWriter.Write(scopeValue, x => x.InvalidExtensionResourceScope());
+                    continue;
+                }
+
+                scopeInfo[resourceSymbol] = targetResourceSymbol;
+            }
+
+            return scopeInfo.ToImmutableDictionary();
         }
 
         public static ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> GetSupportedScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
@@ -27,15 +55,15 @@ namespace Bicep.Core.Emit
 
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
-                var scopeProperty = (moduleSymbol.DeclaringModule.Body as ObjectSyntax)?.SafeGetPropertyByName(LanguageConstants.ModuleScopePropertyName);
-                if (scopeProperty == null)
+                var scopeValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
+                if (scopeValue == null)
                 {
                     // no scope provided - assume the parent scope
                     moduleScopeData[moduleSymbol] = new ScopeHelper.ScopeData { RequestedScope = semanticModel.TargetScope };
                     continue;
                 }
 
-                var scopeType = semanticModel.GetTypeInfo(scopeProperty.Value);
+                var scopeType = semanticModel.GetTypeInfo(scopeValue);
                 var scopeData = ScopeHelper.TryGetScopeData(semanticModel.TargetScope, scopeType);
 
                 if (scopeData != null)
@@ -47,16 +75,16 @@ namespace Bicep.Core.Emit
                 switch (semanticModel.TargetScope)
                 {
                     case ResourceScopeType.TenantScope:
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForTenantScope());
+                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForTenantScope());
                         break;
                     case ResourceScopeType.ManagementGroupScope:
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForManagementScope());
+                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForManagementScope());
                         break;
                     case ResourceScopeType.SubscriptionScope:
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForSubscriptionScope());
+                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForSubscriptionScope());
                         break;
                     case ResourceScopeType.ResourceGroupScope:
-                        diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForResourceGroup());
+                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForResourceGroup());
                         break;
                     default:
                         throw new InvalidOperationException($"Unrecognized target scope {semanticModel.TargetScope}");

@@ -98,7 +98,6 @@ namespace Bicep.Core.Samples
                 "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.", 
                 "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
-                "Resource type \"Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.Sql/servers@2020-02-02-preview\" does not have types available.",
                 "Resource type \"Microsoft.Sql/servers/databases/transparentDataEncryption@2017-03-01-preview\" does not have types available.",
                 "Resource type \"microsoft.web/serverFarms@2018-11-01\" does not have types available.",

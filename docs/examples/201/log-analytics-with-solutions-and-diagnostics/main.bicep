@@ -34,8 +34,9 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
   })
 }
 
-resource logAnalyticsWorkspaceDiagnostics 'Microsoft.OperationalInsights/workspaces/providers/diagnosticSettings@2017-05-01-preview' = {
-  name: '${logAnalyticsWorkspace.name}/Microsoft.Insights/diagnosticSettings'
+resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+  scope: logAnalyticsWorkspace
+  name: 'diagnosticSettings'
   properties: {
     workspaceId: logAnalyticsWorkspace.id
     logs: [

@@ -34,6 +34,9 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(CreateCompilation(new AzResourceTypeProvider(), uriDictionary, entryUri));
         }
 
+        public static (string? jsonOutput, IEnumerable<Diagnostic> diagnostics) Compile(string fileContents)
+            => Compile(("main.bicep", fileContents));
+
         private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");

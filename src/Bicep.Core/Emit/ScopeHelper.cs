@@ -176,10 +176,10 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static LanguageExpression FormatLocallyScopedResourceId(SemanticModel semanticModel, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        public static LanguageExpression FormatLocallyScopedResourceId(ResourceScopeType? targetScope, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
             var initialArgs = new JTokenExpression(fullyQualifiedType).AsEnumerable();
-            switch (semanticModel.TargetScope)
+            switch (targetScope)
             {
                 case ResourceScopeType.TenantScope:
                     var tenantArgs = initialArgs.Concat(nameSegments);
@@ -195,9 +195,11 @@ namespace Bicep.Core.Emit
                     // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
                     // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
                     return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
+                case null:
+                    return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
                 default:
                     // this should have already been caught during compilation
-                    throw new InvalidOperationException($"Invalid target scope {semanticModel.TargetScope} for module");
+                    throw new InvalidOperationException($"Invalid target scope {targetScope} for module");
             }
         }
 
