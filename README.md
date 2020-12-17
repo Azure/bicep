@@ -96,6 +96,8 @@ Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, 
 **What happens to my existing ARM Template investments?**
 One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://github.com/Azure/bicep/blob/main/docs/decompiling.md) for usage information.
 
+Note that while we want to make it easy to transition to Bicep, we will continue to support the underlying ARM Template JSON language. As mentioned in [What is Bicep?](#what-is-bicep), ARM Template JSON remains the wire format that will be sent to Azure to carry out a deployment.
+
 ## Reference
 
 * [Complete language spec](./docs/spec/bicep.md)
