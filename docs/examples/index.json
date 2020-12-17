@@ -316,6 +316,10 @@
         "description": "201/vm-domain-join"
     },
     {
+        "filePath": "201/vm-new-or-existing-conditions/main.bicep",
+        "description": "201/vm-new-or-existing-conditions"
+    },
+    {
         "filePath": "201/vm-push-cert-windows/main.bicep",
         "description": "201/vm-push-cert-windows"
     },

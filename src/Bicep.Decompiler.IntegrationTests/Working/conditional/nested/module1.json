@@ -1,0 +1,22 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "foo": {
+            "type": "string"
+        },
+        "bar": {
+            "type": "object"
+        },
+        "baz": {
+            "type": "array"
+        },
+        "qux": {
+            "type": "string",
+            "defaultValue": "xyzzy"
+        }
+    },
+    "variables": {},
+    "resources": [],
+    "outputs": {}
+}

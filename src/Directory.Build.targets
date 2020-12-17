@@ -15,4 +15,8 @@
     <DefineConstants Condition=" $(IsOSXBuild) == 'true' ">$(DefineConstants);OSX_BUILD</DefineConstants>
     <DefineConstants Condition=" $(IsWindowsBuild) == 'true' ">$(DefineConstants);WINDOWS_BUILD</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)/BannedSymbols.txt" />
+  </ItemGroup>
 </Project>

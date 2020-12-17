@@ -134,7 +134,6 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("NonWorking/conditional.json", "[75:17]: The 'condition' property is not supported")]
         [DataRow("NonWorking/copyloop.json", "[11:9]: The 'copy' property is not supported")]
         [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
         [DataRow("NonWorking/nested-outer.json", "[11:23]: Nested template decompilation requires 'inner' expression evaluation scope. See 'https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates' for more information Microsoft.Resources/deployments pid-00000000-0000-0000-0000-000000000000")]
