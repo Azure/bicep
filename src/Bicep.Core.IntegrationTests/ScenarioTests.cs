@@ -312,7 +312,7 @@ output id string = routetable.id
             json.Should().NotBeNull();
             var template = JToken.Parse(json!);
 
-            // variable 'subnets' should have beeen inlined
+            // variable 'subnets' should have been inlined
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value")!.Type.Should().Be(JTokenType.Array);
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[0].name")!.Should().DeepEqual("GatewaySubnet");
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name")!.Should().DeepEqual("appsn01");
