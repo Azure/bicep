@@ -102,6 +102,10 @@ namespace Bicep.Core.Emit
 
         private void VisitPropertyAccessSyntaxInternal(PropertyAccessSyntax syntax)
         {
+            // This solution works on the assumption that all deploy-time constants are top-level properties on
+            // resources and modules (id, name, type, apiVersion). Once https://github.com/Azure/bicep/issues/1177 is fixed,
+            // it should be possible to make this more robust to handle nested deploy-time constants.
+
             if (currentDeclaration == null)
             {
                 return;
@@ -119,25 +123,46 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            bool shouldSkipInlining(ObjectType objectType, string propertyName)
+            {
+                var property = syntax.PropertyName.IdentifierName;
+                if (!objectType.Properties.TryGetValue(propertyName, out var propertyType))
+                {
+                    // unknown property - we should assume it's not inlinable
+                    return true;
+                }
+
+                // update the cache if property can't be skipped for inlining
+                return propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining);
+            }
+
             switch (model.GetSymbolInfo(variableAccessSyntax))
             {
+                // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
+                // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
+                // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
                 case ResourceSymbol resourceSymbol:
-                    if (!(resourceSymbol.Type is ResourceType resourceType && resourceType.Body is ObjectType bodyObjectType))
+                {
+                    if (!(resourceSymbol.Type is ResourceType resourceType && resourceType.Body.Type is ObjectType bodyObjectType))
                     {
                         // Resource or body could be an ErrorType here. We only want to attempt property access on an object body.
                         return;
                     }
 
-                    var property = syntax.PropertyName.IdentifierName;
-                    if (!bodyObjectType.Properties.TryGetValue(property, out var propertyType))
+                    shouldInlineCache[currentDeclaration] = !shouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName);
+                    return;
+                }
+                case ModuleSymbol moduleSymbol:
+                {
+                    if (!(moduleSymbol.Type is ModuleType moduleType && moduleType.Body.Type is ObjectType bodyObjectType))
                     {
-                        // unknown property
+                        // Resource or body could be an ErrorType here. We only want to attempt property access on an object body.
                         return;
                     }
 
-                    // update the cache if property can't be skipped for inlining
-                    shouldInlineCache[currentDeclaration] |= !propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining);
+                    shouldInlineCache[currentDeclaration] = !shouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName);
                     return;
+                }
             }
         }
 
