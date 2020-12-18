@@ -25,16 +25,21 @@ const mockWinstonLogger = ({
   log: jest.fn(),
 } as unknown) as winston.Logger;
 
-const mockState: vscode.Memento = { get: jest.fn(), update: jest.fn() };
-const mockContext: vscode.ExtensionContext = {
+const mockWorkspaceState: vscode.Memento = {
+  get: jest.fn(),
+  update: jest.fn(),
+};
+const mockGlobalstate = { ...mockWorkspaceState, setKeysForSync: jest.fn() };
+const mockContext = ({
   subscriptions: [],
-  workspaceState: mockState,
-  globalState: mockState,
+  workspaceState: mockWorkspaceState,
+  globalState: mockGlobalstate,
   asAbsolutePath: jest.fn(),
   extensionPath: "",
   storagePath: "",
   logPath: "",
-};
+} as unknown) as vscode.ExtensionContext;
+
 const mockOutputChannel: vscode.OutputChannel = {
   name: "",
   append: jest.fn(),
