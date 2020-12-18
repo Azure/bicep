@@ -67,9 +67,9 @@ az deployment group create -f ./main.json -g my-rg
 
 ## Known limitations
 
-* No support for the `copy` or `condition` property [[#185](https://github.com/Azure/bicep/issues/185), [#186](https://github.com/Azure/bicep/issues/186)]
-* Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported
-* You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands
+* No support for the `copy` property ([#185](https://github.com/Azure/bicep/issues/185)).
+* Single line object and arrays (i.e. `['a', 'b', 'c']`) are not yet supported ([#146](https://github.com/Azure/bicep/issues/146)).
+* You still need to deploy the compiled template yourself, though we plan to build native support for bicep into the powershell `Az` deployment cmdlets and `az cli` deployment commands ([#858](https://github.com/Azure/bicep/issues/858)).
 * Bicep is currently not covered by [Azure support plans](https://azure.microsoft.com/en-us/support/plans/) as it is still in early development stages. Expect Bicep to be covered by all support plans starting on the 0.3 version.
 
 ## FAQ
