@@ -707,7 +707,7 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateArray(syntaxItems);
         }
 
-        private SyntaxBase? TryGetScopeProperty(JObject resource)
+        private SyntaxBase? TryModuleGetScopeProperty(JObject resource)
         {
             var subscriptionId = TemplateHelpers.GetProperty(resource, "subscriptionId");
             var resourceGroup = TemplateHelpers.GetProperty(resource, "resourceGroup");
@@ -789,7 +789,7 @@ namespace Bicep.Decompiler
             var properties = new List<ObjectPropertySyntax>();
             properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
 
-            var scope = TryGetScopeProperty(resource);
+            var scope = TryModuleGetScopeProperty(resource);
             if (scope is not null)
             {
                 properties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
@@ -854,7 +854,28 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateObject(properties));
         }
 
-        public SyntaxBase ParseResource(JObject template, JToken value)
+        private SyntaxBase? TryGetResourceScopeProperty(JObject resource)
+        {
+            if (TemplateHelpers.GetProperty(resource, "scope") is not JProperty scopeProperty)
+            {
+                return null;
+            }
+
+            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.Value<string>());
+            if (TryLookupResource(scopeExpression) is string resourceName)
+            {
+                return SyntaxHelpers.CreateIdentifier(resourceName);
+            }
+
+            if (TryParseStringExpression(scopeExpression) is SyntaxBase parsedSyntax)
+            {
+                return parsedSyntax;                    
+            }
+
+            throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
+        }
+
+        public SyntaxBase ParseResource(JToken value)
         {
             var resource = (value as JObject) ?? throw new ConversionFailedException($"Incorrect resource format", value);
 
@@ -886,6 +907,7 @@ namespace Bicep.Decompiler
                 "properties",
                 "dependsOn",
                 "comments",
+                "scope",
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new [] {
@@ -894,10 +916,10 @@ namespace Bicep.Decompiler
                 "apiVersion",
                 "dependsOn",
                 "comments",
+                "scope",
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
             foreach (var prop in resource.Properties())
@@ -919,6 +941,12 @@ namespace Bicep.Decompiler
                 }
 
                 topLevelProperties.Add(SyntaxHelpers.CreateObjectProperty(prop.Name, valueSyntax));
+            }
+
+            var scope = TryGetResourceScopeProperty(resource);
+            if (scope is not null)
+            {
+                topLevelProperties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
             }
 
             var dependsOn = ProcessDependsOn(resource);
@@ -1025,7 +1053,7 @@ namespace Bicep.Decompiler
 
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
-            AddSyntaxBlock(statements, flattenedResources.Select(r => ParseResource(template, r)), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(ParseResource), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(
