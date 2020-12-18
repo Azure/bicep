@@ -1,7 +1,8 @@
 [
   {
     "name": "deployment",
-    "fixedParameterTypes": [],
+    "description": "Returns information about the current deployment operation.",
+    "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "default",
@@ -10,7 +11,8 @@
   },
   {
     "name": "environment",
-    "fixedParameterTypes": [],
+    "description": "Returns information about the Azure environment used for deployment.",
+    "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "default",
@@ -19,78 +21,146 @@
   },
   {
     "name": "extensionResourceId",
-    "fixedParameterTypes": [
-      "string",
-      "string",
-      "string"
+    "description": "Returns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.",
+    "fixedParameters": [
+      {
+        "name": "resourceId",
+        "description": "The resource ID for the resource that the extension resource is applied to",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of the extension resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 3,
-    "variableParameterType": "string",
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The extension resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, param2: string, ... : string): string",
+    "typeSignature": "(resourceId: string, resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
-      "param2: string",
+      "resourceId: string",
+      "resourceType: string",
       "... : string"
     ]
   },
   {
     "name": "pickZones",
-    "fixedParameterTypes": [
-      "string",
-      "string",
-      "string",
-      "int",
-      "int"
+    "description": "Determines whether a resource type supports zones for a region.",
+    "fixedParameters": [
+      {
+        "name": "providerNamespace",
+        "description": "The resource provider namespace for the resource type to check for zone support",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "The resource type to check for zone support",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "location",
+        "description": "The region to check for zone support",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "numberOfZones",
+        "description": "The number of logical zones to return. The default is 1. The number must a positive integer from 1 to 3. Use 1 for single-zoned resources. For multi-zoned resources, the value must be less than or equal to the number of supported zones.",
+        "type": "int",
+        "required": false
+      },
+      {
+        "name": "offset",
+        "description": "The offset from the starting logical zone. The function returns an error if offset plus numberOfZones exceeds the number of supported zones.",
+        "type": "int",
+        "required": false
+      }
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 5,
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, param2: string, param3: int, param4: int): array",
+    "typeSignature": "(providerNamespace: string, resourceType: string, location: string, [numberOfZones: int], [offset: int]): array",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
-      "param2: string",
-      "param3: int",
-      "param4: int"
+      "providerNamespace: string",
+      "resourceType: string",
+      "location: string",
+      "[numberOfZones: int]",
+      "[offset: int]"
     ]
   },
   {
     "name": "providers",
-    "fixedParameterTypes": [
-      "string",
-      "string"
+    "description": "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.",
+    "fixedParameters": [
+      {
+        "name": "providerNamespace",
+        "description": "the namespace of the provider",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "The type of resource within the specified namespace",
+        "type": "string",
+        "required": false
+      }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string): array",
+    "typeSignature": "(providerNamespace: string, [resourceType: string]): array",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string"
+      "providerNamespace: string",
+      "[resourceType: string]"
     ]
   },
   {
     "name": "reference",
-    "fixedParameterTypes": [
-      "string",
-      "string",
-      "string"
+    "description": "Returns an object representing a resource's runtime state.",
+    "fixedParameters": [
+      {
+        "name": "resourceNameOrIdentifier",
+        "description": "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "apiVersion",
+        "description": "API version of the specified resource. This parameter is required when the resource isn't provisioned within same template.",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "full",
+        "description": "Value that specifies whether to return the full resource object. If you don't specify 'Full', only the properties object of the resource is returned. The full object includes values such as the resource ID and location.",
+        "type": "string",
+        "required": false
+      }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 3,
     "flags": "requiresInlining",
-    "typeSignature": "(param0: string, param1: string, param2: string): object",
+    "typeSignature": "(resourceNameOrIdentifier: string, [apiVersion: string], [full: string]): object",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
-      "param2: string"
+      "resourceNameOrIdentifier: string",
+      "[apiVersion: string]",
+      "[full: string]"
     ]
   },
   {
     "name": "resourceGroup",
-    "fixedParameterTypes": [],
+    "description": "Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**",
+    "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "default",
@@ -99,51 +169,181 @@
   },
   {
     "name": "resourceGroup",
-    "fixedParameterTypes": [
-      "string"
+    "description": "Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "fixedParameters": [
+      {
+        "name": "resourceGroupName",
+        "description": "The resource group name",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(param0: string): resourceGroup",
+    "typeSignature": "(resourceGroupName: string): resourceGroup",
     "parameterTypeSignatures": [
-      "param0: string"
+      "resourceGroupName: string"
     ]
   },
   {
     "name": "resourceGroup",
-    "fixedParameterTypes": [
-      "string",
-      "string"
+    "description": "Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceGroupName",
+        "description": "The resource group name",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string): resourceGroup",
+    "typeSignature": "(subscriptionId: string, resourceGroupName: string): resourceGroup",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string"
+      "subscriptionId: string",
+      "resourceGroupName: string"
     ]
   },
   {
     "name": "resourceId",
-    "fixedParameterTypes": [
-      "string",
-      "string"
+    "description": "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.",
+    "fixedParameters": [
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 2,
-    "variableParameterType": "string",
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "typeSignature": "(resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "resourceId",
+    "description": "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(subscriptionId: string, resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "resourceId",
+    "description": "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.",
+    "fixedParameters": [
+      {
+        "name": "resourceGroupName",
+        "description": "The resource group name",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(resourceGroupName: string, resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "resourceGroupName: string",
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "resourceId",
+    "description": "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceGroupName",
+        "description": "The resource group name",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 4,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "resourceGroupName: string",
+      "resourceType: string",
       "... : string"
     ]
   },
   {
     "name": "subscription",
-    "fixedParameterTypes": [],
+    "description": "Returns the subscription scope for the current deployment. **This function can only be used in subscription and resourceGroup deployments.**",
+    "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "default",
@@ -152,36 +352,84 @@
   },
   {
     "name": "subscription",
-    "fixedParameterTypes": [
-      "string"
+    "description": "Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(param0: string): subscription",
+    "typeSignature": "(subscriptionId: string): subscription",
     "parameterTypeSignatures": [
-      "param0: string"
+      "subscriptionId: string"
     ]
   },
   {
     "name": "subscriptionResourceId",
-    "fixedParameterTypes": [
-      "string",
-      "string"
+    "description": "Returns the unique identifier for a resource deployed at the subscription level.",
+    "fixedParameters": [
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 2,
-    "variableParameterType": "string",
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "typeSignature": "(resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "subscriptionResourceId",
+    "description": "Returns the unique identifier for a resource deployed at the subscription level.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(subscriptionId: string, resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "resourceType: string",
       "... : string"
     ]
   },
   {
     "name": "tenant",
-    "fixedParameterTypes": [],
+    "description": "Returns the current tenant scope.",
+    "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
     "flags": "default",
@@ -190,17 +438,26 @@
   },
   {
     "name": "tenantResourceId",
-    "fixedParameterTypes": [
-      "string",
-      "string"
+    "description": "Returns the unique identifier for a resource deployed at the tenant level.",
+    "fixedParameters": [
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
     ],
     "minimumArgumentCount": 2,
-    "variableParameterType": "string",
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
     "flags": "default",
-    "typeSignature": "(param0: string, param1: string, ... : string): string",
+    "typeSignature": "(resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
-      "param0: string",
-      "param1: string",
+      "resourceType: string",
       "... : string"
     ]
   }
