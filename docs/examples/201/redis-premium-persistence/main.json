@@ -29,9 +29,6 @@
     }
   },
   "functions": [],
-  "variables": {
-    "cacheAccountName": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('storageRgName')), 'Microsoft.Resources/deployments', 'prereqs'), '2019-10-01').outputs.cacheAccountName.value]"
-  },
   "resources": [
     {
       "type": "Microsoft.Cache/Redis",
@@ -48,7 +45,7 @@
         "redisConfiguration": {
           "rdb-backup-enabled": "true",
           "rdb-backup-frequency": "60",
-          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', variables('cacheAccountName'), listKeys(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('storageRgName')), 'Microsoft.Resources/deployments', 'prereqs'), '2019-10-01').outputs.cacheAccountId.value, '2019-06-01').keys[0].value)]"
+          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('storageRgName')), 'Microsoft.Resources/deployments', 'prereqs'), '2019-10-01').outputs.cacheAccountName.value, listKeys(reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('storageRgName')), 'Microsoft.Resources/deployments', 'prereqs'), '2019-10-01').outputs.cacheAccountId.value, '2019-06-01').keys[0].value)]"
         }
       },
       "dependsOn": [
