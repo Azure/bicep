@@ -248,6 +248,10 @@
         "description": "201/anchored-proximity-placement-group"
     },
     {
+        "filePath": "201/api-management-create-all-resources/main.bicep",
+        "description": "201/api-management-create-all-resources"
+    },
+    {
         "filePath": "201/cdn-with-storage-account/main.bicep",
         "description": "201/cdn-with-storage-account"
     },
