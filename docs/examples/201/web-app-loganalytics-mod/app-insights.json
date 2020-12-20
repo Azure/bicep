@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appName": {
+      "type": "string"
+    },
+    "logAnalaticsWorkspaceResourceID": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsightName')]",
+      "location": "[parameters('location')]",
+      "kind": "string",
+      "tags": {
+        "displayName": "AppInsight",
+        "ProjectName": "[parameters('appName')]"
+      },
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[parameters('logAnalaticsWorkspaceResourceID')]"
+      }
+    }
+  ],
+  "outputs": {
+    "APPINSIGHTS_INSTRUMENTATIONKEY": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
+    }
+  }
+}
