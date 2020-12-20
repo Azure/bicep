@@ -352,6 +352,10 @@
         "description": "201/web-app-loganalytics"
     },
     {
+        "filePath": "201/web-app-loganalytics-mod/main.bicep",
+        "description": "201/web-app-loganalytics-mod"
+    },
+    {
         "filePath": "201/web-app-conditional-log/main.bicep",
         "description": "201/web-app-condition-loganalytics"
     },
