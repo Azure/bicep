@@ -63,7 +63,7 @@ resource appServiceLogging 'Microsoft.Web/sites/config@2020-06-01' = {
   }
 }
 
-resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' =if(logging) {
+resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = if (logging) {
   name: '${appService.name}/appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
@@ -73,13 +73,13 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' =if(loggi
     appServiceSiteExtension
   ]
 }
-resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' =if(logging) {
+resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = if (logging) {
   name: '${appService.name}/Microsoft.ApplicationInsights.AzureWebsites'
   dependsOn: [
     appInsights
   ]
 }
-resource appInsights 'microsoft.insights/components@2020-02-02-preview' = if(logging) {
+resource appInsights 'microsoft.insights/components@2020-02-02-preview' = if (logging) {
   name: appInsightName
   location: location
   kind: 'string'
@@ -93,7 +93,7 @@ resource appInsights 'microsoft.insights/components@2020-02-02-preview' = if(log
   }
 }
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = if(logging){
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = if (logging) {
   name: logAnalyticsName
   location: location
   tags: {
