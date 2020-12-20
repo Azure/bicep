@@ -40,7 +40,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep' = {
 }
 
 module optionalWithAllParams './child/optionalParams.bicep' = {
-  name: 'optionalWithNoParams2'
+  name: 'optionalWithNoParams3'
   params: {
     optionalString: 'abc'
     optionalInt: 42

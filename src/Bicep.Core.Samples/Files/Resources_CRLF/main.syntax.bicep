@@ -241,24 +241,24 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[1:5) NewLine |\r\n\r\n|
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[0:538) ResourceDeclarationSyntax
+//@[0:539) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:24)  IdentifierSyntax
 //@[9:24)   Identifier |withExpressions|
 //@[25:71)  StringSyntax
 //@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2017-10-01'|
 //@[72:73)  Assignment |=|
-//@[74:538)  ObjectSyntax
+//@[74:539)  ObjectSyntax
 //@[74:75)   LeftBrace |{|
 //@[75:77)   NewLine |\r\n|
-  name: 'myencryptedone'
-//@[2:24)   ObjectPropertySyntax
+  name: 'myencryptedone2'
+//@[2:25)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
-//@[8:24)    StringSyntax
-//@[8:24)     StringComplete |'myencryptedone'|
-//@[24:26)   NewLine |\r\n|
+//@[8:25)    StringSyntax
+//@[8:25)     StringComplete |'myencryptedone2'|
+//@[25:27)   NewLine |\r\n|
   location: 'eastus2'
 //@[2:21)   ObjectPropertySyntax
 //@[2:10)    IdentifierSyntax
@@ -1685,24 +1685,24 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[1:5) NewLine |\r\n\r\n|
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
-//@[0:111) ResourceDeclarationSyntax
+//@[0:110) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:19)  IdentifierSyntax
 //@[9:19)   Identifier |extension1|
 //@[20:56)  StringSyntax
 //@[20:56)   StringComplete |'My.Rp/extensionResource@2020-12-01'|
 //@[57:58)  Assignment |=|
-//@[59:111)  ObjectSyntax
+//@[59:110)  ObjectSyntax
 //@[59:60)   LeftBrace |{|
 //@[60:62)   NewLine |\r\n|
-  name: 'extension1'
-//@[2:20)   ObjectPropertySyntax
+  name: 'extension'
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'extension1'|
-//@[20:22)   NewLine |\r\n|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'extension'|
+//@[19:21)   NewLine |\r\n|
   scope: vmWithCondition
 //@[2:24)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
@@ -1717,24 +1717,24 @@ resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@[1:5) NewLine |\r\n\r\n|
 
 resource extension2 'My.Rp/extensionResource@2020-12-01' = {
-//@[0:106) ResourceDeclarationSyntax
+//@[0:105) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:19)  IdentifierSyntax
 //@[9:19)   Identifier |extension2|
 //@[20:56)  StringSyntax
 //@[20:56)   StringComplete |'My.Rp/extensionResource@2020-12-01'|
 //@[57:58)  Assignment |=|
-//@[59:106)  ObjectSyntax
+//@[59:105)  ObjectSyntax
 //@[59:60)   LeftBrace |{|
 //@[60:62)   NewLine |\r\n|
-  name: 'extension2'
-//@[2:20)   ObjectPropertySyntax
+  name: 'extension'
+//@[2:19)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
 //@[2:6)     Identifier |name|
 //@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'extension2'|
-//@[20:22)   NewLine |\r\n|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'extension'|
+//@[19:21)   NewLine |\r\n|
   scope: extension1
 //@[2:19)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
@@ -1870,4 +1870,6 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 //@[3:5)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

@@ -48,7 +48,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 
 module optionalWithAllParams './child/optionalParams.bicep'= {
 //@[7:28) Module optionalWithAllParams. Type: module. Declaration start char: 0, length: 210
-  name: 'optionalWithNoParams2'
+  name: 'optionalWithNoParams3'
   params: {
     optionalString: 'abc'
     optionalInt: 42

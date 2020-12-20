@@ -130,6 +130,7 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 module modANoInputs './modulea.bicep' = {
 //@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
+//@[2:22) [BCP121 (Warning)] Modules: "modANoInputs, modANoInputsWithCondition, modAEmptyInputs, modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |name: 'modANoInputs'|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
 }
@@ -139,12 +140,14 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
   'foo'
 ]) == 1) {
   name: 'modANoInputs'
+//@[2:22) [BCP121 (Warning)] Modules: "modANoInputs, modANoInputsWithCondition, modAEmptyInputs, modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |name: 'modANoInputs'|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
+//@[2:22) [BCP121 (Warning)] Modules: "modANoInputs, modANoInputsWithCondition, modAEmptyInputs, modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |name: 'modANoInputs'|
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2,3,4) -> moduleAParams
@@ -154,6 +157,7 @@ module modAEmptyInputs './modulea.bicep' = {
 
 module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   name: 'modANoInputs'
+//@[2:22) [BCP121 (Warning)] Modules: "modANoInputs, modANoInputsWithCondition, modAEmptyInputs, modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |name: 'modANoInputs'|
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams

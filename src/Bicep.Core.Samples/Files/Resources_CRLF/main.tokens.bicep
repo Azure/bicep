@@ -169,11 +169,11 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 //@[72:73) Assignment |=|
 //@[74:75) LeftBrace |{|
 //@[75:77) NewLine |\r\n|
-  name: 'myencryptedone'
+  name: 'myencryptedone2'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:24) StringComplete |'myencryptedone'|
-//@[24:26) NewLine |\r\n|
+//@[8:25) StringComplete |'myencryptedone2'|
+//@[25:27) NewLine |\r\n|
   location: 'eastus2'
 //@[2:10) Identifier |location|
 //@[10:11) Colon |:|
@@ -1087,11 +1087,11 @@ resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@[57:58) Assignment |=|
 //@[59:60) LeftBrace |{|
 //@[60:62) NewLine |\r\n|
-  name: 'extension1'
+  name: 'extension'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:20) StringComplete |'extension1'|
-//@[20:22) NewLine |\r\n|
+//@[8:19) StringComplete |'extension'|
+//@[19:21) NewLine |\r\n|
   scope: vmWithCondition
 //@[2:7) Identifier |scope|
 //@[7:8) Colon |:|
@@ -1108,11 +1108,11 @@ resource extension2 'My.Rp/extensionResource@2020-12-01' = {
 //@[57:58) Assignment |=|
 //@[59:60) LeftBrace |{|
 //@[60:62) NewLine |\r\n|
-  name: 'extension2'
+  name: 'extension'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:20) StringComplete |'extension2'|
-//@[20:22) NewLine |\r\n|
+//@[8:19) StringComplete |'extension'|
+//@[19:21) NewLine |\r\n|
   scope: extension1
 //@[2:7) Identifier |scope|
 //@[7:8) Colon |:|
@@ -1192,4 +1192,6 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

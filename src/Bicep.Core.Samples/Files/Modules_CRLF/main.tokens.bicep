@@ -185,10 +185,10 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@[59:60) Assignment |=|
 //@[61:62) LeftBrace |{|
 //@[62:64) NewLine |\r\n|
-  name: 'optionalWithNoParams2'
+  name: 'optionalWithNoParams3'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
-//@[8:31) StringComplete |'optionalWithNoParams2'|
+//@[8:31) StringComplete |'optionalWithNoParams3'|
 //@[31:33) NewLine |\r\n|
   params: {
 //@[2:8) Identifier |params|
