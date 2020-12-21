@@ -168,6 +168,25 @@ Since the `targetScope` has been changed, notice that the `$schema` property in 
 
 Modules are a powerful way to separate your bicep files into logical units and abstract away complex resource declarations.
 
+## Using if condition with bicep Modules
+Modules will also support the if condition that was introduced in v0.2.212. The linked ARM template that will be created by the `bicep build` command will insert a condition at the deployment level for everything in the module.  To take advantage of this the module just needs to adhere to the existing syntax and usage of the if command when it is being called upon.  
+````
+module loggingModule './logging.bicep' = if (logging) {
+  name: 'loggingDeploy'
+}
+````
+In this example if the parameter of `logging` is set to `false` then everything in the module will be skipped at deployment. If `logging` is set to `true` the module will be deployed.  The ARM template that will compile will look like:
+````
+ {
+      "condition": "[parameters('logging')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      .....
+````
+
+Thus combining modules with the usage of if() can potentially customize componenets that are deployed based on a specific environment and/or region as one example.
+
+
 ## Next steps
 
 In the final tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:
