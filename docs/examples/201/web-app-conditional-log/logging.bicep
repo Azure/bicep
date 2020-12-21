@@ -1,11 +1,10 @@
-param logging bool = false
 param appName string
 param location string = resourceGroup().location
 
 var appInsightName = toLower('appi-${appName}')
 var logAnalyticsName = toLower('la-${appName}')
 
-resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = if (logging) {
+resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   name: '${appName}/appsettings'
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
@@ -15,13 +14,13 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = if (log
     appServiceSiteExtension
   ]
 }
-resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = if (logging) {
+resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
   name: '${appName}/Microsoft.ApplicationInsights.AzureWebsites'
   dependsOn: [
     appInsights
   ]
 }
-resource appInsights 'microsoft.insights/components@2020-02-02-preview' = if (logging) {
+resource appInsights 'microsoft.insights/components@2020-02-02-preview' = {
   name: appInsightName
   location: location
   kind: 'string'
@@ -34,7 +33,7 @@ resource appInsights 'microsoft.insights/components@2020-02-02-preview' = if (lo
   }
 }
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = if (logging) {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {
   name: logAnalyticsName
   location: location
   tags: {

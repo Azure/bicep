@@ -2,10 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "logging": {
-      "type": "bool",
-      "defaultValue": false
-    },
     "appName": {
       "type": "string"
     },
@@ -21,7 +17,6 @@
   },
   "resources": [
     {
-      "condition": "[parameters('logging')]",
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/appsettings', parameters('appName'))]",
@@ -34,7 +29,6 @@
       ]
     },
     {
-      "condition": "[parameters('logging')]",
       "type": "Microsoft.Web/sites/siteextensions",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/Microsoft.ApplicationInsights.AzureWebsites', parameters('appName'))]",
@@ -43,7 +37,6 @@
       ]
     },
     {
-      "condition": "[parameters('logging')]",
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsightName')]",
@@ -61,7 +54,6 @@
       ]
     },
     {
-      "condition": "[parameters('logging')]",
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
       "name": "[variables('logAnalyticsName')]",
