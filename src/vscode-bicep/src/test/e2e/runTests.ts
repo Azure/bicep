@@ -3,6 +3,7 @@
 import * as path from "path";
 import * as cp from "child_process";
 import * as os from "os";
+import * as fs from "fs";
 import { minVersion } from "semver";
 import {
   runTests,
@@ -10,10 +11,14 @@ import {
   resolveCliPathFromVSCodeExecutablePath,
 } from "vscode-test";
 
-import packageJson from "../../../package.json";
-
 async function go() {
   try {
+    // Do not import the json file directly because it's not under /src.
+    // We also don't want it to be included in the /out folder.
+    const packageJsonPath = path.resolve(__dirname, "../../../package.json");
+    const packageJson = JSON.parse(
+      fs.readFileSync(packageJsonPath, { encoding: "utf-8" })
+    );
     const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
 
     if (!minSupportedVSCodeSemver) {

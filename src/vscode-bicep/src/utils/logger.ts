@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import * as vscode from "vscode";
 import * as winston from "winston";
-import Transport from "winston-transport";
+import * as Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
 
