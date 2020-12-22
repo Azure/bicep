@@ -95,7 +95,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            this.Visit(syntax.Value);
+            base.VisitObjectPropertySyntax(syntax);
             // if an error is found at the end we emit it and move on to the next key of this object declaration.
             if (this.errorSyntax != null)
             {
@@ -160,6 +160,10 @@ namespace Bicep.Core.TypeSystem
             switch (baseSymbol)
             {
                 case VariableSymbol variableSymbol:
+                    if (this.errorSyntax != null)
+                    {
+                        this.AppendError();
+                    }
                     var variableVisitor = new DeployTimeConstantVariableVisitior(this.model);
                     variableVisitor.Visit(variableSymbol.DeclaringSyntax);
                     if (variableVisitor.invalidReferencedBodyObj != null)
@@ -172,31 +176,6 @@ namespace Bicep.Core.TypeSystem
                     break;
             }
         }
-
-        // public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-        // {
-        //     var baseSymbol = model.GetSymbolInfo(syntax);
-        //     switch (baseSymbol)
-        //     {
-        //         case VariableSymbol variableSymbol:
-        //             var resourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(this.model, variableSymbol.DeclaringSyntax);
-        //             if (!resourceDependencies.IsEmpty)
-        //             {
-        //                 this.errorSyntax = syntax;
-        //                 foreach (var resourceDependency in resourceDependencies)
-        //                 {
-        //                     if (resourceDependency is ResourceSymbol resourceSymbol &&
-        //                     resourceSymbol.Type is ResourceType resourceType &&
-        //                     resourceType.Body is ObjectType variableReferencedBodyObj)
-        //                     {
-        //                         this.referencedBodyObj = variableReferencedBodyObj;
-        //                         this.accessedSymbol = resourceSymbol.Name;
-        //                     }
-        //                 }
-        //             }
-        //             break;
-        //     }
-        // }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
@@ -262,7 +241,8 @@ namespace Bicep.Core.TypeSystem
 
             this.errorSyntax = null;
             this.referencedBodyObj = null;
-            this.accessedSymbol = null;
+            this.accessedSymbol = null; 
+            this.variableVisitorStack = null;
         }
     }
 }

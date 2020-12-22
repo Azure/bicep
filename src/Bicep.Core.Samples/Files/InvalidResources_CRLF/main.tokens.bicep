@@ -1338,7 +1338,21 @@ var runtimefoo3 = runtimeValidRes2
 //@[4:15) Identifier |runtimefoo3|
 //@[16:17) Assignment |=|
 //@[18:34) Identifier |runtimeValidRes2|
-//@[34:38) NewLine |\r\n\r\n|
+//@[34:36) NewLine |\r\n|
+var runtimefoo4 = {
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |runtimefoo4|
+//@[16:17) Assignment |=|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
+  hop: runtimefoo2
+//@[2:5) Identifier |hop|
+//@[5:6) Colon |:|
+//@[7:18) Identifier |runtimefoo2|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
 
 var runtimeInvalid = {
 //@[0:3) Identifier |var|
@@ -1488,13 +1502,51 @@ resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@202
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[0:8) Identifier |resource|
-//@[9:26) Identifier |runtimeValidRes18|
-//@[27:86) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[9:28) Identifier |runtimeInvalidRes18|
+//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90) Assignment |=|
+//@[91:92) LeftBrace |{|
+//@[92:94) NewLine |\r\n|
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:14) Identifier |concat|
+//@[14:15) LeftParen |(|
+//@[15:29) Identifier |runtimeInvalid|
+//@[29:30) Dot |.|
+//@[30:34) Identifier |foo1|
+//@[34:35) Comma |,|
+//@[36:52) Identifier |runtimeValidRes2|
+//@[52:53) LeftSquare |[|
+//@[53:65) StringComplete |'properties'|
+//@[65:66) RightSquare |]|
+//@[66:67) Dot |.|
+//@[67:79) Identifier |azCliVersion|
+//@[79:80) Comma |,|
+//@[81:84) StringLeftPiece |'${|
+//@[84:100) Identifier |runtimeValidRes1|
+//@[100:101) Dot |.|
+//@[101:109) Identifier |location|
+//@[109:111) StringRightPiece |}'|
+//@[111:112) Comma |,|
+//@[113:124) Identifier |runtimefoo4|
+//@[124:125) Dot |.|
+//@[125:128) Identifier |hop|
+//@[128:129) RightParen |)|
+//@[129:131) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:25) Identifier |runtimeValidRes6|
+//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
   name: runtimeValid.foo1
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1506,13 +1558,13 @@ resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[0:8) Identifier |resource|
-//@[9:26) Identifier |runtimeValidRes19|
-//@[27:86) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[9:25) Identifier |runtimeValidRes7|
+//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
   name: runtimeValid.foo2
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1524,13 +1576,13 @@ resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[0:8) Identifier |resource|
-//@[9:26) Identifier |runtimeValidRes20|
-//@[27:86) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[9:25) Identifier |runtimeValidRes8|
+//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
   name: runtimeValid.foo3
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -1542,13 +1594,13 @@ resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
-resource runtimeValidRes21 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
 //@[0:8) Identifier |resource|
-//@[9:26) Identifier |runtimeValidRes21|
-//@[27:86) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[9:25) Identifier |runtimeValidRes9|
+//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[86:87) Assignment |=|
+//@[88:89) LeftBrace |{|
+//@[89:91) NewLine |\r\n|
   name: runtimeValid.foo4
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|

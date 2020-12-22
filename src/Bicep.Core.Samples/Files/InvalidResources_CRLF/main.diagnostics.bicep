@@ -381,6 +381,9 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 var runtimefoo1 = runtimeValidRes1['location']
 var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
 var runtimefoo3 = runtimeValidRes2
+var runtimefoo4 = {
+  hop: runtimefoo2
+}
 
 var runtimeInvalid = {
   foo1: runtimefoo1
@@ -417,19 +420,27 @@ resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@202
 //@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo4|
 }
 
-resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
+//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
+//@[84:109) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimefoo4.hop|
+}
+
+resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo1
 }
 
-resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo2
 }
 
-resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo3
 }
 
-resource runtimeValidRes21 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo4
 }
 
