@@ -651,14 +651,14 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Error,
                 "BCP113",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
-                $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), or named subscription: subscription(<subId>).");
+                $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
             public Diagnostic InvalidModuleScopeForManagementScope() => new Diagnostic(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP114",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
-                $"Permissible scopes include current management group: managementGroup(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or tenant: tenant()");
+                $"Permissible scopes include current management group: managementGroup(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), tenant: tenant(), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
             public Diagnostic InvalidModuleScopeForSubscriptionScope() => new Diagnostic(
                 TextSpan,
