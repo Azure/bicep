@@ -79,6 +79,9 @@ resource otherResource 'Microsoft.Example/examples@2020-06-01' = {
 ```
 
 ## Conditions
+
+> Requires Bicep CLI v0.2.212 or later
+
 Resources may be deployed if and only if a specified condition evaluated to `true`. Otherwise, resource deployment will be skipped. This is accomplished by adding a `if` keyword and a boolean expression to the resource declaration. The template compiled from the below example will deploy the DNS zone if the `deployZone` parameter evaluates to `true`:
 ```
 param deployZone bool
