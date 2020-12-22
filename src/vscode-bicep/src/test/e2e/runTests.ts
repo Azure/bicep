@@ -3,6 +3,8 @@
 import * as path from "path";
 import * as cp from "child_process";
 import * as os from "os";
+import * as fs from "fs";
+import { minVersion } from "semver";
 import {
   runTests,
   downloadAndUnzipVSCode,
@@ -11,37 +13,57 @@ import {
 
 async function go() {
   try {
-    const vscodeExecutablePath = await downloadAndUnzipVSCode("stable");
-    const cliPath = resolveCliPathFromVSCodeExecutablePath(
-      vscodeExecutablePath
+    // Do not import the json file directly because it's not under /src.
+    // We also don't want it to be included in the /out folder.
+    const packageJsonPath = path.resolve(__dirname, "../../../package.json");
+    const packageJson = JSON.parse(
+      fs.readFileSync(packageJsonPath, { encoding: "utf-8" })
     );
+    const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
 
-    const isRoot = os.userInfo().username === "root";
+    if (!minSupportedVSCodeSemver) {
+      throw new Error(
+        "Ensure 'engines.vscode' is properly set in package.json"
+      );
+    }
 
-    // some of our builds run as root in a container, which requires passing
-    // the user data folder relative path to vs code itself
-    const userDataDir = "./.vscode-test/user-data";
-    const userDataArguments = isRoot ? ["--user-data-dir", userDataDir] : [];
+    const vscodeVersionsToVerify = [minSupportedVSCodeSemver.version, "stable"];
 
-    const extensionInstallArguments = [
-      "--install-extension",
-      "ms-dotnettools.vscode-dotnet-runtime",
-      ...userDataArguments,
-    ];
+    for (const vscodeVersion of vscodeVersionsToVerify) {
+      console.log(`Running tests against VSCode-${vscodeVersion}`);
 
-    // Install .NET Install Tool as a dependency.
-    cp.spawnSync(cliPath, extensionInstallArguments, {
-      encoding: "utf-8",
-      stdio: "inherit",
-    });
+      const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
+      const cliPath = resolveCliPathFromVSCodeExecutablePath(
+        vscodeExecutablePath
+      );
 
-    await runTests({
-      vscodeExecutablePath,
-      extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
-      extensionTestsPath: path.resolve(__dirname, "index"),
-      extensionTestsEnv: { NODE_ENV: "test" },
-      launchArgs: ["--enable-proposed-api", ...userDataArguments],
-    });
+      const isRoot = os.userInfo().username === "root";
+
+      // some of our builds run as root in a container, which requires passing
+      // the user data folder relative path to vs code itself
+      const userDataDir = "./.vscode-test/user-data";
+      const userDataArguments = isRoot ? ["--user-data-dir", userDataDir] : [];
+
+      const extensionInstallArguments = [
+        "--install-extension",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        ...userDataArguments,
+      ];
+
+      // Install .NET Install Tool as a dependency.
+      cp.spawnSync(cliPath, extensionInstallArguments, {
+        encoding: "utf-8",
+        stdio: "inherit",
+      });
+
+      await runTests({
+        vscodeExecutablePath,
+        extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
+        extensionTestsPath: path.resolve(__dirname, "index"),
+        extensionTestsEnv: { NODE_ENV: "test" },
+        launchArgs: ["--enable-proposed-api", ...userDataArguments],
+      });
+    }
 
     process.exit(0);
   } catch (err) {
