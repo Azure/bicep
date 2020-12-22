@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Collections.Generic;
 using System.Linq;
 using System;
 
@@ -24,6 +26,8 @@ namespace Bicep.Core.TypeSystem
         private string? accessedSymbol;
         private ObjectType? bodyObj;
         private ObjectType? referencedBodyObj;
+
+        private Stack<string>? variableVisitorStack;
 
 
         private DeployTimeConstantVisitor(SemanticModel model, IDiagnosticWriter diagnosticWriter)
@@ -91,7 +95,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            base.VisitObjectPropertySyntax(syntax);
+            this.Visit(syntax.Value);
             // if an error is found at the end we emit it and move on to the next key of this object declaration.
             if (this.errorSyntax != null)
             {
@@ -150,6 +154,50 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            var baseSymbol = model.GetSymbolInfo(syntax);
+            switch (baseSymbol)
+            {
+                case VariableSymbol variableSymbol:
+                    var variableVisitor = new DeployTimeConstantVariableVisitior(this.model);
+                    variableVisitor.Visit(variableSymbol.DeclaringSyntax);
+                    if (variableVisitor.invalidReferencedBodyObj != null)
+                    {
+                        this.errorSyntax = syntax;
+                        this.referencedBodyObj = variableVisitor.invalidReferencedBodyObj;
+                        this.variableVisitorStack = variableVisitor.visitedStack;
+                        this.accessedSymbol = variableVisitor.visitedStack.Peek();
+                    }
+                    break;
+            }
+        }
+
+        // public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        // {
+        //     var baseSymbol = model.GetSymbolInfo(syntax);
+        //     switch (baseSymbol)
+        //     {
+        //         case VariableSymbol variableSymbol:
+        //             var resourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(this.model, variableSymbol.DeclaringSyntax);
+        //             if (!resourceDependencies.IsEmpty)
+        //             {
+        //                 this.errorSyntax = syntax;
+        //                 foreach (var resourceDependency in resourceDependencies)
+        //                 {
+        //                     if (resourceDependency is ResourceSymbol resourceSymbol &&
+        //                     resourceSymbol.Type is ResourceType resourceType &&
+        //                     resourceType.Body is ObjectType variableReferencedBodyObj)
+        //                     {
+        //                         this.referencedBodyObj = variableReferencedBodyObj;
+        //                         this.accessedSymbol = resourceSymbol.Name;
+        //                     }
+        //                 }
+        //             }
+        //             break;
+        //     }
+        // }
+
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             base.VisitPropertyAccessSyntax(syntax);
@@ -191,26 +239,26 @@ namespace Bicep.Core.TypeSystem
         {
             if (this.errorSyntax == null)
             {
-                throw new NullReferenceException($"{nameof(this.errorSyntax)} is null in DeployTimeConstant");
+                throw new NullReferenceException($"{nameof(this.errorSyntax)} is null in {this.GetType().Name}");
             }
             if (this.currentProperty == null)
             {
-                throw new NullReferenceException($"{nameof(this.currentProperty)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.currentProperty)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
             }
             if (this.bodyObj == null)
             {
-                throw new NullReferenceException($"{nameof(this.bodyObj)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.bodyObj)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
             }
             if (this.referencedBodyObj == null)
             {
-                throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.referencedBodyObj)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
             }
             if (this.accessedSymbol == null)
             {
-                throw new NullReferenceException($"{nameof(this.accessedSymbol)} is null in DeployTimeConstant for syntax {this.errorSyntax.ToString()}");
+                throw new NullReferenceException($"{nameof(this.accessedSymbol)} is null in {this.GetType().Name} for syntax {this.errorSyntax.ToString()}");
             }
             var usableKeys = this.referencedBodyObj.Properties.Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant)).Select(kv => kv.Key);
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol));
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(this.errorSyntax).RuntimePropertyNotAllowed(this.currentProperty, usableKeys, this.accessedSymbol, this.variableVisitorStack?.ToArray().Reverse()));
 
             this.errorSyntax = null;
             this.referencedBodyObj = null;

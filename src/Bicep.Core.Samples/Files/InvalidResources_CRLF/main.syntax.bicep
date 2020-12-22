@@ -2045,6 +2045,405 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+// variable related runtime validation
+//@[38:40) NewLine |\r\n|
+var runtimefoo1 = runtimeValidRes1['location']
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |runtimefoo1|
+//@[16:17)  Assignment |=|
+//@[18:46)  ArrayAccessSyntax
+//@[18:34)   VariableAccessSyntax
+//@[18:34)    IdentifierSyntax
+//@[18:34)     Identifier |runtimeValidRes1|
+//@[34:35)   LeftSquare |[|
+//@[35:45)   StringSyntax
+//@[35:45)    StringComplete |'location'|
+//@[45:46)   RightSquare |]|
+//@[46:48) NewLine |\r\n|
+var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
+//@[0:61) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |runtimefoo2|
+//@[16:17)  Assignment |=|
+//@[18:61)  PropertyAccessSyntax
+//@[18:48)   ArrayAccessSyntax
+//@[18:34)    VariableAccessSyntax
+//@[18:34)     IdentifierSyntax
+//@[18:34)      Identifier |runtimeValidRes2|
+//@[34:35)    LeftSquare |[|
+//@[35:47)    StringSyntax
+//@[35:47)     StringComplete |'properties'|
+//@[47:48)    RightSquare |]|
+//@[48:49)   Dot |.|
+//@[49:61)   IdentifierSyntax
+//@[49:61)    Identifier |azCliVersion|
+//@[61:63) NewLine |\r\n|
+var runtimefoo3 = runtimeValidRes2
+//@[0:34) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |runtimefoo3|
+//@[16:17)  Assignment |=|
+//@[18:34)  VariableAccessSyntax
+//@[18:34)   IdentifierSyntax
+//@[18:34)    Identifier |runtimeValidRes2|
+//@[34:38) NewLine |\r\n\r\n|
+
+var runtimeInvalid = {
+//@[0:119) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |runtimeInvalid|
+//@[19:20)  Assignment |=|
+//@[21:119)  ObjectSyntax
+//@[21:22)   LeftBrace |{|
+//@[22:24)   NewLine |\r\n|
+  foo1: runtimefoo1
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo1|
+//@[6:7)    Colon |:|
+//@[8:19)    VariableAccessSyntax
+//@[8:19)     IdentifierSyntax
+//@[8:19)      Identifier |runtimefoo1|
+//@[19:21)   NewLine |\r\n|
+  foo2: runtimefoo2
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo2|
+//@[6:7)    Colon |:|
+//@[8:19)    VariableAccessSyntax
+//@[8:19)     IdentifierSyntax
+//@[8:19)      Identifier |runtimefoo2|
+//@[19:21)   NewLine |\r\n|
+  foo3: runtimefoo3
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo3|
+//@[6:7)    Colon |:|
+//@[8:19)    VariableAccessSyntax
+//@[8:19)     IdentifierSyntax
+//@[8:19)      Identifier |runtimefoo3|
+//@[19:21)   NewLine |\r\n|
+  foo4: runtimeValidRes1.name
+//@[2:29)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo4|
+//@[6:7)    Colon |:|
+//@[8:29)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     Dot |.|
+//@[25:29)     IdentifierSyntax
+//@[25:29)      Identifier |name|
+//@[29:31)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var runtimeValid = {
+//@[0:151) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |runtimeValid|
+//@[17:18)  Assignment |=|
+//@[19:151)  ObjectSyntax
+//@[19:20)   LeftBrace |{|
+//@[20:22)   NewLine |\r\n|
+  foo1: runtimeValidRes1.name
+//@[2:29)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo1|
+//@[6:7)    Colon |:|
+//@[8:29)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     Dot |.|
+//@[25:29)     IdentifierSyntax
+//@[25:29)      Identifier |name|
+//@[29:31)   NewLine |\r\n|
+  foo2: runtimeValidRes1.apiVersion
+//@[2:35)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo2|
+//@[6:7)    Colon |:|
+//@[8:35)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     Dot |.|
+//@[25:35)     IdentifierSyntax
+//@[25:35)      Identifier |apiVersion|
+//@[35:37)   NewLine |\r\n|
+  foo3: runtimeValidRes2.type
+//@[2:29)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo3|
+//@[6:7)    Colon |:|
+//@[8:29)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes2|
+//@[24:25)     Dot |.|
+//@[25:29)     IdentifierSyntax
+//@[25:29)      Identifier |type|
+//@[29:31)   NewLine |\r\n|
+  foo4: runtimeValidRes2.id
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |foo4|
+//@[6:7)    Colon |:|
+//@[8:27)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes2|
+//@[24:25)     Dot |.|
+//@[25:27)     IdentifierSyntax
+//@[25:27)      Identifier |id|
+//@[27:29)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:124) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |runtimeInvalidRes14|
+//@[29:88)  StringSyntax
+//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90)  Assignment |=|
+//@[91:124)  ObjectSyntax
+//@[91:92)   LeftBrace |{|
+//@[92:94)   NewLine |\r\n|
+  name: runtimeInvalid.foo1
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:27)    PropertyAccessSyntax
+//@[8:22)     VariableAccessSyntax
+//@[8:22)      IdentifierSyntax
+//@[8:22)       Identifier |runtimeInvalid|
+//@[22:23)     Dot |.|
+//@[23:27)     IdentifierSyntax
+//@[23:27)      Identifier |foo1|
+//@[27:29)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:124) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |runtimeInvalidRes15|
+//@[29:88)  StringSyntax
+//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90)  Assignment |=|
+//@[91:124)  ObjectSyntax
+//@[91:92)   LeftBrace |{|
+//@[92:94)   NewLine |\r\n|
+  name: runtimeInvalid.foo2
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:27)    PropertyAccessSyntax
+//@[8:22)     VariableAccessSyntax
+//@[8:22)      IdentifierSyntax
+//@[8:22)       Identifier |runtimeInvalid|
+//@[22:23)     Dot |.|
+//@[23:27)     IdentifierSyntax
+//@[23:27)      Identifier |foo2|
+//@[27:29)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:148) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |runtimeInvalidRes16|
+//@[29:88)  StringSyntax
+//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90)  Assignment |=|
+//@[91:148)  ObjectSyntax
+//@[91:92)   LeftBrace |{|
+//@[92:94)   NewLine |\r\n|
+  name: runtimeInvalid.foo3.properties.azCliVersion
+//@[2:51)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:51)    PropertyAccessSyntax
+//@[8:38)     PropertyAccessSyntax
+//@[8:27)      PropertyAccessSyntax
+//@[8:22)       VariableAccessSyntax
+//@[8:22)        IdentifierSyntax
+//@[8:22)         Identifier |runtimeInvalid|
+//@[22:23)       Dot |.|
+//@[23:27)       IdentifierSyntax
+//@[23:27)        Identifier |foo3|
+//@[27:28)      Dot |.|
+//@[28:38)      IdentifierSyntax
+//@[28:38)       Identifier |properties|
+//@[38:39)     Dot |.|
+//@[39:51)     IdentifierSyntax
+//@[39:51)      Identifier |azCliVersion|
+//@[51:53)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
+//@[128:130) NewLine |\r\n|
+resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:124) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:28)  IdentifierSyntax
+//@[9:28)   Identifier |runtimeInvalidRes17|
+//@[29:88)  StringSyntax
+//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[89:90)  Assignment |=|
+//@[91:124)  ObjectSyntax
+//@[91:92)   LeftBrace |{|
+//@[92:94)   NewLine |\r\n|
+  name: runtimeInvalid.foo4
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:27)    PropertyAccessSyntax
+//@[8:22)     VariableAccessSyntax
+//@[8:22)      IdentifierSyntax
+//@[8:22)       Identifier |runtimeInvalid|
+//@[22:23)     Dot |.|
+//@[23:27)     IdentifierSyntax
+//@[23:27)      Identifier |foo4|
+//@[27:29)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:120) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |runtimeValidRes18|
+//@[27:86)  StringSyntax
+//@[27:86)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[87:88)  Assignment |=|
+//@[89:120)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+  name: runtimeValid.foo1
+//@[2:25)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:25)    PropertyAccessSyntax
+//@[8:20)     VariableAccessSyntax
+//@[8:20)      IdentifierSyntax
+//@[8:20)       Identifier |runtimeValid|
+//@[20:21)     Dot |.|
+//@[21:25)     IdentifierSyntax
+//@[21:25)      Identifier |foo1|
+//@[25:27)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:120) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |runtimeValidRes19|
+//@[27:86)  StringSyntax
+//@[27:86)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[87:88)  Assignment |=|
+//@[89:120)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+  name: runtimeValid.foo2
+//@[2:25)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:25)    PropertyAccessSyntax
+//@[8:20)     VariableAccessSyntax
+//@[8:20)      IdentifierSyntax
+//@[8:20)       Identifier |runtimeValid|
+//@[20:21)     Dot |.|
+//@[21:25)     IdentifierSyntax
+//@[21:25)      Identifier |foo2|
+//@[25:27)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:120) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |runtimeValidRes20|
+//@[27:86)  StringSyntax
+//@[27:86)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[87:88)  Assignment |=|
+//@[89:120)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+  name: runtimeValid.foo3
+//@[2:25)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:25)    PropertyAccessSyntax
+//@[8:20)     VariableAccessSyntax
+//@[8:20)      IdentifierSyntax
+//@[8:20)       Identifier |runtimeValid|
+//@[20:21)     Dot |.|
+//@[21:25)     IdentifierSyntax
+//@[21:25)      Identifier |foo3|
+//@[25:27)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource runtimeValidRes21 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[0:120) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |runtimeValidRes21|
+//@[27:86)  StringSyntax
+//@[27:86)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[87:88)  Assignment |=|
+//@[89:120)  ObjectSyntax
+//@[89:90)   LeftBrace |{|
+//@[90:92)   NewLine |\r\n|
+  name: runtimeValid.foo4
+//@[2:25)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:25)    PropertyAccessSyntax
+//@[8:20)     VariableAccessSyntax
+//@[8:20)      IdentifierSyntax
+//@[8:20)       Identifier |runtimeValid|
+//@[20:21)     Dot |.|
+//@[21:25)     IdentifierSyntax
+//@[21:25)      Identifier |foo4|
+//@[25:27)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[0:151) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -3056,4 +3455,164 @@ var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 //@[78:79)    IdentifierSyntax
 //@[78:79)     Identifier |a|
 //@[79:80)   RightSquare |]|
-//@[80:80) EndOfFile ||
+//@[80:84) NewLine |\r\n\r\n|
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+//@[0:98) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |selfScope|
+//@[19:50)  StringSyntax
+//@[19:50)   StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[51:52)  Assignment |=|
+//@[53:98)  ObjectSyntax
+//@[53:54)   LeftBrace |{|
+//@[54:56)   NewLine |\r\n|
+  name: 'selfScope'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'selfScope'|
+//@[19:21)   NewLine |\r\n|
+  scope: selfScope
+//@[2:18)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:18)    VariableAccessSyntax
+//@[9:18)     IdentifierSyntax
+//@[9:18)      Identifier |selfScope|
+//@[18:20)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+var notAResource = {
+//@[0:54) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |notAResource|
+//@[17:18)  Assignment |=|
+//@[19:54)  ObjectSyntax
+//@[19:20)   LeftBrace |{|
+//@[20:22)   NewLine |\r\n|
+  im: 'not'
+//@[2:11)   ObjectPropertySyntax
+//@[2:4)    IdentifierSyntax
+//@[2:4)     Identifier |im|
+//@[4:5)    Colon |:|
+//@[6:11)    StringSyntax
+//@[6:11)     StringComplete |'not'|
+//@[11:13)   NewLine |\r\n|
+  a: 'resource!'
+//@[2:16)   ObjectPropertySyntax
+//@[2:3)    IdentifierSyntax
+//@[2:3)     Identifier |a|
+//@[3:4)    Colon |:|
+//@[5:16)    StringSyntax
+//@[5:16)     StringComplete |'resource!'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+//@[0:107) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:21)  IdentifierSyntax
+//@[9:21)   Identifier |invalidScope|
+//@[22:53)  StringSyntax
+//@[22:53)   StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[54:55)  Assignment |=|
+//@[56:107)  ObjectSyntax
+//@[56:57)   LeftBrace |{|
+//@[57:59)   NewLine |\r\n|
+  name: 'invalidScope'
+//@[2:22)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:22)    StringSyntax
+//@[8:22)     StringComplete |'invalidScope'|
+//@[22:24)   NewLine |\r\n|
+  scope: notAResource
+//@[2:21)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:21)    VariableAccessSyntax
+//@[9:21)     IdentifierSyntax
+//@[9:21)      Identifier |notAResource|
+//@[21:23)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+//@[0:112) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:22)  IdentifierSyntax
+//@[9:22)   Identifier |invalidScope2|
+//@[23:54)  StringSyntax
+//@[23:54)   StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[55:56)  Assignment |=|
+//@[57:112)  ObjectSyntax
+//@[57:58)   LeftBrace |{|
+//@[58:60)   NewLine |\r\n|
+  name: 'invalidScope2'
+//@[2:23)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:23)    StringSyntax
+//@[8:23)     StringComplete |'invalidScope2'|
+//@[23:25)   NewLine |\r\n|
+  scope: resourceGroup()
+//@[2:24)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:24)    FunctionCallSyntax
+//@[9:22)     IdentifierSyntax
+//@[9:22)      Identifier |resourceGroup|
+//@[22:23)     LeftParen |(|
+//@[23:24)     RightParen |)|
+//@[24:26)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+//@[0:111) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:22)  IdentifierSyntax
+//@[9:22)   Identifier |invalidScope3|
+//@[23:54)  StringSyntax
+//@[23:54)   StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[55:56)  Assignment |=|
+//@[57:111)  ObjectSyntax
+//@[57:58)   LeftBrace |{|
+//@[58:60)   NewLine |\r\n|
+  name: 'invalidScope3'
+//@[2:23)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:23)    StringSyntax
+//@[8:23)     StringComplete |'invalidScope3'|
+//@[23:25)   NewLine |\r\n|
+  scope: subscription()
+//@[2:23)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:23)    FunctionCallSyntax
+//@[9:21)     IdentifierSyntax
+//@[9:21)      Identifier |subscription|
+//@[21:22)     LeftParen |(|
+//@[22:23)     RightParen |)|
+//@[23:25)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

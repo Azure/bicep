@@ -161,5 +161,163 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
             template.SelectToken("$.resources[?(@.name == 'rg30')].location")!.Should().DeepEqual("[deployment().location]");
             template.SelectToken("$.resources[?(@.name == 'rg31')].location")!.Should().DeepEqual("[deployment().location]");
         }
+
+        [TestMethod]
+        public void Test_Issue1173()
+        {
+            var (json, diags) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'subscription'
+
+param azRegion string {
+  default: 'southcentralus'
+}
+
+param vNetAddressPrefix string = '10.1.0.0/24'
+param GatewayAddressPrefix string = '10.1.0.0/27'
+param AppAddressPrefix string = '10.1.0.128/26'
+
+var rgName = 'testRG'
+var vnetName = 'testvnet'
+var appNSGName = 'testvnet-appsn01nsg'
+var appRTName = 'testvnet-appsn01routetable'
+
+var subnets = [
+  {
+    name: 'GatewaySubnet'
+    properties: {
+      addressPrefix: GatewayAddressPrefix
+    }
+  }
+
+  {
+    name: 'appsn01'
+    properties: {
+      addressPrefix: AppAddressPrefix
+      networkSecurityGroup: {
+        id: appNSG.outputs.id
+      }
+      routeTable: {
+        id: appRT.outputs.id
+      }
+    }
+  }
+]
+
+resource rgVNet 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: rgName
+  location: azRegion
+}
+
+module vnet './vnet.bicep' = {
+  name: vnetName
+  scope: resourceGroup(rgVNet.name)
+  params: {
+    vnetName: vnetName
+    vNetAddressPrefix: vNetAddressPrefix
+    subnets: subnets
+  }
+}
+
+module appNSG './nsg.bicep' = {
+  name: appNSGName
+  scope: resourceGroup(rgVNet.name)
+  params: {
+    nsgName: appNSGName
+    secRules: [
+      {
+        name: 'default-allow-rdp'
+        properties: {
+          priority: 1010
+          access: 'Allow'
+          direction: 'Inbound'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '3389'
+        }
+      }
+    ]
+  }
+}
+
+module appRT './rt.bicep' = {
+  name: appRTName
+  scope: resourceGroup(rgVNet.name)
+  params: {
+    rtName: appRTName
+  }
+}
+"),
+                ("vnet.bicep", @"
+param vnetName string
+param vNetAddressPrefix string
+param subnets array
+
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  name: vnetName
+  location: resourceGroup().location
+  properties: {
+    addressSpace: {
+      addressPrefixes: [
+        vNetAddressPrefix
+      ]
+    }
+    enableVmProtection: false
+    enableDdosProtection: false
+    subnets: subnets
+  }
+}
+output id string = vnet.id
+"),
+                ("nsg.bicep", @"
+param nsgName string
+param secRules array
+
+resource nsg  'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
+  name: nsgName
+  location: resourceGroup().location
+  properties: {
+    securityRules: secRules
+  }
+}
+output id string = nsg.id
+"),
+                ("rt.bicep", @"
+param rtName string
+//param azFwlIp string
+
+resource routetable 'Microsoft.Network/routeTables@2020-06-01' = {
+  name: rtName
+  location: resourceGroup().location
+  properties: {
+    disableBgpRoutePropagation: false
+    routes: [
+      // {
+      //   name: 'DefaultRoute'
+      //   properties: {
+      //     addressPrefix: '0.0.0.0/0'
+      //     nextHopType: 'VirtualAppliance'
+      //     nextHopIpAddress: azFwlIp
+      //   }
+      // }
+    ]
+  }
+}
+
+output id string = routetable.id
+"));
+
+            json.Should().NotBeNull();
+            var template = JToken.Parse(json!);
+
+            // variable 'subnets' should have been inlined
+            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value")!.Type.Should().Be(JTokenType.Array);
+            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[0].name")!.Should().DeepEqual("GatewaySubnet");
+            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name")!.Should().DeepEqual("appsn01");
+            // there should be no definition in the variables list for 'subnets'
+            template.SelectToken("$.variables.subnets")!.Should().BeNull();
+        }
     }
 }

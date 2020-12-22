@@ -110,23 +110,24 @@ namespace Bicep.Decompiler.BicepHelpers
             .Replace("${", "\\${")
             .Replace("'", "\\'");
 
-        public static readonly IReadOnlyDictionary<string, Token> BannedBinaryOperatorLookup = new Dictionary<string, Token>(StringComparer.OrdinalIgnoreCase)
+        public static Token? TryGetBinaryOperatorReplacement(string bannedFunctionName) => bannedFunctionName switch
         {
-            ["add"] = CreateToken(TokenType.Plus, "+"),
-            ["sub"] = CreateToken(TokenType.Minus, "-"),
-            ["mul"] = CreateToken(TokenType.Asterisk, "*"),
-            ["div"] = CreateToken(TokenType.Slash, "/"),
-            ["mod"] = CreateToken(TokenType.Modulo, "%"),
-            ["less"] = CreateToken(TokenType.LessThan, "<"),
-            ["lessOrEquals"] = CreateToken(TokenType.LessThanOrEqual, "<="),
-            ["greater"] = CreateToken(TokenType.GreaterThan, ">"),
-            ["greaterOrEquals"] = CreateToken(TokenType.GreaterThanOrEqual, ">="),
-            ["equals"] = CreateToken(TokenType.Equals, "=="),
-            ["and"] = CreateToken(TokenType.LogicalAnd, "&&"),
-            ["or"] = CreateToken(TokenType.LogicalOr, "||"),
+            "add" => CreateToken(TokenType.Plus, "+"),
+            "sub" => CreateToken(TokenType.Minus, "-"),
+            "mul" => CreateToken(TokenType.Asterisk, "*"),
+            "div" => CreateToken(TokenType.Slash, "/"),
+            "mod" => CreateToken(TokenType.Modulo, "%"),
+            "less" => CreateToken(TokenType.LessThan, "<"),
+            "lessOrEquals" => CreateToken(TokenType.LessThanOrEqual, "<="),
+            "greater" => CreateToken(TokenType.GreaterThan, ">"),
+            "greaterOrEquals" => CreateToken(TokenType.GreaterThanOrEqual, ">="),
+            "equals" => CreateToken(TokenType.Equals, "=="),
+            "and" => CreateToken(TokenType.LogicalAnd, "&&"),
+            "or" => CreateToken(TokenType.LogicalOr, "||"),
+            _ => null,
         };
 
-        private static readonly IReadOnlyDictionary<string, string> WellKnownFunctions = new []
+        private static readonly IReadOnlyDictionary<string, string> WellKnownFunctions = new[]
         {
             "any",
             "concat",

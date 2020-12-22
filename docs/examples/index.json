@@ -8,6 +8,10 @@
         "description": "101/aadds-dual-region-replica-sets"
     },
     {
+        "filePath": "101/aad-domainservices/main.bicep",
+        "description": "101/aad-domainservices"
+    },
+    {
         "filePath": "101/aci-linuxcontainer-public-ip/main.bicep",
         "description": "101/aci-linuxcontainer-public-ip"
     },
@@ -184,6 +188,10 @@
         "description": "101/redis-cache"
     },
     {
+        "filePath": "101/resource-with-lock/main.bicep",
+        "description": "101/resource-with-lock"
+    },
+    {
         "filePath": "101/sql-database/main.bicep",
         "description": "101/sql-database"
     },
@@ -240,8 +248,16 @@
         "description": "201/anchored-proximity-placement-group"
     },
     {
+        "filePath": "201/api-management-create-all-resources/main.bicep",
+        "description": "201/api-management-create-all-resources"
+    },
+    {
         "filePath": "201/cdn-with-storage-account/main.bicep",
         "description": "201/cdn-with-storage-account"
+    },
+    {
+        "filePath": "201/cloud-shell-vnet/main.bicep",
+        "description": "201/cloud-shell-vnet"
     },
     {
         "filePath": "201/cyclecloud/main.bicep",
@@ -284,6 +300,14 @@
         "description": "201/proximity-placement-with-multi-resource-groups"
     },
     {
+        "filePath": "201/redis-premium-cluster-diagnostics/main.bicep",
+        "description": "201/redis-premium-cluster-diagnostics"
+    },
+    {
+        "filePath": "201/redis-premium-persistence/main.bicep",
+        "description": "201/redis-premium-persistence"
+    },
+    {
         "filePath": "201/servicebus-create-queue/main.bicep",
         "description": "201/servicebus-create-queue"
     },
@@ -294,6 +318,10 @@
     {
         "filePath": "201/vm-domain-join/main.bicep",
         "description": "201/vm-domain-join"
+    },
+    {
+        "filePath": "201/vm-new-or-existing-conditions/main.bicep",
+        "description": "201/vm-new-or-existing-conditions"
     },
     {
         "filePath": "201/vm-push-cert-windows/main.bicep",

@@ -273,6 +273,58 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
 
+// variable related runtime validation
+var runtimefoo1 = runtimeValidRes1['location']
+var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
+var runtimefoo3 = runtimeValidRes2
+
+var runtimeInvalid = {
+  foo1: runtimefoo1
+  foo2: runtimefoo2
+  foo3: runtimefoo3
+  foo4: runtimeValidRes1.name
+}
+
+var runtimeValid = {
+  foo1: runtimeValidRes1.name
+  foo2: runtimeValidRes1.apiVersion
+  foo3: runtimeValidRes2.type
+  foo4: runtimeValidRes2.id
+}
+
+resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo1
+}
+
+resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo2
+}
+
+resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo3.properties.azCliVersion
+}
+
+// Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
+resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo4
+}
+
+resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo1
+}
+
+resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo2
+}
+
+resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo3
+}
+
+resource runtimeValidRes21 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo4
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
 
@@ -450,3 +502,27 @@ var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'selfScope'
+  scope: selfScope
+}
+
+var notAResource = {
+  im: 'not'
+  a: 'resource!'
+}
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope'
+  scope: notAResource
+}
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope2'
+  scope: resourceGroup()
+}
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+  name: 'invalidScope3'
+  scope: subscription()
+}

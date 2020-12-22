@@ -182,7 +182,9 @@ namespace Bicep.Decompiler
 
         private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
         {
-            if (SyntaxHelpers.BannedBinaryOperatorLookup.TryGetValue(expression.Function, out var bannedOperator))
+            var binaryOperator = SyntaxHelpers.TryGetBinaryOperatorReplacement(expression.Function);
+
+            if (binaryOperator != null)
             {
                 if (expression.Parameters.Length != 2)
                 {
@@ -198,7 +200,7 @@ namespace Bicep.Decompiler
                     SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
                     new BinaryOperationSyntax(
                         ParseLanguageExpression(expression.Parameters[0]),
-                        bannedOperator,
+                        binaryOperator,
                         ParseLanguageExpression(expression.Parameters[1])),
                     SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
                 return true;
@@ -637,6 +639,30 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateStringLiteral(filePath);
         }
 
+        private SyntaxBase? ProcessCondition(JObject resource)
+        {
+            JProperty? conditionProperty = TemplateHelpers.GetProperty(resource, "condition");
+
+            if (conditionProperty == null)
+            {
+                return null;
+            }
+
+            SyntaxBase conditionExpression = ParseJToken(conditionProperty.Value);
+
+            if (conditionExpression is not ParenthesizedExpressionSyntax)
+            {
+                conditionExpression = new ParenthesizedExpressionSyntax(
+                    SyntaxHelpers.CreateToken(TokenType.LeftParen, "("),
+                    conditionExpression,
+                    SyntaxHelpers.CreateToken(TokenType.RightParen, ")"));
+            }
+
+            return new IfConditionSyntax(
+                SyntaxHelpers.CreateToken(TokenType.Identifier, "if"),
+                conditionExpression);
+        }
+
         private SyntaxBase? ProcessDependsOn(JObject resource)
         {
             var dependsOnProp = TemplateHelpers.GetProperty(resource, "dependsOn");
@@ -681,7 +707,7 @@ namespace Bicep.Decompiler
             return SyntaxHelpers.CreateArray(syntaxItems);
         }
 
-        private SyntaxBase? TryGetScopeProperty(JObject resource)
+        private SyntaxBase? TryModuleGetScopeProperty(JObject resource)
         {
             var subscriptionId = TemplateHelpers.GetProperty(resource, "subscriptionId");
             var resourceGroup = TemplateHelpers.GetProperty(resource, "resourceGroup");
@@ -721,6 +747,7 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseModule(JObject resource, string typeString, string nameString)
         {
             var expectedProps = new HashSet<string>(new [] {
+                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -736,7 +763,6 @@ namespace Bicep.Decompiler
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
             foreach (var prop in resource.Properties())
             {
@@ -751,6 +777,8 @@ namespace Bicep.Decompiler
                 }
             }
 
+            var ifCondition = ProcessCondition(resource);
+
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
@@ -761,7 +789,7 @@ namespace Bicep.Decompiler
             var properties = new List<ObjectPropertySyntax>();
             properties.Add(SyntaxHelpers.CreateObjectProperty("name", ParseJToken(nameString)));
 
-            var scope = TryGetScopeProperty(resource);
+            var scope = TryModuleGetScopeProperty(resource);
             if (scope is not null)
             {
                 properties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
@@ -807,8 +835,7 @@ namespace Bicep.Decompiler
                     SyntaxHelpers.CreateIdentifier(identifier),
                     SyntaxHelpers.CreateStringLiteral(filePath),
                     SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                    // TODO: implement decompiling condtional deployments.
-                    null,
+                    ifCondition,
                     SyntaxHelpers.CreateObject(properties));
             }
 
@@ -823,12 +850,32 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                // TODO: implement decompiling condtional deployments.
-                null,
+                ifCondition,
                 SyntaxHelpers.CreateObject(properties));
         }
 
-        public SyntaxBase ParseResource(JObject template, JToken value)
+        private SyntaxBase? TryGetResourceScopeProperty(JObject resource)
+        {
+            if (TemplateHelpers.GetProperty(resource, "scope") is not JProperty scopeProperty)
+            {
+                return null;
+            }
+
+            var scopeExpression = ExpressionHelpers.ParseExpression(scopeProperty.Value.Value<string>());
+            if (TryLookupResource(scopeExpression) is string resourceName)
+            {
+                return SyntaxHelpers.CreateIdentifier(resourceName);
+            }
+
+            if (TryParseStringExpression(scopeExpression) is SyntaxBase parsedSyntax)
+            {
+                return parsedSyntax;                    
+            }
+
+            throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
+        }
+
+        public SyntaxBase ParseResource(JToken value)
         {
             var resource = (value as JObject) ?? throw new ConversionFailedException($"Incorrect resource format", value);
 
@@ -841,6 +888,7 @@ namespace Bicep.Decompiler
             }
             
             var expectedResourceProps = new HashSet<string>(new [] {
+                "condition",
                 "name",
                 "type",
                 "apiVersion",
@@ -859,18 +907,19 @@ namespace Bicep.Decompiler
                 "properties",
                 "dependsOn",
                 "comments",
+                "scope",
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new [] {
+                "condition",
                 "type",
                 "apiVersion",
                 "dependsOn",
                 "comments",
+                "scope",
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "copy", "The 'copy' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "condition", "The 'condition' property is not supported");
-            TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
 
             var topLevelProperties = new List<ObjectPropertySyntax>();
             foreach (var prop in resource.Properties())
@@ -894,6 +943,12 @@ namespace Bicep.Decompiler
                 topLevelProperties.Add(SyntaxHelpers.CreateObjectProperty(prop.Name, valueSyntax));
             }
 
+            var scope = TryGetResourceScopeProperty(resource);
+            if (scope is not null)
+            {
+                topLevelProperties.Add(SyntaxHelpers.CreateObjectProperty("scope", scope));
+            }
+
             var dependsOn = ProcessDependsOn(resource);
             if (dependsOn != null)
             {
@@ -907,8 +962,7 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                // TODO: implement decompiling conditional resources.
-                null,
+                ProcessCondition(resource),
                 SyntaxHelpers.CreateObject(topLevelProperties));
         }
 
@@ -999,7 +1053,7 @@ namespace Bicep.Decompiler
 
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, variables.Select(ParseVariable), false);
-            AddSyntaxBlock(statements, flattenedResources.Select(r => ParseResource(template, r)), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(ParseResource), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(

@@ -70,25 +70,31 @@ namespace Bicep.Core.IntegrationTests.Semantics
             return $"{info.Name}_{((NamespaceSymbol) candiddate).Name}";
         }
 
-        private OverloadItem Convert(FunctionOverload overload) =>
-            new OverloadItem(
+        private OverloadRecord Convert(FunctionOverload overload) =>
+            new OverloadRecord(
                 overload.Name,
-                overload.FixedParameterTypes.Select(type => type.Name).ToImmutableArray(),
+                overload.Description,
+                overload.FixedParameters.Select(fixedParam=>new FixedParameterRecord(fixedParam.Name, fixedParam.Description, fixedParam.Type.Name, fixedParam.Required)).ToImmutableArray(),
                 overload.MinimumArgumentCount,
                 overload.MaximumArgumentCount,
-                overload.VariableParameterType?.Name,
+                overload.VariableParameter == null ? null : new VariableParameterRecord(overload.VariableParameter.NamePrefix, overload.VariableParameter.Description, overload.VariableParameter.Type.Name, overload.VariableParameter.MinimumCount),
                 overload.Flags,
                 overload.TypeSignature,
-                overload.ParameterTypeSignatures);
+                overload.ParameterTypeSignatures.ToImmutableArray());
 
-        private record OverloadItem(
+        private record OverloadRecord(
             string Name,
-            ImmutableArray<string> FixedParameterTypes,
+            string Description,
+            ImmutableArray<FixedParameterRecord> FixedParameters,
             int MinimumArgumentCount,
             int? MaximumArgumentCount,
-            string? VariableParameterType,
+            VariableParameterRecord? VariableParameter,
             FunctionFlags Flags,
             string TypeSignature,
             ImmutableArray<string> ParameterTypeSignatures);
+
+        private record FixedParameterRecord(string Name, string Description, string Type, bool Required);
+
+        private record VariableParameterRecord(string NamePrefix, string Description, string Type, int MinimumCount);
     }
 }

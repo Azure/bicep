@@ -1078,4 +1078,118 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource extension1 'My.Rp/extensionResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |extension1|
+//@[20:56) StringComplete |'My.Rp/extensionResource@2020-12-01'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:62) NewLine |\r\n|
+  name: 'extension1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:20) StringComplete |'extension1'|
+//@[20:22) NewLine |\r\n|
+  scope: vmWithCondition
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:24) Identifier |vmWithCondition|
+//@[24:26) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource extension2 'My.Rp/extensionResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |extension2|
+//@[20:56) StringComplete |'My.Rp/extensionResource@2020-12-01'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:62) NewLine |\r\n|
+  name: 'extension2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:20) StringComplete |'extension2'|
+//@[20:22) NewLine |\r\n|
+  scope: extension1
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:19) Identifier |extension1|
+//@[19:21) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
+//@[0:8) Identifier |resource|
+//@[9:30) Identifier |extensionDependencies|
+//@[31:62) StringComplete |'My.Rp/mockResource@2020-01-01'|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  name: 'extensionDependencies'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:31) StringComplete |'extensionDependencies'|
+//@[31:33) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    res1: vmWithCondition.id
+//@[4:8) Identifier |res1|
+//@[8:9) Colon |:|
+//@[10:25) Identifier |vmWithCondition|
+//@[25:26) Dot |.|
+//@[26:28) Identifier |id|
+//@[28:30) NewLine |\r\n|
+    res1runtime: vmWithCondition.properties.something
+//@[4:15) Identifier |res1runtime|
+//@[15:16) Colon |:|
+//@[17:32) Identifier |vmWithCondition|
+//@[32:33) Dot |.|
+//@[33:43) Identifier |properties|
+//@[43:44) Dot |.|
+//@[44:53) Identifier |something|
+//@[53:55) NewLine |\r\n|
+    res2: extension1.id
+//@[4:8) Identifier |res2|
+//@[8:9) Colon |:|
+//@[10:20) Identifier |extension1|
+//@[20:21) Dot |.|
+//@[21:23) Identifier |id|
+//@[23:25) NewLine |\r\n|
+    res2runtime: extension1.properties.something
+//@[4:15) Identifier |res2runtime|
+//@[15:16) Colon |:|
+//@[17:27) Identifier |extension1|
+//@[27:28) Dot |.|
+//@[28:38) Identifier |properties|
+//@[38:39) Dot |.|
+//@[39:48) Identifier |something|
+//@[48:50) NewLine |\r\n|
+    res3: extension2.id
+//@[4:8) Identifier |res3|
+//@[8:9) Colon |:|
+//@[10:20) Identifier |extension2|
+//@[20:21) Dot |.|
+//@[21:23) Identifier |id|
+//@[23:25) NewLine |\r\n|
+    res3runtime: extension2.properties.something
+//@[4:15) Identifier |res3runtime|
+//@[15:16) Colon |:|
+//@[17:27) Identifier |extension2|
+//@[27:28) Dot |.|
+//@[28:38) Identifier |properties|
+//@[38:39) Dot |.|
+//@[39:48) Identifier |something|
+//@[48:50) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:1) EndOfFile ||

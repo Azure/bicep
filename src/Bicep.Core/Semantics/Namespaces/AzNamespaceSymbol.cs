@@ -129,22 +129,67 @@ namespace Bicep.Core.Semantics.Namespaces
             // Depending on the scope of the Bicep file, different sets of function overloads are invalid - for example, you can't use 'resourceGroup()' inside a tenant-level deployment
 
             // Also note that some of these functions and overloads ("GetRestrictedXYZ") have not yet been implemented in full in the ARM JSON. For these, we simply
-            // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "json({})" if anyone tries to access the object value.
+            // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "createObject()" if anyone tries to access the object value.
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
             var allScopes = ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope;
-            
-            yield return (new FunctionOverloadBuilder("tenant").WithDynamicReturnType(GetRestrictedTenantReturnValue).WithFixedParameters().Build(), allScopes);
 
-            yield return (new FunctionOverloadBuilder("managementGroup").WithDynamicReturnType(GetRestrictedManagementGroupReturnValue).WithFixedParameters().Build(), ResourceScopeType.ManagementGroupScope);
-            yield return (new FunctionOverloadBuilder("managementGroup").WithDynamicReturnType(GetRestrictedManagementGroupReturnValue).WithFixedParameters(LanguageConstants.String).Build(), ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("tenant")
+                    .WithDynamicReturnType(GetRestrictedTenantReturnValue)
+                    .WithDescription("Returns the current tenant scope.")
+                    .Build(),
+                allScopes);
 
-            yield return (new FunctionOverloadBuilder("subscription").WithDynamicReturnType(GetSubscriptionReturnValue).WithFixedParameters().Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
-            yield return (new FunctionOverloadBuilder("subscription").WithDynamicReturnType(GetRestrictedSubscriptionReturnValue).WithFixedParameters(LanguageConstants.String).Build(), allScopes);
+            yield return (
+                new FunctionOverloadBuilder("managementGroup")
+                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
+                    .WithDescription("Returns the current management group scope. **This function can only be used in managementGroup deployments.**")
+                    .Build(),
+                ResourceScopeType.ManagementGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("managementGroup")
+                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
+                    .WithDescription("Returns the scope for a named management group.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
+                    .Build(),
+                ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
 
-            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetResourceGroupReturnValue).WithFixedParameters().Build(), ResourceScopeType.ResourceGroupScope);
-            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetRestrictedResourceGroupReturnValue).WithFixedParameters(LanguageConstants.String).Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
-            yield return (new FunctionOverloadBuilder("resourceGroup").WithDynamicReturnType(GetRestrictedResourceGroupReturnValue).WithFixedParameters(LanguageConstants.String, LanguageConstants.String).Build(), ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("subscription")
+                    .WithDynamicReturnType(GetSubscriptionReturnValue)
+                    .WithDescription("Returns the subscription scope for the current deployment. **This function can only be used in subscription and resourceGroup deployments.**")
+                    .Build(),
+                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("subscription")
+                    .WithDynamicReturnType(GetRestrictedSubscriptionReturnValue)
+                    .WithDescription("Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                    .Build(),
+                allScopes);
+
+            yield return (
+                new FunctionOverloadBuilder("resourceGroup")
+                    .WithDynamicReturnType(GetResourceGroupReturnValue)
+                    .WithDescription("Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**")
+                    .Build(),
+                ResourceScopeType.ResourceGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("resourceGroup")
+                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
+                    .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
+                    .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .Build(),
+                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+            yield return (
+                new FunctionOverloadBuilder("resourceGroup")
+                    .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
+                    .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                    .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .Build(),
+                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
         }
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScopeType resourceScope)
@@ -163,54 +208,122 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Add schema for return type
             yield return new FunctionOverloadBuilder("deployment")
                 .WithReturnType(GetDeploymentReturnType(resourceScope))
-                .WithFixedParameters()
+                .WithDescription("Returns information about the current deployment operation.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("environment")
                 .WithReturnType(GetEnvironmentReturnType())
-                .WithFixedParameters()
+                .WithDescription("Returns information about the Azure environment used for deployment.")
                 .Build();
 
             // TODO: This is based on docs. Verify
+            // the resourceId function relies on leading optional parameters that are disambiguated at runtime
+            // modeling this as multiple overload with all possible permutations of the leading parameters
+            const string resourceIdDescription = "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.";
             yield return new FunctionOverloadBuilder("resourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithVariableParameters(2, LanguageConstants.String)
+                .WithDescription(resourceIdDescription)
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("resourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithDescription(resourceIdDescription)
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build(); 
+            
+            yield return new FunctionOverloadBuilder("resourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithDescription(resourceIdDescription)
+                .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("resourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithDescription(resourceIdDescription)
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
+            // the subscriptionResourceId function relies on leading optional parameters that are disambiguated at runtime
+            // modeling this as multiple overload with all possible permutations of the leading parameters
+            const string subscriptionResourceIdDescription = "Returns the unique identifier for a resource deployed at the subscription level.";
+            yield return new FunctionOverloadBuilder("subscriptionResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithDescription(subscriptionResourceIdDescription)
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("subscriptionResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithVariableParameters(2, LanguageConstants.String)
+                .WithDescription(subscriptionResourceIdDescription)
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("tenantResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithVariableParameters(2, LanguageConstants.String)
+                .WithDescription("Returns the unique identifier for a resource deployed at the tenant level.")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("extensionResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithVariableParameters(3, LanguageConstants.String)
+                .WithDescription("Returns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.")
+                .WithRequiredParameter("resourceId",LanguageConstants.String, "The resource ID for the resource that the extension resource is applied to")
+                .WithRequiredParameter("resourceType",LanguageConstants.String, "Type of the extension resource including resource provider namespace")
+                .WithVariableParameter("resourceName",LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
             // TODO: Not sure about return type
             yield return new FunctionOverloadBuilder("providers")
                 .WithReturnType(LanguageConstants.Array)
-                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String)
+                .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
+                .WithRequiredParameter("providerNamespace",LanguageConstants.String, "the namespace of the provider")
+                .WithOptionalParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
                 .Build();
 
             // TODO: return type is string[]
+            // TODO: Location param should be of location type if we ever add it
             yield return new FunctionOverloadBuilder("pickZones")
                 .WithReturnType(LanguageConstants.Array)
-                .WithOptionalFixedParameters(3, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Int)
+                .WithDescription("Determines whether a resource type supports zones for a region.")
+                .WithRequiredParameter("providerNamespace", LanguageConstants.String, "The resource provider namespace for the resource type to check for zone support")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "The resource type to check for zone support")
+                .WithRequiredParameter("location", LanguageConstants.String, "The region to check for zone support")
+                .WithOptionalParameter("numberOfZones", LanguageConstants.Int, "The number of logical zones to return. The default is 1. The number must a positive integer from 1 to 3. Use 1 for single-zoned resources. For multi-zoned resources, the value must be less than or equal to the number of supported zones.")
+                .WithOptionalParameter("offset", LanguageConstants.Int, "The offset from the starting logical zone. The function returns an error if offset plus numberOfZones exceeds the number of supported zones.")
                 .Build();
 
+            // TODO: Change 'Full' to literal type after verifying in the runtime source
             yield return new FunctionOverloadBuilder("reference")
                 .WithReturnType(LanguageConstants.Object)
-                .WithOptionalFixedParameters(1, LanguageConstants.String, LanguageConstants.String, LanguageConstants.String)
+                .WithDescription("Returns an object representing a resource's runtime state.")
+                .WithRequiredParameter("resourceNameOrIdentifier", LanguageConstants.String, "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.")
+                .WithOptionalParameter("apiVersion", LanguageConstants.String, "API version of the specified resource. This parameter is required when the resource isn't provisioned within same template.")
+                .WithOptionalParameter("full", LanguageConstants.String, "Value that specifies whether to return the full resource object. If you don't specify 'Full', only the properties object of the resource is returned. The full object includes values such as the resource ID and location.")
                 .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
 
-            yield return new FunctionWildcardOverload("list*", LanguageConstants.Any, 2, 3, new[] {LanguageConstants.String, LanguageConstants.String, LanguageConstants.Object}, null, new Regex("^list[a-zA-Z]*"), FunctionFlags.RequiresInlining);
+            // TODO: Doc parameters need an update
+            yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
+                .WithReturnType(LanguageConstants.Any)
+                .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
+                .WithRequiredParameter("resourceNameOrIdentifier", LanguageConstants.String, "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.")
+                .WithRequiredParameter("apiVersion",LanguageConstants.String, "API version of resource runtime state. Typically, in the format, yyyy-mm-dd.")
+                .WithOptionalParameter("functionValues", LanguageConstants.Object, "An object that has values for the function. Only provide this object for functions that support receiving an object with parameter values, such as listAccountSas on a storage account. An example of passing function values is shown in this article.")
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
         }
 
         public AzNamespaceSymbol(ResourceScopeType resourceScope)

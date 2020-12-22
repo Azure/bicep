@@ -984,6 +984,48 @@
     }
   },
   {
+    "label": "invalidScope",
+    "kind": "interface",
+    "detail": "invalidScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope"
+    }
+  },
+  {
+    "label": "invalidScope2",
+    "kind": "interface",
+    "detail": "invalidScope2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope2"
+    }
+  },
+  {
+    "label": "invalidScope3",
+    "kind": "interface",
+    "detail": "invalidScope3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidScope3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidScope3"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -1334,6 +1376,20 @@
     }
   },
   {
+    "label": "notAResource",
+    "kind": "variable",
+    "detail": "notAResource",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_notAResource",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "notAResource"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",
@@ -1474,6 +1530,20 @@
     }
   },
   {
+    "label": "runtimeInvalid",
+    "kind": "variable",
+    "detail": "runtimeInvalid",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalid",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalid"
+    }
+  },
+  {
     "label": "runtimeInvalidRes1",
     "kind": "interface",
     "detail": "runtimeInvalidRes1",
@@ -1541,6 +1611,62 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeInvalidRes13"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes14",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes14",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes14",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes14"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes15",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes15",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes15",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes15"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes16",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes16",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes16",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes16"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes17",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes17",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes17",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes17"
     }
   },
   {
@@ -1656,6 +1782,20 @@
     }
   },
   {
+    "label": "runtimeValid",
+    "kind": "variable",
+    "detail": "runtimeValid",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValid",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValid"
+    }
+  },
+  {
     "label": "runtimeValidRes1",
     "kind": "interface",
     "detail": "runtimeValidRes1",
@@ -1670,6 +1810,34 @@
     }
   },
   {
+    "label": "runtimeValidRes18",
+    "kind": "interface",
+    "detail": "runtimeValidRes18",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes18",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes18"
+    }
+  },
+  {
+    "label": "runtimeValidRes19",
+    "kind": "interface",
+    "detail": "runtimeValidRes19",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes19",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes19"
+    }
+  },
+  {
     "label": "runtimeValidRes2",
     "kind": "interface",
     "detail": "runtimeValidRes2",
@@ -1681,6 +1849,34 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes2"
+    }
+  },
+  {
+    "label": "runtimeValidRes20",
+    "kind": "interface",
+    "detail": "runtimeValidRes20",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes20",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes20"
+    }
+  },
+  {
+    "label": "runtimeValidRes21",
+    "kind": "interface",
+    "detail": "runtimeValidRes21",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes21",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes21"
     }
   },
   {
@@ -1723,6 +1919,62 @@
     "textEdit": {
       "range": {},
       "newText": "runtimeValidRes5"
+    }
+  },
+  {
+    "label": "runtimefoo1",
+    "kind": "variable",
+    "detail": "runtimefoo1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo1"
+    }
+  },
+  {
+    "label": "runtimefoo2",
+    "kind": "variable",
+    "detail": "runtimefoo2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo2"
+    }
+  },
+  {
+    "label": "runtimefoo3",
+    "kind": "variable",
+    "detail": "runtimefoo3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo3"
+    }
+  },
+  {
+    "label": "selfScope",
+    "kind": "interface",
+    "detail": "selfScope",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_selfScope",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "selfScope"
     }
   },
   {

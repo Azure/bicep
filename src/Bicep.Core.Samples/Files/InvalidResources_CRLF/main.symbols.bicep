@@ -333,6 +333,71 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
 
+// variable related runtime validation
+var runtimefoo1 = runtimeValidRes1['location']
+//@[4:15) Variable runtimefoo1. Type: string. Declaration start char: 0, length: 46
+var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
+//@[4:15) Variable runtimefoo2. Type: any. Declaration start char: 0, length: 61
+var runtimefoo3 = runtimeValidRes2
+//@[4:15) Variable runtimefoo3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 34
+
+var runtimeInvalid = {
+//@[4:18) Variable runtimeInvalid. Type: object. Declaration start char: 0, length: 119
+  foo1: runtimefoo1
+  foo2: runtimefoo2
+  foo3: runtimefoo3
+  foo4: runtimeValidRes1.name
+}
+
+var runtimeValid = {
+//@[4:16) Variable runtimeValid. Type: object. Declaration start char: 0, length: 151
+  foo1: runtimeValidRes1.name
+  foo2: runtimeValidRes1.apiVersion
+  foo3: runtimeValidRes2.type
+  foo4: runtimeValidRes2.id
+}
+
+resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes14. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo1
+}
+
+resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes15. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo2
+}
+
+resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes16. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 148
+  name: runtimeInvalid.foo3.properties.azCliVersion
+}
+
+// Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
+resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes17. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo4
+}
+
+resource runtimeValidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:26) Resource runtimeValidRes18. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 120
+  name: runtimeValid.foo1
+}
+
+resource runtimeValidRes19 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:26) Resource runtimeValidRes19. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 120
+  name: runtimeValid.foo2
+}
+
+resource runtimeValidRes20 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:26) Resource runtimeValidRes20. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 120
+  name: runtimeValid.foo3
+}
+
+resource runtimeValidRes21 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:26) Resource runtimeValidRes21. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 120
+  name: runtimeValid.foo4
+}
+
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[9:34) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 151
   // #completionTest(0, 1, 2) -> topLevelProperties
@@ -546,3 +611,32 @@ var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 // #completionTest(79) -> defaultCreateModeIndexes
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 //@[4:44) Variable nestedDiscriminatorArrayIndexCompletions. Type: error. Declaration start char: 0, length: 80
+
+resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+//@[9:18) Resource selfScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 98
+  name: 'selfScope'
+  scope: selfScope
+}
+
+var notAResource = {
+//@[4:16) Variable notAResource. Type: object. Declaration start char: 0, length: 54
+  im: 'not'
+  a: 'resource!'
+}
+resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+//@[9:21) Resource invalidScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 107
+  name: 'invalidScope'
+  scope: notAResource
+}
+
+resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+//@[9:22) Resource invalidScope2. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 112
+  name: 'invalidScope2'
+  scope: resourceGroup()
+}
+
+resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+//@[9:22) Resource invalidScope3. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 111
+  name: 'invalidScope3'
+  scope: subscription()
+}
