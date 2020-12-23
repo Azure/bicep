@@ -352,8 +352,9 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[50:51)  Assignment |=|
 //@[52:57)  IfConditionSyntax
 //@[52:54)   Identifier |if|
-//@[55:57)   SkippedTriviaSyntax
+//@[55:57)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
+//@[56:56)    SkippedTriviaSyntax
 //@[56:57)    RightParen |)|
 //@[58:77)  ObjectSyntax
 //@[58:59)   LeftBrace |{|

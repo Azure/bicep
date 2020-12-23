@@ -161,8 +161,9 @@ var bad = ()
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:12)  SkippedTriviaSyntax
+//@[10:12)  ParenthesizedExpressionSyntax
 //@[10:11)   LeftParen |(|
+//@[11:11)   SkippedTriviaSyntax
 //@[11:12)   RightParen |)|
 //@[12:13) NewLine |\n|
 var bad = 
@@ -2173,8 +2174,9 @@ var emptyParens = ()
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |emptyParens|
 //@[16:17)  Assignment |=|
-//@[18:20)  SkippedTriviaSyntax
+//@[18:20)  ParenthesizedExpressionSyntax
 //@[18:19)   LeftParen |(|
+//@[19:19)   SkippedTriviaSyntax
 //@[19:20)   RightParen |)|
 //@[20:22) NewLine |\n\n|
 

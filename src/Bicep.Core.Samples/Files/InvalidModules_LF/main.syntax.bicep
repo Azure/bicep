@@ -333,8 +333,9 @@ module './main.bicep' = if () {
 //@[22:23)  Assignment |=|
 //@[24:29)  IfConditionSyntax
 //@[24:26)   Identifier |if|
-//@[27:29)   SkippedTriviaSyntax
+//@[27:29)   ParenthesizedExpressionSyntax
 //@[27:28)    LeftParen |(|
+//@[28:28)    SkippedTriviaSyntax
 //@[28:29)    RightParen |)|
 //@[30:34)  ObjectSyntax
 //@[30:31)   LeftBrace |{|

@@ -70,7 +70,7 @@ module './main.bicep' = if
 
 module './main.bicep' = if (
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
-//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
+//@[28:28) [BCP018 (Error)] Expected the ")" character at this location. ||
 
 module './main.bicep' = if (true
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|

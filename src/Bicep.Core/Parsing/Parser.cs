@@ -426,7 +426,7 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParenthesizedExpression(bool allowComplexLiterals)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expression = this.Expression(allowComplexLiterals);
+            var expression = this.WithRecovery(() => this.Expression(allowComplexLiterals), RecoveryFlags.None, TokenType.RightParen, TokenType.NewLine);
             var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
