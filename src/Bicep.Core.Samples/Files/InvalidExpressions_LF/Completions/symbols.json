@@ -1,0 +1,1920 @@
+[
+  {
+    "label": "add",
+    "kind": "variable",
+    "detail": "add",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_add",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "add"
+    }
+  },
+  {
+    "label": "and",
+    "kind": "variable",
+    "detail": "and",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_and",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "and"
+    }
+  },
+  {
+    "label": "any",
+    "kind": "function",
+    "detail": "any()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_any",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    }
+  },
+  {
+    "label": "array",
+    "kind": "function",
+    "detail": "array()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_array",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    }
+  },
+  {
+    "label": "az",
+    "kind": "folder",
+    "detail": "az",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "az"
+    }
+  },
+  {
+    "label": "azFunctions",
+    "kind": "variable",
+    "detail": "azFunctions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_azFunctions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "azFunctions"
+    }
+  },
+  {
+    "label": "bad",
+    "kind": "variable",
+    "detail": "bad",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bad",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bad"
+    }
+  },
+  {
+    "label": "badArrayIndexer",
+    "kind": "variable",
+    "detail": "badArrayIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badArrayIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badArrayIndexer"
+    }
+  },
+  {
+    "label": "badExpressionInPropertyAccess",
+    "kind": "variable",
+    "detail": "badExpressionInPropertyAccess",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badExpressionInPropertyAccess",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badExpressionInPropertyAccess"
+    }
+  },
+  {
+    "label": "badExpressionIndexer",
+    "kind": "variable",
+    "detail": "badExpressionIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badExpressionIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badExpressionIndexer"
+    }
+  },
+  {
+    "label": "badIndexOverArray",
+    "kind": "variable",
+    "detail": "badIndexOverArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badIndexOverArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badIndexOverArray"
+    }
+  },
+  {
+    "label": "badIndexOverArray2",
+    "kind": "variable",
+    "detail": "badIndexOverArray2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badIndexOverArray2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badIndexOverArray2"
+    }
+  },
+  {
+    "label": "badIndexOverObj",
+    "kind": "variable",
+    "detail": "badIndexOverObj",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badIndexOverObj",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badIndexOverObj"
+    }
+  },
+  {
+    "label": "badIndexOverObj2",
+    "kind": "variable",
+    "detail": "badIndexOverObj2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badIndexOverObj2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badIndexOverObj2"
+    }
+  },
+  {
+    "label": "badIndexer",
+    "kind": "variable",
+    "detail": "badIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badIndexer"
+    }
+  },
+  {
+    "label": "badInnerArray",
+    "kind": "variable",
+    "detail": "badInnerArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badInnerArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badInnerArray"
+    }
+  },
+  {
+    "label": "badInnerArrayIndexer",
+    "kind": "variable",
+    "detail": "badInnerArrayIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badInnerArrayIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badInnerArrayIndexer"
+    }
+  },
+  {
+    "label": "badInnerProperty",
+    "kind": "variable",
+    "detail": "badInnerProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badInnerProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badInnerProperty"
+    }
+  },
+  {
+    "label": "badInnerType",
+    "kind": "variable",
+    "detail": "badInnerType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badInnerType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badInnerType"
+    }
+  },
+  {
+    "label": "badProperty",
+    "kind": "variable",
+    "detail": "badProperty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badProperty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badProperty"
+    }
+  },
+  {
+    "label": "badPropertyIndexer",
+    "kind": "variable",
+    "detail": "badPropertyIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badPropertyIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badPropertyIndexer"
+    }
+  },
+  {
+    "label": "badSpelling",
+    "kind": "variable",
+    "detail": "badSpelling",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badSpelling",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badSpelling"
+    }
+  },
+  {
+    "label": "badType",
+    "kind": "variable",
+    "detail": "badType",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_badType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "badType"
+    }
+  },
+  {
+    "label": "bannedFunctions",
+    "kind": "variable",
+    "detail": "bannedFunctions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bannedFunctions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bannedFunctions"
+    }
+  },
+  {
+    "label": "base64",
+    "kind": "function",
+    "detail": "base64()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    }
+  },
+  {
+    "label": "base64ToJson",
+    "kind": "function",
+    "detail": "base64ToJson()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToJson",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    }
+  },
+  {
+    "label": "base64ToString",
+    "kind": "function",
+    "detail": "base64ToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    }
+  },
+  {
+    "label": "bool",
+    "kind": "function",
+    "detail": "bool()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_bool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    }
+  },
+  {
+    "label": "coalesce",
+    "kind": "function",
+    "detail": "coalesce()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_coalesce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "coalesce($0)"
+    }
+  },
+  {
+    "label": "complex",
+    "kind": "variable",
+    "detail": "complex",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_complex",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "complex"
+    }
+  },
+  {
+    "label": "concat",
+    "kind": "function",
+    "detail": "concat()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_concat",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    }
+  },
+  {
+    "label": "concatNotEnough",
+    "kind": "variable",
+    "detail": "concatNotEnough",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_concatNotEnough",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concatNotEnough"
+    }
+  },
+  {
+    "label": "concatWrongTypes",
+    "kind": "variable",
+    "detail": "concatWrongTypes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_concatWrongTypes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concatWrongTypes"
+    }
+  },
+  {
+    "label": "concatWrongTypesContradiction",
+    "kind": "variable",
+    "detail": "concatWrongTypesContradiction",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_concatWrongTypesContradiction",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "concatWrongTypesContradiction"
+    }
+  },
+  {
+    "label": "contains",
+    "kind": "function",
+    "detail": "contains()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_contains",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    }
+  },
+  {
+    "label": "dataUri",
+    "kind": "function",
+    "detail": "dataUri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    }
+  },
+  {
+    "label": "dataUriToString",
+    "kind": "function",
+    "detail": "dataUriToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUriToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    }
+  },
+  {
+    "label": "dateTimeAdd",
+    "kind": "function",
+    "detail": "dateTimeAdd()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeAdd",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    }
+  },
+  {
+    "label": "deployment",
+    "kind": "function",
+    "detail": "deployment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "deployment()$0"
+    }
+  },
+  {
+    "label": "div",
+    "kind": "variable",
+    "detail": "div",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_div",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "div"
+    }
+  },
+  {
+    "label": "dotAccessOnNonObject",
+    "kind": "variable",
+    "detail": "dotAccessOnNonObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_dotAccessOnNonObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "dotAccessOnNonObject"
+    }
+  },
+  {
+    "label": "empty",
+    "kind": "function",
+    "detail": "empty()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_empty",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    }
+  },
+  {
+    "label": "emptyParens",
+    "kind": "variable",
+    "detail": "emptyParens",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_emptyParens",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "emptyParens"
+    }
+  },
+  {
+    "label": "endsWith",
+    "kind": "function",
+    "detail": "endsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_endsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    }
+  },
+  {
+    "label": "environment",
+    "kind": "function",
+    "detail": "environment()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_environment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "environment()$0"
+    }
+  },
+  {
+    "label": "eq",
+    "kind": "variable",
+    "detail": "eq",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_eq",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "eq"
+    }
+  },
+  {
+    "label": "errorInsideArrayAccess",
+    "kind": "variable",
+    "detail": "errorInsideArrayAccess",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_errorInsideArrayAccess",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "errorInsideArrayAccess"
+    }
+  },
+  {
+    "label": "extensionResourceId",
+    "kind": "function",
+    "detail": "extensionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_extensionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionResourceId($0)"
+    }
+  },
+  {
+    "label": "fakeFunc",
+    "kind": "variable",
+    "detail": "fakeFunc",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fakeFunc",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "fakeFunc"
+    }
+  },
+  {
+    "label": "fakeFuncP",
+    "kind": "field",
+    "detail": "fakeFuncP",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fakeFuncP",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "fakeFuncP"
+    }
+  },
+  {
+    "label": "fakeVar",
+    "kind": "variable",
+    "detail": "fakeVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_fakeVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "fakeVar"
+    }
+  },
+  {
+    "label": "falsehood",
+    "kind": "variable",
+    "detail": "falsehood",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_falsehood",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "falsehood"
+    }
+  },
+  {
+    "label": "first",
+    "kind": "function",
+    "detail": "first()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_first",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    }
+  },
+  {
+    "label": "format",
+    "kind": "function",
+    "detail": "format()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_format",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    }
+  },
+  {
+    "label": "funcvarparam",
+    "kind": "field",
+    "detail": "funcvarparam",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_funcvarparam",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "funcvarparam"
+    }
+  },
+  {
+    "label": "funcvarvar",
+    "kind": "variable",
+    "detail": "funcvarvar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_funcvarvar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "funcvarvar"
+    }
+  },
+  {
+    "label": "gt",
+    "kind": "variable",
+    "detail": "gt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_gt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "gt"
+    }
+  },
+  {
+    "label": "gteq",
+    "kind": "variable",
+    "detail": "gteq",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_gteq",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "gteq"
+    }
+  },
+  {
+    "label": "guid",
+    "kind": "function",
+    "detail": "guid()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_guid",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    }
+  },
+  {
+    "label": "indexOf",
+    "kind": "function",
+    "detail": "indexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_indexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    }
+  },
+  {
+    "label": "indexOfWrongTypes",
+    "kind": "variable",
+    "detail": "indexOfWrongTypes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_indexOfWrongTypes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOfWrongTypes"
+    }
+  },
+  {
+    "label": "int",
+    "kind": "function",
+    "detail": "int()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_int",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    }
+  },
+  {
+    "label": "integerIndexOnNonArray",
+    "kind": "variable",
+    "detail": "integerIndexOnNonArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_integerIndexOnNonArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "integerIndexOnNonArray"
+    }
+  },
+  {
+    "label": "intersection",
+    "kind": "function",
+    "detail": "intersection()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_intersection",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    }
+  },
+  {
+    "label": "invalidIndexTypeOverAny",
+    "kind": "variable",
+    "detail": "invalidIndexTypeOverAny",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidIndexTypeOverAny",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidIndexTypeOverAny"
+    }
+  },
+  {
+    "label": "invalidInstanceFunctionAccess",
+    "kind": "variable",
+    "detail": "invalidInstanceFunctionAccess",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidInstanceFunctionAccess",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidInstanceFunctionAccess"
+    }
+  },
+  {
+    "label": "invalidInstanceFunctionCall",
+    "kind": "variable",
+    "detail": "invalidInstanceFunctionCall",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidInstanceFunctionCall",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidInstanceFunctionCall"
+    }
+  },
+  {
+    "label": "invalidOperands",
+    "kind": "variable",
+    "detail": "invalidOperands",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidOperands",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidOperands"
+    }
+  },
+  {
+    "label": "invalidPropertyAccessOnAzNamespace",
+    "kind": "variable",
+    "detail": "invalidPropertyAccessOnAzNamespace",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidPropertyAccessOnAzNamespace",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidPropertyAccessOnAzNamespace"
+    }
+  },
+  {
+    "label": "invalidPropertyAccessOnSysNamespace",
+    "kind": "variable",
+    "detail": "invalidPropertyAccessOnSysNamespace",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidPropertyAccessOnSysNamespace",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidPropertyAccessOnSysNamespace"
+    }
+  },
+  {
+    "label": "invalidPropertyCallOnInstanceFunctionAccess",
+    "kind": "variable",
+    "detail": "invalidPropertyCallOnInstanceFunctionAccess",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidPropertyCallOnInstanceFunctionAccess",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidPropertyCallOnInstanceFunctionAccess"
+    }
+  },
+  {
+    "label": "json",
+    "kind": "function",
+    "detail": "json()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_json",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    }
+  },
+  {
+    "label": "last",
+    "kind": "function",
+    "detail": "last()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_last",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    }
+  },
+  {
+    "label": "lastIndexOf",
+    "kind": "function",
+    "detail": "lastIndexOf()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_lastIndexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    }
+  },
+  {
+    "label": "length",
+    "kind": "function",
+    "detail": "length()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_length",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    }
+  },
+  {
+    "label": "listKeys",
+    "kind": "function",
+    "detail": "listKeys()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_listKeys",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "listKeys($0)"
+    }
+  },
+  {
+    "label": "lt",
+    "kind": "variable",
+    "detail": "lt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_lt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "lt"
+    }
+  },
+  {
+    "label": "lteq",
+    "kind": "variable",
+    "detail": "lteq",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_lteq",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "lteq"
+    }
+  },
+  {
+    "label": "malformedStringIndex",
+    "kind": "variable",
+    "detail": "malformedStringIndex",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_malformedStringIndex",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "malformedStringIndex"
+    }
+  },
+  {
+    "label": "max",
+    "kind": "function",
+    "detail": "max()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_max",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    }
+  },
+  {
+    "label": "min",
+    "kind": "function",
+    "detail": "min()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_min",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    }
+  },
+  {
+    "label": "minus",
+    "kind": "variable",
+    "detail": "minus",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_minus",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "minus"
+    }
+  },
+  {
+    "label": "missingIndexerOnIdentifier",
+    "kind": "variable",
+    "detail": "missingIndexerOnIdentifier",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingIndexerOnIdentifier",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingIndexerOnIdentifier"
+    }
+  },
+  {
+    "label": "missingIndexerOnLiteralArray",
+    "kind": "variable",
+    "detail": "missingIndexerOnLiteralArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingIndexerOnLiteralArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingIndexerOnLiteralArray"
+    }
+  },
+  {
+    "label": "missingMethodName",
+    "kind": "variable",
+    "detail": "missingMethodName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingMethodName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingMethodName"
+    }
+  },
+  {
+    "label": "missingPropertyInsideAnExpression",
+    "kind": "variable",
+    "detail": "missingPropertyInsideAnExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingPropertyInsideAnExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingPropertyInsideAnExpression"
+    }
+  },
+  {
+    "label": "missingPropertyName",
+    "kind": "variable",
+    "detail": "missingPropertyName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_missingPropertyName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "missingPropertyName"
+    }
+  },
+  {
+    "label": "mod",
+    "kind": "variable",
+    "detail": "mod",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mod",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "mod"
+    }
+  },
+  {
+    "label": "mul",
+    "kind": "variable",
+    "detail": "mul",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mul",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "mul"
+    }
+  },
+  {
+    "label": "ne",
+    "kind": "variable",
+    "detail": "ne",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ne",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "ne"
+    }
+  },
+  {
+    "label": "nestedTernary",
+    "kind": "variable",
+    "detail": "nestedTernary",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedTernary",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedTernary"
+    }
+  },
+  {
+    "label": "not",
+    "kind": "variable",
+    "detail": "not",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_not",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "not"
+    }
+  },
+  {
+    "label": "nullness",
+    "kind": "variable",
+    "detail": "nullness",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nullness",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nullness"
+    }
+  },
+  {
+    "label": "oneValidDeclaration",
+    "kind": "variable",
+    "detail": "oneValidDeclaration",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_oneValidDeclaration",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "oneValidDeclaration"
+    }
+  },
+  {
+    "label": "or",
+    "kind": "variable",
+    "detail": "or",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_or",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "or"
+    }
+  },
+  {
+    "label": "padLeft",
+    "kind": "function",
+    "detail": "padLeft()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_padLeft",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    }
+  },
+  {
+    "label": "padLeftNotEnough",
+    "kind": "variable",
+    "detail": "padLeftNotEnough",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_padLeftNotEnough",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeftNotEnough"
+    }
+  },
+  {
+    "label": "partialObject",
+    "kind": "variable",
+    "detail": "partialObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_partialObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "partialObject"
+    }
+  },
+  {
+    "label": "pickZones",
+    "kind": "function",
+    "detail": "pickZones()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_pickZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "pickZones($0)"
+    }
+  },
+  {
+    "label": "propertyAccessOnVariable",
+    "kind": "variable",
+    "detail": "propertyAccessOnVariable",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyAccessOnVariable",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyAccessOnVariable"
+    }
+  },
+  {
+    "label": "providers",
+    "kind": "function",
+    "detail": "providers()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_providers",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "providers($0)"
+    }
+  },
+  {
+    "label": "range",
+    "kind": "function",
+    "detail": "range()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_range",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    }
+  },
+  {
+    "label": "reference",
+    "kind": "function",
+    "detail": "reference()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reference",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "reference($0)"
+    }
+  },
+  {
+    "label": "replace",
+    "kind": "function",
+    "detail": "replace()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_replace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    }
+  },
+  {
+    "label": "resourceGroup",
+    "kind": "function",
+    "detail": "resourceGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroup($0)"
+    }
+  },
+  {
+    "label": "resourceId",
+    "kind": "function",
+    "detail": "resourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceId($0)"
+    }
+  },
+  {
+    "label": "sampleObject",
+    "kind": "variable",
+    "detail": "sampleObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sampleObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sampleObject"
+    }
+  },
+  {
+    "label": "skip",
+    "kind": "function",
+    "detail": "skip()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_skip",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    }
+  },
+  {
+    "label": "split",
+    "kind": "function",
+    "detail": "split()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_split",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    }
+  },
+  {
+    "label": "startsWith",
+    "kind": "function",
+    "detail": "startsWith()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_startsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    }
+  },
+  {
+    "label": "string",
+    "kind": "function",
+    "detail": "string()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_string",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    }
+  },
+  {
+    "label": "stringIndexOnNonObject",
+    "kind": "variable",
+    "detail": "stringIndexOnNonObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stringIndexOnNonObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stringIndexOnNonObject"
+    }
+  },
+  {
+    "label": "sub",
+    "kind": "variable",
+    "detail": "sub",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sub",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sub"
+    }
+  },
+  {
+    "label": "subscription",
+    "kind": "function",
+    "detail": "subscription()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscription",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription($0)"
+    }
+  },
+  {
+    "label": "subscriptionResourceId",
+    "kind": "function",
+    "detail": "subscriptionResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscriptionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "subscriptionResourceId($0)"
+    }
+  },
+  {
+    "label": "substring",
+    "kind": "function",
+    "detail": "substring()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_substring",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    }
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sys"
+    }
+  },
+  {
+    "label": "sysFunctions",
+    "kind": "variable",
+    "detail": "sysFunctions",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sysFunctions",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sysFunctions"
+    }
+  },
+  {
+    "label": "sysFunctionsInParens",
+    "kind": "variable",
+    "detail": "sysFunctionsInParens",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sysFunctionsInParens",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "sysFunctionsInParens"
+    }
+  },
+  {
+    "label": "take",
+    "kind": "function",
+    "detail": "take()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_take",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    }
+  },
+  {
+    "label": "takeTooMany",
+    "kind": "variable",
+    "detail": "takeTooMany",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_takeTooMany",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "takeTooMany"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "detail": "tenant()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
+    }
+  },
+  {
+    "label": "tenantResourceId",
+    "kind": "function",
+    "detail": "tenantResourceId()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenantResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantResourceId($0)"
+    }
+  },
+  {
+    "label": "ternary",
+    "kind": "variable",
+    "detail": "ternary",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ternary",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "ternary"
+    }
+  },
+  {
+    "label": "test1",
+    "kind": "variable",
+    "detail": "test1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_test1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "test1"
+    }
+  },
+  {
+    "label": "test2",
+    "kind": "variable",
+    "detail": "test2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_test2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "test2"
+    }
+  },
+  {
+    "label": "test3",
+    "kind": "variable",
+    "detail": "test3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_test3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "test3"
+    }
+  },
+  {
+    "label": "toLower",
+    "kind": "function",
+    "detail": "toLower()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLower",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    }
+  },
+  {
+    "label": "toUpper",
+    "kind": "function",
+    "detail": "toUpper()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toUpper",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    }
+  },
+  {
+    "label": "trim",
+    "kind": "function",
+    "detail": "trim()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_trim",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    }
+  },
+  {
+    "label": "truth",
+    "kind": "variable",
+    "detail": "truth",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_truth",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "truth"
+    }
+  },
+  {
+    "label": "union",
+    "kind": "function",
+    "detail": "union()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_union",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    }
+  },
+  {
+    "label": "uniqueString",
+    "kind": "function",
+    "detail": "uniqueString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uniqueString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    }
+  },
+  {
+    "label": "uri",
+    "kind": "function",
+    "detail": "uri()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    }
+  },
+  {
+    "label": "uriComponent",
+    "kind": "function",
+    "detail": "uriComponent()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    }
+  },
+  {
+    "label": "uriComponentToString",
+    "kind": "function",
+    "detail": "uriComponentToString()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponentToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    }
+  },
+  {
+    "label": "x",
+    "kind": "variable",
+    "detail": "x",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_x",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "x"
+    }
+  }
+]

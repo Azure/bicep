@@ -342,6 +342,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 
 // empty condition
 //@[18:20) NewLine |\r\n|
+// #completionTest(56) -> symbols
+//@[33:35) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[0:77) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
@@ -359,6 +361,37 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[58:77)  ObjectSyntax
 //@[58:59)   LeftBrace |{|
 //@[59:61)   NewLine |\r\n|
+  name: 'foo'
+//@[2:13)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:13)    StringSyntax
+//@[8:13)     StringComplete |'foo'|
+//@[13:15)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+// #completionTest(57, 59) -> symbols
+//@[37:39) NewLine |\r\n|
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+//@[0:82) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:12)  IdentifierSyntax
+//@[9:12)   Identifier |foo|
+//@[13:50)  StringSyntax
+//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[50:51)  Assignment |=|
+//@[52:62)  IfConditionSyntax
+//@[52:54)   Identifier |if|
+//@[55:62)   ParenthesizedExpressionSyntax
+//@[55:56)    LeftParen |(|
+//@[61:61)    SkippedTriviaSyntax
+//@[61:62)    RightParen |)|
+//@[63:82)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
   name: 'foo'
 //@[2:13)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax
