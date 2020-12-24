@@ -41,6 +41,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetResourceOrModuleBodyCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context));
         }
@@ -166,6 +167,46 @@ namespace Bicep.LanguageServer.Completions
                 .ThenByDescending(rt => rt.ApiVersion)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange))
                 .ToList();
+        }
+
+        private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) 
+            || System.IO.Path.GetDirectoryName(model.SyntaxTree.FileUri.LocalPath) is not string cwd
+            || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
+            || declarationSyntax.Path is not StringSyntax stringSyntax
+            || stringSyntax.TryGetLiteralValue() is not string entered
+            || entered.Equals(".") || entered.Equals("..")
+            || System.IO.File.Exists(System.IO.Path.Combine(cwd, entered)))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+            
+            var query = new Uri(System.IO.Path.Combine(cwd, entered));
+            var files = Enumerable.Empty<string>();
+            var dirs = Enumerable.Empty<string>();
+            if (System.IO.Directory.Exists(query.LocalPath))
+            {
+                files = System.IO.Directory.GetFiles(query.LocalPath, "*.bicep");
+                dirs  = System.IO.Directory.GetDirectories(query.LocalPath);
+            }
+            else 
+            {
+                var parentDir = System.IO.Path.GetDirectoryName(query.LocalPath)!;
+                if (System.IO.Directory.Exists(parentDir))
+                {
+                   files = System.IO.Directory.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
+                   dirs = System.IO.Directory.GetDirectories(parentDir, $"{query.Segments[^1]}*");
+                }
+            }
+            var fileItems = files
+                .Select(path => new System.IO.DirectoryInfo(path).Name)
+                .Select(name => CreateModulePathCompletion(name, CompletionItemKind.File, CompletionPriority.High)).ToList();
+            var dirItems = dirs
+                .Select(path => new System.IO.DirectoryInfo(path).Name + "/")
+                .Select(name => CreateModulePathCompletion(name, CompletionItemKind.Folder, CompletionPriority.Medium)).ToList();
+
+            return fileItems.Concat(dirItems);
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(Range replacementRange)
@@ -507,6 +548,14 @@ namespace Bicep.LanguageServer.Completions
                 .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                 // 8 hex digits is probably overkill :)
                 .WithSortText(index.ToString("x8"));
+        }
+
+        private static CompletionItem CreateModulePathCompletion(string name, CompletionItemKind completionItemKind, CompletionPriority priority)
+        {
+            return CompletionItemBuilder.Create(completionItemKind)
+                .WithLabel(name)
+                .WithInsertText(name)
+                .WithSortText(GetSortText(name, priority));
         }
 
         /// <summary>
