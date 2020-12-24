@@ -3,19 +3,20 @@
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System.Collections.Generic;
+using System;
 
 namespace Bicep.Core.TypeSystem
 {
     /// <summary>
-    /// Visitor used to collect errors caused by property assignments to run-time values when that is not allowed
+    /// Visitor used to determine if a variable and its chained references refer to any runtime values.
     /// </summary>
-    public sealed class DeployTimeConstantVariableVisitior : SyntaxVisitor
+    public sealed class DeployTimeConstantVariableVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
         public Stack<string> visitedStack;
         public ObjectType? invalidReferencedBodyObj;
 
-        public DeployTimeConstantVariableVisitior(SemanticModel model)
+        public DeployTimeConstantVariableVisitor(SemanticModel model)
         {
             this.model = model;
             this.visitedStack = new Stack<string>();
@@ -23,19 +24,23 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
+            visitedStack.Push(syntax.Name.IdentifierName);
+            base.VisitVariableDeclarationSyntax(syntax);
             if (this.invalidReferencedBodyObj != null)
             {
                 return;
             }
-            visitedStack.Push(syntax.Name.IdentifierName);
-            base.Visit(syntax.Value);
-            if (this.invalidReferencedBodyObj == null)
+            // This variable declaration was deployment time constant
+            if (visitedStack.Pop() is var popped &&
+                popped != syntax.Name.IdentifierName)
             {
-                visitedStack.Pop();
+                throw new InvalidOperationException($"{this.GetType().Name} performed an invalid Stack push/pop: expected popped element to be {syntax.Name.IdentifierName} but got {popped}");
             }
         }
+        
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
+            // Checked for short circuiting: We only show one violation at a time per variable
             if (this.invalidReferencedBodyObj != null)
             {
                 return;
@@ -43,80 +48,62 @@ namespace Bicep.Core.TypeSystem
             base.VisitObjectPropertySyntax(syntax);
         }
 
+        // This method should not be visited by PropertyAccessSyntax of Resource/Modules (But Variables should visit). This is meant to catch variable 
+        // properties which are assigned entire resource/modules, or to recurse through a chain of variable references.
+        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+        {
+            if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyObj(this.model, syntax) is ({} declaredSymbol, {} referencedBodyObj))
+            {
+                this.invalidReferencedBodyObj = referencedBodyObj;
+                visitedStack.Push(declaredSymbol.Name);
+            }
+            else if (model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol)
+            {
+                this.Visit(variableSymbol.DeclaringSyntax);
+            }
+        }
+
+        #region AccessSyntax
+        // these need to be kept synchronized.
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             if (syntax.BaseExpression is VariableAccessSyntax baseSyntax)
             {
-                var baseSymbol = model.GetSymbolInfo(baseSyntax);
-                switch(baseSymbol)
+                if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyObj(this.model, baseSyntax) is ({} declaredSymbol, {} referencedBodyObj))
                 {
-                    // do not visit the baseExpression if we have a symbol match. Return instead of break
-                    case ResourceSymbol:
-                    case ModuleSymbol:
-                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType referencedBodyObj)
-                        {
-                            switch (syntax.IndexExpression)
-                            {
-                                case StringSyntax stringSyntax:
-                                if (stringSyntax.TryGetLiteralValue() is string property &&
-                                    referencedBodyObj.Properties.TryGetValue(property, out var propertyType) &&
-                                    !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                                    {
-                                        this.invalidReferencedBodyObj = referencedBodyObj;
-                                        visitedStack.Push(baseSymbol.Name);
-                                    }
-                                    break;
-                            }
-                        }
-                        return;
+                    if (syntax.IndexExpression is StringSyntax stringSyntax &&
+                    stringSyntax.TryGetLiteralValue() is string property &&
+                    referencedBodyObj.Properties.TryGetValue(property, out var propertyType) &&
+                    !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
+                    {
+                        this.invalidReferencedBodyObj = referencedBodyObj;
+                        visitedStack.Push(declaredSymbol.Name);
+                    }
+                    // Do not VisitVariableAccessSyntax on Resources or Modules
+                    return;
                 }
             }
-            base.Visit(syntax.BaseExpression);
+            base.VisitArrayAccessSyntax(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             if (syntax.BaseExpression is VariableAccessSyntax baseSyntax)
             {
-                var baseSymbol = model.GetSymbolInfo(baseSyntax);
-                switch(baseSymbol)
+                if (DeployTimeConstantVisitor.ExtractResourceOrModuleSymbolAndBodyObj(this.model, baseSyntax) is ({} declaredSymbol, {} referencedBodyObj))
                 {
-                    // do not visit the baseExpression if we have a symbol match. Return instead of break
-                    case ResourceSymbol:
-                    case ModuleSymbol:
-                        if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType referencedBodyObj)
-                        {
-                            var property = syntax.PropertyName.IdentifierName;
-                            if (referencedBodyObj.Properties.TryGetValue(property, out var propertyType) &&
-                            !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
-                            {
-                                this.invalidReferencedBodyObj = referencedBodyObj;
-                                visitedStack.Push(baseSymbol.Name);
-                            }
-                        }
-                        return;
-                }
-            }
-            base.Visit(syntax.BaseExpression);
-        }
-
-        public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-        {
-            var baseSymbol = model.GetSymbolInfo(syntax);
-            switch (baseSymbol)
-            {
-                case ResourceSymbol:
-                case ModuleSymbol:
-                    if (TypeAssignmentVisitor.UnwrapType(((DeclaredSymbol)baseSymbol).Type) is ObjectType referencedBodyObj)
+                    if (referencedBodyObj.Properties.TryGetValue(syntax.PropertyName.IdentifierName, out var propertyType) &&
+                    !propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                     {
                         this.invalidReferencedBodyObj = referencedBodyObj;
+                        visitedStack.Push(declaredSymbol.Name);
                     }
-                    visitedStack.Push(baseSymbol.Name);
-                    break;
-                case VariableSymbol variableSymbol:
-                    this.Visit(variableSymbol.DeclaringSyntax);
-                    break;
+                }
+                // Do not VisitVariableAccessSyntax on Resources or Modules
+                return;
             }
+            base.VisitPropertyAccessSyntax(syntax);
         }
+        #endregion
     }
 }

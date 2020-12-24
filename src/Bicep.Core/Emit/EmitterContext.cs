@@ -12,7 +12,7 @@ namespace Bicep.Core.Emit
         {
             this.SemanticModel = semanticModel;
             this.VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
-            this.ResourceDependencies = ResourceDependencyVisitor.GetAllResourceDependencies(semanticModel);
+            this.ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
         }
 
         public SemanticModel SemanticModel { get; }

@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem
         WriteOnly = 1 << 3,
 
         /// <summary>
-        /// The property's value is resolved during deployment-time and does not require inlining.
+        /// This property's value known at the start of the deployment, and does not require inlining.
         /// </summary>
         DeployTimeConstant = 1 << 4,
     }

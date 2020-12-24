@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -11,42 +10,89 @@ namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
-        private Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>> variableDependencies;
         private readonly SemanticModel model;
-        // resource dependencies specific to each ResourceDependencyVisitor
-        private HashSet<DeclaredSymbol> resourceDependencies;
+        private IDictionary<DeclaredSymbol, HashSet<DeclaredSymbol>> resourceDependencies;
+        private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetAllResourceDependencies(SemanticModel model) 
-        {
-            var allResourceDependencies = new Dictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>>();
-            var declaredSymbols = model.Root.AllDeclarations.ToList(); // gets all declaredSymbols in the document (entry point)
-            var visitor = new ResourceDependencyVisitor(model);
-
-            // we need to precompute variable dependencies to reuse them when traversing resources or modules
-            foreach(var variableSymbol in model.Root.VariableDeclarations) 
-            {
-                visitor.variableDependencies[variableSymbol] = GetResourceDependencies(model, variableSymbol.DeclaringSyntax);
-            }
-
-            foreach(var declaredSymbol in declaredSymbols.Where(symbol => symbol is ModuleSymbol || symbol is ResourceSymbol))
-            {
-                allResourceDependencies[declaredSymbol] = GetResourceDependencies(model, declaredSymbol.DeclaringSyntax);
-            }
-            return allResourceDependencies.ToImmutableDictionary();
-        }
-
-        public static ImmutableHashSet<DeclaredSymbol> GetResourceDependencies(SemanticModel model, SyntaxBase syntax)
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> GetResourceDependencies(SemanticModel model)
         {
             var visitor = new ResourceDependencyVisitor(model);
-            visitor.Visit(syntax);
-            return visitor.resourceDependencies.ToImmutableHashSet();
+            visitor.Visit(model.Root.Syntax);
+
+            var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>>();
+            foreach (var kvp in visitor.resourceDependencies)
+            {
+                if (kvp.Key is ResourceSymbol resourceSymbol)
+                {
+                    output[resourceSymbol] = kvp.Value.ToImmutableHashSet();
+                }
+                if (kvp.Key is ModuleSymbol moduleSymbol)
+                {
+                    output[moduleSymbol] = kvp.Value.ToImmutableHashSet();
+                }
+            }
+            return output.ToImmutableDictionary();
         }
 
         private ResourceDependencyVisitor(SemanticModel model)
         {
             this.model = model;
-            this.resourceDependencies = new HashSet<DeclaredSymbol>();
-            this.variableDependencies = new Dictionary<VariableSymbol, ImmutableHashSet<DeclaredSymbol>>();
+            this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<DeclaredSymbol>>();
+            this.currentDeclaration = null;
+        }
+
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            if (!(this.model.GetSymbolInfo(syntax) is ResourceSymbol resourceSymbol))
+            {
+                throw new InvalidOperationException("Unbound declaration");
+            }
+
+            // save previous declaration as we may call this recursively
+            var prevDeclaration = this.currentDeclaration;
+
+            this.currentDeclaration = resourceSymbol;
+            this.resourceDependencies[resourceSymbol] = new HashSet<DeclaredSymbol>();
+            base.VisitResourceDeclarationSyntax(syntax);
+
+            // restore previous declaration
+            this.currentDeclaration = prevDeclaration;
+        }
+
+        public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            if (!(this.model.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol))
+            {
+                throw new InvalidOperationException("Unbound declaration");
+            }
+
+            // save previous declaration as we may call this recursively
+            var prevDeclaration = this.currentDeclaration;
+
+            this.currentDeclaration = moduleSymbol;
+            this.resourceDependencies[moduleSymbol] = new HashSet<DeclaredSymbol>();
+            base.VisitModuleDeclarationSyntax(syntax);
+
+            // restore previous declaration
+            this.currentDeclaration = prevDeclaration;
+        }
+
+        public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+        {
+            if (!(this.model.GetSymbolInfo(syntax) is VariableSymbol variableSymbol))
+            {
+                throw new InvalidOperationException("Unbound declaration");
+            }
+
+            // save previous declaration as we may call this recursively
+            var prevDeclaration = this.currentDeclaration;
+
+            this.currentDeclaration = variableSymbol;
+            this.resourceDependencies[variableSymbol] = new HashSet<DeclaredSymbol>();
+            base.VisitVariableDeclarationSyntax(syntax);
+
+            // restore previous declaration
+            this.currentDeclaration = prevDeclaration;
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -57,26 +103,32 @@ namespace Bicep.Core.Emit
 
         private void VisitVariableAccessSyntaxInternal(VariableAccessSyntax syntax)
         {
+            if (currentDeclaration == null)
+            {
+                return;
+            }
+
             switch (model.GetSymbolInfo(syntax))
             {
-                // recursively visit dependent variables until we have convered all first level (Non transitive)
-                //  resources and modules
                 case VariableSymbol variableSymbol:
-                    if (!variableDependencies.TryGetValue(variableSymbol, out var dependencies))
+                    if (!resourceDependencies.TryGetValue(variableSymbol, out var dependencies))
                     {
+                        // recursively visit dependent variables
                         this.Visit(variableSymbol.DeclaringSyntax);
-                    } 
-                    else 
+
+                        dependencies = resourceDependencies[variableSymbol];
+                    }
+
+                    foreach (var dependency in dependencies)
                     {
-                        resourceDependencies.UnionWith(variableDependencies[variableSymbol]);
+                        resourceDependencies[currentDeclaration].Add(dependency);
                     }
                     return;
-                // note: no recursion for transitive dependencies for resources and modules 
                 case ResourceSymbol resourceSymbol:
-                    resourceDependencies.Add(resourceSymbol);
+                    resourceDependencies[currentDeclaration].Add(resourceSymbol);
                     return;
                 case ModuleSymbol moduleSymbol:
-                    resourceDependencies.Add(moduleSymbol);
+                    resourceDependencies[currentDeclaration].Add(moduleSymbol);
                     return;
             }
         }
