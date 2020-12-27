@@ -2,16 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "BatchaccountName": {
+    "batchAccountName": {
       "type": "string"
     },
     "allocationMode": {
       "type": "string",
       "defaultValue": "BatchService",
-      "allowedValues": [
-        "BatchService",
-        "Usersubscription"
-      ]
+      "allowedValues": ["BatchService", "Usersubscription"]
     },
     "location": {
       "type": "string",
@@ -24,7 +21,7 @@
     {
       "type": "Microsoft.Batch/batchAccounts",
       "apiVersion": "2020-09-01",
-      "name": "[parameters('BatchaccountName')]",
+      "name": "[parameters('batchAccountName')]",
       "location": "[parameters('location')]",
       "properties": {
         "poolAllocationMode": "[parameters('allocationMode')]"
@@ -34,7 +31,7 @@
   "outputs": {
     "batchaccountFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('BatchaccountName'))).accountEndpoint]"
+      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountName'))).accountEndpoint]"
     }
   }
 }
