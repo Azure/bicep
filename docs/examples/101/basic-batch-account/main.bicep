@@ -1,4 +1,4 @@
-param BatchaccountName string
+param batchAccountName string
 param allocationMode string {
   default: 'BatchService'
   allowed: [
@@ -9,12 +9,12 @@ param allocationMode string {
 
 param location string = resourceGroup().location
 
-resource batchaccount 'Microsoft.Batch/batchAccounts@2020-09-01' = {
-  name: BatchaccountName
+resource batchAccount 'Microsoft.Batch/batchAccounts@2020-09-01' = {
+  name: batchAccountName
   location: location
   properties: {
     poolAllocationMode: allocationMode
   }
 }
 
-output batchaccountFQDN string = batchaccount.properties.accountEndpoint
+output batchaccountFQDN string = batchAccount.properties.accountEndpoint
