@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core;
@@ -172,39 +173,43 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) 
-            || System.IO.Path.GetDirectoryName(model.SyntaxTree.FileUri.LocalPath) is not string cwd
+            || Path.GetDirectoryName(model.SyntaxTree.FileUri.LocalPath) is not string cwd
             || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
             || declarationSyntax.Path is not StringSyntax stringSyntax
             || stringSyntax.TryGetLiteralValue() is not string entered
             || entered.Equals(".") || entered.Equals("..")
-            || System.IO.File.Exists(System.IO.Path.Combine(cwd, entered)))
+            || File.Exists(Path.Combine(cwd, entered)))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
             
-            var query = new Uri(System.IO.Path.Combine(cwd, entered));
+            var query = new Uri(Path.Combine(cwd, entered));
             var files = Enumerable.Empty<string>();
             var dirs = Enumerable.Empty<string>();
-            if (System.IO.Directory.Exists(query.LocalPath))
+            var accesedDir = string.Empty;
+            if (Directory.Exists(query.LocalPath))
             {
-                files = System.IO.Directory.GetFiles(query.LocalPath, "*.bicep");
-                dirs  = System.IO.Directory.GetDirectories(query.LocalPath);
+                accesedDir = entered;
+                files = Directory.GetFiles(query.LocalPath, "*.bicep");
+                dirs  = Directory.GetDirectories(query.LocalPath);
             }
             else 
             {
-                var parentDir = System.IO.Path.GetDirectoryName(query.LocalPath)!;
-                if (System.IO.Directory.Exists(parentDir))
+                var parentDir = Path.GetDirectoryName(query.LocalPath)!;
+                if (Directory.Exists(parentDir))
                 {
-                   files = System.IO.Directory.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
-                   dirs = System.IO.Directory.GetDirectories(parentDir, $"{query.Segments[^1]}*");
+                   accesedDir = entered.Remove(entered.Length - query.Segments[^1].Length);
+                   files = Directory.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
+                   dirs = Directory.GetDirectories(parentDir, $"{query.Segments[^1]}*");
                 }
             }
             var fileItems = files
-                .Select(path => new System.IO.DirectoryInfo(path).Name)
-                .Select(name => CreateModulePathCompletion(name, CompletionItemKind.File, CompletionPriority.High)).ToList();
+                .Where(f => f != model.SyntaxTree.FileUri.LocalPath)
+                .Select(path => new DirectoryInfo(path).Name)
+                .Select(name => CreateModulePathCompletion(name, Path.Combine(accesedDir, name), context.ReplacementRange, CompletionItemKind.File, CompletionPriority.High)).ToList();
             var dirItems = dirs
-                .Select(path => new System.IO.DirectoryInfo(path).Name + "/")
-                .Select(name => CreateModulePathCompletion(name, CompletionItemKind.Folder, CompletionPriority.Medium)).ToList();
+                .Select(path => new DirectoryInfo(path).Name + "/")
+                .Select(name => CreateModulePathCompletion(name, Path.Combine(accesedDir, name), context.ReplacementRange, CompletionItemKind.Folder, CompletionPriority.Medium)).ToList();
 
             return fileItems.Concat(dirItems);
         }
@@ -550,11 +555,17 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(index.ToString("x8"));
         }
 
-        private static CompletionItem CreateModulePathCompletion(string name, CompletionItemKind completionItemKind, CompletionPriority priority)
+        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
+            // we do this to stay within the string
+            path = StringUtils.EscapeBicepString(path);
+            path = path.Remove(path.Length - 1);
+            replacementRange = new Range(replacementRange.Start, replacementRange.End.Delta(deltaCharacter: -1));
+
             return CompletionItemBuilder.Create(completionItemKind)
                 .WithLabel(name)
-                .WithInsertText(name)
+                .WithFilterText(path)
+                .WithPlainTextEdit(replacementRange, path)
                 .WithSortText(GetSortText(name, priority));
         }
 
@@ -581,7 +592,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (symbol is FunctionSymbol function)
             {
-                // for functions withouth any parameters on all the overloads, we should be placing the cursor after the parentheses
+                // for functions without any parameters on all the overloads, we should be placing the cursor after the parentheses
                 // for all other functions, the cursor should land between the parentheses so the user can specify the arguments
                 bool hasParameters = function.Overloads.Any(overload => overload.HasParameters);
                 var snippet = hasParameters
