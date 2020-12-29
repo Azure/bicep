@@ -40,6 +40,10 @@
         "description": "101/azure-bastion"
     },
     {
+        "filePath":"101/basic-batch-account/main.bicep",
+        "description":"101/basic-batch-account"
+    },
+    {
         "filePath": "101/azure-search-create/main.bicep",
         "description": "101/azure-search-create"
     },
