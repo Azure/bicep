@@ -3,7 +3,7 @@ param allocationMode string {
   default: 'BatchService'
   allowed: [
     'BatchService'
-    'Usersubscription'
+    'UserSubscription'
   ]
 }
 
