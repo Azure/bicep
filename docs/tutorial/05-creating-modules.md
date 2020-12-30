@@ -169,13 +169,13 @@ Since the `targetScope` has been changed, notice that the `$schema` property in 
 Modules are a powerful way to separate your bicep files into logical units and abstract away complex resource declarations.
 
 ## Using if condition with bicep Modules
-Modules also support the if condition (introduced in v0.2.212). The linked ARM template that will be created by `bicep build` will insert a condition at the deployment level for everything in the module. To take advantage of this the module declaration needs to follow the if condition syntax:
+Modules also support the if condition (introduced in v0.2.212). The linked ARM template produced by `bicep build` will insert a condition at the deployment level for everything in the module. To take advantage of this the module declaration needs to follow the if condition syntax:
 ````
 module stg './storage.bicep' = if (deployStorage) {
   name: 'storageDeploy'
 }
 ````
-In this example if the parameter of `deployStorage` is set to `false` then everything in the module will be skipped at deployment. If `deployStorage` is set to `true` the module will be deployed. The ARM template that will compile will look like:
+In this example if the parameter of `deployStorage` is set to `false` then everything in the module will be skipped at deployment. If `deployStorage` is set to `true` the module will be deployed. The ARM template created by running `bicep build` will look like:
 ````
  {
       "condition": "[parameters('deployStorage')]",
