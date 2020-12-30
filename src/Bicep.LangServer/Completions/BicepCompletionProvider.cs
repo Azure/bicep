@@ -177,7 +177,6 @@ namespace Bicep.LanguageServer.Completions
             || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
             || declarationSyntax.Path is not StringSyntax stringSyntax
             || stringSyntax.TryGetLiteralValue() is not string entered
-            || entered.Equals(".") || entered.Equals("..")
             || File.Exists(Path.Combine(cwd, entered)))
             {
                 return Enumerable.Empty<CompletionItem>();
@@ -557,8 +556,9 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
-            // we do this to stay within the string
-            path = StringUtils.EscapeBicepString(path);
+            // replace windows type path sep (\\<file>) with unix path sep (/file)
+            path = StringUtils.EscapeBicepString(path.Replace(@"\\", @"/"));
+            // we do this to stay within the string ('bleh|' instead of 'bleh'|)
             path = path.Remove(path.Length - 1);
             replacementRange = new Range(replacementRange.Start, replacementRange.End.Delta(deltaCharacter: -1));
 
