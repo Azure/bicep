@@ -64,3 +64,5 @@ jobs:
             az account show
             az deployment group create -f ./main.json -g my-rg
 ```
+
+Instead of installing the bicep CLI manually, you may instead want to use the [community-maintained github action](https://github.com/marketplace/actions/bicep-build) from [@justinyoo](https://github.com/justinyoo) that can run `bicep build` on your behalf.
