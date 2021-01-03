@@ -7,10 +7,10 @@ param imageOffer string
 param imageSKU string
 param imageLocation string
 param roleNameGalleryImage string
-param principalID string
+param principalId string
 param templateImageResourceGroup string
 
-var assignableScopes = '/subscriptions/${azureSubscriptionID}/resourcegroups/${templateImageResourceGroup}'
+var templateImageResourceGroupId = '/subscriptions/${azureSubscriptionID}/resourcegroups/${templateImageResourceGroup}'
 var imageDefinitionFullName = '${sigName}/${imageDefinitionName}'
 
 //Create Shard Image Gallery
@@ -54,16 +54,16 @@ resource gallerydef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
       }
     ]
     assignableScopes: [
-      assignableScopes
+      templateImageResourceGroupId
     ]
   }
 }
 
 //create role assignment
 resource galleryass 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(resourceGroup().id)
+  name: guid(resourceGroup().id, gallerydef.id, principalId)
   properties: {
     roleDefinitionId: gallerydef.id
-    principalId: principalID
+    principalId: principalId
   }
 }
