@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "azureSubscriptionID": {
+      "type": "string"
+    },
+    "sigName": {
+      "type": "string"
+    },
+    "sigLocation": {
+      "type": "string"
+    },
+    "imagePublisher": {
+      "type": "string"
+    },
+    "imageDefinitionName": {
+      "type": "string"
+    },
+    "imageOffer": {
+      "type": "string"
+    },
+    "imageSKU": {
+      "type": "string"
+    },
+    "imageLocation": {
+      "type": "string"
+    },
+    "roleNameGalleryImage": {
+      "type": "string"
+    },
+    "principalID": {
+      "type": "string"
+    },
+    "templateImageResourceGroup": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "assignableScopes": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]",
+    "imageDefinitionFullName": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/galleries",
+      "apiVersion": "2020-09-30",
+      "name": "[parameters('sigName')]",
+      "location": "[parameters('sigLocation')]"
+    },
+    {
+      "type": "Microsoft.Compute/galleries/images",
+      "apiVersion": "2020-09-30",
+      "name": "[variables('imageDefinitionFullName')]",
+      "location": "[parameters('imageLocation')]",
+      "properties": {
+        "osState": "Generalized",
+        "osType": "Windows",
+        "identifier": {
+          "publisher": "[parameters('imagePublisher')]",
+          "offer": "[parameters('imageOffer')]",
+          "sku": "[parameters('imageSKU')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[guid(parameters('roleNameGalleryImage'))]",
+      "properties": {
+        "roleName": "[parameters('roleNameGalleryImage')]",
+        "description": "Custom role for network read",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.Compute/galleries/read",
+              "Microsoft.Compute/galleries/images/read",
+              "Microsoft.Compute/galleries/images/versions/read",
+              "Microsoft.Compute/galleries/images/versions/write",
+              "Microsoft.Compute/images/write",
+              "Microsoft.Compute/images/read",
+              "Microsoft.Compute/images/delete"
+            ]
+          }
+        ],
+        "assignableScopes": [
+          "[variables('assignableScopes')]"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id)]",
+      "properties": {
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
+        "principalId": "[parameters('principalID')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]"
+      ]
+    }
+  ]
+}
