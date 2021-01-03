@@ -29,7 +29,7 @@
     "roleNameGalleryImage": {
       "type": "string"
     },
-    "principalID": {
+    "principalId": {
       "type": "string"
     },
     "templateImageResourceGroup": {
@@ -38,7 +38,7 @@
   },
   "functions": [],
   "variables": {
-    "assignableScopes": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]",
+    "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]",
     "imageDefinitionFullName": "[format('{0}/{1}', parameters('sigName'), parameters('imageDefinitionName'))]"
   },
   "resources": [
@@ -84,17 +84,17 @@
           }
         ],
         "assignableScopes": [
-          "[variables('assignableScopes')]"
+          "[variables('templateImageResourceGroupId')]"
         ]
       }
     },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "name": "[guid(resourceGroup().id)]",
+      "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), parameters('principalId'))]",
       "properties": {
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
-        "principalId": "[parameters('principalID')]"
+        "principalId": "[parameters('principalId')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]"
