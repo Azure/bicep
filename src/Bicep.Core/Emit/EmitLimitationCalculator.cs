@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Emit
 {
@@ -102,146 +103,71 @@ namespace Bicep.Core.Emit
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
 
-            var duplicateResources = semanticModel.Root.AllDeclarations
-                .OfType<ResourceSymbol>()
-                .Where(res => res.Type is ResourceType && res.DeclaringResource.Body is ObjectSyntax)
-                .Select(res =>
-                {
-                    var namePropSyntax = ((ObjectSyntax)res.DeclaringResource.Body).SafeGetPropertyByName(LanguageConstants.ResourceNamePropertyName);
-                    var resourceScope = resourceScopeData[res];
-                    return new
-                    {
-                        ResourceName = res.Name,
-                        ResourceScope = resourceScope,
-                        ResourceTypeFQDN = ((ResourceType)res.Type).TypeReference.FullyQualifiedType,
-                        ResourceNamePropertyValue = namePropSyntax?.Value as StringSyntax, //TODO: currently limiting check to property values that are strings, although it can be references or other syntaxes
-                        ResourceNamePropertySyntax = namePropSyntax
-                    };
-                })
-                .Where(x => x.ResourceNamePropertySyntax is not null && x.ResourceNamePropertyValue is not null)
-                .GroupBy(x => (x.ResourceTypeFQDN, x.ResourceScope, x.ResourceNamePropertyValue!), ResourceComparer.Instance)
+            var duplicateResources = GetResourceDefinitions(semanticModel, resourceScopeData)
+                .GroupBy(x => x, ResourceDefinition.EqualityComparer)
                 .Where(group => group.Count() > 1);
 
             foreach (var duplicatedResourceGroup in duplicateResources)
             {
-                var duplicatedResourceNames = string.Join(", ", duplicatedResourceGroup.Select(x => x.ResourceName));
+                var duplicatedResourceNames = duplicatedResourceGroup.Select(x => x.ResourceName).ToArray();
                 foreach (var duplicatedResource in duplicatedResourceGroup)
                 {
-                    yield return DiagnosticBuilder.ForPosition(duplicatedResource.ResourceNamePropertySyntax!).ResourceMultipleDeclarations(duplicatedResourceNames);
+                    yield return DiagnosticBuilder.ForPosition(duplicatedResource.ResourceNamePropertyValue).ResourceMultipleDeclarations(duplicatedResourceNames);
                 }
             }
 
-            var duplicateModules = semanticModel.Root.AllDeclarations
-                .OfType<ModuleSymbol>()
-                .Where(res => res.Type is ModuleType && res.DeclaringModule is ModuleDeclarationSyntax && moduleScopeData.ContainsKey(res))
-                .Select(res =>
-                {
-                    var namePropSyntax = ((ObjectSyntax)res.DeclaringModule.Body).SafeGetPropertyByName(LanguageConstants.ResourceNamePropertyName);
-                    var scopeType = moduleScopeData[res].RequestedScope;
-                    var scopeProperty = ((ObjectSyntax)res.DeclaringModule.Body).SafeGetPropertyByName(LanguageConstants.ResourceScopePropertyName);
-
-                    var r = new
-                    {
-                        ModuleName = res.Name,
-                        ModulePropertyScopeType = scopeType,
-                        ModulePropertyScopeValue = ((scopeProperty?.Value as FunctionCallSyntax)?.Arguments.FirstOrDefault()?.Expression as StringSyntax),
-                        ModulePropertyNameValue = namePropSyntax?.Value as StringSyntax, //TODO: currently limiting check to property values that are strings, although it can be references or other syntaxes
-                        ModulePropertyNameSyntax = namePropSyntax
-                    };
-                    return r;
-                })
-                .Where(x => x.ModulePropertyNameSyntax is not null && x.ModulePropertyNameValue is not null)
-                .GroupBy(x => (x.ModulePropertyScopeType, x.ModulePropertyScopeValue, x.ModulePropertyNameValue!), ModuleComparer.Instance)
+            var duplicateModules = GetModuleDefinitions(semanticModel, moduleScopeData)
+                .GroupBy(x => x, ModuleDefinition.EqualityComparer)
                 .Where(group => group.Count() > 1);
 
             foreach (var duplicatedModuleGroup in duplicateModules)
             {
-                var duplicatedModuleNames = string.Join(", ", duplicatedModuleGroup.Select(x => x.ModuleName));
+                var duplicatedModuleNames = duplicatedModuleGroup.Select(x => x.ModuleName).ToArray();
                 foreach (var duplicatedModule in duplicatedModuleGroup)
                 {
-                    yield return DiagnosticBuilder.ForPosition(duplicatedModule.ModulePropertyNameSyntax!).ModuleMultipleDeclarations(duplicatedModuleNames);
+                    yield return DiagnosticBuilder.ForPosition(duplicatedModule.ModulePropertyNameValue).ModuleMultipleDeclarations(duplicatedModuleNames);
                 }
             }
         }
 
-
-        // comparers below are very simple now, however in future it might be used to do more exact comparsion on property value to include interpolations
-        // also, we expect StringSyntax as values it can be other types as well (function calls, variable accesses, etc.)
-        private class ResourceComparer : IEqualityComparer<(string ResourceTypeFQDN, ResourceSymbol? ResourceScope, StringSyntax PropertyNameValue)>
+        private static IEnumerable<ModuleDefinition> GetModuleDefinitions(SemanticModel semanticModel, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
-            public static readonly ResourceComparer Instance = new();
-
-            public bool Equals((string ResourceTypeFQDN, ResourceSymbol? ResourceScope, StringSyntax PropertyNameValue) x, (string ResourceTypeFQDN, ResourceSymbol? ResourceScope, StringSyntax PropertyNameValue) y)
+            foreach (var module in semanticModel.Root.ModuleDeclarations)
             {
-
-                if (!string.Equals(x.ResourceTypeFQDN, y.ResourceTypeFQDN, StringComparison.OrdinalIgnoreCase))
+                if (!moduleScopeData.ContainsKey(module))
                 {
-                    return false;
+                    //module has invalid scope provided, ignoring from duplicate check
+                    continue;
                 }
-                
-                if (x.ResourceScope != y.ResourceScope)
+                if (module.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax propertyNameValue)
                 {
-                    return false;
+                    //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
+                    continue;
                 }
 
-                var xv = x.PropertyNameValue.TryGetLiteralValue();
-                var yv = y.PropertyNameValue.TryGetLiteralValue();
+                var propertyScopeValue = (module.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName) as FunctionCallSyntax)?.Arguments.Select(x => x.Expression as StringSyntax).ToImmutableArray();
 
-                //if literal value is null, we assume resources are not equal, as this indicates that interpolated value is used
-                //and as for now we're unable to determine if they will have equal values or not.
-
-                return xv is not null && yv is not null && string.Equals(xv, yv, StringComparison.OrdinalIgnoreCase);
-            }
-
-            public int GetHashCode((string ResourceTypeFQDN, ResourceSymbol? ResourceScope,  StringSyntax PropertyNameValue) obj)
-            {
-                return HashCode.Combine(obj.ResourceTypeFQDN.ToLowerInvariant(), obj.ResourceScope, obj.PropertyNameValue.TryGetLiteralValue()?.ToLowerInvariant());
+                yield return new ModuleDefinition(module.Name, moduleScopeData[module].RequestedScope, propertyScopeValue, propertyNameValue);
             }
         }
 
-        private class ModuleComparer : IEqualityComparer<(ResourceScopeType ModuleScopeType, StringSyntax? ModuleScopeValue, StringSyntax PropertyNameValue)>
+        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ResourceSymbol?> resourceScopeData)
         {
-            public static readonly ModuleComparer Instance = new();
-
-            public bool Equals(
-                (ResourceScopeType ModuleScopeType, StringSyntax? ModuleScopeValue, StringSyntax PropertyNameValue) x,
-                (ResourceScopeType ModuleScopeType, StringSyntax? ModuleScopeValue, StringSyntax PropertyNameValue) y)
+            foreach (var resource in semanticModel.Root.ResourceDeclarations)
             {
-                if (x.ModuleScopeType != y.ModuleScopeType)
+                if (!resourceScopeData.ContainsKey(resource))
                 {
-                    return false;
+                    //resource contains invlid scope data, ignoring from duplicate check
+                    continue;
                 }
 
-                var xpnv = x.PropertyNameValue.TryGetLiteralValue();
-                var ypnv = y.PropertyNameValue.TryGetLiteralValue();
-
-                if (xpnv is null || ypnv is null || !string.Equals(xpnv, ypnv, StringComparison.OrdinalIgnoreCase))
+                if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
                 {
-                    //no point in checking scope at least one of them is interpolated or their literal names differ
-                    return false;
+                    //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
+                    continue;
                 }
 
-                if (x.ModuleScopeValue is null && y.ModuleScopeValue is null)
-                {
-                    // this case indicates that modules are being deployed to scope without name specified (e.g. subscription(), resourceGroup(), etc.)
-                    // and as we checked before that names are equal, we need to return true.
-                    return true;
-                }
-
-                var xmsv = x.ModuleScopeValue?.TryGetLiteralValue();
-                var ymsv = y.ModuleScopeValue?.TryGetLiteralValue();
-                //null values indicates that either module used is parent scope or module name is interpolated.
-                //as we checked case, when we have both modules in parent scope, we can safely return false when null is found
-
-                return xmsv is not null && ymsv is not null && string.Equals(xmsv, ymsv, StringComparison.OrdinalIgnoreCase);
-            }
-
-            public int GetHashCode((ResourceScopeType ModuleScopeType, StringSyntax? ModuleScopeValue, StringSyntax PropertyNameValue) obj)
-            {
-                return HashCode.Combine(
-                    obj.ModuleScopeType,
-                    obj.ModuleScopeValue?.TryGetLiteralValue()?.ToLowerInvariant(),
-                    obj.PropertyNameValue.TryGetLiteralValue()?.ToLowerInvariant());
+                yield return new ResourceDefinition(resource.Name, resourceScopeData[resource], resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
             }
         }
     }

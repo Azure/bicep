@@ -746,6 +746,76 @@
     }
   },
   {
+    "label": "invalidDuplicateName1",
+    "kind": "interface",
+    "detail": "invalidDuplicateName1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDuplicateName1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDuplicateName1"
+    }
+  },
+  {
+    "label": "invalidDuplicateName2",
+    "kind": "interface",
+    "detail": "invalidDuplicateName2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDuplicateName2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDuplicateName2"
+    }
+  },
+  {
+    "label": "invalidDuplicateName3",
+    "kind": "interface",
+    "detail": "invalidDuplicateName3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDuplicateName3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDuplicateName3"
+    }
+  },
+  {
+    "label": "invalidExtensionResourceDuplicateName1",
+    "kind": "interface",
+    "detail": "invalidExtensionResourceDuplicateName1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidExtensionResourceDuplicateName1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidExtensionResourceDuplicateName1"
+    }
+  },
+  {
+    "label": "invalidExtensionResourceDuplicateName2",
+    "kind": "interface",
+    "detail": "invalidExtensionResourceDuplicateName2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidExtensionResourceDuplicateName2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidExtensionResourceDuplicateName2"
+    }
+  },
+  {
     "label": "invalidScope",
     "kind": "interface",
     "detail": "invalidScope",
@@ -1583,6 +1653,20 @@
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
+    }
+  },
+  {
+    "label": "validResourceForInvalidExtensionResourceDuplicateName",
+    "kind": "interface",
+    "detail": "validResourceForInvalidExtensionResourceDuplicateName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_validResourceForInvalidExtensionResourceDuplicateName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "validResourceForInvalidExtensionResourceDuplicateName"
     }
   }
 ]

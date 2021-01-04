@@ -456,3 +456,33 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
   name: 'invalidScope3'
   scope: subscription()
 }
+
+resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
+//@[9:30) Resource invalidDuplicateName1. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 103
+  name: 'invalidDuplicateName'
+}
+resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
+//@[9:30) Resource invalidDuplicateName2. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 103
+  name: 'invalidDuplicateName'
+}
+resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
+//@[9:30) Resource invalidDuplicateName3. Type: Mock.Rp/mockResource@2019-01-01. Declaration start char: 0, length: 103
+  name: 'invalidDuplicateName'
+}
+
+resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
+//@[9:62) Resource validResourceForInvalidExtensionResourceDuplicateName. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 168
+  name: 'validResourceForInvalidExtensionResourceDuplicateName'
+}
+
+resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
+//@[9:47) Resource invalidExtensionResourceDuplicateName1. Type: Mock.Rp/mockExtResource@2020-01-01. Declaration start char: 0, length: 204
+  name: 'invalidExtensionResourceDuplicateName'
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+}
+
+resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
+//@[9:47) Resource invalidExtensionResourceDuplicateName2. Type: Mock.Rp/mockExtResource@2019-01-01. Declaration start char: 0, length: 204
+  name: 'invalidExtensionResourceDuplicateName'
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+}

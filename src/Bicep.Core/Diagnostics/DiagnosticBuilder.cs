@@ -692,17 +692,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
-            public Diagnostic ResourceMultipleDeclarations(string resourceNames) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
+                TextSpan,                
                 "BCP120",
-                $"Resources: \"{resourceNames}\" are defined with this same name in a file. Rename them or split into different modules.");
+                $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
 
-            public Diagnostic ModuleMultipleDeclarations(string moduleNames) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
+            public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
+                TextSpan,                
                 "BCP121",
-                $"Modules: \"{moduleNames}\" are defined with this same name and this same scope in a file. Rename them or split into different modules.");
+                $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

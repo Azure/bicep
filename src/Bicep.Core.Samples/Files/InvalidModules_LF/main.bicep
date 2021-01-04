@@ -185,3 +185,12 @@ module moduleWithBadScope './empty.bicep' = {
   name: 'moduleWithBadScope'
   scope: 'stringScope'
 }
+
+module moduleWithDuplicateName1 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+  scope: resourceGroup()
+}
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+}

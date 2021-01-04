@@ -1089,4 +1089,63 @@ module moduleWithBadScope './empty.bicep' = {
 //@[22:23)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+module moduleWithDuplicateName1 './empty.bicep' = {
+//@[0:112) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:31)  IdentifierSyntax
+//@[7:31)   Identifier |moduleWithDuplicateName1|
+//@[32:47)  StringSyntax
+//@[32:47)   StringComplete |'./empty.bicep'|
+//@[48:49)  Assignment |=|
+//@[50:112)  ObjectSyntax
+//@[50:51)   LeftBrace |{|
+//@[51:52)   NewLine |\n|
+  name: 'moduleWithDuplicateName'
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    StringSyntax
+//@[8:33)     StringComplete |'moduleWithDuplicateName'|
+//@[33:34)   NewLine |\n|
+  scope: resourceGroup()
+//@[2:24)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:24)    FunctionCallSyntax
+//@[9:22)     IdentifierSyntax
+//@[9:22)      Identifier |resourceGroup|
+//@[22:23)     LeftParen |(|
+//@[23:24)     RightParen |)|
+//@[24:25)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+//@[0:87) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:31)  IdentifierSyntax
+//@[7:31)   Identifier |moduleWithDuplicateName2|
+//@[32:47)  StringSyntax
+//@[32:47)   StringComplete |'./empty.bicep'|
+//@[48:49)  Assignment |=|
+//@[50:87)  ObjectSyntax
+//@[50:51)   LeftBrace |{|
+//@[51:52)   NewLine |\n|
+  name: 'moduleWithDuplicateName'
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    StringSyntax
+//@[8:33)     StringComplete |'moduleWithDuplicateName'|
+//@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:2) NewLine |\n|
+
+//@[0:0) EndOfFile ||

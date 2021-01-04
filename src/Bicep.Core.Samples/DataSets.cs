@@ -48,7 +48,11 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidModules_LF => CreateDataSet();
 
-        public static DataSet InvalidDuplicateNames_LF => CreateDataSet();
+        public static DataSet InvalidModulesTenant_LF => CreateDataSet();
+
+        public static DataSet InvalidModulesManagementGroup_LF => CreateDataSet();
+
+        public static DataSet InvalidModulesSubscription_LF => CreateDataSet();
 
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)

@@ -376,3 +376,27 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
   name: 'invalidScope3'
   scope: subscription()
 }
+
+resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'invalidDuplicateName'
+}
+resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'invalidDuplicateName'
+}
+resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
+  name: 'invalidDuplicateName'
+}
+
+resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'validResourceForInvalidExtensionResourceDuplicateName'
+}
+
+resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
+  name: 'invalidExtensionResourceDuplicateName'
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+}
+
+resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
+  name: 'invalidExtensionResourceDuplicateName'
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+}
