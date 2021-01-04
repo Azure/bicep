@@ -60,8 +60,8 @@
         "description": "101/azurefirewall-create-with-zones"
     },
     {
-      "filepath": "101/create-managedidentity-rbac/main.bicep",
-      "description": "101/create-managedidentity-rbac"
+        "filePath": "101/create-managedidentity-rbac/main.bicep",
+        "description": "101/create-managedidentity-rbac"
     },
     {
         "filePath": "101/basic-publicip/main.bicep",
