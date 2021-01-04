@@ -40,10 +40,15 @@ jobs:
       - name: Build ARM Template from bicep file
         run: |
           bicep build ./main.bicep
+      
+      # Login to Azure
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Stop here if you only want to do "CI" which just generates the 
+      # build artifact (ARM Template JSON) 
 
       # Emit template what-if to show what template will do
       - name: Run what-if
@@ -51,7 +56,7 @@ jobs:
         with:
           inlineScript: |
             az account show
-            az deployment group what-if -f ./main.json -g my-rg
+            az deployment group what-if -f ./main.json -p ./parameters.json -g my-rg
 
       # You may want a human approval in between the what-if step 
       # and the deploy step to evaluate output before deployment

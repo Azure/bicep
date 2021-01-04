@@ -1,6 +1,6 @@
 # Contributing a Pull Request
 
-If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). Once you are done and ready to submit your PR, run through the relevant checklist below.
+If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). The guide may have changed since the last time you read it, so please double-check. Once you are done and ready to submit your PR, run through the relevant checklist below.
 
 ## Contributing to documentation
 
