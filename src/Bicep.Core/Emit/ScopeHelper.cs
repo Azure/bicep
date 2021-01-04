@@ -43,6 +43,11 @@ namespace Bicep.Core.Emit
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.SubscriptionScope, 
                                 SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
+                            return new ScopeData {
+                                RequestedScope = ResourceScopeType.ResourceGroupScope,
+                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
                     }
                     break;
                 case ResourceScopeType.ManagementGroupScope:
@@ -62,6 +67,11 @@ namespace Bicep.Core.Emit
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.SubscriptionScope, 
                                 SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
+                            return new ScopeData {
+                                RequestedScope = ResourceScopeType.ResourceGroupScope,
+                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
                     }
                     break;
                 case ResourceScopeType.SubscriptionScope:
