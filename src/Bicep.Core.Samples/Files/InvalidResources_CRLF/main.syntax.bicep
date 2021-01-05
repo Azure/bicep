@@ -228,22 +228,29 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[50:51)  Assignment |=|
 //@[52:83)  IfConditionSyntax
 //@[52:54)   Identifier |if|
-//@[55:83)   SkippedTriviaSyntax
+//@[55:83)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
-//@[56:57)    LeftBrace |{|
-//@[58:61)    StringComplete |'a'|
-//@[61:62)    Colon |:|
-//@[63:64)    Identifier |b|
-//@[65:66)    RightBrace |}|
-//@[66:67)    Dot |.|
-//@[67:68)    Identifier |a|
-//@[69:71)    Equals |==|
-//@[72:77)    StringComplete |'foo'|
-//@[77:78)    RightParen |)|
-//@[79:80)    LeftBrace |{|
-//@[80:82)    NewLine |\r\n|
+//@[56:83)    ObjectSyntax
+//@[56:57)     LeftBrace |{|
+//@[58:64)     ObjectPropertySyntax
+//@[58:61)      StringSyntax
+//@[58:61)       StringComplete |'a'|
+//@[61:62)      Colon |:|
+//@[63:64)      VariableAccessSyntax
+//@[63:64)       IdentifierSyntax
+//@[63:64)        Identifier |b|
+//@[65:82)     SkippedTriviaSyntax
+//@[65:66)      RightBrace |}|
+//@[66:67)      Dot |.|
+//@[67:68)      Identifier |a|
+//@[69:71)      Equals |==|
+//@[72:77)      StringComplete |'foo'|
+//@[77:78)      RightParen |)|
+//@[79:80)      LeftBrace |{|
+//@[80:82)      NewLine |\r\n|
 }
-//@[0:1)    RightBrace |}|
+//@[0:1)     RightBrace |}|
+//@[1:1)    SkippedTriviaSyntax
 //@[1:1)  SkippedTriviaSyntax
 //@[1:5) NewLine |\r\n\r\n|
 
@@ -273,8 +280,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
 //@[50:51)  Assignment |=|
 //@[52:56)  IfConditionSyntax
 //@[52:54)   Identifier |if|
-//@[55:56)   SkippedTriviaSyntax
+//@[55:56)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
+//@[56:56)    SkippedTriviaSyntax
+//@[56:56)    SkippedTriviaSyntax
 //@[56:56)  SkippedTriviaSyntax
 //@[56:60) NewLine |\r\n\r\n|
 
@@ -288,9 +297,11 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
 //@[50:51)  Assignment |=|
 //@[52:60)  IfConditionSyntax
 //@[52:54)   Identifier |if|
-//@[55:60)   SkippedTriviaSyntax
+//@[55:60)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
-//@[56:60)    TrueKeyword |true|
+//@[56:60)    BooleanLiteralSyntax
+//@[56:60)     TrueKeyword |true|
+//@[60:60)    SkippedTriviaSyntax
 //@[60:60)  SkippedTriviaSyntax
 //@[60:64) NewLine |\r\n\r\n|
 

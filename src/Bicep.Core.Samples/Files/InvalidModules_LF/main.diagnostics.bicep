@@ -70,7 +70,7 @@ module './main.bicep' = if
 
 module './main.bicep' = if (
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
-//@[28:28) [BCP018 (Error)] Expected the ")" character at this location. ||
+//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||
 
 module './main.bicep' = if (true
 //@[7:21) [BCP096 (Error)] Expected a module identifier at this location. |'./main.bicep'|
@@ -123,6 +123,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
+//@[51:52) [BCP019 (Error)] Expected a new line character at this location. |}|
 
 }
 //@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
