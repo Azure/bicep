@@ -71,8 +71,15 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 }
 
 // empty condition
+// #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
+  name: 'foo'
+}
+
+// #completionTest(57, 59) -> symbols
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 82
   name: 'foo'
 }
 

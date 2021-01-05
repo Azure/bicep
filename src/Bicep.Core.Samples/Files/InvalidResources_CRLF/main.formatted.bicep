@@ -46,7 +46,13 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 }
 
 // empty condition
+// #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+  name: 'foo'
+}
+
+// #completionTest(57, 59) -> symbols
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
   name: 'foo'
 }
 

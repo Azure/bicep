@@ -204,7 +204,8 @@ namespace Bicep.Core.Parsing
                 TokenType.LeftBrace,
                 TokenType.NewLine);
 
-            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.ConditionExpression is SkippedTriviaSyntax
+            RecoveryFlags suppressionFlag =
+                ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.HasParseErrors()
                 ? RecoveryFlags.SuppressDiagnostics
                 : GetSuppressionFlag(ifCondition ?? assignment);
 
@@ -239,7 +240,7 @@ namespace Bicep.Core.Parsing
                 TokenType.LeftBrace,
                 TokenType.NewLine);
 
-            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.ConditionExpression is SkippedTriviaSyntax
+            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.HasParseErrors()
                 ? RecoveryFlags.SuppressDiagnostics
                 : GetSuppressionFlag(ifCondition ?? assignment);
 
@@ -426,8 +427,8 @@ namespace Bicep.Core.Parsing
         private SyntaxBase ParenthesizedExpression(bool allowComplexLiterals)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expression = this.Expression(allowComplexLiterals);
-            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+            var expression = this.WithRecovery(() => this.Expression(allowComplexLiterals), RecoveryFlags.None, TokenType.RightParen, TokenType.NewLine);
+            var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(expression), TokenType.NewLine);
 
             return new ParenthesizedExpressionSyntax(openParen, expression, closeParen);
         }

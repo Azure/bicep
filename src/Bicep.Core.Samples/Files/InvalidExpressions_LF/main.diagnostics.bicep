@@ -359,6 +359,10 @@ var azFunctions = az.a
 var sysFunctions = sys.a
 //@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
 
+// #completionTest(33) -> sysFunctions
+var sysFunctionsInParens = (sys.a)
+//@[32:33) [BCP052 (Error)] The type "sys" does not contain property "a". |a|
+
 // missing method name
 var missingMethodName = az.()
 //@[27:27) [BCP020 (Error)] Expected a function or property name at this location. ||
@@ -375,6 +379,10 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 // empty parens - should produce expected expression diagnostic
 var emptyParens = ()
 //@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+
+// #completionTest(26) -> symbols
+var anotherEmptyParens = ()
+//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
 
 // keywords can't be called like functions
 var nullness = null()
