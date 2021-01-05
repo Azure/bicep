@@ -1124,6 +1124,34 @@
     }
   },
   {
+    "label": "magicString1",
+    "kind": "variable",
+    "detail": "magicString1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_magicString1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "magicString1"
+    }
+  },
+  {
+    "label": "magicString2",
+    "kind": "variable",
+    "detail": "magicString2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_magicString2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "magicString2"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -1502,6 +1530,468 @@
     }
   },
   {
+    "label": "runtimeInvalid",
+    "kind": "variable",
+    "detail": "runtimeInvalid",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalid",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalid"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes1",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes1"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes10",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes10",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes10",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes10"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes11",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes11",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes11",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes11"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes12",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes12",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes12",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes12"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes13",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes13",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes13",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes13"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes14",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes14",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes14",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes14"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes15",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes15",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes15",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes15"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes16",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes16",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes16",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes16"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes17",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes17",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes17",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes17"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes18",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes18",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes18",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes18"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes2",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes2"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes3",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes3"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes4",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes4"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes5",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes5"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes6",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes6",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes6",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes6"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes7",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes7",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes7",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes7"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes8",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes8",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes8",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes8"
+    }
+  },
+  {
+    "label": "runtimeInvalidRes9",
+    "kind": "interface",
+    "detail": "runtimeInvalidRes9",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeInvalidRes9",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeInvalidRes9"
+    }
+  },
+  {
+    "label": "runtimeValid",
+    "kind": "variable",
+    "detail": "runtimeValid",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValid",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValid"
+    }
+  },
+  {
+    "label": "runtimeValidRes1",
+    "kind": "interface",
+    "detail": "runtimeValidRes1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes1"
+    }
+  },
+  {
+    "label": "runtimeValidRes2",
+    "kind": "interface",
+    "detail": "runtimeValidRes2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes2"
+    }
+  },
+  {
+    "label": "runtimeValidRes3",
+    "kind": "interface",
+    "detail": "runtimeValidRes3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes3"
+    }
+  },
+  {
+    "label": "runtimeValidRes4",
+    "kind": "interface",
+    "detail": "runtimeValidRes4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes4"
+    }
+  },
+  {
+    "label": "runtimeValidRes5",
+    "kind": "interface",
+    "detail": "runtimeValidRes5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes5"
+    }
+  },
+  {
+    "label": "runtimeValidRes6",
+    "kind": "interface",
+    "detail": "runtimeValidRes6",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes6",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes6"
+    }
+  },
+  {
+    "label": "runtimeValidRes7",
+    "kind": "interface",
+    "detail": "runtimeValidRes7",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes7",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes7"
+    }
+  },
+  {
+    "label": "runtimeValidRes8",
+    "kind": "interface",
+    "detail": "runtimeValidRes8",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes8",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes8"
+    }
+  },
+  {
+    "label": "runtimeValidRes9",
+    "kind": "interface",
+    "detail": "runtimeValidRes9",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimeValidRes9",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimeValidRes9"
+    }
+  },
+  {
+    "label": "runtimefoo1",
+    "kind": "variable",
+    "detail": "runtimefoo1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo1"
+    }
+  },
+  {
+    "label": "runtimefoo2",
+    "kind": "variable",
+    "detail": "runtimefoo2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo2"
+    }
+  },
+  {
+    "label": "runtimefoo3",
+    "kind": "variable",
+    "detail": "runtimefoo3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo3"
+    }
+  },
+  {
+    "label": "runtimefoo4",
+    "kind": "variable",
+    "detail": "runtimefoo4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_runtimefoo4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "runtimefoo4"
+    }
+  },
+  {
     "label": "selfScope",
     "kind": "interface",
     "detail": "selfScope",
@@ -1835,6 +2325,20 @@
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
+    }
+  },
+  {
+    "label": "validModule",
+    "kind": "module",
+    "detail": "validModule",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_validModule",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "validModule"
     }
   }
 ]
