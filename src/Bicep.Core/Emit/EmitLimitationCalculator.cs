@@ -14,14 +14,15 @@ namespace Bicep.Core.Emit
 {
     public static class EmitLimitationCalculator
     {
-        public static EmitLimitationInfo Calculate(SemanticModel semanticModel)
+        public static EmitLimitationInfo Calculate(SemanticModel model)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            var moduleScopeData = GetSupportedScopeInfo(semanticModel, diagnosticWriter);
-            var resourceScopeData = GetResoureScopeInfo(semanticModel, diagnosticWriter);
+            var moduleScopeData = GetSupportedScopeInfo(model, diagnosticWriter);
+            var resourceScopeData = GetResoureScopeInfo(model, diagnosticWriter);
+            DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
-            diagnosticWriter.WriteMultiple(DetectDuplicateNames(semanticModel, resourceScopeData, moduleScopeData));
+            diagnosticWriter.WriteMultiple(DetectDuplicateNames(model, resourceScopeData, moduleScopeData));
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }

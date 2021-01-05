@@ -692,14 +692,24 @@ namespace Bicep.Core.Diagnostics
                 "BCP119",
                 $"Unsupported scope for extension resource deployment. Expected a resource reference.");
 
+            public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
+                var variableDependencyChainClause = variableDependencyChain != null ? 
+                 $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
+                
+                return new ErrorDiagnostic(
+                TextSpan,
+                "BCP120",
+                $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
+                );
+            }
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
                 TextSpan,                
-                "BCP120",
+                "BCP121",
                 $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
 
             public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
                 TextSpan,                
-                "BCP121",
+                "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
         }
 

@@ -92,7 +92,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[55:56) [BCP018 (Error)] Expected the "(" character at this location. |{|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // empty condition
@@ -100,7 +100,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // invalid condition type
@@ -108,7 +108,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[55:60) [BCP046 (Error)] Expected a value of type "bool". |(123)|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // runtime functions are no allowed in resource conditions
@@ -116,14 +116,14 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[57:66) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. |reference|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[57:65) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. |listKeys|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // duplicate property at the top level
@@ -148,7 +148,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
@@ -161,7 +161,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
@@ -174,7 +174,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
-//@[8:13) [BCP120 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   location: [
 //@[12:18) [BCP036 (Error)] The property "location" expected a value of type "string" but the provided value is of type "array". |[\r\n  ]|
   ]
@@ -214,7 +214,7 @@ output resrefout bool = bar.id
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   id: 2
 //@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. |id|
   type: 'hello'
@@ -225,7 +225,7 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     baz.id
 //@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |baz.id|
@@ -234,7 +234,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     'hello'
 //@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'hello'". |'hello'|
@@ -245,12 +245,12 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
 }
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     badDepends3
   ]
@@ -258,7 +258,7 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: badDepends3.dependsOn
 //@[25:34) [BCP077 (Error)] The property "dependsOn" on type "Microsoft.Foo/foos@2020-02-02-alpha" is write-only. Write-only properties cannot be accessed. |dependsOn|
 }
@@ -266,10 +266,197 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
   '${undefinedSymbol}': true
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
+}
+
+module validModule './module.bicep' = {
+  name: 'storageDeploy'
+  params: {
+    name: 'contoso'
+  }
+}
+
+resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+  name: 'name1'
+  location: 'eastus'
+  properties: {
+    evictionPolicy: 'Deallocate'
+  }
+}
+
+resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.name}_v1'
+}
+
+resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(validModule['name'], 'v1')
+}
+
+resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${validModule.name}_v1'
+}
+
+resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1.location
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+}
+
+resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['location']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
+}
+
+resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: runtimeValidRes1.properties.evictionPolicy
+//@[8:50) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties.evictionPolicy|
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['properties'].evictionPolicy
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties'].evictionPolicy|
+}
+
+resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1['properties']['evictionPolicy']
+//@[8:56) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['properties']['evictionPolicy']|
+}
+
+resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes1.properties['evictionPolicy']
+//@[8:53) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.properties['evictionPolicy']|
+}
+
+resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2.properties.azCliVersion
+//@[8:48) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2.properties.azCliVersion|
+}
+
+var magicString1 = 'location'
+resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString1}']
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString1}']|
+}
+
+// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
+var magicString2 = 'name'
+resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValidRes2['${magicString2}']
+//@[8:43) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['${magicString2}']|
+}
+
+resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes3.location}'
+//@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes3 are "apiVersion", "id", "name", "type". |runtimeValidRes3.location|
+}
+
+resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: validModule.params['name']
+//@[8:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params['name']|
+//@[20:26) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
+}
+
+resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+//@[15:40) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[42:70) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[72:117) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3['properties'].azCliVersion|
+//@[119:142) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule.params.name|
+//@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |params|
+}
+
+resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
+//@[11:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[39:67) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['location']|
+//@[70:115) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeInvalidRes3 are "apiVersion", "id", "name", "type". |runtimeInvalidRes3.properties['azCliVersion']|
+//@[118:144) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of validModule are "name". |validModule['params'].name|
+//@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. |'params'|
+}
+
+// variable related runtime validation
+var runtimefoo1 = runtimeValidRes1['location']
+var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
+var runtimefoo3 = runtimeValidRes2
+var runtimefoo4 = {
+  hop: runtimefoo2
+}
+
+var runtimeInvalid = {
+  foo1: runtimefoo1
+  foo2: runtimefoo2
+  foo3: runtimefoo3
+  foo4: runtimeValidRes1.name
+}
+
+var runtimeValid = {
+  foo1: runtimeValidRes1.name
+  foo2: runtimeValidRes1.apiVersion
+  foo3: runtimeValidRes2.type
+  foo4: runtimeValidRes2.id
+}
+
+resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo1
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
+}
+
+resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo2
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo2|
+}
+
+resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo3.properties.azCliVersion
+//@[8:51) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo3.properties.azCliVersion|
+}
+
+// Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
+resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeInvalid.foo4
+//@[8:27) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo4|
+}
+
+resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+//@[15:34) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeInvalid.foo1|
+//@[36:79) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimeValidRes2['properties'].azCliVersion|
+//@[84:109) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+//@[113:128) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Accessible properties of runtimeValidRes2 are "apiVersion", "id", "name", "type". |runtimefoo4.hop|
+}
+
+resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo1
+}
+
+resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo2
+}
+
+resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo3
+}
+
+resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+  name: runtimeValid.foo4
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
@@ -443,7 +630,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
     //createMode: 'Default'
@@ -461,7 +648,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[8:14) [BCP120 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
     createMode: 'Default'
@@ -516,15 +703,15 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
   name: 'invalidDuplicateName'
-//@[8:30) [BCP120 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
 }
 resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
   name: 'invalidDuplicateName'
-//@[8:30) [BCP120 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
 }
 resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
   name: 'invalidDuplicateName'
-//@[8:30) [BCP120 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
 }
 
 resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
@@ -533,12 +720,12 @@ resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockReso
 
 resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
   name: 'invalidExtensionResourceDuplicateName'
-//@[8:47) [BCP120 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
+//@[8:47) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }
 
 resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
   name: 'invalidExtensionResourceDuplicateName'
-//@[8:47) [BCP120 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
+//@[8:47) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }

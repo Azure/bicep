@@ -186,6 +186,43 @@ module moduleWithBadScope './empty.bicep' = {
   scope: 'stringScope'
 }
 
+resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'runtimeValidRes1Name'
+  location: 'westeurope'
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_GRS'
+  }
+}
+
+module runtimeValidModule1 'empty.bicep' = {
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+}
+
+module runtimeInvalidModule1 'empty.bicep' = {
+  name: runtimeValidRes1.location
+}
+
+module runtimeInvalidModule2 'empty.bicep' = {
+  name: runtimeValidRes1['location']
+}
+
+module runtimeInvalidModule3 'empty.bicep' = {
+  name: runtimeValidRes1.sku.name
+}
+
+module runtimeInvalidModule4 'empty.bicep' = {
+  name: runtimeValidRes1.sku['name']
+}
+
+module runtimeInvalidModule5 'empty.bicep' = {
+  name: runtimeValidRes1['sku']['name']
+}
+
+module runtimeInvalidModule6 'empty.bicep' = {
+  name: runtimeValidRes1['sku'].name
+}
+
 module moduleWithDuplicateName1 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
   scope: resourceGroup()

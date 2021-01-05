@@ -994,7 +994,7 @@ namespace Bicep.Core.TypeSystem
             return Enumerable.Empty<Diagnostic>();
         }
         
-        private static TypeSymbol UnwrapType(TypeSymbol baseType) =>
+        public static TypeSymbol UnwrapType(TypeSymbol baseType) =>
             baseType switch
             {
                 ResourceType resourceType =>
