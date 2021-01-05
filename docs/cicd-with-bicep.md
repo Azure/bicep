@@ -41,14 +41,14 @@ jobs:
         run: |
           bicep build ./main.bicep
       
+      # Stop here if you only want to do "CI" which just generates the 
+      # build artifact (ARM Template JSON)
+
       # Login to Azure
       - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # Stop here if you only want to do "CI" which just generates the 
-      # build artifact (ARM Template JSON) 
+          creds: ${{ secrets.AZURE_CREDENTIALS }} 
 
       # Emit template what-if to show what template will do
       - name: Run what-if
