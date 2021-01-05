@@ -1101,4 +1101,309 @@ module moduleWithBadScope './empty.bicep' = {
 //@[22:23)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[0:190) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |runtimeValidRes1|
+//@[26:72)  StringSyntax
+//@[26:72)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[73:74)  Assignment |=|
+//@[75:190)  ObjectSyntax
+//@[75:76)   LeftBrace |{|
+//@[76:77)   NewLine |\n|
+  name: 'runtimeValidRes1Name'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'runtimeValidRes1Name'|
+//@[30:31)   NewLine |\n|
+  location: 'westeurope'
+//@[2:24)   ObjectPropertySyntax
+//@[2:10)    IdentifierSyntax
+//@[2:10)     Identifier |location|
+//@[10:11)    Colon |:|
+//@[12:24)    StringSyntax
+//@[12:24)     StringComplete |'westeurope'|
+//@[24:25)   NewLine |\n|
+  kind: 'Storage'
+//@[2:17)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |kind|
+//@[6:7)    Colon |:|
+//@[8:17)    StringSyntax
+//@[8:17)     StringComplete |'Storage'|
+//@[17:18)   NewLine |\n|
+  sku: {
+//@[2:37)   ObjectPropertySyntax
+//@[2:5)    IdentifierSyntax
+//@[2:5)     Identifier |sku|
+//@[5:6)    Colon |:|
+//@[7:37)    ObjectSyntax
+//@[7:8)     LeftBrace |{|
+//@[8:9)     NewLine |\n|
+    name: 'Standard_GRS'
+//@[4:24)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:24)      StringSyntax
+//@[10:24)       StringComplete |'Standard_GRS'|
+//@[24:25)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeValidModule1 'empty.bicep' = {
+//@[0:136) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:26)  IdentifierSyntax
+//@[7:26)   Identifier |runtimeValidModule1|
+//@[27:40)  StringSyntax
+//@[27:40)   StringComplete |'empty.bicep'|
+//@[41:42)  Assignment |=|
+//@[43:136)  ObjectSyntax
+//@[43:44)   LeftBrace |{|
+//@[44:45)   NewLine |\n|
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+//@[2:89)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:89)    FunctionCallSyntax
+//@[8:14)     IdentifierSyntax
+//@[8:14)      Identifier |concat|
+//@[14:15)     LeftParen |(|
+//@[15:66)     FunctionArgumentSyntax
+//@[15:65)      FunctionCallSyntax
+//@[15:21)       IdentifierSyntax
+//@[15:21)        Identifier |concat|
+//@[21:22)       LeftParen |(|
+//@[22:42)       FunctionArgumentSyntax
+//@[22:41)        PropertyAccessSyntax
+//@[22:38)         VariableAccessSyntax
+//@[22:38)          IdentifierSyntax
+//@[22:38)           Identifier |runtimeValidRes1|
+//@[38:39)         Dot |.|
+//@[39:41)         IdentifierSyntax
+//@[39:41)          Identifier |id|
+//@[41:42)        Comma |,|
+//@[43:64)       FunctionArgumentSyntax
+//@[43:64)        PropertyAccessSyntax
+//@[43:59)         VariableAccessSyntax
+//@[43:59)          IdentifierSyntax
+//@[43:59)           Identifier |runtimeValidRes1|
+//@[59:60)         Dot |.|
+//@[60:64)         IdentifierSyntax
+//@[60:64)          Identifier |name|
+//@[64:65)       RightParen |)|
+//@[65:66)      Comma |,|
+//@[67:88)     FunctionArgumentSyntax
+//@[67:88)      PropertyAccessSyntax
+//@[67:83)       VariableAccessSyntax
+//@[67:83)        IdentifierSyntax
+//@[67:83)         Identifier |runtimeValidRes1|
+//@[83:84)       Dot |.|
+//@[84:88)       IdentifierSyntax
+//@[84:88)        Identifier |type|
+//@[88:89)     RightParen |)|
+//@[89:90)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule1 'empty.bicep' = {
+//@[0:82) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule1|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:82)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1.location
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    PropertyAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     Dot |.|
+//@[25:33)     IdentifierSyntax
+//@[25:33)      Identifier |location|
+//@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule2 'empty.bicep' = {
+//@[0:85) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule2|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:85)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1['location']
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    ArrayAccessSyntax
+//@[8:24)     VariableAccessSyntax
+//@[8:24)      IdentifierSyntax
+//@[8:24)       Identifier |runtimeValidRes1|
+//@[24:25)     LeftSquare |[|
+//@[25:35)     StringSyntax
+//@[25:35)      StringComplete |'location'|
+//@[35:36)     RightSquare |]|
+//@[36:37)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule3 'empty.bicep' = {
+//@[0:82) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule3|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:82)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1.sku.name
+//@[2:33)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:33)    PropertyAccessSyntax
+//@[8:28)     PropertyAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      Dot |.|
+//@[25:28)      IdentifierSyntax
+//@[25:28)       Identifier |sku|
+//@[28:29)     Dot |.|
+//@[29:33)     IdentifierSyntax
+//@[29:33)      Identifier |name|
+//@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule4 'empty.bicep' = {
+//@[0:85) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule4|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:85)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1.sku['name']
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    ArrayAccessSyntax
+//@[8:28)     PropertyAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      Dot |.|
+//@[25:28)      IdentifierSyntax
+//@[25:28)       Identifier |sku|
+//@[28:29)     LeftSquare |[|
+//@[29:35)     StringSyntax
+//@[29:35)      StringComplete |'name'|
+//@[35:36)     RightSquare |]|
+//@[36:37)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule5 'empty.bicep' = {
+//@[0:88) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule5|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:88)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1['sku']['name']
+//@[2:39)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:39)    ArrayAccessSyntax
+//@[8:31)     ArrayAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      LeftSquare |[|
+//@[25:30)      StringSyntax
+//@[25:30)       StringComplete |'sku'|
+//@[30:31)      RightSquare |]|
+//@[31:32)     LeftSquare |[|
+//@[32:38)     StringSyntax
+//@[32:38)      StringComplete |'name'|
+//@[38:39)     RightSquare |]|
+//@[39:40)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module runtimeInvalidModule6 'empty.bicep' = {
+//@[0:85) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:28)  IdentifierSyntax
+//@[7:28)   Identifier |runtimeInvalidModule6|
+//@[29:42)  StringSyntax
+//@[29:42)   StringComplete |'empty.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:85)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:47)   NewLine |\n|
+  name: runtimeValidRes1['sku'].name
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    PropertyAccessSyntax
+//@[8:31)     ArrayAccessSyntax
+//@[8:24)      VariableAccessSyntax
+//@[8:24)       IdentifierSyntax
+//@[8:24)        Identifier |runtimeValidRes1|
+//@[24:25)      LeftSquare |[|
+//@[25:30)      StringSyntax
+//@[25:30)       StringComplete |'sku'|
+//@[30:31)      RightSquare |]|
+//@[31:32)     Dot |.|
+//@[32:36)     IdentifierSyntax
+//@[32:36)      Identifier |name|
+//@[36:37)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

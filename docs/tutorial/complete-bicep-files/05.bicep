@@ -1,5 +1,7 @@
 targetScope = 'subscription'
 
+param deployStorage bool = true
+
 module stg './storage.bicep' = {
   name: 'storageDeploy'
   scope: resourceGroup('brittle-hollow') // this will target another resource group in the same subscription

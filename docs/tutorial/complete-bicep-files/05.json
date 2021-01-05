@@ -1,6 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deployStorage": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
   "functions": [],
   "variables": {
     "objectId": "cf024e4c-f790-45eb-a992-5218c39bde1a",
@@ -93,7 +99,7 @@
   "outputs": {
     "storageName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'stg'), '2019-10-01').outputs.computedStorageName.value]"
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'brittle-hollow'), 'Microsoft.Resources/deployments', 'storageDeploy'), '2019-10-01').outputs.computedStorageName.value]"
     }
   }
 }

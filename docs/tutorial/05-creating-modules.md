@@ -168,6 +168,33 @@ Since the `targetScope` has been changed, notice that the `$schema` property in 
 
 Modules are a powerful way to separate your bicep files into logical units and abstract away complex resource declarations.
 
+## Using if condition with bicep Modules
+
+Modules also support the `if` keyword to conditionally deploy the module. Let's add a new `param` called `deployStorage` and use it conditionally deploy the storage account module:
+
+```
+param deployStorage bool = true
+
+module stg './storage.bicep' = if (deployStorage) {
+  name: 'storageDeploy'
+}
+```
+
+In this example if the parameter of `deployStorage` is set to `false` then everything in the module will be skipped at deployment. If `deployStorage` is set to `true` then the module will be deployed.
+
+The linked ARM template produced by `bicep build` will add the `condition` property to the entire nested deployment resource, which is what represents the compiled module. It will look like the following:
+
+```
+ {
+      "condition": "[parameters('deployStorage')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      .....
+```
+
+Thus combining modules with the usage of the if() condition allows for customizing deployed components based on criteria and/or parameters.
+
+
 ## Next steps
 
 In the final tutorial, we will learn how to convert an arbitrary ARM template into a bicep file:

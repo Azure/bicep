@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
                 }
 
                 // update the cache if property can't be skipped for inlining
-                return propertyType.Flags.HasFlag(TypePropertyFlags.SkipInlining);
+                return propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant);
             }
 
             switch (model.GetSymbolInfo(variableAccessSyntax))
