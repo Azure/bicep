@@ -189,7 +189,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
-                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+                ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
         }
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScopeType resourceScope)

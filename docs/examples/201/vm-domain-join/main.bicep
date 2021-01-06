@@ -124,11 +124,8 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 }
 
 resource virtualMachineExtension 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-  name: '${dnsLabelPrefix}/joindomain'
+  name: '${virtualMachine.name}/joindomain'
   location: location
-  dependsOn: [
-    virtualMachine
-  ]
   properties: {
     publisher: 'Microsoft.Compute'
     type: 'JsonADDomainExtension'
