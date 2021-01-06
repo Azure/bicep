@@ -115,14 +115,8 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitManagementGroupScope(SyntaxBase managementGroupNameProperty)
-        {
-            var managementGroupName = converter.ConvertExpression(managementGroupNameProperty);
-            var managementGroupScope = ExpressionConverter.GetManagementGroupScopeExpression(managementGroupName);
-            var serialized = ExpressionSerializer.SerializeExpression(managementGroupScope);
-
-            writer.WriteValue(serialized);
-        }
+        public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
+            => converter.GenerateManagementGroupResourceId(managementGroupNameProperty, fullyQualified);
 
         public void EmitLanguageExpression(SyntaxBase syntax)
         {

@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.TenantScope:
                     switch (scopeType)
                     {
-                        case TenantScopeType tenantScopeType:
+                        case TenantScopeType:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.TenantScope };
                         case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 1:
@@ -53,7 +53,7 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.ManagementGroupScope:
                     switch (scopeType)
                     {
-                        case TenantScopeType tenantScopeType:
+                        case TenantScopeType:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.TenantScope };
                         case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 0:
@@ -77,7 +77,7 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.SubscriptionScope:
                     switch (scopeType)
                     {
-                        case TenantScopeType tenantScopeType:
+                        case TenantScopeType:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.TenantScope };
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 0:
@@ -96,7 +96,7 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.ResourceGroupScope:
                     switch (scopeType)
                     {
-                        case TenantScopeType tenantScopeType:
+                        case TenantScopeType:
                             return new ScopeData { 
                                 RequestedScope = ResourceScopeType.TenantScope };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 0:
@@ -128,7 +128,7 @@ namespace Bicep.Core.Emit
                     arguments.Add(new JTokenExpression(fullyQualifiedType));
                     arguments.AddRange(nameSegments);
 
-                    return new FunctionExpression("tenantResourceId", arguments.ToArray(), new LanguageExpression[0]);
+                    return new FunctionExpression("tenantResourceId", arguments.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScopeType.SubscriptionScope:
                     if (scopeData.SubscriptionIdProperty != null)
                     {
@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
                     arguments.Add(new JTokenExpression(fullyQualifiedType));
                     arguments.AddRange(nameSegments);
 
-                    return new FunctionExpression("subscriptionResourceId", arguments.ToArray(), new LanguageExpression[0]);
+                    return new FunctionExpression("subscriptionResourceId", arguments.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScopeType.ResourceGroupScope:
                     // We avoid using the 'resourceId' function at all here, because its behavior differs depending on the scope that it is called FROM.
                     LanguageExpression scope;
@@ -145,11 +145,11 @@ namespace Bicep.Core.Emit
                     {
                         if (scopeData.ResourceGroupProperty == null)
                         {
-                            scope = new FunctionExpression("resourceGroup", new LanguageExpression[0], new LanguageExpression[] { new JTokenExpression("id") });
+                            scope = new FunctionExpression("resourceGroup", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("id") });
                         }
                         else
                         {
-                            var subscriptionId = new FunctionExpression("subscription", new LanguageExpression[0], new LanguageExpression[] { new JTokenExpression("subscriptionId") });
+                            var subscriptionId = new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") });
                             var resourceGroup = expressionConverter.ConvertExpression(scopeData.ResourceGroupProperty);
                             scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
                         }
@@ -171,8 +171,7 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.ManagementGroupScope:
                     if (scopeData.ManagementGroupNameProperty != null)
                     {
-                        var managementGroupName = expressionConverter.ConvertExpression(scopeData.ManagementGroupNameProperty);
-                        var managementGroupScope = ExpressionConverter.GetManagementGroupScopeExpression(managementGroupName);
+                        var managementGroupScope = expressionConverter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
 
                         return ExpressionConverter.GenerateScopedResourceId(managementGroupScope, fullyQualifiedType, nameSegments);
                     }
@@ -193,13 +192,13 @@ namespace Bicep.Core.Emit
             {
                 case ResourceScopeType.TenantScope:
                     var tenantArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("tenantResourceId", tenantArgs.ToArray(), new LanguageExpression[0]);
+                    return new FunctionExpression("tenantResourceId", tenantArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScopeType.SubscriptionScope:
                     var subscriptionArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("subscriptionResourceId", subscriptionArgs.ToArray(), new LanguageExpression[0]);
+                    return new FunctionExpression("subscriptionResourceId", subscriptionArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScopeType.ResourceGroupScope:
                     var resourceGroupArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("resourceId", resourceGroupArgs.ToArray(), new LanguageExpression[0]);
+                    return new FunctionExpression("resourceId", resourceGroupArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScopeType.ManagementGroupScope:
                     // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
                     // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
@@ -213,7 +212,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void EmitModuleScopeProperties(ScopeData scopeData, ExpressionEmitter expressionEmitter)
+        public static void EmitModuleScopeProperties(ResourceScopeType targetScope, ScopeData scopeData, ExpressionEmitter expressionEmitter)
         {
             switch (scopeData.RequestedScope)
             {
@@ -223,7 +222,9 @@ namespace Bicep.Core.Emit
                 case ResourceScopeType.ManagementGroupScope:
                     if (scopeData.ManagementGroupNameProperty != null)
                     {
-                        expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitManagementGroupScope(scopeData.ManagementGroupNameProperty));
+                        // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant scope
+                        var useFullyQualifiedResourceId = targetScope != ResourceScopeType.TenantScope;
+                        expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, useFullyQualifiedResourceId));
                     }
                     return;
                 case ResourceScopeType.SubscriptionScope:

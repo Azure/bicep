@@ -292,7 +292,7 @@ namespace Bicep.Core.Emit
 
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(scopeData, emitter);
+            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter);
 
             if (scopeData.RequestedScope != ResourceScopeType.ResourceGroupScope)
             {
