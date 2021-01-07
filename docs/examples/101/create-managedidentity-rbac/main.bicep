@@ -8,7 +8,7 @@ resource msi 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
 }
 
 resource roleassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(roleDefinitionId, msi.properties.principalId, resourceGroup().id)
+  name: guid(roleDefinitionId, resourceGroup().id)
 
   properties: {
     principalType: 'ServicePrincipal'
