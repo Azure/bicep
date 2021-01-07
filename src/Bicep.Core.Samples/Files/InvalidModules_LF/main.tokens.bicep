@@ -923,4 +923,114 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[36:37) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(21) -> cwdCompletions
+//@[40:41) NewLine |\n|
+module completionA m 
+//@[0:6) Identifier |module|
+//@[7:18) Identifier |completionA|
+//@[19:20) Identifier |m|
+//@[21:23) NewLine |\n\n|
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionB m ''
+//@[0:6) Identifier |module|
+//@[7:18) Identifier |completionB|
+//@[19:20) Identifier |m|
+//@[21:23) StringComplete |''|
+//@[23:25) NewLine |\n\n|
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionC m '' =
+//@[0:6) Identifier |module|
+//@[7:18) Identifier |completionC|
+//@[19:20) Identifier |m|
+//@[21:23) StringComplete |''|
+//@[24:25) Assignment |=|
+//@[25:27) NewLine |\n\n|
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionD m '' = {}
+//@[0:6) Identifier |module|
+//@[7:18) Identifier |completionD|
+//@[19:20) Identifier |m|
+//@[21:23) StringComplete |''|
+//@[24:25) Assignment |=|
+//@[26:27) LeftBrace |{|
+//@[27:28) RightBrace |}|
+//@[28:30) NewLine |\n\n|
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionE m '' = {
+//@[0:6) Identifier |module|
+//@[7:18) Identifier |completionE|
+//@[19:20) Identifier |m|
+//@[21:23) StringComplete |''|
+//@[24:25) Assignment |=|
+//@[26:27) LeftBrace |{|
+//@[27:28) NewLine |\n|
+  name: 'hello'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) StringComplete |'hello'|
+//@[15:16) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+//@[63:64) NewLine |\n|
+module parentCompletionA m '../'
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |parentCompletionA|
+//@[25:26) Identifier |m|
+//@[27:32) StringComplete |'../'|
+//@[32:34) NewLine |\n\n|
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+//@[63:64) NewLine |\n|
+module parentCompletionB m '../' =
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |parentCompletionB|
+//@[25:26) Identifier |m|
+//@[27:32) StringComplete |'../'|
+//@[33:34) Assignment |=|
+//@[34:36) NewLine |\n\n|
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+//@[63:64) NewLine |\n|
+module parentCompletionC m '../' = {}
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |parentCompletionC|
+//@[25:26) Identifier |m|
+//@[27:32) StringComplete |'../'|
+//@[33:34) Assignment |=|
+//@[35:36) LeftBrace |{|
+//@[36:37) RightBrace |}|
+//@[37:39) NewLine |\n\n|
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+//@[63:64) NewLine |\n|
+module parentCompletionD m '../' = {
+//@[0:6) Identifier |module|
+//@[7:24) Identifier |parentCompletionD|
+//@[25:26) Identifier |m|
+//@[27:32) StringComplete |'../'|
+//@[33:34) Assignment |=|
+//@[35:36) LeftBrace |{|
+//@[36:37) NewLine |\n|
+  name: 'hello'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) StringComplete |'hello'|
+//@[15:16) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+
+//@[0:0) EndOfFile ||

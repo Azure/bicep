@@ -222,3 +222,37 @@ module runtimeInvalidModule5 'empty.bicep' = {
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
+
+// #completionTest(21) -> cwdCompletions
+module completionA m 
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionB m ''
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionC m '' =
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionD m '' = {}
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionE m '' = {
+  name: 'hello'
+}
+
+// #completionTest(21, 22, 23, 24) -> cwdCompletions
+module completionF m 'm'
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionA m '../'
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionB m '../' =
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionC m '../' = {}
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionD m '../' = {
+  name: 'hello'
+}

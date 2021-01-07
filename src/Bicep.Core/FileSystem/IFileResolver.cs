@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 
@@ -22,5 +23,12 @@ namespace Bicep.Core.FileSystem
         /// <param name="parentFileUri">The file URI of the parent.</param>
         /// <param name="childFilePath">The file path of the child.</param>
         Uri? TryResolveModulePath(Uri parentFileUri, string childFilePath);
+        
+        // Uri 
+        // IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern);
+        // IEnumerable<Uri> GetFiles(Uri fileUri, string pattern); 
+        // Uri GetParentDirectory(Uri fileUri);
+        // bool DirExists(Uri fileUri);
+        // bool FileExists(Uri fileUri);
     }
 }

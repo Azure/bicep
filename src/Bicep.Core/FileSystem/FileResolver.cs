@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.FileSystem
@@ -42,6 +44,57 @@ namespace Bicep.Core.FileSystem
             }
 
             return relativeUri;
+        }
+
+        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern="")
+        { 
+            if (!fileUri.IsFile) 
+            {
+                return Enumerable.Empty<Uri>();
+            }
+            try {
+                if (pattern == string.Empty)
+                {
+                    return Directory.GetDirectories(fileUri.LocalPath).Select(s => new Uri(s + "/"));
+                }
+                else {
+                    return Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
+                }    
+            }
+            catch (Exception)
+            {
+                return Enumerable.Empty<Uri>();
+            }
+        }
+
+        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
+        {
+            if (!fileUri.IsFile) 
+            {
+                return Enumerable.Empty<Uri>();
+            }
+            try {
+               return Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
+            }
+            catch (Exception)
+            {
+                return Enumerable.Empty<Uri>();
+            }
+        }
+
+        public bool DirExists(Uri fileUri)
+        {
+            return fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
+        }
+
+        public bool FileExists(Uri fileUri)
+        {
+            return fileUri.IsFile && File.Exists(fileUri.LocalPath);
+        }
+
+        public Uri GetParentDirectory(Uri uri)
+        {
+            return new Uri(uri.AbsoluteUri.Remove(uri.AbsoluteUri.Length - uri.Segments.Last().Length));
         }
     }
 }

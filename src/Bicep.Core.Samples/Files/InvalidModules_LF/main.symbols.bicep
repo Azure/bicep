@@ -276,3 +276,44 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[7:28) Module runtimeInvalidModule6. Type: module. Declaration start char: 0, length: 85
   name: runtimeValidRes1['sku'].name
 }
+
+// #completionTest(21) -> cwdCompletions
+module completionA m 
+//@[7:18) Module completionA. Type: error. Declaration start char: 0, length: 21
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionB m ''
+//@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 23
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionC m '' =
+//@[7:18) Module completionC. Type: error. Declaration start char: 0, length: 25
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionD m '' = {}
+//@[7:18) Module completionD. Type: error. Declaration start char: 0, length: 28
+
+// #completionTest(21, 22, 23) -> cwdCompletions
+module completionE m '' = {
+//@[7:18) Module completionE. Type: error. Declaration start char: 0, length: 27
+  name: 'hello'
+}
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionA m '../'
+//@[7:24) Module parentCompletionA. Type: error. Declaration start char: 0, length: 32
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionB m '../' =
+//@[7:24) Module parentCompletionB. Type: error. Declaration start char: 0, length: 34
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionC m '../' = {}
+//@[7:24) Module parentCompletionC. Type: error. Declaration start char: 0, length: 37
+
+// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
+module parentCompletionD m '../' = {
+//@[7:24) Module parentCompletionD. Type: error. Declaration start char: 0, length: 36
+  name: 'hello'
+}
+

@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -28,6 +28,8 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Container<string> PropertyCommitChars = new Container<string>(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
+
+        private static FileResolver FileResolver = new FileResolver();
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
@@ -52,7 +54,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
-                
+
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
@@ -110,7 +112,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetTargetScopeCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is {} targetScope
+            return context.Kind.HasFlag(BicepCompletionContextKind.TargetScope) && context.TargetScope is { } targetScope
                 ? GetValueCompletionsForType(model.GetDeclaredType(targetScope), context.ReplacementRange)
                 : Enumerable.Empty<CompletionItem>();
         }
@@ -172,44 +174,64 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) 
-            || Path.GetDirectoryName(model.SyntaxTree.FileUri.LocalPath) is not string cwd
-            || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
-            || declarationSyntax.Path is not StringSyntax stringSyntax
-            || stringSyntax.TryGetLiteralValue() is not string entered
-            || File.Exists(Path.Combine(cwd, entered)))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath)
+            || FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".")?.LocalPath is not string cwd
+            || new Uri(cwd) is not {} cwdUri
+            || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
-            
-            var query = new Uri(Path.Combine(cwd, entered));
-            var files = Enumerable.Empty<string>();
-            var dirs = Enumerable.Empty<string>();
+
+            // To provide intellisense before the quotes are typed
+            if (declarationSyntax.Path is not StringSyntax stringSyntax 
+            || stringSyntax.TryGetLiteralValue() is not string entered)
+            {
+                entered = "";
+            }
+
+            if (FileResolver.TryResolveModulePath(cwdUri, entered) is not {} query
+            || FileResolver.FileExists(query))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var files = Enumerable.Empty<Uri>();
+            var dirs = Enumerable.Empty<Uri>();
             var accesedDir = string.Empty;
-            if (Directory.Exists(query.LocalPath))
+            if (FileResolver.DirExists(query))
             {
                 accesedDir = entered;
-                files = Directory.GetFiles(query.LocalPath, "*.bicep");
-                dirs  = Directory.GetDirectories(query.LocalPath);
+                files = FileResolver.GetFiles(query, "*.bicep");
+                dirs = FileResolver.GetDirectories(query);
             }
-            else 
+            else if (FileResolver.GetParentDirectory(query) is var parentDir
+                    && FileResolver.DirExists(parentDir))
             {
-                var parentDir = Path.GetDirectoryName(query.LocalPath)!;
-                if (Directory.Exists(parentDir))
-                {
-                   accesedDir = entered.Remove(entered.Length - query.Segments[^1].Length);
-                   files = Directory.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
-                   dirs = Directory.GetDirectories(parentDir, $"{query.Segments[^1]}*");
-                }
+                accesedDir = entered.Remove(entered.Length - query.Segments[^1].Length);
+                files = FileResolver.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
+                dirs = FileResolver.GetDirectories(parentDir, $"{query.Segments[^1]}*");
             }
+            // "./" cannot be preserved when making relative Uris. We have to go and manually it.
             var fileItems = files
-                .Where(f => f != model.SyntaxTree.FileUri.LocalPath)
-                .Select(path => new DirectoryInfo(path).Name)
-                .Select(name => CreateModulePathCompletion(name, Path.Combine(accesedDir, name), context.ReplacementRange, CompletionItemKind.File, CompletionPriority.High)).ToList();
-            var dirItems = dirs
-                .Select(path => new DirectoryInfo(path).Name + "/")
-                .Select(name => CreateModulePathCompletion(name, Path.Combine(accesedDir, name), context.ReplacementRange, CompletionItemKind.Folder, CompletionPriority.Medium)).ToList();
+                .Select(file => CreateModulePathCompletion(
+                    file.Segments.Last(), 
+                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(), 
+                    context.ReplacementRange, 
+                    CompletionItemKind.File, 
+                    CompletionPriority.High,
+                    false))
+                    .ToList();
 
+            // don't do completion range manipulation if we have to autocomplete entire path (module m <autocomplete>)
+            var dirItems = dirs
+                .Select(dir => CreateModulePathCompletion(
+                    dir.Segments.Last(), 
+                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
+                    context.ReplacementRange, 
+                    CompletionItemKind.Folder, 
+                    CompletionPriority.Medium,
+                    declarationSyntax.Path is StringSyntax))
+                    .ToList();
             return fileItems.Concat(dirItems);
         }
 
@@ -237,7 +259,7 @@ namespace Bicep.LanguageServer.Completions
             // maps insert text to the completion item
             var completions = new Dictionary<string, CompletionItem>();
 
-            var enclosingDeclarationSymbol = context.EnclosingDeclaration == null 
+            var enclosingDeclarationSymbol = context.EnclosingDeclaration == null
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
 
@@ -392,7 +414,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Property);
-            if(declaredTypeAssignment == null)
+            if (declaredTypeAssignment == null)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -423,7 +445,7 @@ namespace Bicep.LanguageServer.Completions
                 case PrimitiveType _ when ReferenceEquals(propertyType, LanguageConstants.Bool):
                     yield return CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, replacementRange, preselect: true, CompletionPriority.High);
                     yield return CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, replacementRange, preselect: true, CompletionPriority.High);
-                    
+
                     break;
 
                 case StringLiteralType stringLiteral:
@@ -444,7 +466,7 @@ namespace Bicep.LanguageServer.Completions
                         .WithDetail(arrayLabel)
                         .Preselect()
                         .WithSortText(GetSortText(arrayLabel, CompletionPriority.High));
-                    
+
                     break;
 
                 case DiscriminatedObjectType _:
@@ -554,13 +576,17 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(index.ToString("x8"));
         }
 
-        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
+        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority, bool adjustCursor)
         {
             // replace windows type path sep (\\<file>) with unix path sep (/file)
             path = StringUtils.EscapeBicepString(path.Replace(@"\\", @"/"));
-            // we do this to stay within the string ('bleh|' instead of 'bleh'|)
-            path = path.Remove(path.Length - 1);
-            replacementRange = new Range(replacementRange.Start, replacementRange.End.Delta(deltaCharacter: -1));
+
+            // keep the curson within the string ('completion|' instead of 'completion'|) for folders. Not required for files.
+            if (completionItemKind.Equals(CompletionItemKind.Folder) && adjustCursor)
+            {
+                path = path.Remove(path.Length - 1);
+                replacementRange = new Range(replacementRange.Start, replacementRange.End.Delta(deltaCharacter: -1));
+            }
 
             return CompletionItemBuilder.Create(completionItemKind)
                 .WithLabel(name)
