@@ -473,6 +473,9 @@ namespace Bicep.Core.Parsing
         /// <param name="allowComplexLiterals"></param>
         private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(bool allowComplexLiterals)
         {
+            SkippedTriviaSyntax CreateDummyArgument(Token current) => 
+                new SkippedTriviaSyntax(current.ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(current.ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable());
+
             if (this.Check(TokenType.RightParen))
             {
                 return ImmutableArray<FunctionArgumentSyntax>.Empty;
@@ -482,29 +485,94 @@ namespace Bicep.Core.Parsing
 
             while (true)
             {
-                var expression = this.Expression(allowComplexLiterals);
-                arguments.Add((expression, null));
-
-                if (this.Check(TokenType.RightParen))
+                var current = this.reader.Peek();
+                switch (current.Type)
                 {
-                    // end of function call
-                    // return the accumulated arguments without consuming right paren a caller must consume it
-                    var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
-                    foreach (var argument in arguments)
-                    {
-                        functionArguments.Add(
-                            new FunctionArgumentSyntax(argument.expression, argument.comma));
-                    }
-                    return functionArguments.ToImmutableArray();
+                    case TokenType.Comma:
+                        this.reader.Read();
+                        if (arguments.Any() && arguments[^1].comma == null)
+                        {
+                            // we have consumed an expression which is expecting a comma
+                            // add the comma to the expression (it's a value type)
+                            var lastArgument = arguments[^1];
+                            lastArgument.comma = current;
+                            arguments[^1] = lastArgument;
+                        }
+                        else
+                        {
+                            // there aren't any arguments or the expression already has a comma following it
+                            // add an empty expression with the comma
+                            arguments.Add((CreateDummyArgument(current), current));
+                        }
+
+                        break;
+
+                    case TokenType.RightParen:
+                        // end of function call
+
+                        if (arguments.Any() && arguments.Last().comma != null)
+                        {
+                            // we have a trailing comma without an argument
+                            // we need to allow it so signature help doesn't get interrupted
+                            // by the user typing a comma without specifying a function argument
+                            
+                            // insert a dummy argument
+                            arguments.Add((CreateDummyArgument(current), null));
+                        }
+
+                        // return the accumulated arguments without consuming the right paren (the caller must consume it)
+                        var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
+                        foreach (var (argumentExpression, comma) in arguments)
+                        {
+                            functionArguments.Add(new FunctionArgumentSyntax(argumentExpression, comma));
+                        }
+                        return functionArguments.ToImmutableArray();
+
+                    default:
+                        // not a comma or )
+                        // it should be an expression
+                        if (arguments.Any() && arguments[^1].comma == null)
+                        {
+                            // we are expecting a comma after the previous expression
+                            throw new ExpectedTokenException(current, b => b.ExpectedCharacter(","));
+                        }
+
+                        var expression = this.Expression(allowComplexLiterals);
+                        arguments.Add((expression, null));
+
+                        break;
                 }
-
-                var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
-
-                // update the tuple
-                var lastArgument = arguments.Last();
-                lastArgument.comma = comma;
-                arguments[arguments.Count - 1] = lastArgument;
             }
+
+            
+
+            //while (true)
+            //{
+            //    var expression = this.Check(TokenType.Comma)
+            //        ? new SkippedTriviaSyntax(reader.Peek().ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(reader.Peek().ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable())
+            //        : this.Expression(allowComplexLiterals);
+
+            //    arguments.Add((expression, null));
+
+            //    if (this.Check(TokenType.RightParen))
+            //    {
+            //        // end of function call
+            //        // return the accumulated arguments without consuming right paren a caller must consume it
+            //        var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
+            //        foreach (var argument in arguments)
+            //        {
+            //            functionArguments.Add(new FunctionArgumentSyntax(argument.expression, argument.comma));
+            //        }
+            //        return functionArguments.ToImmutableArray();
+            //    }
+
+            //    var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
+
+            //    // update the tuple
+            //    var lastArgument = arguments.Last();
+            //    lastArgument.comma = comma;
+            //    arguments[arguments.Count - 1] = lastArgument;
+            //}
         }
 
         private ImmutableArray<Token> NewLines()

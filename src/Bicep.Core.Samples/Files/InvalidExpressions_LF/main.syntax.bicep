@@ -1260,6 +1260,135 @@ var takeTooMany = take([
 //@[9:10)   RightParen |)|
 //@[10:12) NewLine |\n\n|
 
+// missing arguments
+//@[20:21) NewLine |\n|
+var trailingArgumentComma = format('s',)
+//@[0:40) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:25)  IdentifierSyntax
+//@[4:25)   Identifier |trailingArgumentComma|
+//@[26:27)  Assignment |=|
+//@[28:40)  FunctionCallSyntax
+//@[28:34)   IdentifierSyntax
+//@[28:34)    Identifier |format|
+//@[34:35)   LeftParen |(|
+//@[35:39)   FunctionArgumentSyntax
+//@[35:38)    StringSyntax
+//@[35:38)     StringComplete |'s'|
+//@[38:39)    Comma |,|
+//@[39:39)   FunctionArgumentSyntax
+//@[39:39)    SkippedTriviaSyntax
+//@[39:40)   RightParen |)|
+//@[40:41) NewLine |\n|
+var onlyArgumentComma = concat(,)
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |onlyArgumentComma|
+//@[22:23)  Assignment |=|
+//@[24:33)  FunctionCallSyntax
+//@[24:30)   IdentifierSyntax
+//@[24:30)    Identifier |concat|
+//@[30:31)   LeftParen |(|
+//@[31:32)   FunctionArgumentSyntax
+//@[31:31)    SkippedTriviaSyntax
+//@[31:32)    Comma |,|
+//@[32:32)   FunctionArgumentSyntax
+//@[32:32)    SkippedTriviaSyntax
+//@[32:33)   RightParen |)|
+//@[33:34) NewLine |\n|
+var multipleArgumentCommas = concat(,,,,,)
+//@[0:42) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:26)  IdentifierSyntax
+//@[4:26)   Identifier |multipleArgumentCommas|
+//@[27:28)  Assignment |=|
+//@[29:42)  FunctionCallSyntax
+//@[29:35)   IdentifierSyntax
+//@[29:35)    Identifier |concat|
+//@[35:36)   LeftParen |(|
+//@[36:37)   FunctionArgumentSyntax
+//@[36:36)    SkippedTriviaSyntax
+//@[36:37)    Comma |,|
+//@[37:38)   FunctionArgumentSyntax
+//@[37:37)    SkippedTriviaSyntax
+//@[37:38)    Comma |,|
+//@[38:39)   FunctionArgumentSyntax
+//@[38:38)    SkippedTriviaSyntax
+//@[38:39)    Comma |,|
+//@[39:40)   FunctionArgumentSyntax
+//@[39:39)    SkippedTriviaSyntax
+//@[39:40)    Comma |,|
+//@[40:41)   FunctionArgumentSyntax
+//@[40:40)    SkippedTriviaSyntax
+//@[40:41)    Comma |,|
+//@[41:41)   FunctionArgumentSyntax
+//@[41:41)    SkippedTriviaSyntax
+//@[41:42)   RightParen |)|
+//@[42:43) NewLine |\n|
+var emptyArgInBetween = concat(true,,false)
+//@[0:43) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |emptyArgInBetween|
+//@[22:23)  Assignment |=|
+//@[24:43)  FunctionCallSyntax
+//@[24:30)   IdentifierSyntax
+//@[24:30)    Identifier |concat|
+//@[30:31)   LeftParen |(|
+//@[31:36)   FunctionArgumentSyntax
+//@[31:35)    BooleanLiteralSyntax
+//@[31:35)     TrueKeyword |true|
+//@[35:36)    Comma |,|
+//@[36:37)   FunctionArgumentSyntax
+//@[36:36)    SkippedTriviaSyntax
+//@[36:37)    Comma |,|
+//@[37:42)   FunctionArgumentSyntax
+//@[37:42)    BooleanLiteralSyntax
+//@[37:42)     FalseKeyword |false|
+//@[42:43)   RightParen |)|
+//@[43:44) NewLine |\n|
+var leadingEmptyArg = concat(,[])
+//@[0:33) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |leadingEmptyArg|
+//@[20:21)  Assignment |=|
+//@[22:33)  FunctionCallSyntax
+//@[22:28)   IdentifierSyntax
+//@[22:28)    Identifier |concat|
+//@[28:29)   LeftParen |(|
+//@[29:30)   FunctionArgumentSyntax
+//@[29:29)    SkippedTriviaSyntax
+//@[29:30)    Comma |,|
+//@[30:32)   FunctionArgumentSyntax
+//@[30:32)    ArraySyntax
+//@[30:31)     LeftSquare |[|
+//@[31:32)     RightSquare |]|
+//@[32:33)   RightParen |)|
+//@[33:34) NewLine |\n|
+var leadingAndTrailingEmptyArg = concat(,'s',)
+//@[0:46) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:30)  IdentifierSyntax
+//@[4:30)   Identifier |leadingAndTrailingEmptyArg|
+//@[31:32)  Assignment |=|
+//@[33:46)  FunctionCallSyntax
+//@[33:39)   IdentifierSyntax
+//@[33:39)    Identifier |concat|
+//@[39:40)   LeftParen |(|
+//@[40:41)   FunctionArgumentSyntax
+//@[40:40)    SkippedTriviaSyntax
+//@[40:41)    Comma |,|
+//@[41:45)   FunctionArgumentSyntax
+//@[41:44)    StringSyntax
+//@[41:44)     StringComplete |'s'|
+//@[44:45)    Comma |,|
+//@[45:45)   FunctionArgumentSyntax
+//@[45:45)    SkippedTriviaSyntax
+//@[45:46)   RightParen |)|
+//@[46:48) NewLine |\n\n|
+
 // wrong argument types
 //@[23:24) NewLine |\n|
 var concatWrongTypes = concat({

@@ -23,8 +23,8 @@ namespace Bicep.Core.Semantics
         
         public string Description { get; }
 
-        public string GetName(int index) => $"{this.NamePrefix}{index}";
+        public string GetNamedSignature(int index) => $"{this.NamePrefix}{index} : {this.Type}";
 
-        public string Signature => $"... : {this.Type}";
+        public string GenericSignature => $"... : {this.Type}";
     }
 }
