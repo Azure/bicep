@@ -56,6 +56,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_Solution
 		SetBaseline.ps1 = SetBaseline.ps1
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{895557F9-3D8B-4752-878A-5F0AAF2E405C}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\bcode.ps1 = scripts\bcode.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
