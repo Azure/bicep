@@ -189,6 +189,9 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 var sysFunctions = sys.a
 
+// #completionTest(33) -> sysFunctions
+var sysFunctionsInParens = (sys.a)
+
 // missing method name
 var missingMethodName = az.()
 
@@ -198,6 +201,9 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 
 // empty parens - should produce expected expression diagnostic
 var emptyParens = ()
+
+// #completionTest(26) -> symbols
+var anotherEmptyParens = ()
 
 // keywords can't be called like functions
 var nullness = null ()

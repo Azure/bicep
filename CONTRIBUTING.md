@@ -77,7 +77,7 @@ If you'd like to start contributing to Bicep, you can search for issues tagged a
 * Ensure that an issue has been created to track the feature enhancement or bug that is being fixed.
 * In the PR description, make sure you've included "Fixes #{issue_number}" e.g. "Fixes #242" so that GitHub knows to link it to an issue.
 * To avoid multiple contributors working on the same issue, please add a comment to the issue to let us know you plan to work on it.
-* If a significant amount of design is required, please include a proposal in the issue and wait for approval before working on code. If there's anything you're not sure about, please feel free to discuss this in the issue. We'd much rather all be on the same page at the start, so that there's less chance that drastic changes will be needed when your pull request is reveiwed.
+* If a significant amount of design is required, please include a proposal in the issue and wait for approval before working on code. If there's anything you're not sure about, please feel free to discuss this in the issue. We'd much rather all be on the same page at the start, so that there's less chance that drastic changes will be needed when your pull request is reviewed.
 * We report on code coverage; please ensure any new code you add is sufficiently covered by tests.
 
 ### Example Files
@@ -94,6 +94,9 @@ If you'd like to contribute example `.bicep` files that showcase abilities of th
   1. All `.bicep` files have been formatted with the default Bicep auto-formatter.
   
   See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR, and [Updating test baselines](#updating-test-baselines) for information on how to automatically update your example `.json` and `.bicep` files to match the format expected by the tests.
+* If you have any test failures that are the result of compiler warnings, you may need to do either of the following:
+  1. If a resource type or api version is missing, you will get a type warning. To pass the test, you will need to add that type to the list of missing types in [ExampleTests.cs](https://github.com/Azure/bicep/blob/main/src/Bicep.Core.Samples/ExamplesTests.cs#L95).
+  1. If you have a false positive error or warning for a known resource type -- for example, if a property is missing an enum value -- you will need to suppress the warning using the `any()` function. You can read more about the any() function [here](./docs/the-any-function.md).
 * While everything will *not necessarily be applicable*, read through the Azure QuickStart Templates [Best Practices Guide](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#best-practices) and follow it where appropriate (i.e. [parameter guidance](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#parameters), [resource property order](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#sort-order-of-properties), etc.)
 
 **Note:** If you have never submitted a Pull Request or used git before, reading through the [Git tutorial](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/git-tutorial.md) in the azure-quickstart-template repo is a good place to start.

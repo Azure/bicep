@@ -6,10 +6,15 @@ namespace Bicep.Core.Syntax
 {
     public class ParenthesizedExpressionSyntax : ExpressionSyntax
     {
-        public ParenthesizedExpressionSyntax(Token openParen, SyntaxBase expression, Token closeParen)
+        public ParenthesizedExpressionSyntax(Token openParen, SyntaxBase expression, SyntaxBase closeParen)
         {
             AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
-            AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertSyntaxType(closeParen, nameof(closeParen), typeof(Token), typeof(SkippedTriviaSyntax));
+
+            if (closeParen is Token closeParenToken)
+            {
+                AssertTokenType(closeParenToken, nameof(closeParen), TokenType.RightParen);
+            }
 
             this.OpenParen = openParen;
             this.Expression = expression;
@@ -20,8 +25,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Expression { get; }
 
-        public Token CloseParen { get; }
-
+        public SyntaxBase CloseParen { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitParenthesizedExpressionSyntax(this);
 

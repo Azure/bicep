@@ -67,6 +67,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[63:64) [BCP057 (Error)] The name "b" does not exist in the current context. |b|
+//@[65:66) [BCP019 (Error)] Expected a new line character at this location. |}|
 }
 //@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
 
@@ -96,11 +98,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 }
 
 // empty condition
+// #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
   name: 'foo'
 //@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
+}
+
+// #completionTest(57, 59) -> symbols
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+//@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
+//@[61:62) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
+  name: 'foo'
 }
 
 // invalid condition type
