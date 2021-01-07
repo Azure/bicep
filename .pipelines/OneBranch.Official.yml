@@ -50,6 +50,8 @@ extends:
     globalSdl: # https://aka.ms/obpipelines/sdl
       # tsa:
       #  enabled: false # onebranch publish all sdl results to TSA. If TSA is disabled all SDL tools will forced into 'break' build mode.
+      cg:
+        failOnAlert: false # disable build breaks due to CG alerts
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
       policheck:
