@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
 
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             
-            var functionCall = GetActiveFunctionCall(context.ProgramSyntax, offset, out var arguments);
+            var functionCall = GetActiveFunctionCall(context.ProgramSyntax, offset);
             if (functionCall == null)
             {
                 return NoHelp();
@@ -63,15 +63,15 @@ namespace Bicep.LanguageServer.Handlers
 
             // suppress ErrorType in arguments because the code is being written
             // this prevents function signature mismatches due to errors
-            var normalizedArgumentTypes = NormalizeArgumentTypes(arguments, semanticModel);
+            var normalizedArgumentTypes = NormalizeArgumentTypes(functionCall.Arguments, semanticModel);
 
-            var signatureHelp = CreateSignatureHelp(arguments, normalizedArgumentTypes, functionSymbol, offset);
+            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset);
             TryReuseActiveSignature(request.Context, signatureHelp);
 
             return Task.FromResult<SignatureHelp?>(signatureHelp);
         }
 
-        private static SyntaxBase? GetActiveFunctionCall(ProgramSyntax syntax, int offset, out ImmutableArray<FunctionArgumentSyntax> arguments)
+        private static FunctionCallSyntaxBase? GetActiveFunctionCall(ProgramSyntax syntax, int offset)
         {
             // if the cursor is placed after the closing paren of a function, it needs to count as outside of that function call
             // for purposes of signature help (otherwise we'll show the wrong function when function calls are nested)
@@ -80,24 +80,9 @@ namespace Bicep.LanguageServer.Handlers
             var index = matchingNodes
                 .FindLastIndex(
                     matchingNodes.Count - 1,
-                    current => current is FunctionCallSyntax functionCall && TextSpan.BetweenExclusive(functionCall.OpenParen.Span, functionCall.CloseParen).ContainsInclusive(offset) ||
-                               current is InstanceFunctionCallSyntax instanceFunctionCall && TextSpan.BetweenExclusive(instanceFunctionCall.OpenParen.Span, instanceFunctionCall.CloseParen.Span).ContainsInclusive(offset));
+                    current => current is FunctionCallSyntaxBase functionCall && TextSpan.BetweenExclusive(functionCall.OpenParen.Span, functionCall.CloseParen).ContainsInclusive(offset));
 
-            var activeFunctionCall = index < 0 ? null : matchingNodes[index];
-            switch (activeFunctionCall)
-            {
-                case FunctionCallSyntax functionCall:
-                    arguments = functionCall.Arguments;
-                    return functionCall;
-
-                case InstanceFunctionCallSyntax instanceFunctionCall:
-                    arguments = instanceFunctionCall.Arguments;
-                    return instanceFunctionCall;
-
-                default:
-                    arguments = ImmutableArray<FunctionArgumentSyntax>.Empty;
-                    return null;
-            }
+            return index < 0 ? null : (FunctionCallSyntaxBase)matchingNodes[index];
         }
 
         private static void TryReuseActiveSignature(SignatureHelpContext? context, SignatureHelp signatureHelp)
