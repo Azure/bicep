@@ -65,6 +65,8 @@ az deployment group create -f ./main.json -g my-rg
 * Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
 * Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
 
+For more detail on taking advantage of new bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
+
 ## Known limitations
 
 * No support for the `copy` property ([#185](https://github.com/Azure/bicep/issues/185)).
@@ -103,6 +105,11 @@ Note that while we want to make it easy to transition to Bicep, we will continue
 * [Complete language spec](./docs/spec/bicep.md)
 * [@BicepLang](https://twitter.com/BicepLang)
 * [ARM Template Reference](https://docs.microsoft.com/azure/templates/)
+
+## Community Bicep projects
+
+* [Bicep GitHub Action](https://github.com/marketplace/actions/bicep-build)
+* [Bicep Language Service support in Neovim](https://github.com/Azure/bicep/issues/1141#issuecomment-749372637)
 
 ## Alternatives
 

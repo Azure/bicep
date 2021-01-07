@@ -71,8 +71,15 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 }
 
 // empty condition
+// #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
+  name: 'foo'
+}
+
+// #completionTest(57, 59) -> symbols
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+//@[9:12) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 82
   name: 'foo'
 }
 
@@ -212,6 +219,199 @@ resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
   '${undefinedSymbol}': true
+}
+
+module validModule './module.bicep' = {
+//@[7:18) Module validModule. Type: module. Declaration start char: 0, length: 106
+  name: 'storageDeploy'
+  params: {
+    name: 'contoso'
+  }
+}
+
+resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[9:25) Resource runtimeValidRes1. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 174
+  name: 'name1'
+  location: 'eastus'
+  properties: {
+    evictionPolicy: 'Deallocate'
+  }
+}
+
+resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:25) Resource runtimeValidRes2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 329
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes3. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
+  name: '${runtimeValidRes1.name}_v1'
+}
+
+resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
+  name: concat(validModule['name'], 'v1')
+}
+
+resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 126
+  name: '${validModule.name}_v1'
+}
+
+resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes1. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 129
+  name: runtimeValidRes1.location
+}
+
+resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes2. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 132
+  name: runtimeValidRes1['location']
+}
+
+resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:27) Resource runtimeInvalidRes3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 292
+  name: runtimeValidRes1.properties.evictionPolicy
+  kind:'AzureCLI'
+  location: 'eastus'
+  properties: {
+    azCliVersion: '2.0'
+    retentionInterval: runtimeValidRes1.properties.evictionPolicy
+  }
+}
+
+resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
+  name: runtimeValidRes1['properties'].evictionPolicy
+}
+
+resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 152
+  name: runtimeValidRes1['properties']['evictionPolicy']
+}
+
+resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
+  name: runtimeValidRes1.properties['evictionPolicy']
+}
+
+resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes7. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 144
+  name: runtimeValidRes2.properties.azCliVersion
+}
+
+var magicString1 = 'location'
+//@[4:16) Variable magicString1. Type: 'location'. Declaration start char: 0, length: 29
+resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes8. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
+  name: runtimeValidRes2['${magicString1}']
+}
+
+// note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
+var magicString2 = 'name'
+//@[4:16) Variable magicString2. Type: 'name'. Declaration start char: 0, length: 25
+resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:27) Resource runtimeInvalidRes9. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
+  name: runtimeValidRes2['${magicString2}']
+}
+
+resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
+  name: '${runtimeValidRes3.location}'
+}
+
+resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes11. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
+  name: validModule.params['name']
+}
+
+resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes12. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 240
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+}
+
+resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes13. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 243
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
+}
+
+// variable related runtime validation
+var runtimefoo1 = runtimeValidRes1['location']
+//@[4:15) Variable runtimefoo1. Type: string. Declaration start char: 0, length: 46
+var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
+//@[4:15) Variable runtimefoo2. Type: any. Declaration start char: 0, length: 61
+var runtimefoo3 = runtimeValidRes2
+//@[4:15) Variable runtimefoo3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 34
+var runtimefoo4 = {
+//@[4:15) Variable runtimefoo4. Type: object. Declaration start char: 0, length: 42
+  hop: runtimefoo2
+}
+
+var runtimeInvalid = {
+//@[4:18) Variable runtimeInvalid. Type: object. Declaration start char: 0, length: 119
+  foo1: runtimefoo1
+  foo2: runtimefoo2
+  foo3: runtimefoo3
+  foo4: runtimeValidRes1.name
+}
+
+var runtimeValid = {
+//@[4:16) Variable runtimeValid. Type: object. Declaration start char: 0, length: 151
+  foo1: runtimeValidRes1.name
+  foo2: runtimeValidRes1.apiVersion
+  foo3: runtimeValidRes2.type
+  foo4: runtimeValidRes2.id
+}
+
+resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes14. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo1
+}
+
+resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes15. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo2
+}
+
+resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes16. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 148
+  name: runtimeInvalid.foo3.properties.azCliVersion
+}
+
+// Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
+resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes17. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
+  name: runtimeInvalid.foo4
+}
+
+resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:28) Resource runtimeInvalidRes18. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 226
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+}
+
+resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
+  name: runtimeValid.foo1
+}
+
+resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes7. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
+  name: runtimeValid.foo2
+}
+
+resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes8. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
+  name: runtimeValid.foo3
+}
+
+resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[9:25) Resource runtimeValidRes9. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
+  name: runtimeValid.foo4
 }
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {

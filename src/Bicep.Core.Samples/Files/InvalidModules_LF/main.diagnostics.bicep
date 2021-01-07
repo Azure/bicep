@@ -123,6 +123,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. |modANoName|
+//@[51:52) [BCP019 (Error)] Expected a new line character at this location. |}|
 
 }
 //@[1:1) [BCP018 (Error)] Expected the ")" character at this location. ||
@@ -246,4 +247,47 @@ module moduleWithBadScope './empty.bicep' = {
   scope: 'stringScope'
 //@[9:22) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "'stringScope'". |'stringScope'|
 //@[9:22) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |'stringScope'|
+}
+
+resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'runtimeValidRes1Name'
+  location: 'westeurope'
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_GRS'
+  }
+}
+
+module runtimeValidModule1 'empty.bicep' = {
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
+}
+
+module runtimeInvalidModule1 'empty.bicep' = {
+  name: runtimeValidRes1.location
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
+}
+
+module runtimeInvalidModule2 'empty.bicep' = {
+  name: runtimeValidRes1['location']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
+}
+
+module runtimeInvalidModule3 'empty.bicep' = {
+  name: runtimeValidRes1.sku.name
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku.name|
+}
+
+module runtimeInvalidModule4 'empty.bicep' = {
+  name: runtimeValidRes1.sku['name']
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku['name']|
+}
+
+module runtimeInvalidModule5 'empty.bicep' = {
+  name: runtimeValidRes1['sku']['name']
+//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku']['name']|
+}
+
+module runtimeInvalidModule6 'empty.bicep' = {
+  name: runtimeValidRes1['sku'].name
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }

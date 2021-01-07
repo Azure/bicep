@@ -161,8 +161,9 @@ var bad = ()
 //@[4:7)  IdentifierSyntax
 //@[4:7)   Identifier |bad|
 //@[8:9)  Assignment |=|
-//@[10:12)  SkippedTriviaSyntax
+//@[10:12)  ParenthesizedExpressionSyntax
 //@[10:11)   LeftParen |(|
+//@[11:11)   SkippedTriviaSyntax
 //@[11:12)   RightParen |)|
 //@[12:13) NewLine |\n|
 var bad = 
@@ -2102,6 +2103,26 @@ var sysFunctions = sys.a
 //@[23:24)    Identifier |a|
 //@[24:26) NewLine |\n\n|
 
+// #completionTest(33) -> sysFunctions
+//@[38:39) NewLine |\n|
+var sysFunctionsInParens = (sys.a)
+//@[0:34) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |sysFunctionsInParens|
+//@[25:26)  Assignment |=|
+//@[27:34)  ParenthesizedExpressionSyntax
+//@[27:28)   LeftParen |(|
+//@[28:33)   PropertyAccessSyntax
+//@[28:31)    VariableAccessSyntax
+//@[28:31)     IdentifierSyntax
+//@[28:31)      Identifier |sys|
+//@[31:32)    Dot |.|
+//@[32:33)    IdentifierSyntax
+//@[32:33)     Identifier |a|
+//@[33:34)   RightParen |)|
+//@[34:36) NewLine |\n\n|
+
 // missing method name
 //@[22:23) NewLine |\n|
 var missingMethodName = az.()
@@ -2173,10 +2194,25 @@ var emptyParens = ()
 //@[4:15)  IdentifierSyntax
 //@[4:15)   Identifier |emptyParens|
 //@[16:17)  Assignment |=|
-//@[18:20)  SkippedTriviaSyntax
+//@[18:20)  ParenthesizedExpressionSyntax
 //@[18:19)   LeftParen |(|
+//@[19:19)   SkippedTriviaSyntax
 //@[19:20)   RightParen |)|
 //@[20:22) NewLine |\n\n|
+
+// #completionTest(26) -> symbols
+//@[33:34) NewLine |\n|
+var anotherEmptyParens = ()
+//@[0:27) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |anotherEmptyParens|
+//@[23:24)  Assignment |=|
+//@[25:27)  ParenthesizedExpressionSyntax
+//@[25:26)   LeftParen |(|
+//@[26:26)   SkippedTriviaSyntax
+//@[26:27)   RightParen |)|
+//@[27:29) NewLine |\n\n|
 
 // keywords can't be called like functions
 //@[42:43) NewLine |\n|
