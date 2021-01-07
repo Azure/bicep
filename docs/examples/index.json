@@ -40,8 +40,8 @@
         "description": "101/azure-bastion"
     },
     {
-        "filePath":"101/basic-batch-account/main.bicep",
-        "description":"101/basic-batch-account"
+        "filePath": "101/basic-batch-account/main.bicep",
+        "description": "101/basic-batch-account"
     },
     {
         "filePath": "101/azure-search-create/main.bicep",
@@ -348,6 +348,10 @@
         "description": "201/vnet-to-vnet-bgp"
     },
     {
+        "filePath": "201/vnet-to-vnet-peering/main.bicep",
+        "description": "201/vnet-to-vnet-peering"
+    },
+    {
         "filePath": "201/vwan-shared-services/main.bicep",
         "description": "201/vwan-shared-services"
     },
@@ -378,7 +382,7 @@
     {
         "filePath": "201/shared-image-gallery-with-image-defintition-and-role-assignment/main.bicep",
         "description": "201/shared-image-gallery-with-image-defintition-and-role-assignment"
-    },    
+    },
     {
         "filePath": "301/function-app-with-custom-domain-managed-certificate/main.bicep",
         "description": "301/function-app-with-custom-domain-managed-certificate"

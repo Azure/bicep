@@ -43,6 +43,8 @@ extends:
     globalSdl: # https://aka.ms/obpipelines/sdl
       # tsa:
       #  enabled: true # SDL results of non-official builds aren't uploaded to TSA by default.
+      cg:
+        failOnAlert: false # disable build breaks due to CG alerts
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)\.config\CredScanSuppressions.json
       policheck:
