@@ -165,7 +165,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
         [TestMethod]
         public void Test_Issue1173()
         {
-            var (json, diags) = CompilationHelper.Compile(
+            var (json, _) = CompilationHelper.Compile(
                 ("main.bicep", @"
 targetScope = 'subscription'
 
@@ -318,6 +318,37 @@ output id string = routetable.id
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name")!.Should().DeepEqual("appsn01");
             // there should be no definition in the variables list for 'subnets'
             template.SelectToken("$.variables.subnets")!.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void Test_Issue1185()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+targetScope = 'tenant'
+
+param allUpMgName string
+
+module allup_mg './modules/rblab-allup-mg-policies.bicep' = {
+  name: 'allupmgdeploy'
+  scope: managementGroup(allUpMgName)
+  params: {
+    mgName: allUpMgName
+  }
+}",
+                [new Uri("file:///modules/rblab-allup-mg-policies.bicep")] = @"
+targetScope = 'managementGroup'
+
+param mgName string
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+
+            // deploying a management group module at tenant scope requires an unqualified resource id
+            template.SelectToken("$.resources[?(@.name == 'allupmgdeploy')].scope")!.Should().DeepEqual("[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
         }
     }
 }
