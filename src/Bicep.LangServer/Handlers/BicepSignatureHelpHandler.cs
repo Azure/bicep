@@ -223,7 +223,7 @@ namespace Bicep.LanguageServer.Handlers
             return new SignatureInformation
             {
                 Label = typeSignature.ToString(),
-                Documentation = overload.Description,
+                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = overload.Description},
                 Parameters = new Container<ParameterInformation>(parameters)
             };
         }
@@ -237,7 +237,7 @@ namespace Bicep.LanguageServer.Handlers
             parameterInfos.Add(new ParameterInformation
             {
                 Label = new ParameterInformationLabel((start, end)),
-                Documentation = documentation
+                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = documentation}
             });
         }
 
