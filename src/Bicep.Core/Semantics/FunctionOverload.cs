@@ -49,7 +49,7 @@ namespace Bicep.Core.Semantics
 
         public IEnumerable<string> ParameterTypeSignatures => this.FixedParameters
             .Select(fp => fp.Signature)
-            .Concat(this.VariableParameter?.Signature.AsEnumerable() ?? Enumerable.Empty<string>());
+            .Concat(this.VariableParameter?.GenericSignature.AsEnumerable() ?? Enumerable.Empty<string>());
 
         public bool HasParameters => this.MinimumArgumentCount > 0 || this.MaximumArgumentCount > 0;
 

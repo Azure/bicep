@@ -39,6 +39,9 @@
     "textEdit": {
       "range": {},
       "newText": "extensionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -53,6 +56,9 @@
     "textEdit": {
       "range": {},
       "newText": "listKeys($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -67,6 +73,9 @@
     "textEdit": {
       "range": {},
       "newText": "pickZones($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -81,6 +90,9 @@
     "textEdit": {
       "range": {},
       "newText": "providers($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -95,6 +107,9 @@
     "textEdit": {
       "range": {},
       "newText": "reference($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -109,6 +124,9 @@
     "textEdit": {
       "range": {},
       "newText": "resourceGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -123,6 +141,9 @@
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -137,6 +158,9 @@
     "textEdit": {
       "range": {},
       "newText": "subscription($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -151,6 +175,9 @@
     "textEdit": {
       "range": {},
       "newText": "subscriptionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -179,6 +206,9 @@
     "textEdit": {
       "range": {},
       "newText": "tenantResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   }
 ]
