@@ -543,36 +543,6 @@ namespace Bicep.Core.Parsing
                         break;
                 }
             }
-
-            
-
-            //while (true)
-            //{
-            //    var expression = this.Check(TokenType.Comma)
-            //        ? new SkippedTriviaSyntax(reader.Peek().ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(reader.Peek().ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable())
-            //        : this.Expression(allowComplexLiterals);
-
-            //    arguments.Add((expression, null));
-
-            //    if (this.Check(TokenType.RightParen))
-            //    {
-            //        // end of function call
-            //        // return the accumulated arguments without consuming right paren a caller must consume it
-            //        var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
-            //        foreach (var argument in arguments)
-            //        {
-            //            functionArguments.Add(new FunctionArgumentSyntax(argument.expression, argument.comma));
-            //        }
-            //        return functionArguments.ToImmutableArray();
-            //    }
-
-            //    var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
-
-            //    // update the tuple
-            //    var lastArgument = arguments.Last();
-            //    lastArgument.comma = comma;
-            //    arguments[arguments.Count - 1] = lastArgument;
-            //}
         }
 
         private ImmutableArray<Token> NewLines()
