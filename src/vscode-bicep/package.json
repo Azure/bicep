@@ -92,7 +92,7 @@
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.19",
+    "@types/jest": "^26.0.20",
     "@types/mocha": "^8.2.0",
     "@types/node": "^14.14.20",
     "@types/semver": "^7.3.4",
