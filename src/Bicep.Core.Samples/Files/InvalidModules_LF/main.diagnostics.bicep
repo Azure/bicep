@@ -292,65 +292,38 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
-// #completionTest(21) -> cwdCompletions
-module completionA m 
-//@[19:20) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[19:20) [BCP090 (Error)] This module declaration is missing a file path reference. |m|
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionB ''
+//@[19:21) [BCP050 (Error)] The specified module path is empty. |''|
 //@[21:21) [BCP018 (Error)] Expected the "=" character at this location. ||
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionB m ''
-//@[19:20) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[19:23) [BCP090 (Error)] This module declaration is missing a file path reference. |m ''|
-//@[23:23) [BCP018 (Error)] Expected the "=" character at this location. ||
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionC '' =
+//@[19:21) [BCP050 (Error)] The specified module path is empty. |''|
+//@[23:23) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionC m '' =
-//@[19:20) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[19:25) [BCP090 (Error)] This module declaration is missing a file path reference. |m '' =|
-//@[25:25) [BCP018 (Error)] Expected the "=" character at this location. ||
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionD '' = {}
+//@[19:21) [BCP050 (Error)] The specified module path is empty. |''|
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionD m '' = {}
-//@[19:20) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[19:28) [BCP090 (Error)] This module declaration is missing a file path reference. |m '' = {}|
-//@[28:28) [BCP018 (Error)] Expected the "=" character at this location. ||
-
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionE m '' = {
-//@[19:20) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[19:27) [BCP090 (Error)] This module declaration is missing a file path reference. |m '' = {|
-//@[27:27) [BCP018 (Error)] Expected the "=" character at this location. ||
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionE '' = {
+//@[19:21) [BCP050 (Error)] The specified module path is empty. |''|
   name: 'hello'
-//@[2:6) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |name|
 }
-//@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionA m '../'
-//@[25:26) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[25:32) [BCP090 (Error)] This module declaration is missing a file path reference. |m '../'|
-//@[32:32) [BCP018 (Error)] Expected the "=" character at this location. ||
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionB m '../' =
-//@[25:26) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[25:34) [BCP090 (Error)] This module declaration is missing a file path reference. |m '../' =|
-//@[34:34) [BCP018 (Error)] Expected the "=" character at this location. ||
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
+module childCompletionA 'Completions/'
+//@[24:38) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}Completions\'. |'Completions/'|
+//@[38:38) [BCP018 (Error)] Expected the "=" character at this location. ||
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionC m '../' = {}
-//@[25:26) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[25:37) [BCP090 (Error)] This module declaration is missing a file path reference. |m '../' = {}|
-//@[37:37) [BCP018 (Error)] Expected the "=" character at this location. ||
+// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
+module childCompletionB './Completions/'
+//@[24:40) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}Completions\'. |'./Completions/'|
+//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionD m '../' = {
-//@[25:26) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
-//@[25:36) [BCP090 (Error)] This module declaration is missing a file path reference. |m '../' = {|
-//@[36:36) [BCP018 (Error)] Expected the "=" character at this location. ||
-  name: 'hello'
-//@[2:6) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |name|
-}
-//@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |}|
-
+// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
+module cwdFileCompletion '.' 
+//@[25:28) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'.'|
+//@[29:29) [BCP018 (Error)] Expected the "=" character at this location. ||

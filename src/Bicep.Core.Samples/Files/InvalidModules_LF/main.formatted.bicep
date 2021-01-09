@@ -191,33 +191,25 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
-// #completionTest(21) -> cwdCompletions
-module completionA m 
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionB ''
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionB m ''
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionC '' =
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionC m '' =
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionD '' = {}
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionD m '' = {}
-
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionE m '' = {
-name: 'hello'
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionE '' = {
+  name: 'hello'
 }
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionA m '../'
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
+module childCompletionA 'Completions/'
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionB m '../' =
+// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
+module childCompletionB './Completions/'
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionC m '../' = {}
-
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionD m '../' = {
-name: 'hello'
-}
+// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
+module cwdFileCompletion '.' 

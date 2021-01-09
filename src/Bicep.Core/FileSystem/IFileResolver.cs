@@ -24,11 +24,37 @@ namespace Bicep.Core.FileSystem
         /// <param name="childFilePath">The file path of the child.</param>
         Uri? TryResolveModulePath(Uri parentFileUri, string childFilePath);
         
-        // Uri 
-        // IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern);
-        // IEnumerable<Uri> GetFiles(Uri fileUri, string pattern); 
-        // Uri GetParentDirectory(Uri fileUri);
-        // bool DirExists(Uri fileUri);
-        // bool FileExists(Uri fileUri);
+
+        /// <summary>
+        /// Tries to get Directories given a uri and pattern. Both argument and returned URIs MUST have a trailing '/'
+        /// </summary>
+        /// <param name="fileUri">The base fileUri</param>
+        /// <param name="pattern">optional pattern to filter the dirs</param>
+        IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern);
+
+        /// <summary>
+        /// Tries to get Files given a uri and pattern. fileUri MUST have a trailing '/'
+        /// </summary>
+        /// <param name="fileUri">The base fileUri</param>
+        /// <param name="pattern">optional pattern to filter the resulting files</param>
+        IEnumerable<Uri> GetFiles(Uri fileUri, string pattern); 
+
+        /// <summary>
+        /// Tries to parent URI
+        /// </summary>
+        /// <param name="fileUri">The base fileUri</param>
+        Uri GetParentDirectory(Uri fileUri);
+
+        /// <summary>
+        /// Check whether specified URI exsists (depends on URI types). fileUri MUST have a trailing '/'
+        /// </summary>
+        /// <param name="fileUri">The fileUri to test</param>
+        bool DirExists(Uri fileUri);
+
+        /// <summary>
+        /// Check whether specified URI exsists (depends on URI types)
+        /// </summary>
+        /// <param name="fileUri">The fileUri to test</param>
+        bool FileExists(Uri fileUri);
     }
 }

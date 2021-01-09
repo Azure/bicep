@@ -277,43 +277,33 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
-// #completionTest(21) -> cwdCompletions
-module completionA m 
-//@[7:18) Module completionA. Type: error. Declaration start char: 0, length: 21
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionB ''
+//@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 21
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionB m ''
-//@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 23
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionC '' =
+//@[7:18) Module completionC. Type: error. Declaration start char: 0, length: 23
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionC m '' =
-//@[7:18) Module completionC. Type: error. Declaration start char: 0, length: 25
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionD '' = {}
+//@[7:18) Module completionD. Type: error. Declaration start char: 0, length: 26
 
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionD m '' = {}
-//@[7:18) Module completionD. Type: error. Declaration start char: 0, length: 28
-
-// #completionTest(21, 22, 23) -> cwdCompletions
-module completionE m '' = {
-//@[7:18) Module completionE. Type: error. Declaration start char: 0, length: 27
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionE '' = {
+//@[7:18) Module completionE. Type: error. Declaration start char: 0, length: 43
   name: 'hello'
 }
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionA m '../'
-//@[7:24) Module parentCompletionA. Type: error. Declaration start char: 0, length: 32
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionB m '../' =
-//@[7:24) Module parentCompletionB. Type: error. Declaration start char: 0, length: 34
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
+module childCompletionA 'Completions/'
+//@[7:23) Module childCompletionA. Type: error. Declaration start char: 0, length: 38
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionC m '../' = {}
-//@[7:24) Module parentCompletionC. Type: error. Declaration start char: 0, length: 37
+// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
+module childCompletionB './Completions/'
+//@[7:23) Module childCompletionB. Type: error. Declaration start char: 0, length: 40
 
-// #completionTest(27, 28, 29, 30, 31, 32) -> parentCompletions
-module parentCompletionD m '../' = {
-//@[7:24) Module parentCompletionD. Type: error. Declaration start char: 0, length: 36
-  name: 'hello'
-}
-
+// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
+module cwdFileCompletion '.' 
+//@[7:24) Module cwdFileCompletion. Type: error. Declaration start char: 0, length: 29
