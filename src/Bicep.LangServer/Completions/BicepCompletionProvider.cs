@@ -625,6 +625,12 @@ namespace Bicep.LanguageServer.Completions
                     ? $"{insertText}($0)"
                     : $"{insertText}()$0";
 
+                if (hasParameters)
+                {
+                    // if parameters may need to be specified, automatically request signature help
+                    completion.WithCommand(new Command {Name = EditorCommands.SignatureHelp});
+                }
+
                 return completion
                     .WithDetail($"{insertText}()")
                     .WithSnippetEdit(replacementRange, snippet);

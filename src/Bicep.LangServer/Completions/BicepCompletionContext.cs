@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Completions
 
         public static BicepCompletionContext Create(SyntaxTree syntaxTree, int offset)
         {
-            var matchingNodes = FindNodesMatchingOffset(syntaxTree.ProgramSyntax, offset);
+            var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(syntaxTree.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {
                 // this indicates a bug
@@ -85,13 +85,13 @@ namespace Bicep.LanguageServer.Completions
                 return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null);
             }
 
-            var declarationInfo = FindLastNodeOfType<INamedDeclarationSyntax, SyntaxBase>(matchingNodes);
-            var objectInfo = FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
-            var propertyInfo = FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
-            var arrayInfo = FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
-            var propertyAccessInfo = FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
-            var arrayAccessInfo = FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
-            var targetScopeInfo = FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
+            var declarationInfo = SyntaxMatcher.FindLastNodeOfType<INamedDeclarationSyntax, SyntaxBase>(matchingNodes);
+            var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
+            var propertyInfo = SyntaxMatcher.FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
+            var arrayInfo = SyntaxMatcher.FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
+            var propertyAccessInfo = SyntaxMatcher.FindLastNodeOfType<PropertyAccessSyntax, PropertyAccessSyntax>(matchingNodes);
+            var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
+            var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
 
             var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
@@ -113,31 +113,6 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
-        }
-
-        /// <summary>
-        /// Returnes nodes whose span contains the specified offset from least specific to the most specific.
-        /// </summary>
-        /// <param name="syntax">The program node</param>
-        /// <param name="offset">The offset</param>
-        private static List<SyntaxBase> FindNodesMatchingOffset(ProgramSyntax syntax, int offset)
-        {
-            var nodes = new List<SyntaxBase>();
-            syntax.TryFindMostSpecificNodeInclusive(offset, current =>
-            {
-                // callback is invoked only if node span contains the offset
-                // in inclusive mode, 2 nodes can be returned if cursor is between end of one node and beginning of another
-                // we will pick the node to the left as the winner
-                if (nodes.Any() == false || TextSpan.AreNeighbors(nodes.Last(), current) == false)
-                {
-                    nodes.Add(current);
-                }
-
-                // don't filter out the nodes
-                return true;
-            });
-
-            return nodes;
         }
 
         /// <summary>
@@ -497,14 +472,6 @@ namespace Bicep.LanguageServer.Completions
         /// </summary>
         /// <param name="matchingNodes">The matching nodes</param>
         private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes) => matchingNodes.OfType<ExpressionSyntax>().Any();
-
-        private static (TResult? node, int index) FindLastNodeOfType<TPredicate, TResult>(List<SyntaxBase> matchingNodes) where TResult : SyntaxBase
-        {
-            var index = matchingNodes.FindLastIndex(matchingNodes.Count - 1, n => n is TPredicate);
-            var node = index < 0 ? null : matchingNodes[index] as TResult;
-
-            return (node, index);
-        }
 
         private static Range GetReplacementRange(SyntaxTree syntaxTree, SyntaxBase innermostMatchingNode, int offset)
         {

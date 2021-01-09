@@ -25,6 +25,9 @@
     "textEdit": {
       "range": {},
       "newText": "any($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -39,6 +42,9 @@
     "textEdit": {
       "range": {},
       "newText": "array($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -165,6 +171,9 @@
     "textEdit": {
       "range": {},
       "newText": "base64($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -179,6 +188,9 @@
     "textEdit": {
       "range": {},
       "newText": "base64ToJson($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -193,6 +205,9 @@
     "textEdit": {
       "range": {},
       "newText": "base64ToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -221,6 +236,9 @@
     "textEdit": {
       "range": {},
       "newText": "bool($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -235,6 +253,9 @@
     "textEdit": {
       "range": {},
       "newText": "coalesce($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -249,6 +270,9 @@
     "textEdit": {
       "range": {},
       "newText": "concat($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -263,6 +287,9 @@
     "textEdit": {
       "range": {},
       "newText": "contains($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -291,6 +318,9 @@
     "textEdit": {
       "range": {},
       "newText": "dataUri($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -305,6 +335,9 @@
     "textEdit": {
       "range": {},
       "newText": "dataUriToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -319,6 +352,9 @@
     "textEdit": {
       "range": {},
       "newText": "dateTimeAdd($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -543,6 +579,9 @@
     "textEdit": {
       "range": {},
       "newText": "empty($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -557,6 +596,9 @@
     "textEdit": {
       "range": {},
       "newText": "endsWith($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -585,6 +627,9 @@
     "textEdit": {
       "range": {},
       "newText": "extensionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -599,6 +644,9 @@
     "textEdit": {
       "range": {},
       "newText": "first($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -641,6 +689,9 @@
     "textEdit": {
       "range": {},
       "newText": "format($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -655,6 +706,9 @@
     "textEdit": {
       "range": {},
       "newText": "guid($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -683,6 +737,9 @@
     "textEdit": {
       "range": {},
       "newText": "indexOf($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -697,6 +754,9 @@
     "textEdit": {
       "range": {},
       "newText": "int($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -725,6 +785,9 @@
     "textEdit": {
       "range": {},
       "newText": "intersection($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -781,6 +844,9 @@
     "textEdit": {
       "range": {},
       "newText": "json($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -795,6 +861,9 @@
     "textEdit": {
       "range": {},
       "newText": "last($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -809,6 +878,9 @@
     "textEdit": {
       "range": {},
       "newText": "lastIndexOf($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -823,6 +895,9 @@
     "textEdit": {
       "range": {},
       "newText": "length($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -865,6 +940,9 @@
     "textEdit": {
       "range": {},
       "newText": "listKeys($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -907,6 +985,9 @@
     "textEdit": {
       "range": {},
       "newText": "max($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -921,6 +1002,9 @@
     "textEdit": {
       "range": {},
       "newText": "min($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1145,6 +1229,9 @@
     "textEdit": {
       "range": {},
       "newText": "padLeft($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1159,6 +1246,9 @@
     "textEdit": {
       "range": {},
       "newText": "pickZones($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1173,6 +1263,9 @@
     "textEdit": {
       "range": {},
       "newText": "providers($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1187,6 +1280,9 @@
     "textEdit": {
       "range": {},
       "newText": "range($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1201,6 +1297,9 @@
     "textEdit": {
       "range": {},
       "newText": "reference($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1215,6 +1314,9 @@
     "textEdit": {
       "range": {},
       "newText": "replace($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1229,6 +1331,9 @@
     "textEdit": {
       "range": {},
       "newText": "resourceGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1243,6 +1348,9 @@
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1761,6 +1869,9 @@
     "textEdit": {
       "range": {},
       "newText": "skip($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1775,6 +1886,9 @@
     "textEdit": {
       "range": {},
       "newText": "split($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1817,6 +1931,9 @@
     "textEdit": {
       "range": {},
       "newText": "startsWith($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1831,6 +1948,9 @@
     "textEdit": {
       "range": {},
       "newText": "string($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1845,6 +1965,9 @@
     "textEdit": {
       "range": {},
       "newText": "subscription($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1859,6 +1982,9 @@
     "textEdit": {
       "range": {},
       "newText": "subscriptionResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1873,6 +1999,9 @@
     "textEdit": {
       "range": {},
       "newText": "substring($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1901,6 +2030,9 @@
     "textEdit": {
       "range": {},
       "newText": "take($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1929,6 +2061,9 @@
     "textEdit": {
       "range": {},
       "newText": "tenantResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1943,6 +2078,9 @@
     "textEdit": {
       "range": {},
       "newText": "toLower($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1957,6 +2095,9 @@
     "textEdit": {
       "range": {},
       "newText": "toUpper($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -1985,6 +2126,9 @@
     "textEdit": {
       "range": {},
       "newText": "trim($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2013,6 +2157,9 @@
     "textEdit": {
       "range": {},
       "newText": "union($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2027,6 +2174,9 @@
     "textEdit": {
       "range": {},
       "newText": "uniqueString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2041,6 +2191,9 @@
     "textEdit": {
       "range": {},
       "newText": "uri($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2055,6 +2208,9 @@
     "textEdit": {
       "range": {},
       "newText": "uriComponent($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2069,6 +2225,9 @@
     "textEdit": {
       "range": {},
       "newText": "uriComponentToString($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
