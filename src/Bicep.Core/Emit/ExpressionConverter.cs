@@ -513,11 +513,25 @@ namespace Bicep.Core.Emit
                 subscriptionId,
                 resourceGroup);
 
-        public static LanguageExpression GetManagementGroupScopeExpression(LanguageExpression managementGroupName)
+        public static LanguageExpression GenerateTenantResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
             => CreateFunction(
                 "tenantResourceId",
-                new JTokenExpression("Microsoft.Management/managementGroups"),
-                managementGroupName);
+                new [] { new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
+
+        public LanguageExpression GenerateManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
+        {
+            const string managementGroupType = "Microsoft.Management/managementGroups";
+            var managementGroupName = ConvertExpression(managementGroupNameProperty);
+
+            if (fullyQualified)
+            {
+                return GenerateTenantResourceId(managementGroupType, new [] { managementGroupName });
+            }
+            else
+            {
+                return GenerateUnqualifiedResourceId(managementGroupType, new [] { managementGroupName });
+            }
+        }
 
         private static FunctionExpression CreateFunction(string name, params LanguageExpression[] parameters)
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);

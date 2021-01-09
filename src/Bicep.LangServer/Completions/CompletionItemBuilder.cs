@@ -105,6 +105,12 @@ namespace Bicep.LanguageServer.Completions
         }
 
 
+        public static CompletionItem WithCommand(this CompletionItem item, Command command)
+        {
+            item.Command = command;
+            return item;
+        }
+
         private static void SetTextEditInternal(CompletionItem item, Range range, InsertTextFormat format, string text, InsertTextMode insertTextMode)
         {
             item.InsertTextFormat = format;

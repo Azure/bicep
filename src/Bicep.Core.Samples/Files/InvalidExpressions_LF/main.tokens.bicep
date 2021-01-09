@@ -820,6 +820,75 @@ var takeTooMany = take([
 //@[9:10) RightParen |)|
 //@[10:12) NewLine |\n\n|
 
+// missing arguments
+//@[20:21) NewLine |\n|
+var trailingArgumentComma = format('s',)
+//@[0:3) Identifier |var|
+//@[4:25) Identifier |trailingArgumentComma|
+//@[26:27) Assignment |=|
+//@[28:34) Identifier |format|
+//@[34:35) LeftParen |(|
+//@[35:38) StringComplete |'s'|
+//@[38:39) Comma |,|
+//@[39:40) RightParen |)|
+//@[40:41) NewLine |\n|
+var onlyArgumentComma = concat(,)
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |onlyArgumentComma|
+//@[22:23) Assignment |=|
+//@[24:30) Identifier |concat|
+//@[30:31) LeftParen |(|
+//@[31:32) Comma |,|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
+var multipleArgumentCommas = concat(,,,,,)
+//@[0:3) Identifier |var|
+//@[4:26) Identifier |multipleArgumentCommas|
+//@[27:28) Assignment |=|
+//@[29:35) Identifier |concat|
+//@[35:36) LeftParen |(|
+//@[36:37) Comma |,|
+//@[37:38) Comma |,|
+//@[38:39) Comma |,|
+//@[39:40) Comma |,|
+//@[40:41) Comma |,|
+//@[41:42) RightParen |)|
+//@[42:43) NewLine |\n|
+var emptyArgInBetween = concat(true,,false)
+//@[0:3) Identifier |var|
+//@[4:21) Identifier |emptyArgInBetween|
+//@[22:23) Assignment |=|
+//@[24:30) Identifier |concat|
+//@[30:31) LeftParen |(|
+//@[31:35) TrueKeyword |true|
+//@[35:36) Comma |,|
+//@[36:37) Comma |,|
+//@[37:42) FalseKeyword |false|
+//@[42:43) RightParen |)|
+//@[43:44) NewLine |\n|
+var leadingEmptyArg = concat(,[])
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |leadingEmptyArg|
+//@[20:21) Assignment |=|
+//@[22:28) Identifier |concat|
+//@[28:29) LeftParen |(|
+//@[29:30) Comma |,|
+//@[30:31) LeftSquare |[|
+//@[31:32) RightSquare |]|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
+var leadingAndTrailingEmptyArg = concat(,'s',)
+//@[0:3) Identifier |var|
+//@[4:30) Identifier |leadingAndTrailingEmptyArg|
+//@[31:32) Assignment |=|
+//@[33:39) Identifier |concat|
+//@[39:40) LeftParen |(|
+//@[40:41) Comma |,|
+//@[41:44) StringComplete |'s'|
+//@[44:45) Comma |,|
+//@[45:46) RightParen |)|
+//@[46:48) NewLine |\n\n|
+
 // wrong argument types
 //@[23:24) NewLine |\n|
 var concatWrongTypes = concat({
