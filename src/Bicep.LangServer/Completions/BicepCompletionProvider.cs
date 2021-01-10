@@ -29,7 +29,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new Container<string>(".");
 
-        private static FileResolver FileResolver = new FileResolver();
+        private IFileResolver FileResolver;
+
+        public BicepCompletionProvider(IFileResolver fileResolver)
+        {
+            this.FileResolver = fileResolver;
+        }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
         {
@@ -202,7 +207,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 accesedDir = entered;
                 files = FileResolver.GetFiles(query, "*.bicep");
-                dirs = FileResolver.GetDirectories(query);
+                dirs = FileResolver.GetDirectories(query, "");
             }
             else if (FileResolver.GetParentDirectory(query) is var parentDir
                     && FileResolver.DirExists(parentDir))

@@ -1,5 +1,19 @@
 [
   {
+    "label": "ChildModules/",
+    "kind": "folder",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ChildModules/",
+    "filterText": "'ChildModules/",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/"
+    }
+  },
+  {
     "label": "Completions/",
     "kind": "folder",
     "deprecated": false,

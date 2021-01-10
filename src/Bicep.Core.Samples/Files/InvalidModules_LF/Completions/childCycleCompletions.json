@@ -1,0 +1,16 @@
+[
+  {
+    "label": "cycle.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_cycle.bicep",
+    "filterText": "'ChildModules/cycle.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/cycle.bicep'"
+    }
+  }
+]

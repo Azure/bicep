@@ -969,24 +969,7 @@ module completionE '' = {
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:4) NewLine |\n\n\n|
-
-
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
-//@[87:88) NewLine |\n|
-module childCompletionA 'Completions/'
-//@[0:6) Identifier |module|
-//@[7:23) Identifier |childCompletionA|
-//@[24:38) StringComplete |'Completions/'|
-//@[38:40) NewLine |\n\n|
-
-// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
-//@[107:108) NewLine |\n|
-module childCompletionB './Completions/'
-//@[0:6) Identifier |module|
-//@[7:23) Identifier |childCompletionB|
-//@[24:40) StringComplete |'./Completions/'|
-//@[40:42) NewLine |\n\n|
+//@[1:3) NewLine |\n\n|
 
 // #completionTest(20, 21, 22, 23) -> cwdFileCompletions
 //@[56:57) NewLine |\n|
@@ -994,4 +977,36 @@ module cwdFileCompletion '.'
 //@[0:6) Identifier |module|
 //@[7:24) Identifier |cwdFileCompletion|
 //@[25:28) StringComplete |'.'|
-//@[29:29) EndOfFile ||
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+//@[102:103) NewLine |\n|
+module childCompletionA 'ChildModules/'
+//@[0:6) Identifier |module|
+//@[7:23) Identifier |childCompletionA|
+//@[24:39) StringComplete |'ChildModules/'|
+//@[39:41) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childCompletionsRelativePath
+//@[122:123) NewLine |\n|
+module childCompletionB './ChildModules/'
+//@[0:6) Identifier |module|
+//@[7:23) Identifier |childCompletionB|
+//@[24:41) StringComplete |'./ChildModules/'|
+//@[41:43) NewLine |\n\n|
+
+// #completionTest(28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42) -> childCycleCompletions
+//@[103:104) NewLine |\n|
+module childCycleCompletion 'ChildModules/cyc'
+//@[0:6) Identifier |module|
+//@[7:27) Identifier |childCycleCompletion|
+//@[28:46) StringComplete |'ChildModules/cyc'|
+//@[46:48) NewLine |\n\n|
+
+// #completionTest(27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childMainCompletions
+//@[102:103) NewLine |\n|
+module childMainCompletion './ChildModules/mai'
+//@[0:6) Identifier |module|
+//@[7:26) Identifier |childMainCompletion|
+//@[27:47) StringComplete |'./ChildModules/mai'|
+//@[47:47) EndOfFile ||

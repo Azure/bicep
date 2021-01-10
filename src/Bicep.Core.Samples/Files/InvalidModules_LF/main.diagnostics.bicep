@@ -312,18 +312,27 @@ module completionE '' = {
   name: 'hello'
 }
 
-
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
-module childCompletionA 'Completions/'
-//@[24:38) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}Completions\'. |'Completions/'|
-//@[38:38) [BCP018 (Error)] Expected the "=" character at this location. ||
-
-// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
-module childCompletionB './Completions/'
-//@[24:40) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}Completions\'. |'./Completions/'|
-//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
-
 // #completionTest(20, 21, 22, 23) -> cwdFileCompletions
 module cwdFileCompletion '.' 
 //@[25:28) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'.'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+//@[24:39) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}ChildModules/' is denied. |'ChildModules/'|
+//@[39:39) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childCompletionsRelativePath
+module childCompletionB './ChildModules/'
+//@[24:41) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}ChildModules/' is denied. |'./ChildModules/'|
+//@[41:41) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42) -> childCycleCompletions
+module childCycleCompletion 'ChildModules/cyc'
+//@[28:46) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}ChildModules/cyc'. |'ChildModules/cyc'|
+//@[46:46) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childMainCompletions
+module childMainCompletion './ChildModules/mai'
+//@[27:47) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}ChildModules/mai'. |'./ChildModules/mai'|
+//@[47:47) [BCP018 (Error)] Expected the "=" character at this location. ||

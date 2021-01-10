@@ -237,12 +237,17 @@ module completionE '' = {
   name: 'hello'
 }
 
-
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38) -> empty
-module childCompletionA 'Completions/'
-
-// #completionTest(21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> empty
-module childCompletionB './Completions/'
-
 // #completionTest(20, 21, 22, 23) -> cwdFileCompletions
 module cwdFileCompletion '.' 
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childCompletionsRelativePath
+module childCompletionB './ChildModules/'
+
+// #completionTest(28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42) -> childCycleCompletions
+module childCycleCompletion 'ChildModules/cyc'
+
+// #completionTest(27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41) -> childMainCompletions
+module childMainCompletion './ChildModules/mai'

@@ -1,0 +1,16 @@
+[
+  {
+    "label": "main.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.bicep",
+    "filterText": "'./ChildModules/main.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'./ChildModules/main.bicep'"
+    }
+  }
+]
