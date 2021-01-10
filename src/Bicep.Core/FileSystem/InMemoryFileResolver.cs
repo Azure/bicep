@@ -44,7 +44,8 @@ namespace Bicep.Core.FileSystem
 
         public bool DirExists(Uri fileUri)
         {
-            return this.fileLookup.ContainsKey(fileUri);
+            return this.fileLookup.Keys
+            .Any(key => key.ToString().StartsWith(fileUri.ToString()));
         }
 
         public bool FileExists(Uri fileUri)
