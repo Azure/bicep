@@ -216,6 +216,10 @@
         "description": "101/sql-database"
     },
     {
+        "filePath": "101/sqlmi-new-vnet/main.bicep",
+        "description": "101/sqlmi-new-vnet"
+    },
+    {
         "filePath": "101/storage-blob-container/main.bicep",
         "description": "101/storage-blob-container"
     },
