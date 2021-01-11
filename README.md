@@ -87,7 +87,7 @@ That being said, there is a huge customer base using ARM templates today because
 Fundamentally, we believe that configuration languages and tools are always going to be polyglot and different users will prefer different tools for different situations. We want to make sure all of these tools are great on Azure, Bicep is only a part of that effort.
 
 **Is this ready for production use? If not, when will it be ready?**
-Not yet. We wanted to get the 0.1 release out quickly and get feedback while we still have an opportunity to make breaking changes. By the end of the year, we plan to ship an 0.3 release which will be at parity with what you can accomplish with ARM templates. At that point, we will start recommending production usage.
+Not yet. We wanted to get the 0.1 release out quickly and get feedback while we still have an opportunity to make breaking changes. In early 2021, we plan to ship an 0.3 release which will be at parity with what you can accomplish with ARM templates. At that point, we will start recommending production usage and customer support will be trained on bicep.
 
 **What are you looking for feedback on?**
 The language syntax and the tooling. Now is the best time to make breaking changes, so syntax feedback is very appreciated.
