@@ -208,6 +208,10 @@
         "description": "101/storage-blob-container"
     },
     {
+        "filePath": "101/templatespec-create/main.bicep",
+        "description": "101/templatespec-create"
+    },
+    {
         "filePath": "101/vm-simple-linux/main.bicep",
         "description": "101/vm-simple-linux"
     },
