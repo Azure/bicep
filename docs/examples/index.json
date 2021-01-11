@@ -192,6 +192,10 @@
         "description": "101/private-dns-zone"
     },
     {
+        "filePath": "101/private-endpoint-webapp/main.bicep",
+        "description": "101/private-endpoint-webapp"
+    },
+    {
         "filePath": "101/redis-cache/main.bicep",
         "description": "101/redis-cache"
     },
