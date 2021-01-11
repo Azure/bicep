@@ -176,6 +176,10 @@
         "description": "101/logic-app-create"
     },
     {
+        "filePath": "101/media-services-create/main.bicep",
+        "description": "101/media-services-create"
+    },
+    {
         "filePath": "101/mg-policy/main.bicep",
         "description": "101/mg-policy"
     },
