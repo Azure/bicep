@@ -128,6 +128,10 @@
         "description": "101/deployment-script-with-storage"
     },
     {
+        "filePath": "101/event-grid-servicebus-queue/main.bicep",
+        "description": "101/event-grid-servicebus-queue"
+    },
+    {
         "filePath": "101/eventhub-namespace/main.bicep",
         "description": "101/eventhub-namespace"
     },
