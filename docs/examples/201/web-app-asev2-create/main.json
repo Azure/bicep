@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet-01"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "subnet-01"
+    },
+    "aseName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().name)]"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('subnetName')]",
+      "properties": {
+        "addressPrefix": "10.0.1.0/25"
+      }
+    },
+    {
+      "type": "Microsoft.Web/hostingEnvironments",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('aseName')]",
+      "location": "[parameters('location')]",
+      "kind": "ASEV2",
+      "properties": {
+        "location": "[parameters('location')]",
+        "name": "[parameters('aseName')]",
+        "workerPools": [],
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1])]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(parameters('subnetName'), '/')[0], split(parameters('subnetName'), '/')[1])]"
+      ]
+    }
+  ]
+}
