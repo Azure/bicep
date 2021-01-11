@@ -376,6 +376,10 @@
         "description": "201/web-app-loganalytics"
     },
     {
+        "filePath": "201/web-app-asev2-create/main.bicep",
+        "description": "201/web-app-asev2-create"
+    },
+    {
         "filePath": "201/web-app-conditional-log/main.bicep",
         "description": "201/web-app-condition-loganalytics"
     },
