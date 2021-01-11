@@ -272,6 +272,10 @@
         "description": "201/cloud-shell-vnet"
     },
     {
+        "filePath": "201/create-and-enable-ddos-protection-plans/main.bicep",
+        "description": "201/create-and-enable-ddos-protection-plans"
+    },
+    {
         "filePath": "201/cyclecloud/main.bicep",
         "description": "201/cyclecloud"
     },
