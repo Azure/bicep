@@ -424,6 +424,10 @@
         "description": "301/function-app-with-custom-domain-managed-certificate"
     },
     {
+        "filePath": "301/insights-alertrules-application-insights/main.bicep",
+        "description": "301/insights-alertrules-application-insights"
+    },
+    {
         "filePath": "301/modules-vwan-to-vnet-s2s-with-fw/main.bicep",
         "description": "301/modules-vwan-to-vnet-s2s-with-fw"
     },
