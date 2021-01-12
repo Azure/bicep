@@ -248,6 +248,10 @@
         "description": "101/web-app-windows"
     },
     {
+        "filePath": "101/webapp-managed-mysql/main.bicep",
+        "description": "101/webapp-managed-mysql"
+    },
+    {
         "filePath": "101/webapp-privateendpoint-vnet-injection/main.bicep",
         "description": "101/webapp-privateendpoint-vnet-injection"
     },
