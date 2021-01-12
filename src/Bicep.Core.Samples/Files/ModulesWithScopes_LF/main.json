@@ -43,6 +43,44 @@
                   }
                 }
               }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myManagementGroupMod",
+              "scope": "[tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup2')]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "functions": [],
+                  "resources": []
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "mySubscriptionMod",
+              "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "functions": [],
+                  "resources": []
+                }
+              }
             }
           ],
           "outputs": {
@@ -51,6 +89,25 @@
               "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2019-10-01').outputs.myOutput.value]"
             }
           }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "functions": [],
+          "resources": []
         }
       }
     },
@@ -486,6 +543,25 @@
               "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2019-10-01').outputs.myOutput.value]"
             }
           }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "functions": [],
+          "resources": []
         }
       }
     }

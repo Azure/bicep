@@ -26,8 +26,30 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@[45:46) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
-
+//@[1:2) NewLine |\n|
+module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:62) Identifier |myManagementGroupModWithDuplicatedNameButDifferentScope|
+//@[63:100) StringComplete |'modules/managementgroup_empty.bicep'|
+//@[101:102) Assignment |=|
+//@[103:104) LeftBrace |{|
+//@[104:105) NewLine |\n|
+  name: 'myManagementGroupMod'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:30) StringComplete |'myManagementGroupMod'|
+//@[30:31) NewLine |\n|
+  scope: managementGroup('myManagementGroup2')
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:24) Identifier |managementGroup|
+//@[24:25) LeftParen |(|
+//@[25:45) StringComplete |'myManagementGroup2'|
+//@[45:46) RightParen |)|
+//@[46:47) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
 module mySubscriptionMod 'modules/subscription.bicep' = {
 //@[0:6) Identifier |module|
 //@[7:24) Identifier |mySubscriptionMod|
@@ -85,6 +107,31 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:59) Identifier |mySubscriptionModWithDuplicatedNameButDifferentScope|
+//@[60:94) StringComplete |'modules/subscription_empty.bicep'|
+//@[95:96) Assignment |=|
+//@[97:98) LeftBrace |{|
+//@[98:99) NewLine |\n|
+  name: 'mySubscriptionMod'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:27) StringComplete |'mySubscriptionMod'|
+//@[27:28) NewLine |\n|
+  scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:21) Identifier |subscription|
+//@[21:22) LeftParen |(|
+//@[22:60) StringComplete |'1ad827ac-2669-4c2f-9970-282b93c3c550'|
+//@[60:61) RightParen |)|
+//@[61:62) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:4) NewLine |\n\n\n|
+
+
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@[0:6) Identifier |output|
 //@[7:30) Identifier |myManagementGroupOutput|
@@ -106,4 +153,6 @@ output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
 //@[55:62) Identifier |outputs|
 //@[62:63) Dot |.|
 //@[63:71) Identifier |myOutput|
-//@[71:71) EndOfFile ||
+//@[71:72) NewLine |\n|
+
+//@[0:0) EndOfFile ||

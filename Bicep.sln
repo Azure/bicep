@@ -41,6 +41,26 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler.UnitTests", "src\Bicep.Decompiler.UnitTests\Bicep.Decompiler.UnitTests.csproj", "{F3AF01F6-24E8-4129-80B6-84AC070B5C7D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_SolutionItems", "_SolutionItems", "{594DDE3F-3A55-47BD-84AF-BAF8B2F8B4C3}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		CONTRIBUTING.md = CONTRIBUTING.md
+		global.json = global.json
+		LICENSE = LICENSE
+		NuGet.config = NuGet.config
+		README.md = README.md
+		SECURITY.md = SECURITY.md
+		SetBaseline.ps1 = SetBaseline.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{895557F9-3D8B-4752-878A-5F0AAF2E405C}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\bcode.ps1 = scripts\bcode.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -36,6 +36,18 @@ The Bicep solution is comprised of the following main components:
   1. Run the `SetBaseline.ps1` script at the repo root to execute the tests in `SetBaseLine` mode, which causes the baselines to be automatically updated in bulk for failing tests. You should see baseline file modifications in Git pending changes. (Make sure your Git pending changes are empty before doing so - your changes could get overwritten!).
 * Inspect the baseline assertion diffs to ensure changes are expected and match the code changes you have made. (If a pull request contains changes to baseline files that can't be explained, it will not be merged.)
 
+### Creating new integration tests dataset
+* To Add new integration tests dataset you need to:
+  1. Add a entry to src/Bicep.Core.Samples/DataSets.cs
+     * prefix with Invalid if the expectation is that it doesn't compile.
+     * The suffix should match the type of newline the file uses, so just pick one (_LF or _CRLF) - that's just to ensure we have support for both.
+     * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
+  1.  Make changes to main.bicep.
+  1. Create empty `main.<suffix>.bicep` assertion files in the folder. You need to create following suffixes: `diagnostics`, `formatted`, `symbols`, `syntax`, `tokens`
+  1. Run `SetBaseline.ps1` to fill out the assertion files.
+* The naming and file structure is important here as it's used by the test runner to assert e.g. whether the example should compile, and the end-of-line characters.
+* For tests that deal with module, you may see some unexpected behavior because the test could be using a mock file resolver instead of the standard one. Similarly, some tests may be using a mock resource type provider instead of the standard ones - usually that explains why some types aren't recognized in tests.
+
 ### Running the Bicep VSCode extension
 
 * On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:

@@ -128,6 +128,10 @@
         "description": "101/deployment-script-with-storage"
     },
     {
+        "filePath": "101/event-grid-servicebus-queue/main.bicep",
+        "description": "101/event-grid-servicebus-queue"
+    },
+    {
         "filePath": "101/eventhub-namespace/main.bicep",
         "description": "101/eventhub-namespace"
     },
@@ -176,6 +180,10 @@
         "description": "101/logic-app-create"
     },
     {
+        "filePath": "101/media-services-create/main.bicep",
+        "description": "101/media-services-create"
+    },
+    {
         "filePath": "101/mg-policy/main.bicep",
         "description": "101/mg-policy"
     },
@@ -192,6 +200,10 @@
         "description": "101/private-dns-zone"
     },
     {
+        "filePath": "101/private-endpoint-webapp/main.bicep",
+        "description": "101/private-endpoint-webapp"
+    },
+    {
         "filePath": "101/redis-cache/main.bicep",
         "description": "101/redis-cache"
     },
@@ -204,8 +216,16 @@
         "description": "101/sql-database"
     },
     {
+        "filePath": "101/sqlmi-new-vnet/main.bicep",
+        "description": "101/sqlmi-new-vnet"
+    },
+    {
         "filePath": "101/storage-blob-container/main.bicep",
         "description": "101/storage-blob-container"
+    },
+    {
+        "filePath": "101/templatespec-create/main.bicep",
+        "description": "101/templatespec-create"
     },
     {
         "filePath": "101/vm-simple-linux/main.bicep",
@@ -266,6 +286,10 @@
     {
         "filePath": "201/cloud-shell-vnet/main.bicep",
         "description": "201/cloud-shell-vnet"
+    },
+    {
+        "filePath": "201/create-and-enable-ddos-protection-plans/main.bicep",
+        "description": "201/create-and-enable-ddos-protection-plans"
     },
     {
         "filePath": "201/cyclecloud/main.bicep",
@@ -364,6 +388,10 @@
         "description": "201/web-app-loganalytics"
     },
     {
+        "filePath": "201/web-app-asev2-create/main.bicep",
+        "description": "201/web-app-asev2-create"
+    },
+    {
         "filePath": "201/web-app-conditional-log/main.bicep",
         "description": "201/web-app-condition-loganalytics"
     },
@@ -386,6 +414,10 @@
     {
         "filePath": "201/shared-image-gallery-with-image-defintition-and-role-assignment/main.bicep",
         "description": "201/shared-image-gallery-with-image-defintition-and-role-assignment"
+    },
+    {
+        "filePath": "301/expressroute-circuit-vnet-connection/main.bicep",
+        "description": "301/expressroute-circuit-vnet-connection"
     },
     {
         "filePath": "301/function-app-with-custom-domain-managed-certificate/main.bicep",

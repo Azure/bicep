@@ -277,6 +277,17 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
 
+module moduleWithDuplicateName1 './empty.bicep' = {
+//@[7:31) Module moduleWithDuplicateName1. Type: module. Declaration start char: 0, length: 112
+  name: 'moduleWithDuplicateName'
+  scope: resourceGroup()
+}
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+//@[7:31) Module moduleWithDuplicateName2. Type: module. Declaration start char: 0, length: 87
+  name: 'moduleWithDuplicateName'
+}
+
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionB ''
 //@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 21
