@@ -11,6 +11,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -613,7 +614,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
-                
+
             public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP107",
@@ -701,6 +702,15 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
                 );
             }
+            public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
+                TextSpan,                
+                "BCP121",
+                $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
+
+            public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
+                TextSpan,                
+                "BCP122",
+                $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

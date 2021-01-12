@@ -131,6 +131,7 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 module modANoInputs './modulea.bicep' = {
 //@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". |modANoInputs|
   name: 'modANoInputs'
+//@[8:22) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
 }
@@ -140,12 +141,14 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
   'foo'
 ]) == 1) {
   name: 'modANoInputs'
+//@[8:22) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
+//@[8:22) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'modANoInputs'|
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2,3,4) -> moduleAParams
@@ -155,6 +158,7 @@ module modAEmptyInputs './modulea.bicep' = {
 
 module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   name: 'modANoInputs'
+//@[8:22) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'modANoInputs'|
   params: {
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
@@ -291,3 +295,15 @@ module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 //@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
+
+module moduleWithDuplicateName1 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+//@[8:33) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'moduleWithDuplicateName'|
+  scope: resourceGroup()
+}
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+//@[8:33) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'moduleWithDuplicateName'|
+}
+

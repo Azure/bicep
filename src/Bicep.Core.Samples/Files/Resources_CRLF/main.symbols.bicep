@@ -40,8 +40,8 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
-//@[9:24) Resource withExpressions. Type: Microsoft.Storage/storageAccounts@2017-10-01. Declaration start char: 0, length: 538
-  name: 'myencryptedone'
+//@[9:24) Resource withExpressions. Type: Microsoft.Storage/storageAccounts@2017-10-01. Declaration start char: 0, length: 539
+  name: 'myencryptedone2'
   location: 'eastus2'
   properties: {
     supportsHttpsTrafficOnly: !false
@@ -266,14 +266,14 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 }
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
-//@[9:19) Resource extension1. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 111
-  name: 'extension1'
+//@[9:19) Resource extension1. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 110
+  name: 'extension'
   scope: vmWithCondition
 }
 
 resource extension2 'My.Rp/extensionResource@2020-12-01' = {
-//@[9:19) Resource extension2. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 106
-  name: 'extension2'
+//@[9:19) Resource extension2. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 105
+  name: 'extension'
   scope: extension1
 }
 
@@ -289,3 +289,4 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res3runtime: extension2.properties.something
   }
 }
+

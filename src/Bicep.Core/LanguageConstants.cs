@@ -32,7 +32,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
-        public static ImmutableSortedSet<string> DeclarationKeywords = new[] {ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword}.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static ImmutableSortedSet<string> DeclarationKeywords = new[] { ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
 
         public static ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
@@ -55,7 +55,10 @@ namespace Bicep.Core
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
 
+        public const string ResourceIdPropertyName = "id";
         public const string ResourceNamePropertyName = "name";
+        public const string ResourceTypePropertyName = "type";
+        public const string ResourceApiVersionPropertyName = "apiVersion";
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceDependsOnPropertyName = "dependsOn";
 
@@ -83,7 +86,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol Tags = new NamedObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
 
         // types allowed to use in output and parameter declarations
-        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] {String, Object, Int, Bool, Array}.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
@@ -142,14 +145,15 @@ namespace Bicep.Core
 
         public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
-            yield return new TypeProperty("id", String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceIdPropertyName, String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
             yield return new TypeProperty(ResourceNamePropertyName, String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty("type", new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty("apiVersion", new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
         }
 
         private static ResourceScopeReference CreateResourceScopeReference(ResourceScopeType resourceScope)
-            => resourceScope switch {
+            => resourceScope switch
+            {
                 ResourceScopeType.TenantScope => new ResourceScopeReference("tenant", resourceScope),
                 ResourceScopeType.ManagementGroupScope => new ResourceScopeReference("managementGroup", resourceScope),
                 ResourceScopeType.SubscriptionScope => new ResourceScopeReference("subscription", resourceScope),
@@ -172,7 +176,7 @@ namespace Bicep.Core
             var moduleBody = new NamedObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
-                new []
+                new[]
                 {
                     new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag),
@@ -232,7 +236,7 @@ namespace Bicep.Core
 
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly);
-            
+
             yield return new TypeProperty(ResourceScopePropertyName, new ResourceScopeReference("resource", ResourceScopeType.ResourceScope), TypePropertyFlags.WriteOnly);
         }
     }

@@ -276,3 +276,15 @@ module runtimeInvalidModule6 'empty.bicep' = {
 //@[7:28) Module runtimeInvalidModule6. Type: module. Declaration start char: 0, length: 85
   name: runtimeValidRes1['sku'].name
 }
+
+module moduleWithDuplicateName1 './empty.bicep' = {
+//@[7:31) Module moduleWithDuplicateName1. Type: module. Declaration start char: 0, length: 112
+  name: 'moduleWithDuplicateName'
+  scope: resourceGroup()
+}
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+//@[7:31) Module moduleWithDuplicateName2. Type: module. Declaration start char: 0, length: 87
+  name: 'moduleWithDuplicateName'
+}
+

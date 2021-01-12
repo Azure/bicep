@@ -222,3 +222,12 @@ module runtimeInvalidModule5 'empty.bicep' = {
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 }
+
+module moduleWithDuplicateName1 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+  scope: resourceGroup()
+}
+
+module moduleWithDuplicateName2 './empty.bicep' = {
+  name: 'moduleWithDuplicateName'
+}

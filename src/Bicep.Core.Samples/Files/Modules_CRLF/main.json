@@ -159,9 +159,9 @@
       }
     },
     {
+      "condition": "[equals(add(1, 1), 2)]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "condition": "[equals(add(1, 1), 2)]",
       "name": "modBWithCondition",
       "properties": {
         "expressionEvaluationOptions": {
@@ -307,7 +307,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
-      "name": "optionalWithNoParams2",
+      "name": "optionalWithNoParams3",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -436,7 +436,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithNoParams2')]",
+        "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithNoParams3')]",
         "[resourceId('Mock.Rp/mockResource', 'harry')]"
       ]
     },

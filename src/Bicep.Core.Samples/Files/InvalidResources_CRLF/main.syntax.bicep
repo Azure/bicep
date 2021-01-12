@@ -3750,4 +3750,158 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
 //@[23:25)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
+//@[0:103) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |invalidDuplicateName1|
+//@[31:64)  StringSyntax
+//@[31:64)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[65:66)  Assignment |=|
+//@[67:103)  ObjectSyntax
+//@[67:68)   LeftBrace |{|
+//@[68:70)   NewLine |\r\n|
+  name: 'invalidDuplicateName'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'invalidDuplicateName'|
+//@[30:32)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
+//@[0:103) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |invalidDuplicateName2|
+//@[31:64)  StringSyntax
+//@[31:64)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[65:66)  Assignment |=|
+//@[67:103)  ObjectSyntax
+//@[67:68)   LeftBrace |{|
+//@[68:70)   NewLine |\r\n|
+  name: 'invalidDuplicateName'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'invalidDuplicateName'|
+//@[30:32)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
+//@[0:103) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:30)  IdentifierSyntax
+//@[9:30)   Identifier |invalidDuplicateName3|
+//@[31:64)  StringSyntax
+//@[31:64)   StringComplete |'Mock.Rp/mockResource@2019-01-01'|
+//@[65:66)  Assignment |=|
+//@[67:103)  ObjectSyntax
+//@[67:68)   LeftBrace |{|
+//@[68:70)   NewLine |\r\n|
+  name: 'invalidDuplicateName'
+//@[2:30)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:30)    StringSyntax
+//@[8:30)     StringComplete |'invalidDuplicateName'|
+//@[30:32)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
+//@[0:168) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:62)  IdentifierSyntax
+//@[9:62)   Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[63:96)  StringSyntax
+//@[63:96)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[97:98)  Assignment |=|
+//@[99:168)  ObjectSyntax
+//@[99:100)   LeftBrace |{|
+//@[100:102)   NewLine |\r\n|
+  name: 'validResourceForInvalidExtensionResourceDuplicateName'
+//@[2:63)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:63)    StringSyntax
+//@[8:63)     StringComplete |'validResourceForInvalidExtensionResourceDuplicateName'|
+//@[63:65)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
+//@[0:204) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:47)  IdentifierSyntax
+//@[9:47)   Identifier |invalidExtensionResourceDuplicateName1|
+//@[48:84)  StringSyntax
+//@[48:84)   StringComplete |'Mock.Rp/mockExtResource@2020-01-01'|
+//@[85:86)  Assignment |=|
+//@[87:204)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  name: 'invalidExtensionResourceDuplicateName'
+//@[2:47)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:47)    StringSyntax
+//@[8:47)     StringComplete |'invalidExtensionResourceDuplicateName'|
+//@[47:49)   NewLine |\r\n|
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+//@[2:62)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:62)    VariableAccessSyntax
+//@[9:62)     IdentifierSyntax
+//@[9:62)      Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[62:64)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
+//@[0:204) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:47)  IdentifierSyntax
+//@[9:47)   Identifier |invalidExtensionResourceDuplicateName2|
+//@[48:84)  StringSyntax
+//@[48:84)   StringComplete |'Mock.Rp/mockExtResource@2019-01-01'|
+//@[85:86)  Assignment |=|
+//@[87:204)  ObjectSyntax
+//@[87:88)   LeftBrace |{|
+//@[88:90)   NewLine |\r\n|
+  name: 'invalidExtensionResourceDuplicateName'
+//@[2:47)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:47)    StringSyntax
+//@[8:47)     StringComplete |'invalidExtensionResourceDuplicateName'|
+//@[47:49)   NewLine |\r\n|
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+//@[2:62)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:62)    VariableAccessSyntax
+//@[9:62)     IdentifierSyntax
+//@[9:62)      Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[62:64)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

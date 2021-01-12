@@ -94,6 +94,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[55:56) [BCP018 (Error)] Expected the "(" character at this location. |{|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // empty condition
@@ -102,6 +103,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[56:57) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // #completionTest(57, 59) -> symbols
@@ -109,6 +111,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[61:62) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |)|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // invalid condition type
@@ -116,6 +119,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[55:60) [BCP046 (Error)] Expected a value of type "bool". |(123)|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // runtime functions are no allowed in resource conditions
@@ -123,12 +127,14 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[57:66) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. |reference|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
 //@[57:65) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. |listKeys|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
 }
 
 // duplicate property at the top level
@@ -153,6 +159,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
@@ -165,6 +172,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   properties: {
     foo: 'a'
 //@[4:7) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. |foo|
@@ -177,6 +185,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. |foo|
   name: 'foo'
+//@[8:13) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. |'foo'|
   location: [
 //@[12:18) [BCP036 (Error)] The property "location" expected a value of type "string" but the provided value is of type "array". |[\r\n  ]|
   ]
@@ -216,6 +225,7 @@ output resrefout bool = bar.id
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   id: 2
 //@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. |id|
   type: 'hello'
@@ -226,6 +236,7 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     baz.id
 //@[4:10) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "string". |baz.id|
@@ -234,6 +245,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     'hello'
 //@[4:11) [BCP034 (Error)] The enclosing array expected an item of type "resource | module", but the provided item was of type "'hello'". |'hello'|
@@ -244,10 +256,12 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
 }
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: [
     badDepends3
   ]
@@ -255,6 +269,7 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   dependsOn: badDepends3.dependsOn
 //@[25:34) [BCP077 (Error)] The property "dependsOn" on type "Microsoft.Foo/foos@2020-02-02-alpha" is write-only. Write-only properties cannot be accessed. |dependsOn|
 }
@@ -262,6 +277,7 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 var interpVal = 'abc'
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
   '${undefinedSymbol}': true
 //@[5:20) [BCP057 (Error)] The name "undefinedSymbol" does not exist in the current context. |undefinedSymbol|
@@ -625,6 +641,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
     //createMode: 'Default'
@@ -642,6 +659,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
+//@[8:14) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminator" are defined with this same name in a file. Rename them or split into different modules. |'test'|
   location: 'l'
   properties: {
     createMode: 'Default'
@@ -692,4 +710,33 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
   scope: subscription()
 //@[9:23) [BCP036 (Error)] The property "scope" expected a value of type "resource" but the provided value is of type "subscription". |subscription()|
 //@[9:23) [BCP119 (Error)] Unsupported scope for extension resource deployment. Expected a resource reference. |subscription()|
+}
+
+resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'invalidDuplicateName'
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+}
+resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'invalidDuplicateName'
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+}
+resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
+  name: 'invalidDuplicateName'
+//@[8:30) [BCP121 (Error)] Resources: "invalidDuplicateName1", "invalidDuplicateName2", "invalidDuplicateName3" are defined with this same name in a file. Rename them or split into different modules. |'invalidDuplicateName'|
+}
+
+resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
+  name: 'validResourceForInvalidExtensionResourceDuplicateName'
+}
+
+resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
+  name: 'invalidExtensionResourceDuplicateName'
+//@[8:47) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
+  scope: validResourceForInvalidExtensionResourceDuplicateName
+}
+
+resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
+  name: 'invalidExtensionResourceDuplicateName'
+//@[8:47) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
+  scope: validResourceForInvalidExtensionResourceDuplicateName
 }
