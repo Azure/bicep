@@ -280,6 +280,10 @@
         "description": "201/api-management-create-all-resources"
     },
     {
+        "filePath": "201/asev2-ilb-with-web-app/main.bicep",
+        "description": "201/asev2-ilb-with-web-app"
+    },
+    {
         "filePath": "201/cdn-with-storage-account/main.bicep",
         "description": "201/cdn-with-storage-account"
     },
