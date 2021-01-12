@@ -1,0 +1,169 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "websiteName": {
+      "type": "string"
+    },
+    "dbAdminLogin": {
+      "type": "string"
+    },
+    "dbAdminPassword": {
+      "type": "secureString",
+      "minLength": 8,
+      "maxLength": 128
+    },
+    "dbSkuCapacity": {
+      "type": "int",
+      "defaultValue": 2,
+      "allowedValues": [
+        2,
+        4,
+        8,
+        16,
+        32
+      ]
+    },
+    "dbSkuName": {
+      "type": "string",
+      "defaultValue": "GP_Gen5_2",
+      "allowedValues": [
+        "GP_Gen5_2",
+        "GP_Gen5_4",
+        "GP_Gen5_8",
+        "GP_Gen5_16",
+        "GP_Gen5_32",
+        "MO_Gen5_2",
+        "MO_Gen5_4",
+        "MO_Gen5_8",
+        "MO_Gen5_16",
+        "MO_Gen5_32"
+      ]
+    },
+    "dbSkuSizeInMB": {
+      "type": "int",
+      "defaultValue": 51200,
+      "allowedValues": [
+        51200,
+        102400
+      ]
+    },
+    "dbSkuTier": {
+      "type": "string",
+      "defaultValue": "GeneralPurpose",
+      "allowedValues": [
+        "GeneralPurpose",
+        "MemoryOptimized"
+      ]
+    },
+    "dbSkuFamily": {
+      "type": "string",
+      "defaultValue": "Gen5"
+    },
+    "mySQLVersion": {
+      "type": "string",
+      "allowedValues": [
+        "5.6",
+        "5.7"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "dbName": "[format('{0}-db', parameters('websiteName'))]",
+    "dbServerName": "[format('{0}-server', parameters('websiteName'))]",
+    "serverFarmName": "[format('{0}-serviceplan', parameters('websiteName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('serverFarmName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "tier": "Standard",
+        "name": "S1"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('websiteName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('serverFarmName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/connectionString', parameters('websiteName'))]",
+      "properties": {
+        "defaultConnection": {
+          "value": "[format('Database={0};Data Source={1};User Id={2}@{3};Password={4}', variables('dbName'), reference(resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))).fullyQualifiedDomainName, parameters('dbAdminLogin'), variables('dbServerName'), parameters('dbAdminPassword'))]",
+          "type": "MySql"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('websiteName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBForMySQL/servers",
+      "apiVersion": "2017-12-01-preview",
+      "name": "[variables('dbServerName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('dbSkuName')]",
+        "tier": "[parameters('dbSkuTier')]",
+        "capacity": "[parameters('dbSkuCapacity')]",
+        "size": "[string(parameters('dbSkuSizeInMB'))]",
+        "family": "[parameters('dbSkuFamily')]"
+      },
+      "properties": {
+        "createMode": "Default",
+        "version": "[parameters('mySQLVersion')]",
+        "administratorLogin": "[parameters('dbAdminLogin')]",
+        "administratorLoginPassword": "[parameters('dbAdminPassword')]",
+        "storageProfile": {
+          "storageMB": "[parameters('dbSkuSizeInMB')]",
+          "backupRetentionDays": 7,
+          "geoRedundantBackup": "Disabled"
+        },
+        "sslEnforcement": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.DBForMySQL/servers/firewallRules",
+      "apiVersion": "2017-12-01-preview",
+      "name": "[format('{0}/allowAzureIPs', variables('dbServerName'))]",
+      "properties": {
+        "startIpAddress": "0.0.0.0",
+        "endIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DBForMySQL/servers/databases",
+      "apiVersion": "2017-12-01-preview",
+      "name": "[format('{0}/{1}', variables('dbServerName'), variables('dbName'))]",
+      "properties": {
+        "charset": "utf8",
+        "collation": "utf8_general_ci"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBForMySQL/servers', variables('dbServerName'))]"
+      ]
+    }
+  ]
+}
