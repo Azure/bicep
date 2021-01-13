@@ -86,6 +86,7 @@ var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
 var templateLinkUri = deployment().properties.templateLink.uri
+var templateLinkId = deployment().properties.templateLink.id
 
 var portalEndpoint = environment().portal
 var loginEndpoint = environment().authentication.loginEndpoint
