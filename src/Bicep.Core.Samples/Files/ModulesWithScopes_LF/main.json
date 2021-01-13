@@ -96,7 +96,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "myManagementGroupMod",
-      "scope": "[tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup2')]",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
       "location": "[deployment().location]",
       "properties": {
         "expressionEvaluationOptions": {
