@@ -59,7 +59,6 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
-
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default value", "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration with default and allowed values", @"param ${1:Identifier} ${2:Type} {
@@ -216,7 +215,7 @@ namespace Bicep.LanguageServer.Completions
                 files = FileResolver.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
                 dirs = FileResolver.GetDirectories(parentDir, $"{query.Segments[^1]}*");
             }
-            // "./" cannot be preserved when making relative Uris. We have to go and manually it.
+            // "./" cannot be preserved when making relative Uris. We have to go and manually add it.
             var fileItems = files
                 .Select(file => CreateModulePathCompletion(
                     file.Segments.Last(), 
