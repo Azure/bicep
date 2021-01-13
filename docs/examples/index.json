@@ -248,6 +248,10 @@
         "description": "101/web-app-windows"
     },
     {
+        "filePath": "101/webapp-managed-mysql/main.bicep",
+        "description": "101/webapp-managed-mysql"
+    },
+    {
         "filePath": "101/webapp-privateendpoint-vnet-injection/main.bicep",
         "description": "101/webapp-privateendpoint-vnet-injection"
     },
@@ -278,6 +282,10 @@
     {
         "filePath": "201/api-management-create-all-resources/main.bicep",
         "description": "201/api-management-create-all-resources"
+    },
+    {
+        "filePath": "201/asev2-ilb-with-web-app/main.bicep",
+        "description": "201/asev2-ilb-with-web-app"
     },
     {
         "filePath": "201/cdn-with-storage-account/main.bicep",
@@ -422,6 +430,10 @@
     {
         "filePath": "301/function-app-with-custom-domain-managed-certificate/main.bicep",
         "description": "301/function-app-with-custom-domain-managed-certificate"
+    },
+    {
+        "filePath": "301/insights-alertrules-application-insights/main.bicep",
+        "description": "301/insights-alertrules-application-insights"
     },
     {
         "filePath": "301/modules-vwan-to-vnet-s2s-with-fw/main.bicep",
