@@ -52,19 +52,14 @@ namespace Bicep.Core.FileSystem
             {
                 return Enumerable.Empty<Uri>();
             }
-            try {
-                if (pattern == string.Empty)
-                {
-                    return Directory.GetDirectories(fileUri.LocalPath).Select(s => new Uri(s + "/"));
-                }
-                else {
-                    return Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
-                }    
-            }
-            catch (Exception)
+            if (pattern == string.Empty)
             {
-                return Enumerable.Empty<Uri>();
+                return Directory.GetDirectories(fileUri.LocalPath).Select(s => new Uri(s + "/"));
             }
+            else 
+            {
+                return Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
+            }    
         }
 
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
@@ -73,13 +68,7 @@ namespace Bicep.Core.FileSystem
             {
                 return Enumerable.Empty<Uri>();
             }
-            try {
-               return Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
-            }
-            catch (Exception)
-            {
-                return Enumerable.Empty<Uri>();
-            }
+            return Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
         }
 
         public bool DirExists(Uri fileUri)
