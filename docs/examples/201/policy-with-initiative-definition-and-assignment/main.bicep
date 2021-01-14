@@ -1,3 +1,5 @@
+targetScope = 'subscription'
+
 param listOfAllowedLocations array = [
   'eastus'
   'eastus2'
