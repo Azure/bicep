@@ -109,7 +109,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     new TypeProperty("templateLink", new NamedObjectType("properties", TypeSymbolValidationFlags.Default, new []
                     {
-                        new TypeProperty("uri", LanguageConstants.String)
+                        new TypeProperty("id", LanguageConstants.String),
+                        new TypeProperty("uri", LanguageConstants.String),
                     }, null))
                 }, null)),
             };

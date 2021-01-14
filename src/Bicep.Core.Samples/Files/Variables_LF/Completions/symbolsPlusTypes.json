@@ -1840,6 +1840,20 @@
     }
   },
   {
+    "label": "templateLinkId",
+    "kind": "variable",
+    "detail": "templateLinkId",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateLinkId",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "templateLinkId"
+    }
+  },
+  {
     "label": "templateLinkUri",
     "kind": "variable",
     "detail": "templateLinkUri",

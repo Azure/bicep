@@ -448,7 +448,21 @@ var templateLinkUri = deployment().properties.templateLink.uri
 //@[46:58) Identifier |templateLink|
 //@[58:59) Dot |.|
 //@[59:62) Identifier |uri|
-//@[62:64) NewLine |\n\n|
+//@[62:63) NewLine |\n|
+var templateLinkId = deployment().properties.templateLink.id
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |templateLinkId|
+//@[19:20) Assignment |=|
+//@[21:31) Identifier |deployment|
+//@[31:32) LeftParen |(|
+//@[32:33) RightParen |)|
+//@[33:34) Dot |.|
+//@[34:44) Identifier |properties|
+//@[44:45) Dot |.|
+//@[45:57) Identifier |templateLink|
+//@[57:58) Dot |.|
+//@[58:60) Identifier |id|
+//@[60:62) NewLine |\n\n|
 
 var portalEndpoint = environment().portal
 //@[0:3) Identifier |var|
