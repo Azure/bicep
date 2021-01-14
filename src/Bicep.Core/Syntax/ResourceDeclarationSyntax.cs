@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
@@ -48,7 +49,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TypeString => Type as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(IResourceTypeProvider resourceTypeProvider)
+        public TypeSymbol GetDeclaredType(ResourceScopeType targetScope, IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
 
@@ -71,7 +72,7 @@ namespace Bicep.Core.Syntax
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
             }
 
-            return resourceTypeProvider.GetType(typeReference);
+            return resourceTypeProvider.GetType(targetScope, typeReference);
         }
     }
 }

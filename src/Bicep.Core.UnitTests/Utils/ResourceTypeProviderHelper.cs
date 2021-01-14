@@ -24,13 +24,13 @@ namespace Bicep.Core.UnitTests.Utils
                     ResourceTypeReferenceComparer.Instance);
             }
 
-            public IEnumerable<ResourceTypeReference> GetAvailableTypes()
+            public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScopeType scopeType)
                 => typeDictionary.Keys;
 
-            public ResourceType GetType(ResourceTypeReference reference)
+            public ResourceType GetType(ResourceScopeType scopeType, ResourceTypeReference reference)
                 => typeDictionary[reference];
 
-            public bool HasType(ResourceTypeReference typeReference)
+            public bool HasType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
                 => typeDictionary.ContainsKey(typeReference);
         }
 

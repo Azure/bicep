@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem.Az
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
+        private readonly IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> availableResourceTypes;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
 
         public AzResourceTypeProvider()
@@ -19,25 +19,41 @@ namespace Bicep.Core.TypeSystem.Az
         {
         }
 
+        private static IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> GetAvailableResourceTypes(ITypeLoader typeLoader)
+        {
+            IReadOnlyDictionary<ResourceTypeReference, TypeLocation> ToResourceReferenceDictionary(IReadOnlyDictionary<string, TypeLocation> typeDict)
+                => typeDict.ToDictionary(
+                kvp => ResourceTypeReference.Parse(kvp.Key),
+                kvp => kvp.Value,
+                ResourceTypeReferenceComparer.Instance);
+
+            var availableResourceTypes = new Dictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>>();
+            var indexedTypes = typeLoader.GetIndexedTypes();
+            availableResourceTypes[ResourceScopeType.TenantScope] = ToResourceReferenceDictionary(indexedTypes.Tenant);
+            availableResourceTypes[ResourceScopeType.ManagementGroupScope] = ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
+            availableResourceTypes[ResourceScopeType.SubscriptionScope] = ToResourceReferenceDictionary(indexedTypes.Subscription);
+            availableResourceTypes[ResourceScopeType.ResourceGroupScope] = ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
+            availableResourceTypes[ResourceScopeType.ResourceScope] = ToResourceReferenceDictionary(indexedTypes.Extension);
+
+            return availableResourceTypes;
+        }
+
         public AzResourceTypeProvider(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new AzResourceTypeFactory();
-            this.availableResourceTypes = typeLoader.ListAllAvailableTypes().ToDictionary(
-                kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
+            this.availableResourceTypes = GetAvailableResourceTypes(typeLoader);
             this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
         }
 
-        public ResourceType GetType(ResourceTypeReference typeReference)
+        public ResourceType GetType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
         {
             if (loadedTypeCache.TryGetValue(typeReference, out var resourceType))
             {
                 return resourceType;
             }
 
-            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
+            if (availableResourceTypes[scopeType].TryGetValue(typeReference, out var typeLocation))
             {
                 // It's important to cache this result because LoadResourceType is an expensive operation, and
                 // duplicating types means the resourceTypeFactor won't be able to use its cache.
@@ -54,10 +70,10 @@ namespace Bicep.Core.TypeSystem.Az
             return resourceType;
         }
 
-        public bool HasType(ResourceTypeReference typeReference)
-            => availableResourceTypes.ContainsKey(typeReference);
+        public bool HasType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
+            => availableResourceTypes[scopeType].ContainsKey(typeReference);
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => availableResourceTypes.Keys;
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScopeType scopeType)
+            => availableResourceTypes[scopeType].Keys;
     }
 }

@@ -22,19 +22,24 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        [TestMethod]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing()
+        [DataTestMethod]
+        [DataRow(ResourceScopeType.TenantScope)]
+        [DataRow(ResourceScopeType.ManagementGroupScope)]
+        [DataRow(ResourceScopeType.SubscriptionScope)]
+        [DataRow(ResourceScopeType.ResourceGroupScope)]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceScopeType scopeType)
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
-            var availableTypes = resourceTypeProvider.GetAvailableTypes();
+            var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
 
             // sanity check - we know there should be a lot of types available
-            availableTypes.Should().HaveCountGreaterThan(2000);
+            var expectedTypeCount = scopeType == ResourceScopeType.ResourceGroupScope ? 2000 : 100;
+            availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
 
             foreach (var availableType in availableTypes)
             {
-                resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var knownResourceType = resourceTypeProvider.GetType(availableType);
+                resourceTypeProvider.HasType(scopeType, availableType).Should().BeTrue();
+                var knownResourceType = resourceTypeProvider.GetType(scopeType, availableType);
 
                 try
                 {
@@ -48,14 +53,20 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             }
         }
 
-        [TestMethod]
-        public void AzResourceTypeProvider_can_list_all_types_without_throwing()
+        [DataTestMethod]
+        [DataRow(ResourceScopeType.TenantScope)]
+        [DataRow(ResourceScopeType.ManagementGroupScope)]
+        [DataRow(ResourceScopeType.SubscriptionScope)]
+        [DataRow(ResourceScopeType.ResourceGroupScope)]
+        public void AzResourceTypeProvider_can_list_all_types_without_throwing(ResourceScopeType scopeType)
+        
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
-            var availableTypes = resourceTypeProvider.GetAvailableTypes();
+            var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
 
             // sanity check - we know there should be a lot of types available
-            availableTypes.Should().HaveCountGreaterThan(2000);
+            var expectedTypeCount = scopeType == ResourceScopeType.ResourceGroupScope ? 2000 : 100;
+            availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
         }
 
         [TestMethod]
@@ -199,11 +210,16 @@ resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
 
             var mockTypeLocation = new TypeLocation();
             var mockTypeLoader = new Mock<ITypeLoader>();
-            mockTypeLoader.Setup(x => x.ListAllAvailableTypes()).Returns(
-                new Dictionary<string, TypeLocation>
-                {
-                    [resourceTypeReference.FormatName()] = mockTypeLocation,
-                });
+            var resourceTypes = new Dictionary<string, TypeLocation>
+            {
+                [resourceTypeReference.FormatName()] = mockTypeLocation,
+            };
+            mockTypeLoader.Setup(x => x.GetIndexedTypes()).Returns(new Azure.Bicep.Types.Az.Index.IndexedTypes(
+                resourceTypes,
+                resourceTypes,
+                resourceTypes,
+                resourceTypes,
+                resourceTypes));
             mockTypeLoader.Setup(x => x.LoadResourceType(mockTypeLocation)).Returns(resourceType);
 
             return mockTypeLoader.Object;
