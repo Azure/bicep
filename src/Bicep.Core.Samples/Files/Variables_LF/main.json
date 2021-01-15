@@ -82,6 +82,7 @@
     "anyIndexOnAny": "[true()[false()]]",
     "deploymentName": "[deployment().name]",
     "templateLinkUri": "[deployment().properties.templateLink.uri]",
+    "templateLinkId": "[deployment().properties.templateLink.id]",
     "portalEndpoint": "[environment().portal]",
     "loginEndpoint": "[environment().authentication.loginEndpoint]",
     "firstLocation": "[environment().locations[0].displayName]",
