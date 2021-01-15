@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -91,6 +93,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     new  TypeProperty("id", LanguageConstants.String),
                     new  TypeProperty("name", LanguageConstants.String),
+
                     new  TypeProperty("displayName", LanguageConstants.String),
                     new  TypeProperty("longitude", LanguageConstants.String),
                 }, null), TypeSymbolValidationFlags.Default)),
@@ -294,7 +297,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
                 .Build();
 
-            // TODO: return type is string[]
+            // TODO: return type is string[]Array
             // TODO: Location param should be of location type if we ever add it
             yield return new FunctionOverloadBuilder("pickZones")
                 .WithReturnType(LanguageConstants.Array)
@@ -327,8 +330,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
+        private static IEnumerable<Decorator> GetAzDecorators()
+        {
+            yield return new AllowedValuesDecorator();
+            yield return new MinValueDecorator();
+            yield return new MaxValueDecorator();
+            yield return new MinLengthDecorator();
+            yield return new MaxLengthDecorator();
+            yield return new SecureDecorator();
+            yield return new MetadataDecorator();
+        }
+
         public AzNamespaceSymbol(ResourceScopeType resourceScope)
-            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty)
+            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty, GetAzDecorators())
         {
         }
     }

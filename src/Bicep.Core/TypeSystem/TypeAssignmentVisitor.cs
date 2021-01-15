@@ -9,6 +9,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -173,9 +174,15 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
-                diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax));
-
                 var declaredType = syntax.GetDeclaredType();
+
+                this.ValidateDecortors(syntax.Decorators, declaredType, diagnostics);
+
+                if (syntax.Modifier != null)
+                {
+                    diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
+                }
+
                 if (declaredType is ErrorType)
                 {
                     return declaredType;
@@ -198,6 +205,37 @@ namespace Bicep.Core.TypeSystem
 
                 return assignedType;
             });
+
+        private void ValidateDecortors(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
+        {
+            foreach (var decoratorSyntax in decoratorSyntaxes)
+            {
+                var decoratorType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
+
+                if (decoratorType is ErrorType)
+                {
+                    diagnostics.WriteMultiple(decoratorType.GetDiagnostics());
+                    continue;
+                }
+
+                foreach (var argumentSyntax in decoratorSyntax.Arguments)
+                {
+                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics);
+                }
+
+                if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol symbol)
+                {
+                    Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces.Values
+                        .Select(ns => ns.Type.DecoratorResolver.TryGetDecorator(symbol))
+                        .Single(d => d != null);
+
+                    if (decorator is not null)
+                    {
+                        decorator.ValidateTarget(this.typeManager, decoratorSyntax, targetType, diagnostics);
+                    }
+                }
+            }
+        }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignType(syntax, () => {
@@ -687,6 +725,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                if (syntax.Decorators.Any())
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
+                }
+
                 var declaredType = syntax.GetDeclaredType();
                 if (declaredType is ErrorType)
                 {
@@ -949,7 +992,7 @@ namespace Bicep.Core.TypeSystem
             return Enumerable.Empty<Diagnostic>();
         }
 
-        private IEnumerable<Diagnostic> ValidateIdentifierAccess(ParameterDeclarationSyntax syntax)
+        private IEnumerable<Diagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
             return SyntaxAggregator.Aggregate(syntax, new List<Diagnostic>(), (accumulated, current) =>
                 {

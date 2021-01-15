@@ -547,5 +547,19 @@ namespace Bicep.Core.Syntax
             return new IfConditionSyntax(keyword, conditionExpression);
         }
         void ISyntaxVisitor.VisitIfConditionSyntax(IfConditionSyntax syntax) => ReplaceCurrent(syntax, ReplaceIfExpressionSyntax);
+
+        protected virtual DecoratorSyntax ReplaceDecoratorSyntax(DecoratorSyntax syntax)
+        {
+            var hasChanges = Rewrite(syntax.At, out var at);
+            hasChanges |= Rewrite(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new DecoratorSyntax(at, expression);
+        }
+        void ISyntaxVisitor.VisitDecoratorSyntax(DecoratorSyntax syntax) => ReplaceCurrent(syntax, ReplaceDecoratorSyntax);
     }
 }

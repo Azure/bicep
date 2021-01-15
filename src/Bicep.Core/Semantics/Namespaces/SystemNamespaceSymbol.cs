@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -416,7 +417,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("or", "||")
         }.ToImmutableArray();
 
-        public SystemNamespaceSymbol() : base("sys", SystemOverloads, BannedFunctions)
+        public SystemNamespaceSymbol() : base("sys", SystemOverloads, BannedFunctions, ImmutableArray<Decorator>.Empty)
         {
         }
     }

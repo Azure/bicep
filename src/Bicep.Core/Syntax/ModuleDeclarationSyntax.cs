@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -22,6 +23,7 @@ namespace Bicep.Core.Syntax
             AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
             AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
+            this.LeadingNodes = ImmutableArray<SyntaxBase>.Empty;
             this.Keyword = keyword;
             this.Name = name;
             this.Path = path;
@@ -29,6 +31,28 @@ namespace Bicep.Core.Syntax
             this.IfCondition = ifCondition;
             this.Body = body;
         }
+
+        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+        {
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
+            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
+            AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
+            AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
+            AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
+            AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
+            AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
+
+            this.LeadingNodes = leadingNodes.ToImmutableArray();
+            this.Keyword = keyword;
+            this.Name = name;
+            this.Path = path;
+            this.Assignment = assignment;
+            this.IfCondition = ifCondition;
+            this.Body = body;
+        }
+
+        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
 
@@ -41,6 +65,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase? IfCondition { get; }
 
         public SyntaxBase Body { get; }
+
+        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
