@@ -178,44 +178,45 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath)
-            || FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".")?.LocalPath is not string cwd
-            || new Uri(cwd) is not {} cwdUri
-            || context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            bool adjustCursor = true;
             // To provide intellisense before the quotes are typed
-            if (declarationSyntax.Path is not StringSyntax stringSyntax 
-            || stringSyntax.TryGetLiteralValue() is not string entered)
+            if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
+                || declarationSyntax.Path is not StringSyntax stringSyntax 
+                || stringSyntax.TryGetLiteralValue() is not string entered)
             {
+                adjustCursor = false;
                 entered = "";
             }
 
-            if (FileResolver.TryResolveModulePath(cwdUri, entered) is not {} query
-            || FileResolver.FileExists(query))
+            // These should only fail if we're not able to resolve cwd path or the entered string
+            if (FileResolver.TryResolveModulePath(model.SyntaxTree.FileUri, ".") is not {} cwdUri
+                || FileResolver.TryResolveModulePath(cwdUri, entered) is not {} query)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
             var files = Enumerable.Empty<Uri>();
             var dirs = Enumerable.Empty<Uri>();
-            var accesedDir = string.Empty;
+            
+            
+            // technically bicep files do not have to follow the bicep extension, so 
+            // we are not enforcing *.bicep get files command
             if (FileResolver.DirExists(query))
             {
-                accesedDir = entered;
-                files = FileResolver.GetFiles(query, "*.bicep");
-                dirs = FileResolver.GetDirectories(query, "");
+                files = FileResolver.GetFiles(query, string.Empty);
+                dirs = FileResolver.GetDirectories(query, string.Empty);
             }
-            else if (FileResolver.GetParentDirectory(query) is var parentDir
-                    && FileResolver.DirExists(parentDir))
+            else if (FileResolver.TryResolveModulePath(query, ".") is {} queryParent)
             {
-                accesedDir = entered.Remove(entered.Length - query.Segments[^1].Length);
-                files = FileResolver.GetFiles(parentDir, $"{query.Segments[^1]}*.bicep");
-                dirs = FileResolver.GetDirectories(parentDir, $"{query.Segments[^1]}*");
+                files = FileResolver.GetFiles(queryParent, $"{query.Segments[^1]}*");
+                dirs = FileResolver.GetDirectories(queryParent, $"{query.Segments[^1]}*");
             }
-            // "./" cannot be preserved when making relative Uris. We have to go and manually add it.
+            // "./" will be preserved when making relative Uris. We have to go and manually add it.
             var fileItems = files
                 .Select(file => CreateModulePathCompletion(
                     file.Segments.Last(), 
@@ -223,10 +224,11 @@ namespace Bicep.LanguageServer.Completions
                     context.ReplacementRange, 
                     CompletionItemKind.File, 
                     CompletionPriority.High,
-                    false))
-                    .ToList();
+                    false)
+                ).ToList();
 
-            // don't do completion range manipulation if we have to autocomplete entire path (module m <autocomplete>)
+            // don't do completion range manipulation (described in CreateModulePathCompletion) 
+            // if we have to autocomplete entire path (module m <autocomplete>)
             var dirItems = dirs
                 .Select(dir => CreateModulePathCompletion(
                     dir.Segments.Last(), 
@@ -234,8 +236,8 @@ namespace Bicep.LanguageServer.Completions
                     context.ReplacementRange, 
                     CompletionItemKind.Folder, 
                     CompletionPriority.Medium,
-                    declarationSyntax.Path is StringSyntax))
-                    .ToList();
+                    adjustCursor)
+                ).ToList();
             return fileItems.Concat(dirItems);
         }
 
@@ -582,10 +584,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority, bool adjustCursor)
         {
-            // replace windows type path sep (\\<file>) with unix path sep (/file)
-            path = StringUtils.EscapeBicepString(path.Replace(@"\\", @"/"));
-
-            // keep the curson within the string ('completion|' instead of 'completion'|) for folders. Not required for files.
+            path = StringUtils.EscapeBicepString(path);
+            // keep the cursor within the string ('completion|' instead of 'completion'|) for folders. Not done for files.
             if (completionItemKind.Equals(CompletionItemKind.Folder) && adjustCursor)
             {
                 path = path.Remove(path.Length - 1);
