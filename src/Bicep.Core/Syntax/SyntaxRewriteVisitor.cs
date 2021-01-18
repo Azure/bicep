@@ -283,7 +283,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitProgramSyntax(ProgramSyntax syntax) => ReplaceCurrent(syntax, ReplaceProgramSyntax);
 
-        protected virtual NumericLiteralSyntax ReplaceNumericLiteralSyntax(NumericLiteralSyntax syntax)
+        protected virtual IntegerLiteralSyntax ReplaceIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
         {
             var hasChanges = Rewrite(syntax.Literal, out var literal);
 
@@ -292,9 +292,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new NumericLiteralSyntax(literal, int.Parse(literal.Text));
+            return new IntegerLiteralSyntax(literal, long.Parse(literal.Text));
         }
-        void ISyntaxVisitor.VisitNumericLiteralSyntax(NumericLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceNumericLiteralSyntax);
+        void ISyntaxVisitor.VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceIntegerLiteralSyntax);
 
         protected virtual NullLiteralSyntax ReplaceNullLiteralSyntax(NullLiteralSyntax syntax)
         {

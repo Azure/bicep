@@ -139,7 +139,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.EndOfFile);
         }
 
-        public virtual void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
+        public virtual void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
         {
             this.Visit(syntax.Literal);
         }

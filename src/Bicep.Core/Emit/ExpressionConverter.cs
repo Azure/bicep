@@ -35,8 +35,8 @@ namespace Bicep.Core.Emit
                 case BooleanLiteralSyntax boolSyntax:
                     return CreateFunction(boolSyntax.Value ? "true" : "false");
                     
-                case NumericLiteralSyntax numericSyntax:
-                    return new JTokenExpression(numericSyntax.Value);
+                case IntegerLiteralSyntax integerSyntax:
+                    return new JTokenExpression(integerSyntax.Value.ToString()); //FIXME: Create and use constructor that takes long
 
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because

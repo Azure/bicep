@@ -16,7 +16,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         [DataRow("true", "true", typeof(BooleanLiteralSyntax))]
         [DataRow("false", "false", typeof(BooleanLiteralSyntax))]
-        [DataRow("432", "432", typeof(NumericLiteralSyntax))]
+        [DataRow("432", "432", typeof(IntegerLiteralSyntax))]
+        [DataRow("1125899906842624", "1125899906842624", typeof(IntegerLiteralSyntax))]
         [DataRow("null", "null", typeof(NullLiteralSyntax))]
         [DataRow("'hello world!'", "'hello world!'", typeof(StringSyntax))]
         public void LiteralExpressionsShouldParseCorrectly(string text, string expected, Type expectedRootType)

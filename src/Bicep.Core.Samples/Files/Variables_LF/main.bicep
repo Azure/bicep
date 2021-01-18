@@ -1,6 +1,7 @@
 
 // an int variable
 var myInt = 42
+var myBigInt = 1125899906842624
 
 // a string variable
 var myStr = 'str'
