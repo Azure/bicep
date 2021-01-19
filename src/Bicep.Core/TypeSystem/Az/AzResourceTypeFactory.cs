@@ -66,25 +66,6 @@ namespace Bicep.Core.TypeSystem.Az
             return flags;
         }
 
-        private static ObjectType AddBicepResourceProperties(ObjectType objectType, Azure.Bicep.Types.Concrete.ScopeType scope)
-        {
-            var properties = objectType.Properties.Values.ToList();
-            if (scope.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Extension) || scope == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
-            {
-                var scopeRequiredFlag = (scope == Azure.Bicep.Types.Concrete.ScopeType.Extension) ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                properties.Add(new TypeProperty("scope", new ResourceReferenceType("resource", ResourceScope.Resource), TypePropertyFlags.WriteOnly | scopeRequiredFlag));
-            }
-
-            // TODO: remove 'dependsOn' from the type library and add it here
-
-            return new NamedObjectType(
-                objectType.Name,
-                objectType.ValidationFlags,
-                properties,
-                objectType.AdditionalPropertiesType,
-                objectType.AdditionalPropertiesFlags);
-        }
-
         private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
@@ -116,24 +97,6 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
                     var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-
-                    switch (bodyType)
-                    {
-                        case ObjectType bodyObjectType:
-                            bodyType = AddBicepResourceProperties(bodyObjectType, resourceType.ScopeType);
-                            break;
-                        case DiscriminatedObjectType bodyDiscriminatedType:
-                            var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList().Select(x => x.Type as ObjectType ?? throw new ArgumentException());
-                            bodyTypes = bodyTypes.Select(x => AddBicepResourceProperties(x, resourceType.ScopeType));
-                            bodyType = new DiscriminatedObjectType(
-                                bodyDiscriminatedType.Name,
-                                bodyDiscriminatedType.ValidationFlags,
-                                bodyDiscriminatedType.DiscriminatorKey,
-                                bodyTypes);
-                            break;
-                        default:
-                            throw new ArgumentException();
-                    }
 
                     return new ResourceType(resourceTypeReference, bodyType);
                 }

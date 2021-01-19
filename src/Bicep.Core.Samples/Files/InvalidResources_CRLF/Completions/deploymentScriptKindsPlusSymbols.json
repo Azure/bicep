@@ -1058,6 +1058,23 @@
     }
   },
   {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -2327,7 +2344,8 @@
       "range": {},
       "newText": "validModule"
     }
-},{
+  },
+  {
     "label": "validResourceForInvalidExtensionResourceDuplicateName",
     "kind": "interface",
     "detail": "validResourceForInvalidExtensionResourceDuplicateName",

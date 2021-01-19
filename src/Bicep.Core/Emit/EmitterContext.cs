@@ -23,6 +23,6 @@ namespace Bicep.Core.Emit
 
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
 
-        public ImmutableDictionary<ResourceSymbol, ResourceSymbol?> ResoureScopeData => SemanticModel.EmitLimitationInfo.ResoureScopeData;
+        public ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> ResourceScopeData => SemanticModel.EmitLimitationInfo.ResourceScopeData;
     }
 }

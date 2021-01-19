@@ -13,13 +13,13 @@ namespace Bicep.Core.Emit
 
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData { get; }
 
-        public ImmutableDictionary<ResourceSymbol, ResourceSymbol?> ResoureScopeData { get; }
+        public ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> ResourceScopeData { get; }
 
-        public EmitLimitationInfo(IReadOnlyList<Diagnostic> diagnostics, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData, ImmutableDictionary<ResourceSymbol, ResourceSymbol?> resoureScopeData)
+        public EmitLimitationInfo(IReadOnlyList<Diagnostic> diagnostics, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData)
         {
             Diagnostics = diagnostics;
             ModuleScopeData = moduleScopeData;
-            ResoureScopeData = resoureScopeData;
+            ResourceScopeData = resourceScopeData;
         }
     }
 }

@@ -185,15 +185,12 @@ namespace Bicep.Core.Emit
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
             var nameSegments = GetResourceNameSegments(resourceSymbol, typeReference);
 
-            if (context.ResoureScopeData[resourceSymbol] is {} parentResourceSymbol)
+            if (!context.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData))
             {
-                // this should be safe because we've already checked for cycles by now
-                var parentResourceId = GetUnqualifiedResourceId(parentResourceSymbol);
-
-                return ExpressionConverter.GenerateScopedResourceId(parentResourceId, typeReference.FullyQualifiedType, nameSegments);
+                return ScopeHelper.FormatLocallyScopedResourceId(targetScope, typeReference.FullyQualifiedType, nameSegments);
             }
 
-            return ScopeHelper.FormatLocallyScopedResourceId(targetScope, typeReference.FullyQualifiedType, nameSegments);
+            return ScopeHelper.FormatCrossScopeResourceId(this, scopeData, typeReference.FullyQualifiedType, nameSegments);
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceSymbol resourceSymbol)

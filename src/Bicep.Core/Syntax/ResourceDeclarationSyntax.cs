@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -12,11 +14,12 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
-        public ResourceDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+        public ResourceDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ResourceKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
+            AssertKeyword(existingKeyword, nameof(existingKeyword), LanguageConstants.ExistingKeyword);
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
@@ -26,6 +29,7 @@ namespace Bicep.Core.Syntax
             this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
+            this.ExistingKeyword = existingKeyword;
             this.Assignment = assignment;
             this.IfCondition = ifCondition;
             this.Body = body;
@@ -36,6 +40,8 @@ namespace Bicep.Core.Syntax
         public IdentifierSyntax Name { get; }
 
         public SyntaxBase Type { get; }
+
+        public Token? ExistingKeyword { get; }
 
         public SyntaxBase Assignment { get; }
 
@@ -49,7 +55,9 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TypeString => Type as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScope targetScope, IResourceTypeProvider resourceTypeProvider)
+        public bool IsExistingResource() => (ExistingKeyword is not null);
+
+        public TypeSymbol GetDeclaredType(IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
 
@@ -72,7 +80,7 @@ namespace Bicep.Core.Syntax
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
             }
 
-            return resourceTypeProvider.GetType(targetScope, typeReference);
+            return resourceTypeProvider.GetType(typeReference, IsExistingResource());
         }
     }
 }

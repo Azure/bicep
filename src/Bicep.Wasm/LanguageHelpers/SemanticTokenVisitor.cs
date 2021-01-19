@@ -36,9 +36,12 @@ namespace Bicep.Wasm.LanguageHelpers
             }
         }
 
-        private void AddTokenType(IPositionable positionable, SemanticTokenType tokenType)
+        private void AddTokenType(IPositionable? positionable, SemanticTokenType tokenType)
         {
-            tokens.Add((positionable, tokenType));
+            if (positionable is not null)
+            {
+                tokens.Add((positionable, tokenType));
+            }
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
@@ -159,6 +162,7 @@ namespace Bicep.Wasm.LanguageHelpers
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            AddTokenType(syntax.ExistingKeyword, SemanticTokenType.Keyword);            
             base.VisitResourceDeclarationSyntax(syntax);
         }
 

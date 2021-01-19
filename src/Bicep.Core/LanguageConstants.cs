@@ -24,6 +24,7 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+        public const string ExistingKeyword = "existing";
 
         public const string IfKeyword = "if";
 
@@ -70,7 +71,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol ResourceRef = new ResourceReferenceType("resource | module", ResourceScope.Module | ResourceScope.Resource);
+        public static readonly TypeSymbol ResourceRef = new ResourceScopeType("resource | module", ResourceScope.Module | ResourceScope.Resource);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -151,14 +152,14 @@ namespace Bicep.Core
             yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
         }
 
-        private static ResourceReferenceType CreateResourceScopeReference(ResourceScope resourceScope)
+        private static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
             => resourceScope switch
             {
-                ResourceScope.Tenant => new ResourceReferenceType("tenant", resourceScope),
-                ResourceScope.ManagementGroup => new ResourceReferenceType("managementGroup", resourceScope),
-                ResourceScope.Subscription => new ResourceReferenceType("subscription", resourceScope),
-                ResourceScope.ResourceGroup => new ResourceReferenceType("resourceGroup", resourceScope),
-                _ => new ResourceReferenceType("none", ResourceScope.None),
+                ResourceScope.Tenant => new ResourceScopeType("tenant", resourceScope),
+                ResourceScope.ManagementGroup => new ResourceScopeType("managementGroup", resourceScope),
+                ResourceScope.Subscription => new ResourceScopeType("subscription", resourceScope),
+                ResourceScope.ResourceGroup => new ResourceScopeType("resourceGroup", resourceScope),
+                _ => new ResourceScopeType("none", ResourceScope.None),
             };
 
         public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
@@ -236,8 +237,6 @@ namespace Bicep.Core
 
             var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly);
-
-            yield return new TypeProperty(ResourceScopePropertyName, new ResourceReferenceType("resource", ResourceScope.Resource), TypePropertyFlags.WriteOnly);
         }
     }
 }

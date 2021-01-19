@@ -1109,9 +1109,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
+            var typeProvider = new TestResourceTypeProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return new ResourceType(typeReference, new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null));
+            return typeProvider.GetType(typeReference, false);
         }
 
         private static TypeManager CreateTypeManager(SyntaxHierarchy hierarchy) 

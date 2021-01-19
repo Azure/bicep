@@ -961,6 +961,7 @@ namespace Bicep.Decompiler
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "resource"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
+                null,
                 SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
                 ProcessCondition(resource),
                 SyntaxHelpers.CreateObject(topLevelProperties));

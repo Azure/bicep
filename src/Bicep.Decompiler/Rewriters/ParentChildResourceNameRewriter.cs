@@ -108,6 +108,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Type,
+                    syntax.ExistingKeyword,
                     syntax.Assignment,
                     syntax.IfCondition,
                     replacementBody);

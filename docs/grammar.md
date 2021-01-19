@@ -18,7 +18,7 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "=" ifCondition? object NL
+resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "existing"? "=" ifCondition? object NL
 
 moduleDecl -> "module" IDENTIFIER(name) interpString(type) "=" object NL
 

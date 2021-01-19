@@ -134,6 +134,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ResourceTypeReference.Parse("Mock.ErrorParam/mockResources@2020-01-01");
             }
 
+            if (parameter.ParameterType == typeof(ResourceScope))
+            {
+                return ResourceScope.ResourceGroup;
+            }
+
             return $"<param_{index}>";
         }
     }

@@ -33,6 +33,34 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
+            private static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
+            {
+                if (resourceScope.HasFlag(ResourceScope.Resource))
+                {
+                    yield return "resource";
+                }
+                if (resourceScope.HasFlag(ResourceScope.Module))
+                {
+                    yield return "module";
+                }
+                if (resourceScope.HasFlag(ResourceScope.Tenant))
+                {
+                    yield return "tenant";
+                }
+                if (resourceScope.HasFlag(ResourceScope.ManagementGroup))
+                {
+                    yield return "managementGroup";
+                }
+                if (resourceScope.HasFlag(ResourceScope.Subscription))
+                {
+                    yield return "subscription";
+                }
+                if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
+                {
+                    yield return "resourceGroup";
+                }
+            }
+
             public ErrorDiagnostic UnrecognizedToken(string token) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP001",
@@ -651,6 +679,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP113",
+                // ensure that this is kept up-to-date with the logic in 
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
@@ -711,6 +740,18 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,                
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
+
+            public Diagnostic UnsupportedModuleScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP123",
+                $"The supplied scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
+
+            public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new Diagnostic(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP124",
+                $"The supplied scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -230,8 +230,6 @@ module moduleWithValidScope './empty.bicep' = {
 module moduleWithInvalidScope './empty.bicep' = {
   name: 'moduleWithInvalidScope'
   scope: moduleWithValidScope
-//@[9:29) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "module". |moduleWithValidScope|
-//@[9:29) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |moduleWithValidScope|
 }
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
@@ -242,15 +240,13 @@ module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
 module moduleWithInvalidScope2 './empty.bicep' = {
   name: 'moduleWithInvalidScope2'
   scope: managementGroup()
-//@[9:24) [BCP057 (Error)] The name "managementGroup" does not exist in the current context. |managementGroup|
-//@[9:26) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |managementGroup()|
+//@[24:26) [BCP071 (Error)] Expected 1 argument, but got 0. |()|
 }
 
 module moduleWithBadScope './empty.bicep' = {
   name: 'moduleWithBadScope'
   scope: 'stringScope'
 //@[9:22) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "'stringScope'". |'stringScope'|
-//@[9:22) [BCP116 (Error)] Unsupported scope for module deployment in a "resourceGroup" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |'stringScope'|
 }
 
 resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {

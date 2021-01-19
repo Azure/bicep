@@ -133,14 +133,12 @@ namespace Bicep.Core.Semantics.Namespaces
             // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "createObject()" if anyone tries to access the object value.
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
-            var allScopes = ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup;
-
             yield return (
                 new FunctionOverloadBuilder("tenant")
                     .WithDynamicReturnType(GetRestrictedTenantReturnValue)
                     .WithDescription("Returns the current tenant scope.")
                     .Build(),
-                allScopes);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
@@ -154,7 +152,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
                     .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("subscription")
@@ -168,7 +166,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .Build(),
-                allScopes);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
