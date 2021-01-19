@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "bootstrap": "^4.5.3",
-    "monaco-editor": "^0.21.2",
+    "monaco-editor": "^0.21.3",
     "pako": "^2.0.3",
     "react": "^16.14.0",
     "react-bootstrap": "^1.4.3",
