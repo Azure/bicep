@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics.Namespaces

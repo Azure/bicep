@@ -63,6 +63,9 @@ namespace Bicep.Core.Syntax
             return result;
         }
 
+        public static ObjectSyntax MergeProperty(this ObjectSyntax? syntax, string propertyName, string propertyValue) =>
+            syntax.MergeProperty(propertyName, SyntaxFactory.CreateStringLiteral(propertyValue));
+
         public static ObjectSyntax MergeProperty(this ObjectSyntax? syntax, string propertyName, SyntaxBase propertyValue)
         {
             var objectToMerge = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty(propertyName, propertyValue).AsEnumerable());

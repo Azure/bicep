@@ -2,33 +2,38 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
     public class DecoratorResolver
     {
-        private readonly FunctionResolver functionResolver;
+        private readonly ImmutableDictionary<FunctionOverload, Decorator> decoratorsByOverloads;
 
-        private readonly ImmutableDictionary<FunctionSymbol, Decorator> decoratorsBySymbol;
+        private readonly FunctionResolver functionResolver;
 
         public DecoratorResolver(IEnumerable<Decorator> decorators)
         {
-            this.functionResolver = FunctionResolver.Create(decorators.Select(decorator => decorator.Overload));
-            this.decoratorsBySymbol = decorators.ToImmutableDictionary(decorator => functionResolver.GetKnownFunctions()[decorator.Overload.Name], decorator => decorator);
+            this.decoratorsByOverloads = decorators.ToImmutableDictionary(decorator => decorator.Overload, decorator => decorator);
+            this.functionResolver = FunctionResolver.Create(decoratorsByOverloads.Keys);
         }
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax) => this.functionResolver.TryGetSymbol(identifierSyntax);
 
         public ImmutableDictionary<string, FunctionSymbol> GetKnownDecoratorFunctions() => this.functionResolver.GetKnownFunctions();
 
-        public Decorator? TryGetDecorator(FunctionSymbol symbol)
+        public IEnumerable<Decorator> GetMatches(FunctionSymbol symbol, IList<TypeSymbol> argumentTypes)
         {
-            this.decoratorsBySymbol.TryGetValue(symbol, out Decorator? decorator);
-            return decorator;
+            foreach (var overload in FunctionResolver.GetMatches(symbol, argumentTypes, out var _, out var _))
+            {
+                this.decoratorsByOverloads.TryGetValue(overload, out Decorator? decorator);
+
+                if (decorator != null)
+                {
+                    yield return decorator;
+                }
+            }
         }
     }
 }

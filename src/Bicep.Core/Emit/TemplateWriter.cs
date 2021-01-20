@@ -144,18 +144,21 @@ namespace Bicep.Core.Emit
 
                 foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())
                 {
+
                     var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
                     if (symbol is FunctionSymbol decoratorSymbol)
                     {
-                        var decorator = this.context.SemanticModel.Root.ImportedNamespaces
-                            .Select(ns => ns.Value.Type.DecoratorResolver.TryGetDecorator(decoratorSymbol))
-                            .Single(d => d != null);
+                        var argumentTypes = decoratorSyntax.Arguments
+                            .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                            .ToArray();
 
-                        if (decorator is not null)
-                        {
-                            parameterProperties = decorator.Evaluate(decoratorSyntax, parameterProperties, primitiveType);
-                        }
+                        // There should be exact one matching decorator since there's no errors.
+                        Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
+                            .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
+                            .Single();
+                        
+                        parameterProperties = decorator.Evaluate(decoratorSyntax, primitiveType, parameterProperties);
                     }
                 }
 

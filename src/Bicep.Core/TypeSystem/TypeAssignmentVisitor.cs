@@ -9,7 +9,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Decorators;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -225,13 +224,24 @@ namespace Bicep.Core.TypeSystem
 
                 if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol symbol)
                 {
+                    var argumentTypes = decoratorSyntax.Arguments
+                        .Select(argument =>
+                        {
+                            var argumentType = typeManager.GetTypeInfo(argument);
+
+                            return argumentType is ErrorType ? LanguageConstants.Any : argumentType;
+                        })
+                        .ToArray();
+                    
+                    // There should exist exact one matching decorator if there's no argument mismatches,
+                    // since each argument must be a compile-time constant which cannot be of Any type.
                     Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces.Values
-                        .Select(ns => ns.Type.DecoratorResolver.TryGetDecorator(symbol))
-                        .Single(d => d != null);
+                        .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(symbol, argumentTypes))
+                        .SingleOrDefault();
 
                     if (decorator is not null)
                     {
-                        decorator.ValidateTarget(this.typeManager, decoratorSyntax, targetType, diagnostics);
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
                     }
                 }
             }
