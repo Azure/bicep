@@ -2,9 +2,6 @@ name: Build
 
 on:
   push:
-    tags:
-    - 'latest'
-    - 'v*'
     branches: [ main ]
   pull_request:
     branches: [ main ]
