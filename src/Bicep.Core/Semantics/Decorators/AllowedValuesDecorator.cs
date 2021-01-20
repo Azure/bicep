@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -20,8 +19,8 @@ namespace Bicep.Core.Semantics.Decorators
         {
         }
 
-        public override KeyValuePair<string, SyntaxBase>? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType) =>
-            new KeyValuePair<string, SyntaxBase>("allowedValues", decoratorSyntax.Arguments.Single());
+        public override ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, ObjectSyntax? targetObject, TypeSymbol targetType) =>
+            targetObject.MergeProperty("allowedValues", decoratorSyntax.Arguments.Single().Expression);
 
         public override void ValidateTarget(ITypeManager typeManager, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {

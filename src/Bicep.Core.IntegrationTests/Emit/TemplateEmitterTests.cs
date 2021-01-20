@@ -52,7 +52,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
-            var syntaxTreeGrouping = SyntaxFactory.CreateFromText("");
+            var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateFromText("");
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful

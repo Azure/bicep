@@ -339,6 +339,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new MaxLengthDecorator();
             yield return new SecureDecorator();
             yield return new MetadataDecorator();
+            yield return new DescriptionDecorator();
         }
 
         public AzNamespaceSymbol(ResourceScopeType resourceScope)

@@ -62,5 +62,12 @@ namespace Bicep.Core.Syntax
 
             return result;
         }
+
+        public static ObjectSyntax MergeProperty(this ObjectSyntax? syntax, string propertyName, SyntaxBase propertyValue)
+        {
+            var objectToMerge = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty(propertyName, propertyValue).AsEnumerable());
+
+            return syntax == null ? objectToMerge : SyntaxHelper.DeepMerge(syntax, objectToMerge);
+        }
     }
 }

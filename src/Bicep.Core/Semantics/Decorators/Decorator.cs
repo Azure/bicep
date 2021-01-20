@@ -19,7 +19,7 @@ namespace Bicep.Core.Semantics.Decorators
 
         public FunctionOverload Overload { get; }
 
-        public abstract KeyValuePair<string, SyntaxBase>? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType);
+        public abstract ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, ObjectSyntax? targetObject, TypeSymbol targetType);
 
         public virtual void ValidateTarget(ITypeManager typeManager, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {

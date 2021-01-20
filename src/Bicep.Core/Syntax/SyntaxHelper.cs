@@ -111,5 +111,37 @@ namespace Bicep.Core.Syntax
 
             return targetScope;
         }
+
+        public static ObjectSyntax DeepMerge(ObjectSyntax first, ObjectSyntax second)
+        {
+            var mergedPropertiesByName = first.Properties
+                .Where(p => p.TryGetKeyText() != null)
+                .ToDictionary(p => p.TryGetKeyText(), p => p);
+
+            foreach (var secondProperty in second.Properties)
+            {
+                var propertyName = secondProperty.TryGetKeyText();
+
+                if (propertyName is null)
+                {
+                    continue;
+                }
+
+                mergedPropertiesByName.TryGetValue(propertyName, out var firstProperty);
+
+                if (firstProperty?.Value is ObjectSyntax firstObject && secondProperty.Value is ObjectSyntax secondObject)
+                {
+                    mergedPropertiesByName[propertyName] = SyntaxFactory.CreateObjectProperty(
+                        propertyName,
+                        DeepMerge(firstObject, secondObject));
+                }
+                else
+                {
+                    mergedPropertiesByName[propertyName] = secondProperty;
+                }
+            }
+
+            return SyntaxFactory.CreateObject(mergedPropertiesByName.Values);
+        }
     }
 }

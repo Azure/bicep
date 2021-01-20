@@ -19,7 +19,7 @@ namespace Bicep.Core.Semantics.Decorators
         {
         }
 
-        public override KeyValuePair<string, SyntaxBase>? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType) =>
-            new KeyValuePair<string, SyntaxBase>("maxLength", decoratorSyntax.Arguments.Single());
+        public override ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, ObjectSyntax? targetObject, TypeSymbol targetType) =>
+            targetObject.MergeProperty("maxLength", decoratorSyntax.Arguments.Single().Expression);
     }
 }
