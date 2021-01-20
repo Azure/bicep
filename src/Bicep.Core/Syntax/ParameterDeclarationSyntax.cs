@@ -14,20 +14,6 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
-        public ParameterDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase? modifier)
-        {
-            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
-            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
-            AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
-            AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
-            
-            this.LeadingNodes = ImmutableArray<SyntaxBase>.Empty;
-            this.Keyword = keyword;
-            this.Name = name;
-            this.Type = type;
-            this.Modifier = modifier;
-        }
-
         public ParameterDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase? modifier)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);

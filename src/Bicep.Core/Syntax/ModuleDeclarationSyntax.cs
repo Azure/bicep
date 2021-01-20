@@ -12,26 +12,6 @@ namespace Bicep.Core.Syntax
 {
     public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
-        {
-            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
-            AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
-            AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
-            AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
-            AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
-            AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
-            AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
-
-            this.LeadingNodes = ImmutableArray<SyntaxBase>.Empty;
-            this.Keyword = keyword;
-            this.Name = name;
-            this.Path = path;
-            this.Assignment = assignment;
-            this.IfCondition = ifCondition;
-            this.Body = body;
-        }
-
         public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
