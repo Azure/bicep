@@ -140,7 +140,12 @@ namespace Bicep.Core.Emit
             if (parameterSymbol.DeclaringParameter.Decorators.Any())
             {
                 var parameterType = SyntaxFactory.CreateStringLiteral(primitiveType.Name);
-                var parameterProperties = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", parameterType).AsEnumerable());
+                var parameterObject = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", parameterType).AsEnumerable());
+
+                if (parameterSymbol.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
+                {
+                    parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
+                }
 
                 foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())
                 {
@@ -158,11 +163,11 @@ namespace Bicep.Core.Emit
                             .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
                             .Single();
                         
-                        parameterProperties = decorator.Evaluate(decoratorSyntax, primitiveType, parameterProperties);
+                        parameterObject = decorator.Evaluate(decoratorSyntax, primitiveType, parameterObject);
                     }
                 }
 
-                foreach (var (name, value) in parameterProperties.ToKnownPropertyValueDictionary())
+                foreach (var (name, value) in parameterObject.ToKnownPropertyValueDictionary())
                 {
                     this.emitter.EmitProperty(name, value);
                 }
