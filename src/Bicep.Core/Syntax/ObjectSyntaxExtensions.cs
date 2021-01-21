@@ -68,9 +68,52 @@ namespace Bicep.Core.Syntax
 
         public static ObjectSyntax MergeProperty(this ObjectSyntax? syntax, string propertyName, SyntaxBase propertyValue)
         {
-            var objectToMerge = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty(propertyName, propertyValue).AsEnumerable());
+            if (syntax == null)
+            {
+                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty(propertyName, propertyValue).AsEnumerable());
+            }
 
-            return syntax == null ? objectToMerge : SyntaxHelper.DeepMerge(syntax, objectToMerge);
+            var properties = syntax.Properties.ToList();
+            int matchingIndex = 0;
+
+            while (matchingIndex < properties.Count)
+            {
+                if (string.Equals(properties[matchingIndex].TryGetKeyText(), propertyName, LanguageConstants.IdentifierComparison))
+                {
+                    break;
+                }
+
+                matchingIndex++;
+            }
+
+            if (matchingIndex < properties.Count)
+            {
+                // If both property values are objects, merge them. Otherwise, replace the matching property value.
+                SyntaxBase mergedValue = properties[matchingIndex].Value is ObjectSyntax sourceObject && propertyValue is ObjectSyntax targetObject
+                    ? sourceObject.DeepMerge(targetObject)
+                    : propertyValue;
+
+                properties[matchingIndex] = SyntaxFactory.CreateObjectProperty(propertyName, mergedValue);
+            }
+            else
+            {
+                properties.Add(SyntaxFactory.CreateObjectProperty(propertyName, propertyValue));
+            }
+
+            return SyntaxFactory.CreateObject(properties);
+        }
+
+        public static ObjectSyntax DeepMerge(this ObjectSyntax? sourceObject, ObjectSyntax targetObject)
+        {
+            if (sourceObject == null)
+            {
+                return targetObject;
+            }
+
+            return targetObject.Properties.Aggregate(sourceObject, (mergedObject, property) =>
+                property.TryGetKeyText() is string propertyName
+                    ? mergedObject.MergeProperty(propertyName, property.Value)
+                    : mergedObject);
         }
     }
 }

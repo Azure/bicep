@@ -167,9 +167,12 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                foreach (var (name, value) in parameterObject.ToKnownPropertyValueDictionary())
+                foreach (var property in parameterObject.Properties)
                 {
-                    this.emitter.EmitProperty(name, value);
+                    if (property.TryGetKeyText() is string propertyName)
+                    {
+                        this.emitter.EmitProperty(propertyName, property.Value);
+                    }
                 }
             }
             else
