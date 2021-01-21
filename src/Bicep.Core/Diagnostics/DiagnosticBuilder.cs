@@ -752,6 +752,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP130",
                 "Decorators are not allowed here.");
+
+            public ErrorDiagnostic CannotUseParameterDecoratorsAndModifiersTogether() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP131",
+                "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

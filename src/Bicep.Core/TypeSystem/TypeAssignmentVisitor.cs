@@ -179,6 +179,11 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Modifier != null)
                 {
+                    if (syntax.Decorators.Any() && syntax.Modifier is ObjectSyntax modifierSyntax)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether());
+                    }
+
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
                 }
 
