@@ -331,3 +331,8 @@ module completionE '' = {
 module cwdFileCompletion '.' 
 //@[25:28) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'.'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+//@[24:39) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}ChildModules\'. |'ChildModules/'|
+//@[39:39) [BCP018 (Error)] Expected the "=" character at this location. ||

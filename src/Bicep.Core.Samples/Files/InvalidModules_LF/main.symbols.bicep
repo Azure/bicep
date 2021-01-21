@@ -309,3 +309,7 @@ module completionE '' = {
 // #completionTest(20, 21, 22, 23) -> cwdFileCompletions
 module cwdFileCompletion '.' 
 //@[7:24) Module cwdFileCompletion. Type: error. Declaration start char: 0, length: 29
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+//@[7:23) Module childCompletionA. Type: error. Declaration start char: 0, length: 39

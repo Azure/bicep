@@ -47,7 +47,7 @@ namespace Bicep.Core.FileSystem
         }
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern="")
-        { 
+        {
             if (!fileUri.IsFile) 
             {
                 return Enumerable.Empty<Uri>();

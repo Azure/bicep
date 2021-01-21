@@ -213,19 +213,21 @@ namespace Bicep.LanguageServer.Completions
             }
             else if (FileResolver.TryResolveModulePath(query, ".") is {} queryParent)
             {
-                files = FileResolver.GetFiles(queryParent, $"{query.Segments[^1]}*");
-                dirs = FileResolver.GetDirectories(queryParent, $"{query.Segments[^1]}*");
+                files = FileResolver.GetFiles(queryParent, "");
+                dirs = FileResolver.GetDirectories(queryParent,"");
             }
-            // "./" will be preserved when making relative Uris. We have to go and manually add it.
+            // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+            // Prioritize .bicep files higher than other files.
             var fileItems = files
+                .Where(file => file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId))
                 .Select(file => CreateModulePathCompletion(
                     file.Segments.Last(), 
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(), 
                     context.ReplacementRange, 
                     CompletionItemKind.File, 
-                    CompletionPriority.High,
-                    false)
-                ).ToList();
+                    file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium,
+                    false))
+                .ToList();
 
             // don't do completion range manipulation (described in CreateModulePathCompletion) 
             // if we have to autocomplete entire path (module m <autocomplete>)
@@ -236,8 +238,8 @@ namespace Bicep.LanguageServer.Completions
                     context.ReplacementRange, 
                     CompletionItemKind.Folder, 
                     CompletionPriority.Medium,
-                    adjustCursor)
-                ).ToList();
+                    adjustCursor))
+                .ToList();
             return fileItems.Concat(dirItems);
         }
 

@@ -1545,4 +1545,18 @@ module cwdFileCompletion '.'
 //@[29:29)  SkippedTriviaSyntax
 //@[29:29)  SkippedTriviaSyntax
 //@[29:29)  SkippedTriviaSyntax
-//@[29:29) EndOfFile ||
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+//@[102:103) NewLine |\n|
+module childCompletionA 'ChildModules/'
+//@[0:39) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionA|
+//@[24:39)  StringSyntax
+//@[24:39)   StringComplete |'ChildModules/'|
+//@[39:39)  SkippedTriviaSyntax
+//@[39:39)  SkippedTriviaSyntax
+//@[39:39)  SkippedTriviaSyntax
+//@[39:39) EndOfFile ||
