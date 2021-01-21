@@ -27,12 +27,9 @@ namespace Bicep.Core.Semantics
                 {
                     var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
 
-                    if (allowedFlags.HasDecoratorFlag())
-                    {
-                        return knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys);
-                    }
-
-                    return knowFunctionNames;
+                    return allowedFlags.HasDecoratorFlag()
+                        ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        : knowFunctionNames;
                 },
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
                     null => builder.FunctionDoesNotExistInNamespace(namespaceSymbol, identifierSyntax.IdentifierName),
@@ -59,12 +56,9 @@ namespace Bicep.Core.Semantics
                 {
                     var knowFunctionNames = x.Type.MethodResolver.GetKnownFunctions().Keys;
 
-                    if (allowedFlags.HasDecoratorFlag())
-                    {
-                        return knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys);
-                    }
-
-                    return knowFunctionNames;
+                    return allowedFlags.HasDecoratorFlag()
+                        ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        : knowFunctionNames;
                 }),
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),

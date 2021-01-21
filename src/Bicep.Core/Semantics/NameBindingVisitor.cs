@@ -83,7 +83,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
-            //base.VisitVariableDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.VariableDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
@@ -96,7 +95,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            //base.VisitOutputDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.OutputDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
@@ -110,7 +108,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            //base.VisitParameterDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.ParameterDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
@@ -123,7 +120,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            //base.VisitFunctionCallSyntax(syntax);
             FunctionFlags currentFlags = allowedFlags;
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
@@ -140,7 +136,6 @@ namespace Bicep.Core.Semantics
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            //base.VisitInstanceFunctionCallSyntax(syntax);
             FunctionFlags currentFlags = allowedFlags;
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.Dot);

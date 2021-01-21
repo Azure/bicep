@@ -92,7 +92,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     new  TypeProperty("id", LanguageConstants.String),
                     new  TypeProperty("name", LanguageConstants.String),
-
                     new  TypeProperty("displayName", LanguageConstants.String),
                     new  TypeProperty("longitude", LanguageConstants.String),
                 }, null), TypeSymbolValidationFlags.Default)),
@@ -227,6 +226,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithDescription(resourceIdDescription)
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+            //base.VisitInstanceFunctionCallSyntax(syntax);
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
@@ -296,7 +296,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("resourceType",LanguageConstants.String, "The type of resource within the specified namespace")
                 .Build();
 
-            // TODO: return type is string[]Array
+            // TODO: return type is string[]
             // TODO: Location param should be of location type if we ever add it
             yield return new FunctionOverloadBuilder("pickZones")
                 .WithReturnType(LanguageConstants.Array)
