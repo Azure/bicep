@@ -44,7 +44,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(Type, Modifier));
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(Type, Modifier));
 
         /// <summary>
         /// Gets the declared type syntax of this parameter declaration. Certain parse errors will cause it to be null.

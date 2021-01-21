@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -50,7 +51,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Keyword, Body);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Body);
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 

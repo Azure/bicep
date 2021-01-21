@@ -65,19 +65,33 @@ namespace Bicep.Core.Parsing
                     List<SyntaxBase> leadingNodes = new();
 
                     // Parse decorators before the declaration.
-                    while (!this.IsAtEnd() && this.reader.Peek().Type == TokenType.At)
+                    if (this.Check(TokenType.At))
                     {
-                        var decorator = this.Decorator();
-                        leadingNodes.Add(decorator);
-
-                        var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
-                        if (newLine != null)
+                        while (true)
                         {
-                            leadingNodes.Add(newLine);
+                            if (this.Check(TokenType.At))
+                            {
+                                leadingNodes.Add(this.Decorator());
+                                continue;
+                            }
+
+                            if (this.Check(TokenType.NewLine))
+                            {
+                                var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
+
+                                if (newLine != null)
+                                {
+                                    leadingNodes.Add(newLine);
+                                }
+
+                                continue;
+                            }
+
+                            break;
                         }
                     }
 
-                    var current = reader.Peek();
+                    Token current = reader.Peek();
 
                     return current.Type switch
                     {

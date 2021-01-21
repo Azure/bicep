@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
@@ -46,7 +47,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTargetScopeSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, this.Value);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.Value);
 
         public TypeSymbol GetDeclaredType()
         {
