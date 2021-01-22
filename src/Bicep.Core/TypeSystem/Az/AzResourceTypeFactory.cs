@@ -72,7 +72,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (scope.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Extension) || scope == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
             {
                 var scopeRequiredFlag = (scope == Azure.Bicep.Types.Concrete.ScopeType.Extension) ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                properties.Add(new TypeProperty("scope", new ResourceScopeReference("resource", ResourceScopeType.ResourceScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag));
+                properties.Add(new TypeProperty("scope", new ResourceReferenceType("resource", ResourceScope.Resource), TypePropertyFlags.WriteOnly | scopeRequiredFlag));
             }
 
             // TODO: remove 'dependsOn' from the type library and add it here

@@ -49,7 +49,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TypeString => Type as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScopeType targetScope, IResourceTypeProvider resourceTypeProvider)
+        public TypeSymbol GetDeclaredType(ResourceScope targetScope, IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
 

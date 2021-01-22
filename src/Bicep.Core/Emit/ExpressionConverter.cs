@@ -180,7 +180,7 @@ namespace Bicep.Core.Emit
                     new JTokenExpression(i)));
         }
 
-        private LanguageExpression GenerateScopedResourceId(ResourceSymbol resourceSymbol, ResourceScopeType? targetScope)
+        private LanguageExpression GenerateScopedResourceId(ResourceSymbol resourceSymbol, ResourceScope? targetScope)
         {
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
             var nameSegments = GetResourceNameSegments(resourceSymbol, typeReference);
