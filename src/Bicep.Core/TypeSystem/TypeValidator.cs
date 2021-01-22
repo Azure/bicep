@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
-                case TypeSymbol _ when targetType is ResourceScopeReference scopeReference:
+                case TypeSymbol _ when targetType is ResourceReferenceType scopeReference:
                     return sourceType is IResourceScopeType resourceScopeType && scopeReference.ResourceScopeType.HasFlag(resourceScopeType.ResourceScopeType);
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
