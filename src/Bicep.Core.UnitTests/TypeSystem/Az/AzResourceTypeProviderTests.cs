@@ -23,17 +23,17 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     public class AzResourceTypeProviderTests
     {
         [DataTestMethod]
-        [DataRow(ResourceScopeType.TenantScope)]
-        [DataRow(ResourceScopeType.ManagementGroupScope)]
-        [DataRow(ResourceScopeType.SubscriptionScope)]
-        [DataRow(ResourceScopeType.ResourceGroupScope)]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceScopeType scopeType)
+        [DataRow(ResourceScope.Tenant)]
+        [DataRow(ResourceScope.ManagementGroup)]
+        [DataRow(ResourceScope.Subscription)]
+        [DataRow(ResourceScope.ResourceGroup)]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceScope scopeType)
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
             var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
 
             // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = scopeType == ResourceScopeType.ResourceGroupScope ? 2000 : 100;
+            var expectedTypeCount = scopeType == ResourceScope.ResourceGroup ? 2000 : 100;
             availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
 
             foreach (var availableType in availableTypes)
@@ -54,18 +54,18 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         }
 
         [DataTestMethod]
-        [DataRow(ResourceScopeType.TenantScope)]
-        [DataRow(ResourceScopeType.ManagementGroupScope)]
-        [DataRow(ResourceScopeType.SubscriptionScope)]
-        [DataRow(ResourceScopeType.ResourceGroupScope)]
-        public void AzResourceTypeProvider_can_list_all_types_without_throwing(ResourceScopeType scopeType)
+        [DataRow(ResourceScope.Tenant)]
+        [DataRow(ResourceScope.ManagementGroup)]
+        [DataRow(ResourceScope.Subscription)]
+        [DataRow(ResourceScope.ResourceGroup)]
+        public void AzResourceTypeProvider_can_list_all_types_without_throwing(ResourceScope scopeType)
         
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
             var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
 
             // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = scopeType == ResourceScopeType.ResourceGroupScope ? 2000 : 100;
+            var expectedTypeCount = scopeType == ResourceScope.ResourceGroup ? 2000 : 100;
             availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
         }
 

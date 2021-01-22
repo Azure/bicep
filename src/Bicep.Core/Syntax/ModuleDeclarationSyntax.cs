@@ -55,7 +55,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(ResourceScope containingScope, SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
             foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)

@@ -62,19 +62,19 @@ namespace Bicep.Core.Emit
             this.emitter = new ExpressionEmitter(writer, context);
         }
 
-        private static string GetSchema(ResourceScopeType targetScope)
+        private static string GetSchema(ResourceScope targetScope)
         {
-            if (targetScope.HasFlag(ResourceScopeType.TenantScope))
+            if (targetScope.HasFlag(ResourceScope.Tenant))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
             }
 
-            if (targetScope.HasFlag(ResourceScopeType.ManagementGroupScope))
+            if (targetScope.HasFlag(ResourceScope.ManagementGroup))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#";
             }
 
-            if (targetScope.HasFlag(ResourceScopeType.SubscriptionScope))
+            if (targetScope.HasFlag(ResourceScope.Subscription))
             {
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }
@@ -336,10 +336,10 @@ namespace Bicep.Core.Emit
             var scopeData = context.ModuleScopeData[moduleSymbol];
             ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter);
 
-            if (scopeData.RequestedScope != ResourceScopeType.ResourceGroupScope)
+            if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
             {
                 // if we're deploying to a scope other than resource group, we need to supply a location
-                if (this.context.SemanticModel.TargetScope == ResourceScopeType.ResourceGroupScope)
+                if (this.context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
                 {
                     // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
                     this.emitter.EmitProperty("location", new FunctionExpression(

@@ -57,7 +57,7 @@ namespace Bicep.Core.Syntax
 
         public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
-        public TypeSymbol GetDeclaredType(ResourceScopeType targetScope, IResourceTypeProvider resourceTypeProvider)
+        public TypeSymbol GetDeclaredType(ResourceScope targetScope, IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
 
