@@ -288,3 +288,10 @@ module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
 
+//@az.secure()
+@minValue()
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[7:40) Module moduleWithNotAttachableDecorators. Type: module. Declaration start char: 0, length: 118
+  name: 'moduleWithNotAttachableDecorators'
+}
+

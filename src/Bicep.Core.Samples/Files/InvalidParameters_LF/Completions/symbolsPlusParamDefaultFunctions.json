@@ -1312,6 +1312,34 @@
     }
   },
   {
+    "label": "someInteger",
+    "kind": "field",
+    "detail": "someInteger",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someInteger",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "someInteger"
+    }
+  },
+  {
+    "label": "someString",
+    "kind": "field",
+    "detail": "someString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "someString"
+    }
+  },
+  {
     "label": "split",
     "kind": "function",
     "detail": "split()",

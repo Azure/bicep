@@ -412,6 +412,27 @@ param commaTwo string {
     default: 'abc'
 }
 
+@concat(1, 2)
+//@[1:7) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
+@secure()
+// wrong target type
+@minValue(20)
+//@[0:13) [BCP124 (Error)] The decorator "minValue" can only be attached to targets of type "int", but the target has type "string". |@minValue(20)|
+param someString string {
+//@[24:25) [BCP131 (Error)] Parameter modifiers and decorators cannot be used together. Please use decorators only. |{|
+	// using decorators and modifier at the same time
+    secure: true
+}
+
+@allowed([
+    true
+//@[4:8) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "bool". |true|
+    10
+    'foo'
+//@[4:9) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'foo'". |'foo'|
+])
+param someInteger int = 20
+
 // unterminated multi-line comment
 /*    
 //@[0:6) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. |/*    |

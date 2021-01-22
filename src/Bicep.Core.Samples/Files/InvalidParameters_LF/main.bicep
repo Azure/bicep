@@ -291,5 +291,21 @@ param commaTwo string {
     default: 'abc'
 }
 
+@concat(1, 2)
+@secure()
+// wrong target type
+@minValue(20)
+param someString string {
+	// using decorators and modifier at the same time
+    secure: true
+}
+
+@allowed([
+    true
+    10
+    'foo'
+])
+param someInteger int = 20
+
 // unterminated multi-line comment
 /*    

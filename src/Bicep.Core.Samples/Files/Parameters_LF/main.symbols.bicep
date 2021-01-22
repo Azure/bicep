@@ -171,3 +171,49 @@ param defaultValueExpression int {
 param defaultExpression bool = 18 != (true || false)
 //@[6:23) Parameter defaultExpression. Type: bool. Declaration start char: 0, length: 52
 
+@secure()
+@minLength(2)
+  @maxLength(10)
+@allowed([
+  'Apple'
+  'Banana'
+])
+param decoratedString string
+//@[6:21) Parameter decoratedString. Type: string. Declaration start char: 0, length: 104
+
+@minValue(200)
+param decoratedInt int = 123
+//@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 43
+
+@az.description('A boolean.')
+@metadata({
+    description: 'I will be overrode.'
+    foo: 'something'
+    bar: [
+        {          }
+        true
+        123
+    ]
+})
+param decoratedBool bool
+//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 192
+
+@secure()
+@secure()
+@secure()
+param decoratedObject object = {
+//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 85
+  location: 'westus'
+}
+
+
+@metadata({
+    description: 'An array.'
+})
+@maxLength(20)
+@maxLength(10)
+@maxLength(5)
+@az.description('I will be overrode.')
+param decoratedArray array
+//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 153
+

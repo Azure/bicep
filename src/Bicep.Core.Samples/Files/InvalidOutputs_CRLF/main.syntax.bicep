@@ -598,6 +598,46 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[48:49)    Plus |+|
 //@[50:52)    NumericLiteralSyntax
 //@[50:52)     Number |10|
-//@[52:54) NewLine |\r\n|
+//@[52:56) NewLine |\r\n\r\n|
+
+@az.maxValue(20)
+//@[0:72) OutputDeclarationSyntax
+//@[0:16)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:16)   InstanceFunctionCallSyntax
+//@[1:3)    VariableAccessSyntax
+//@[1:3)     IdentifierSyntax
+//@[1:3)      Identifier |az|
+//@[3:4)    Dot |.|
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |maxValue|
+//@[12:13)    LeftParen |(|
+//@[13:15)    FunctionArgumentSyntax
+//@[13:15)     NumericLiteralSyntax
+//@[13:15)      Number |20|
+//@[15:16)    RightParen |)|
+//@[16:18)  NewLine |\r\n|
+@minValue(10)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:12)    FunctionArgumentSyntax
+//@[10:12)     NumericLiteralSyntax
+//@[10:12)      Number |10|
+//@[12:13)    RightParen |)|
+//@[13:15)  NewLine |\r\n|
+output notAttachableDecorators int = 32
+//@[0:6)  Identifier |output|
+//@[7:30)  IdentifierSyntax
+//@[7:30)   Identifier |notAttachableDecorators|
+//@[31:34)  TypeSyntax
+//@[31:34)   Identifier |int|
+//@[35:36)  Assignment |=|
+//@[37:39)  NumericLiteralSyntax
+//@[37:39)   Number |32|
+//@[39:41) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

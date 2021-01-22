@@ -721,7 +721,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic CannotAttacheDecoratorToTarget(string decoratorName, TypeSymbol attachableType, TypeSymbol targetType) => new ErrorDiagnostic(
                 TextSpan,
                 "BCP124",
-                $"The decorator '{decoratorName}' can only be attached to targets of type '{attachableType}', but the target has type '{targetType}'.");
+                $"The decorator \"{decoratorName}\" can only be attached to targets of type \"{attachableType}\", but the target has type \"{targetType}\".");
 
             public ErrorDiagnostic CannotUseFunctionAsParameterDecorator(string functionName) => new ErrorDiagnostic(
                 TextSpan,

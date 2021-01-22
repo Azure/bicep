@@ -140,3 +140,8 @@ output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 //@[7:13) Output deeper. Type: bool. Declaration start char: 0, length: 52
 
+@az.maxValue(20)
+@minValue(10)
+output notAttachableDecorators int = 32
+//@[7:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 72
+

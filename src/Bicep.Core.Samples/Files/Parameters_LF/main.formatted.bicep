@@ -142,3 +142,43 @@ param defaultValueExpression int {
 }
 
 param defaultExpression bool = 18 != (true || false)
+
+@secure()
+@minLength(2)
+@maxLength(10)
+@allowed([
+  'Apple'
+  'Banana'
+])
+param decoratedString string
+
+@minValue(200)
+param decoratedInt int = 123
+
+@az.description('A boolean.')
+@metadata({
+  description: 'I will be overrode.'
+  foo: 'something'
+  bar: [
+    {}
+    true
+    123
+  ]
+})
+param decoratedBool bool
+
+@secure()
+@secure()
+@secure()
+param decoratedObject object = {
+  location: 'westus'
+}
+
+@metadata({
+  description: 'An array.'
+})
+@maxLength(20)
+@maxLength(10)
+@maxLength(5)
+@az.description('I will be overrode.')
+param decoratedArray array

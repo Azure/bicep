@@ -368,5 +368,23 @@ param commaTwo string {
     default: 'abc'
 }
 
+@concat(1, 2)
+@secure()
+// wrong target type
+@minValue(20)
+param someString string {
+//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 154
+	// using decorators and modifier at the same time
+    secure: true
+}
+
+@allowed([
+    true
+    10
+    'foo'
+])
+param someInteger int = 20
+//@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 66
+
 // unterminated multi-line comment
 /*    

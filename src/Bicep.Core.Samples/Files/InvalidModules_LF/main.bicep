@@ -231,3 +231,9 @@ module moduleWithDuplicateName1 './empty.bicep' = {
 module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
+
+//@az.secure()
+@minValue()
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+  name: 'moduleWithNotAttachableDecorators'
+}

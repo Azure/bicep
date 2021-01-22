@@ -852,6 +852,468 @@ param stringLiteralWithAllowedValuesSuperset string {
 //@[24:26)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+@secure()
+//@[0:111) ParameterDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+@minLength(2)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     NumericLiteralSyntax
+//@[11:12)      Number |2|
+//@[12:13)    RightParen |)|
+//@[13:15)  NewLine |\r\n|
+  @maxLength(10)
+//@[2:16)  DecoratorSyntax
+//@[2:3)   At |@|
+//@[3:16)   FunctionCallSyntax
+//@[3:12)    IdentifierSyntax
+//@[3:12)     Identifier |maxLength|
+//@[12:13)    LeftParen |(|
+//@[13:15)    FunctionArgumentSyntax
+//@[13:15)     NumericLiteralSyntax
+//@[13:15)      Number |10|
+//@[15:16)    RightParen |)|
+//@[16:18)  NewLine |\r\n|
+@allowed([
+//@[0:37)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:37)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:36)    FunctionArgumentSyntax
+//@[9:36)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:12)      NewLine |\r\n|
+  'Apple'
+//@[2:9)      ArrayItemSyntax
+//@[2:9)       StringSyntax
+//@[2:9)        StringComplete |'Apple'|
+//@[9:11)      NewLine |\r\n|
+  'Banana'
+//@[2:10)      ArrayItemSyntax
+//@[2:10)       StringSyntax
+//@[2:10)        StringComplete |'Banana'|
+//@[10:12)      NewLine |\r\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:4)  NewLine |\r\n|
+param decoratedString string
+//@[0:5)  Identifier |param|
+//@[6:21)  IdentifierSyntax
+//@[6:21)   Identifier |decoratedString|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |string|
+//@[28:32) NewLine |\r\n\r\n|
+
+@minValue(200)
+//@[0:44) ParameterDeclarationSyntax
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:13)     NumericLiteralSyntax
+//@[10:13)      Number |200|
+//@[13:14)    RightParen |)|
+//@[14:16)  NewLine |\r\n|
+param decoratedInt int = 123
+//@[0:5)  Identifier |param|
+//@[6:18)  IdentifierSyntax
+//@[6:18)   Identifier |decoratedInt|
+//@[19:22)  TypeSyntax
+//@[19:22)   Identifier |int|
+//@[23:28)  ParameterDefaultValueSyntax
+//@[23:24)   Assignment |=|
+//@[25:28)   NumericLiteralSyntax
+//@[25:28)    Number |123|
+//@[28:32) NewLine |\r\n\r\n|
+
+@az.description('A boolean.')
+//@[0:228) ParameterDeclarationSyntax
+//@[0:29)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:29)   InstanceFunctionCallSyntax
+//@[1:3)    VariableAccessSyntax
+//@[1:3)     IdentifierSyntax
+//@[1:3)      Identifier |az|
+//@[3:4)    Dot |.|
+//@[4:15)    IdentifierSyntax
+//@[4:15)     Identifier |description|
+//@[15:16)    LeftParen |(|
+//@[16:28)    FunctionArgumentSyntax
+//@[16:28)     StringSyntax
+//@[16:28)      StringComplete |'A boolean.'|
+//@[28:29)    RightParen |)|
+//@[29:31)  NewLine |\r\n|
+@metadata({
+//@[0:145)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:145)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:144)    FunctionArgumentSyntax
+//@[10:144)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:13)      NewLine |\r\n|
+    description: 'I will be overrode.'
+//@[4:38)      ObjectPropertySyntax
+//@[4:15)       IdentifierSyntax
+//@[4:15)        Identifier |description|
+//@[15:16)       Colon |:|
+//@[17:38)       StringSyntax
+//@[17:38)        StringComplete |'I will be overrode.'|
+//@[38:40)      NewLine |\r\n|
+    foo: 'something'
+//@[4:20)      ObjectPropertySyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |foo|
+//@[7:8)       Colon |:|
+//@[9:20)       StringSyntax
+//@[9:20)        StringComplete |'something'|
+//@[20:22)      NewLine |\r\n|
+    bar: [
+//@[4:66)      ObjectPropertySyntax
+//@[4:7)       IdentifierSyntax
+//@[4:7)        Identifier |bar|
+//@[7:8)       Colon |:|
+//@[9:66)       ArraySyntax
+//@[9:10)        LeftSquare |[|
+//@[10:12)        NewLine |\r\n|
+        {          }
+//@[8:20)        ArrayItemSyntax
+//@[8:20)         ObjectSyntax
+//@[8:9)          LeftBrace |{|
+//@[19:20)          RightBrace |}|
+//@[20:22)        NewLine |\r\n|
+        true
+//@[8:12)        ArrayItemSyntax
+//@[8:12)         BooleanLiteralSyntax
+//@[8:12)          TrueKeyword |true|
+//@[12:14)        NewLine |\r\n|
+        123
+//@[8:11)        ArrayItemSyntax
+//@[8:11)         NumericLiteralSyntax
+//@[8:11)          Number |123|
+//@[11:13)        NewLine |\r\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:7)      NewLine |\r\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:4)  NewLine |\r\n|
+param decoratedBool bool = (true && false) != true
+//@[0:5)  Identifier |param|
+//@[6:19)  IdentifierSyntax
+//@[6:19)   Identifier |decoratedBool|
+//@[20:24)  TypeSyntax
+//@[20:24)   Identifier |bool|
+//@[25:50)  ParameterDefaultValueSyntax
+//@[25:26)   Assignment |=|
+//@[27:50)   BinaryOperationSyntax
+//@[27:42)    ParenthesizedExpressionSyntax
+//@[27:28)     LeftParen |(|
+//@[28:41)     BinaryOperationSyntax
+//@[28:32)      BooleanLiteralSyntax
+//@[28:32)       TrueKeyword |true|
+//@[33:35)      LogicalAnd |&&|
+//@[36:41)      BooleanLiteralSyntax
+//@[36:41)       FalseKeyword |false|
+//@[41:42)     RightParen |)|
+//@[43:45)    NotEquals |!=|
+//@[46:50)    BooleanLiteralSyntax
+//@[46:50)     TrueKeyword |true|
+//@[50:54) NewLine |\r\n\r\n|
+
+@secure()
+//@[0:298) ParameterDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+param decoratedObject object = {
+//@[0:5)  Identifier |param|
+//@[6:21)  IdentifierSyntax
+//@[6:21)   Identifier |decoratedObject|
+//@[22:28)  TypeSyntax
+//@[22:28)   Identifier |object|
+//@[29:265)  ParameterDefaultValueSyntax
+//@[29:30)   Assignment |=|
+//@[31:265)   ObjectSyntax
+//@[31:32)    LeftBrace |{|
+//@[32:34)    NewLine |\r\n|
+  enabled: true
+//@[2:15)    ObjectPropertySyntax
+//@[2:9)     IdentifierSyntax
+//@[2:9)      Identifier |enabled|
+//@[9:10)     Colon |:|
+//@[11:15)     BooleanLiteralSyntax
+//@[11:15)      TrueKeyword |true|
+//@[15:17)    NewLine |\r\n|
+  name: 'this is my object'
+//@[2:27)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:27)     StringSyntax
+//@[8:27)      StringComplete |'this is my object'|
+//@[27:29)    NewLine |\r\n|
+  priority: 3
+//@[2:13)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |priority|
+//@[10:11)     Colon |:|
+//@[12:13)     NumericLiteralSyntax
+//@[12:13)      Number |3|
+//@[13:15)    NewLine |\r\n|
+  info: {
+//@[2:26)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |info|
+//@[6:7)     Colon |:|
+//@[8:26)     ObjectSyntax
+//@[8:9)      LeftBrace |{|
+//@[9:11)      NewLine |\r\n|
+    a: 'b'
+//@[4:10)      ObjectPropertySyntax
+//@[4:5)       IdentifierSyntax
+//@[4:5)        Identifier |a|
+//@[5:6)       Colon |:|
+//@[7:10)       StringSyntax
+//@[7:10)        StringComplete |'b'|
+//@[10:12)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  empty: {
+//@[2:15)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |empty|
+//@[7:8)     Colon |:|
+//@[9:15)     ObjectSyntax
+//@[9:10)      LeftBrace |{|
+//@[10:12)      NewLine |\r\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
+  array: [
+//@[2:122)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |array|
+//@[7:8)     Colon |:|
+//@[9:122)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:12)      NewLine |\r\n|
+    'string item'
+//@[4:17)      ArrayItemSyntax
+//@[4:17)       StringSyntax
+//@[4:17)        StringComplete |'string item'|
+//@[17:19)      NewLine |\r\n|
+    12
+//@[4:6)      ArrayItemSyntax
+//@[4:6)       NumericLiteralSyntax
+//@[4:6)        Number |12|
+//@[6:8)      NewLine |\r\n|
+    true
+//@[4:8)      ArrayItemSyntax
+//@[4:8)       BooleanLiteralSyntax
+//@[4:8)        TrueKeyword |true|
+//@[8:10)      NewLine |\r\n|
+    [
+//@[4:40)      ArrayItemSyntax
+//@[4:40)       ArraySyntax
+//@[4:5)        LeftSquare |[|
+//@[5:7)        NewLine |\r\n|
+      'inner'
+//@[6:13)        ArrayItemSyntax
+//@[6:13)         StringSyntax
+//@[6:13)          StringComplete |'inner'|
+//@[13:15)        NewLine |\r\n|
+      false
+//@[6:11)        ArrayItemSyntax
+//@[6:11)         BooleanLiteralSyntax
+//@[6:11)          FalseKeyword |false|
+//@[11:13)        NewLine |\r\n|
+    ]
+//@[4:5)        RightSquare |]|
+//@[5:7)      NewLine |\r\n|
+    {
+//@[4:26)      ArrayItemSyntax
+//@[4:26)       ObjectSyntax
+//@[4:5)        LeftBrace |{|
+//@[5:7)        NewLine |\r\n|
+      a: 'b'
+//@[6:12)        ObjectPropertySyntax
+//@[6:7)         IdentifierSyntax
+//@[6:7)          Identifier |a|
+//@[7:8)         Colon |:|
+//@[9:12)         StringSyntax
+//@[9:12)          StringComplete |'b'|
+//@[12:14)        NewLine |\r\n|
+    }
+//@[4:5)        RightBrace |}|
+//@[5:7)      NewLine |\r\n|
+  ]
+//@[2:3)      RightSquare |]|
+//@[3:5)    NewLine |\r\n|
+}
+//@[0:1)    RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+@az.metadata({
+//@[0:202) ParameterDeclarationSyntax
+//@[0:48)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:48)   InstanceFunctionCallSyntax
+//@[1:3)    VariableAccessSyntax
+//@[1:3)     IdentifierSyntax
+//@[1:3)      Identifier |az|
+//@[3:4)    Dot |.|
+//@[4:12)    IdentifierSyntax
+//@[4:12)     Identifier |metadata|
+//@[12:13)    LeftParen |(|
+//@[13:47)    FunctionArgumentSyntax
+//@[13:47)     ObjectSyntax
+//@[13:14)      LeftBrace |{|
+//@[14:16)      NewLine |\r\n|
+    description: 'An array.'
+//@[4:28)      ObjectPropertySyntax
+//@[4:15)       IdentifierSyntax
+//@[4:15)        Identifier |description|
+//@[15:16)       Colon |:|
+//@[17:28)       StringSyntax
+//@[17:28)        StringComplete |'An array.'|
+//@[28:30)      NewLine |\r\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:4)  NewLine |\r\n|
+@az.maxLength(20)
+//@[0:17)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:17)   InstanceFunctionCallSyntax
+//@[1:3)    VariableAccessSyntax
+//@[1:3)     IdentifierSyntax
+//@[1:3)      Identifier |az|
+//@[3:4)    Dot |.|
+//@[4:13)    IdentifierSyntax
+//@[4:13)     Identifier |maxLength|
+//@[13:14)    LeftParen |(|
+//@[14:16)    FunctionArgumentSyntax
+//@[14:16)     NumericLiteralSyntax
+//@[14:16)      Number |20|
+//@[16:17)    RightParen |)|
+//@[17:19)  NewLine |\r\n|
+@maxLength(10)
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:13)    FunctionArgumentSyntax
+//@[11:13)     NumericLiteralSyntax
+//@[11:13)      Number |10|
+//@[13:14)    RightParen |)|
+//@[14:16)  NewLine |\r\n|
+@maxLength(5)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     NumericLiteralSyntax
+//@[11:12)      Number |5|
+//@[12:13)    RightParen |)|
+//@[13:15)  NewLine |\r\n|
+@az.description('I will be overrode.')
+//@[0:38)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:38)   InstanceFunctionCallSyntax
+//@[1:3)    VariableAccessSyntax
+//@[1:3)     IdentifierSyntax
+//@[1:3)      Identifier |az|
+//@[3:4)    Dot |.|
+//@[4:15)    IdentifierSyntax
+//@[4:15)     Identifier |description|
+//@[15:16)    LeftParen |(|
+//@[16:37)    FunctionArgumentSyntax
+//@[16:37)     StringSyntax
+//@[16:37)      StringComplete |'I will be overrode.'|
+//@[37:38)    RightParen |)|
+//@[38:40)  NewLine |\r\n|
+param decoratedArray array = [
+//@[0:5)  Identifier |param|
+//@[6:20)  IdentifierSyntax
+//@[6:20)   Identifier |decoratedArray|
+//@[21:26)  TypeSyntax
+//@[21:26)   Identifier |array|
+//@[27:62)  ParameterDefaultValueSyntax
+//@[27:28)   Assignment |=|
+//@[29:62)   ArraySyntax
+//@[29:30)    LeftSquare |[|
+//@[30:32)    NewLine |\r\n|
+    utcNow()
+//@[4:12)    ArrayItemSyntax
+//@[4:12)     FunctionCallSyntax
+//@[4:10)      IdentifierSyntax
+//@[4:10)       Identifier |utcNow|
+//@[10:11)      LeftParen |(|
+//@[11:12)      RightParen |)|
+//@[12:14)    NewLine |\r\n|
+    newGuid()
+//@[4:13)    ArrayItemSyntax
+//@[4:13)     FunctionCallSyntax
+//@[4:11)      IdentifierSyntax
+//@[4:11)       Identifier |newGuid|
+//@[11:12)      LeftParen |(|
+//@[12:13)      RightParen |)|
+//@[13:15)    NewLine |\r\n|
+]
+//@[0:1)    RightSquare |]|
 //@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

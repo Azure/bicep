@@ -179,3 +179,70 @@ param stringLiteralWithAllowedValuesSuperset string {
   default: stringLiteral
 }
 
+@secure()
+@minLength(2)
+  @maxLength(10)
+@allowed([
+  'Apple'
+  'Banana'
+])
+param decoratedString string
+//@[6:21) Parameter decoratedString. Type: string. Declaration start char: 0, length: 111
+
+@minValue(200)
+param decoratedInt int = 123
+//@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 44
+
+@az.description('A boolean.')
+@metadata({
+    description: 'I will be overrode.'
+    foo: 'something'
+    bar: [
+        {          }
+        true
+        123
+    ]
+})
+param decoratedBool bool = (true && false) != true
+//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 228
+
+@secure()
+@secure()
+@secure()
+param decoratedObject object = {
+//@[6:21) Parameter decoratedObject. Type: object. Declaration start char: 0, length: 298
+  enabled: true
+  name: 'this is my object'
+  priority: 3
+  info: {
+    a: 'b'
+  }
+  empty: {
+  }
+  array: [
+    'string item'
+    12
+    true
+    [
+      'inner'
+      false
+    ]
+    {
+      a: 'b'
+    }
+  ]
+}
+
+@az.metadata({
+    description: 'An array.'
+})
+@az.maxLength(20)
+@maxLength(10)
+@maxLength(5)
+@az.description('I will be overrode.')
+param decoratedArray array = [
+//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 202
+    utcNow()
+    newGuid()
+]
+

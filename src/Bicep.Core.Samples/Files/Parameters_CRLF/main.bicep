@@ -153,3 +153,65 @@ param stringLiteralWithAllowedValuesSuperset string {
   ]
   default: stringLiteral
 }
+
+@secure()
+@minLength(2)
+  @maxLength(10)
+@allowed([
+  'Apple'
+  'Banana'
+])
+param decoratedString string
+
+@minValue(200)
+param decoratedInt int = 123
+
+@az.description('A boolean.')
+@metadata({
+    description: 'I will be overrode.'
+    foo: 'something'
+    bar: [
+        {          }
+        true
+        123
+    ]
+})
+param decoratedBool bool = (true && false) != true
+
+@secure()
+@secure()
+@secure()
+param decoratedObject object = {
+  enabled: true
+  name: 'this is my object'
+  priority: 3
+  info: {
+    a: 'b'
+  }
+  empty: {
+  }
+  array: [
+    'string item'
+    12
+    true
+    [
+      'inner'
+      false
+    ]
+    {
+      a: 'b'
+    }
+  ]
+}
+
+@az.metadata({
+    description: 'An array.'
+})
+@az.maxLength(20)
+@maxLength(10)
+@maxLength(5)
+@az.description('I will be overrode.')
+param decoratedArray array = [
+    utcNow()
+    newGuid()
+]

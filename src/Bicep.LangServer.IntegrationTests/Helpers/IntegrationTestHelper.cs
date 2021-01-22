@@ -20,6 +20,7 @@ using Bicep.LanguageServer.Utils;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.Navigation;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -118,6 +119,11 @@ namespace Bicep.LangServer.IntegrationTests
                 // whereas instanceFunctionCall.Name.Span the position will start in resourceGroup() which is what it should be in this
                 // case.
                 return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
+            }
+
+            if (syntax is IDeclarationSyntax declaration)
+            {
+                return PositionHelper.GetPosition(lineStarts, declaration.Keyword.Span.Position);
             }
 
             return PositionHelper.GetPosition(lineStarts, syntax.Span.Position);
