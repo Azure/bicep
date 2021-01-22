@@ -125,6 +125,9 @@ stages:
       displayName: Kill Xvfb
 
     - script: npm run package
+      env:
+        # ensure that we generate a VS gallery compatible version number on official builds
+        PublicRelease: ${{ parameters.official }}
       displayName: Create VSIX
       workingDirectory: $(Build.SourcesDirectory)/src/vscode-bicep
     

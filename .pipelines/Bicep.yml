@@ -16,7 +16,7 @@ steps:
   inputs:
     command: build
     projects: $(BuildSolution)
-    arguments: '--configuration $(BuildConfiguration)'
+    arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
 
 - task: DotNetCoreCLI@2
   displayName: Test
@@ -40,7 +40,7 @@ steps:
       command: 'publish'
       publishWebProjects: false
       projects: ./src/Bicep.LangServer/Bicep.LangServer.csproj
-      arguments: '--configuration $(BuildConfiguration)'
+      arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
       zipAfterPublish: false
 
   - task: onebranch.pipeline.signing@1
@@ -64,7 +64,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: ./src/Bicep.Cli/Bicep.Cli.csproj
-    arguments: '--configuration $(BuildConfiguration) --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ parameters.rid }}'
+    arguments: '--configuration $(BuildConfiguration) --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ parameters.rid }} /p:PublicRelease=${{ parameters.official }}'
     zipAfterPublish: false
 
 - ${{ if eq(parameters.rid, 'win-x64') }}:
@@ -106,7 +106,7 @@ steps:
     inputs:
       command: build
       projects: ./src/installer-win/installer.proj
-      arguments: '--configuration $(BuildConfiguration)'
+      arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
 
   - task: onebranch.pipeline.signing@1
     displayName: Sign Windows Setup
