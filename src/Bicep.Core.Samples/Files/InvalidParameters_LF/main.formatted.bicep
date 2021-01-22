@@ -287,6 +287,10 @@ param commaTwo string {
     default: 'abc'
 }
 
+@secure
+@
+param incompleteDecorators string
+
 @concat(1, 2)
 @secure()
 // wrong target type

@@ -307,7 +307,6 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[8:33) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. |'moduleWithDuplicateName'|
 }
 
-//@az.secure()
 @minValue()
 //@[1:9) [BCP128 (Error)] Function "minValue" cannot be used as a module decorator. |minValue|
 module moduleWithNotAttachableDecorators './empty.bicep' = {

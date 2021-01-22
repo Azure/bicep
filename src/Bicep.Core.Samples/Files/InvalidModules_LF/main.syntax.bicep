@@ -1465,8 +1465,6 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-//@az.secure()
-//@[14:15) NewLine |\n|
 @minValue()
 //@[0:118) ModuleDeclarationSyntax
 //@[0:11)  DecoratorSyntax

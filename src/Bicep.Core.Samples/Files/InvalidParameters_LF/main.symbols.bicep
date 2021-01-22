@@ -368,6 +368,11 @@ param commaTwo string {
     default: 'abc'
 }
 
+@secure
+@
+param incompleteDecorators string
+//@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 43
+
 @concat(1, 2)
 @secure()
 // wrong target type

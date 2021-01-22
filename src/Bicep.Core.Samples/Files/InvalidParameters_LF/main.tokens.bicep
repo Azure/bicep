@@ -1141,6 +1141,19 @@ param commaTwo string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@secure
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) NewLine |\n|
+@
+//@[0:1) At |@|
+//@[1:2) NewLine |\n|
+param incompleteDecorators string
+//@[0:5) Identifier |param|
+//@[6:26) Identifier |incompleteDecorators|
+//@[27:33) Identifier |string|
+//@[33:35) NewLine |\n\n|
+
 @concat(1, 2)
 //@[0:1) At |@|
 //@[1:7) Identifier |concat|

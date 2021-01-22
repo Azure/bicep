@@ -530,6 +530,20 @@
     }
   },
   {
+    "label": "incompleteDecorators",
+    "kind": "field",
+    "detail": "incompleteDecorators",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incompleteDecorators",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "incompleteDecorators"
+    }
+  },
+  {
     "label": "indexOf",
     "kind": "function",
     "detail": "indexOf()",

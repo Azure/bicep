@@ -412,6 +412,12 @@ param commaTwo string {
     default: 'abc'
 }
 
+@secure
+//@[1:7) [BCP063 (Error)] The name "secure" is not a parameter, variable, resource or module. |secure|
+@
+//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+param incompleteDecorators string
+
 @concat(1, 2)
 //@[1:7) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @secure()

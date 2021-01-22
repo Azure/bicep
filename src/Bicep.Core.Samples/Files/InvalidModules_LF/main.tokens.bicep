@@ -964,8 +964,6 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-//@az.secure()
-//@[14:15) NewLine |\n|
 @minValue()
 //@[0:1) At |@|
 //@[1:9) Identifier |minValue|
