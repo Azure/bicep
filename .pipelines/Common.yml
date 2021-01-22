@@ -20,6 +20,7 @@ stages:
     steps:
     - template: Bicep.yml
       parameters:
+        official: ${{ parameters.official }}
         rid: win-x64
   
   - job: bicep_linux
@@ -37,6 +38,7 @@ stages:
     steps:
     - template: Bicep.yml
       parameters:
+        official: ${{ parameters.official }}
         rid: linux-x64
 
   - job: bicep_osx
@@ -54,6 +56,7 @@ stages:
     steps:
     - template: Bicep.yml
       parameters:
+        official: ${{ parameters.official }}
         rid: osx-x64
 
   - job: vsix

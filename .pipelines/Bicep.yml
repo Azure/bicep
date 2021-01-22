@@ -1,4 +1,6 @@
 parameters:
+  - name: official
+    type: boolean
   - name: rid
     type: string
 
