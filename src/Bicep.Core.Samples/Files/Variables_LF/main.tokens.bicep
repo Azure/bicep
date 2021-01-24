@@ -1322,4 +1322,43 @@ var scopesWithoutArmRepresentation = {
 //@[85:86) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// Issue #1332
+//@[14:15) NewLine |\n|
+var issue1332_propname = 'ptest'
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |issue1332_propname|
+//@[23:24) Assignment |=|
+//@[25:32) StringComplete |'ptest'|
+//@[32:33) NewLine |\n|
+var issue1332 = true ? {
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |issue1332|
+//@[14:15) Assignment |=|
+//@[16:20) TrueKeyword |true|
+//@[21:22) Question |?|
+//@[23:24) LeftBrace |{|
+//@[24:25) NewLine |\n|
+    prop1: {
+//@[4:9) Identifier |prop1|
+//@[9:10) Colon |:|
+//@[11:12) LeftBrace |{|
+//@[12:13) NewLine |\n|
+        '${issue1332_propname}': {}
+//@[8:11) StringLeftPiece |'${|
+//@[11:29) Identifier |issue1332_propname|
+//@[29:31) StringRightPiece |}'|
+//@[31:32) Colon |:|
+//@[33:34) LeftBrace |{|
+//@[34:35) RightBrace |}|
+//@[35:36) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+} : {}
+//@[0:1) RightBrace |}|
+//@[2:3) Colon |:|
+//@[4:5) LeftBrace |{|
+//@[5:6) RightBrace |}|
+//@[6:6) EndOfFile ||
