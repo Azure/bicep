@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
             var completionContext = BicepCompletionContext.Create(compilationContext.Compilation.SyntaxTreeGrouping.EntryPoint, offset);
             var completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
-            
+
             return Task.FromResult(new CompletionList(completions, isIncomplete: false));
         }
 
@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Handlers
             DocumentSelector = DocumentSelectorFactory.Create(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>(":", " ", ".")
+            TriggerCharacters = new Container<string>(":", " ", ".", "'")
         };
     }
 }
