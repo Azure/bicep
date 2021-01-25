@@ -40,7 +40,7 @@ namespace Bicep.Core.Semantics
                 allDeclarations.OfType<OutputSymbol>());
         }
 
-        public ResourceScopeType TargetScope { get; }
+        public ResourceScope TargetScope { get; }
 
         public FileSymbol FileSymbol { get; }
 
@@ -86,7 +86,7 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static ImmutableDictionary<string, NamespaceSymbol> GetBuiltInNamespaces(ResourceScopeType targetScope)
+        private static ImmutableDictionary<string, NamespaceSymbol> GetBuiltInNamespaces(ResourceScope targetScope)
         {
             var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) };
 

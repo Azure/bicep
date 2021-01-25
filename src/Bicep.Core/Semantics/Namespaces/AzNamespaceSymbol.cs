@@ -97,7 +97,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static NamedObjectType GetDeploymentReturnType(ResourceScopeType targetScope)
+        private static NamedObjectType GetDeploymentReturnType(ResourceScope targetScope)
         {
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
@@ -115,7 +115,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 }, null)),
             };
 
-            if (!targetScope.HasFlag(ResourceScopeType.ResourceGroupScope))
+            if (!targetScope.HasFlag(ResourceScope.ResourceGroup))
             {
                 // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
                 var locationProperty = new TypeProperty("location", LanguageConstants.String);
@@ -125,7 +125,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamedObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
         }
 
-        private static IEnumerable<(FunctionOverload functionOverload, ResourceScopeType allowedScopes)> GetScopeFunctions()
+        private static IEnumerable<(FunctionOverload functionOverload, ResourceScope allowedScopes)> GetScopeFunctions()
         {
             // Depending on the scope of the Bicep file, different sets of function overloads are invalid - for example, you can't use 'resourceGroup()' inside a tenant-level deployment
 
@@ -133,7 +133,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // return an empty object type (so that dot property access doesn't work), and generate as an ARM expression "createObject()" if anyone tries to access the object value.
             // This list should be kept in-sync with ScopeHelper.CanConvertToArmJson().
 
-            var allScopes = ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope;
+            var allScopes = ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup;
 
             yield return (
                 new FunctionOverloadBuilder("tenant")
@@ -147,21 +147,21 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
                     .WithDescription("Returns the current management group scope. **This function can only be used in managementGroup deployments.**")
                     .Build(),
-                ResourceScopeType.ManagementGroupScope);
+                ResourceScope.ManagementGroup);
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
                     .WithDynamicReturnType(GetRestrictedManagementGroupReturnValue)
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
                     .Build(),
-                ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup);
 
             yield return (
                 new FunctionOverloadBuilder("subscription")
                     .WithDynamicReturnType(GetSubscriptionReturnValue)
                     .WithDescription("Returns the subscription scope for the current deployment. **This function can only be used in subscription and resourceGroup deployments.**")
                     .Build(),
-                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+                ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("subscription")
                     .WithDynamicReturnType(GetRestrictedSubscriptionReturnValue)
@@ -175,14 +175,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDynamicReturnType(GetResourceGroupReturnValue)
                     .WithDescription("Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**")
                     .Build(),
-                ResourceScopeType.ResourceGroupScope);
+                ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
                     .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
                     .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
-                ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+                ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
                     .WithDynamicReturnType(GetRestrictedResourceGroupReturnValue)
@@ -190,10 +190,10 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
-                ResourceScopeType.TenantScope | ResourceScopeType.ManagementGroupScope | ResourceScopeType.SubscriptionScope | ResourceScopeType.ResourceGroupScope);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }
 
-        private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScopeType resourceScope)
+        private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScope resourceScope)
         {
             foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
             {
@@ -327,7 +327,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
-        public AzNamespaceSymbol(ResourceScopeType resourceScope)
+        public AzNamespaceSymbol(ResourceScope resourceScope)
             : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty)
         {
         }

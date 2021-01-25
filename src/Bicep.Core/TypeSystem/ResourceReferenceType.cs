@@ -3,9 +3,9 @@
 
 namespace Bicep.Core.TypeSystem
 {
-    public class ResourceScopeReference : TypeSymbol
+    public class ResourceReferenceType : TypeSymbol
     {
-        public ResourceScopeReference(string name, ResourceScopeType resourceScopeType)
+        public ResourceReferenceType(string name, ResourceScope resourceScopeType)
             : base(name)
         {
             ResourceScopeType = resourceScopeType;
@@ -13,6 +13,6 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.ResourceScopeReference;
 
-        public ResourceScopeType ResourceScopeType { get; }
+        public ResourceScope ResourceScopeType { get; }
     }
 }
