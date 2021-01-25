@@ -24,7 +24,7 @@ param l
 
             CompilationHelper.AssertFailureWithDiagnostics(
                 bicepContents,
-                new [] {
+                new[] {
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                     ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
@@ -349,6 +349,26 @@ param mgName string
 
             // deploying a management group module at tenant scope requires an unqualified resource id
             template.SelectToken("$.resources[?(@.name == 'allupmgdeploy')].scope")!.Should().DeepEqual("[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
+        }
+
+        [TestMethod]
+        public void Test_Issue1332()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+var propname = 'ptest'
+var issue = true ? {
+    prop1: {
+        '${propname}': {}
+    }
+} : {}
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.variables.issue")!.Should().DeepEqual("[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
         }
     }
 }
