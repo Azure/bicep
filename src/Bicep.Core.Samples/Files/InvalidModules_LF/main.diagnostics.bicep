@@ -1,17 +1,17 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[26:47) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[26:47) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefDuplicate './nonExistent.bicep' = {
-//@[35:56) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'./nonExistent.bicep'|
+//@[35:56) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/nonExistent.bicep'. |'./nonExistent.bicep'|
 
 }
 
 // we should only look this file up once, but should still return the same failure
 module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
-//@[40:73) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
+//@[40:73) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/nonExistent.bicep'. |'abc/def/../../nonExistent.bicep'|
 
 }
 
@@ -199,7 +199,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[54:58) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". |test|
 
 module modCycle './cycle.bicep' = {
-//@[16:31) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}cycle.bicep" -> "${TEST_OUTPUT_DIR}main.bicep"). |'./cycle.bicep'|
+//@[16:31) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). |'./cycle.bicep'|
   
 }
 
@@ -334,5 +334,5 @@ module cwdFileCompletion '.'
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
 module childCompletionA 'ChildModules/'
-//@[24:39) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}ChildModules\'. |'ChildModules/'|
+//@[24:39) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules\' is denied. |'ChildModules/'|
 //@[39:39) [BCP018 (Error)] Expected the "=" character at this location. ||

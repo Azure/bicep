@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.FileSystem
@@ -23,6 +24,12 @@ namespace Bicep.Core.FileSystem
             try
             {
                 failureBuilder = null;
+                if (Directory.Exists(fileUri.LocalPath)) 
+                {
+                    // Docs suggest this is the error to throw when we give a directory. 
+                    // A trailing backslash causes windows not to throw this exception.
+                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                }
                 fileContents = File.ReadAllText(fileUri.LocalPath);
                 return true;
             }
