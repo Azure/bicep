@@ -334,5 +334,20 @@ module cwdFileCompletion '.'
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
 module childCompletionA 'ChildModules/'
-//@[24:39) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules\' is denied. |'ChildModules/'|
+//@[24:39) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. |'ChildModules/'|
 //@[39:39) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+module childCompletionB './ChildModules/'
+//@[24:41) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. |'./ChildModules/'|
+//@[41:41) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+module childCompletionC './ChildModules/m'
+//@[24:42) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/ChildModules/m'. |'./ChildModules/m'|
+//@[42:42) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+module childCompletionD 'ChildModules/e'
+//@[24:40) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/ChildModules/e'. |'ChildModules/e'|
+//@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||

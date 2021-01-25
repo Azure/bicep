@@ -1559,4 +1559,46 @@ module childCompletionA 'ChildModules/'
 //@[39:39)  SkippedTriviaSyntax
 //@[39:39)  SkippedTriviaSyntax
 //@[39:39)  SkippedTriviaSyntax
-//@[39:39) EndOfFile ||
+//@[39:41) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+//@[105:106) NewLine |\n|
+module childCompletionB './ChildModules/'
+//@[0:41) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionB|
+//@[24:41)  StringSyntax
+//@[24:41)   StringComplete |'./ChildModules/'|
+//@[41:41)  SkippedTriviaSyntax
+//@[41:41)  SkippedTriviaSyntax
+//@[41:41)  SkippedTriviaSyntax
+//@[41:43) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+//@[107:108) NewLine |\n|
+module childCompletionC './ChildModules/m'
+//@[0:42) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionC|
+//@[24:42)  StringSyntax
+//@[24:42)   StringComplete |'./ChildModules/m'|
+//@[42:42)  SkippedTriviaSyntax
+//@[42:42)  SkippedTriviaSyntax
+//@[42:42)  SkippedTriviaSyntax
+//@[42:44) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+//@[107:108) NewLine |\n|
+module childCompletionD 'ChildModules/e'
+//@[0:40) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionD|
+//@[24:40)  StringSyntax
+//@[24:40)   StringComplete |'ChildModules/e'|
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40) EndOfFile ||

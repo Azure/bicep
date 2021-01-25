@@ -40,21 +40,9 @@ namespace Bicep.Core.FileSystem
         IEnumerable<Uri> GetFiles(Uri fileUri, string pattern); 
 
         /// <summary>
-        /// Tries to parent URI
-        /// </summary>
-        /// <param name="fileUri">The base fileUri</param>
-        Uri GetParentDirectory(Uri fileUri);
-
-        /// <summary>
         /// Check whether specified URI exsists (depends on URI types). fileUri MUST have a trailing '/'
         /// </summary>
         /// <param name="fileUri">The fileUri to test</param>
-        bool DirExists(Uri fileUri);
-
-        /// <summary>
-        /// Check whether specified URI exsists (depends on URI types)
-        /// </summary>
-        /// <param name="fileUri">The fileUri to test</param>
-        bool FileExists(Uri fileUri);
+        bool TryDirExists(Uri fileUri);
     }
 }

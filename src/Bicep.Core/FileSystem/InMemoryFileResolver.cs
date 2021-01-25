@@ -42,15 +42,10 @@ namespace Bicep.Core.FileSystem
             return relativeUri;
         }
 
-        public bool DirExists(Uri fileUri)
+        public bool TryDirExists(Uri fileUri)
         {
             return this.fileLookup.Keys
             .Any(key => key.ToString().StartsWith(fileUri.ToString()));
-        }
-
-        public bool FileExists(Uri fileUri)
-        {
-           return this.fileLookup.ContainsKey(fileUri);
         }
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
@@ -61,11 +56,6 @@ namespace Bicep.Core.FileSystem
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
         {
             return fileLookup.Keys;
-        }
-
-        public Uri GetParentDirectory(Uri uri)
-        {
-            return new Uri(uri.AbsoluteUri.Remove(uri.AbsoluteUri.Length - uri.Segments.Last().Length));
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Linq;
@@ -66,7 +67,10 @@ namespace Bicep.Core.UnitTests.Utils
             var spanText = GetSpanText(sourceText, diagnostic);
             var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");
             // Normalize file path seperators across OS
-            message = Regex.Replace(message, "'${TEST_OUTPUT_DIR}.*'", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                message = Regex.Replace(message, @"'\${TEST_OUTPUT_DIR}.*?'", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
+            }
             return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
         }
     }

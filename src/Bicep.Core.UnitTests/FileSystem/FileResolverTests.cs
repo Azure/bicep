@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Bicep.Core.FileSystem;
@@ -60,6 +61,75 @@ namespace Bicep.Core.UnitTests.FileSystem
             fileResolver.TryRead(tempFileUri, out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IOException))]
+        public void GetDirectories_should_return_expected_results()
+        {
+            var fileResolver = new FileResolver();
+            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
+            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
+
+            // make parent dir
+            Directory.CreateDirectory(tempDir);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(0);
+            // make child dir
+            Directory.CreateDirectory(tempChildDir);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            // add a file to parent dir
+            File.WriteAllText(tempFile, "abcd\r\ndef");
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            // check child dir
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempChildDir)).Count().Should().Be(0);
+            // should throw an IOException when called with a file path
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(IOException))]
+        public void GetFiles_should_return_expected_results()
+        {
+            var fileResolver = new FileResolver();
+            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
+            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
+
+            // make parent dir
+            Directory.CreateDirectory(tempDir);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(0);
+            // add a file to parent dir
+            File.WriteAllText(tempFile, "abcd\r\ndef");
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            // make child dir
+            Directory.CreateDirectory(tempChildDir);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            // check child dir
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempChildDir)).Count().Should().Be(0);
+            // should throw an IOException when called with a file path
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
+        }
+
+        [TestMethod]
+        public void DirExists_should_return_expected_results()
+        {
+            var fileResolver = new FileResolver();
+            var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
+            var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
+            var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
+
+            // make parent dir
+            Directory.CreateDirectory(tempDir);
+            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
+            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
+            // add a file to parent dir
+            File.WriteAllText(tempFile, "abcd\r\ndef");
+            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempDir)).Should().BeTrue();
+            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempFile)).Should().BeFalse();
+            // make child dir
+            Directory.CreateDirectory(tempChildDir);
+            fileResolver.TryDirExists(PathHelper.FilePathToFileUrl(tempChildDir)).Should().BeTrue();
         }
     }
 }

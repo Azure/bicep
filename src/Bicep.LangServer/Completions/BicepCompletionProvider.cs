@@ -206,7 +206,7 @@ namespace Bicep.LanguageServer.Completions
             
             // technically bicep files do not have to follow the bicep extension, so 
             // we are not enforcing *.bicep get files command
-            if (FileResolver.DirExists(query))
+            if (FileResolver.TryDirExists(query))
             {
                 files = FileResolver.GetFiles(query, string.Empty);
                 dirs = FileResolver.GetDirectories(query, string.Empty);
