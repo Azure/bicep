@@ -12,11 +12,11 @@ namespace Bicep.Core.Utils
     internal class ModuleDefinition
     {
         public string ModuleName { get; }
-        public ResourceScopeType ModulePropertyScopeType { get; }
+        public ResourceScope ModulePropertyScopeType { get; }
         public IReadOnlyCollection<StringSyntax?>? ModulePropertyScopeValue { get; }
         public StringSyntax ModulePropertyNameValue { get; }
 
-        public ModuleDefinition(string moduleName, ResourceScopeType modulePropertyScopeType, ImmutableArray<StringSyntax?>? modulePropertyScopeValue, StringSyntax modulePropertyNameValue)
+        public ModuleDefinition(string moduleName, ResourceScope modulePropertyScopeType, ImmutableArray<StringSyntax?>? modulePropertyScopeValue, StringSyntax modulePropertyNameValue)
         {
             ModuleName = moduleName;
             ModulePropertyScopeType = modulePropertyScopeType;

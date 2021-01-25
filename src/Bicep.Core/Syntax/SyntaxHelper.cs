@@ -67,7 +67,7 @@ namespace Bicep.Core.Syntax
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
             => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.ParameterType?.TypeName);
 
-        public static ResourceScopeType GetTargetScope(TargetScopeSyntax targetScopeSyntax)
+        public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes
 
@@ -76,27 +76,27 @@ namespace Bicep.Core.Syntax
 
             if (!(targetScopeSyntax.Value is StringSyntax stringSyntax))
             {
-                return ResourceScopeType.None;
+                return ResourceScope.None;
             }
 
             var literalValue = stringSyntax.TryGetLiteralValue();
             if (literalValue == null)
             {
-                return ResourceScopeType.None;
+                return ResourceScope.None;
             }
 
             return literalValue switch {
-                LanguageConstants.TargetScopeTypeTenant => ResourceScopeType.TenantScope,
-                LanguageConstants.TargetScopeTypeManagementGroup => ResourceScopeType.ManagementGroupScope,
-                LanguageConstants.TargetScopeTypeSubscription => ResourceScopeType.SubscriptionScope,
-                LanguageConstants.TargetScopeTypeResourceGroup => ResourceScopeType.ResourceGroupScope,
-                _ => ResourceScopeType.None,
+                LanguageConstants.TargetScopeTypeTenant => ResourceScope.Tenant,
+                LanguageConstants.TargetScopeTypeManagementGroup => ResourceScope.ManagementGroup,
+                LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,
+                LanguageConstants.TargetScopeTypeResourceGroup => ResourceScope.ResourceGroup,
+                _ => ResourceScope.None,
             };
         }
 
-        public static ResourceScopeType GetTargetScope(SyntaxTree syntaxTree)
+        public static ResourceScope GetTargetScope(SyntaxTree syntaxTree)
         {
-            var defaultTargetScope = ResourceScopeType.ResourceGroupScope;
+            var defaultTargetScope = ResourceScope.ResourceGroup;
             var targetSyntax = syntaxTree.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();
             if (targetSyntax == null)
             {
@@ -104,7 +104,7 @@ namespace Bicep.Core.Syntax
             }
 
             var targetScope = SyntaxHelper.GetTargetScope(targetSyntax);
-            if (targetScope == ResourceScopeType.None)
+            if (targetScope == ResourceScope.None)
             {
                 return defaultTargetScope;
             }

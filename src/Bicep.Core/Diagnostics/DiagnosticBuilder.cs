@@ -33,240 +33,240 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
-            public ErrorDiagnostic UnrecognizedToken(string token) => new ErrorDiagnostic(
+            public ErrorDiagnostic UnrecognizedToken(string token) => new(
                 TextSpan,
                 "BCP001",
                 $"The following token is not recognized: \"{token}\".");
 
-            public ErrorDiagnostic UnterminatedMultilineComment() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnterminatedMultilineComment() => new(
                 TextSpan,
                 "BCP002",
                 "The multi-line comment at this location is not terminated. Terminate it with the */ character sequence.");
 
-            public ErrorDiagnostic UnterminatedString() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnterminatedString() => new(
                 TextSpan,
                 "BCP003",
                 "The string at this location is not terminated. Terminate the string with a single quote character.");
 
-            public ErrorDiagnostic UnterminatedStringWithNewLine() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnterminatedStringWithNewLine() => new(
                 TextSpan,
                 "BCP004",
                 "The string at this location is not terminated due to an unexpected new line character.");
 
-            public ErrorDiagnostic UnterminatedStringEscapeSequenceAtEof() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnterminatedStringEscapeSequenceAtEof() => new(
                 TextSpan,
                 "BCP005",
                 "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
 
-            public ErrorDiagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeChars) => new ErrorDiagnostic(
+            public ErrorDiagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeChars) => new(
                 TextSpan,
                 "BCP006",
                 $"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {ToQuotedString(escapeChars)}.");
 
-            public ErrorDiagnostic UnrecognizedDeclaration() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnrecognizedDeclaration() => new(
                 TextSpan,
                 "BCP007",
                 "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.");
 
-            public ErrorDiagnostic ExpectedParameterContinuation() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedParameterContinuation() => new(
                 TextSpan,
                 "BCP008",
                 "Expected the \"=\" token, a parameter modifier, or a newline at this location.");
 
-            public ErrorDiagnostic UnrecognizedExpression() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnrecognizedExpression() => new(
                 TextSpan,
                 "BCP009",
                 "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
 
-            public ErrorDiagnostic InvalidInteger() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidInteger() => new(
                 TextSpan,
                 "BCP010",
                 "Expected a valid 32-bit signed integer.");
 
-            public ErrorDiagnostic InvalidType() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidType() => new(
                 TextSpan,
                 "BCP011",
                 "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.");
 
-            public ErrorDiagnostic ExpectedKeyword(string keyword) => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedKeyword(string keyword) => new(
                 TextSpan,
                 "BCP012",
                 $"Expected the \"{keyword}\" keyword at this location.");
 
-            public ErrorDiagnostic ExpectedParameterIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedParameterIdentifier() => new(
                 TextSpan,
                 "BCP013",
                 "Expected a parameter identifier at this location.");
 
-            public ErrorDiagnostic ExpectedParameterType() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedParameterType() => new(
                 TextSpan,
                 "BCP014",
                 $"Expected a parameter type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic ExpectedVariableIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedVariableIdentifier() => new(
                 TextSpan,
                 "BCP015",
                 "Expected a variable identifier at this location.");
 
-            public ErrorDiagnostic ExpectedOutputIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedOutputIdentifier() => new(
                 TextSpan,
                 "BCP016",
                 "Expected an output identifier at this location.");
 
-            public ErrorDiagnostic ExpectedResourceIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedResourceIdentifier() => new(
                 TextSpan,
                 "BCP017",
                 "Expected a resource identifier at this location.");
 
-            public ErrorDiagnostic ExpectedCharacter(string character) => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedCharacter(string character) => new(
                 TextSpan,
                 "BCP018",
                 $"Expected the \"{character}\" character at this location.");
 
-            public ErrorDiagnostic ExpectedNewLine() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedNewLine() => new(
                 TextSpan,
                 "BCP019",
                 "Expected a new line character at this location.");
 
-            public ErrorDiagnostic ExpectedFunctionOrPropertyName() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedFunctionOrPropertyName() => new(
                 TextSpan,
                 "BCP020",
                 "Expected a function or property name at this location.");
 
-            public ErrorDiagnostic ExpectedNumericLiteral() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedNumericLiteral() => new(
                 TextSpan,
                 "BCP021",
                 "Expected a numeric literal at this location.");
 
-            public ErrorDiagnostic ExpectedPropertyName() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedPropertyName() => new(
                 TextSpan,
                 "BCP022",
                 "Expected a property name at this location.");
 
-            public ErrorDiagnostic ExpectedVariableOrFunctionName() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedVariableOrFunctionName() => new(
                 TextSpan,
                 "BCP023",
                 "Expected a variable or function name at this location.");
 
-            public ErrorDiagnostic IdentifierNameExceedsLimit() => new ErrorDiagnostic(
+            public ErrorDiagnostic IdentifierNameExceedsLimit() => new(
                 TextSpan,
                 "BCP024",
                 $"The identifier exceeds the limit of {LanguageConstants.MaxIdentifierLength}. Reduce the length of the identifier.");
 
-            public ErrorDiagnostic PropertyMultipleDeclarations(string property) => new ErrorDiagnostic(
+            public ErrorDiagnostic PropertyMultipleDeclarations(string property) => new(
                 TextSpan,
                 "BCP025",
                 $"The property \"{property}\" is declared multiple times in this object. Remove or rename the duplicate properties.");
 
-            public ErrorDiagnostic OutputTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic OutputTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 "BCP026",
                 $"The output expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic ParameterTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ParameterTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 "BCP027",
                 $"The parameter expects a default value of type \"{expectedType}\" but provided value is of type \"{actualType}\".");
 
-            public ErrorDiagnostic IdentifierMultipleDeclarations(string identifier) => new ErrorDiagnostic(
+            public ErrorDiagnostic IdentifierMultipleDeclarations(string identifier) => new(
                 TextSpan,
                 "BCP028",
                 $"Identifier \"{identifier}\" is declared multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic InvalidResourceType() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidResourceType() => new(
                 TextSpan,
                 "BCP029",
                 "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
 
-            public ErrorDiagnostic InvalidOutputType() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidOutputType() => new(
                 TextSpan,
                 "BCP030",
                 $"The output type is not valid. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic InvalidParameterType() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidParameterType() => new(
                 TextSpan,
                 "BCP031",
                 $"The parameter type is not valid. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic CompileTimeConstantRequired() => new ErrorDiagnostic(
+            public ErrorDiagnostic CompileTimeConstantRequired() => new(
                 TextSpan,
                 "BCP032",
                 "The value must be a compile-time constant.");
 
-            public Diagnostic ExpectedValueTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
+            public Diagnostic ExpectedValueTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP033",
                 $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic ArrayTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
+            public Diagnostic ArrayTypeMismatch(bool warnInsteadOfError, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, IEnumerable<string> properties, string blockName) => new Diagnostic(
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, IEnumerable<string> properties, string blockName) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP035",
                 $"The specified \"{blockName}\" declaration is missing the following required properties: {ToQuotedString(properties)}.");
 
-            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new Diagnostic(
+            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, string property, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP036",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, TypeSymbol type) => new Diagnostic(
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, TypeSymbol type) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP037",
                 $"No other properties are allowed on objects of type \"{type}\".");
 
-            public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
+            public Diagnostic DisallowedPropertyWithPermissibleProperties(bool warnInsteadOfError, string property, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP038",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
 
-            public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, TypeSymbol type) => new Diagnostic(
+            public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, TypeSymbol type) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP039",
                 $"String interpolation is not supported for keys on objects of type \"{type}\".");
 
-            public Diagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(bool warnInsteadOfError, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new Diagnostic(
+            public Diagnostic DisallowedInterpolatedKeyPropertyWithPermissibleProperties(bool warnInsteadOfError, TypeSymbol type, IEnumerable<string> validUnspecifiedProperties) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP040",
                 $"String interpolation is not supported for keys on objects of type \"{type}\". Permissible properties include {ToQuotedString(validUnspecifiedProperties)}.");
 
-            public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new ErrorDiagnostic(
+            public ErrorDiagnostic VariableTypeAssignmentDisallowed(TypeSymbol valueType) => new(
                 TextSpan,
                 "BCP041",
                 $"Values of type \"{valueType}\" cannot be assigned to a variable.");
 
-            public ErrorDiagnostic InvalidExpression() => new ErrorDiagnostic(
+            public ErrorDiagnostic InvalidExpression() => new(
                 TextSpan,
                 "BCP043",
                 "This is not a valid expression.");
 
-            public ErrorDiagnostic UnaryOperatorInvalidType(string operatorName, TypeSymbol type) => new ErrorDiagnostic(
+            public ErrorDiagnostic UnaryOperatorInvalidType(string operatorName, TypeSymbol type) => new(
                 TextSpan,
                 "BCP044",
                 $"Cannot apply operator \"{operatorName}\" to operand of type \"{type}\".");
 
-            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2) => new ErrorDiagnostic(
+            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2) => new(
                 TextSpan,
                 "BCP045",
                 $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".");
 
-            public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new ErrorDiagnostic(
+            public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
                 TextSpan,
                 "BCP046",
                 $"Expected a value of type \"{type}\".");
 
-            public ErrorDiagnostic ResourceTypeInterpolationUnsupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic ResourceTypeInterpolationUnsupported() => new(
                 TextSpan,
                 "BCP047",
                 "String interpolation is unsupported for specifying the resource type.");
@@ -294,114 +294,114 @@ namespace Bicep.Core.Diagnostics
                     message);
             }
 
-            public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic StringOrIntegerIndexerRequired(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP049",
                 $"The array index must be of type \"{LanguageConstants.String}\" or \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic ModulePathIsEmpty() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathIsEmpty() => new(
                 TextSpan,
                 "BCP050",
                 "The specified module path is empty.");
 
-            public ErrorDiagnostic ModulePathBeginsWithForwardSlash() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathBeginsWithForwardSlash() => new(
                 TextSpan,
                 "BCP051",
                 "The specified module path begins with \"/\". Module files must be referenced using relative paths.");
 
-            public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
+            public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP052",
                 $"The type \"{type}\" does not contain property \"{badProperty}\".");
 
-            public Diagnostic UnknownPropertyWithAvailableProperties(bool warnInsteadOfError, TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new Diagnostic(
+            public Diagnostic UnknownPropertyWithAvailableProperties(bool warnInsteadOfError, TypeSymbol type, string badProperty, IEnumerable<string> availableProperties) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP053",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Available properties include {ToQuotedString(availableProperties)}.");
 
-            public ErrorDiagnostic NoPropertiesAllowed(TypeSymbol type) => new ErrorDiagnostic(
+            public ErrorDiagnostic NoPropertiesAllowed(TypeSymbol type) => new(
                 TextSpan,
                 "BCP054",
                 $"The type \"{type}\" does not contain any properties.");
 
-            public ErrorDiagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ObjectRequiredForPropertyAccess(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP055",
                 $"Cannot access properties of type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
-            public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+            public ErrorDiagnostic AmbiguousSymbolReference(string name, IEnumerable<string> namespaces) => new(
                 TextSpan,
                 "BCP056",
                 $"The reference to name \"{name}\" is ambiguous because it exists in namespaces {ToQuotedString(namespaces)}. The reference must be fully-qualified.");
 
-            public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic SymbolicNameDoesNotExist(string name) => new(
                 TextSpan,
                 "BCP057",
                 $"The name \"{name}\" does not exist in the current context.");
 
-            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic OutputReferenceNotSupported(string name) => new(
                 TextSpan,
                 "BCP058",
                 $"The name \"{name}\" is an output. Outputs cannot be referenced in expressions.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic SymbolicNameIsNotAFunction(string name) => new(
                 TextSpan,
                 "BCP059",
                 $"The name \"{name}\" is not a function.");
 
-            public ErrorDiagnostic VariablesFunctionNotSupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic VariablesFunctionNotSupported() => new(
                 TextSpan,
                 "BCP060",
                 $"The \"variables\" function is not supported. Directly reference variables by their symbolic names.");
 
-            public ErrorDiagnostic ParametersFunctionNotSupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic ParametersFunctionNotSupported() => new(
                 TextSpan,
                 "BCP061",
                 $"The \"parameters\" function is not supported. Directly reference parameters by their symbolic names.");
 
-            public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic ReferencedSymbolHasErrors(string name) => new(
                 TextSpan,
                 "BCP062",
                 $"The referenced declaration with name \"{name}\" is not valid.");
 
-            public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic SymbolicNameIsNotAVariableOrParameter(string name) => new(
                 TextSpan,
                 "BCP063",
                 $"The name \"{name}\" is not a parameter, variable, resource or module.");
 
-            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedTokensInInterpolation() => new(
                 TextSpan,
                 "BCP064",
                 "Found unexpected tokens in interpolated expression.");
 
-            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionOnlyValidInParameterDefaults(string functionName) => new(
                 TextSpan,
                 "BCP065",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in parameter default declarations.");
 
-            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionOnlyValidInResourceBody(string functionName) => new(
                 TextSpan,
                 "BCP066",
                 $"Function \"{functionName}\" is not valid at this location. It can only be used in resource declarations.");
 
-            public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ObjectRequiredForMethodAccess(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP067",
                 $"Cannot call functions on type \"{wrongType}\". An \"{LanguageConstants.Object}\" type is required.");
 
-            public ErrorDiagnostic ExpectedResourceTypeString() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedResourceTypeString() => new(
                 TextSpan,
                 "BCP068",
                 "Expected a resource type string. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
 
-            public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new(
                 TextSpan,
                 "BCP069",
                 $"The function \"{function}\" is not supported. Use the \"{@operator}\" operator instead.");
 
-            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ArgumentTypeMismatch(TypeSymbol argumentType, TypeSymbol parameterType) => new(
                 TextSpan,
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
@@ -429,264 +429,264 @@ namespace Bicep.Core.Diagnostics
                     $"Expected {expected}, but got {argumentCount}.");
             }
 
-            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new ErrorDiagnostic(
+            public ErrorDiagnostic CannotReferenceSymbolInParamDefaultValue() => new(
                 TextSpan,
                 "BCP072",
                 "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
 
-            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property) => new Diagnostic(
+            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP073",
                 $"The property \"{property}\" is read-only. Expressions cannot be assigned to read-only properties.");
 
-            public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP074",
                 $"Indexing over arrays requires an index of type \"{LanguageConstants.Int}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic ObjectsRequireStringIndex(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP075",
                 $"Indexing over objects requires an index of type \"{LanguageConstants.String}\" but the provided index was of type \"{wrongType}\".");
 
-            public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new ErrorDiagnostic(
+            public ErrorDiagnostic IndexerRequiresObjectOrArray(TypeSymbol wrongType) => new(
                 TextSpan,
                 "BCP076",
                 $"Cannot index over expression of type \"{wrongType}\". Arrays or objects are required.");
 
-            public Diagnostic WriteOnlyProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new Diagnostic(
+            public Diagnostic WriteOnlyProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP077",
                 $"The property \"{badProperty}\" on type \"{type}\" is write-only. Write-only properties cannot be accessed.");
 
-            public Diagnostic MissingRequiredProperty(bool warnInsteadOfError, string propertyName, TypeSymbol expectedType) => new Diagnostic(
+            public Diagnostic MissingRequiredProperty(bool warnInsteadOfError, string propertyName, TypeSymbol expectedType) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP078",
                 $"The property \"{propertyName}\" requires a value of type \"{expectedType}\", but none was supplied.");
 
-            public ErrorDiagnostic CyclicExpressionSelfReference() => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicExpressionSelfReference() => new(
                 TextSpan,
                 "BCP079",
                 "This expression is referencing its own declaration, which is not allowed.");
 
-            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicExpression(IEnumerable<string> cycle) => new(
                 TextSpan,
                 "BCP080",
                 $"The expression is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new Diagnostic(
+            public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP081",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available.");
 
-            public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new FixableErrorDiagnostic(
+            public FixableErrorDiagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => new(
                 TextSpan,
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
-            public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new FixableDiagnostic(
+            public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
-            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new ErrorDiagnostic(
+            public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new(
                 TextSpan,
                 "BCP084",
                 $"The symbolic name \"{name}\" is reserved. Please use a different symbolic name. Reserved namespaces are {ToQuotedString(namespaces.OrderBy(ns => ns))}.");
 
-            public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsForbiddenCharacters(IEnumerable<char> forbiddenChars) => new(
                 TextSpan,
                 "BCP085",
                 $"The specified module path contains one ore more invalid path characters. The following are not permitted: {ToQuotedString(forbiddenChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathHasForbiddenTerminator(IEnumerable<char> forbiddenPathTerminatorChars) => new(
                 TextSpan,
                 "BCP086",
                 $"The specified module path ends with an invalid character. The following are not permitted: {ToQuotedString(forbiddenPathTerminatorChars.OrderBy(x => x).Select(x => x.ToString()))}.");
 
-            public ErrorDiagnostic ComplexLiteralsNotAllowed() => new ErrorDiagnostic(
+            public ErrorDiagnostic ComplexLiteralsNotAllowed() => new(
                 TextSpan,
                 "BCP087",
                 "Array and object literals are not allowed here.");
 
-            public FixableDiagnostic PropertyStringLiteralMismatchWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol expectedType, string actualStringLiteral, string suggestedStringLiteral) => new FixableDiagnostic(
+            public FixableDiagnostic PropertyStringLiteralMismatchWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol expectedType, string actualStringLiteral, string suggestedStringLiteral) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
                 new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
 
-            public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new FixableDiagnostic(
+            public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new(
                 TextSpan,
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
                 new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
-            public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP090",
                 "This module declaration is missing a file path reference.");
 
-            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new ErrorDiagnostic(
+            public ErrorDiagnostic ErrorOccurredReadingFile(string failureMessage) => new(
                 TextSpan,
                 "BCP091",
                 $"An error occurred reading file. {failureMessage}");
 
-            public ErrorDiagnostic ModulePathInterpolationUnsupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathInterpolationUnsupported() => new(
                 TextSpan,
                 "BCP092",
                 "String interpolation is not supported in module paths.");
 
-            public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathCouldNotBeResolved(string modulePath, string parentPath) => new(
                 TextSpan,
                 "BCP093",
                 $"Module path \"{modulePath}\" could not be resolved relative to \"{parentPath}\".");
 
-            public ErrorDiagnostic CyclicModuleSelfReference() => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicModuleSelfReference() => new(
                 TextSpan,
                 "BCP094",
                 "This module references itself, which is not allowed.");
 
-            public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new ErrorDiagnostic(
+            public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new(
                 TextSpan,
                 "BCP095",
                 $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
-            public ErrorDiagnostic ExpectedModuleIdentifier() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedModuleIdentifier() => new(
                 TextSpan,
                 "BCP096",
                 "Expected a module identifier at this location.");
 
-            public ErrorDiagnostic ExpectedModulePathString() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectedModulePathString() => new(
                 TextSpan,
                 "BCP097",
                 "Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic ModulePathContainsBackSlash() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsBackSlash() => new(
                 TextSpan,
                 "BCP098",
                 "The specified module path contains a \"\\\" character. Use \"/\" instead as the directory separator character.");
 
-            public ErrorDiagnostic AllowedMustContainItems() => new ErrorDiagnostic(
+            public ErrorDiagnostic AllowedMustContainItems() => new(
                 TextSpan,
                 "BCP099",
                 $"The \"{LanguageConstants.ParameterAllowedPropertyName}\" array must contain one or more items.");
 
-            public ErrorDiagnostic IfFunctionNotSupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic IfFunctionNotSupported() => new(
                 TextSpan,
                 "BCP100",
                 "The \"if\" function is not supported. Use the ternary conditional operator instead.");
 
-            public ErrorDiagnostic CreateArrayFunctionNotSupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic CreateArrayFunctionNotSupported() => new(
                 TextSpan,
                 "BCP101",
                 "The \"createArray\" function is not supported. Construct an array literal using [].");
 
-            public ErrorDiagnostic CreateObjectFunctionNotSupported() => new ErrorDiagnostic(
+            public ErrorDiagnostic CreateObjectFunctionNotSupported() => new(
                 TextSpan,
                 "BCP102",
                 "The \"createObject\" function is not supported. Construct an object literal using {}.");
 
-            public ErrorDiagnostic DoubleQuoteToken(string token) => new ErrorDiagnostic(
+            public ErrorDiagnostic DoubleQuoteToken(string token) => new(
                 TextSpan,
                 "BCP103",
                 $"The following token is not recognized: \"{token}\". Strings are defined using single quotes in bicep.");
 
-            public ErrorDiagnostic ReferencedModuleHasErrors() => new ErrorDiagnostic(
+            public ErrorDiagnostic ReferencedModuleHasErrors() => new(
                 TextSpan,
                 "BCP104",
                 $"The referenced module has errors.");
 
-            public ErrorDiagnostic UnableToLoadNonFileUri(Uri fileUri) => new ErrorDiagnostic(
+            public ErrorDiagnostic UnableToLoadNonFileUri(Uri fileUri) => new(
                 TextSpan,
                 "BCP105",
                 $"Unable to load file from URI \"{fileUri}\".");
 
-            public ErrorDiagnostic UnexpectedCommaSeparator() => new ErrorDiagnostic(
+            public ErrorDiagnostic UnexpectedCommaSeparator() => new(
                 TextSpan,
                 "BCP106",
                 "Expected a new line character at this location. Commas are not used as separator delimiters.");
 
-            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionDoesNotExistInNamespace(Symbol namespaceSymbol, string name) => new(
                 TextSpan,
                 "BCP107",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new FixableErrorDiagnostic(
+            public FixableErrorDiagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceSymbol, string name, string suggestedName) => new(
                 TextSpan,
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceSymbol.Name}\". Did you mean \"{suggestedName}\"?",
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
-            public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new ErrorDiagnostic(
+            public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new(
                 TextSpan,
                 "BCP109",
                 $"The type \"{type}\" does not contain function \"{name}\".");
 
-            public FixableErrorDiagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => new FixableErrorDiagnostic(
+            public FixableErrorDiagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => new(
                 TextSpan,
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
 
-            public ErrorDiagnostic ModulePathContainsControlChars() => new ErrorDiagnostic(
+            public ErrorDiagnostic ModulePathContainsControlChars() => new(
                 TextSpan,
                 "BCP111",
                 $"The specified module path contains invalid control code characters.");
 
-            public ErrorDiagnostic TargetScopeMultipleDeclarations() => new ErrorDiagnostic(
+            public ErrorDiagnostic TargetScopeMultipleDeclarations() => new(
                 TextSpan,
                 "BCP112",
                 $"The \"{LanguageConstants.TargetScopeKeyword}\" cannot be declared multiple times in one file.");
 
-            public Diagnostic InvalidModuleScopeForTenantScope() => new Diagnostic(
+            public Diagnostic InvalidModuleScopeForTenantScope() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP113",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
-            public Diagnostic InvalidModuleScopeForManagementScope() => new Diagnostic(
+            public Diagnostic InvalidModuleScopeForManagementScope() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP114",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeManagementGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current management group: managementGroup(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), tenant: tenant(), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 
-            public Diagnostic InvalidModuleScopeForSubscriptionScope() => new Diagnostic(
+            public Diagnostic InvalidModuleScopeForSubscriptionScope() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP115",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current subscription: subscription(), named subscription: subscription(<subId>), named resource group in same subscription: resourceGroup(<name>), or tenant: tenant().");
 
-            public Diagnostic InvalidModuleScopeForResourceGroup() => new Diagnostic(
+            public Diagnostic InvalidModuleScopeForResourceGroup() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP116",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
 
-            public ErrorDiagnostic EmptyIndexerNotAllowed() => new ErrorDiagnostic(
+            public ErrorDiagnostic EmptyIndexerNotAllowed() => new(
                 TextSpan,
                 "BCP117",
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
-            public ErrorDiagnostic ExpectBodyStartOrIf() => new ErrorDiagnostic(
+            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
                 TextSpan,
                 "BCP118",
                 "Expected the \"{\" character or the \"if\" keyword at this location.");
 
-            public Diagnostic InvalidExtensionResourceScope() => new Diagnostic(
+            public Diagnostic InvalidExtensionResourceScope() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP119",
@@ -714,9 +714,9 @@ namespace Bicep.Core.Diagnostics
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
-            => new DiagnosticBuilderInternal(span);
+            => new(span);
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
-            => new DiagnosticBuilderInternal(positionable.Span);
+            => new(positionable.Span);
     }
 }
