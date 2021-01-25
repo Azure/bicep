@@ -77,13 +77,7 @@ namespace Bicep.Core.Parsing
 
                             if (this.Check(TokenType.NewLine))
                             {
-                                var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
-
-                                if (newLine != null)
-                                {
-                                    leadingNodes.Add(newLine);
-                                }
-
+                                leadingNodes.Add(this.NewLine());
                                 continue;
                             }
 
