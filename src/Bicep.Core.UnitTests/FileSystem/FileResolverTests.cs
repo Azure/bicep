@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IOException))]
+        [ExpectedException(typeof(IOException), AllowDerivedTypes=true)]
         public void GetDirectories_should_return_expected_results()
         {
             var fileResolver = new FileResolver();
@@ -88,7 +88,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        [ExpectedException(typeof(IOException))]
+        [ExpectedException(typeof(IOException), AllowDerivedTypes=true)]
         public void GetFiles_should_return_expected_results()
         {
             var fileResolver = new FileResolver();
