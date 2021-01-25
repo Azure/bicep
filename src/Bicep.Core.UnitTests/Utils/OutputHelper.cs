@@ -66,7 +66,7 @@ namespace Bicep.Core.UnitTests.Utils
             var spanText = GetSpanText(sourceText, diagnostic);
             var message = diagnostic.Message.Replace($"{outputDirectory}{Path.DirectorySeparatorChar}", "${TEST_OUTPUT_DIR}/");
             // Normalize file path seperators across OS
-            message = Regex.Replace(message, "\"${TEST_OUTPUT_DIR}.*\"", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
+            message = Regex.Replace(message, "'${TEST_OUTPUT_DIR}.*'", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
             return $"[{diagnostic.Code} ({diagnostic.Level})] {message} |{spanText}|";
         }
     }
