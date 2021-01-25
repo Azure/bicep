@@ -9,7 +9,7 @@ namespace Bicep.Core.Semantics
 {
     public interface IBinder
     {
-        ResourceScopeType TargetScope { get; }
+        ResourceScope TargetScope { get; }
 
         FileSymbol FileSymbol { get; }
 

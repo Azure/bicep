@@ -79,16 +79,16 @@ namespace Bicep.Core.Emit
 
                 switch (semanticModel.TargetScope)
                 {
-                    case ResourceScopeType.TenantScope:
+                    case ResourceScope.Tenant:
                         diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForTenantScope());
                         break;
-                    case ResourceScopeType.ManagementGroupScope:
+                    case ResourceScope.ManagementGroup:
                         diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForManagementScope());
                         break;
-                    case ResourceScopeType.SubscriptionScope:
+                    case ResourceScope.Subscription:
                         diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForSubscriptionScope());
                         break;
-                    case ResourceScopeType.ResourceGroupScope:
+                    case ResourceScope.ResourceGroup:
                         diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForResourceGroup());
                         break;
                     default:

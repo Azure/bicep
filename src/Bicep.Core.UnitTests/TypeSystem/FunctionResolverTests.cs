@@ -221,7 +221,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScopeType.ResourceGroupScope)};
+            var namespaces = new NamespaceSymbol[] {new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScope.ResourceGroup)};
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();
