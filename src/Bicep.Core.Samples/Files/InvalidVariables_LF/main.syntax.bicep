@@ -890,6 +890,22 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[57:58)   LeftSquare |[|
 //@[58:58)   SkippedTriviaSyntax
 //@[58:59)   RightSquare |]|
-//@[59:60) NewLine |\n|
+//@[59:61) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+// Issue 486
+//@[12:13) NewLine |\n|
+var myFloat = 3.14
+//@[0:16) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:11)  IdentifierSyntax
+//@[4:11)   Identifier |myFloat|
+//@[12:13)  Assignment |=|
+//@[14:16)  PropertyAccessSyntax
+//@[14:15)   IntegerLiteralSyntax
+//@[14:15)    Integer |3|
+//@[15:16)   Dot |.|
+//@[16:16)   IdentifierSyntax
+//@[16:16)    SkippedTriviaSyntax
+//@[16:18) SkippedTriviaSyntax
+//@[16:18)  Integer |14|
+//@[18:18) EndOfFile ||
