@@ -51,6 +51,13 @@ namespace Bicep.Core.Parsing
                         declarationsOrTokens.Add(newLine);
                     }
                 }
+
+                if (declarationOrToken is MissingDeclarationSyntax)
+                {
+                    // Declartion() must return SkippedTriviaSyntax since MissingDeclarationSyntax
+                    // only consumes dangling decorators.
+                    declarationsOrTokens.Add(Declaration());
+                }
             }
 
             var endOfFile = reader.Read();
@@ -97,11 +104,15 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                            _ => leadingNodes.Count > 0
+                                ? new MissingDeclarationSyntax(leadingNodes)
+                                : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        _ => leadingNodes.Count > 0
+                            ? new MissingDeclarationSyntax(leadingNodes)
+                            : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                     };
                 },
                 RecoveryFlags.None,

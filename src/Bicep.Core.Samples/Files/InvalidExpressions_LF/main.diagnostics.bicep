@@ -454,3 +454,12 @@ var partialObject = {
   d  : %
 //@[7:8) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |%|
 }
+
+// dangling decorators
+@concat()
+@sys.secure()
+xxxxx
+//@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
+
+@minLength()
+//@[12:12) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. ||

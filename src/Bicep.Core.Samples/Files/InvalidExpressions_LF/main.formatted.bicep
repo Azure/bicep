@@ -234,3 +234,10 @@ var partialObject = {
   c :
   d  : %
 }
+
+// dangling decorators
+@concat()
+@sys.secure()
+xxxxx
+
+@minLength()

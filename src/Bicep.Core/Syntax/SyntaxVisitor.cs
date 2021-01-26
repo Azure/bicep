@@ -274,6 +274,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Expression);
         }
 
+        public virtual void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+        }
+
         protected void VisitTokens(IEnumerable<Token> tokens)
         {
             foreach (Token token in tokens)

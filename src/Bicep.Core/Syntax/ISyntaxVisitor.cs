@@ -71,5 +71,7 @@ namespace Bicep.Core.Syntax
         void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
         void VisitDecoratorSyntax(DecoratorSyntax syntax);
+
+        void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
     }
 }

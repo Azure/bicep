@@ -1555,4 +1555,31 @@ var partialObject = {
 //@[8:9) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// dangling decorators
+//@[22:23) NewLine |\n|
+@concat()
+//@[0:1) At |@|
+//@[1:7) Identifier |concat|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+@sys.secure()
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:11) Identifier |secure|
+//@[11:12) LeftParen |(|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+xxxxx
+//@[0:5) Identifier |xxxxx|
+//@[5:7) NewLine |\n\n|
+
+@minLength()
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) RightParen |)|
+//@[12:12) EndOfFile ||

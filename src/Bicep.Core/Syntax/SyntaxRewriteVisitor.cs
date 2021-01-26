@@ -566,5 +566,18 @@ namespace Bicep.Core.Syntax
             return new DecoratorSyntax(at, expression);
         }
         void ISyntaxVisitor.VisitDecoratorSyntax(DecoratorSyntax syntax) => ReplaceCurrent(syntax, ReplaceDecoratorSyntax);
+
+        protected virtual MissingDeclarationSyntax ReplaceMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
+        {
+            var hasChange = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+
+            if (!hasChange)
+            {
+                return syntax;
+            }
+
+            return new MissingDeclarationSyntax(leadingNodes);
+        }
+        void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
     }
 }
