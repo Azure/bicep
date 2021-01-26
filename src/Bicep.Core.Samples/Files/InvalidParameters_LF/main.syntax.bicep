@@ -1761,7 +1761,7 @@ param incompleteDecorators string
 //@[33:35) NewLine |\n\n|
 
 @concat(1, 2)
-//@[0:154) ParameterDeclarationSyntax
+//@[0:176) ParameterDeclarationSyntax
 //@[0:13)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:13)   FunctionCallSyntax
@@ -1777,6 +1777,26 @@ param incompleteDecorators string
 //@[11:12)      Number |2|
 //@[12:13)    RightParen |)|
 //@[13:14)  NewLine |\n|
+@sys.concat('a', 'b')
+//@[0:21)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:21)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:11)    IdentifierSyntax
+//@[5:11)     Identifier |concat|
+//@[11:12)    LeftParen |(|
+//@[12:16)    FunctionArgumentSyntax
+//@[12:15)     StringSyntax
+//@[12:15)      StringComplete |'a'|
+//@[15:16)     Comma |,|
+//@[17:20)    FunctionArgumentSyntax
+//@[17:20)     StringSyntax
+//@[17:20)      StringComplete |'b'|
+//@[20:21)    RightParen |)|
+//@[21:22)  NewLine |\n|
 @secure()
 //@[0:9)  DecoratorSyntax
 //@[0:1)   At |@|

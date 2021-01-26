@@ -583,6 +583,23 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[56:57) RightSquare |]|
 //@[57:58) LeftSquare |[|
 //@[58:59) RightSquare |]|
-//@[59:60) NewLine |\n|
+//@[59:61) NewLine |\n\n|
+
+// secure cannot be used as a varaible decorator
+//@[48:49) NewLine |\n|
+@sys.secure()
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:11) Identifier |secure|
+//@[11:12) LeftParen |(|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+var something = 1
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |something|
+//@[14:15) Assignment |=|
+//@[16:17) Number |1|
+//@[17:18) NewLine |\n|
 
 //@[0:0) EndOfFile ||

@@ -351,7 +351,6 @@ namespace Bicep.Core.PrettyPrint
                 return;
             }
 
-            //this.BuildWithSpread(visitAction);
             this.Build(visitAction, children =>
             {
                 var splitIndex = Array.IndexOf(children, Nil);

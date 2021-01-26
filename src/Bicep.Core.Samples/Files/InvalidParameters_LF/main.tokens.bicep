@@ -1163,6 +1163,17 @@ param incompleteDecorators string
 //@[11:12) Number |2|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
+@sys.concat('a', 'b')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:11) Identifier |concat|
+//@[11:12) LeftParen |(|
+//@[12:15) StringComplete |'a'|
+//@[15:16) Comma |,|
+//@[17:20) StringComplete |'b'|
+//@[20:21) RightParen |)|
+//@[21:22) NewLine |\n|
 @secure()
 //@[0:1) At |@|
 //@[1:7) Identifier |secure|

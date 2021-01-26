@@ -226,7 +226,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.String)
                 .WithDescription(resourceIdDescription)
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
-            //base.VisitInstanceFunctionCallSyntax(syntax);
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
@@ -329,105 +328,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
-        private static IEnumerable<Decorator> GetAzDecorators()
-        {
-            static DecoratorValidator ValidateTargetType(TypeSymbol attachableType) =>
-                (decoratorName, decoratorSyntax, targetType, _, diagnosticWriter) =>
-                {
-                    if (!TypeValidator.AreTypesAssignable(targetType, attachableType))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttacheDecoratorToTarget(decoratorName, attachableType, targetType));
-                    }
-                };
-
-            static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<DecoratorSyntax, SyntaxBase> propertyValueSelector) =>
-                (decoratorSyntax, _, targetObject) =>
-                    targetObject.MergeProperty(propertyName, propertyValueSelector(decoratorSyntax));
-
-            static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
-
-            yield return new DecoratorBuilder("secure")
-                .WithDescription("Makes the parameter a secure parameter.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithEvaluator((_, targetType, targetObject) =>
-                {
-                    if (ReferenceEquals(targetType, LanguageConstants.String))
-                    {
-                        return targetObject.MergeProperty("type", "secureString");
-                    }
-
-                    if (ReferenceEquals(targetType, LanguageConstants.Object))
-                    {
-                        return targetObject.MergeProperty("type", "secureObject");
-                    }
-
-                    return targetObject;
-                })
-                .Build();
-
-            yield return new DecoratorBuilder("allowed")
-                .WithDescription("Defines the allowed values of the parameter.")
-                .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(
-                        typeManager,
-                        decoratorSyntax.Arguments.Single().Expression,
-                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter))
-                .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("minValue")
-                .WithDescription("Defines the minimum value of the parameter.")
-                .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(LanguageConstants.Int))
-                .WithEvaluator(MergeToTargetObject("minValue", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("maxValue")
-                .WithDescription("Defines the maximum value of the parameter.")
-                .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(LanguageConstants.Int))
-                .WithEvaluator(MergeToTargetObject("maxValue", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("minLength")
-                .WithDescription("Defines the minimum length of the parameter.")
-                .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array)))
-                .WithEvaluator(MergeToTargetObject("minLength", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("maxLength")
-                .WithDescription("Defines the maximum length of the parameter.")
-                .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array)))
-                .WithEvaluator(MergeToTargetObject("maxLength", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("metadata")
-                .WithDescription("Defines metadata of the parameter.")
-                .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
-                .Build();
-
-            yield return new DecoratorBuilder("description")
-                .WithDescription("Describes the parameter.")
-                .WithRequiredParameter("text", LanguageConstants.String, "The description.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithEvaluator(MergeToTargetObject("metadata", decoratorSyntax => SyntaxFactory.CreateObject(
-                    SyntaxFactory.CreateObjectProperty("description", SingleArgumentSelector(decoratorSyntax)).AsEnumerable())))
-                .Build();
-        }
-
         public AzNamespaceSymbol(ResourceScope resourceScope)
-            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty, GetAzDecorators())
+            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty, ImmutableArray<Decorator>.Empty) 
         {
         }
     }

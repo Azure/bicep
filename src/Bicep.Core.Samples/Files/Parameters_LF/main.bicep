@@ -158,7 +158,7 @@ param decoratedString string
 @minValue(200)
 param decoratedInt int = 123
 
-@az.description('A boolean.')
+@sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
     foo: 'something'
@@ -184,5 +184,5 @@ param decoratedObject object = {
 @maxLength(20)
 @maxLength(10)
 @maxLength(5)
-@az.description('I will be overrode.')
+@sys.description('I will be overrode.')
 param decoratedArray array

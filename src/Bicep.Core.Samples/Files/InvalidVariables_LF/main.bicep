@@ -143,3 +143,7 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 
 // #completionTest(58) -> twoIndexPlusSymbols
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+
+// secure cannot be used as a varaible decorator
+@sys.secure()
+var something = 1

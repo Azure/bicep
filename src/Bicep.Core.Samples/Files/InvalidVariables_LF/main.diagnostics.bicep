@@ -212,3 +212,8 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[58:58) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
+// secure cannot be used as a varaible decorator
+@sys.secure()
+//@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. |secure|
+var something = 1
+

@@ -890,6 +890,31 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[57:58)   LeftSquare |[|
 //@[58:58)   SkippedTriviaSyntax
 //@[58:59)   RightSquare |]|
-//@[59:60) NewLine |\n|
+//@[59:61) NewLine |\n\n|
+
+// secure cannot be used as a varaible decorator
+//@[48:49) NewLine |\n|
+@sys.secure()
+//@[0:31) VariableDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:11)    IdentifierSyntax
+//@[5:11)     Identifier |secure|
+//@[11:12)    LeftParen |(|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+var something = 1
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |something|
+//@[14:15)  Assignment |=|
+//@[16:17)  NumericLiteralSyntax
+//@[16:17)   Number |1|
+//@[17:18) NewLine |\n|
 
 //@[0:0) EndOfFile ||

@@ -187,3 +187,8 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[4:28) Variable oneArrayIndexCompletions. Type: error. Declaration start char: 0, length: 59
 
+// secure cannot be used as a varaible decorator
+@sys.secure()
+var something = 1
+//@[4:13) Variable something. Type: int. Declaration start char: 0, length: 31
+

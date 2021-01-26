@@ -630,15 +630,15 @@ param decoratedInt int = 123
 //@[25:28) Number |123|
 //@[28:30) NewLine |\n\n|
 
-@az.description('A boolean.')
+@sys.description('A boolean.')
 //@[0:1) At |@|
-//@[1:3) Identifier |az|
-//@[3:4) Dot |.|
-//@[4:15) Identifier |description|
-//@[15:16) LeftParen |(|
-//@[16:28) StringComplete |'A boolean.'|
-//@[28:29) RightParen |)|
-//@[29:30) NewLine |\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:29) StringComplete |'A boolean.'|
+//@[29:30) RightParen |)|
+//@[30:31) NewLine |\n|
 @metadata({
 //@[0:1) At |@|
 //@[1:9) Identifier |metadata|
@@ -754,15 +754,15 @@ param decoratedObject object = {
 //@[11:12) Number |5|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
-@az.description('I will be overrode.')
+@sys.description('I will be overrode.')
 //@[0:1) At |@|
-//@[1:3) Identifier |az|
-//@[3:4) Dot |.|
-//@[4:15) Identifier |description|
-//@[15:16) LeftParen |(|
-//@[16:37) StringComplete |'I will be overrode.'|
-//@[37:38) RightParen |)|
-//@[38:39) NewLine |\n|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:38) StringComplete |'I will be overrode.'|
+//@[38:39) RightParen |)|
+//@[39:40) NewLine |\n|
 param decoratedArray array
 //@[0:5) Identifier |param|
 //@[6:20) Identifier |decoratedArray|

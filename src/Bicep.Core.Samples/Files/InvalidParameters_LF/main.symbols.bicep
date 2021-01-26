@@ -374,11 +374,12 @@ param incompleteDecorators string
 //@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 43
 
 @concat(1, 2)
+@sys.concat('a', 'b')
 @secure()
 // wrong target type
 @minValue(20)
 param someString string {
-//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 154
+//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 176
 	// using decorators and modifier at the same time
     secure: true
 }

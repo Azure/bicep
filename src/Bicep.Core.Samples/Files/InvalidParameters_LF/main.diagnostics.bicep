@@ -420,6 +420,8 @@ param incompleteDecorators string
 
 @concat(1, 2)
 //@[1:7) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
+@sys.concat('a', 'b')
+//@[5:11) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @secure()
 // wrong target type
 @minValue(20)

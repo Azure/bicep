@@ -185,7 +185,7 @@ param decoratedString string
 param decoratedInt int = 123
 //@[6:18) Parameter decoratedInt. Type: int. Declaration start char: 0, length: 43
 
-@az.description('A boolean.')
+@sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
     foo: 'something'
@@ -196,7 +196,7 @@ param decoratedInt int = 123
     ]
 })
 param decoratedBool bool
-//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 192
+//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 193
 
 @secure()
 @secure()
@@ -213,7 +213,7 @@ param decoratedObject object = {
 @maxLength(20)
 @maxLength(10)
 @maxLength(5)
-@az.description('I will be overrode.')
+@sys.description('I will be overrode.')
 param decoratedArray array
-//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 153
+//@[6:20) Parameter decoratedArray. Type: array. Declaration start char: 0, length: 154
 

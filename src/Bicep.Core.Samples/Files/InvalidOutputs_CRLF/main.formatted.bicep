@@ -88,6 +88,6 @@ output union string = true ? 's' : 1
 output bad int = true && !4
 output deeper bool = true ? -true : (14 && 's') + 10
 
-@az.maxValue(20)
+@sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32

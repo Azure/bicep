@@ -947,23 +947,23 @@ param decoratedInt int = 123
 //@[25:28)    Number |123|
 //@[28:30) NewLine |\n\n|
 
-@az.description('A boolean.')
-//@[0:192) ParameterDeclarationSyntax
-//@[0:29)  DecoratorSyntax
+@sys.description('A boolean.')
+//@[0:193) ParameterDeclarationSyntax
+//@[0:30)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:29)   InstanceFunctionCallSyntax
-//@[1:3)    VariableAccessSyntax
-//@[1:3)     IdentifierSyntax
-//@[1:3)      Identifier |az|
-//@[3:4)    Dot |.|
-//@[4:15)    IdentifierSyntax
-//@[4:15)     Identifier |description|
-//@[15:16)    LeftParen |(|
-//@[16:28)    FunctionArgumentSyntax
-//@[16:28)     StringSyntax
-//@[16:28)      StringComplete |'A boolean.'|
-//@[28:29)    RightParen |)|
-//@[29:30)  NewLine |\n|
+//@[1:30)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:29)    FunctionArgumentSyntax
+//@[17:29)     StringSyntax
+//@[17:29)      StringComplete |'A boolean.'|
+//@[29:30)    RightParen |)|
+//@[30:31)  NewLine |\n|
 @metadata({
 //@[0:137)  DecoratorSyntax
 //@[0:1)   At |@|
@@ -1083,7 +1083,7 @@ param decoratedObject object = {
 
 
 @metadata({
-//@[0:153) ParameterDeclarationSyntax
+//@[0:154) ParameterDeclarationSyntax
 //@[0:43)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:43)   FunctionCallSyntax
@@ -1142,22 +1142,22 @@ param decoratedObject object = {
 //@[11:12)      Number |5|
 //@[12:13)    RightParen |)|
 //@[13:14)  NewLine |\n|
-@az.description('I will be overrode.')
-//@[0:38)  DecoratorSyntax
+@sys.description('I will be overrode.')
+//@[0:39)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:38)   InstanceFunctionCallSyntax
-//@[1:3)    VariableAccessSyntax
-//@[1:3)     IdentifierSyntax
-//@[1:3)      Identifier |az|
-//@[3:4)    Dot |.|
-//@[4:15)    IdentifierSyntax
-//@[4:15)     Identifier |description|
-//@[15:16)    LeftParen |(|
-//@[16:37)    FunctionArgumentSyntax
-//@[16:37)     StringSyntax
-//@[16:37)      StringComplete |'I will be overrode.'|
-//@[37:38)    RightParen |)|
-//@[38:39)  NewLine |\n|
+//@[1:39)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:38)    FunctionArgumentSyntax
+//@[17:38)     StringSyntax
+//@[17:38)      StringComplete |'I will be overrode.'|
+//@[38:39)    RightParen |)|
+//@[39:40)  NewLine |\n|
 param decoratedArray array
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax

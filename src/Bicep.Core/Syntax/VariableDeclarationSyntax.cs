@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 
@@ -51,6 +52,6 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Keyword, Value);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? Keyword, Value);
     }
 }

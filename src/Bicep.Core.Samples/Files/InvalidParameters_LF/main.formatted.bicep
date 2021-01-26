@@ -292,6 +292,7 @@ param commaTwo string {
 param incompleteDecorators string
 
 @concat(1, 2)
+@sys.concat('a', 'b')
 @secure()
 // wrong target type
 @minValue(20)

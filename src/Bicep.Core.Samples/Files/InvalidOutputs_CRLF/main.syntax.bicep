@@ -600,23 +600,23 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[50:52)     Number |10|
 //@[52:56) NewLine |\r\n\r\n|
 
-@az.maxValue(20)
-//@[0:72) OutputDeclarationSyntax
-//@[0:16)  DecoratorSyntax
+@sys.maxValue(20)
+//@[0:73) OutputDeclarationSyntax
+//@[0:17)  DecoratorSyntax
 //@[0:1)   At |@|
-//@[1:16)   InstanceFunctionCallSyntax
-//@[1:3)    VariableAccessSyntax
-//@[1:3)     IdentifierSyntax
-//@[1:3)      Identifier |az|
-//@[3:4)    Dot |.|
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |maxValue|
-//@[12:13)    LeftParen |(|
-//@[13:15)    FunctionArgumentSyntax
-//@[13:15)     NumericLiteralSyntax
-//@[13:15)      Number |20|
-//@[15:16)    RightParen |)|
-//@[16:18)  NewLine |\r\n|
+//@[1:17)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:13)    IdentifierSyntax
+//@[5:13)     Identifier |maxValue|
+//@[13:14)    LeftParen |(|
+//@[14:16)    FunctionArgumentSyntax
+//@[14:16)     NumericLiteralSyntax
+//@[14:16)      Number |20|
+//@[16:17)    RightParen |)|
+//@[17:19)  NewLine |\r\n|
 @minValue(10)
 //@[0:13)  DecoratorSyntax
 //@[0:1)   At |@|
