@@ -8,9 +8,10 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class OutputDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class OutputDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
         public OutputDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.OutputKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(IdentifierSyntax));
@@ -18,15 +19,12 @@ namespace Bicep.Core.Syntax
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.LeadingNodes = leadingNodes.ToImmutableArray();
             this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
             this.Assignment = assignment;
             this.Value = value;
         }
-
-        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
 
@@ -37,8 +35,6 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
-
-        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitOutputDeclarationSyntax(this);
 

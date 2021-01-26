@@ -9,41 +9,37 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class TargetScopeSyntax : SyntaxBase, IDeclarationSyntax
+    public class TargetScopeSyntax : StatementSyntax, IDeclarationSyntax
     {
         public TargetScopeSyntax(Token keyword, SyntaxBase assignment, SyntaxBase value)
+            : base(ImmutableArray<SyntaxBase>.Empty)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.TargetScopeKeyword);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.LeadingNodes = ImmutableArray<SyntaxBase>.Empty;
             this.Keyword = keyword;
             this.Assignment = assignment;
             this.Value = value;
         }
 
         public TargetScopeSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase assignment, SyntaxBase value)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.TargetScopeKeyword);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.LeadingNodes = leadingNodes.ToImmutableArray();
             this.Keyword = keyword;
             this.Assignment = assignment;
             this.Value = value;
         }
-
-        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
 
         public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
-
-        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTargetScopeSyntax(this);
 

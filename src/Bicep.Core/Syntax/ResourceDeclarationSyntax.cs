@@ -8,14 +8,14 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class ResourceDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
         public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ResourceKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -26,7 +26,6 @@ namespace Bicep.Core.Syntax
             AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
             AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
-            this.LeadingNodes = leadingNodes.ToImmutableArray();
             this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
@@ -34,8 +33,6 @@ namespace Bicep.Core.Syntax
             this.IfCondition = ifCondition;
             this.Body = body;
         }
-
-        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
 
@@ -54,8 +51,6 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Body);
 
         public StringSyntax? TypeString => Type as StringSyntax;
-
-        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public TypeSymbol GetDeclaredType(ResourceScope targetScope, IResourceTypeProvider resourceTypeProvider)
         {

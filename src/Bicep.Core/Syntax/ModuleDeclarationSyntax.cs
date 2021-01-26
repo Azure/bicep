@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -11,9 +9,10 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class ModuleDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
         public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -24,7 +23,6 @@ namespace Bicep.Core.Syntax
             AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
             AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
 
-            this.LeadingNodes = leadingNodes.ToImmutableArray();
             this.Keyword = keyword;
             this.Name = name;
             this.Path = path;
@@ -32,8 +30,6 @@ namespace Bicep.Core.Syntax
             this.IfCondition = ifCondition;
             this.Body = body;
         }
-
-        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
 
@@ -46,8 +42,6 @@ namespace Bicep.Core.Syntax
         public SyntaxBase? IfCondition { get; }
 
         public SyntaxBase Body { get; }
-
-        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 

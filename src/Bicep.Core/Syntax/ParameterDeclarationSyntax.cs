@@ -12,23 +12,21 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class ParameterDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
         public ParameterDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase? modifier)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
             
-            this.LeadingNodes = leadingNodes.ToImmutableArray();
             this.Keyword = keyword;
             this.Name = name;
             this.Type = type;
             this.Modifier = modifier;
         }
-
-        public ImmutableArray<SyntaxBase> LeadingNodes { get; }
 
         public Token Keyword { get; }
         
@@ -38,8 +36,6 @@ namespace Bicep.Core.Syntax
 
         // This is a modifier of the parameter and not a modifier of the type
         public SyntaxBase? Modifier { get; }
-
-        public IEnumerable<DecoratorSyntax> Decorators => this.LeadingNodes.OfType<DecoratorSyntax>();
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterDeclarationSyntax(this);
