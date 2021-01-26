@@ -23,7 +23,7 @@ param
 
 param 3
 //@[0:5) Identifier |param|
-//@[6:7) Number |3|
+//@[6:7) Integer |3|
 //@[7:8) NewLine |\n|
 param % string
 //@[0:5) Identifier |param|
@@ -34,7 +34,7 @@ param % string 3 = 's'
 //@[0:5) Identifier |param|
 //@[6:7) Modulo |%|
 //@[8:14) Identifier |string|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[17:18) Assignment |=|
 //@[19:22) StringComplete |'s'|
 //@[22:24) NewLine |\n\n|
@@ -82,7 +82,7 @@ param partialType str
 param malformedType 44
 //@[0:5) Identifier |param|
 //@[6:19) Identifier |malformedType|
-//@[20:22) Number |44|
+//@[20:22) Integer |44|
 //@[22:24) NewLine |\n\n|
 
 // malformed type but type check should still happen
@@ -90,7 +90,7 @@ param malformedType 44
 param malformedType2 44 = f
 //@[0:5) Identifier |param|
 //@[6:20) Identifier |malformedType2|
-//@[21:23) Number |44|
+//@[21:23) Integer |44|
 //@[24:25) Assignment |=|
 //@[26:27) Identifier |f|
 //@[27:29) NewLine |\n\n|
@@ -100,7 +100,7 @@ param malformedType2 44 = f
 param malformedModifier 44 {
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |malformedModifier|
-//@[24:26) Number |44|
+//@[24:26) Integer |44|
 //@[27:28) LeftBrace |{|
 //@[28:29) NewLine |\n|
   secure: 's'
@@ -125,7 +125,7 @@ param wrongDefaultValue string = 42
 //@[6:23) Identifier |wrongDefaultValue|
 //@[24:30) Identifier |string|
 //@[31:32) Assignment |=|
-//@[33:35) Number |42|
+//@[33:35) Integer |42|
 //@[35:37) NewLine |\n\n|
 
 param myInt2 int = 42
@@ -133,7 +133,7 @@ param myInt2 int = 42
 //@[6:12) Identifier |myInt2|
 //@[13:16) Identifier |int|
 //@[17:18) Assignment |=|
-//@[19:21) Number |42|
+//@[19:21) Integer |42|
 //@[21:22) NewLine |\n|
 param noValueAfterColon int =   
 //@[0:5) Identifier |param|
@@ -371,12 +371,12 @@ param someArray arra {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 24
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -393,12 +393,12 @@ param duplicatedModifierProperty string {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   minLength: 24
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -420,12 +420,12 @@ param secureInt int {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 123
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:16) Number |123|
+//@[13:16) Integer |123|
 //@[16:17) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -521,16 +521,16 @@ param expressionInModifier string {
   default: 2 + 3
 //@[2:9) Identifier |default|
 //@[9:10) Colon |:|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[13:14) Plus |+|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[16:17) NewLine |\n|
   maxLength: a + 2
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
 //@[13:14) Identifier |a|
 //@[15:16) Plus |+|
-//@[17:18) Number |2|
+//@[17:18) Integer |2|
 //@[18:19) NewLine |\n|
   minLength: foo()
 //@[2:11) Identifier |minLength|
@@ -563,9 +563,9 @@ param nonCompileTimeConstant string {
   maxLength: 2 + 3
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |2|
+//@[13:14) Integer |2|
 //@[15:16) Plus |+|
-//@[17:18) Number |3|
+//@[17:18) Integer |3|
 //@[18:19) NewLine |\n|
   minLength: length([])
 //@[2:11) Identifier |minLength|

@@ -63,11 +63,11 @@ resource foo 'ddd'=if (1 + 1 == 2) {
 //@[18:19) Assignment |=|
 //@[19:21) Identifier |if|
 //@[22:23) LeftParen |(|
-//@[23:24) Number |1|
+//@[23:24) Integer |1|
 //@[25:26) Plus |+|
-//@[27:28) Number |1|
+//@[27:28) Integer |1|
 //@[29:31) Equals |==|
-//@[32:33) Number |2|
+//@[32:33) Integer |2|
 //@[33:34) RightParen |)|
 //@[35:36) LeftBrace |{|
 //@[36:38) NewLine |\r\n|
@@ -272,7 +272,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[50:51) Assignment |=|
 //@[52:54) Identifier |if|
 //@[55:56) LeftParen |(|
-//@[56:59) Number |123|
+//@[56:59) Integer |123|
 //@[59:60) RightParen |)|
 //@[61:62) LeftBrace |{|
 //@[62:64) NewLine |\r\n|
@@ -510,7 +510,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[19:20) Colon |:|
 //@[21:24) StringComplete |'a'|
 //@[25:26) Plus |+|
-//@[27:28) Number |1|
+//@[27:28) Integer |1|
 //@[28:30) NewLine |\r\n|
   properties: {
 //@[2:12) Identifier |properties|
@@ -533,7 +533,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[16:20) NullKeyword |null|
 //@[21:23) LogicalOr ||||
 //@[24:25) Exclamation |!|
-//@[25:26) Number |4|
+//@[25:26) Integer |4|
 //@[26:27) RightParen |)|
 //@[27:29) NewLine |\r\n|
     a: [
@@ -558,7 +558,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[29:30) Minus |-|
 //@[30:34) TrueKeyword |true|
 //@[35:36) Asterisk |*|
-//@[37:38) Number |4|
+//@[37:38) Integer |4|
 //@[38:40) NewLine |\r\n|
     ]
 //@[4:5) RightSquare |]|
@@ -618,7 +618,7 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   id: 2
 //@[2:4) Identifier |id|
 //@[4:5) Colon |:|
-//@[6:7) Number |2|
+//@[6:7) Integer |2|
 //@[7:9) NewLine |\r\n|
   type: 'hello'
 //@[2:6) Identifier |type|

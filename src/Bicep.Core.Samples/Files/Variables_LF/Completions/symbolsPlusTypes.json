@@ -1165,6 +1165,48 @@
     }
   },
   {
+    "label": "myBigInt",
+    "kind": "variable",
+    "detail": "myBigInt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigInt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigInt"
+    }
+  },
+  {
+    "label": "myBigIntExpression",
+    "kind": "variable",
+    "detail": "myBigIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression"
+    }
+  },
+  {
+    "label": "myBigIntExpression2",
+    "kind": "variable",
+    "detail": "myBigIntExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression2"
+    }
+  },
+  {
     "label": "myEmptyArray",
     "kind": "variable",
     "detail": "myEmptyArray",
@@ -1218,6 +1260,20 @@
     "textEdit": {
       "range": {},
       "newText": "myInt"
+    }
+  },
+  {
+    "label": "myIntExpression",
+    "kind": "variable",
+    "detail": "myIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myIntExpression"
     }
   },
   {

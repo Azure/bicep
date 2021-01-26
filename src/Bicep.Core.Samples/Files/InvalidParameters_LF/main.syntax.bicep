@@ -37,7 +37,7 @@ param 3
 //@[0:5)  Identifier |param|
 //@[6:7)  IdentifierSyntax
 //@[6:7)   SkippedTriviaSyntax
-//@[6:7)    Number |3|
+//@[6:7)    Integer |3|
 //@[7:7)  SkippedTriviaSyntax
 //@[7:8) NewLine |\n|
 param % string
@@ -58,7 +58,7 @@ param % string 3 = 's'
 //@[8:14)  TypeSyntax
 //@[8:14)   Identifier |string|
 //@[15:22)  SkippedTriviaSyntax
-//@[15:16)   Number |3|
+//@[15:16)   Integer |3|
 //@[17:18)   Assignment |=|
 //@[19:22)   StringComplete |'s'|
 //@[22:24) NewLine |\n\n|
@@ -127,7 +127,7 @@ param malformedType 44
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |malformedType|
 //@[20:22)  SkippedTriviaSyntax
-//@[20:22)   Number |44|
+//@[20:22)   Integer |44|
 //@[22:24) NewLine |\n\n|
 
 // malformed type but type check should still happen
@@ -138,7 +138,7 @@ param malformedType2 44 = f
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |malformedType2|
 //@[21:23)  SkippedTriviaSyntax
-//@[21:23)   Number |44|
+//@[21:23)   Integer |44|
 //@[24:27)  ParameterDefaultValueSyntax
 //@[24:25)   Assignment |=|
 //@[26:27)   VariableAccessSyntax
@@ -154,7 +154,7 @@ param malformedModifier 44 {
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |malformedModifier|
 //@[24:26)  SkippedTriviaSyntax
-//@[24:26)   Number |44|
+//@[24:26)   Integer |44|
 //@[27:44)  ObjectSyntax
 //@[27:28)   LeftBrace |{|
 //@[28:29)   NewLine |\n|
@@ -192,8 +192,8 @@ param wrongDefaultValue string = 42
 //@[24:30)   Identifier |string|
 //@[31:35)  ParameterDefaultValueSyntax
 //@[31:32)   Assignment |=|
-//@[33:35)   NumericLiteralSyntax
-//@[33:35)    Number |42|
+//@[33:35)   IntegerLiteralSyntax
+//@[33:35)    Integer |42|
 //@[35:37) NewLine |\n\n|
 
 param myInt2 int = 42
@@ -205,8 +205,8 @@ param myInt2 int = 42
 //@[13:16)   Identifier |int|
 //@[17:21)  ParameterDefaultValueSyntax
 //@[17:18)   Assignment |=|
-//@[19:21)   NumericLiteralSyntax
-//@[19:21)    Number |42|
+//@[19:21)   IntegerLiteralSyntax
+//@[19:21)    Integer |42|
 //@[21:22) NewLine |\n|
 param noValueAfterColon int =   
 //@[0:32) ParameterDeclarationSyntax
@@ -588,16 +588,16 @@ param someArray arra {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:15)   NewLine |\n|
   maxLength: 24
 //@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
-//@[13:15)    NumericLiteralSyntax
-//@[13:15)     Number |24|
+//@[13:15)    IntegerLiteralSyntax
+//@[13:15)     Integer |24|
 //@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
@@ -620,16 +620,16 @@ param duplicatedModifierProperty string {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:15)   NewLine |\n|
   minLength: 24
 //@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:15)    NumericLiteralSyntax
-//@[13:15)     Number |24|
+//@[13:15)    IntegerLiteralSyntax
+//@[13:15)     Integer |24|
 //@[15:16)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
@@ -660,16 +660,16 @@ param secureInt int {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:15)   NewLine |\n|
   maxLength: 123
 //@[2:16)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
-//@[13:16)    NumericLiteralSyntax
-//@[13:16)     Number |123|
+//@[13:16)    IntegerLiteralSyntax
+//@[13:16)     Integer |123|
 //@[16:17)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
@@ -805,11 +805,11 @@ param expressionInModifier string {
 //@[2:9)     Identifier |default|
 //@[9:10)    Colon |:|
 //@[11:16)    BinaryOperationSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |2|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |2|
 //@[13:14)     Plus |+|
-//@[15:16)     NumericLiteralSyntax
-//@[15:16)      Number |3|
+//@[15:16)     IntegerLiteralSyntax
+//@[15:16)      Integer |3|
 //@[16:17)   NewLine |\n|
   maxLength: a + 2
 //@[2:18)   ObjectPropertySyntax
@@ -821,8 +821,8 @@ param expressionInModifier string {
 //@[13:14)      IdentifierSyntax
 //@[13:14)       Identifier |a|
 //@[15:16)     Plus |+|
-//@[17:18)     NumericLiteralSyntax
-//@[17:18)      Number |2|
+//@[17:18)     IntegerLiteralSyntax
+//@[17:18)      Integer |2|
 //@[18:19)   NewLine |\n|
   minLength: foo()
 //@[2:18)   ObjectPropertySyntax
@@ -872,11 +872,11 @@ param nonCompileTimeConstant string {
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
 //@[13:18)    BinaryOperationSyntax
-//@[13:14)     NumericLiteralSyntax
-//@[13:14)      Number |2|
+//@[13:14)     IntegerLiteralSyntax
+//@[13:14)      Integer |2|
 //@[15:16)     Plus |+|
-//@[17:18)     NumericLiteralSyntax
-//@[17:18)      Number |3|
+//@[17:18)     IntegerLiteralSyntax
+//@[17:18)      Integer |3|
 //@[18:19)   NewLine |\n|
   minLength: length([])
 //@[2:23)   ObjectPropertySyntax

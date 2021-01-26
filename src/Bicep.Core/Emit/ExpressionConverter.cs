@@ -36,7 +36,7 @@ namespace Bicep.Core.Emit
                     return CreateFunction(boolSyntax.Value ? "true" : "false");
 
                 case IntegerLiteralSyntax integerSyntax:
-                    return new JTokenExpression(integerSyntax.Value.ToString()); //FIXME: Create and use constructor that takes long
+                    return integerSyntax.Value > int.MaxValue || integerSyntax.Value < int.MinValue ? CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToString())) : new JTokenExpression((int)integerSyntax.Value);
 
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because
