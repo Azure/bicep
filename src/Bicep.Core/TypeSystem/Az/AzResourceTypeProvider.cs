@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem.Az
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> availableResourceTypes;
+        private readonly IReadOnlyDictionary<ResourceScope, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> availableResourceTypes;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
 
         public AzResourceTypeProvider()
@@ -19,7 +19,7 @@ namespace Bicep.Core.TypeSystem.Az
         {
         }
 
-        private static IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> GetAvailableResourceTypes(ITypeLoader typeLoader)
+        private static IReadOnlyDictionary<ResourceScope, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> GetAvailableResourceTypes(ITypeLoader typeLoader)
         {
             IReadOnlyDictionary<ResourceTypeReference, TypeLocation> ToResourceReferenceDictionary(IReadOnlyDictionary<string, TypeLocation> typeDict)
                 => typeDict.ToDictionary(
@@ -27,13 +27,13 @@ namespace Bicep.Core.TypeSystem.Az
                 kvp => kvp.Value,
                 ResourceTypeReferenceComparer.Instance);
 
-            var availableResourceTypes = new Dictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>>();
+            var availableResourceTypes = new Dictionary<ResourceScope, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>>();
             var indexedTypes = typeLoader.GetIndexedTypes();
-            availableResourceTypes[ResourceScopeType.TenantScope] = ToResourceReferenceDictionary(indexedTypes.Tenant);
-            availableResourceTypes[ResourceScopeType.ManagementGroupScope] = ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
-            availableResourceTypes[ResourceScopeType.SubscriptionScope] = ToResourceReferenceDictionary(indexedTypes.Subscription);
-            availableResourceTypes[ResourceScopeType.ResourceGroupScope] = ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
-            availableResourceTypes[ResourceScopeType.ResourceScope] = ToResourceReferenceDictionary(indexedTypes.Extension);
+            availableResourceTypes[ResourceScope.Tenant] = ToResourceReferenceDictionary(indexedTypes.Tenant);
+            availableResourceTypes[ResourceScope.ManagementGroup] = ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
+            availableResourceTypes[ResourceScope.Subscription] = ToResourceReferenceDictionary(indexedTypes.Subscription);
+            availableResourceTypes[ResourceScope.ResourceGroup] = ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
+            availableResourceTypes[ResourceScope.Resource] = ToResourceReferenceDictionary(indexedTypes.Extension);
 
             return availableResourceTypes;
         }
@@ -46,7 +46,7 @@ namespace Bicep.Core.TypeSystem.Az
             this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
         }
 
-        public ResourceType GetType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
+        public ResourceType GetType(ResourceScope scopeType, ResourceTypeReference typeReference)
         {
             if (loadedTypeCache.TryGetValue(typeReference, out var resourceType))
             {
@@ -70,10 +70,10 @@ namespace Bicep.Core.TypeSystem.Az
             return resourceType;
         }
 
-        public bool HasType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
+        public bool HasType(ResourceScope scopeType, ResourceTypeReference typeReference)
             => availableResourceTypes[scopeType].ContainsKey(typeReference);
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScopeType scopeType)
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScope scopeType)
             => availableResourceTypes[scopeType].Keys;
     }
 }

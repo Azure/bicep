@@ -164,7 +164,9 @@
       "tenant": "[createObject()]",
       "subscription": "[createObject()]",
       "resourceGroup": "[createObject()]"
-    }
+    },
+    "issue1332_propname": "ptest",
+    "issue1332": "[if(true(), createObject('prop1', createObject(variables('issue1332_propname'), createObject())), createObject())]"
   },
   "resources": []
 }

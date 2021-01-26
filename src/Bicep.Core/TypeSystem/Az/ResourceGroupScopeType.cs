@@ -16,6 +16,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
-        public ResourceScopeType ResourceScopeType => ResourceScopeType.ResourceGroupScope;
+        public ResourceScope ResourceScopeType => ResourceScope.ResourceGroup;
     }
 }

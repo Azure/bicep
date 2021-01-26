@@ -15,6 +15,6 @@ namespace Bicep.Core.TypeSystem
 
         public ITypeReference Body { get; }
 
-        public ResourceScopeType ResourceScopeType => ResourceScopeType.ModuleScope;
+        public ResourceScope ResourceScopeType => ResourceScope.Module;
     }
 }
