@@ -311,3 +311,13 @@ var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
   resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
 }
+
+// Issue #1332
+var issue1332_propname = 'ptest'
+//@[4:22) Variable issue1332_propname. Type: 'ptest'. Declaration start char: 0, length: 32
+var issue1332 = true ? {
+//@[4:13) Variable issue1332. Type: object | object. Declaration start char: 0, length: 86
+    prop1: {
+        '${issue1332_propname}': {}
+    }
+} : {}
