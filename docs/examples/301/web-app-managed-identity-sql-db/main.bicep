@@ -1,9 +1,9 @@
-// Simple example to deploy Azure infrastructure for app + data + identity + monitoring
+// Simple example to deploy Azure infrastructure for app + data + managed identity + monitoring
 
 // Region for all resources
 param location string = resourceGroup().location
 
-// App params
+// Web App params
 param skuName string {
   allowed: [
     'F1'
@@ -32,7 +32,7 @@ param sqlAdministratorLoginPassword string {
   secure: true
 }
 
-// Identity params
+// Managed Identity params
 param managedIdentityName string
 param roleDefinitionId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c' //Default as contributor role
 
@@ -73,7 +73,7 @@ resource sqlserverName_AllowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRu
   }
 }
 
-// App resources
+// Web App resources
 resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: hostingPlanName
   location: location
@@ -111,7 +111,7 @@ resource webSiteConnectionStrings 'Microsoft.Web/sites/config@2020-06-01' = {
   }
 }
 
-// Identity resources
+// Managed Identity resources
 resource msi 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: managedIdentityName
   location: location
