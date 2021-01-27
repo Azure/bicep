@@ -1,0 +1,2 @@
+# ignore generated (transpiled) ARM templates, they should be treated like binaries
+*.json
