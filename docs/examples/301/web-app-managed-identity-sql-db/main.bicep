@@ -95,7 +95,7 @@ resource webSite 'Microsoft.Web/sites@2020-06-01' = {
   }
   identity: {
     type:'UserAssigned'
-    userAssignedIdentities:{
+    userAssignedIdentities: {
       '${msi.id}': {}
     }
   }
