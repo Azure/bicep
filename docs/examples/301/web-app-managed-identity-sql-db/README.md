@@ -1,7 +1,6 @@
 
 # A common architecture deployed with Bicep
 A common architecture for Azure customers is Web App + Data + Managed Identity + Monitoring.
-![diagram](\images\commonArchDiagram.PNG)
 
 **How easy it to deploy this with Bicep?**
 1. [Install Bicep CLI and VS Code extension](https://github.com/Azure/bicep/blob/main/docs/installing.md)
@@ -15,3 +14,6 @@ A common architecture for Azure customers is Web App + Data + Managed Identity +
 8.  Enter parameters values for sqlAdministratorLogin, sqlAdministratorPassword, and managedIdentityName at command line.
 9.  Wait for deployment to complete
 10. Deployment complete!
+
+Diagram of resources that are deployed:
+![diagram](images/commonArchDiagram.PNG)
