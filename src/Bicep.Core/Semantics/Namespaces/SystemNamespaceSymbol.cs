@@ -38,7 +38,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Creates a formatted string from input values.")
                 .WithRequiredParameter("formatString", LanguageConstants.String, "The composite format string.")
                 .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 0, "The value to include in the formatted string.")
-            //base.VisitInstanceFunctionCallSyntax(syntax);
                 .Build(),
 
             new FunctionOverloadBuilder("base64")

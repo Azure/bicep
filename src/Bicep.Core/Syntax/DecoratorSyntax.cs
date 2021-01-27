@@ -28,12 +28,9 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Expression { get; }
 
-        public IEnumerable<FunctionArgumentSyntax> Arguments => this.Expression switch
-        {
-            FunctionCallSyntax functionCall => functionCall.Arguments,
-            InstanceFunctionCallSyntax instanceFunctionCall => instanceFunctionCall.Arguments,
-            _ => Enumerable.Empty<FunctionArgumentSyntax>()
-        };
+        public IEnumerable<FunctionArgumentSyntax> Arguments => this.Expression is FunctionCallSyntaxBase functionCall
+            ? functionCall.Arguments
+            : Enumerable.Empty<FunctionArgumentSyntax>();
 
         public override TextSpan Span => TextSpan.Between(this.At, this.Expression);
 
