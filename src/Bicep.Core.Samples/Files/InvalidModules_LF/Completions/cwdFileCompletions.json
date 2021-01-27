@@ -1,1 +1,176 @@
-[]
+[
+  {
+    "label": "ChildModules/",
+    "kind": "folder",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_ChildModules/",
+    "filterText": "'ChildModules/'",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/$0'"
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
+    "label": "Completions/",
+    "kind": "folder",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_Completions/",
+    "filterText": "'Completions/'",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'Completions/$0'"
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
+    "label": "cycle.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_cycle.bicep",
+    "filterText": "'cycle.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'cycle.bicep'"
+    }
+  },
+  {
+    "label": "empty.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_empty.bicep",
+    "filterText": "'empty.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'empty.bicep'"
+    }
+  },
+  {
+    "label": "main.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.bicep",
+    "filterText": "'main.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.bicep'"
+    }
+  },
+  {
+    "label": "main.diagnostics.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.diagnostics.bicep",
+    "filterText": "'main.diagnostics.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.diagnostics.bicep'"
+    }
+  },
+  {
+    "label": "main.formatted.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.formatted.bicep",
+    "filterText": "'main.formatted.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.formatted.bicep'"
+    }
+  },
+  {
+    "label": "main.symbols.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.symbols.bicep",
+    "filterText": "'main.symbols.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.symbols.bicep'"
+    }
+  },
+  {
+    "label": "main.syntax.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.syntax.bicep",
+    "filterText": "'main.syntax.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.syntax.bicep'"
+    }
+  },
+  {
+    "label": "main.tokens.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.tokens.bicep",
+    "filterText": "'main.tokens.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'main.tokens.bicep'"
+    }
+  },
+  {
+    "label": "modulea.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_modulea.bicep",
+    "filterText": "'modulea.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'modulea.bicep'"
+    }
+  },
+  {
+    "label": "subscription_empty.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_subscription_empty.bicep",
+    "filterText": "'subscription_empty.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "'subscription_empty.bicep'"
+    }
+  }
+]

@@ -214,8 +214,14 @@ module completionE '' = {
   name: 'hello'
 }
 
-// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
-module cwdFileCompletion '.' 
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+module cwdFileCompletionA '.'
+
+// #completionTest(26, 27) -> cwdMCompletions
+module cwdFileCompletionB m
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+module cwdFileCompletionC 'm'
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
 module childCompletionA 'ChildModules/'

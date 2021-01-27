@@ -327,9 +327,20 @@ module completionE '' = {
   name: 'hello'
 }
 
-// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
-module cwdFileCompletion '.' 
-//@[25:28) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'.'|
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+module cwdFileCompletionA '.'
+//@[26:29) [BCP086 (Error)] The specified module path ends with an invalid character. The following are not permitted: " ", ".". |'.'|
+//@[29:29) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(26, 27) -> cwdMCompletions
+module cwdFileCompletionB m
+//@[26:27) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' |m|
+//@[26:27) [BCP090 (Error)] This module declaration is missing a file path reference. |m|
+//@[27:27) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+module cwdFileCompletionC 'm'
+//@[26:29) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/m'. |'m'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. ||
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions

@@ -1010,12 +1010,28 @@ module completionE '' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 //@[56:57) NewLine |\n|
-module cwdFileCompletion '.' 
+module cwdFileCompletionA '.'
 //@[0:6) Identifier |module|
-//@[7:24) Identifier |cwdFileCompletion|
-//@[25:28) StringComplete |'.'|
+//@[7:25) Identifier |cwdFileCompletionA|
+//@[26:29) StringComplete |'.'|
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(26, 27) -> cwdMCompletions
+//@[45:46) NewLine |\n|
+module cwdFileCompletionB m
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |cwdFileCompletionB|
+//@[26:27) Identifier |m|
+//@[27:29) NewLine |\n\n|
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+//@[53:54) NewLine |\n|
+module cwdFileCompletionC 'm'
+//@[0:6) Identifier |module|
+//@[7:25) Identifier |cwdFileCompletionC|
+//@[26:29) StringComplete |'m'|
 //@[29:31) NewLine |\n\n|
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions

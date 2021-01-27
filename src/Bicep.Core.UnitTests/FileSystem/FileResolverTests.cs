@@ -74,15 +74,15 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             // make parent dir
             Directory.CreateDirectory(tempDir);
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(0);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(0);
             // make child dir
             Directory.CreateDirectory(tempChildDir);
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
             // add a file to parent dir
             File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
             // check child dir
-            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempChildDir)).Count().Should().Be(0);
+            fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(tempChildDir)).Should().HaveCount(0);
             // should throw an IOException when called with a file path
             fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
         }
@@ -98,15 +98,15 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             // make parent dir
             Directory.CreateDirectory(tempDir);
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(0);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(0);
             // add a file to parent dir
             File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
             // make child dir
             Directory.CreateDirectory(tempChildDir);
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Count().Should().Be(1);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempDir)).Should().HaveCount(1);
             // check child dir
-            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempChildDir)).Count().Should().Be(0);
+            fileResolver.GetFiles(PathHelper.FilePathToFileUrl(tempChildDir)).Should().HaveCount(0);
             // should throw an IOException when called with a file path
             fileResolver.GetDirectories(PathHelper.FilePathToFileUrl(Path.Join(Path.GetTempPath(), tempFile)));
         }

@@ -306,9 +306,17 @@ module completionE '' = {
   name: 'hello'
 }
 
-// #completionTest(20, 21, 22, 23) -> cwdFileCompletions
-module cwdFileCompletion '.' 
-//@[7:24) Module cwdFileCompletion. Type: error. Declaration start char: 0, length: 29
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+module cwdFileCompletionA '.'
+//@[7:25) Module cwdFileCompletionA. Type: error. Declaration start char: 0, length: 29
+
+// #completionTest(26, 27) -> cwdMCompletions
+module cwdFileCompletionB m
+//@[7:25) Module cwdFileCompletionB. Type: error. Declaration start char: 0, length: 27
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+module cwdFileCompletionC 'm'
+//@[7:25) Module cwdFileCompletionC. Type: error. Declaration start char: 0, length: 29
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
 module childCompletionA 'ChildModules/'

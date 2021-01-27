@@ -45,7 +45,7 @@ namespace Bicep.Core.FileSystem
         public bool TryDirExists(Uri fileUri)
         {
             return this.fileLookup.Keys
-            .Any(key => key.ToString().StartsWith(fileUri.ToString()));
+                .Any(key => key.ToString().StartsWith(fileUri.ToString()));
         }
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)

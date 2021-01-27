@@ -183,13 +183,11 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            bool adjustCursor = true;
             // To provide intellisense before the quotes are typed
             if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
                 || declarationSyntax.Path is not StringSyntax stringSyntax 
                 || stringSyntax.TryGetLiteralValue() is not string entered)
             {
-                adjustCursor = false;
                 entered = "";
             }
 
@@ -225,8 +223,7 @@ namespace Bicep.LanguageServer.Completions
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(), 
                     context.ReplacementRange, 
                     CompletionItemKind.File, 
-                    file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium,
-                    false))
+                    file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium))
                 .ToList();
 
             // don't do completion range manipulation (described in CreateModulePathCompletion) 
@@ -237,8 +234,8 @@ namespace Bicep.LanguageServer.Completions
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
                     context.ReplacementRange, 
                     CompletionItemKind.Folder, 
-                    CompletionPriority.Medium,
-                    adjustCursor))
+                    CompletionPriority.Medium)
+                .WithCommand(new Command {Name = EditorCommands.RequestCompletions }))
                 .ToList();
             return fileItems.Concat(dirItems);
         }
@@ -584,21 +581,22 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(index.ToString("x8"));
         }
 
-        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority, bool adjustCursor)
+        private static CompletionItem CreateModulePathCompletion(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
             path = StringUtils.EscapeBicepString(path);
-            // keep the cursor within the string ('completion|' instead of 'completion'|) for folders. Not done for files.
-            if (completionItemKind.Equals(CompletionItemKind.Folder) && adjustCursor)
-            {
-                path = path.Remove(path.Length - 1);
-                replacementRange = new Range(replacementRange.Start, replacementRange.End.Delta(deltaCharacter: -1));
-            }
-
-            return CompletionItemBuilder.Create(completionItemKind)
+            var item = CompletionItemBuilder.Create(completionItemKind)
                 .WithLabel(name)
                 .WithFilterText(path)
-                .WithPlainTextEdit(replacementRange, path)
                 .WithSortText(GetSortText(name, priority));
+            if (completionItemKind.Equals(CompletionItemKind.Folder))
+            {
+                item = item.WithSnippetEdit(replacementRange, $"{path.Substring(0, path.Length - 1)}$0'");
+            }
+            else
+            {
+                item = item.WithPlainTextEdit(replacementRange, path);
+            }
+            return item;
         }
 
         /// <summary>
