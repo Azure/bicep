@@ -94,7 +94,7 @@ resource webSite 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: hostingPlan.id
   }
   identity: {
-    type:'UserAssigned'
+    type: 'UserAssigned'
     userAssignedIdentities: {
       '${msi.id}': {}
     }
