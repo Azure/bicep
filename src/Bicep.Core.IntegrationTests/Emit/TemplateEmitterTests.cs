@@ -236,8 +236,8 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
                 template.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.ToString().Should().Be("[format('My.Rp/myResource/{0}', 'resourceA')]");
                 template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.ToString().Should().Be("[resourceId('My.Rp/myResource', 'resourceA')]");
                 
-                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.ToString().Should().Be("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
-                template.SelectToken("$.resources[?(@.name == 'resourceC')].dependsOn[0]")!.ToString().Should().Be("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.ToString().Should().Be("[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.SelectToken("$.resources[?(@.name == 'resourceC')].dependsOn[0]")!.ToString().Should().Be("[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
             }
         }
 

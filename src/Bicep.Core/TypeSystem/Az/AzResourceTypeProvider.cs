@@ -100,7 +100,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, Azure.Bicep.Types.Concrete.ScopeType resourceScope, bool isExistingResource)
         {
-            var properties = objectType.Properties.Values;
+            var properties = objectType.Properties;
 
             var scopeRequiredFlag = TypePropertyFlags.WriteOnly;
             if (resourceScope == Azure.Bicep.Types.Concrete.ScopeType.Extension)
@@ -114,12 +114,12 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
                 var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ConvertScopeType(resourceScope));
-                properties = properties.Append(new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
 
                 return new NamedObjectType(
                     objectType.Name,
                     objectType.ValidationFlags,
-                    ConvertToReadOnly(properties),
+                    ConvertToReadOnly(properties.Values),
                     objectType.AdditionalPropertiesType,
                     ConvertToReadOnly(objectType.AdditionalPropertiesFlags));
             }
@@ -129,13 +129,13 @@ namespace Bicep.Core.TypeSystem.Az
                 if (resourceScope.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Extension) || resourceScope == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
                 {
                     var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ResourceScope.Resource);
-                    properties = properties.Append(new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
                 }
 
                 return new NamedObjectType(
                     objectType.Name,
                     objectType.ValidationFlags,
-                    properties,
+                    properties.Values,
                     objectType.AdditionalPropertiesType,
                     objectType.AdditionalPropertiesFlags);
             }
