@@ -2496,8 +2496,8 @@ var partialObject = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// dangling decorators
-//@[22:23) NewLine |\n|
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+//@[96:97) NewLine |\n|
 @concat()
 //@[0:24) MissingDeclarationSyntax
 //@[0:9)  DecoratorSyntax
