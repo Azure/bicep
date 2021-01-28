@@ -391,6 +391,30 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[46:47) RightParen |)|
 //@[48:49) Plus |+|
 //@[50:52) Integer |10|
-//@[52:54) NewLine |\r\n|
+//@[52:56) NewLine |\r\n\r\n|
+
+@sys.maxValue(20)
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:13) Identifier |maxValue|
+//@[13:14) LeftParen |(|
+//@[14:16) Integer |20|
+//@[16:17) RightParen |)|
+//@[17:19) NewLine |\r\n|
+@minValue(10)
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:12) Integer |10|
+//@[12:13) RightParen |)|
+//@[13:15) NewLine |\r\n|
+output notAttachableDecorators int = 32
+//@[0:6) Identifier |output|
+//@[7:30) Identifier |notAttachableDecorators|
+//@[31:34) Identifier |int|
+//@[35:36) Assignment |=|
+//@[37:39) Integer |32|
+//@[39:41) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

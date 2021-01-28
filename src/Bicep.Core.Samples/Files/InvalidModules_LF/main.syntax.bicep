@@ -1629,4 +1629,38 @@ module childCompletionD 'ChildModules/e'
 //@[40:40)  SkippedTriviaSyntax
 //@[40:40)  SkippedTriviaSyntax
 //@[40:40)  SkippedTriviaSyntax
-//@[40:40) EndOfFile ||
+//@[40:42) NewLine |\n\n|
+
+@minValue()
+//@[0:118) ModuleDeclarationSyntax
+//@[0:11)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:11)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:11)    RightParen |)|
+//@[11:12)  NewLine |\n|
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[0:6)  Identifier |module|
+//@[7:40)  IdentifierSyntax
+//@[7:40)   Identifier |moduleWithNotAttachableDecorators|
+//@[41:56)  StringSyntax
+//@[41:56)   StringComplete |'./empty.bicep'|
+//@[57:58)  Assignment |=|
+//@[59:106)  ObjectSyntax
+//@[59:60)   LeftBrace |{|
+//@[60:61)   NewLine |\n|
+  name: 'moduleWithNotAttachableDecorators'
+//@[2:43)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:43)    StringSyntax
+//@[8:43)     StringComplete |'moduleWithNotAttachableDecorators'|
+//@[43:44)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:2) NewLine |\n|
+
+//@[0:0) EndOfFile ||

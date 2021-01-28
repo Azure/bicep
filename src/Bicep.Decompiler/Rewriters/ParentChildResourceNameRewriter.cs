@@ -105,6 +105,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                     resourceBody.CloseBrace);
 
                 return new ResourceDeclarationSyntax(
+                    syntax.LeadingNodes,
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Type,

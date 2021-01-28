@@ -1064,4 +1064,28 @@ module childCompletionD 'ChildModules/e'
 //@[0:6) Identifier |module|
 //@[7:23) Identifier |childCompletionD|
 //@[24:40) StringComplete |'ChildModules/e'|
-//@[40:40) EndOfFile ||
+//@[40:42) NewLine |\n\n|
+
+@minValue()
+//@[0:1) At |@|
+//@[1:9) Identifier |minValue|
+//@[9:10) LeftParen |(|
+//@[10:11) RightParen |)|
+//@[11:12) NewLine |\n|
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:40) Identifier |moduleWithNotAttachableDecorators|
+//@[41:56) StringComplete |'./empty.bicep'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:61) NewLine |\n|
+  name: 'moduleWithNotAttachableDecorators'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:43) StringComplete |'moduleWithNotAttachableDecorators'|
+//@[43:44) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:2) NewLine |\n|
+
+//@[0:0) EndOfFile ||

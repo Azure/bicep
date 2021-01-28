@@ -702,6 +702,7 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
                 );
             }
+
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
                 TextSpan,                
                 "BCP121",
@@ -711,6 +712,56 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,                
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
+
+            public ErrorDiagnostic ExpectedNamespaceOrDecoratorName() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP123",
+                "Expected a namespace or decorator name at this location.");
+
+            public ErrorDiagnostic CannotAttacheDecoratorToTarget(string decoratorName, TypeSymbol attachableType, TypeSymbol targetType) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP124",
+                $"The decorator \"{decoratorName}\" can only be attached to targets of type \"{attachableType}\", but the target has type \"{targetType}\".");
+
+            public ErrorDiagnostic CannotUseFunctionAsParameterDecorator(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP125",
+                $"Function \"{functionName}\" cannot be used as a parameter decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsVariableDecorator(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP126",
+                $"Function \"{functionName}\" cannot be used as a variable decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsResourceDecorator(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP127",
+                $"Function \"{functionName}\" cannot be used as a resource decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsModuleDecorator(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP128",
+                $"Function \"{functionName}\" cannot be used as a module decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsOuputDecorator(string functionName) => new ErrorDiagnostic(
+                TextSpan,
+                "BCP129",
+                $"Function \"{functionName}\" cannot be used as an output decorator.");
+
+            public ErrorDiagnostic DecoratorsNotAllowed() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP130",
+                "Decorators are not allowed here.");
+
+            public ErrorDiagnostic CannotUseParameterDecoratorsAndModifiersTogether() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP131",
+                "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
+
+            public ErrorDiagnostic ExpectDeclarationAfterDecorator() => new ErrorDiagnostic(
+                TextSpan,
+                "BCP132",
+                "Expected a declaration after the decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -145,3 +145,7 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 
 // Issue 486
 var myFloat = 3. 14
+
+// secure cannot be used as a varaible decorator
+@sys.secure()
+var something = 1

@@ -333,3 +333,10 @@ module childCompletionC './ChildModules/m'
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
 module childCompletionD 'ChildModules/e'
 //@[7:23) Module childCompletionD. Type: error. Declaration start char: 0, length: 40
+
+@minValue()
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[7:40) Module moduleWithNotAttachableDecorators. Type: module. Declaration start char: 0, length: 118
+  name: 'moduleWithNotAttachableDecorators'
+}
+

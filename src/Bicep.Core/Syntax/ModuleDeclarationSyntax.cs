@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -9,9 +9,10 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class ModuleDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -44,7 +45,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Keyword, Body);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Body);
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 

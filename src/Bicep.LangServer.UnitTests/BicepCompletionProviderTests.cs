@@ -30,7 +30,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationSnippetsShouldBeValid()
         {
-            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(string.Empty);
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
@@ -96,7 +96,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var grouping = SyntaxFactory.CreateFromText(string.Empty);
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(string.Empty);
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
@@ -169,7 +169,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var grouping = SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"
 param p string
 var v = 
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
@@ -214,7 +214,7 @@ output o int = 42
         [TestMethod]
         public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
-            var grouping = SyntaxFactory.CreateFromText(@"param p string = ");
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"param p string = ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
@@ -241,7 +241,7 @@ output o int = 42
         [TestMethod]
         public void CompletionsForModifierDefaultValuesShouldIncludeFunctionsValidInDefaultValues()
         {
-            var grouping = SyntaxFactory.CreateFromText(@"param p string {
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"param p string {
   defaultValue: 
 }");
 
@@ -270,7 +270,7 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var grouping = SyntaxFactory.CreateFromText(@"
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
@@ -321,7 +321,7 @@ output length int =
         [TestMethod]
         public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SyntaxFactory.CreateFromText("output test ");
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText("output test ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider(new FileResolver());
 
@@ -338,7 +338,7 @@ output length int =
         [TestMethod]
         public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SyntaxFactory.CreateFromText("param foo ");
+            var grouping = SyntaxTreeGroupingFactory.CreateFromText("param foo ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var provider = new BicepCompletionProvider(new FileResolver());
 
@@ -382,7 +382,7 @@ output length int =
 */")]
         public void CommentShouldNotGiveAnyCompletions(string codeFragment)
         {
-        var grouping = SyntaxFactory.CreateFromText(codeFragment);
+        var grouping = SyntaxTreeGroupingFactory.CreateFromText(codeFragment);
         var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
         var provider = new BicepCompletionProvider(new FileResolver());
 

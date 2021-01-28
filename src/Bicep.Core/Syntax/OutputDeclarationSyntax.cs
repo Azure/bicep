@@ -1,13 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class OutputDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class OutputDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
-        public OutputDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
+        public OutputDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, SyntaxBase assignment, SyntaxBase value)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.OutputKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(IdentifierSyntax));
@@ -34,7 +38,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitOutputDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Keyword, Value);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Value);
 
         public TypeSyntax? OutputType => this.Type as TypeSyntax;
     }

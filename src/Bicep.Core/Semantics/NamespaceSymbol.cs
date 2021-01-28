@@ -8,11 +8,12 @@ namespace Bicep.Core.Semantics
 {
     public class NamespaceSymbol : Symbol
     {
-        public NamespaceSymbol(string name, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions)
+        public NamespaceSymbol(string name, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
             : base(name)
         {
             var methodResolver = new FunctionResolver(functionOverloads, bannedFunctions);
-            Type = new NamespaceType(name, Enumerable.Empty<TypeProperty>(), methodResolver);
+            var decoratorResolver = new DecoratorResolver(decorators);
+            Type = new NamespaceType(name, Enumerable.Empty<TypeProperty>(), methodResolver, decoratorResolver);
         }
 
         public NamespaceType Type { get; }

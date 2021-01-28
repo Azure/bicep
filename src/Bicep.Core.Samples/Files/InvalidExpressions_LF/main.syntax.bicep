@@ -2494,4 +2494,59 @@ var partialObject = {
 //@[8:9)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+//@[96:97) NewLine |\n|
+@concat()
+//@[0:24) MissingDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |concat|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+@sys.secure()
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:11)    IdentifierSyntax
+//@[5:11)     Identifier |secure|
+//@[11:12)    LeftParen |(|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+xxxxx
+//@[0:5) SkippedTriviaSyntax
+//@[0:5)  Identifier |xxxxx|
+//@[5:8) NewLine |\n\n\n|
+
+
+// BCP132 should be on the line below the decorator
+//@[51:52) NewLine |\n|
+@minLength()
+//@[0:21) MissingDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    RightParen |)|
+//@[12:21)  NewLine |\n\n\n\n\n\n\n\n\n|
+
+
+
+
+
+
+
+
+
+//@[0:0) SkippedTriviaSyntax
+//@[0:0) EndOfFile ||

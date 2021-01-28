@@ -4,6 +4,7 @@ namespace Bicep.Core.Parsing
 {
     public enum TokenType
     {
+        At,
         Unrecognized,
         LeftBrace,
         RightBrace,

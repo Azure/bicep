@@ -362,3 +362,10 @@ module childCompletionC './ChildModules/m'
 module childCompletionD 'ChildModules/e'
 //@[24:40) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/ChildModules/e'. |'ChildModules/e'|
 //@[40:40) [BCP018 (Error)] Expected the "=" character at this location. ||
+
+@minValue()
+//@[1:9) [BCP128 (Error)] Function "minValue" cannot be used as a module decorator. |minValue|
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+  name: 'moduleWithNotAttachableDecorators'
+}
+
