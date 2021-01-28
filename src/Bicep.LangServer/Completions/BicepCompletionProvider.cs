@@ -218,7 +218,7 @@ namespace Bicep.LanguageServer.Completions
             // Prioritize .bicep files higher than other files.
             var fileItems = files
                 .Where(file => file != model.SyntaxTree.FileUri)
-                .Where(file => file.Segments.Last().EndsWith("." + LanguageServerConstants.LanguageId))
+                .Where(file => file.Segments.Last().EndsWith(LanguageServerConstants.LanguageFileExtension))
                 .Select(file => CreateModulePathCompletion(
                     file.Segments.Last(),
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(),
