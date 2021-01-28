@@ -37,8 +37,14 @@ namespace Bicep.Core.Emit
 
             foreach (var resourceSymbol in semanticModel.Root.ResourceDeclarations)
             {
+                if (resourceSymbol.Type is not ResourceType resourceType)
+                {
+                    // missing type should be caught during type validation
+                    continue;
+                }
+
                 var scopeProperty = resourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, scopeProperty);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resourceSymbol.DeclaringResource.Body, scopeProperty);
 
                 if (scopeData is null)
                 {
@@ -60,8 +66,14 @@ namespace Bicep.Core.Emit
 
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
+                if (moduleSymbol.Type is not ModuleType moduleType)
+                {
+                    // missing type should be caught during type validation
+                    continue;
+                }
+
                 var scopeProperty = moduleSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, scopeProperty);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Body, scopeProperty);
 
                 if (scopeData is null)
                 {

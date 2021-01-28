@@ -248,7 +248,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
-                ("BCP124", DiagnosticLevel.Error, "The supplied scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
+                ("BCP124", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
 
             // use an invalid targetScope without setting the scope property
@@ -260,11 +260,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 }
 "));
 
-/* TODO make this test pass
             diags.Should().HaveDiagnostics(new[] {
-                ("BCP124", DiagnosticLevel.Error, "The supplied scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
+                ("BCP124", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
-*/
         }
     }
 }

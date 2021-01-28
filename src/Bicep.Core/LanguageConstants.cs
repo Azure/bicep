@@ -187,7 +187,7 @@ namespace Bicep.Core
                 },
                 null);
 
-            return new ModuleType(typeName, moduleBody);
+            return new ModuleType(typeName, moduleScope, moduleBody);
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)

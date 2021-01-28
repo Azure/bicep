@@ -700,13 +700,11 @@ resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
   name: 'invalidScope2'
   scope: resourceGroup()
-//@[9:24) [BCP124 (Error)] The supplied scope "resourceGroup" is not valid for this resource type. Permitted scopes: "resource". |resourceGroup()|
 }
 
 resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
   name: 'invalidScope3'
   scope: subscription()
-//@[9:23) [BCP124 (Error)] The supplied scope "subscription" is not valid for this resource type. Permitted scopes: "resource". |subscription()|
 }
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {

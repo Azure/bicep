@@ -234,6 +234,7 @@ module moduleWithInvalidScope './empty.bicep' = {
 
 module moduleWithMissingRequiredScope './subscription_empty.bicep' = {
 //@[7:37) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "scope". |moduleWithMissingRequiredScope|
+//@[69:113) [BCP123 (Error)] Scope "resourceGroup" is not valid for this module. Permitted scopes: "subscription". |{\n  name: 'moduleWithMissingRequiredScope'\n}|
   name: 'moduleWithMissingRequiredScope'
 }
 

@@ -745,13 +745,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP123",
-                $"The supplied scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
+                $"Scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
 
             public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP124",
-                $"The supplied scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
+                $"Scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

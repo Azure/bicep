@@ -49,7 +49,8 @@ namespace Bicep.Core.UnitTests.Utils
             var resourceProperties = LanguageConstants.GetCommonResourceProperties(reference)
                 .Concat(new TypeProperty("properties", new NamedObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
-            return new ResourceType(reference, new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null));
+            var bodyType = new NamedObjectType(reference.FormatName(), validationFlags, resourceProperties, null);
+            return new ResourceType(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
         }
 
         public static AzResourceTypeProvider CreateAzResourceTypeProvider(Action<Azure.Bicep.Types.Concrete.TypeFactory> typeFactoryFunc)

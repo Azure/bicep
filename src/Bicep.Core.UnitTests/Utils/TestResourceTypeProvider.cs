@@ -14,9 +14,10 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public ResourceType GetType(ResourceTypeReference reference, bool isExistingResource)
         {
-            var resourceType = new ResourceType(reference, new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null));
+            var bodyType = new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null);
+            var resourceType = new ResourceType(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
 
-            return AzResourceTypeProvider.SetBicepResourceProperties(resourceType, Azure.Bicep.Types.Concrete.ScopeType.Unknown, isExistingResource);
+            return AzResourceTypeProvider.SetBicepResourceProperties(resourceType, isExistingResource);
         }
 
         public bool HasType(ResourceTypeReference typeReference)

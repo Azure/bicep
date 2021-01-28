@@ -54,37 +54,34 @@ namespace Bicep.Core.TypeSystem.Az
 
         private ResourceType GenerateResourceType(ResourceTypeReference typeReference, bool isExistingResource)
         {
-            ResourceType resourceType;
-            Azure.Bicep.Types.Concrete.ScopeType serializedResourceScope;
-
             if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
             {
                 var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-                resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
-                serializedResourceScope = serializedResourceType.ScopeType;
+                var resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
+
+                return SetBicepResourceProperties(resourceType, isExistingResource);
             }
             else
             {
                 var resourceBodyType = new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null);
-                resourceType = new ResourceType(typeReference, resourceBodyType);
-                serializedResourceScope = Azure.Bicep.Types.Concrete.ScopeType.Unknown;
-            }
+                var resourceType = new ResourceType(typeReference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, resourceBodyType);
 
-            return SetBicepResourceProperties(resourceType, serializedResourceScope, isExistingResource);
+                return SetBicepResourceProperties(resourceType, isExistingResource);
+            }
         }
 
-        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, Azure.Bicep.Types.Concrete.ScopeType resourceScope, bool isExistingResource)
+        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, bool isExistingResource)
         {
             var bodyType = resourceType.Body.Type;
 
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceScope, isExistingResource);
+                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
                     var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList().Select(x => x.Type as ObjectType ?? throw new ArgumentException());
-                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceScope, isExistingResource));
+                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, isExistingResource));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
                         bodyDiscriminatedType.ValidationFlags,
@@ -95,16 +92,17 @@ namespace Bicep.Core.TypeSystem.Az
                     throw new ArgumentException();
             }
 
-            return new ResourceType(resourceType.TypeReference, bodyType);
+            return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, Azure.Bicep.Types.Concrete.ScopeType resourceScope, bool isExistingResource)
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, bool isExistingResource)
         {
             var properties = objectType.Properties;
 
             var scopeRequiredFlag = TypePropertyFlags.WriteOnly;
-            if (resourceScope == Azure.Bicep.Types.Concrete.ScopeType.Extension)
+            if (validParentScopes == ResourceScope.Resource)
             {
+                // resource can only be deployed as an extension resource - scope should be required
                 scopeRequiredFlag |= TypePropertyFlags.Required;
             }
 
@@ -113,7 +111,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ConvertScopeType(resourceScope));
+                var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
 
                 return new NamedObjectType(
@@ -126,7 +124,7 @@ namespace Bicep.Core.TypeSystem.Az
             else
             {
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
-                if (resourceScope.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Extension) || resourceScope == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
+                if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {
                     var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ResourceScope.Resource);
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
@@ -160,26 +158,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
             => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
-
-        private static ResourceScope ConvertScopeType(Azure.Bicep.Types.Concrete.ScopeType input)
-        {
-            var output = ResourceScope.None;
-            void AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType scopeToCheck, ResourceScope scopeToAdd)
-            {
-                if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown || input.HasFlag(scopeToCheck))
-                {
-                    output |= scopeToAdd;
-                }
-            }
-
-            AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType.Extension, ResourceScope.Resource);
-            AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType.Tenant, ResourceScope.Tenant);
-            AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType.ManagementGroup, ResourceScope.ManagementGroup);
-            AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType.Subscription, ResourceScope.Subscription);
-            AppendScopeType(Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup, ResourceScope.ResourceGroup);
-
-            return output;
-        }
 
         public ResourceType GetType(ResourceTypeReference typeReference, bool isExistingResource)
         {

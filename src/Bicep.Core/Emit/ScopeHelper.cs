@@ -30,11 +30,16 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        public static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ObjectPropertySyntax? scopeProperty)
+        public static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, ObjectPropertySyntax? scopeProperty)
         {
-            if (scopeProperty is null || semanticModel.GetDeclaredType(scopeProperty) is not IScopeReference declaredScope)
+            if (scopeProperty is null)
             {
                 // no scope provided - use the target scope for the file
+                if (!supportedScopes.HasFlag(semanticModel.TargetScope))
+                {
+                    logInvalidScopeFunc(bodySyntax, semanticModel.TargetScope, supportedScopes);
+                }
+
                 return null;
             }
 
@@ -44,17 +49,17 @@ namespace Bicep.Core.Emit
             switch (scopeType)
             {
                 case TenantScopeType type:
-                    if (!declaredScope.Scope.HasFlag(ResourceScope.Tenant))
+                    if (!supportedScopes.HasFlag(ResourceScope.Tenant))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Tenant, declaredScope.Scope);
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Tenant, supportedScopes);
                         return null;
                     }
 
                     return new ScopeData { RequestedScope = ResourceScope.Tenant };
                 case ManagementGroupScopeType type:
-                    if (!declaredScope.Scope.HasFlag(ResourceScope.ManagementGroup))
+                    if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ManagementGroup, declaredScope.Scope);
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ManagementGroup, supportedScopes);
                         return null;
                     }
 
@@ -63,9 +68,9 @@ namespace Bicep.Core.Emit
                         _ => new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = type.Arguments[0].Expression },
                     };
                 case SubscriptionScopeType type:
-                    if (!declaredScope.Scope.HasFlag(ResourceScope.Subscription))
+                    if (!supportedScopes.HasFlag(ResourceScope.Subscription))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Subscription, declaredScope.Scope);
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Subscription, supportedScopes);
                         return null;
                     }
 
@@ -74,9 +79,9 @@ namespace Bicep.Core.Emit
                         _ => new ScopeData { RequestedScope = ResourceScope.Subscription, SubscriptionIdProperty = type.Arguments[0].Expression },
                     };
                 case ResourceGroupScopeType type:
-                    if (!declaredScope.Scope.HasFlag(ResourceScope.ResourceGroup))
+                    if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ResourceGroup, declaredScope.Scope);
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ResourceGroup, supportedScopes);
                         return null;
                     }
 
@@ -86,9 +91,9 @@ namespace Bicep.Core.Emit
                         _ => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = type.Arguments[0].Expression, ResourceGroupProperty = type.Arguments[1].Expression },
                     };
                 case {} when scopeSymbol is ResourceSymbol targetResourceSymbol:
-                    if (!declaredScope.Scope.HasFlag(ResourceScope.Resource))
+                    if (!supportedScopes.HasFlag(ResourceScope.Resource))
                     {
-                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Resource, declaredScope.Scope);
+                        logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Resource, supportedScopes);
                         return null;
                     }
 

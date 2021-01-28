@@ -98,7 +98,7 @@ namespace Bicep.Core.TypeSystem.Az
                     var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
                     var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
-                    return new ResourceType(resourceTypeReference, bodyType);
+                    return new ResourceType(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                 {
@@ -145,6 +145,23 @@ namespace Bicep.Core.TypeSystem.Az
 
             // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
             return TypeSymbolValidationFlags.WarnOnTypeMismatch;
+        }
+
+        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
+        {
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
+            {
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+            }
+
+            var output = ResourceScope.None;
+            output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Extension) ? ResourceScope.Resource : ResourceScope.None;
+            output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Tenant) ? ResourceScope.Tenant : ResourceScope.None;
+            output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ManagementGroup) ? ResourceScope.ManagementGroup : ResourceScope.None;
+            output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.Subscription) ? ResourceScope.Subscription : ResourceScope.None;
+            output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup) ? ResourceScope.ResourceGroup : ResourceScope.None;
+
+            return output;
         }
     }
 }
