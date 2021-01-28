@@ -441,6 +441,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder("secure")
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithValidator(ValidateTargetType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object)))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (ReferenceEquals(targetType, LanguageConstants.String))

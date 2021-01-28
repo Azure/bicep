@@ -389,8 +389,9 @@ param someString string {
     10
     'foo'
 ])
+@secure()
 param someInteger int = 20
-//@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 66
+//@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 76
 
 // unterminated multi-line comment
 /*    

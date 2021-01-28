@@ -439,6 +439,8 @@ param someString string {
     'foo'
 //@[4:9) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'foo'". |'foo'|
 ])
+@secure()
+//@[0:9) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". |@secure()|
 param someInteger int = 20
 
 // unterminated multi-line comment

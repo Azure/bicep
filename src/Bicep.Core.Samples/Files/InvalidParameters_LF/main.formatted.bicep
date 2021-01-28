@@ -306,6 +306,7 @@ param someString string {
   10
   'foo'
 ])
+@secure()
 param someInteger int = 20
 
 // unterminated multi-line comment

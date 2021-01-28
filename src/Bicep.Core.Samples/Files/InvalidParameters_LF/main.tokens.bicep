@@ -1225,6 +1225,12 @@ param someString string {
 //@[0:1) RightSquare |]|
 //@[1:2) RightParen |)|
 //@[2:3) NewLine |\n|
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
 param someInteger int = 20
 //@[0:5) Identifier |param|
 //@[6:17) Identifier |someInteger|
