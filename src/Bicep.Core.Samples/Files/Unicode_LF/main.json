@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "functions": [],
+  "variables": {
+    "emojis": "💪😊😈🍕☕",
+    "ninjaCat": "🐱‍👤",
+    "α": 32,
+    "Θμ": "💪",
+    "二头肌": true,
+    "variousAlphabets": {
+      "α": "[variables('α')]",
+      "Ωω": [
+        "[variables('Θμ')]"
+      ],
+      "ążźćłóę": "Cześć!",
+      "áéóúñü": "¡Hola!",
+      "二头肌": "[variables('二头肌')]"
+    },
+    "surrogate_char": "𐐷",
+    "surrogate_codepoint": "𐐷",
+    "surrogate_pairs": "𐐷",
+    "hello": "❆ Hello World! ❁",
+    "Öa": 1,
+    "Ϸb": 1,
+    "ɇ3": true,
+    "ɱɱg": true,
+    "ῼ": 1,
+    "ǈ": 2,
+    "ᱽ": 1,
+    "ᴲ": 1,
+    "ƻ": 2,
+    "ঽ": 1,
+    "Ⅷa": 1,
+    "ↂa": 1,
+    "ÖaঽϷƻↂabɇ3ɱɱgῼǈⅧaᴲᱽ": 100,
+    "a೦4﹏﹎": 1000
+  },
+  "resources": [],
+  "outputs": {
+    "Ñ": {
+      "type": "string",
+      "value": "[concat(variables('Θμ'), variables('二头肌'), variables('α'))]"
+    }
+  }
+}

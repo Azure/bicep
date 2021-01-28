@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using FluentAssertions;
@@ -16,11 +17,19 @@ namespace Bicep.Core.UnitTests.Parsing
     {
         [DataTestMethod]
         [DataRow(@"''", "")]
-        [DataRow(@"''", "")]
         [DataRow(@"'test'", "test")]
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
+        // escape ascii
+        [DataRow(@"'\u{0}'", "\0")]
+        [DataRow(@"'\u{20}'", " ")]
+        [DataRow(@"'hello\u{20}world\u{3f}'", "hello world?")]
+        [DataRow(@"'new\u{0d}\u{A}line'", "new\r\nline")]
+        // surrogate pairs (various options)
+        [DataRow(@"'\u{10437}'", "\U00010437")]
+        [DataRow(@"'\u{D801}\u{DC37}'", "\U00010437")]
+        [DataRow(@"'\u{D801}\u{DC37}'", "\uD801\uDC37")]
         public void TryGetStringValue_ValidStringLiteralToken_ShouldCalculateValueCorrectly(string literalText, string expectedValue)
         {
             var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
@@ -46,6 +55,19 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'")]
         [DataRow(@"'test")]
         [DataRow(@"'hi\")]
+        [DataRow(@"'\u'")]
+        [DataRow(@"'\u{'")]
+        [DataRow(@"'\u}'")]
+        [DataRow(@"'\u{}'")]
+        [DataRow(@"'\u{110000}'")]
+        [DataRow(@"'\u{FFFFFFFF}'")]
+        [DataRow(@"'prefix\usufffix'")]
+        [DataRow(@"'prefix\u{sufffix'")]
+        [DataRow(@"'prefix\u}sufffix'")]
+        [DataRow(@"'prefix\u{}sufffix'")]
+        [DataRow(@"'prefix\u{110000}sufffix'")]
+        [DataRow(@"'prefix\u{FFFFFFFF}sufffix'")]
+        [DataRow(@"'prefix\u{FFFFFFFFsufffix'")]
         public void GetStringValue_InvalidStringLiteralToken_ShouldReturnNull(string literalText)
         {
             var token = new Token(TokenType.StringComplete, new TextSpan(0, literalText.Length), literalText, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
@@ -93,7 +115,7 @@ namespace Bicep.Core.UnitTests.Parsing
             RunSingleTokenTest(
                 "'bad \\escape'",
                 TokenType.StringComplete,
-                "The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: \"\\$\", \"\\'\", \"\\\\\", \"\\n\", \"\\r\", \"\\t\".",
+                "The specified escape sequence is not recognized. Only the following escape sequences are allowed: \"\\$\", \"\\'\", \"\\\\\", \"\\n\", \"\\r\", \"\\t\", \"\\u{...}\".",
                 "BCP006",
                 expectedStartPosition: 5,
                 expectedLength: 2);
@@ -147,6 +169,58 @@ namespace Bicep.Core.UnitTests.Parsing
         public void InvalidIdentifier_IsValidIdentifier_ShouldReturnFalse(string value)
         {
             Lexer.IsValidIdentifier(value).Should().BeFalse();
+        }
+
+        [DataRow(@"'hello\u{20}world\u{3F}'")]
+        [DataRow(@"'\u{0}'")]
+        [DataRow(@"'\u{00}'")]
+        [DataRow(@"'\u{1}'")]
+        [DataRow(@"'\u{4}'")]
+        [DataRow(@"'\u{9}'")]
+        [DataRow(@"'\u{A}'")]
+        [DataRow(@"'\u{a}'")]
+        [DataRow(@"'\u{F}'")]
+        [DataRow(@"'\u{10}'")]
+        [DataRow(@"'\u{1f}'")]
+        [DataRow(@"'\u{FfFf}'")]
+        [DataRow(@"'\u{10000}'")]
+        [DataRow(@"'\u{10FFFF}'")]
+        [DataTestMethod]
+        public void CompleteStringsWithUnicodeEscapes_ShouldLexCorrectly(string text)
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
+        }
+
+        [DataRow(@"'\u'", @"\u")]
+        [DataRow(@"'\u{'", @"\u{")]
+        [DataRow(@"'\u{}'", @"\u{")]
+        [DataRow(@"'\u}'", @"\u")]
+        [DataRow(@"'\u{110000}'", @"\u{110000}")]
+        [DataRow(@"'\u{10Z'", @"\u{10")]
+        [DataTestMethod]
+        public void InvalidUnicodeEscapes_ShouldProduceExpectedDiagnostic(string text, string expectedSpanText)
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
+            var diagnostics = diagnosticWriter.GetDiagnostics().ToList();
+
+            diagnostics.Should().HaveCount(1);
+            var diagnostic = diagnostics.Single();
+
+            diagnostic.Code.Should().Be("BCP133");
+            diagnostic.Message.Should().Be(@"The unicode escape sequence is not valid. Valid unicode escape sequences range from \u{0} to \u{10FFFF}.");
+
+            var spanText = text[new Range(diagnostic.Span.Position, diagnostic.Span.GetEndPosition())];
+            spanText.Should().Be(expectedSpanText);
         }
 
         private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)

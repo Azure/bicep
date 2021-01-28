@@ -3,10 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -14,19 +15,20 @@ namespace Bicep.Core.Parsing
     public class Lexer
     {
         // maps the escape character (that follows the backslash) to its value
-        private static readonly ImmutableSortedDictionary<char, char> CharacterEscapes = new Dictionary<char, char>
+        private static readonly ImmutableSortedDictionary<char, char> SingleCharacterEscapes = new Dictionary<char, char>
         {
             {'n', '\n'},
             {'r', '\r'},
             {'t', '\t'},
             {'\\', '\\'},
             {'\'', '\''},
-
-            // dollar character is reserved for future string interpolation work
             {'$', '$'}
         }.ToImmutableSortedDictionary();
 
-        private static readonly IEnumerable<string> CharacterEscapeSequences = CharacterEscapes.Keys.Select(c => $"\\{c}").ToArray();
+        private static readonly ImmutableArray<string> CharacterEscapeSequences = SingleCharacterEscapes.Keys
+            .Select(c => $"\\{c}")
+            .Append("\\u{...}")
+            .ToImmutableArray();
 
         // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
@@ -140,7 +142,41 @@ namespace Bicep.Core.Parsing
 
                     char escapeChar = window.Next();
 
-                    if (CharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
+                    if (escapeChar == 'u')
+                    {
+                        // unicode escape
+                        char openCurly = window.Next();
+                        if (openCurly != '{')
+                        {
+                            return null;
+                        }
+
+                        var codePointText = ScanHexNumber(window);
+                        if(!TryParseCodePoint(codePointText, out uint codePoint))
+                        {
+                            // invalid codepoint
+                            return null;
+                        }
+
+                        char closeCurly = window.Next();
+                        if (closeCurly != '}')
+                        {
+                            return null;
+                        }
+                        
+                        char charOrHighSurrogate = CodepointToString(codePoint, out char lowSurrogate);
+                        buffer.Append(charOrHighSurrogate);
+                        if (lowSurrogate != SlidingTextWindow.InvalidCharacter)
+                        {
+                            // previous char was a high surrogate
+                            // also append the low surrogate
+                            buffer.Append(lowSurrogate);
+                        }
+
+                        continue;
+                    }
+
+                    if (SingleCharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
                     {
                         // invalid escape character
                         return null;
@@ -158,6 +194,8 @@ namespace Bicep.Core.Parsing
 
             return buffer.ToString();
         }
+
+        private static bool TryParseCodePoint(string text, out uint codePoint) => uint.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint) && codePoint <= 0x10FFFF;
 
         /// <summary>
         /// Determines if the specified string is a valid identifier. To be considered a valid identifier, the string must start
@@ -180,6 +218,19 @@ namespace Bicep.Core.Parsing
             }
 
             return result;
+        }
+
+        private static char CodepointToString(uint codePoint, out char lowSurrogate)
+        {
+            if (codePoint < 0x00010000)
+            {
+                lowSurrogate = SlidingTextWindow.InvalidCharacter;
+                return (char) codePoint;
+            }
+
+            Debug.Assert(codePoint > 0x0000FFFF && codePoint <= 0x0010FFFF);
+            lowSurrogate = (char)((codePoint - 0x00010000) % 0x0400 + 0xDC00);
+            return (char)((codePoint - 0x00010000) / 0x0400 + 0xD800);
         }
 
         private IEnumerable<SyntaxTrivia> ScanTrailingTrivia()
@@ -383,6 +434,7 @@ namespace Bicep.Core.Parsing
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
+                int escapeBeginPosition = textWindow.GetAbsolutePosition();
                 textWindow.Advance();
 
                 if (nextChar == '\'')
@@ -401,20 +453,108 @@ namespace Bicep.Core.Parsing
                     continue;
                 }
 
+                // an escape sequence was started with \
                 if (textWindow.IsAtEnd())
                 {
+                    // the escape was unterminated
                     AddDiagnostic(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
                 }
 
+                // the escape sequence has a char after the \
+                // consume it
                 nextChar = textWindow.Peek();
                 textWindow.Advance();
 
-                if (CharacterEscapes.ContainsKey(nextChar) == false)
+                if (nextChar == 'u')
                 {
-                    // the span of the error is the incorrect escape sequence
-                    AddDiagnostic(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
+                    // unicode escape
+                    
+                    if (textWindow.IsAtEnd())
+                    {
+                        // string was prematurely terminated
+                        // reusing the first check in the loop body to produce the diagnostic
+                        continue;
+                    }
+
+                    nextChar = textWindow.Peek();
+                    if (nextChar != '{')
+                    {
+                        // \u must be followed by {, but it's not
+                        AddDiagnostic(textWindow.GetSpanFromPosition(escapeBeginPosition), b => b.InvalidUnicodeEscape());
+                        continue;
+                    }
+
+                    textWindow.Advance();
+                    if (textWindow.IsAtEnd())
+                    {
+                        // string was prematurely terminated
+                        // reusing the first check in the loop body to produce the diagnostic
+                        continue;
+                    }
+
+                    string codePointText = ScanHexNumber(textWindow);
+                    if (textWindow.IsAtEnd())
+                    {
+                        // string was prematurely terminated
+                        // reusing the first check in the loop body to produce the diagnostic
+                        continue;
+                    }
+
+                    if (string.IsNullOrEmpty(codePointText))
+                    {
+                        // we didn't get any hex digits
+                        AddDiagnostic(textWindow.GetSpanFromPosition(escapeBeginPosition), b => b.InvalidUnicodeEscape());
+                        continue;
+                    }
+
+                    nextChar = textWindow.Peek();
+                    if (nextChar != '}')
+                    {
+                        // hex digits must be followed by }, but it's not
+                        AddDiagnostic(textWindow.GetSpanFromPosition(escapeBeginPosition), b => b.InvalidUnicodeEscape());
+                        continue;
+                    }
+
+                    textWindow.Advance();
+
+                    if (!TryParseCodePoint(codePointText, out _))
+                    {
+                        // code point is not actually valid
+                        AddDiagnostic(textWindow.GetSpanFromPosition(escapeBeginPosition), b => b.InvalidUnicodeEscape());
+                        continue;
+                    }
                 }
+                else
+                {
+                    // not a unicode escape
+                    if (SingleCharacterEscapes.ContainsKey(nextChar) == false)
+                    {
+                        // the span of the error is the incorrect escape sequence
+                        AddDiagnostic(textWindow.GetLookbehindSpan(2), b => b.UnterminatedStringEscapeSequenceUnrecognized(CharacterEscapeSequences));
+                    }
+                }
+            }
+        }
+
+        private static string ScanHexNumber(SlidingTextWindow window)
+        {
+            var buffer = new StringBuilder();
+            while (true)
+            {
+                if (window.IsAtEnd())
+                {
+                    return buffer.ToString();
+                }
+
+                char current = window.Peek();
+                if (!IsHexDigit(current))
+                {
+                    return buffer.ToString();
+                }
+
+                buffer.Append(current);
+                window.Advance();
             }
         }
 
@@ -643,14 +783,67 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private static bool IsIdentifierStart(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+        private const char MaxAscii = '\u007F';
 
-        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c);
+        // obtaining the unicode category is expensive and should be avoided in the main cases
+        private static bool IsIdentifierStart(char c) => c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || c > MaxAscii && IsUnicodeLetter(CharUnicodeInfo.GetUnicodeCategory(c));
+
+        // obtaining the unicode category is expensive and should be avoided in the main cases
+        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c) || c > MaxAscii && IsUnicodeIdentifierContinuation(CharUnicodeInfo.GetUnicodeCategory(c));
 
         private static bool IsDigit(char c) => c >= '0' && c <= '9';
+
+        private static bool IsHexDigit(char c) => IsDigit(c) || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F';
 
         private static bool IsWhiteSpace(char c) => c == ' ' || c == '\t';
 
         private static bool IsNewLine(char c) => c == '\n' || c == '\r';
+
+        private static bool IsUnicodeLetter(UnicodeCategory category)
+        {
+            // comments indicate unicode character classes
+            switch (category)
+            {
+                // Lu
+                case UnicodeCategory.UppercaseLetter:
+                // Ll, 
+                case UnicodeCategory.LowercaseLetter:
+                // Lt, 
+                case UnicodeCategory.TitlecaseLetter:
+                // Lm, 
+                case UnicodeCategory.ModifierLetter:
+                // Lo 
+                case UnicodeCategory.OtherLetter:
+                // Nl
+                case UnicodeCategory.LetterNumber:
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool IsUnicodeIdentifierContinuation(UnicodeCategory category)
+        {
+            // comments indicate unicode character classes
+            switch (category)
+            {
+                // Nd
+                case UnicodeCategory.DecimalDigitNumber:
+                // Pc
+                case UnicodeCategory.ConnectorPunctuation:
+                // Mn
+                case UnicodeCategory.NonSpacingMark:
+                // Mc
+                case UnicodeCategory.SpacingCombiningMark:
+                // Cf
+                case UnicodeCategory.Format:
+                    return true;
+
+                default:
+                    return false;
+
+            }
+        }
     }
 }

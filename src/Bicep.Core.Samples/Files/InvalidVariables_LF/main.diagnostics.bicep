@@ -113,7 +113,7 @@ var test2 = newGuid()
 var test3 = {
   'bad\escape': true
 //@[2:14) [BCP022 (Error)] Expected a property name at this location. |'bad\escape'|
-//@[6:8) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: "\$", "\'", "\\", "\n", "\r", "\t". |\e|
+//@[6:8) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". |\e|
 }
 
 // duplicate properties

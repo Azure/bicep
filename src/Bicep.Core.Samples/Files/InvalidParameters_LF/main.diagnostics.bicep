@@ -86,7 +86,7 @@ param wrongType fluffyBunny = 'what's up doc?'
 param wrongType fluffyBunny = 'what\s up doc?'
 //@[6:15) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. |wrongType|
 //@[16:27) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |fluffyBunny|
-//@[35:37) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: "\$", "\'", "\\", "\n", "\r", "\t". |\s|
+//@[35:37) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". |\s|
 
 // unterminated string 
 param wrongType fluffyBunny = 'what\'s up doc?
