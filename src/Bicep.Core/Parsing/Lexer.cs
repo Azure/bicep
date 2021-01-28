@@ -631,7 +631,7 @@ namespace Bicep.Core.Parsing
                     if (IsDigit(nextChar))
                     {
                         this.ScanNumber();
-                        return TokenType.Number;
+                        return TokenType.Integer;
                     }
 
                     if (IsIdentifierStart(nextChar))

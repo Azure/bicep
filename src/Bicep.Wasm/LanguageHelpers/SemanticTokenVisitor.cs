@@ -96,10 +96,10 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitNullLiteralSyntax(syntax);
         }
 
-        public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
+        public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
         {
             AddTokenType(syntax.Literal, SemanticTokenType.Number);
-            base.VisitNumericLiteralSyntax(syntax);
+            base.VisitIntegerLiteralSyntax(syntax);
         }
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)

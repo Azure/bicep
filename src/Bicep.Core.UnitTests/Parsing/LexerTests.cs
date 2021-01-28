@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void TryGetStringValue_WrongTokenType_ShouldReturnNull()
         {
-            var token = new Token(TokenType.Number, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+            var token = new Token(TokenType.Integer, new TextSpan(0, 2), "12", Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
 
             Lexer.TryGetStringValue(token).Should().BeNull();
         }

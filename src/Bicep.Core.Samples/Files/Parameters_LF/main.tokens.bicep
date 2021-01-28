@@ -29,7 +29,7 @@ param myString2 string = 'strin${2}g value'
 //@[16:22) Identifier |string|
 //@[23:24) Assignment |=|
 //@[25:33) StringLeftPiece |'strin${|
-//@[33:34) Number |2|
+//@[33:34) Integer |2|
 //@[34:43) StringRightPiece |}g value'|
 //@[43:44) NewLine |\n|
 param myInt2 int = 42
@@ -37,7 +37,7 @@ param myInt2 int = 42
 //@[6:12) Identifier |myInt2|
 //@[13:16) Identifier |int|
 //@[17:18) Assignment |=|
-//@[19:21) Number |42|
+//@[19:21) Integer |42|
 //@[21:22) NewLine |\n|
 param myTruth bool = true
 //@[0:5) Identifier |param|
@@ -101,7 +101,7 @@ param foo object = {
   priority: 3
 //@[2:10) Identifier |priority|
 //@[10:11) Colon |:|
-//@[12:13) Number |3|
+//@[12:13) Integer |3|
 //@[13:14) NewLine |\n|
   info: {
 //@[2:6) Identifier |info|
@@ -133,7 +133,7 @@ param foo object = {
 //@[4:17) StringComplete |'string item'|
 //@[17:18) NewLine |\n|
     12
-//@[4:6) Number |12|
+//@[4:6) Integer |12|
 //@[6:7) NewLine |\n|
     true
 //@[4:8) TrueKeyword |true|
@@ -386,12 +386,12 @@ param storageName string {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 24
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -401,14 +401,14 @@ param storageName string {
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |3|
+//@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @maxLength(24)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |24|
+//@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 param storageNameWithDecorator string
@@ -428,12 +428,12 @@ param someArray array {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 24
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -443,14 +443,14 @@ param someArray array {
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |3|
+//@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @maxLength(24)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |24|
+//@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 param someArrayWithDecorator array
@@ -575,7 +575,7 @@ param additionalMetadata string {
     a: 1
 //@[4:5) Identifier |a|
 //@[5:6) Colon |:|
-//@[7:8) Number |1|
+//@[7:8) Integer |1|
 //@[8:9) NewLine |\n|
     b: true
 //@[4:5) Identifier |b|
@@ -624,7 +624,7 @@ param additionalMetadata string {
 	a: 1
 //@[1:2) Identifier |a|
 //@[2:3) Colon |:|
-//@[4:5) Number |1|
+//@[4:5) Integer |1|
 //@[5:6) NewLine |\n|
 	b: true
 //@[1:2) Identifier |b|
@@ -678,12 +678,12 @@ param someParameter string {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 24
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
   default: 'one'
 //@[2:9) Identifier |default|
@@ -734,14 +734,14 @@ param someParameter string {
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |3|
+//@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @maxLength(24)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |24|
+//@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 @allowed([
@@ -797,13 +797,13 @@ param defaultValueExpression int {
 //@[9:10) Colon |:|
 //@[11:15) TrueKeyword |true|
 //@[16:17) Question |?|
-//@[18:19) Number |4|
+//@[18:19) Integer |4|
 //@[20:21) Plus |+|
-//@[22:23) Number |2|
+//@[22:23) Integer |2|
 //@[23:24) Asterisk |*|
-//@[24:25) Number |3|
+//@[24:25) Integer |3|
 //@[26:27) Colon |:|
-//@[28:29) Number |0|
+//@[28:29) Integer |0|
 //@[29:30) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -814,7 +814,7 @@ param defaultExpression bool = 18 != (true || false)
 //@[6:23) Identifier |defaultExpression|
 //@[24:28) Identifier |bool|
 //@[29:30) Assignment |=|
-//@[31:33) Number |18|
+//@[31:33) Integer |18|
 //@[34:36) NotEquals |!=|
 //@[37:38) LeftParen |(|
 //@[38:42) TrueKeyword |true|
@@ -833,14 +833,14 @@ param defaultExpression bool = 18 != (true || false)
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
   @maxLength(10)
 //@[2:3) At |@|
 //@[3:12) Identifier |maxLength|
 //@[12:13) LeftParen |(|
-//@[13:15) Number |10|
+//@[13:15) Integer |10|
 //@[15:16) RightParen |)|
 //@[16:17) NewLine |\n|
 @allowed([
@@ -869,7 +869,7 @@ param decoratedString string
 //@[0:1) At |@|
 //@[1:9) Identifier |minValue|
 //@[9:10) LeftParen |(|
-//@[10:13) Number |200|
+//@[10:13) Integer |200|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 param decoratedInt int = 123
@@ -877,7 +877,7 @@ param decoratedInt int = 123
 //@[6:18) Identifier |decoratedInt|
 //@[19:22) Identifier |int|
 //@[23:24) Assignment |=|
-//@[25:28) Number |123|
+//@[25:28) Integer |123|
 //@[28:30) NewLine |\n\n|
 
 @sys.description('A boolean.')
@@ -918,7 +918,7 @@ param decoratedInt int = 123
 //@[8:12) TrueKeyword |true|
 //@[12:13) NewLine |\n|
         123
-//@[8:11) Number |123|
+//@[8:11) Integer |123|
 //@[11:12) NewLine |\n|
     ]
 //@[4:5) RightSquare |]|
@@ -987,21 +987,21 @@ param decoratedObject object = {
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |20|
+//@[11:13) Integer |20|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 @maxLength(10)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |10|
+//@[11:13) Integer |10|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 @maxLength(5)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |5|
+//@[11:12) Integer |5|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @sys.description('I will be overrode.')

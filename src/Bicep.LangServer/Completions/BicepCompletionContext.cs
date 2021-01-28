@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
         private static readonly ImmutableHashSet<TokenType> ReplaceableTokens = new[]
         {
             TokenType.Identifier,
-            TokenType.Number,
+            TokenType.Integer,
             TokenType.StringComplete
         }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
 

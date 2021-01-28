@@ -53,8 +53,8 @@ param myInt2 int = 42
 //@[13:16)   Identifier |int|
 //@[17:21)  ParameterDefaultValueSyntax
 //@[17:18)   Assignment |=|
-//@[19:21)   NumericLiteralSyntax
-//@[19:21)    Number |42|
+//@[19:21)   IntegerLiteralSyntax
+//@[19:21)    Integer |42|
 //@[21:23) NewLine |\r\n|
 param myTruth bool = true
 //@[0:25) ParameterDeclarationSyntax
@@ -128,8 +128,8 @@ param foo object = {
 //@[2:10)     IdentifierSyntax
 //@[2:10)      Identifier |priority|
 //@[10:11)     Colon |:|
-//@[12:13)     NumericLiteralSyntax
-//@[12:13)      Number |3|
+//@[12:13)     IntegerLiteralSyntax
+//@[12:13)      Integer |3|
 //@[13:15)    NewLine |\r\n|
   info: {
 //@[2:26)    ObjectPropertySyntax
@@ -176,8 +176,8 @@ param foo object = {
 //@[17:19)      NewLine |\r\n|
     12
 //@[4:6)      ArrayItemSyntax
-//@[4:6)       NumericLiteralSyntax
-//@[4:6)        Number |12|
+//@[4:6)       IntegerLiteralSyntax
+//@[4:6)        Integer |12|
 //@[6:8)      NewLine |\r\n|
     true
 //@[4:8)      ArrayItemSyntax
@@ -496,16 +496,16 @@ param storageName string {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:16)   NewLine |\r\n|
   maxLength: 24
 //@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
-//@[13:15)    NumericLiteralSyntax
-//@[13:15)     Number |24|
+//@[13:15)    IntegerLiteralSyntax
+//@[13:15)     Integer |24|
 //@[15:17)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
@@ -520,8 +520,8 @@ param storageName string {
 //@[1:10)     Identifier |minLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    FunctionArgumentSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |3|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |3|
 //@[12:13)    RightParen |)|
 //@[13:15)  NewLine |\r\n|
 @maxLength(24)
@@ -532,8 +532,8 @@ param storageName string {
 //@[1:10)     Identifier |maxLength|
 //@[10:11)    LeftParen |(|
 //@[11:13)    FunctionArgumentSyntax
-//@[11:13)     NumericLiteralSyntax
-//@[11:13)      Number |24|
+//@[11:13)     IntegerLiteralSyntax
+//@[11:13)      Integer |24|
 //@[13:14)    RightParen |)|
 //@[14:16)  NewLine |\r\n|
 param storageNameWithDecorator string
@@ -561,16 +561,16 @@ param someArray array {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:16)   NewLine |\r\n|
   maxLength: 24
 //@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
-//@[13:15)    NumericLiteralSyntax
-//@[13:15)     Number |24|
+//@[13:15)    IntegerLiteralSyntax
+//@[13:15)     Integer |24|
 //@[15:17)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
@@ -585,8 +585,8 @@ param someArray array {
 //@[1:10)     Identifier |minLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    FunctionArgumentSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |3|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |3|
 //@[12:13)    RightParen |)|
 //@[13:15)  NewLine |\r\n|
 @maxLength(24)
@@ -597,8 +597,8 @@ param someArray array {
 //@[1:10)     Identifier |maxLength|
 //@[10:11)    LeftParen |(|
 //@[11:13)    FunctionArgumentSyntax
-//@[11:13)     NumericLiteralSyntax
-//@[11:13)      Number |24|
+//@[11:13)     IntegerLiteralSyntax
+//@[11:13)      Integer |24|
 //@[13:14)    RightParen |)|
 //@[14:16)  NewLine |\r\n|
 param someArrayWithDecorator array
@@ -783,8 +783,8 @@ param additionalMetadata string {
 //@[4:5)      IdentifierSyntax
 //@[4:5)       Identifier |a|
 //@[5:6)      Colon |:|
-//@[7:8)      NumericLiteralSyntax
-//@[7:8)       Number |1|
+//@[7:8)      IntegerLiteralSyntax
+//@[7:8)       Integer |1|
 //@[8:10)     NewLine |\r\n|
     b: true
 //@[4:11)     ObjectPropertySyntax
@@ -856,8 +856,8 @@ param additionalMetadata string {
 //@[2:3)       IdentifierSyntax
 //@[2:3)        Identifier |a|
 //@[3:4)       Colon |:|
-//@[5:6)       NumericLiteralSyntax
-//@[5:6)        Number |1|
+//@[5:6)       IntegerLiteralSyntax
+//@[5:6)        Integer |1|
 //@[6:8)      NewLine |\r\n|
   b: true
 //@[2:9)      ObjectPropertySyntax
@@ -934,16 +934,16 @@ param someParameter string {
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |minLength|
 //@[11:12)    Colon |:|
-//@[13:14)    NumericLiteralSyntax
-//@[13:14)     Number |3|
+//@[13:14)    IntegerLiteralSyntax
+//@[13:14)     Integer |3|
 //@[14:16)   NewLine |\r\n|
   maxLength: 24
 //@[2:15)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |maxLength|
 //@[11:12)    Colon |:|
-//@[13:15)    NumericLiteralSyntax
-//@[13:15)     Number |24|
+//@[13:15)    IntegerLiteralSyntax
+//@[13:15)     Integer |24|
 //@[15:17)   NewLine |\r\n|
   default: 'one'
 //@[2:16)   ObjectPropertySyntax
@@ -1020,8 +1020,8 @@ param someParameter string {
 //@[1:10)     Identifier |minLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    FunctionArgumentSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |3|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |3|
 //@[12:13)    RightParen |)|
 //@[13:15)  NewLine |\r\n|
 @maxLength(24)
@@ -1032,8 +1032,8 @@ param someParameter string {
 //@[1:10)     Identifier |maxLength|
 //@[10:11)    LeftParen |(|
 //@[11:13)    FunctionArgumentSyntax
-//@[11:13)     NumericLiteralSyntax
-//@[11:13)      Number |24|
+//@[11:13)     IntegerLiteralSyntax
+//@[11:13)      Integer |24|
 //@[13:14)    RightParen |)|
 //@[14:16)  NewLine |\r\n|
 @allowed([
@@ -1117,18 +1117,18 @@ param defaultValueExpression int {
 //@[11:15)      TrueKeyword |true|
 //@[16:17)     Question |?|
 //@[18:25)     BinaryOperationSyntax
-//@[18:19)      NumericLiteralSyntax
-//@[18:19)       Number |4|
+//@[18:19)      IntegerLiteralSyntax
+//@[18:19)       Integer |4|
 //@[20:21)      Plus |+|
 //@[22:25)      BinaryOperationSyntax
-//@[22:23)       NumericLiteralSyntax
-//@[22:23)        Number |2|
+//@[22:23)       IntegerLiteralSyntax
+//@[22:23)        Integer |2|
 //@[23:24)       Asterisk |*|
-//@[24:25)       NumericLiteralSyntax
-//@[24:25)        Number |3|
+//@[24:25)       IntegerLiteralSyntax
+//@[24:25)        Integer |3|
 //@[26:27)     Colon |:|
-//@[28:29)     NumericLiteralSyntax
-//@[28:29)      Number |0|
+//@[28:29)     IntegerLiteralSyntax
+//@[28:29)      Integer |0|
 //@[29:31)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
@@ -1144,8 +1144,8 @@ param defaultExpression bool = 18 != (true || false)
 //@[29:52)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
 //@[31:52)   BinaryOperationSyntax
-//@[31:33)    NumericLiteralSyntax
-//@[31:33)     Number |18|
+//@[31:33)    IntegerLiteralSyntax
+//@[31:33)     Integer |18|
 //@[34:36)    NotEquals |!=|
 //@[37:52)    ParenthesizedExpressionSyntax
 //@[37:38)     LeftParen |(|
@@ -1338,8 +1338,8 @@ param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteral
 //@[1:10)     Identifier |minLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    FunctionArgumentSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |2|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |2|
 //@[12:13)    RightParen |)|
 //@[13:15)  NewLine |\r\n|
   @maxLength(10)
@@ -1350,8 +1350,8 @@ param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteral
 //@[3:12)     Identifier |maxLength|
 //@[12:13)    LeftParen |(|
 //@[13:15)    FunctionArgumentSyntax
-//@[13:15)     NumericLiteralSyntax
-//@[13:15)      Number |10|
+//@[13:15)     IntegerLiteralSyntax
+//@[13:15)      Integer |10|
 //@[15:16)    RightParen |)|
 //@[16:18)  NewLine |\r\n|
 @allowed([
@@ -1396,8 +1396,8 @@ param decoratedString string
 //@[1:9)     Identifier |minValue|
 //@[9:10)    LeftParen |(|
 //@[10:13)    FunctionArgumentSyntax
-//@[10:13)     NumericLiteralSyntax
-//@[10:13)      Number |200|
+//@[10:13)     IntegerLiteralSyntax
+//@[10:13)      Integer |200|
 //@[13:14)    RightParen |)|
 //@[14:16)  NewLine |\r\n|
 param decoratedInt int = 123
@@ -1408,8 +1408,8 @@ param decoratedInt int = 123
 //@[19:22)   Identifier |int|
 //@[23:28)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
-//@[25:28)   NumericLiteralSyntax
-//@[25:28)    Number |123|
+//@[25:28)   IntegerLiteralSyntax
+//@[25:28)    Integer |123|
 //@[28:32) NewLine |\r\n\r\n|
 
 @sys.description('A boolean.')
@@ -1477,8 +1477,8 @@ param decoratedInt int = 123
 //@[12:14)        NewLine |\r\n|
         123
 //@[8:11)        ArrayItemSyntax
-//@[8:11)         NumericLiteralSyntax
-//@[8:11)          Number |123|
+//@[8:11)         IntegerLiteralSyntax
+//@[8:11)          Integer |123|
 //@[11:13)        NewLine |\r\n|
     ]
 //@[4:5)        RightSquare |]|
@@ -1570,8 +1570,8 @@ param decoratedObject object = {
 //@[2:10)     IdentifierSyntax
 //@[2:10)      Identifier |priority|
 //@[10:11)     Colon |:|
-//@[12:13)     NumericLiteralSyntax
-//@[12:13)      Number |3|
+//@[12:13)     IntegerLiteralSyntax
+//@[12:13)      Integer |3|
 //@[13:15)    NewLine |\r\n|
   info: {
 //@[2:26)    ObjectPropertySyntax
@@ -1618,8 +1618,8 @@ param decoratedObject object = {
 //@[17:19)      NewLine |\r\n|
     12
 //@[4:6)      ArrayItemSyntax
-//@[4:6)       NumericLiteralSyntax
-//@[4:6)        Number |12|
+//@[4:6)       IntegerLiteralSyntax
+//@[4:6)        Integer |12|
 //@[6:8)      NewLine |\r\n|
     true
 //@[4:8)      ArrayItemSyntax
@@ -1707,8 +1707,8 @@ param decoratedObject object = {
 //@[5:14)     Identifier |maxLength|
 //@[14:15)    LeftParen |(|
 //@[15:17)    FunctionArgumentSyntax
-//@[15:17)     NumericLiteralSyntax
-//@[15:17)      Number |20|
+//@[15:17)     IntegerLiteralSyntax
+//@[15:17)      Integer |20|
 //@[17:18)    RightParen |)|
 //@[18:20)  NewLine |\r\n|
 @maxLength(10)
@@ -1719,8 +1719,8 @@ param decoratedObject object = {
 //@[1:10)     Identifier |maxLength|
 //@[10:11)    LeftParen |(|
 //@[11:13)    FunctionArgumentSyntax
-//@[11:13)     NumericLiteralSyntax
-//@[11:13)      Number |10|
+//@[11:13)     IntegerLiteralSyntax
+//@[11:13)      Integer |10|
 //@[13:14)    RightParen |)|
 //@[14:16)  NewLine |\r\n|
 @maxLength(5)
@@ -1731,8 +1731,8 @@ param decoratedObject object = {
 //@[1:10)     Identifier |maxLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    FunctionArgumentSyntax
-//@[11:12)     NumericLiteralSyntax
-//@[11:12)      Number |5|
+//@[11:12)     IntegerLiteralSyntax
+//@[11:12)      Integer |5|
 //@[12:13)    RightParen |)|
 //@[13:15)  NewLine |\r\n|
 @sys.description('I will be overrode.')

@@ -224,14 +224,14 @@ module './main.bicep' = if (1 + 2 == 3) {
 //@[27:28)    LeftParen |(|
 //@[28:38)    BinaryOperationSyntax
 //@[28:33)     BinaryOperationSyntax
-//@[28:29)      NumericLiteralSyntax
-//@[28:29)       Number |1|
+//@[28:29)      IntegerLiteralSyntax
+//@[28:29)       Integer |1|
 //@[30:31)      Plus |+|
-//@[32:33)      NumericLiteralSyntax
-//@[32:33)       Number |2|
+//@[32:33)      IntegerLiteralSyntax
+//@[32:33)       Integer |2|
 //@[34:36)     Equals |==|
-//@[37:38)     NumericLiteralSyntax
-//@[37:38)      Number |3|
+//@[37:38)     IntegerLiteralSyntax
+//@[37:38)      Integer |3|
 //@[38:39)    RightParen |)|
 //@[40:44)  ObjectSyntax
 //@[40:41)   LeftBrace |{|
@@ -592,8 +592,8 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 //@[0:1)        RightSquare |]|
 //@[1:2)      RightParen |)|
 //@[3:5)     Equals |==|
-//@[6:7)     NumericLiteralSyntax
-//@[6:7)      Number |1|
+//@[6:7)     IntegerLiteralSyntax
+//@[6:7)      Integer |1|
 //@[7:8)    RightParen |)|
 //@[9:117)  ObjectSyntax
 //@[9:10)   LeftBrace |{|
@@ -666,14 +666,14 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 //@[59:60)    LeftParen |(|
 //@[60:70)    BinaryOperationSyntax
 //@[60:65)     BinaryOperationSyntax
-//@[60:61)      NumericLiteralSyntax
-//@[60:61)       Number |1|
+//@[60:61)      IntegerLiteralSyntax
+//@[60:61)       Integer |1|
 //@[62:63)      Plus |+|
-//@[64:65)      NumericLiteralSyntax
-//@[64:65)       Number |2|
+//@[64:65)      IntegerLiteralSyntax
+//@[64:65)       Integer |2|
 //@[66:68)     Equals |==|
-//@[69:70)     NumericLiteralSyntax
-//@[69:70)      Number |2|
+//@[69:70)     IntegerLiteralSyntax
+//@[69:70)      Integer |2|
 //@[70:71)    RightParen |)|
 //@[72:183)  ObjectSyntax
 //@[72:73)   LeftBrace |{|

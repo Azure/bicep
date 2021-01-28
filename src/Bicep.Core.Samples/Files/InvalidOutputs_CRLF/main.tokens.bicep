@@ -16,7 +16,7 @@ var testSymbol = 42
 //@[0:3) Identifier |var|
 //@[4:14) Identifier |testSymbol|
 //@[15:16) Assignment |=|
-//@[17:19) Number |42|
+//@[17:19) Integer |42|
 //@[19:23) NewLine |\r\n\r\n|
 
 // #completionTest(28,29) -> symbols
@@ -67,7 +67,7 @@ output partialType obj
 //@[23:25) NewLine |\r\n|
 output 2
 //@[0:6) Identifier |output|
-//@[7:8) Number |2|
+//@[7:8) Integer |2|
 //@[8:12) NewLine |\r\n\r\n|
 
 // malformed type
@@ -75,7 +75,7 @@ output 2
 output malformedType 3
 //@[0:6) Identifier |output|
 //@[7:20) Identifier |malformedType|
-//@[21:22) Number |3|
+//@[21:22) Integer |3|
 //@[22:26) NewLine |\r\n\r\n|
 
 // malformed type but type check should still happen
@@ -83,9 +83,9 @@ output malformedType 3
 output malformedType2 3 = 2 + null
 //@[0:6) Identifier |output|
 //@[7:21) Identifier |malformedType2|
-//@[22:23) Number |3|
+//@[22:23) Integer |3|
 //@[24:25) Assignment |=|
-//@[26:27) Number |2|
+//@[26:27) Integer |2|
 //@[28:29) Plus |+|
 //@[30:34) NullKeyword |null|
 //@[34:38) NewLine |\r\n\r\n|
@@ -95,9 +95,9 @@ output malformedType2 3 = 2 + null
 output malformedAssignment 2 = 2
 //@[0:6) Identifier |output|
 //@[7:26) Identifier |malformedAssignment|
-//@[27:28) Number |2|
+//@[27:28) Integer |2|
 //@[29:30) Assignment |=|
-//@[31:32) Number |2|
+//@[31:32) Integer |2|
 //@[32:36) NewLine |\r\n\r\n|
 
 // malformed type before assignment
@@ -105,7 +105,7 @@ output malformedAssignment 2 = 2
 output lol 2 = true
 //@[0:6) Identifier |output|
 //@[7:10) Identifier |lol|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[13:14) Assignment |=|
 //@[15:19) TrueKeyword |true|
 //@[19:23) NewLine |\r\n\r\n|
@@ -176,7 +176,7 @@ output str string = 52
 //@[7:10) Identifier |str|
 //@[11:17) Identifier |string|
 //@[18:19) Assignment |=|
-//@[20:22) Number |52|
+//@[20:22) Integer |52|
 //@[22:26) NewLine |\r\n\r\n|
 
 // wrong int output values
@@ -250,7 +250,7 @@ output b bool = 32
 //@[7:8) Identifier |b|
 //@[9:13) Identifier |bool|
 //@[14:15) Assignment |=|
-//@[16:18) Number |32|
+//@[16:18) Integer |32|
 //@[18:20) NewLine |\r\n|
 output b bool = 'str'
 //@[0:6) Identifier |output|
@@ -267,7 +267,7 @@ output arr array = 32
 //@[7:10) Identifier |arr|
 //@[11:16) Identifier |array|
 //@[17:18) Assignment |=|
-//@[19:21) Number |32|
+//@[19:21) Integer |32|
 //@[21:23) NewLine |\r\n|
 output arr array = true
 //@[0:6) Identifier |output|
@@ -308,7 +308,7 @@ output o object = 32
 //@[7:8) Identifier |o|
 //@[9:15) Identifier |object|
 //@[16:17) Assignment |=|
-//@[18:20) Number |32|
+//@[18:20) Integer |32|
 //@[20:22) NewLine |\r\n|
 output o object = true
 //@[0:6) Identifier |output|
@@ -349,9 +349,9 @@ output exp string = 2 + 3
 //@[7:10) Identifier |exp|
 //@[11:17) Identifier |string|
 //@[18:19) Assignment |=|
-//@[20:21) Number |2|
+//@[20:21) Integer |2|
 //@[22:23) Plus |+|
-//@[24:25) Number |3|
+//@[24:25) Integer |3|
 //@[25:27) NewLine |\r\n|
 output union string = true ? 's' : 1
 //@[0:6) Identifier |output|
@@ -362,7 +362,7 @@ output union string = true ? 's' : 1
 //@[27:28) Question |?|
 //@[29:32) StringComplete |'s'|
 //@[33:34) Colon |:|
-//@[35:36) Number |1|
+//@[35:36) Integer |1|
 //@[36:38) NewLine |\r\n|
 output bad int = true && !4
 //@[0:6) Identifier |output|
@@ -372,7 +372,7 @@ output bad int = true && !4
 //@[17:21) TrueKeyword |true|
 //@[22:24) LogicalAnd |&&|
 //@[25:26) Exclamation |!|
-//@[26:27) Number |4|
+//@[26:27) Integer |4|
 //@[27:29) NewLine |\r\n|
 output deeper bool = true ? -true : (14 && 's') + 10
 //@[0:6) Identifier |output|
@@ -385,12 +385,12 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[29:33) TrueKeyword |true|
 //@[34:35) Colon |:|
 //@[36:37) LeftParen |(|
-//@[37:39) Number |14|
+//@[37:39) Integer |14|
 //@[40:42) LogicalAnd |&&|
 //@[43:46) StringComplete |'s'|
 //@[46:47) RightParen |)|
 //@[48:49) Plus |+|
-//@[50:52) Number |10|
+//@[50:52) Integer |10|
 //@[52:56) NewLine |\r\n\r\n|
 
 @sys.maxValue(20)
@@ -399,14 +399,14 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[4:5) Dot |.|
 //@[5:13) Identifier |maxValue|
 //@[13:14) LeftParen |(|
-//@[14:16) Number |20|
+//@[14:16) Integer |20|
 //@[16:17) RightParen |)|
 //@[17:19) NewLine |\r\n|
 @minValue(10)
 //@[0:1) At |@|
 //@[1:9) Identifier |minValue|
 //@[9:10) LeftParen |(|
-//@[10:12) Number |10|
+//@[10:12) Integer |10|
 //@[12:13) RightParen |)|
 //@[13:15) NewLine |\r\n|
 output notAttachableDecorators int = 32
@@ -414,7 +414,7 @@ output notAttachableDecorators int = 32
 //@[7:30) Identifier |notAttachableDecorators|
 //@[31:34) Identifier |int|
 //@[35:36) Assignment |=|
-//@[37:39) Number |32|
+//@[37:39) Integer |32|
 //@[39:41) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

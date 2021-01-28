@@ -44,8 +44,8 @@ namespace Bicep.Core.Emit
                     writer.WriteValue(boolSyntax.Value);
                     break;
 
-                case NumericLiteralSyntax numericSyntax:
-                    writer.WriteValue(numericSyntax.Value);
+                case IntegerLiteralSyntax integerSyntax:
+                    writer.WriteValue(integerSyntax.Value);
                     break;
 
                 case NullLiteralSyntax _:

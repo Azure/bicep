@@ -23,7 +23,7 @@ param
 
 param 3
 //@[0:5) Identifier |param|
-//@[6:7) Number |3|
+//@[6:7) Integer |3|
 //@[7:8) NewLine |\n|
 param % string
 //@[0:5) Identifier |param|
@@ -34,7 +34,7 @@ param % string 3 = 's'
 //@[0:5) Identifier |param|
 //@[6:7) Modulo |%|
 //@[8:14) Identifier |string|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[17:18) Assignment |=|
 //@[19:22) StringComplete |'s'|
 //@[22:24) NewLine |\n\n|
@@ -82,7 +82,7 @@ param partialType str
 param malformedType 44
 //@[0:5) Identifier |param|
 //@[6:19) Identifier |malformedType|
-//@[20:22) Number |44|
+//@[20:22) Integer |44|
 //@[22:24) NewLine |\n\n|
 
 // malformed type but type check should still happen
@@ -90,7 +90,7 @@ param malformedType 44
 param malformedType2 44 = f
 //@[0:5) Identifier |param|
 //@[6:20) Identifier |malformedType2|
-//@[21:23) Number |44|
+//@[21:23) Integer |44|
 //@[24:25) Assignment |=|
 //@[26:27) Identifier |f|
 //@[27:29) NewLine |\n\n|
@@ -100,7 +100,7 @@ param malformedType2 44 = f
 param malformedModifier 44 {
 //@[0:5) Identifier |param|
 //@[6:23) Identifier |malformedModifier|
-//@[24:26) Number |44|
+//@[24:26) Integer |44|
 //@[27:28) LeftBrace |{|
 //@[28:29) NewLine |\n|
   secure: 's'
@@ -125,7 +125,7 @@ param wrongDefaultValue string = 42
 //@[6:23) Identifier |wrongDefaultValue|
 //@[24:30) Identifier |string|
 //@[31:32) Assignment |=|
-//@[33:35) Number |42|
+//@[33:35) Integer |42|
 //@[35:37) NewLine |\n\n|
 
 param myInt2 int = 42
@@ -133,7 +133,7 @@ param myInt2 int = 42
 //@[6:12) Identifier |myInt2|
 //@[13:16) Identifier |int|
 //@[17:18) Assignment |=|
-//@[19:21) Number |42|
+//@[19:21) Integer |42|
 //@[21:22) NewLine |\n|
 param noValueAfterColon int =   
 //@[0:5) Identifier |param|
@@ -371,12 +371,12 @@ param someArray arra {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 24
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -386,14 +386,14 @@ param someArray arra {
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |3|
+//@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @maxLength(24)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:13) Number |24|
+//@[11:13) Integer |24|
 //@[13:14) RightParen |)|
 //@[14:15) NewLine |\n|
 param someArrayWithDecorator arra
@@ -413,12 +413,12 @@ param duplicatedModifierProperty string {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   minLength: 24
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:15) Number |24|
+//@[13:15) Integer |24|
 //@[15:16) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -440,12 +440,12 @@ param secureInt int {
   minLength: 3
 //@[2:11) Identifier |minLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
   maxLength: 123
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:16) Number |123|
+//@[13:16) Integer |123|
 //@[16:17) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -461,14 +461,14 @@ param secureInt int {
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |3|
+//@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @maxLength(123)
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:14) Number |123|
+//@[11:14) Integer |123|
 //@[14:15) RightParen |)|
 //@[15:16) NewLine |\n|
 param secureIntWithDecorator int
@@ -639,16 +639,16 @@ param expressionInModifier string {
   default: 2 + 3
 //@[2:9) Identifier |default|
 //@[9:10) Colon |:|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[13:14) Plus |+|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[16:17) NewLine |\n|
   maxLength: a + 2
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
 //@[13:14) Identifier |a|
 //@[15:16) Plus |+|
-//@[17:18) Number |2|
+//@[17:18) Integer |2|
 //@[18:19) NewLine |\n|
   minLength: foo()
 //@[2:11) Identifier |minLength|
@@ -678,7 +678,7 @@ param expressionInModifier string {
 //@[10:11) LeftParen |(|
 //@[11:12) Identifier |a|
 //@[13:14) Plus |+|
-//@[15:16) Number |2|
+//@[15:16) Integer |2|
 //@[16:17) RightParen |)|
 //@[17:18) NewLine |\n|
 @minLength(foo())
@@ -708,9 +708,9 @@ param expressionInModifierWithDecorator string = 2 + 3
 //@[6:39) Identifier |expressionInModifierWithDecorator|
 //@[40:46) Identifier |string|
 //@[47:48) Assignment |=|
-//@[49:50) Number |2|
+//@[49:50) Integer |2|
 //@[51:52) Plus |+|
-//@[53:54) Number |3|
+//@[53:54) Integer |3|
 //@[54:56) NewLine |\n\n|
 
 param nonCompileTimeConstant string {
@@ -722,9 +722,9 @@ param nonCompileTimeConstant string {
   maxLength: 2 + 3
 //@[2:11) Identifier |maxLength|
 //@[11:12) Colon |:|
-//@[13:14) Number |2|
+//@[13:14) Integer |2|
 //@[15:16) Plus |+|
-//@[17:18) Number |3|
+//@[17:18) Integer |3|
 //@[18:19) NewLine |\n|
   minLength: length([])
 //@[2:11) Identifier |minLength|
@@ -758,9 +758,9 @@ param nonCompileTimeConstant string {
 //@[0:1) At |@|
 //@[1:10) Identifier |maxLength|
 //@[10:11) LeftParen |(|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[13:14) Plus |+|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[16:17) RightParen |)|
 //@[17:18) NewLine |\n|
 @minLength(length([]))
@@ -1451,9 +1451,9 @@ param incompleteDecorators string
 //@[0:1) At |@|
 //@[1:7) Identifier |concat|
 //@[7:8) LeftParen |(|
-//@[8:9) Number |1|
+//@[8:9) Integer |1|
 //@[9:10) Comma |,|
-//@[11:12) Number |2|
+//@[11:12) Integer |2|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 @sys.concat('a', 'b')
@@ -1479,7 +1479,7 @@ param incompleteDecorators string
 //@[0:1) At |@|
 //@[1:9) Identifier |minValue|
 //@[9:10) LeftParen |(|
-//@[10:12) Number |20|
+//@[10:12) Integer |20|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 param someString string {
@@ -1509,7 +1509,7 @@ param someString string {
 //@[4:8) TrueKeyword |true|
 //@[8:9) NewLine |\n|
     10
-//@[4:6) Number |10|
+//@[4:6) Integer |10|
 //@[6:7) NewLine |\n|
     'foo'
 //@[4:9) StringComplete |'foo'|
@@ -1529,7 +1529,7 @@ param someInteger int = 20
 //@[6:17) Identifier |someInteger|
 //@[18:21) Identifier |int|
 //@[22:23) Assignment |=|
-//@[24:26) Number |20|
+//@[24:26) Integer |20|
 //@[26:28) NewLine |\n\n|
 
 @allowed([], [], 2)
@@ -1542,7 +1542,7 @@ param someInteger int = 20
 //@[13:14) LeftSquare |[|
 //@[14:15) RightSquare |]|
 //@[15:16) Comma |,|
-//@[17:18) Number |2|
+//@[17:18) Integer |2|
 //@[18:19) RightParen |)|
 //@[19:20) NewLine |\n|
 param tooManyArguments1 int = 20
@@ -1550,7 +1550,7 @@ param tooManyArguments1 int = 20
 //@[6:23) Identifier |tooManyArguments1|
 //@[24:27) Identifier |int|
 //@[28:29) Assignment |=|
-//@[30:32) Number |20|
+//@[30:32) Integer |20|
 //@[32:34) NewLine |\n\n|
 
 @metadata({}, {}, true)

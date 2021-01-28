@@ -487,7 +487,7 @@ namespace Bicep.Core.Parsing
 
             switch (nextToken.Type)
             {
-                case TokenType.Number:
+                case TokenType.Integer:
                 case TokenType.NullKeyword:
                 case TokenType.TrueKeyword:
                 case TokenType.FalseKeyword:
@@ -711,13 +711,13 @@ namespace Bicep.Core.Parsing
             return new TypeSyntax(identifier);
         }
 
-        private NumericLiteralSyntax NumericLiteral()
+        private IntegerLiteralSyntax NumericLiteral()
         {
-            var literal = Expect(TokenType.Number, b => b.ExpectedNumericLiteral());
+            var literal = Expect(TokenType.Integer, b => b.ExpectedNumericLiteral());
 
-            if (Int32.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
+            if (long.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out long value))
             {
-                return new NumericLiteralSyntax(literal, value);
+                return new IntegerLiteralSyntax(literal, value);
             }
 
             // TODO: Should probably be moved to type checking
@@ -857,7 +857,7 @@ namespace Bicep.Core.Parsing
                 case TokenType.FalseKeyword:
                     return new BooleanLiteralSyntax(reader.Read(), false);
 
-                case TokenType.Number:
+                case TokenType.Integer:
                     return this.NumericLiteral();
 
                 case TokenType.NullKeyword:

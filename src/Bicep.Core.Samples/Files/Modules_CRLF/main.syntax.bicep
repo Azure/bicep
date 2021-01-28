@@ -163,14 +163,14 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[54:55)    LeftParen |(|
 //@[55:65)    BinaryOperationSyntax
 //@[55:60)     BinaryOperationSyntax
-//@[55:56)      NumericLiteralSyntax
-//@[55:56)       Number |1|
+//@[55:56)      IntegerLiteralSyntax
+//@[55:56)       Integer |1|
 //@[57:58)      Plus |+|
-//@[59:60)      NumericLiteralSyntax
-//@[59:60)       Number |1|
+//@[59:60)      IntegerLiteralSyntax
+//@[59:60)       Integer |1|
 //@[61:63)     Equals |==|
-//@[64:65)     NumericLiteralSyntax
-//@[64:65)      Number |2|
+//@[64:65)     IntegerLiteralSyntax
+//@[64:65)      Integer |2|
 //@[65:66)    RightParen |)|
 //@[67:143)  ObjectSyntax
 //@[67:68)   LeftBrace |{|
@@ -303,8 +303,8 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |optionalInt|
 //@[15:16)      Colon |:|
-//@[17:19)      NumericLiteralSyntax
-//@[17:19)       Number |42|
+//@[17:19)      IntegerLiteralSyntax
+//@[17:19)       Integer |42|
 //@[19:21)     NewLine |\r\n|
     optionalObj: { }
 //@[4:20)     ObjectPropertySyntax
@@ -439,8 +439,8 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |optionalInt|
 //@[15:16)      Colon |:|
-//@[17:19)      NumericLiteralSyntax
-//@[17:19)       Number |42|
+//@[17:19)      IntegerLiteralSyntax
+//@[17:19)       Integer |42|
 //@[19:21)     NewLine |\r\n|
     optionalObj: { }
 //@[4:20)     ObjectPropertySyntax
@@ -550,8 +550,8 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |optionalInt|
 //@[15:16)      Colon |:|
-//@[17:19)      NumericLiteralSyntax
-//@[17:19)       Number |42|
+//@[17:19)      IntegerLiteralSyntax
+//@[17:19)       Integer |42|
 //@[19:21)     NewLine |\r\n|
     optionalObj: { }
 //@[4:20)     ObjectPropertySyntax
@@ -650,8 +650,8 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@[4:15)      IdentifierSyntax
 //@[4:15)       Identifier |optionalInt|
 //@[15:16)      Colon |:|
-//@[17:19)      NumericLiteralSyntax
-//@[17:19)       Number |42|
+//@[17:19)      IntegerLiteralSyntax
+//@[17:19)       Integer |42|
 //@[19:21)     NewLine |\r\n|
     optionalObj: { }
 //@[4:20)     ObjectPropertySyntax

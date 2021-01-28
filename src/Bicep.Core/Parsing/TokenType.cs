@@ -39,7 +39,7 @@ namespace Bicep.Core.Parsing
         StringMiddlePiece,
         StringRightPiece,
         StringComplete,
-        Number,
+        Integer,
         TrueKeyword,
         FalseKeyword,
         NullKeyword,

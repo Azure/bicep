@@ -212,6 +212,12 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[58:58) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
+// Issue 486
+var myFloat = 3.14
+//@[16:16) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[16:18) [BCP019 (Error)] Expected a new line character at this location. |14|
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
+
 // secure cannot be used as a varaible decorator
 @sys.secure()
 //@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. |secure|

@@ -311,3 +311,23 @@ var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
   resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
 }
+
+// Issue #1332
+var issue1332_propname = 'ptest'
+//@[4:22) Variable issue1332_propname. Type: 'ptest'. Declaration start char: 0, length: 32
+var issue1332 = true ? {
+//@[4:13) Variable issue1332. Type: object | object. Declaration start char: 0, length: 86
+    prop1: {
+        '${issue1332_propname}': {}
+    }
+} : {}
+
+// Issue #486
+var myBigInt = 2199023255552
+//@[4:12) Variable myBigInt. Type: int. Declaration start char: 0, length: 28
+var myIntExpression = 5 * 5
+//@[4:19) Variable myIntExpression. Type: int. Declaration start char: 0, length: 27
+var myBigIntExpression = 2199023255552 * 2
+//@[4:22) Variable myBigIntExpression. Type: int. Declaration start char: 0, length: 42
+var myBigIntExpression2 = 2199023255552 * 2199023255552
+//@[4:23) Variable myBigIntExpression2. Type: int. Declaration start char: 0, length: 55
