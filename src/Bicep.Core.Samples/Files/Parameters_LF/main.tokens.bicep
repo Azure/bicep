@@ -269,6 +269,18 @@ param password string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+param passwordWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:27) Identifier |passwordWithDecorator|
+//@[28:34) Identifier |string|
+//@[34:36) NewLine |\n\n|
+
 // non-secure string
 //@[20:21) NewLine |\n|
 param nonSecure string {
@@ -303,6 +315,18 @@ param secretObject object {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+param secureObjectWithDecorator object
+//@[0:5) Identifier |param|
+//@[6:31) Identifier |secureObjectWithDecorator|
+//@[32:38) Identifier |object|
+//@[38:40) NewLine |\n\n|
+
 // enum parameter
 //@[17:18) NewLine |\n|
 param storageSku string {
@@ -329,6 +353,28 @@ param storageSku string {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@  allowed([
+//@[0:1) At |@|
+//@[3:10) Identifier |allowed|
+//@[10:11) LeftParen |(|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+'Standard_LRS'
+//@[0:14) StringComplete |'Standard_LRS'|
+//@[14:15) NewLine |\n|
+'Standard_GRS'
+//@[0:14) StringComplete |'Standard_GRS'|
+//@[14:15) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param storageSkuWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:29) Identifier |storageSkuWithDecorator|
+//@[30:36) Identifier |string|
+//@[36:38) NewLine |\n\n|
+
 // length constraint on a string
 //@[32:33) NewLine |\n|
 param storageName string {
@@ -350,6 +396,26 @@ param storageName string {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@minLength(3)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Number |3|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+@maxLength(24)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:13) Number |24|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+param storageNameWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:30) Identifier |storageNameWithDecorator|
+//@[31:37) Identifier |string|
+//@[37:39) NewLine |\n\n|
 
 // length constraint on an array
 //@[32:33) NewLine |\n|
@@ -373,6 +439,26 @@ param someArray array {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@minLength(3)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Number |3|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+@maxLength(24)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:13) Number |24|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+param someArrayWithDecorator array
+//@[0:5) Identifier |param|
+//@[6:28) Identifier |someArrayWithDecorator|
+//@[29:34) Identifier |array|
+//@[34:36) NewLine |\n\n|
+
 // empty metadata
 //@[17:18) NewLine |\n|
 param emptyMetadata string {
@@ -392,6 +478,20 @@ param emptyMetadata string {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@metadata({})
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) RightBrace |}|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+param emptyMetadataWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:32) Identifier |emptyMetadataWithDecorator|
+//@[33:39) Identifier |string|
+//@[39:41) NewLine |\n\n|
 
 // description
 //@[14:15) NewLine |\n|
@@ -417,6 +517,42 @@ param description string {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@metadata({
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+  description: 'my description'
+//@[2:13) Identifier |description|
+//@[13:14) Colon |:|
+//@[15:31) StringComplete |'my description'|
+//@[31:32) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param descriptionWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:30) Identifier |descriptionWithDecorator|
+//@[31:37) Identifier |string|
+//@[37:39) NewLine |\n\n|
+
+@sys.description('my description')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:33) StringComplete |'my description'|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
+param descriptionWithDecorator2 string
+//@[0:5) Identifier |param|
+//@[6:31) Identifier |descriptionWithDecorator2|
+//@[32:38) Identifier |string|
+//@[38:40) NewLine |\n\n|
 
 // random extra metadata
 //@[24:25) NewLine |\n|
@@ -473,6 +609,58 @@ param additionalMetadata string {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@metadata({
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+	description: 'my description'
+//@[1:12) Identifier |description|
+//@[12:13) Colon |:|
+//@[14:30) StringComplete |'my description'|
+//@[30:31) NewLine |\n|
+	a: 1
+//@[1:2) Identifier |a|
+//@[2:3) Colon |:|
+//@[4:5) Number |1|
+//@[5:6) NewLine |\n|
+	b: true
+//@[1:2) Identifier |b|
+//@[2:3) Colon |:|
+//@[4:8) TrueKeyword |true|
+//@[8:9) NewLine |\n|
+	c: [
+//@[1:2) Identifier |c|
+//@[2:3) Colon |:|
+//@[4:5) LeftSquare |[|
+//@[5:6) NewLine |\n|
+	]
+//@[1:2) RightSquare |]|
+//@[2:3) NewLine |\n|
+	d: {
+//@[1:2) Identifier |d|
+//@[2:3) Colon |:|
+//@[4:5) LeftBrace |{|
+//@[5:6) NewLine |\n|
+	  test: 'abc'
+//@[3:7) Identifier |test|
+//@[7:8) Colon |:|
+//@[9:14) StringComplete |'abc'|
+//@[14:15) NewLine |\n|
+	}
+//@[1:2) RightBrace |}|
+//@[2:3) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param additionalMetadataWithDecorator string
+//@[0:5) Identifier |param|
+//@[6:37) Identifier |additionalMetadataWithDecorator|
+//@[38:44) Identifier |string|
+//@[44:46) NewLine |\n\n|
 
 // all modifiers together
 //@[25:26) NewLine |\n|
@@ -535,6 +723,68 @@ param someParameter string {
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@secure()
+//@[0:1) At |@|
+//@[1:7) Identifier |secure|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+@minLength(3)
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) Number |3|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+@maxLength(24)
+//@[0:1) At |@|
+//@[1:10) Identifier |maxLength|
+//@[10:11) LeftParen |(|
+//@[11:13) Number |24|
+//@[13:14) RightParen |)|
+//@[14:15) NewLine |\n|
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+  'one'
+//@[2:7) StringComplete |'one'|
+//@[7:8) NewLine |\n|
+  'two'
+//@[2:7) StringComplete |'two'|
+//@[7:8) NewLine |\n|
+  'three'
+//@[2:9) StringComplete |'three'|
+//@[9:10) NewLine |\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+@metadata({
+//@[0:1) At |@|
+//@[1:9) Identifier |metadata|
+//@[9:10) LeftParen |(|
+//@[10:11) LeftBrace |{|
+//@[11:12) NewLine |\n|
+  description: 'Name of the storage account'
+//@[2:13) Identifier |description|
+//@[13:14) Colon |:|
+//@[15:44) StringComplete |'Name of the storage account'|
+//@[44:45) NewLine |\n|
+})
+//@[0:1) RightBrace |}|
+//@[1:2) RightParen |)|
+//@[2:3) NewLine |\n|
+param someParameterWithDecorator string = 'one'
+//@[0:5) Identifier |param|
+//@[6:32) Identifier |someParameterWithDecorator|
+//@[33:39) Identifier |string|
+//@[40:41) Assignment |=|
+//@[42:47) StringComplete |'one'|
+//@[47:49) NewLine |\n\n|
 
 param defaultValueExpression int {
 //@[0:5) Identifier |param|

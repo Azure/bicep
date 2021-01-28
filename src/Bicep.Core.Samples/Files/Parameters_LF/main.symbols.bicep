@@ -81,6 +81,10 @@ param password string {
   secure: true
 }
 
+@secure()
+param passwordWithDecorator string
+//@[6:27) Parameter passwordWithDecorator. Type: string. Declaration start char: 0, length: 44
+
 // non-secure string
 param nonSecure string {
 //@[6:15) Parameter nonSecure. Type: string. Declaration start char: 0, length: 42
@@ -93,6 +97,10 @@ param secretObject object {
   secure: true
 }
 
+@secure()
+param secureObjectWithDecorator object
+//@[6:31) Parameter secureObjectWithDecorator. Type: object. Declaration start char: 0, length: 48
+
 // enum parameter
 param storageSku string {
 //@[6:16) Parameter storageSku. Type: 'Standard_GRS' | 'Standard_LRS'. Declaration start char: 0, length: 82
@@ -102,12 +110,24 @@ param storageSku string {
   ]
 }
 
+@  allowed([
+'Standard_LRS'
+'Standard_GRS'
+])
+param storageSkuWithDecorator string
+//@[6:29) Parameter storageSkuWithDecorator. Type: string. Declaration start char: 0, length: 82
+
 // length constraint on a string
 param storageName string {
 //@[6:17) Parameter storageName. Type: string. Declaration start char: 0, length: 59
   minLength: 3
   maxLength: 24
 }
+
+@minLength(3)
+@maxLength(24)
+param storageNameWithDecorator string
+//@[6:30) Parameter storageNameWithDecorator. Type: string. Declaration start char: 0, length: 66
 
 // length constraint on an array
 param someArray array {
@@ -116,12 +136,21 @@ param someArray array {
   maxLength: 24
 }
 
+@minLength(3)
+@maxLength(24)
+param someArrayWithDecorator array
+//@[6:28) Parameter someArrayWithDecorator. Type: array. Declaration start char: 0, length: 63
+
 // empty metadata
 param emptyMetadata string {
 //@[6:19) Parameter emptyMetadata. Type: string. Declaration start char: 0, length: 48
   metadata: {
   }
 }
+
+@metadata({})
+param emptyMetadataWithDecorator string
+//@[6:32) Parameter emptyMetadataWithDecorator. Type: string. Declaration start char: 0, length: 53
 
 // description
 param description string {
@@ -130,6 +159,16 @@ param description string {
     description: 'my description'
   }
 }
+
+@metadata({
+  description: 'my description'
+})
+param descriptionWithDecorator string
+//@[6:30) Parameter descriptionWithDecorator. Type: string. Declaration start char: 0, length: 84
+
+@sys.description('my description')
+param descriptionWithDecorator2 string
+//@[6:31) Parameter descriptionWithDecorator2. Type: string. Declaration start char: 0, length: 73
 
 // random extra metadata
 param additionalMetadata string {
@@ -145,6 +184,19 @@ param additionalMetadata string {
     }
   }
 }
+
+@metadata({
+	description: 'my description'
+	a: 1
+	b: true
+	c: [
+	]
+	d: {
+	  test: 'abc'
+	}
+})
+param additionalMetadataWithDecorator string
+//@[6:37) Parameter additionalMetadataWithDecorator. Type: string. Declaration start char: 0, length: 138
 
 // all modifiers together
 param someParameter string {
@@ -162,6 +214,20 @@ param someParameter string {
     description: 'Name of the storage account'
   }
 }
+
+@secure()
+@minLength(3)
+@maxLength(24)
+@allowed([
+  'one'
+  'two'
+  'three'
+])
+@metadata({
+  description: 'Name of the storage account'
+})
+param someParameterWithDecorator string = 'one'
+//@[6:32) Parameter someParameterWithDecorator. Type: string. Declaration start char: 0, length: 186
 
 param defaultValueExpression int {
 //@[6:28) Parameter defaultValueExpression. Type: int. Declaration start char: 0, length: 66

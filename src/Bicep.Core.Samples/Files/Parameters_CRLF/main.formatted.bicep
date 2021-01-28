@@ -58,6 +58,9 @@ param password string {
   secure: true
 }
 
+@secure()
+param passwordWithDecorator string
+
 // non-secure string
 param nonSecure string {
   secure: false
@@ -68,6 +71,9 @@ param secretObject object {
   secure: true
 }
 
+@secure()
+param secretObjectWithDecorator object
+
 // enum parameter
 param storageSku string {
   allowed: [
@@ -76,11 +82,21 @@ param storageSku string {
   ]
 }
 
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
+param storageSkuWithDecorator string
+
 // length constraint on a string
 param storageName string {
   minLength: 3
   maxLength: 24
 }
+
+@minLength(3)
+@maxLength(24)
+param storageNameWithDecorator string
 
 // length constraint on an array
 param someArray array {
@@ -88,10 +104,17 @@ param someArray array {
   maxLength: 24
 }
 
+@minLength(3)
+@maxLength(24)
+param someArrayWithDecorator array
+
 // empty metadata
 param emptyMetadata string {
   metadata: {}
 }
+
+@metadata({})
+param emptyMetadataWithDecorator string
 
 // description
 param description string {
@@ -99,6 +122,14 @@ param description string {
     description: 'my description'
   }
 }
+
+@metadata({
+  description: 'my description'
+})
+param descriptionWithDecorator string
+
+@sys.description('my description')
+param descriptionWithDecorator2 string
 
 // random extra metadata
 param additionalMetadata string {
@@ -112,6 +143,17 @@ param additionalMetadata string {
     }
   }
 }
+
+@metadata({
+  description: 'my description'
+  a: 1
+  b: true
+  c: []
+  d: {
+    test: 'abc'
+  }
+})
+param additionalMetadataWithDecorator string
 
 // all modifiers together
 param someParameter string {
@@ -128,6 +170,19 @@ param someParameter string {
     description: 'Name of the storage account'
   }
 }
+
+@secure()
+@minLength(3)
+@maxLength(24)
+@allowed([
+  'one'
+  'two'
+  'three'
+])
+@metadata({
+  description: 'Name of the storage account'
+})
+param someParameterWithDecorator string
 
 param defaultValueExpression int {
   default: true ? 4 + 2 * 3 : 0
@@ -150,6 +205,19 @@ param stringLiteralWithAllowedValuesSuperset string {
   ]
   default: stringLiteral
 }
+
+@allowed([
+  'abc'
+  'def'
+])
+param stringLiteralWithDecorator string
+
+@allowed([
+  'abc'
+  'def'
+  'ghi'
+])
+param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteralWithDecorator
 
 @secure()
 @minLength(2)

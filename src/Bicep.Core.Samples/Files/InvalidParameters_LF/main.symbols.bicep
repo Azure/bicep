@@ -131,6 +131,11 @@ param someArray arra {
   maxLength: 24
 }
 
+@minLength(3)
+@maxLength(24)
+param someArrayWithDecorator arra
+//@[6:28) Parameter someArrayWithDecorator. Type: error. Declaration start char: 0, length: 62
+
 // duplicate modifier property
 param duplicatedModifierProperty string {
 //@[6:32) Parameter duplicatedModifierProperty. Type: string. Declaration start char: 0, length: 74
@@ -145,6 +150,12 @@ param secureInt int {
   minLength: 3
   maxLength: 123
 }
+
+@secure()
+@minLength(3)
+@maxLength(123)
+param secureIntWithDecorator int
+//@[6:28) Parameter secureIntWithDecorator. Type: int. Declaration start char: 0, length: 72
 
 // wrong modifier value types
 param wrongIntModifier int {
@@ -161,6 +172,18 @@ param wrongIntModifier int {
   metadata: 'wrong'
 }
 
+@allowed([
+  'test'
+  true
+])
+@minValue({
+})
+@maxValue([
+])
+@metadata('wrong')
+param wrongIntModifierWithDecorator int = true
+//@[6:35) Parameter wrongIntModifierWithDecorator. Type: int. Declaration start char: 0, length: 125
+
 // wrong metadata schema
 param wrongMetadataSchema string {
 //@[6:25) Parameter wrongMetadataSchema. Type: string. Declaration start char: 0, length: 76
@@ -168,6 +191,12 @@ param wrongMetadataSchema string {
     description: true
   }
 }
+
+@metadata({
+  description: true
+})
+param wrongMetadataSchemaWithDecorator string
+//@[6:38) Parameter wrongMetadataSchemaWithDecorator. Type: string. Declaration start char: 0, length: 80
 
 // expression in modifier
 param expressionInModifier string {
@@ -181,6 +210,14 @@ param expressionInModifier string {
   ]
 }
 
+@maxLength(a + 2)
+@minLength(foo())
+@allowed([
+  i
+])
+param expressionInModifierWithDecorator string = 2 + 3
+//@[6:39) Parameter expressionInModifierWithDecorator. Type: string. Declaration start char: 0, length: 108
+
 param nonCompileTimeConstant string {
 //@[6:28) Parameter nonCompileTimeConstant. Type: string. Declaration start char: 0, length: 122
   maxLength: 2 + 3
@@ -190,15 +227,32 @@ param nonCompileTimeConstant string {
   ]
 }
 
+@maxLength(2 + 3)
+@minLength(length([]))
+@allowed([
+  resourceGroup().id
+])
+param nonCompileTimeConstantWithDecorator string
+//@[6:41) Parameter nonCompileTimeConstantWithDecorator. Type: string. Declaration start char: 0, length: 124
+
+
 param emptyAllowedString string {
 //@[6:24) Parameter emptyAllowedString. Type: error. Declaration start char: 0, length: 49
   allowed: []
 }
 
+@allowed([])
+param emptyAllowedStringWithDecorator string
+//@[6:37) Parameter emptyAllowedStringWithDecorator. Type: string. Declaration start char: 0, length: 57
+
 param emptyAllowedInt int {
 //@[6:21) Parameter emptyAllowedInt. Type: error. Declaration start char: 0, length: 43
   allowed: []
 }
+
+@allowed([])
+param emptyAllowedIntWithDecorator int
+//@[6:34) Parameter emptyAllowedIntWithDecorator. Type: int. Declaration start char: 0, length: 51
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -223,6 +277,12 @@ param paramModifierSelfCycle string {
     paramModifierSelfCycle
   ]
 }
+
+@allowed([
+  paramModifierSelfCycleWithDecorator
+])
+param paramModifierSelfCycleWithDecorator string
+//@[6:41) Parameter paramModifierSelfCycleWithDecorator. Type: string. Declaration start char: 0, length: 100
 
 // 2-cycle in modifier params
 param paramModifierTwoCycle1 string {
@@ -354,6 +414,16 @@ param commaOne string {
     default: 'abc'
 }
 
+@metadata({
+  description: 'Name of Virtual Machine'
+})
+@allowed([
+  'abc',
+  'def'
+])
+param commaOneWithDecorator string
+//@[6:27) Parameter commaOneWithDecorator. Type: string. Declaration start char: 0, length: 121
+
 // invalid comma separator (object)
 param commaTwo string {
 //@[6:14) Parameter commaTwo. Type: 'abc' | 'def'. Declaration start char: 0, length: 174
@@ -393,6 +463,15 @@ param someString string {
 @secure()
 param someInteger int = 20
 //@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 76
+
+@allowed([], [], 2)
+param tooManyArguments1 int = 20
+//@[6:23) Parameter tooManyArguments1. Type: int. Declaration start char: 0, length: 52
+
+@metadata({}, {}, true)
+param tooManyArguments2 string
+//@[6:23) Parameter tooManyArguments2. Type: string. Declaration start char: 0, length: 54
+
 
 // unterminated multi-line comment
 /*    

@@ -463,11 +463,21 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(
+                 {
+                     // The type checker should already verified that there's only one array argument.
+                     var allowedValuesArray = (ArraySyntax)SingleArgumentSelector(decoratorSyntax);
+
+                     TypeValidator.NarrowTypeAndCollectDiagnostics(
                         typeManager,
-                        decoratorSyntax.Arguments.Single().Expression,
+                        allowedValuesArray,
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default),
-                        diagnosticWriter))
+                        diagnosticWriter);
+
+                     if (!allowedValuesArray.Items.Any())
+                     {
+                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(allowedValuesArray).AllowedMustContainItems());
+                     }
+                 })
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 
@@ -507,6 +517,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithValidator((_, decoratorSyntax, targetType, typeManager, diagnosticWriter) =>
+                 {
+                     // The type checker should already verified that there's only one object argument.
+                     var metadataObject = (ObjectSyntax)SingleArgumentSelector(decoratorSyntax);
+                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, metadataObject, LanguageConstants.ParameterModifierMetadata, diagnosticWriter);
+                 })
                 .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
                 .Build();
 

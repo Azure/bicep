@@ -90,6 +90,10 @@ param someArray arra {
   maxLength: 24
 }
 
+@minLength(3)
+@maxLength(24)
+param someArrayWithDecorator arra
+
 // duplicate modifier property
 param duplicatedModifierProperty string {
   minLength: 3
@@ -103,6 +107,11 @@ param secureInt int {
   maxLength: 123
 }
 
+@secure()
+@minLength(3)
+@maxLength(123)
+param secureIntWithDecorator int
+
 // wrong modifier value types
 param wrongIntModifier int {
   default: true
@@ -115,12 +124,26 @@ param wrongIntModifier int {
   metadata: 'wrong'
 }
 
+@allowed([
+  'test'
+  true
+])
+@minValue({})
+@maxValue([])
+@metadata('wrong')
+param wrongIntModifierWithDecorator int = true
+
 // wrong metadata schema
 param wrongMetadataSchema string {
   metadata: {
     description: true
   }
 }
+
+@metadata({
+  description: true
+})
+param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
@@ -133,6 +156,13 @@ param expressionInModifier string {
   ]
 }
 
+@maxLength(a + 2)
+@minLength(foo())
+@allowed([
+  i
+])
+param expressionInModifierWithDecorator string = 2 + 3
+
 param nonCompileTimeConstant string {
   maxLength: 2 + 3
   minLength: length([])
@@ -141,13 +171,26 @@ param nonCompileTimeConstant string {
   ]
 }
 
+@maxLength(2 + 3)
+@minLength(length([]))
+@allowed([
+  resourceGroup().id
+])
+param nonCompileTimeConstantWithDecorator string
+
 param emptyAllowedString string {
   allowed: []
 }
 
+@allowed([])
+param emptyAllowedStringWithDecorator string
+
 param emptyAllowedInt int {
   allowed: []
 }
+
+@allowed([])
+param emptyAllowedIntWithDecorator int
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -167,6 +210,11 @@ param paramModifierSelfCycle string {
     paramModifierSelfCycle
   ]
 }
+
+@allowed([
+  paramModifierSelfCycleWithDecorator
+])
+param paramModifierSelfCycleWithDecorator string
 
 // 2-cycle in modifier params
 param paramModifierTwoCycle1 string {
@@ -274,6 +322,15 @@ param commaOne string {
     default: 'abc'
 }
 
+@metadata({
+  description: 'Name of Virtual Machine'
+})
+@allowed([
+  'abc',
+  'def'
+])
+param commaOneWithDecorator string
+
 // invalid comma separator (object)
 param commaTwo string {
     metadata: {
@@ -309,6 +366,12 @@ param someString string {
 ])
 @secure()
 param someInteger int = 20
+
+@allowed([], [], 2)
+param tooManyArguments1 int = 20
+
+@metadata({}, {}, true)
+param tooManyArguments2 string
 
 // unterminated multi-line comment
 /*    

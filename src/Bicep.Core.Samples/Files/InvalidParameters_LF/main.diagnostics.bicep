@@ -168,6 +168,11 @@ param someArray arra {
   maxLength: 24
 }
 
+@minLength(3)
+@maxLength(24)
+param someArrayWithDecorator arra
+//@[29:33) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". |arra|
+
 // duplicate modifier property
 param duplicatedModifierProperty string {
   minLength: 3
@@ -185,6 +190,14 @@ param secureInt int {
   maxLength: 123
 //@[2:11) [BCP038 (Error)] The property "maxLength" is not allowed on objects of type "ParameterModifier<int>". Permissible properties include "allowed", "default", "maxValue", "metadata", "minValue". |maxLength|
 }
+
+@secure()
+//@[0:9) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". |@secure()|
+@minLength(3)
+//@[0:13) [BCP124 (Error)] The decorator "minLength" can only be attached to targets of type "array | string", but the target has type "int". |@minLength(3)|
+@maxLength(123)
+//@[0:15) [BCP124 (Error)] The decorator "maxLength" can only be attached to targets of type "array | string", but the target has type "int". |@maxLength(123)|
+param secureIntWithDecorator int
 
 // wrong modifier value types
 param wrongIntModifier int {
@@ -206,6 +219,23 @@ param wrongIntModifier int {
 //@[12:19) [BCP036 (Error)] The property "metadata" expected a value of type "ParameterModifierMetadata" but the provided value is of type "'wrong'". |'wrong'|
 }
 
+@allowed([
+  'test'
+//@[2:8) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'test'". |'test'|
+  true
+//@[2:6) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "bool". |true|
+])
+@minValue({
+//@[10:13) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "int". |{\n}|
+})
+@maxValue([
+//@[10:13) [BCP070 (Error)] Argument of type "array" is not assignable to parameter of type "int". |[\n]|
+])
+@metadata('wrong')
+//@[10:17) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". |'wrong'|
+param wrongIntModifierWithDecorator int = true
+//@[42:46) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "bool". |true|
+
 // wrong metadata schema
 param wrongMetadataSchema string {
   metadata: {
@@ -213,6 +243,12 @@ param wrongMetadataSchema string {
 //@[17:21) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". |true|
   }
 }
+
+@metadata({
+  description: true
+//@[15:19) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". |true|
+})
+param wrongMetadataSchemaWithDecorator string
 
 // expression in modifier
 param expressionInModifier string {
@@ -228,6 +264,17 @@ param expressionInModifier string {
   ]
 }
 
+@maxLength(a + 2)
+//@[11:12) [BCP057 (Error)] The name "a" does not exist in the current context. |a|
+@minLength(foo())
+//@[11:14) [BCP057 (Error)] The name "foo" does not exist in the current context. |foo|
+@allowed([
+  i
+//@[2:3) [BCP057 (Error)] The name "i" does not exist in the current context. |i|
+])
+param expressionInModifierWithDecorator string = 2 + 3
+//@[49:54) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". |2 + 3|
+
 param nonCompileTimeConstant string {
   maxLength: 2 + 3
 //@[13:18) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
@@ -239,15 +286,34 @@ param nonCompileTimeConstant string {
   ]
 }
 
+@maxLength(2 + 3)
+//@[11:16) [BCP032 (Error)] The value must be a compile-time constant. |2 + 3|
+@minLength(length([]))
+//@[11:21) [BCP032 (Error)] The value must be a compile-time constant. |length([])|
+@allowed([
+  resourceGroup().id
+//@[2:20) [BCP032 (Error)] The value must be a compile-time constant. |resourceGroup().id|
+])
+param nonCompileTimeConstantWithDecorator string
+
+
 param emptyAllowedString string {
   allowed: []
 //@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
 }
 
+@allowed([])
+//@[9:11) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
+param emptyAllowedStringWithDecorator string
+
 param emptyAllowedInt int {
   allowed: []
 //@[11:13) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
 }
+
+@allowed([])
+//@[9:11) [BCP099 (Error)] The "allowed" array must contain one or more items. |[]|
+param emptyAllowedIntWithDecorator int
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -272,6 +338,12 @@ param paramModifierSelfCycle string {
 //@[4:26) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycle|
   ]
 }
+
+@allowed([
+  paramModifierSelfCycleWithDecorator
+//@[2:37) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |paramModifierSelfCycleWithDecorator|
+])
+param paramModifierSelfCycleWithDecorator string
 
 // 2-cycle in modifier params
 param paramModifierTwoCycle1 string {
@@ -398,6 +470,16 @@ param commaOne string {
     default: 'abc'
 }
 
+@metadata({
+  description: 'Name of Virtual Machine'
+})
+@allowed([
+  'abc',
+//@[7:8) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. |,|
+  'def'
+])
+param commaOneWithDecorator string
+
 // invalid comma separator (object)
 param commaTwo string {
     metadata: {
@@ -442,6 +524,15 @@ param someString string {
 @secure()
 //@[0:9) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". |@secure()|
 param someInteger int = 20
+
+@allowed([], [], 2)
+//@[8:19) [BCP071 (Error)] Expected 1 argument, but got 3. |([], [], 2)|
+param tooManyArguments1 int = 20
+
+@metadata({}, {}, true)
+//@[9:23) [BCP071 (Error)] Expected 1 argument, but got 3. |({}, {}, true)|
+param tooManyArguments2 string
+
 
 // unterminated multi-line comment
 /*    

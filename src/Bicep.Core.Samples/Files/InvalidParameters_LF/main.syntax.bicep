@@ -603,6 +603,39 @@ param someArray arra {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@minLength(3)
+//@[0:62) ParameterDeclarationSyntax
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     NumericLiteralSyntax
+//@[11:12)      Number |3|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@maxLength(24)
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:13)    FunctionArgumentSyntax
+//@[11:13)     NumericLiteralSyntax
+//@[11:13)      Number |24|
+//@[13:14)    RightParen |)|
+//@[14:15)  NewLine |\n|
+param someArrayWithDecorator arra
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |someArrayWithDecorator|
+//@[29:33)  TypeSyntax
+//@[29:33)   Identifier |arra|
+//@[33:35) NewLine |\n\n|
+
 // duplicate modifier property
 //@[30:31) NewLine |\n|
 param duplicatedModifierProperty string {
@@ -674,6 +707,48 @@ param secureInt int {
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@secure()
+//@[0:72) ParameterDeclarationSyntax
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:10)  NewLine |\n|
+@minLength(3)
+//@[0:13)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:13)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:12)    FunctionArgumentSyntax
+//@[11:12)     NumericLiteralSyntax
+//@[11:12)      Number |3|
+//@[12:13)    RightParen |)|
+//@[13:14)  NewLine |\n|
+@maxLength(123)
+//@[0:15)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:15)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:14)    FunctionArgumentSyntax
+//@[11:14)     NumericLiteralSyntax
+//@[11:14)      Number |123|
+//@[14:15)    RightParen |)|
+//@[15:16)  NewLine |\n|
+param secureIntWithDecorator int
+//@[0:5)  Identifier |param|
+//@[6:28)  IdentifierSyntax
+//@[6:28)   Identifier |secureIntWithDecorator|
+//@[29:32)  TypeSyntax
+//@[29:32)   Identifier |int|
+//@[32:34) NewLine |\n\n|
 
 // wrong modifier value types
 //@[29:30) NewLine |\n|
@@ -750,6 +825,86 @@ param wrongIntModifier int {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@allowed([
+//@[0:125) ParameterDeclarationSyntax
+//@[0:29)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:29)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:28)    FunctionArgumentSyntax
+//@[9:28)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+  'test'
+//@[2:8)      ArrayItemSyntax
+//@[2:8)       StringSyntax
+//@[2:8)        StringComplete |'test'|
+//@[8:9)      NewLine |\n|
+  true
+//@[2:6)      ArrayItemSyntax
+//@[2:6)       BooleanLiteralSyntax
+//@[2:6)        TrueKeyword |true|
+//@[6:7)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+@minValue({
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:13)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+@maxValue([
+//@[0:14)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:14)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |maxValue|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:13)     ArraySyntax
+//@[10:11)      LeftSquare |[|
+//@[11:12)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+@metadata('wrong')
+//@[0:18)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:18)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:17)    FunctionArgumentSyntax
+//@[10:17)     StringSyntax
+//@[10:17)      StringComplete |'wrong'|
+//@[17:18)    RightParen |)|
+//@[18:19)  NewLine |\n|
+param wrongIntModifierWithDecorator int = true
+//@[0:5)  Identifier |param|
+//@[6:35)  IdentifierSyntax
+//@[6:35)   Identifier |wrongIntModifierWithDecorator|
+//@[36:39)  TypeSyntax
+//@[36:39)   Identifier |int|
+//@[40:46)  ParameterDefaultValueSyntax
+//@[40:41)   Assignment |=|
+//@[42:46)   BooleanLiteralSyntax
+//@[42:46)    TrueKeyword |true|
+//@[46:48) NewLine |\n\n|
+
 // wrong metadata schema
 //@[24:25) NewLine |\n|
 param wrongMetadataSchema string {
@@ -784,6 +939,38 @@ param wrongMetadataSchema string {
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@metadata({
+//@[0:80) ParameterDeclarationSyntax
+//@[0:34)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:34)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:33)    FunctionArgumentSyntax
+//@[10:33)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  description: true
+//@[2:19)      ObjectPropertySyntax
+//@[2:13)       IdentifierSyntax
+//@[2:13)        Identifier |description|
+//@[13:14)       Colon |:|
+//@[15:19)       BooleanLiteralSyntax
+//@[15:19)        TrueKeyword |true|
+//@[19:20)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param wrongMetadataSchemaWithDecorator string
+//@[0:5)  Identifier |param|
+//@[6:38)  IdentifierSyntax
+//@[6:38)   Identifier |wrongMetadataSchemaWithDecorator|
+//@[39:45)  TypeSyntax
+//@[39:45)   Identifier |string|
+//@[45:47) NewLine |\n\n|
 
 // expression in modifier
 //@[25:26) NewLine |\n|
@@ -856,6 +1043,76 @@ param expressionInModifier string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@maxLength(a + 2)
+//@[0:108) ParameterDeclarationSyntax
+//@[0:17)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:17)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:16)    FunctionArgumentSyntax
+//@[11:16)     BinaryOperationSyntax
+//@[11:12)      VariableAccessSyntax
+//@[11:12)       IdentifierSyntax
+//@[11:12)        Identifier |a|
+//@[13:14)      Plus |+|
+//@[15:16)      NumericLiteralSyntax
+//@[15:16)       Number |2|
+//@[16:17)    RightParen |)|
+//@[17:18)  NewLine |\n|
+@minLength(foo())
+//@[0:17)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:17)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:16)    FunctionArgumentSyntax
+//@[11:16)     FunctionCallSyntax
+//@[11:14)      IdentifierSyntax
+//@[11:14)       Identifier |foo|
+//@[14:15)      LeftParen |(|
+//@[15:16)      RightParen |)|
+//@[16:17)    RightParen |)|
+//@[17:18)  NewLine |\n|
+@allowed([
+//@[0:17)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:17)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:16)    FunctionArgumentSyntax
+//@[9:16)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+  i
+//@[2:3)      ArrayItemSyntax
+//@[2:3)       VariableAccessSyntax
+//@[2:3)        IdentifierSyntax
+//@[2:3)         Identifier |i|
+//@[3:4)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param expressionInModifierWithDecorator string = 2 + 3
+//@[0:5)  Identifier |param|
+//@[6:39)  IdentifierSyntax
+//@[6:39)   Identifier |expressionInModifierWithDecorator|
+//@[40:46)  TypeSyntax
+//@[40:46)   Identifier |string|
+//@[47:54)  ParameterDefaultValueSyntax
+//@[47:48)   Assignment |=|
+//@[49:54)   BinaryOperationSyntax
+//@[49:50)    NumericLiteralSyntax
+//@[49:50)     Number |2|
+//@[51:52)    Plus |+|
+//@[53:54)    NumericLiteralSyntax
+//@[53:54)     Number |3|
+//@[54:56) NewLine |\n\n|
+
 param nonCompileTimeConstant string {
 //@[0:122) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -920,6 +1177,78 @@ param nonCompileTimeConstant string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@maxLength(2 + 3)
+//@[0:124) ParameterDeclarationSyntax
+//@[0:17)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:17)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |maxLength|
+//@[10:11)    LeftParen |(|
+//@[11:16)    FunctionArgumentSyntax
+//@[11:16)     BinaryOperationSyntax
+//@[11:12)      NumericLiteralSyntax
+//@[11:12)       Number |2|
+//@[13:14)      Plus |+|
+//@[15:16)      NumericLiteralSyntax
+//@[15:16)       Number |3|
+//@[16:17)    RightParen |)|
+//@[17:18)  NewLine |\n|
+@minLength(length([]))
+//@[0:22)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:22)   FunctionCallSyntax
+//@[1:10)    IdentifierSyntax
+//@[1:10)     Identifier |minLength|
+//@[10:11)    LeftParen |(|
+//@[11:21)    FunctionArgumentSyntax
+//@[11:21)     FunctionCallSyntax
+//@[11:17)      IdentifierSyntax
+//@[11:17)       Identifier |length|
+//@[17:18)      LeftParen |(|
+//@[18:20)      FunctionArgumentSyntax
+//@[18:20)       ArraySyntax
+//@[18:19)        LeftSquare |[|
+//@[19:20)        RightSquare |]|
+//@[20:21)      RightParen |)|
+//@[21:22)    RightParen |)|
+//@[22:23)  NewLine |\n|
+@allowed([
+//@[0:34)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:34)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:33)    FunctionArgumentSyntax
+//@[9:33)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+  resourceGroup().id
+//@[2:20)      ArrayItemSyntax
+//@[2:20)       PropertyAccessSyntax
+//@[2:17)        FunctionCallSyntax
+//@[2:15)         IdentifierSyntax
+//@[2:15)          Identifier |resourceGroup|
+//@[15:16)         LeftParen |(|
+//@[16:17)         RightParen |)|
+//@[17:18)        Dot |.|
+//@[18:20)        IdentifierSyntax
+//@[18:20)         Identifier |id|
+//@[20:21)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param nonCompileTimeConstantWithDecorator string
+//@[0:5)  Identifier |param|
+//@[6:41)  IdentifierSyntax
+//@[6:41)   Identifier |nonCompileTimeConstantWithDecorator|
+//@[42:48)  TypeSyntax
+//@[42:48)   Identifier |string|
+//@[48:51) NewLine |\n\n\n|
+
+
 param emptyAllowedString string {
 //@[0:49) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -943,6 +1272,28 @@ param emptyAllowedString string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@allowed([])
+//@[0:57) ParameterDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:11)    FunctionArgumentSyntax
+//@[9:11)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      RightSquare |]|
+//@[11:12)    RightParen |)|
+//@[12:13)  NewLine |\n|
+param emptyAllowedStringWithDecorator string
+//@[0:5)  Identifier |param|
+//@[6:37)  IdentifierSyntax
+//@[6:37)   Identifier |emptyAllowedStringWithDecorator|
+//@[38:44)  TypeSyntax
+//@[38:44)   Identifier |string|
+//@[44:46) NewLine |\n\n|
+
 param emptyAllowedInt int {
 //@[0:43) ParameterDeclarationSyntax
 //@[0:5)  Identifier |param|
@@ -965,6 +1316,28 @@ param emptyAllowedInt int {
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@allowed([])
+//@[0:51) ParameterDeclarationSyntax
+//@[0:12)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:12)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:11)    FunctionArgumentSyntax
+//@[9:11)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      RightSquare |]|
+//@[11:12)    RightParen |)|
+//@[12:13)  NewLine |\n|
+param emptyAllowedIntWithDecorator int
+//@[0:5)  Identifier |param|
+//@[6:34)  IdentifierSyntax
+//@[6:34)   Identifier |emptyAllowedIntWithDecorator|
+//@[35:38)  TypeSyntax
+//@[35:38)   Identifier |int|
+//@[38:40) NewLine |\n\n|
 
 // 1-cycle in params
 //@[20:21) NewLine |\n|
@@ -1068,6 +1441,36 @@ param paramModifierSelfCycle string {
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
+
+@allowed([
+//@[0:100) ParameterDeclarationSyntax
+//@[0:51)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:51)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:50)    FunctionArgumentSyntax
+//@[9:50)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+  paramModifierSelfCycleWithDecorator
+//@[2:37)      ArrayItemSyntax
+//@[2:37)       VariableAccessSyntax
+//@[2:37)        IdentifierSyntax
+//@[2:37)         Identifier |paramModifierSelfCycleWithDecorator|
+//@[37:38)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param paramModifierSelfCycleWithDecorator string
+//@[0:5)  Identifier |param|
+//@[6:41)  IdentifierSyntax
+//@[6:41)   Identifier |paramModifierSelfCycleWithDecorator|
+//@[42:48)  TypeSyntax
+//@[42:48)   Identifier |string|
+//@[48:50) NewLine |\n\n|
 
 // 2-cycle in modifier params
 //@[29:30) NewLine |\n|
@@ -1665,6 +2068,65 @@ param commaOne string {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@metadata({
+//@[0:121) ParameterDeclarationSyntax
+//@[0:55)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:55)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:54)    FunctionArgumentSyntax
+//@[10:54)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+  description: 'Name of Virtual Machine'
+//@[2:40)      ObjectPropertySyntax
+//@[2:13)       IdentifierSyntax
+//@[2:13)        Identifier |description|
+//@[13:14)       Colon |:|
+//@[15:40)       StringSyntax
+//@[15:40)        StringComplete |'Name of Virtual Machine'|
+//@[40:41)      NewLine |\n|
+})
+//@[0:1)      RightBrace |}|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+@allowed([
+//@[0:30)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:30)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:29)    FunctionArgumentSyntax
+//@[9:29)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      NewLine |\n|
+  'abc',
+//@[2:7)      ArrayItemSyntax
+//@[2:7)       StringSyntax
+//@[2:7)        StringComplete |'abc'|
+//@[7:8)      SkippedTriviaSyntax
+//@[7:8)       Comma |,|
+//@[8:9)      NewLine |\n|
+  'def'
+//@[2:7)      ArrayItemSyntax
+//@[2:7)       StringSyntax
+//@[2:7)        StringComplete |'def'|
+//@[7:8)      NewLine |\n|
+])
+//@[0:1)      RightSquare |]|
+//@[1:2)    RightParen |)|
+//@[2:3)  NewLine |\n|
+param commaOneWithDecorator string
+//@[0:5)  Identifier |param|
+//@[6:27)  IdentifierSyntax
+//@[6:27)   Identifier |commaOneWithDecorator|
+//@[28:34)  TypeSyntax
+//@[28:34)   Identifier |string|
+//@[34:36) NewLine |\n\n|
+
 // invalid comma separator (object)
 //@[35:36) NewLine |\n|
 param commaTwo string {
@@ -1902,6 +2364,73 @@ param someInteger int = 20
 //@[24:26)   NumericLiteralSyntax
 //@[24:26)    Number |20|
 //@[26:28) NewLine |\n\n|
+
+@allowed([], [], 2)
+//@[0:52) ParameterDeclarationSyntax
+//@[0:19)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:19)   FunctionCallSyntax
+//@[1:8)    IdentifierSyntax
+//@[1:8)     Identifier |allowed|
+//@[8:9)    LeftParen |(|
+//@[9:12)    FunctionArgumentSyntax
+//@[9:11)     ArraySyntax
+//@[9:10)      LeftSquare |[|
+//@[10:11)      RightSquare |]|
+//@[11:12)     Comma |,|
+//@[13:16)    FunctionArgumentSyntax
+//@[13:15)     ArraySyntax
+//@[13:14)      LeftSquare |[|
+//@[14:15)      RightSquare |]|
+//@[15:16)     Comma |,|
+//@[17:18)    FunctionArgumentSyntax
+//@[17:18)     NumericLiteralSyntax
+//@[17:18)      Number |2|
+//@[18:19)    RightParen |)|
+//@[19:20)  NewLine |\n|
+param tooManyArguments1 int = 20
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |tooManyArguments1|
+//@[24:27)  TypeSyntax
+//@[24:27)   Identifier |int|
+//@[28:32)  ParameterDefaultValueSyntax
+//@[28:29)   Assignment |=|
+//@[30:32)   NumericLiteralSyntax
+//@[30:32)    Number |20|
+//@[32:34) NewLine |\n\n|
+
+@metadata({}, {}, true)
+//@[0:54) ParameterDeclarationSyntax
+//@[0:23)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:23)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |metadata|
+//@[9:10)    LeftParen |(|
+//@[10:13)    FunctionArgumentSyntax
+//@[10:12)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      RightBrace |}|
+//@[12:13)     Comma |,|
+//@[14:17)    FunctionArgumentSyntax
+//@[14:16)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:16)      RightBrace |}|
+//@[16:17)     Comma |,|
+//@[18:22)    FunctionArgumentSyntax
+//@[18:22)     BooleanLiteralSyntax
+//@[18:22)      TrueKeyword |true|
+//@[22:23)    RightParen |)|
+//@[23:24)  NewLine |\n|
+param tooManyArguments2 string
+//@[0:5)  Identifier |param|
+//@[6:23)  IdentifierSyntax
+//@[6:23)   Identifier |tooManyArguments2|
+//@[24:30)  TypeSyntax
+//@[24:30)   Identifier |string|
+//@[30:33) NewLine |\n\n\n|
+
 
 // unterminated multi-line comment
 //@[34:35) NewLine |\n|
