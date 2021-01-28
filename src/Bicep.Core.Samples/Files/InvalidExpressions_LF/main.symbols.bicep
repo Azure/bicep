@@ -369,7 +369,6 @@ var partialObject = {
 xxxxx
 
 
-// BCP132 should be on the line below the decorator
 @minLength()
 
 

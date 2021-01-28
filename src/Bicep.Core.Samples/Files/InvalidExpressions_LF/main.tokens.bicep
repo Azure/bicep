@@ -1578,8 +1578,6 @@ xxxxx
 //@[5:8) NewLine |\n\n\n|
 
 
-// BCP132 should be on the line below the decorator
-//@[51:52) NewLine |\n|
 @minLength()
 //@[0:1) At |@|
 //@[1:10) Identifier |minLength|
