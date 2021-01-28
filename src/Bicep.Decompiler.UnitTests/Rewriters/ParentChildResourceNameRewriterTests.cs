@@ -28,7 +28,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -64,7 +64,7 @@ resource resB 'My.Rp/resA/childB@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -109,7 +109,7 @@ resource resC 'My.Rp/resA/childB/childC@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -154,7 +154,7 @@ resource resB 'My.Rp/resB/childB@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
