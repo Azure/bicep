@@ -52,11 +52,21 @@ namespace Bicep.Core.Parsing
                     }
                 }
 
-                if (declarationOrToken is MissingDeclarationSyntax)
+                if (this.IsAtEnd() &&
+                    declarationOrToken is MissingDeclarationSyntax missingDeclaration &&
+                    !missingDeclaration.HasParseErrors())
                 {
-                    // Declartion() must return SkippedTriviaSyntax since MissingDeclarationSyntax
-                    // only consumes dangling decorators.
-                    declarationsOrTokens.Add(Declaration());
+                    // If there are dangling decorators and we hit EOF, ask users to add a declration.
+                    // Set the span of the diagnostic so that it's on the line below the last decorator.
+                    var lastNewLine = missingDeclaration.LeadingNodes.Last(node => node is Token { Type: TokenType.NewLine });
+                    var diagnosticSpan = new TextSpan(lastNewLine.Span.Position + 2, 0);
+
+                    var skippedTriviaSyntax = new SkippedTriviaSyntax(
+                        reader.Peek().Span,
+                        Enumerable.Empty<SyntaxBase>(),
+                        DiagnosticBuilder.ForPosition(diagnosticSpan).ExpectDeclarationAfterDecorator().AsEnumerable());
+
+                    declarationsOrTokens.Add(skippedTriviaSyntax);
                 }
             }
 
@@ -72,24 +82,19 @@ namespace Bicep.Core.Parsing
                     List<SyntaxBase> leadingNodes = new();
 
                     // Parse decorators before the declaration.
-                    if (this.Check(TokenType.At))
+                    while (this.Check(TokenType.At))
                     {
-                        while (true)
-                        {
-                            if (this.Check(TokenType.At))
-                            {
-                                leadingNodes.Add(this.Decorator());
-                                continue;
-                            }
+                        leadingNodes.Add(this.Decorator());
 
-                            if (this.Check(TokenType.NewLine))
-                            {
-                                leadingNodes.Add(this.NewLine());
-                                continue;
-                            }
+                        // A decorators must followed by a newline.
+                        leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
+                    }
 
-                            break;
-                        }
+                    if (leadingNodes.Count > 0 && this.Check(TokenType.NewLine))
+                    {
+                        // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                        // all the newlines after them.
+                        leadingNodes.Add(this.NewLine());
                     }
 
                     Token current = reader.Peek();

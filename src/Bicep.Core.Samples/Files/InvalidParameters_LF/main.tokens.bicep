@@ -1148,6 +1148,11 @@ param commaTwo string {
 @
 //@[0:1) At |@|
 //@[1:2) NewLine |\n|
+@&& xxx
+//@[0:1) At |@|
+//@[1:3) LogicalAnd |&&|
+//@[4:7) Identifier |xxx|
+//@[7:8) NewLine |\n|
 param incompleteDecorators string
 //@[0:5) Identifier |param|
 //@[6:26) Identifier |incompleteDecorators|

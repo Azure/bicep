@@ -461,5 +461,16 @@ var partialObject = {
 xxxxx
 //@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
 
+
+// BCP132 should be on the line below the decorator
 @minLength()
-//@[12:12) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. ||
+
+
+//@[0:0) [BCP132 (Error)] Expected a declaration after the decorator. ||
+
+
+
+
+
+
+

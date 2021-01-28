@@ -370,8 +370,9 @@ param commaTwo string {
 
 @secure
 @
+@&& xxx
 param incompleteDecorators string
-//@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 43
+//@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 51
 
 @concat(1, 2)
 @sys.concat('a', 'b')
@@ -379,7 +380,7 @@ param incompleteDecorators string
 // wrong target type
 @minValue(20)
 param someString string {
-//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 176
+//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 109
 	// using decorators and modifier at the same time
     secure: true
 }

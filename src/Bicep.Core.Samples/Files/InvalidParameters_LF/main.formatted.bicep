@@ -289,6 +289,7 @@ param commaTwo string {
 
 @secure
 @
+@&& xxx
 param incompleteDecorators string
 
 @concat(1, 2)

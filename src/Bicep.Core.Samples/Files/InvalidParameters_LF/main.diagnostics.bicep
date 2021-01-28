@@ -416,12 +416,12 @@ param commaTwo string {
 //@[1:7) [BCP063 (Error)] The name "secure" is not a parameter, variable, resource or module. |secure|
 @
 //@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+@&& xxx
+//@[1:3) [BCP123 (Error)] Expected a namespace or decorator name at this location. |&&|
 param incompleteDecorators string
 
 @concat(1, 2)
-//@[1:7) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @sys.concat('a', 'b')
-//@[5:11) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @secure()
 // wrong target type
 @minValue(20)

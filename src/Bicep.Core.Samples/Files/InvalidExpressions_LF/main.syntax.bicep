@@ -2524,10 +2524,13 @@ var partialObject = {
 xxxxx
 //@[0:5) SkippedTriviaSyntax
 //@[0:5)  Identifier |xxxxx|
-//@[5:7) NewLine |\n\n|
+//@[5:8) NewLine |\n\n\n|
 
+
+// BCP132 should be on the line below the decorator
+//@[51:52) NewLine |\n|
 @minLength()
-//@[0:12) MissingDeclarationSyntax
+//@[0:21) MissingDeclarationSyntax
 //@[0:12)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:12)   FunctionCallSyntax
@@ -2535,5 +2538,15 @@ xxxxx
 //@[1:10)     Identifier |minLength|
 //@[10:11)    LeftParen |(|
 //@[11:12)    RightParen |)|
-//@[12:12) SkippedTriviaSyntax
-//@[12:12) EndOfFile ||
+//@[12:21)  NewLine |\n\n\n\n\n\n\n\n\n|
+
+
+
+
+
+
+
+
+
+//@[0:0) SkippedTriviaSyntax
+//@[0:0) EndOfFile ||

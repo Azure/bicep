@@ -1740,7 +1740,7 @@ param commaTwo string {
 //@[1:3) NewLine |\n\n|
 
 @secure
-//@[0:43) ParameterDeclarationSyntax
+//@[0:51) ParameterDeclarationSyntax
 //@[0:7)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:7)   VariableAccessSyntax
@@ -1752,6 +1752,13 @@ param commaTwo string {
 //@[0:1)   At |@|
 //@[1:1)   SkippedTriviaSyntax
 //@[1:2)  NewLine |\n|
+@&& xxx
+//@[0:7)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:7)   SkippedTriviaSyntax
+//@[1:3)    LogicalAnd |&&|
+//@[4:7)    Identifier |xxx|
+//@[7:8)  NewLine |\n|
 param incompleteDecorators string
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
@@ -1761,7 +1768,7 @@ param incompleteDecorators string
 //@[33:35) NewLine |\n\n|
 
 @concat(1, 2)
-//@[0:176) ParameterDeclarationSyntax
+//@[0:67) MissingDeclarationSyntax
 //@[0:13)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:13)   FunctionCallSyntax
@@ -1809,6 +1816,7 @@ param incompleteDecorators string
 // wrong target type
 //@[20:21)  NewLine |\n|
 @minValue(20)
+//@[0:109) ParameterDeclarationSyntax
 //@[0:13)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:13)   FunctionCallSyntax
