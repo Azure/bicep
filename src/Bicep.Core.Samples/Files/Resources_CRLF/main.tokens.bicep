@@ -963,14 +963,14 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[7:18) Identifier |myInterpKey|
 //@[18:20) StringRightPiece |}'|
 //@[20:21) Colon |:|
-//@[22:23) Number |1|
+//@[22:23) Integer |1|
 //@[23:25) NewLine |\r\n|
     'abc${myInterpKey}def': 2
 //@[4:10) StringLeftPiece |'abc${|
 //@[10:21) Identifier |myInterpKey|
 //@[21:26) StringRightPiece |}def'|
 //@[26:27) Colon |:|
-//@[28:29) Number |2|
+//@[28:29) Integer |2|
 //@[29:31) NewLine |\r\n|
     '${myInterpKey}abc${myInterpKey}': 3
 //@[4:7) StringLeftPiece |'${|
@@ -979,7 +979,7 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[24:35) Identifier |myInterpKey|
 //@[35:37) StringRightPiece |}'|
 //@[37:38) Colon |:|
-//@[39:40) Number |3|
+//@[39:40) Integer |3|
 //@[40:42) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|

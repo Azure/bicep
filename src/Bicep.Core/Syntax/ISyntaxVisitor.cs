@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
-        void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax);
+        void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax);
 
         void VisitObjectPropertySyntax(ObjectPropertySyntax syntax);
 

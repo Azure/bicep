@@ -270,7 +270,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.String;
             });
 
-        public override void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax)
+        public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
             => AssignType(syntax, () => LanguageConstants.Int);
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)

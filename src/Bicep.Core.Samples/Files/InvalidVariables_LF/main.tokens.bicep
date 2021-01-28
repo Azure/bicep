@@ -50,20 +50,20 @@ var missingValue =
 //@[23:24) NewLine |\n|
 var 2 
 //@[0:3) Identifier |var|
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[6:7) NewLine |\n|
 var $ = 23
 //@[0:3) Identifier |var|
 //@[4:5) Unrecognized |$|
 //@[6:7) Assignment |=|
-//@[8:10) Number |23|
+//@[8:10) Integer |23|
 //@[10:11) NewLine |\n|
 var # 33 = 43
 //@[0:3) Identifier |var|
 //@[4:5) Unrecognized |#|
-//@[6:8) Number |33|
+//@[6:8) Integer |33|
 //@[9:10) Assignment |=|
-//@[11:13) Number |43|
+//@[11:13) Integer |43|
 //@[13:15) NewLine |\n\n|
 
 // no value assigned
@@ -79,12 +79,12 @@ var foo =
 var badEquals 2
 //@[0:3) Identifier |var|
 //@[4:13) Identifier |badEquals|
-//@[14:15) Number |2|
+//@[14:15) Integer |2|
 //@[15:16) NewLine |\n|
 var badEquals2 3 true
 //@[0:3) Identifier |var|
 //@[4:14) Identifier |badEquals2|
-//@[15:16) Number |3|
+//@[15:16) Integer |3|
 //@[17:21) TrueKeyword |true|
 //@[21:23) NewLine |\n\n|
 
@@ -92,7 +92,7 @@ var badEquals2 3 true
 //@[63:64) NewLine |\n|
 var 2 = x
 //@[0:3) Identifier |var|
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[6:7) Assignment |=|
 //@[8:9) Identifier |x|
 //@[9:11) NewLine |\n\n|
@@ -135,10 +135,10 @@ var x = 2 + !3
 //@[0:3) Identifier |var|
 //@[4:5) Identifier |x|
 //@[6:7) Assignment |=|
-//@[8:9) Number |2|
+//@[8:9) Integer |2|
 //@[10:11) Plus |+|
 //@[12:13) Exclamation |!|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
 var y = false ? true + 1 : !4
 //@[0:3) Identifier |var|
@@ -148,10 +148,10 @@ var y = false ? true + 1 : !4
 //@[14:15) Question |?|
 //@[16:20) TrueKeyword |true|
 //@[21:22) Plus |+|
-//@[23:24) Number |1|
+//@[23:24) Integer |1|
 //@[25:26) Colon |:|
 //@[27:28) Exclamation |!|
-//@[28:29) Number |4|
+//@[28:29) Integer |4|
 //@[29:31) NewLine |\n\n|
 
 // test for array item recovery
@@ -163,9 +163,9 @@ var x = [
 //@[8:9) LeftSquare |[|
 //@[9:10) NewLine |\n|
   3 + 4
-//@[2:3) Number |3|
+//@[2:3) Integer |3|
 //@[4:5) Plus |+|
-//@[6:7) Number |4|
+//@[6:7) Integer |4|
 //@[7:8) NewLine |\n|
   =
 //@[2:3) Assignment |=|
@@ -193,7 +193,7 @@ var y = {
 //@[2:5) Identifier |foo|
 //@[5:6) Colon |:|
 //@[7:8) Exclamation |!|
-//@[8:9) Number |2|
+//@[8:9) Integer |2|
 //@[9:10) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -287,9 +287,9 @@ var mySum = az.add(1,2)
 //@[14:15) Dot |.|
 //@[15:18) Identifier |add|
 //@[18:19) LeftParen |(|
-//@[19:20) Number |1|
+//@[19:20) Integer |1|
 //@[20:21) Comma |,|
-//@[21:22) Number |2|
+//@[21:22) Integer |2|
 //@[22:23) RightParen |)|
 //@[23:24) NewLine |\n|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
@@ -384,7 +384,7 @@ var az = 1
 //@[0:3) Identifier |var|
 //@[4:6) Identifier |az|
 //@[7:8) Assignment |=|
-//@[9:10) Number |1|
+//@[9:10) Integer |1|
 //@[10:12) NewLine |\n\n|
 
 // cannot assign a variable to a namespace
@@ -415,7 +415,7 @@ var objectLiteralType = {
   third: 42
 //@[2:7) Identifier |third|
 //@[7:8) Colon |:|
-//@[9:11) Number |42|
+//@[9:11) Integer |42|
 //@[11:12) NewLine |\n|
   fourth: 'test'
 //@[2:8) Identifier |fourth|
@@ -463,7 +463,7 @@ var objectLiteralType = {
       two: 44
 //@[6:9) Identifier |two|
 //@[9:10) Colon |:|
-//@[11:13) Number |44|
+//@[11:13) Integer |44|
 //@[13:14) NewLine |\n|
     }
 //@[4:5) RightBrace |}|
@@ -507,7 +507,7 @@ var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
 //@[49:50) Dot |.|
 //@[50:55) Identifier |fifth|
 //@[55:56) LeftSquare |[|
-//@[56:57) Number |0|
+//@[56:57) Integer |0|
 //@[57:58) RightSquare |]|
 //@[58:59) Dot |.|
 //@[59:60) Identifier |o|
@@ -522,7 +522,7 @@ var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
 //@[50:51) Dot |.|
 //@[51:56) Identifier |fifth|
 //@[56:57) LeftSquare |[|
-//@[57:58) Number |0|
+//@[57:58) Integer |0|
 //@[58:59) RightSquare |]|
 //@[59:60) Dot |.|
 //@[60:62) NewLine |\n\n|
@@ -537,7 +537,7 @@ var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 //@[47:48) Dot |.|
 //@[48:53) Identifier |sixth|
 //@[53:54) LeftSquare |[|
-//@[54:55) Number |0|
+//@[54:55) Integer |0|
 //@[55:56) RightSquare |]|
 //@[56:57) Dot |.|
 //@[57:58) Identifier |t|
@@ -552,7 +552,7 @@ var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
 //@[48:49) Dot |.|
 //@[49:54) Identifier |sixth|
 //@[54:55) LeftSquare |[|
-//@[55:56) Number |0|
+//@[55:56) Integer |0|
 //@[56:57) RightSquare |]|
 //@[57:58) Dot |.|
 //@[58:60) NewLine |\n\n|
@@ -579,10 +579,19 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[48:49) Dot |.|
 //@[49:54) Identifier |sixth|
 //@[54:55) LeftSquare |[|
-//@[55:56) Number |0|
+//@[55:56) Integer |0|
 //@[56:57) RightSquare |]|
 //@[57:58) LeftSquare |[|
 //@[58:59) RightSquare |]|
-//@[59:60) NewLine |\n|
+//@[59:61) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+// Issue 486
+//@[12:13) NewLine |\n|
+var myFloat = 3.14
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |myFloat|
+//@[12:13) Assignment |=|
+//@[14:15) Integer |3|
+//@[15:16) Dot |.|
+//@[16:18) Integer |14|
+//@[18:18) EndOfFile ||

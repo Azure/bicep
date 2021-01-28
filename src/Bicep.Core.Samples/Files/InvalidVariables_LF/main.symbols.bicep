@@ -187,3 +187,6 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[4:28) Variable oneArrayIndexCompletions. Type: error. Declaration start char: 0, length: 59
 
+// Issue 486
+var myFloat = 3.14
+//@[4:11) Variable myFloat. Type: error. Declaration start char: 0, length: 16

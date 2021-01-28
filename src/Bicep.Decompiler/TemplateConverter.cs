@@ -172,7 +172,7 @@ namespace Bicep.Decompiler
             => expression.Value.Type switch
             {
                 JTokenType.String => SyntaxHelpers.CreateStringLiteral(expression.Value.Value<string>()!),
-                JTokenType.Integer => new NumericLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.Number, expression.Value.ToString()), expression.Value.Value<int>()),
+                JTokenType.Integer => new IntegerLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.Integer, expression.Value.ToString()), expression.Value.Value<long>()),
                 JTokenType.Boolean =>  expression.Value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.TrueKeyword, "true"), true) :
                     new BooleanLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.FalseKeyword, "false"), false),
@@ -478,15 +478,9 @@ namespace Bicep.Decompiler
 
         private static SyntaxBase ParseIntegerJToken(JValue value)
         {
-            // JTokenType.Integer can encapsulate non-C#-int numbers.
-            // Best we can do in this case is to convert them to strings.
             var longValue = value.Value<long>();
-            if (longValue < int.MinValue || longValue > int.MaxValue)
-            {
-                return SyntaxHelpers.CreateStringLiteral(value.ToString());
-            }
 
-            return new NumericLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.Number, value.ToString()), (int)longValue);
+            return new IntegerLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.Integer, value.ToString()), longValue);
         }
 
         private SyntaxBase ParseJValue(JValue value)

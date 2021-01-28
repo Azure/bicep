@@ -703,6 +703,20 @@
     }
   },
   {
+    "label": "myFloat",
+    "kind": "variable",
+    "detail": "myFloat",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myFloat",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myFloat"
+    }
+  },
+  {
     "label": "mySum",
     "kind": "variable",
     "detail": "mySum",

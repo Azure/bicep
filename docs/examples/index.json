@@ -454,5 +454,9 @@
     {
         "filePath": "301/servicebus-namespace-vnet/main.bicep",
         "description": "301/servicebus-namespace-vnet"
+    },
+    {
+        "filePath": "301/web-app-managed-identity-sql-db/main.bicep",
+        "description": "301/web-app-managed-identity-sql-db"
     }
 ]

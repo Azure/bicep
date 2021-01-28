@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Utils
             return new StringSyntax(new [] { token }, Enumerable.Empty<SyntaxBase>(), new [] { segment });
         }
 
-        public static NumericLiteralSyntax CreateInt(int value) => new NumericLiteralSyntax(CreateToken(TokenType.Number), value);
+        public static IntegerLiteralSyntax CreateInt(long value) => new (CreateToken(TokenType.Integer), value);
 
         public static BooleanLiteralSyntax CreateBool(bool value) => new BooleanLiteralSyntax(value ? CreateToken(TokenType.TrueKeyword) : CreateToken(TokenType.FalseKeyword), value);
 
