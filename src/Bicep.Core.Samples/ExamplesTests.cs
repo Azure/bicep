@@ -103,7 +103,8 @@ namespace Bicep.Core.Samples
                 "Resource type \"microsoft.web/serverFarms@2018-11-01\" does not have types available.",
                 "Resource type \"Microsoft.Web/sites/config@2018-11-01\" does not have types available.",
                 "Resource type \"Microsoft.Web/sites/config@2020-06-01\" does not have types available.",
-                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available."
+                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available.",
+                "Resource type \"Microsoft.Authorization/policyDefinitions@2020-09-01\" does not have types available."
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
