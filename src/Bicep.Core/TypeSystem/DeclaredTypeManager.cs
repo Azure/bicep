@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -65,8 +64,11 @@ namespace Bicep.Core.TypeSystem
                 case VariableAccessSyntax variableAccess:
                     return GetVariableAccessType(variableAccess);
 
-                case TargetScopeSyntax targetScopeSyntax:
-                    return new DeclaredTypeAssignment(targetScopeSyntax.GetDeclaredType(), targetScopeSyntax, DeclaredTypeFlags.Constant);
+                case TargetScopeSyntax targetScope:
+                    return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
+
+                case IfConditionSyntax ifCondition:
+                    return GetIfConditionType(ifCondition);
 
                 case PropertyAccessSyntax propertyAccess:
                     return GetPropertyAccessType(propertyAccess);
@@ -133,11 +135,11 @@ namespace Bicep.Core.TypeSystem
             {
                 case ResourceSymbol resourceSymbol when IsCycleFree(resourceSymbol):
                     // the declared type of the body is more useful to us than the declared type of the resource itself
-                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Body);
+                    return this.GetDeclaredTypeAssignment(resourceSymbol.DeclaringResource.Value);
 
                 case ModuleSymbol moduleSymbol when IsCycleFree(moduleSymbol):
                     // the declared type of the body is more useful to us than the declared type of the module itself
-                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.Body);
+                    return this.GetDeclaredTypeAssignment(moduleSymbol.DeclaringModule.Value);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
@@ -250,13 +252,41 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
+        private static DeclaredTypeAssignment? TryCreateAssignment(ITypeReference? typeRef, SyntaxBase syntax, DeclaredTypeFlags flags = DeclaredTypeFlags.None) => typeRef == null
+            ? null
+            : new DeclaredTypeAssignment(typeRef, syntax, flags);
+
+        private DeclaredTypeAssignment? GetIfConditionType(IfConditionSyntax syntax)
+        {
+            var parent = this.binder.GetParent(syntax);
+            if (parent == null)
+            {
+                return null;
+            }
+
+            var parentTypeAssignment = GetDeclaredTypeAssignment(parent);
+            if (parentTypeAssignment == null)
+            {
+                return null;
+            }
+
+            var parentType = parentTypeAssignment.Reference.Type;
+
+            switch (parent)
+            {
+                case ResourceDeclarationSyntax _ when parentType is ResourceType resourceType && syntax.Body is ObjectSyntax resourceBody:
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, resourceBody), syntax);
+
+                case ModuleDeclarationSyntax _ when parentType is ModuleType moduleType && syntax.Body is ObjectSyntax moduleBody:
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, moduleBody), syntax);
+
+                default:
+                    return null;
+            }
+        }
+
         private DeclaredTypeAssignment? GetObjectType(ObjectSyntax syntax)
         {
-            // local function
-            DeclaredTypeAssignment? CreateAssignment(ITypeReference? typeRef, DeclaredTypeFlags flags = DeclaredTypeFlags.None) => typeRef == null
-                ? null
-                : new DeclaredTypeAssignment(typeRef, syntax, flags);
-
             var parent = this.binder.GetParent(syntax);
 
             if (parent == null)
@@ -277,29 +307,34 @@ namespace Bicep.Core.TypeSystem
                 case ResourceDeclarationSyntax _ when parentType is ResourceType resourceType:
                     // the object literal's parent is a resource declaration, which makes this the body of the resource
                     // the declared type will be the same as the parent
-                    return CreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, syntax));
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(resourceType.Body.Type, syntax), syntax);
 
                 case ModuleDeclarationSyntax _ when parentType is ModuleType moduleType:
                     // the object literal's parent is a module declaration, which makes this the body of the module
                     // the declared type will be the same as the parent
-                    return CreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, syntax));
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, syntax), syntax);
+
+                case IfConditionSyntax _:
+                    // the if-condition already resolved the discriminated object, so we can reuse the type
+                    // but swap out the syntax for our object syntax
+                    return TryCreateAssignment(parentType, syntax);
 
                 case ParameterDeclarationSyntax parameterDeclaration when ReferenceEquals(parameterDeclaration.Modifier, syntax):
                     // the object is a modifier of a parameter type
                     // the declared type should be the appropriate modifier type
                     // however we need the parameter's assigned type to determine the modifier type
                     var parameterAssignedType = parameterDeclaration.GetAssignedType(this.typeManager);
-                    return CreateAssignment(LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType));
+                    return TryCreateAssignment(LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType), syntax);
 
                 case ObjectPropertySyntax _:
                     // the object is the value of a property of another object
                     // use the declared type of the property and propagate the flags
-                    return CreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), parentTypeAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), syntax, parentTypeAssignment.Flags);
 
                 case ArrayItemSyntax _:
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return CreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), parentTypeAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parentType, syntax), syntax, parentTypeAssignment.Flags);
             }
 
             return null;

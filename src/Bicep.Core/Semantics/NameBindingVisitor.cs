@@ -59,10 +59,8 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
-            allowedFlags = FunctionFlags.Default;
-            this.Visit(syntax.IfCondition);
             allowedFlags = FunctionFlags.RequiresInlining;
-            this.Visit(syntax.Body);
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
 
@@ -74,8 +72,16 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
-            this.Visit(syntax.IfCondition);
+        }
+
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            allowedFlags = FunctionFlags.Default;
+            this.Visit(syntax.ConditionExpression);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Body);
             allowedFlags = FunctionFlags.Default;

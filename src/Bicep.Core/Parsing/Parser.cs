@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Bicep.Core.Diagnostics;
@@ -144,6 +145,22 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        private static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode, bool predicate)
+        {
+            var initial = GetSuppressionFlag(precedingNode);
+            if (initial == RecoveryFlags.SuppressDiagnostics)
+            {
+                // we already made a decision to suppress diagnostics
+                // the predicate is irrelevant
+                return RecoveryFlags.SuppressDiagnostics;
+            }
+
+            Debug.Assert(initial == RecoveryFlags.None, "initial == RecoveryFlags.None");
+            
+            // predicate must hold to preserve diagnostics
+            return predicate ? RecoveryFlags.None : RecoveryFlags.SuppressDiagnostics;
+        }
+
         private SyntaxBase TargetScope(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.TargetScopeKeyword);
@@ -281,28 +298,21 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
-            var ifCondition = this.WithRecoveryNullable(() =>
+
+            var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
                     return current.Type switch
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
-                        TokenType.LeftBrace => null,
+                        TokenType.LeftBrace => this.Object(),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
                     };
                 },
                 GetSuppressionFlag(assignment),
-                TokenType.LeftBrace,
                 TokenType.NewLine);
 
-            RecoveryFlags suppressionFlag =
-                ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.HasParseErrors()
-                ? RecoveryFlags.SuppressDiagnostics
-                : GetSuppressionFlag(ifCondition ?? assignment);
-
-            var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
-
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, assignment, ifCondition, body);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
 
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
@@ -317,27 +327,20 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment, TokenType.NewLine);
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
-            var ifCondition = this.WithRecoveryNullable(() =>
+            var value = this.WithRecovery(() =>
                 {
                     var current = reader.Peek();
                     return current.Type switch
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
-                        TokenType.LeftBrace => null,
+                        TokenType.LeftBrace => this.Object(),
                         _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
                     };
                 },
                 GetSuppressionFlag(assignment),
-                TokenType.LeftBrace,
                 TokenType.NewLine);
 
-            RecoveryFlags suppressionFlag = ifCondition is IfConditionSyntax ifConditionSyntax && ifConditionSyntax.HasParseErrors()
-                ? RecoveryFlags.SuppressDiagnostics
-                : GetSuppressionFlag(ifCondition ?? assignment);
-
-            var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
-
-            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, ifCondition, body);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
 
         private Token? NewLineOrEof()
@@ -1011,8 +1014,11 @@ namespace Bicep.Core.Parsing
         {
             var keyword = this.ExpectKeyword(LanguageConstants.IfKeyword);
             var conditionExpression = this.WithRecovery(() => this.ParenthesizedExpression(true), RecoveryFlags.None, TokenType.LeftBrace, TokenType.NewLine);
-
-            return new IfConditionSyntax(keyword, conditionExpression);
+            var body = this.WithRecovery(
+                this.Object,
+                GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax {CloseParen: not SkippedTriviaSyntax}),
+                TokenType.NewLine);
+            return new IfConditionSyntax(keyword, conditionExpression, body);
         }
 
         private SyntaxBase WithRecovery<TSyntax>(Func<TSyntax> syntaxFunc, RecoveryFlags flags, params TokenType[] terminatingTypes)

@@ -264,8 +264,10 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
-            if (resourceSymbol.DeclaringResource.IfCondition is IfConditionSyntax ifCondition)
+            var body = resourceSymbol.DeclaringResource.Value;
+            if (body is IfConditionSyntax ifCondition)
             {
+                body = ifCondition.Body;
                 this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
             }
 
@@ -275,7 +277,7 @@ namespace Bicep.Core.Emit
             {
                 this.emitter.EmitProperty("scope", () => this.emitter.EmitUnqualifiedResourceId(scopeResource));
             }
-            this.emitter.EmitObjectProperties((ObjectSyntax)resourceSymbol.DeclaringResource.Body, ResourcePropertiesToOmit);
+            this.emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
@@ -320,8 +322,10 @@ namespace Bicep.Core.Emit
         {
             writer.WriteStartObject();
 
-            if (moduleSymbol.DeclaringModule.IfCondition is IfConditionSyntax ifCondition)
+            var body = moduleSymbol.DeclaringModule.Value;
+            if (body is IfConditionSyntax ifCondition)
             {
+                body = ifCondition.Body;
                 this.emitter.EmitProperty("condition", ifCondition.ConditionExpression);
             }
 
@@ -330,7 +334,7 @@ namespace Bicep.Core.Emit
 
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
-            this.emitter.EmitObjectProperties((ObjectSyntax)moduleSymbol.DeclaringModule.Body, ModulePropertiesToOmit);
+            this.emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
 
             var scopeData = context.ModuleScopeData[moduleSymbol];

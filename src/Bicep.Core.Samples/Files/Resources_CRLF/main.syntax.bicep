@@ -1612,7 +1612,7 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[25:71)  StringSyntax
 //@[25:71)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
 //@[72:73)  Assignment |=|
-//@[74:93)  IfConditionSyntax
+//@[74:263)  IfConditionSyntax
 //@[74:76)   Identifier |if|
 //@[77:93)   ParenthesizedExpressionSyntax
 //@[77:78)    LeftParen |(|
@@ -1620,68 +1620,68 @@ resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (sh
 //@[78:92)     IdentifierSyntax
 //@[78:92)      Identifier |shouldDeployVm|
 //@[92:93)    RightParen |)|
-//@[94:263)  ObjectSyntax
-//@[94:95)   LeftBrace |{|
-//@[95:97)   NewLine |\r\n|
+//@[94:263)   ObjectSyntax
+//@[94:95)    LeftBrace |{|
+//@[95:97)    NewLine |\r\n|
   name: 'vmName'
-//@[2:16)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:16)    StringSyntax
-//@[8:16)     StringComplete |'vmName'|
-//@[16:18)   NewLine |\r\n|
+//@[2:16)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:16)     StringSyntax
+//@[8:16)      StringComplete |'vmName'|
+//@[16:18)    NewLine |\r\n|
   location: 'westus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'westus'|
-//@[20:22)   NewLine |\r\n|
+//@[2:20)    ObjectPropertySyntax
+//@[2:10)     IdentifierSyntax
+//@[2:10)      Identifier |location|
+//@[10:11)     Colon |:|
+//@[12:20)     StringSyntax
+//@[12:20)      StringComplete |'westus'|
+//@[20:22)    NewLine |\r\n|
   properties: {
-//@[2:123)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:123)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[2:123)    ObjectPropertySyntax
+//@[2:12)     IdentifierSyntax
+//@[2:12)      Identifier |properties|
+//@[12:13)     Colon |:|
+//@[14:123)     ObjectSyntax
+//@[14:15)      LeftBrace |{|
+//@[15:17)      NewLine |\r\n|
     osProfile: {
-//@[4:101)     ObjectPropertySyntax
-//@[4:13)      IdentifierSyntax
-//@[4:13)       Identifier |osProfile|
-//@[13:14)      Colon |:|
-//@[15:101)      ObjectSyntax
-//@[15:16)       LeftBrace |{|
-//@[16:18)       NewLine |\r\n|
+//@[4:101)      ObjectPropertySyntax
+//@[4:13)       IdentifierSyntax
+//@[4:13)        Identifier |osProfile|
+//@[13:14)       Colon |:|
+//@[15:101)       ObjectSyntax
+//@[15:16)        LeftBrace |{|
+//@[16:18)        NewLine |\r\n|
       windowsConfiguration: {
-//@[6:76)       ObjectPropertySyntax
-//@[6:26)        IdentifierSyntax
-//@[6:26)         Identifier |windowsConfiguration|
-//@[26:27)        Colon |:|
-//@[28:76)        ObjectSyntax
-//@[28:29)         LeftBrace |{|
-//@[29:31)         NewLine |\r\n|
+//@[6:76)        ObjectPropertySyntax
+//@[6:26)         IdentifierSyntax
+//@[6:26)          Identifier |windowsConfiguration|
+//@[26:27)         Colon |:|
+//@[28:76)         ObjectSyntax
+//@[28:29)          LeftBrace |{|
+//@[29:31)          NewLine |\r\n|
         enableAutomaticUpdates: true
-//@[8:36)         ObjectPropertySyntax
-//@[8:30)          IdentifierSyntax
-//@[8:30)           Identifier |enableAutomaticUpdates|
-//@[30:31)          Colon |:|
-//@[32:36)          BooleanLiteralSyntax
-//@[32:36)           TrueKeyword |true|
-//@[36:38)         NewLine |\r\n|
+//@[8:36)          ObjectPropertySyntax
+//@[8:30)           IdentifierSyntax
+//@[8:30)            Identifier |enableAutomaticUpdates|
+//@[30:31)           Colon |:|
+//@[32:36)           BooleanLiteralSyntax
+//@[32:36)            TrueKeyword |true|
+//@[36:38)          NewLine |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[6:7)          RightBrace |}|
+//@[7:9)        NewLine |\r\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[4:5)        RightBrace |}|
+//@[5:7)      NewLine |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[2:3)      RightBrace |}|
+//@[3:5)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
