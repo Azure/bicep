@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -33,7 +34,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
@@ -99,7 +100,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
 
             var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(grouping.EntryPoint, 0));
 
@@ -179,7 +180,7 @@ output o int = 42
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
             var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
             
@@ -218,7 +219,7 @@ output o int = 42
 
             var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
             var completions = provider.GetFilteredCompletions(
                 compilation,
                 BicepCompletionContext.Create(grouping.EntryPoint, offset)).ToList();
@@ -249,7 +250,7 @@ output o int = 42
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
             var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
 
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: true);
@@ -280,7 +281,7 @@ output length int =
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
 
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
             var context = BicepCompletionContext.Create(grouping.EntryPoint, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
@@ -322,7 +323,7 @@ output length int =
         {
             var grouping = SyntaxFactory.CreateFromText("output test ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -339,7 +340,7 @@ output length int =
         {
             var grouping = SyntaxFactory.CreateFromText("param foo ");
             var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-            var provider = new BicepCompletionProvider();
+            var provider = new BicepCompletionProvider(new FileResolver());
 
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
 
@@ -383,7 +384,7 @@ output length int =
         {
         var grouping = SyntaxFactory.CreateFromText(codeFragment);
         var compilation = new Compilation(TestResourceTypeProvider.Create(), grouping);
-        var provider = new BicepCompletionProvider();
+        var provider = new BicepCompletionProvider(new FileResolver());
 
         var offset = codeFragment.IndexOf('|');
 

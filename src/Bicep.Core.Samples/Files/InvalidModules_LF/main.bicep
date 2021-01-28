@@ -231,3 +231,38 @@ module moduleWithDuplicateName1 './empty.bicep' = {
 module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionB ''
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionC '' =
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionD '' = {}
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionE '' = {
+  name: 'hello'
+}
+
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+module cwdFileCompletionA '.'
+
+// #completionTest(26, 27) -> cwdMCompletions
+module cwdFileCompletionB m
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+module cwdFileCompletionC 'm'
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+module childCompletionB './ChildModules/'
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+module childCompletionC './ChildModules/m'
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+module childCompletionD 'ChildModules/e'
