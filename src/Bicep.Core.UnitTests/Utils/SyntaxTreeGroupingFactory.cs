@@ -9,7 +9,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Utils
 {
-    public static class SyntaxFactory
+    public static class SyntaxTreeGroupingFactory
     {
         public static SyntaxTreeGrouping CreateFromText(string text)
         {

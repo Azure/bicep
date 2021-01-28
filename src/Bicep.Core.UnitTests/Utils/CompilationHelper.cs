@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var (uriDictionary, entryUri) = CreateFileDictionary(files);
             
-            var syntaxTreeGrouping = SyntaxFactory.CreateForFiles(uriDictionary, entryUri);
+            var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(uriDictionary, entryUri);
 
             return Compile(new Compilation(resourceTypeProvider, syntaxTreeGrouping));
         }

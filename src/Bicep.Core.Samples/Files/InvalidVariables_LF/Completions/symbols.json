@@ -1007,6 +1007,20 @@
     }
   },
   {
+    "label": "something",
+    "kind": "variable",
+    "detail": "something",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_something",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "something"
+    }
+  },
+  {
     "label": "split",
     "kind": "function",
     "detail": "split()",

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -22,7 +23,14 @@ namespace Bicep.Core.Semantics
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
-                getNameSuggestions: () => namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys,
+                getNameSuggestions: () =>
+                {
+                    var knowFunctionNames = namespaceSymbol.Type.MethodResolver.GetKnownFunctions().Keys;
+
+                    return allowedFlags.HasDecoratorFlag()
+                        ? knowFunctionNames.Concat(namespaceSymbol.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        : knowFunctionNames;
+                },
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
                     null => builder.FunctionDoesNotExistInNamespace(namespaceSymbol, identifierSyntax.IdentifierName),
                     _ => builder.FunctionDoesNotExistInNamespaceWithSuggestion(namespaceSymbol, identifierSyntax.IdentifierName, suggestedName),
@@ -44,7 +52,14 @@ namespace Bicep.Core.Semantics
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
-                getNameSuggestions: () => namespaces.SelectMany(x => x.Type.MethodResolver.GetKnownFunctions().Keys),
+                getNameSuggestions: () => namespaces.SelectMany(x =>
+                {
+                    var knowFunctionNames = x.Type.MethodResolver.GetKnownFunctions().Keys;
+
+                    return allowedFlags.HasDecoratorFlag()
+                        ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
+                        : knowFunctionNames;
+                }),
                 getMissingNameError: (builder, suggestedName) => suggestedName switch {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
@@ -92,6 +107,31 @@ namespace Bicep.Core.Semantics
             if (functionFlags.HasFlag(FunctionFlags.RequiresInlining) && !allowedFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).FunctionOnlyValidInResourceBody(functionSymbol.Name));
+            }
+
+            if (!functionFlags.HasFlag(FunctionFlags.ParameterDecorator) && allowedFlags.HasFlag(FunctionFlags.ParameterDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsParameterDecorator(functionSymbol.Name));
+            }
+
+            if (!functionFlags.HasFlag(FunctionFlags.VariableDecorator) && allowedFlags.HasFlag(FunctionFlags.VariableDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsVariableDecorator(functionSymbol.Name));
+            }
+
+            if (!functionFlags.HasFlag(FunctionFlags.ResoureDecorator) && allowedFlags.HasFlag(FunctionFlags.ResoureDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsResourceDecorator(functionSymbol.Name));
+            }
+
+            if (!functionFlags.HasFlag(FunctionFlags.ModuleDecorator) && allowedFlags.HasFlag(FunctionFlags.ModuleDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsModuleDecorator(functionSymbol.Name));
+            }
+
+            if (!functionFlags.HasFlag(FunctionFlags.OutputDecorator) && allowedFlags.HasFlag(FunctionFlags.OutputDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsOuputDecorator(functionSymbol.Name));
             }
 
             return functionSymbol;

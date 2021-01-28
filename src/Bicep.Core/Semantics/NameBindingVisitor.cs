@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -52,6 +53,8 @@ namespace Bicep.Core.Semantics
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.ResoureDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
@@ -66,6 +69,8 @@ namespace Bicep.Core.Semantics
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.ModuleDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
@@ -79,28 +84,50 @@ namespace Bicep.Core.Semantics
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.VariableDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
-            base.VisitVariableDeclarationSyntax(syntax);
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.OutputDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+            this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
-            base.VisitOutputDeclarationSyntax(syntax);
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.ParameterDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
-            base.VisitParameterDeclarationSyntax(syntax);
+            this.Visit(syntax.Modifier);
             allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            base.VisitFunctionCallSyntax(syntax);
+            FunctionFlags currentFlags = allowedFlags;
+            this.Visit(syntax.Name);
+            this.Visit(syntax.OpenParen);
+            allowedFlags = allowedFlags.HasDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
+            this.VisitNodes(syntax.Arguments);
+            this.Visit(syntax.CloseParen);
+            allowedFlags = currentFlags;
 
             var symbol = this.LookupSymbolByName(syntax.Name, true);
 
@@ -110,7 +137,15 @@ namespace Bicep.Core.Semantics
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            FunctionFlags currentFlags = allowedFlags;
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Dot);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.OpenParen);
+            allowedFlags = allowedFlags.HasDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
+            this.VisitNodes(syntax.Arguments);
+            this.Visit(syntax.CloseParen);
+            allowedFlags = currentFlags;
 
             if (!syntax.Name.IsValid)
             {
@@ -123,7 +158,11 @@ namespace Bicep.Core.Semantics
 
             if (bindings.TryGetValue(syntax.BaseExpression, out var baseSymbol) && baseSymbol is NamespaceSymbol namespaceSymbol)
             {
-                var functionSymbol = namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
+                var functionSymbol = allowedFlags.HasDecoratorFlag()
+                    // Decorator functions are only valid when HasDecoratorFlag() is true which means
+                    // the instance function call is the top level expression of a DecoratorSyntax node.
+                    ? namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name) ?? namespaceSymbol.Type.DecoratorResolver.TryGetSymbol(syntax.Name)
+                    : namespaceSymbol.Type.MethodResolver.TryGetSymbol(syntax.Name);
 
                 var foundSymbol = SymbolValidator.ResolveNamespaceQualifiedFunction(allowedFlags, functionSymbol, syntax.Name, namespaceSymbol);
                 
@@ -152,7 +191,9 @@ namespace Bicep.Core.Semantics
 
             // attempt to find function in all imported namespaces
             var foundSymbols = this.namespaces
-                .Select(kvp => kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax))
+                .Select(kvp => allowedFlags.HasDecoratorFlag()
+                    ? kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax) ?? kvp.Value.Type.DecoratorResolver.TryGetSymbol(identifierSyntax)
+                    : kvp.Value.Type.MethodResolver.TryGetSymbol(identifierSyntax))
                 .Where(symbol => symbol != null)
                 .ToList();
 

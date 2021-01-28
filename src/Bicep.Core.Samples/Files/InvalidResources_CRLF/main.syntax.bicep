@@ -3904,4 +3904,54 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[62:64)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+@concat('foo', 'bar')
+//@[0:131) ResourceDeclarationSyntax
+//@[0:21)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:21)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |concat|
+//@[7:8)    LeftParen |(|
+//@[8:14)    FunctionArgumentSyntax
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:14)     Comma |,|
+//@[15:20)    FunctionArgumentSyntax
+//@[15:20)     StringSyntax
+//@[15:20)      StringComplete |'bar'|
+//@[20:21)    RightParen |)|
+//@[21:23)  NewLine |\r\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |invalidDecorator|
+//@[26:63)  StringSyntax
+//@[26:63)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[63:64)  Assignment |=|
+//@[65:97)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  name: 'invalidDecorator'
+//@[2:26)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:26)    StringSyntax
+//@[8:26)     StringComplete |'invalidDecorator'|
+//@[26:28)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

@@ -98,7 +98,8 @@ namespace Bicep.Core.Syntax
 
         protected virtual ParameterDeclarationSyntax ReplaceParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
-            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            var hasChanges = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Type, out var type);
             hasChanges |= RewriteNullable(syntax.Modifier, out var modifier);
@@ -108,7 +109,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ParameterDeclarationSyntax(keyword, name, type, modifier);
+            return new ParameterDeclarationSyntax(leadingNodes, keyword, name, type, modifier);
         }
         void ISyntaxVisitor.VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterDeclarationSyntax);
 
@@ -144,7 +145,8 @@ namespace Bicep.Core.Syntax
 
         protected virtual TargetScopeSyntax ReplaceTargetScopeSyntax(TargetScopeSyntax syntax)
         {
-            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            var hasChanges = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
             hasChanges |= Rewrite(syntax.Value, out var value);
 
@@ -153,13 +155,14 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new TargetScopeSyntax(keyword, assignment, value);
+            return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
         }
         void ISyntaxVisitor.VisitTargetScopeSyntax(TargetScopeSyntax syntax) => ReplaceCurrent(syntax, ReplaceTargetScopeSyntax);
 
         protected virtual ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            var hasChanges = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Type, out var type);
             hasChanges |= RewriteNullable(syntax.ExistingKeyword, out var existingKeyword);
@@ -172,13 +175,14 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ResourceDeclarationSyntax(keyword, name, type, existingKeyword, assignment, ifExpression, body);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, ifExpression, body);
         }
         void ISyntaxVisitor.VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceDeclarationSyntax);
 
         protected virtual ModuleDeclarationSyntax ReplaceModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            var hasChanges = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Path, out var path);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
@@ -190,13 +194,14 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ModuleDeclarationSyntax(keyword, name, path, assignment, ifExpression, body);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, ifExpression, body);
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
         protected virtual OutputDeclarationSyntax ReplaceOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
-            var hasChanges = Rewrite(syntax.Keyword, out var keyword);
+            var hasChanges = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Type, out var type);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
@@ -207,7 +212,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
+            return new OutputDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
         void ISyntaxVisitor.VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceOutputDeclarationSyntax);
 
@@ -548,5 +553,32 @@ namespace Bicep.Core.Syntax
             return new IfConditionSyntax(keyword, conditionExpression);
         }
         void ISyntaxVisitor.VisitIfConditionSyntax(IfConditionSyntax syntax) => ReplaceCurrent(syntax, ReplaceIfExpressionSyntax);
+
+        protected virtual DecoratorSyntax ReplaceDecoratorSyntax(DecoratorSyntax syntax)
+        {
+            var hasChanges = Rewrite(syntax.At, out var at);
+            hasChanges |= Rewrite(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new DecoratorSyntax(at, expression);
+        }
+        void ISyntaxVisitor.VisitDecoratorSyntax(DecoratorSyntax syntax) => ReplaceCurrent(syntax, ReplaceDecoratorSyntax);
+
+        protected virtual MissingDeclarationSyntax ReplaceMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
+        {
+            var hasChange = Rewrite(syntax.LeadingNodes, out var leadingNodes);
+
+            if (!hasChange)
+            {
+                return syntax;
+            }
+
+            return new MissingDeclarationSyntax(leadingNodes);
+        }
+        void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
     }
 }

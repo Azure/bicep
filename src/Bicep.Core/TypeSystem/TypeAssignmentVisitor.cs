@@ -125,6 +125,9 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = syntax.GetDeclaredType(resourceTypeProvider);
+
+                this.ValidateDecortors(syntax.Decorators, declaredType, diagnostics);
+
                 if (declaredType is ErrorType)
                 {
                     return declaredType;
@@ -158,6 +161,8 @@ namespace Bicep.Core.TypeSystem
 
                 var declaredType = syntax.GetDeclaredType(this.binder.TargetScope, moduleSemanticModel);
 
+                this.ValidateDecortors(syntax.Decorators, declaredType, diagnostics);
+
                 if (moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
@@ -173,9 +178,20 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
-                diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax));
-
                 var declaredType = syntax.GetDeclaredType();
+
+                this.ValidateDecortors(syntax.Decorators, declaredType, diagnostics);
+
+                if (syntax.Modifier != null)
+                {
+                    if (syntax.Decorators.Any() && syntax.Modifier is ObjectSyntax modifierSyntax)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(modifierSyntax.OpenBrace).CannotUseParameterDecoratorsAndModifiersTogether());
+                    }
+
+                    diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
+                }
+
                 if (declaredType is ErrorType)
                 {
                     return declaredType;
@@ -199,8 +215,50 @@ namespace Bicep.Core.TypeSystem
                 return assignedType;
             });
 
+        private void ValidateDecortors(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
+        {
+            foreach (var decoratorSyntax in decoratorSyntaxes)
+            {
+                var decoratorType = this.typeManager.GetTypeInfo(decoratorSyntax.Expression);
+
+                if (decoratorType is ErrorType)
+                {
+                    diagnostics.WriteMultiple(decoratorType.GetDiagnostics());
+                    continue;
+                }
+
+                foreach (var argumentSyntax in decoratorSyntax.Arguments)
+                {
+                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics);
+                }
+
+                if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol symbol)
+                {
+                    var argumentTypes = decoratorSyntax.Arguments
+                        .Select(argument =>
+                        {
+                            var argumentType = typeManager.GetTypeInfo(argument);
+
+                            return argumentType is ErrorType ? LanguageConstants.Any : argumentType;
+                        })
+                        .ToArray();
+                    
+                    // There should exist exact one matching decorator if there's no argument mismatches,
+                    // since each argument must be a compile-time constant which cannot be of Any type.
+                    Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces.Values
+                        .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(symbol, argumentTypes))
+                        .SingleOrDefault();
+
+                    if (decorator is not null)
+                    {
+                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
+                    }
+                }
+            }
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-            => AssignType(syntax, () => {
+            => AssignTypeWithDiagnostics(syntax, diagnostics => {
                 var errors = new List<ErrorDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -215,6 +273,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).VariableTypeAssignmentDisallowed(valueType));
                 }
+
+                this.ValidateDecortors(syntax.Decorators, valueType, diagnostics);
 
                 return valueType;
             });
@@ -231,6 +291,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
                 }
+
+                this.ValidateDecortors(syntax.Decorators, primitiveType, diagnostics);
 
                 var currentDiagnostics = GetOutputDeclarationDiagnostics(primitiveType, syntax);
 
@@ -687,6 +749,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => {
+                if (syntax.Decorators.Any())
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
+                }
+
                 var declaredType = syntax.GetDeclaredType();
                 if (declaredType is ErrorType)
                 {
@@ -949,7 +1016,7 @@ namespace Bicep.Core.TypeSystem
             return Enumerable.Empty<Diagnostic>();
         }
 
-        private IEnumerable<Diagnostic> ValidateIdentifierAccess(ParameterDeclarationSyntax syntax)
+        private IEnumerable<Diagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
             return SyntaxAggregator.Aggregate(syntax, new List<Diagnostic>(), (accumulated, current) =>
                 {

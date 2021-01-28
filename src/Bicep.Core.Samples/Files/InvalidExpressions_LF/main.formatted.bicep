@@ -234,3 +234,11 @@ var partialObject = {
   c :
   d  : %
 }
+
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+@concat()
+@sys.secure()
+xxxxx
+
+// BCP132 should be on the line below the decorator
+@minLength()

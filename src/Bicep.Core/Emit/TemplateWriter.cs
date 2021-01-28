@@ -137,35 +137,77 @@ namespace Bicep.Core.Emit
 
             writer.WriteStartObject();
 
-            switch (parameterSymbol.Modifier)
+            if (parameterSymbol.DeclaringParameter.Decorators.Any())
             {
-                case null:
-                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
+                var parameterType = SyntaxFactory.CreateStringLiteral(primitiveType.Name);
+                var parameterObject = SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", parameterType).AsEnumerable());
 
-                    break;
+                if (parameterSymbol.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
+                {
+                    parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
+                }
 
-                case ParameterDefaultValueSyntax defaultValueSyntax:
-                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
-                    this.emitter.EmitProperty("defaultValue", defaultValueSyntax.DefaultValue);
+                foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())
+                {
 
-                    break;
+                    var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                case ObjectSyntax modifierSyntax:
-                    // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
-                    var properties = modifierSyntax.ToKnownPropertyValueDictionary();
-
-                    this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
-
-                    // relying on validation here as well (not all of the properties are valid in all contexts)
-                    foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
+                    if (symbol is FunctionSymbol decoratorSymbol)
                     {
-                        this.emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
-                    }
+                        var argumentTypes = decoratorSyntax.Arguments
+                            .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                            .ToArray();
 
-                    this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue(LanguageConstants.ParameterDefaultPropertyName));
-                    this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
-                    
-                    break;
+                        // There should be exact one matching decorator since there's no errors.
+                        Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
+                            .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
+                            .Single();
+                        
+                        parameterObject = decorator.Evaluate(decoratorSyntax, primitiveType, parameterObject);
+                    }
+                }
+
+                foreach (var property in parameterObject.Properties)
+                {
+                    if (property.TryGetKeyText() is string propertyName)
+                    {
+                        this.emitter.EmitProperty(propertyName, property.Value);
+                    }
+                }
+            }
+            else
+            {
+                // TODO: remove this before the 0.3 release.
+                switch (parameterSymbol.Modifier)
+                {
+                    case null:
+                        this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
+
+                        break;
+
+                    case ParameterDefaultValueSyntax defaultValueSyntax:
+                        this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, secure: false));
+                        this.emitter.EmitProperty("defaultValue", defaultValueSyntax.DefaultValue);
+
+                        break;
+
+                    case ObjectSyntax modifierSyntax:
+                        // this would throw on duplicate properties in the object node - we are relying on emitter checking for errors at the beginning
+                        var properties = modifierSyntax.ToKnownPropertyValueDictionary();
+
+                        this.emitter.EmitProperty("type", GetTemplateTypeName(primitiveType, IsSecure(properties.TryGetValue("secure"))));
+
+                        // relying on validation here as well (not all of the properties are valid in all contexts)
+                        foreach (string modifierPropertyName in ParameterModifierPropertiesToEmitDirectly)
+                        {
+                            this.emitter.EmitOptionalPropertyExpression(modifierPropertyName, properties.TryGetValue(modifierPropertyName));
+                        }
+
+                        this.emitter.EmitOptionalPropertyExpression("defaultValue", properties.TryGetValue(LanguageConstants.ParameterDefaultPropertyName));
+                        this.emitter.EmitOptionalPropertyExpression("allowedValues", properties.TryGetValue(LanguageConstants.ParameterAllowedPropertyName));
+                        
+                        break;
+                }
             }
 
             writer.WriteEndObject();

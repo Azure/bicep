@@ -111,6 +111,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
 
             return new ResourceDeclarationSyntax(
+                syntax.LeadingNodes,
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Type,
@@ -129,6 +130,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
 
             return new ModuleDeclarationSyntax(
+                syntax.LeadingNodes,
                 syntax.Keyword,
                 syntax.Name,
                 syntax.Path,

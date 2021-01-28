@@ -340,6 +340,10 @@
         "description": "201/log-analytics-with-solutions-and-diagnostics"
     },
     {
+        "filePath": "201/policy-definition-with-assignment/main.bicep",
+        "description": "201/policy-definition-with-assignment"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },

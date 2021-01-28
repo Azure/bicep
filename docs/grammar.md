@@ -13,18 +13,20 @@ statement ->
 
 targetScopeDecl -> "targetScope" "=" expression
 
-parameterDecl -> "parameter" IDENTIFIER(name) IDENTIFIER(type) (parameterDefaultValue | object(modifier))? NL
+parameterDecl -> decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL
 parameterDefaultValue -> "=" expression
 
-variableDecl -> "variable" IDENTIFIER(name) "=" expression NL
+variableDecl -> decorator* "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> "resource" IDENTIFIER(name) interpString(type) "existing"? "=" ifCondition? object NL
+resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" ifCondition? object NL
 
-moduleDecl -> "module" IDENTIFIER(name) interpString(type) "=" object NL
+moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" object NL
 
-outputDecl -> "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
+outputDecl -> decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 
 NL -> ("\n" | "\r")+
+
+decorator -> "@" decoratorExpression NL
 
 expression -> 
   binaryExpression |
@@ -78,6 +80,8 @@ primaryExpression ->
   array |
   object |
   parenthesizedExpression
+
+decoratorExpression -> functionCall | memberExpression "." functionCall
 
 functionCall -> IDENTIFIER "(" argumentList? ")"
 

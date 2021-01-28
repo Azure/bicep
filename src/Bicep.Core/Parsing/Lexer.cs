@@ -509,6 +509,8 @@ namespace Bicep.Core.Parsing
                     return TokenType.LeftSquare;
                 case ']':
                     return TokenType.RightSquare;
+                case '@':
+                    return TokenType.At;
                 case ',':
                     return TokenType.Comma;
                 case '.':

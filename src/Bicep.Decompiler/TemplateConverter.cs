@@ -591,6 +591,8 @@ namespace Bicep.Decompiler
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
             return new ParameterDeclarationSyntax(
+                // TODO: add support to parameter decorators.
+                Enumerable.Empty<SyntaxBase>(),
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "param"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 typeSyntax,
@@ -825,6 +827,8 @@ namespace Bicep.Decompiler
                 workspace.UpsertSyntaxTrees(nestedSyntaxTree.AsEnumerable());
 
                 return new ModuleDeclarationSyntax(
+                    // TODO: add support to decorators for loops.
+                    Enumerable.Empty<SyntaxBase>(),
                     SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
                     SyntaxHelpers.CreateIdentifier(identifier),
                     SyntaxHelpers.CreateStringLiteral(filePath),
@@ -840,6 +844,8 @@ namespace Bicep.Decompiler
             }
 
             return new ModuleDeclarationSyntax(
+                // TODO: add support to decorators for loops.
+                Enumerable.Empty<SyntaxBase>(),
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "module"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 GetModuleFilePath(resource, templateLinkString),
@@ -952,6 +958,8 @@ namespace Bicep.Decompiler
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
             
             return new ResourceDeclarationSyntax(
+                // TODO: add support to decorators for loops.
+                Enumerable.Empty<SyntaxBase>(),
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "resource"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 ParseString($"{typeString}@{apiVersionString}"),
@@ -967,6 +975,7 @@ namespace Bicep.Decompiler
             var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ConversionFailedException($"Unable to find output {value.Name}", value);
 
             return new OutputDeclarationSyntax(
+                Enumerable.Empty<SyntaxBase>(),
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "output"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 typeSyntax,

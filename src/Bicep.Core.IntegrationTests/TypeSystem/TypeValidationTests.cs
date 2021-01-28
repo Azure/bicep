@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(definedTypes);
 
-            var compilation = new Compilation(typeProvider, SyntaxFactory.CreateFromText(programText));
+            var compilation = new Compilation(typeProvider, SyntaxTreeGroupingFactory.CreateFromText(programText));
             return compilation.GetEntrypointSemanticModel();
         }
 
