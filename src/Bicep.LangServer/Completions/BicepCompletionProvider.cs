@@ -226,8 +226,6 @@ namespace Bicep.LanguageServer.Completions
                     file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium))
                 .ToList();
 
-            // don't do completion range manipulation (described in CreateModulePathCompletion) 
-            // if we have to autocomplete entire path (module m <autocomplete>)
             var dirItems = dirs
                 .Select(dir => CreateModulePathCompletion(
                     dir.Segments.Last(), 
@@ -588,9 +586,10 @@ namespace Bicep.LanguageServer.Completions
                 .WithLabel(name)
                 .WithFilterText(path)
                 .WithSortText(GetSortText(name, priority));
+            // Folder completions should keep us within the completion string
             if (completionItemKind.Equals(CompletionItemKind.Folder))
             {
-                item = item.WithSnippetEdit(replacementRange, $"{path.Substring(0, path.Length - 1)}$0'");
+                item.WithSnippetEdit(replacementRange, $"{path.Substring(0, path.Length - 1)}$0'");
             }
             else
             {
