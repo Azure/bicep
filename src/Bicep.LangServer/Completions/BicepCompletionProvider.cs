@@ -217,12 +217,13 @@ namespace Bicep.LanguageServer.Completions
             // "./" will not be preserved when making relative Uris. We have to go and manually add it.
             // Prioritize .bicep files higher than other files.
             var fileItems = files
-                .Where(file => file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId))
+                .Where(file => file != model.SyntaxTree.FileUri)
+                .Where(file => file.Segments.Last().EndsWith("." + LanguageServerConstants.LanguageId))
                 .Select(file => CreateModulePathCompletion(
-                    file.Segments.Last(), 
-                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(), 
-                    context.ReplacementRange, 
-                    CompletionItemKind.File, 
+                    file.Segments.Last(),
+                    (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(file).ToString(),
+                    context.ReplacementRange,
+                    CompletionItemKind.File,
                     file.Segments.Last().EndsWith(LanguageServerConstants.LanguageId) ? CompletionPriority.High : CompletionPriority.Medium))
                 .ToList();
 
@@ -230,8 +231,8 @@ namespace Bicep.LanguageServer.Completions
                 .Select(dir => CreateModulePathCompletion(
                     dir.Segments.Last(), 
                     (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
-                    context.ReplacementRange, 
-                    CompletionItemKind.Folder, 
+                    context.ReplacementRange,
+                    CompletionItemKind.Folder,
                     CompletionPriority.Medium)
                 .WithCommand(new Command {Name = EditorCommands.RequestCompletions }))
                 .ToList();

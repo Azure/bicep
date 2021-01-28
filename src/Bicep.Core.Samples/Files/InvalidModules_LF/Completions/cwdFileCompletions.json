@@ -62,20 +62,6 @@
     }
   },
   {
-    "label": "main.bicep",
-    "kind": "file",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_main.bicep",
-    "filterText": "'main.bicep'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "'main.bicep'"
-    }
-  },
-  {
     "label": "main.diagnostics.bicep",
     "kind": "file",
     "deprecated": false,
