@@ -137,8 +137,8 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@[80:85)        StringComplete |'foo'|
 //@[85:86)      RightParen |)|
 //@[87:89)     Equals |==|
-//@[90:91)     NumericLiteralSyntax
-//@[90:91)      Number |3|
+//@[90:91)     IntegerLiteralSyntax
+//@[90:91)      Integer |3|
 //@[91:92)    RightParen |)|
 //@[93:199)  ObjectSyntax
 //@[93:94)   LeftBrace |{|

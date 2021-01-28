@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
@@ -35,8 +36,8 @@ namespace Bicep.Core.Emit
                 case BooleanLiteralSyntax boolSyntax:
                     return CreateFunction(boolSyntax.Value ? "true" : "false");
 
-                case NumericLiteralSyntax numericSyntax:
-                    return new JTokenExpression(numericSyntax.Value);
+                case IntegerLiteralSyntax integerSyntax:
+                    return integerSyntax.Value > int.MaxValue || integerSyntax.Value < int.MinValue ? CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToInvariantString())) : new JTokenExpression((int)integerSyntax.Value);
 
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because

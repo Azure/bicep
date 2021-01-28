@@ -73,17 +73,17 @@ param osDiskSizeGB int {
     default: 0
 //@[4:11) Identifier |default|
 //@[11:12) Colon |:|
-//@[13:14) Number |0|
+//@[13:14) Integer |0|
 //@[14:15) NewLine |\n|
     minValue: 0
 //@[4:12) Identifier |minValue|
 //@[12:13) Colon |:|
-//@[14:15) Number |0|
+//@[14:15) Integer |0|
 //@[15:16) NewLine |\n|
     maxValue: 1023
 //@[4:12) Identifier |maxValue|
 //@[12:13) Colon |:|
-//@[14:18) Number |1023|
+//@[14:18) Integer |1023|
 //@[18:19) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
@@ -97,17 +97,17 @@ param agentCount int {
     default: 3
 //@[4:11) Identifier |default|
 //@[11:12) Colon |:|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
     minValue: 1
 //@[4:12) Identifier |minValue|
 //@[12:13) Colon |:|
-//@[14:15) Number |1|
+//@[14:15) Integer |1|
 //@[15:16) NewLine |\n|
     maxValue: 50
 //@[4:12) Identifier |maxValue|
 //@[12:13) Colon |:|
-//@[14:16) Number |50|
+//@[14:16) Integer |50|
 //@[16:17) NewLine |\n|
 }
 //@[0:1) RightBrace |}|

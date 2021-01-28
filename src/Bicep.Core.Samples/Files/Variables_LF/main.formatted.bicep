@@ -233,3 +233,9 @@ var issue1332 = true ? {
     '${issue1332_propname}': {}
   }
 } : {}
+
+// Issue #486
+var myBigInt = 2199023255552
+var myIntExpression = 5 * 5
+var myBigIntExpression = 2199023255552 * 2
+var myBigIntExpression2 = 2199023255552 * 2199023255552

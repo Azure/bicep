@@ -108,11 +108,11 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[49:50) Assignment |=|
 //@[51:53) Identifier |if|
 //@[54:55) LeftParen |(|
-//@[55:56) Number |1|
+//@[55:56) Integer |1|
 //@[57:58) Plus |+|
-//@[59:60) Number |1|
+//@[59:60) Integer |1|
 //@[61:63) Equals |==|
-//@[64:65) Number |2|
+//@[64:65) Integer |2|
 //@[65:66) RightParen |)|
 //@[67:68) LeftBrace |{|
 //@[68:70) NewLine |\r\n|
@@ -203,7 +203,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
     optionalInt: 42
 //@[4:15) Identifier |optionalInt|
 //@[15:16) Colon |:|
-//@[17:19) Number |42|
+//@[17:19) Integer |42|
 //@[19:21) NewLine |\r\n|
     optionalObj: { }
 //@[4:15) Identifier |optionalObj|
@@ -291,7 +291,7 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
     optionalInt: 42
 //@[4:15) Identifier |optionalInt|
 //@[15:16) Colon |:|
-//@[17:19) Number |42|
+//@[17:19) Integer |42|
 //@[19:21) NewLine |\r\n|
     optionalObj: { }
 //@[4:15) Identifier |optionalObj|
@@ -360,7 +360,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
     optionalInt: 42
 //@[4:15) Identifier |optionalInt|
 //@[15:16) Colon |:|
-//@[17:19) Number |42|
+//@[17:19) Integer |42|
 //@[19:21) NewLine |\r\n|
     optionalObj: { }
 //@[4:15) Identifier |optionalObj|
@@ -421,7 +421,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
     optionalInt: 42
 //@[4:15) Identifier |optionalInt|
 //@[15:16) Colon |:|
-//@[17:19) Number |42|
+//@[17:19) Integer |42|
 //@[19:21) NewLine |\r\n|
     optionalObj: { }
 //@[4:15) Identifier |optionalObj|

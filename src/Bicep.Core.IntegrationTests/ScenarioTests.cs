@@ -370,5 +370,27 @@ var issue = true ? {
             var template = JToken.Parse(jsonOutput);
             template.SelectToken("$.variables.issue")!.Should().DeepEqual("[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
         }
+
+        [TestMethod]
+        public void Test_Issue486()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+var myInt = 5
+var myBigInt = 2199023255552
+var myIntExpression = 5 * 5
+var myBigIntExpression = 2199023255552 * 2
+var myBigIntExpression2 = 2199023255552 * 2199023255552
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.variables.myInt")!.Should().DeepEqual(5);
+            template.SelectToken("$.variables.myBigInt")!.Should().DeepEqual(2199023255552);
+            template.SelectToken("$.variables.myIntExpression")!.Should().DeepEqual("[mul(5, 5)]");
+            template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
+        }
     }
 }

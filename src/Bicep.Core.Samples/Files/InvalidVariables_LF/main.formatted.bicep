@@ -142,3 +142,6 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 
 // #completionTest(58) -> twoIndexPlusSymbols
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
+
+// Issue 486
+var myFloat = 3. 14
