@@ -1,23 +1,18 @@
-targetScope = 'subscription'
+param listOfAllowedLocations array = [
+  'norwayeast'
+  'westeurope'
+]
 
-param listofAllowedLocations array {
-  default: [
-    'norwayeast'
-    'westeurope'
-  ]
-}
 param policyEffect string {
-  allowed:[
+  allowed: [
     'Audit'
     'Deny'
   ]
 }
 
-param assignmentScope string
-
 resource locationPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'custom-allowed-location'
-  properties:{
+  properties: {
     displayName: 'Custom - allowed location for resources'
     policyType: 'Custom'
     description: 'Use policy to restrict where resources can be deployed'
@@ -47,8 +42,8 @@ resource locationPolicyDefinition 'Microsoft.Authorization/policyDefinitions@202
             field: 'type'
             notEquals: 'Microsoft.AzureActiveDirectory/b2cDirectories'
           }
-      ]
-    }
+        ]
+      }
       then: {
         effect: '[parameters(\'effect\')]'
       }
@@ -57,21 +52,18 @@ resource locationPolicyDefinition 'Microsoft.Authorization/policyDefinitions@202
 }
 
 resource locationPolicy 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
- name: 'Resource-location-restriction'
- dependsOn: [
-   locationPolicyDefinition
- ]
- properties:{
-   policyDefinitionId: locationPolicyDefinition.id
-   displayName: 'Restrict location for Azure resources'
-   description: 'Policy will either Audit or Deny resources being deployed in other locations'
-   parameters: {
-     allowedLocations: {
-       value: listofAllowedLocations
-     }
-     Effect: {
-      value: policyEffect
+  name: 'Resource-location-restriction'
+  properties: {
+    policyDefinitionId: locationPolicyDefinition.id
+    displayName: 'Restrict location for Azure resources'
+    description: 'Policy will either Audit or Deny resources being deployed in other locations'
+    parameters: {
+      allowedLocations: {
+        value: listOfAllowedLocations
+      }
+      Effect: {
+        value: policyEffect
+      }
     }
-   }
- }
+  }
 }
