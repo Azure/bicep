@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
@@ -35,7 +36,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, model.GetAllDiagnostics(), diag => OutputHelper.GetDiagLoggingString(dataSet.Bicep, outputDirectory, diag));
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
-            File.WriteAllText(resultsFile, sourceTextWithDiags);
+            File.WriteAllText(resultsFile, sourceTextWithDiags, Encoding.Unicode);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext, 

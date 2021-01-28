@@ -150,3 +150,7 @@ var myFloat = 3.14
 // secure cannot be used as a varaible decorator
 @sys.secure()
 var something = 1
+
+// invalid identifier character classes
+var ☕ = true
+var a☕ = true
