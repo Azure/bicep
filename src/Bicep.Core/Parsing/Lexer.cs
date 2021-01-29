@@ -783,13 +783,11 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private const char MaxAscii = '\u007F';
+        // obtaining the unicode category is expensive and should be avoided in the main cases
+        private static bool IsIdentifierStart(char c) => c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 
         // obtaining the unicode category is expensive and should be avoided in the main cases
-        private static bool IsIdentifierStart(char c) => c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || c > MaxAscii && IsUnicodeLetter(CharUnicodeInfo.GetUnicodeCategory(c));
-
-        // obtaining the unicode category is expensive and should be avoided in the main cases
-        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c) || c > MaxAscii && IsUnicodeIdentifierContinuation(CharUnicodeInfo.GetUnicodeCategory(c));
+        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c);
 
         private static bool IsDigit(char c) => c >= '0' && c <= '9';
 
@@ -798,52 +796,5 @@ namespace Bicep.Core.Parsing
         private static bool IsWhiteSpace(char c) => c == ' ' || c == '\t';
 
         private static bool IsNewLine(char c) => c == '\n' || c == '\r';
-
-        private static bool IsUnicodeLetter(UnicodeCategory category)
-        {
-            // comments indicate unicode character classes
-            switch (category)
-            {
-                // Lu
-                case UnicodeCategory.UppercaseLetter:
-                // Ll, 
-                case UnicodeCategory.LowercaseLetter:
-                // Lt, 
-                case UnicodeCategory.TitlecaseLetter:
-                // Lm, 
-                case UnicodeCategory.ModifierLetter:
-                // Lo 
-                case UnicodeCategory.OtherLetter:
-                // Nl
-                case UnicodeCategory.LetterNumber:
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
-        private static bool IsUnicodeIdentifierContinuation(UnicodeCategory category)
-        {
-            // comments indicate unicode character classes
-            switch (category)
-            {
-                // Nd
-                case UnicodeCategory.DecimalDigitNumber:
-                // Pc
-                case UnicodeCategory.ConnectorPunctuation:
-                // Mn
-                case UnicodeCategory.NonSpacingMark:
-                // Mc
-                case UnicodeCategory.SpacingCombiningMark:
-                // Cf
-                case UnicodeCategory.Format:
-                    return true;
-
-                default:
-                    return false;
-
-            }
-        }
     }
 }
