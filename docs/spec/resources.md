@@ -94,6 +94,32 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = if (deployZone) {
 
 Conditions may be used with dependency declarations. If the identifier of conditional resource is specified in `dependsOn` of another resource (explicit dependency), the dependency will be ignored if the condition evaluates to `false` at template deployment time. If the condition evaluates to `true`, the dependency will be respected. Referencing a property of a conditional resource (implicit dependency) is allowed but may produce a runtime error in some cases.
 
+## Referencing existing resources
+
+> Requires Bicep CLI v0.3 or later
+
+You may add referencs and access runtime properties from resources outside of the current file by using the `existing` keyword in a resource declaration. This is equivalent to using the ARM Template `reference()` function.
+
+When using the `existing` keyword, you must provide the `name` of the resource, and may optionally also set the `scope` property to access a resource in a different scope. See [Resource Scopes](./resource-scopes.md) for more information on using the `scope` property.
+
+```bicep
+// this resource will not be deployed by this file, but the declaration provides access to properties on the existing resource.
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
+  name: 'myacc'
+}
+
+// the 'stg' symbolic name may now be used to access properties on the storage account.
+output blobEndpoint string = stg.properties.primaryEndpoints.blob
+```
+
+```bicep
+// example of referencing a resource at a different scope (resource group myRg under subscription mySub)
+resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
+  name: 'myacc'
+  scope: resourceGroup(mySub, myRg)
+}
+```
+
 ## Other Examples
 
 ### Storage Account
