@@ -679,7 +679,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP113",
-                // ensure that this is kept up-to-date with the logic in 
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeTenant}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
                 $"Permissible scopes include tenant: tenant(), named management group: managementGroup(<name>), named subscription: subscription(<subId>), or named resource group in a named subscription: resourceGroup(<subId>, <name>).");
 

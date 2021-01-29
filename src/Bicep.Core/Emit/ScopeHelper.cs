@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -30,7 +32,7 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        public static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, ObjectPropertySyntax? scopeProperty)
+        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, ObjectPropertySyntax? scopeProperty)
         {
             if (scopeProperty is null)
             {
@@ -38,6 +40,7 @@ namespace Bicep.Core.Emit
                 if (!supportedScopes.HasFlag(semanticModel.TargetScope))
                 {
                     logInvalidScopeFunc(bodySyntax, semanticModel.TargetScope, supportedScopes);
+                    return null;
                 }
 
                 return null;
@@ -102,36 +105,6 @@ namespace Bicep.Core.Emit
 
             // type validation should have already caught this
             return null;
-        }
-
-        public static bool ValidateNestedTemplateScopeRestrictions(SemanticModel semanticModel, ScopeData scopeData)
-        {
-            bool checkScopes(params ResourceScope[] scopes)
-                => scopes.Contains(semanticModel.TargetScope);
-
-            switch (scopeData.RequestedScope)
-            {
-                // If you update this switch block to add new supported nested template scope combinations,
-                // please ensure you update the wording of error messages BCP113, BCP114, BCP115 & BCP116 to reflect this!
-                case ResourceScope.Tenant:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription, ResourceScope.ResourceGroup);
-                case ResourceScope.ManagementGroup when scopeData.ManagementGroupNameProperty is not null:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup);
-                case ResourceScope.ManagementGroup:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup);
-                case ResourceScope.Subscription when scopeData.SubscriptionIdProperty is not null:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription);
-                case ResourceScope.Subscription:
-                    return checkScopes(ResourceScope.Subscription);
-                case ResourceScope.ResourceGroup when scopeData.SubscriptionIdProperty is not null && scopeData.ResourceGroupProperty is not null:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.ResourceGroup);
-                case ResourceScope.ResourceGroup when scopeData.ResourceGroupProperty is not null:
-                    return checkScopes(ResourceScope.Subscription, ResourceScope.ResourceGroup);
-                case ResourceScope.ResourceGroup:
-                    return checkScopes(ResourceScope.ResourceGroup);
-            }
-
-            return true;
         }
 
         public static LanguageExpression FormatCrossScopeResourceId(ExpressionConverter expressionConverter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
@@ -267,6 +240,123 @@ namespace Bicep.Core.Emit
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
+        }
+
+        public static ImmutableDictionary<ResourceSymbol, ScopeData> GetResoureScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            void logInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
+                => diagnosticWriter.Write(positionable, x => x.UnsupportedResourceScope(suppliedScope, supportedScopes));
+
+            var scopeInfo = new Dictionary<ResourceSymbol, ScopeData>();
+
+            foreach (var resourceSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                if (resourceSymbol.Type is not ResourceType resourceType)
+                {
+                    // missing type should be caught during type validation
+                    continue;
+                }
+
+                var scopeProperty = resourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resourceSymbol.DeclaringResource.Body, scopeProperty);
+
+                if (scopeData is null)
+                {
+                    continue;
+                }
+
+                scopeInfo[resourceSymbol] = scopeData;
+            }
+
+            return scopeInfo.ToImmutableDictionary();
+        }
+
+        private static bool ValidateNestedTemplateScopeRestrictions(SemanticModel semanticModel, ScopeData scopeData)
+        {
+            bool checkScopes(params ResourceScope[] scopes)
+                => scopes.Contains(semanticModel.TargetScope);
+
+            switch (scopeData.RequestedScope)
+            {
+                // If you update this switch block to add new supported nested template scope combinations,
+                // please ensure you update the wording of error messages BCP113, BCP114, BCP115 & BCP116 to reflect this!
+                case ResourceScope.Tenant:
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription, ResourceScope.ResourceGroup);
+                case ResourceScope.ManagementGroup when scopeData.ManagementGroupNameProperty is not null:
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup);
+                case ResourceScope.ManagementGroup:
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup);
+                case ResourceScope.Subscription when scopeData.SubscriptionIdProperty is not null:
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription);
+                case ResourceScope.Subscription:
+                    return checkScopes(ResourceScope.Subscription);
+                case ResourceScope.ResourceGroup when scopeData.SubscriptionIdProperty is not null && scopeData.ResourceGroupProperty is not null:
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.ResourceGroup);
+                case ResourceScope.ResourceGroup when scopeData.ResourceGroupProperty is not null:
+                    return checkScopes(ResourceScope.Subscription, ResourceScope.ResourceGroup);
+                case ResourceScope.ResourceGroup:
+                    return checkScopes(ResourceScope.ResourceGroup);
+            }
+
+            return true;
+        }
+
+        public static ImmutableDictionary<ModuleSymbol, ScopeData> GetModuleScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            void logInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
+                => diagnosticWriter.Write(positionable, x => x.UnsupportedModuleScope(suppliedScope, supportedScopes));
+
+            var scopeInfo = new Dictionary<ModuleSymbol, ScopeData>();
+
+            foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
+            {
+                if (moduleSymbol.Type is not ModuleType moduleType)
+                {
+                    // missing type should be caught during type validation
+                    continue;
+                }
+
+                var scopeProperty = moduleSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Body, scopeProperty);
+
+                if (scopeData is null)
+                {
+                    scopeData = new ScopeData { RequestedScope = semanticModel.TargetScope };
+                }
+
+                if (!ScopeHelper.ValidateNestedTemplateScopeRestrictions(semanticModel, scopeData))
+                {
+                    if (scopeProperty is null)
+                    {
+                        // if there's a scope mismatch, the scope property will be required.
+                        // this means a missing scope property will have already been flagged as an error by type validation.
+                        continue;
+                    }
+
+                    switch (semanticModel.TargetScope)
+                    {
+                        case ResourceScope.Tenant:
+                            diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForTenantScope());
+                            break;
+                        case ResourceScope.ManagementGroup:
+                            diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForManagementScope());
+                            break;
+                        case ResourceScope.Subscription:
+                            diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForSubscriptionScope());
+                            break;
+                        case ResourceScope.ResourceGroup:
+                            diagnosticWriter.Write(scopeProperty.Value, x => x.InvalidModuleScopeForResourceGroup());
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Unrecognized target scope {semanticModel.TargetScope}");
+                    }
+                    continue;
+                }
+
+                scopeInfo[moduleSymbol] = scopeData;
+            }
+
+            return scopeInfo.ToImmutableDictionary();
         }
     }
 }

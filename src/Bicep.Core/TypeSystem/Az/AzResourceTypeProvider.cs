@@ -106,8 +106,6 @@ namespace Bicep.Core.TypeSystem.Az
                 scopeRequiredFlag |= TypePropertyFlags.Required;
             }
 
-            // TODO: remove 'dependsOn' from the type library and add it here
-
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
@@ -129,6 +127,9 @@ namespace Bicep.Core.TypeSystem.Az
                     var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ResourceScope.Resource);
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
                 }
+
+                // TODO: remove 'dependsOn' from the type library
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceRefArray, TypePropertyFlags.WriteOnly));
 
                 return new NamedObjectType(
                     objectType.Name,

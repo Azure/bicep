@@ -72,6 +72,7 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol ResourceRef = new ResourceScopeType("resource | module", ResourceScope.Module | ResourceScope.Resource);
+        public static readonly TypeSymbol ResourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -169,7 +170,6 @@ namespace Bicep.Core
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
-            var resourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
 
             // If the module scope matches the parent scope, we can safely omit the scope property
             var scopeRequiredFlag = moduleScope != containingScope ? TypePropertyFlags.Required : TypePropertyFlags.None;
@@ -183,7 +183,7 @@ namespace Bicep.Core
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new TypeProperty(ResourceDependsOnPropertyName, resourceRefArray, TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ResourceDependsOnPropertyName, ResourceRefArray, TypePropertyFlags.WriteOnly),
                 },
                 null);
 
