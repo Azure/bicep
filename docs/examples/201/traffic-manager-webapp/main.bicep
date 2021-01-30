@@ -36,14 +36,15 @@ resource trafficManagerProfile 'Microsoft.Network/trafficmanagerprofiles@2018-04
       port: 443
       path: '/'
     }
-  }
-}
-
-resource azureEndPoint 'Microsoft.Network/trafficManagerProfiles/azureEndpoints@2018-08-01' = {
-  name: '${trafficManagerProfile.name}/${uniqueDnsNameForWebApp}'
-  location: 'global'
-  properties: {
-    targetResourceId: webSite.id
-    endpointStatus: 'Enabled'
+    endpoints: [
+      {
+        name: '${uniqueDnsNameForWebApp}'
+        type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
+        properties: {
+          targetResourceId: webSite.id
+          endpointStatus: 'Enabled'
+        }
+      }
+    ]
   }
 }

@@ -59,20 +59,19 @@
           "protocol": "HTTPS",
           "port": 443,
           "path": "/"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-      "apiVersion": "2018-08-01",
-      "name": "[format('{0}/{1}', parameters('trafficManagerName'), parameters('uniqueDnsNameForWebApp'))]",
-      "location": "global",
-      "properties": {
-        "targetResourceId": "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]",
-        "endpointStatus": "Enabled"
+        },
+        "endpoints": [
+          {
+            "name": "[parameters('uniqueDnsNameForWebApp')]",
+            "type": "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
+            "properties": {
+              "targetResourceId": "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]",
+              "endpointStatus": "Enabled"
+            }
+          }
+        ]
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/trafficmanagerprofiles', parameters('trafficManagerName'))]",
         "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]"
       ]
     }
