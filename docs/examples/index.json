@@ -364,6 +364,10 @@
         "description": "201/sql"
     },
     {
+        "filePath": "201/traffic-manager-webapp/main.bicep",
+        "description": "201/traffic-manager-webapp"
+    },
+    {
         "filePath": "201/vm-domain-join/main.bicep",
         "description": "201/vm-domain-join"
     },
