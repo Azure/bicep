@@ -177,16 +177,31 @@ namespace Bicep.Core.TypeSystem
             }
 
             // object assignability check
-            if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
+            if (expression is ObjectSyntax objectValue)
             {
-                return NarrowObjectType(typeManager, objectValue, targetObjectType, diagnosticWriter, skipConstantCheck);
+                switch (targetType)
+                {
+                    case ObjectType targetObjectType:
+                        return NarrowObjectType(typeManager, objectValue, targetObjectType, diagnosticWriter, skipConstantCheck);
+
+                    case DiscriminatedObjectType targetDiscriminated:
+                        return NarrowDiscriminatedObjectType(typeManager, objectValue, targetDiscriminated, diagnosticWriter, skipConstantCheck);
+                }
             }
 
-            if (expression is ObjectSyntax objectDiscriminated && targetType is DiscriminatedObjectType targetDiscriminated)
+            // if-condition assignability check
+            if (expression is IfConditionSyntax {Body:ObjectSyntax body})
             {
-                return NarrowDiscriminatedObjectType(typeManager, objectDiscriminated, targetDiscriminated, diagnosticWriter, skipConstantCheck);
-            }
+                switch (targetType)
+                {
+                    case ObjectType targetObjectType:
+                        return NarrowObjectType(typeManager, body, targetObjectType, diagnosticWriter, skipConstantCheck);
 
+                    case DiscriminatedObjectType targetDiscriminated:
+                        return NarrowDiscriminatedObjectType(typeManager, body, targetDiscriminated, diagnosticWriter, skipConstantCheck);
+                }
+            }
+            
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
