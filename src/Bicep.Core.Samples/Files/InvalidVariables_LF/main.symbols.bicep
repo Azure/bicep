@@ -196,3 +196,8 @@ var myFloat = 3.14
 var something = 1
 //@[4:13) Variable something. Type: int. Declaration start char: 0, length: 31
 
+// invalid identifier character classes
+var ☕ = true
+//@[4:5) Variable <error>. Type: bool. Declaration start char: 0, length: 12
+var a☕ = true
+//@[4:5) Variable a. Type: error. Declaration start char: 0, length: 13
