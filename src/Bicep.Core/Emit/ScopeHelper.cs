@@ -33,15 +33,15 @@ namespace Bicep.Core.Emit
                     switch (scopeType)
                     {
                         case TenantScopeType:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.Tenant };
                         case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.ManagementGroup,
                                 ManagementGroupNameProperty = managementGroupScopeType.Arguments[0].Expression };
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
-                                RequestedScope = ResourceScope.Subscription, 
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.Subscription,
                                 SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
                             return new ScopeData {
@@ -54,18 +54,18 @@ namespace Bicep.Core.Emit
                     switch (scopeType)
                     {
                         case TenantScopeType:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.Tenant };
                         case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 0:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.ManagementGroup };
                         case ManagementGroupScopeType managementGroupScopeType when managementGroupScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
-                                RequestedScope = ResourceScope.ManagementGroup, 
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.ManagementGroup,
                                 ManagementGroupNameProperty = managementGroupScopeType.Arguments[0].Expression };
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
-                                RequestedScope = ResourceScope.Subscription, 
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.Subscription,
                                 SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
                             return new ScopeData {
@@ -78,32 +78,44 @@ namespace Bicep.Core.Emit
                     switch (scopeType)
                     {
                         case TenantScopeType:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.Tenant };
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 0:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.Subscription };
                         case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
-                                RequestedScope = ResourceScope.Subscription, 
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.Subscription,
                                 SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
-                                RequestedScope = ResourceScope.ResourceGroup, 
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.ResourceGroup,
                                 ResourceGroupProperty = resourceGroupScopeType.Arguments[0].Expression };
+                        case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.ResourceGroup,
+                                SubscriptionIdProperty = resourceGroupScopeType.Arguments[0].Expression,
+                                ResourceGroupProperty = resourceGroupScopeType.Arguments[1].Expression };
                     }
                     break;
                 case ResourceScope.ResourceGroup:
                     switch (scopeType)
                     {
                         case TenantScopeType:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.Tenant };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 0:
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.Subscription, };
+                        case SubscriptionScopeType subscriptionScopeType when subscriptionScopeType.Arguments.Length == 1:
+                            return new ScopeData {
+                                RequestedScope = ResourceScope.Subscription,
+                                SubscriptionIdProperty = subscriptionScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 0:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.ResourceGroup };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 1:
-                            return new ScopeData { 
+                            return new ScopeData {
                                 RequestedScope = ResourceScope.ResourceGroup,
                                 ResourceGroupProperty = resourceGroupScopeType.Arguments[0].Expression };
                         case ResourceGroupScopeType resourceGroupScopeType when resourceGroupScopeType.Arguments.Length == 2:
@@ -228,6 +240,15 @@ namespace Bicep.Core.Emit
                     }
                     return;
                 case ResourceScope.Subscription:
+                    if (scopeData.SubscriptionIdProperty != null)
+                    {
+                        expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
+                    }
+                    else if (targetScope == ResourceScope.ResourceGroup)
+                    {
+                        expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
+                    }
+                    return;
                 case ResourceScope.ResourceGroup:
                     if (scopeData.SubscriptionIdProperty != null)
                     {

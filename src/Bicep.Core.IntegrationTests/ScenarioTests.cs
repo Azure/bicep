@@ -392,5 +392,75 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
             template.SelectToken("$.variables.myIntExpression")!.Should().DeepEqual("[mul(5, 5)]");
             template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
         }
+
+        [TestMethod]
+        public void Test_Issue1362_1()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+targetScope = 'resourceGroup'
+
+module sub './modules/subscription.bicep' = {
+  name: 'subDeploy'
+  scope: subscription()
+}",
+                [new Uri("file:///modules/subscription.bicep")] = @"
+targetScope = 'subscription'
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("[subscription().subscriptionId]");
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+        }
+
+        [TestMethod]
+        public void Test_Issue1362_2()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+targetScope = 'resourceGroup'
+
+module sub './modules/subscription.bicep' = {
+  name: 'subDeploy'
+  scope: subscription('abcd-efgh')
+}",
+                [new Uri("file:///modules/subscription.bicep")] = @"
+targetScope = 'subscription'
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+        }
+
+        [TestMethod]
+        public void Test_Issue1402()
+        {
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = @"
+targetScope = 'subscription'
+
+module sub './modules/resourceGroup.bicep' = {
+  name: 'subDeploy'
+  scope: resourceGroup('abcd-efgh','bicep-rg')
+}",
+                [new Uri("file:///modules/resourceGroup.bicep")] = @"
+targetScope = 'resourceGroup'
+",
+            };
+
+            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
+            var template = JToken.Parse(jsonOutput);
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
+        }
     }
 }

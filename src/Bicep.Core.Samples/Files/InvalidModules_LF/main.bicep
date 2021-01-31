@@ -181,6 +181,16 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   scope: managementGroup()
 }
 
+module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+  name: 'moduleWithUnsupprtedScope1'
+  scope: managementGroup()
+}
+
+module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+  name: 'moduleWithUnsupprtedScope2'
+  scope: managementGroup('MG')
+}
+
 module moduleWithBadScope './empty.bicep' = {
   name: 'moduleWithBadScope'
   scope: 'stringScope'
