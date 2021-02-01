@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         private static Compilation CreateCompilation(IResourceTypeProvider resourceTypeProvider, IReadOnlyDictionary<Uri, string> files, Uri entryFileUri)
         {
-            var syntaxTreeGrouping = SyntaxFactory.CreateForFiles(files, entryFileUri);
+            var syntaxTreeGrouping = SyntaxTreeGroupingFactory.CreateForFiles(files, entryFileUri);
 
             return new Compilation(resourceTypeProvider, syntaxTreeGrouping);
         }

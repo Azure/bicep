@@ -74,13 +74,26 @@
     "password": {
       "type": "secureString"
     },
+    "passwordWithDecorator": {
+      "type": "secureString"
+    },
     "nonSecure": {
       "type": "string"
     },
     "secretObject": {
       "type": "secureObject"
     },
+    "secretObjectWithDecorator": {
+      "type": "secureObject"
+    },
     "storageSku": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS"
+      ]
+    },
+    "storageSkuWithDecorator": {
       "type": "string",
       "allowedValues": [
         "Standard_LRS",
@@ -92,12 +105,26 @@
       "minLength": 3,
       "maxLength": 24
     },
+    "storageNameWithDecorator": {
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 3
+    },
     "someArray": {
       "type": "array",
       "minLength": 3,
       "maxLength": 24
     },
+    "someArrayWithDecorator": {
+      "type": "array",
+      "maxLength": 24,
+      "minLength": 3
+    },
     "emptyMetadata": {
+      "type": "string",
+      "metadata": {}
+    },
+    "emptyMetadataWithDecorator": {
       "type": "string",
       "metadata": {}
     },
@@ -107,7 +134,31 @@
         "description": "my description"
       }
     },
+    "descriptionWithDecorator": {
+      "type": "string",
+      "metadata": {
+        "description": "my description"
+      }
+    },
+    "descriptionWithDecorator2": {
+      "type": "string",
+      "metadata": {
+        "description": "my description"
+      }
+    },
     "additionalMetadata": {
+      "type": "string",
+      "metadata": {
+        "description": "my description",
+        "a": 1,
+        "b": true,
+        "c": [],
+        "d": {
+          "test": "abc"
+        }
+      }
+    },
+    "additionalMetadataWithDecorator": {
       "type": "string",
       "metadata": {
         "description": "my description",
@@ -133,6 +184,19 @@
         "three"
       ]
     },
+    "someParameterWithDecorator": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Name of the storage account"
+      },
+      "allowedValues": [
+        "one",
+        "two",
+        "three"
+      ],
+      "maxLength": 24,
+      "minLength": 3
+    },
     "defaultValueExpression": {
       "type": "int",
       "defaultValue": "[if(true(), add(4, mul(2, 3)), 0)]"
@@ -156,6 +220,56 @@
         "def",
         "ghi"
       ]
+    },
+    "stringLiteralWithDecorator": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def"
+      ]
+    },
+    "stringLiteralWithDecoratorWithAllowedValuesSuperset": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def",
+        "ghi"
+      ]
+    },
+    "decoratedString": {
+      "type": "secureString",
+      "allowedValues": [
+        "Apple",
+        "Banana"
+      ],
+      "maxLength": 10,
+      "minLength": 2
+    },
+    "decoratedInt": {
+      "type": "int",
+      "minValue": 200
+    },
+    "decoratedBool": {
+      "type": "bool",
+      "metadata": {
+        "description": "A boolean.",
+        "foo": "something",
+        "bar": [
+          {},
+          true,
+          123
+        ]
+      }
+    },
+    "decoratedObject": {
+      "type": "secureObject"
+    },
+    "decoratedArray": {
+      "type": "array",
+      "metadata": {
+        "description": "An array."
+      },
+      "maxLength": 20
     }
   },
   "functions": [],

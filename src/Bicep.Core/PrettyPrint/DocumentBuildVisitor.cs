@@ -64,23 +64,78 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.EndOfFile);
             });
 
+        public override void VisitDecoratorSyntax(DecoratorSyntax syntax) =>
+            this.BuildWithConcat(() => base.VisitDecoratorSyntax(syntax));
+
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitTargetScopeSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitParameterDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Type);
+                this.Visit(syntax.Modifier);
+            });
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitVariableDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitResourceDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Type);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.IfCondition);
+                this.Visit(syntax.Body);
+            });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitModuleDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Path);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.IfCondition);
+                this.Visit(syntax.Body);
+            });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
-            this.BuildStatement(syntax, () => base.VisitOutputDeclarationSyntax(syntax));
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Type);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
             this.BuildWithSpread(() => base.VisitTernaryOperationSyntax(syntax));
@@ -296,7 +351,16 @@ namespace Bicep.Core.PrettyPrint
                 return;
             }
 
-            this.BuildWithSpread(visitAction);
+            this.Build(visitAction, children =>
+            {
+                var splitIndex = Array.IndexOf(children, Nil);
+
+                // Need to concat leading decorators and newlines with the statment keyword.
+                var head = Concat(children.Take(splitIndex));
+                var tail = children.Skip(splitIndex + 1);
+
+                return Spread(head.AsEnumerable().Concat(tail));
+            });
         }
 
         private void Build(Action visitAction, Func<ILinkedDocument[], ILinkedDocument> buildFunc)

@@ -6,7 +6,7 @@ var myInt = 42
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myInt|
 //@[10:11) Assignment |=|
-//@[12:14) Number |42|
+//@[12:14) Integer |42|
 //@[14:16) NewLine |\n\n|
 
 // a string variable
@@ -28,7 +28,7 @@ var interp1 = 'abc${123}def'
 //@[4:11) Identifier |interp1|
 //@[12:13) Assignment |=|
 //@[14:20) StringLeftPiece |'abc${|
-//@[20:23) Number |123|
+//@[20:23) Integer |123|
 //@[23:28) StringRightPiece |}def'|
 //@[28:29) NewLine |\n|
 var interp2 = '${123}def'
@@ -36,7 +36,7 @@ var interp2 = '${123}def'
 //@[4:11) Identifier |interp2|
 //@[12:13) Assignment |=|
 //@[14:17) StringLeftPiece |'${|
-//@[17:20) Number |123|
+//@[17:20) Integer |123|
 //@[20:25) StringRightPiece |}def'|
 //@[25:26) NewLine |\n|
 var interp3 = 'abc${123}'
@@ -44,7 +44,7 @@ var interp3 = 'abc${123}'
 //@[4:11) Identifier |interp3|
 //@[12:13) Assignment |=|
 //@[14:20) StringLeftPiece |'abc${|
-//@[20:23) Number |123|
+//@[20:23) Integer |123|
 //@[23:25) StringRightPiece |}'|
 //@[25:26) NewLine |\n|
 var interp4 = 'abc${123}${456}jk$l${789}p$'
@@ -52,11 +52,11 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 //@[4:11) Identifier |interp4|
 //@[12:13) Assignment |=|
 //@[14:20) StringLeftPiece |'abc${|
-//@[20:23) Number |123|
+//@[20:23) Integer |123|
 //@[23:26) StringMiddlePiece |}${|
-//@[26:29) Number |456|
+//@[26:29) Integer |456|
 //@[29:36) StringMiddlePiece |}jk$l${|
-//@[36:39) Number |789|
+//@[36:39) Integer |789|
 //@[39:43) StringRightPiece |}p$'|
 //@[43:44) NewLine |\n|
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
@@ -65,13 +65,13 @@ var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 //@[17:18) Assignment |=|
 //@[19:25) StringLeftPiece |'abc${|
 //@[25:31) StringLeftPiece |'def${|
-//@[31:34) Number |123|
+//@[31:34) Integer |123|
 //@[34:36) StringRightPiece |}'|
 //@[36:40) StringMiddlePiece |}_${|
 //@[40:43) StringLeftPiece |'${|
-//@[43:46) Number |456|
+//@[43:46) Integer |456|
 //@[46:49) StringMiddlePiece |}${|
-//@[49:52) Number |789|
+//@[49:52) Integer |789|
 //@[52:54) StringRightPiece |}'|
 //@[54:56) StringRightPiece |}'|
 //@[56:57) NewLine |\n|
@@ -80,7 +80,7 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[4:19) Identifier |curliesInInterp|
 //@[20:21) Assignment |=|
 //@[22:26) StringLeftPiece |'{${|
-//@[26:29) Number |123|
+//@[26:29) Integer |123|
 //@[29:35) StringMiddlePiece |}{0}${|
 //@[35:39) TrueKeyword |true|
 //@[39:42) StringRightPiece |}}'|
@@ -200,7 +200,7 @@ var myObj = {
 //@[2:3) Identifier |b|
 //@[3:4) Colon |:|
 //@[5:6) Minus |-|
-//@[6:8) Number |12|
+//@[6:8) Integer |12|
 //@[8:9) NewLine |\n|
   c: true
 //@[2:3) Identifier |c|
@@ -219,15 +219,15 @@ var myObj = {
 //@[8:9) LeftSquare |[|
 //@[9:10) NewLine |\n|
     1
-//@[4:5) Number |1|
+//@[4:5) Integer |1|
 //@[5:6) NewLine |\n|
     2
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[5:6) NewLine |\n|
     2+1
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[5:6) Plus |+|
-//@[6:7) Number |1|
+//@[6:7) Integer |1|
 //@[7:8) NewLine |\n|
     {
 //@[4:5) LeftBrace |{|
@@ -235,15 +235,15 @@ var myObj = {
       test: 144 > 33 && true || 99 <= 199
 //@[6:10) Identifier |test|
 //@[10:11) Colon |:|
-//@[12:15) Number |144|
+//@[12:15) Integer |144|
 //@[16:17) GreaterThan |>|
-//@[18:20) Number |33|
+//@[18:20) Integer |33|
 //@[21:23) LogicalAnd |&&|
 //@[24:28) TrueKeyword |true|
 //@[29:31) LogicalOr ||||
-//@[32:34) Number |99|
+//@[32:34) Integer |99|
 //@[35:37) LessThanOrEqual |<=|
-//@[38:41) Number |199|
+//@[38:41) Integer |199|
 //@[41:42) NewLine |\n|
     }
 //@[4:5) RightBrace |}|
@@ -290,14 +290,14 @@ var objWithInterp = {
 //@[5:10) Identifier |myStr|
 //@[10:12) StringRightPiece |}'|
 //@[12:13) Colon |:|
-//@[14:15) Number |1|
+//@[14:15) Integer |1|
 //@[15:16) NewLine |\n|
   'abc${myStr}def': 2
 //@[2:8) StringLeftPiece |'abc${|
 //@[8:13) Identifier |myStr|
 //@[13:18) StringRightPiece |}def'|
 //@[18:19) Colon |:|
-//@[20:21) Number |2|
+//@[20:21) Integer |2|
 //@[21:22) NewLine |\n|
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'
 //@[2:5) StringLeftPiece |'${|
@@ -496,7 +496,7 @@ var firstLocation = environment().locations[0].displayName
 //@[33:34) Dot |.|
 //@[34:43) Identifier |locations|
 //@[43:44) LeftSquare |[|
-//@[44:45) Number |0|
+//@[44:45) Integer |0|
 //@[45:46) RightSquare |]|
 //@[46:47) Dot |.|
 //@[47:58) Identifier |displayName|
@@ -532,7 +532,7 @@ var intIndexer = [
 ][0]
 //@[0:1) RightSquare |]|
 //@[1:2) LeftSquare |[|
-//@[2:3) Number |0|
+//@[2:3) Integer |0|
 //@[3:4) RightSquare |]|
 //@[4:6) NewLine |\n\n|
 
@@ -550,7 +550,7 @@ var functionOnIndexer1 = concat([
 ][0], 's')
 //@[0:1) RightSquare |]|
 //@[1:2) LeftSquare |[|
-//@[2:3) Number |0|
+//@[2:3) Integer |0|
 //@[3:4) RightSquare |]|
 //@[4:5) Comma |,|
 //@[6:9) StringComplete |'s'|
@@ -568,7 +568,7 @@ var functionOnIndexer2 = concat([
 ][0], 's')
 //@[0:1) RightSquare |]|
 //@[1:2) LeftSquare |[|
-//@[2:3) Number |0|
+//@[2:3) Integer |0|
 //@[3:4) RightSquare |]|
 //@[4:5) Comma |,|
 //@[6:9) StringComplete |'s'|
@@ -586,7 +586,7 @@ var functionOnIndexer3 = concat([
 ][0], any('s'))
 //@[0:1) RightSquare |]|
 //@[1:2) LeftSquare |[|
-//@[2:3) Number |0|
+//@[2:3) Integer |0|
 //@[3:4) RightSquare |]|
 //@[4:5) Comma |,|
 //@[6:9) Identifier |any|
@@ -654,7 +654,7 @@ var previousEmitLimit = [
 //@[13:14) NewLine |\n|
   '${4}'
 //@[2:5) StringLeftPiece |'${|
-//@[5:6) Number |4|
+//@[5:6) Integer |4|
 //@[6:8) StringRightPiece |}'|
 //@[8:9) NewLine |\n|
   {
@@ -681,9 +681,9 @@ var previousEmitLimit = [
 //@[16:17) LeftSquare |[|
 //@[17:18) NewLine |\n|
         12 + 3
-//@[8:10) Number |12|
+//@[8:10) Integer |12|
 //@[11:12) Plus |+|
-//@[13:14) Number |3|
+//@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
       ], [
 //@[6:7) RightSquare |]|
@@ -736,7 +736,7 @@ var previousEmitLimit = [
         's' == 12
 //@[8:11) StringComplete |'s'|
 //@[12:14) Equals |==|
-//@[15:17) Number |12|
+//@[15:17) Integer |12|
 //@[17:18) NewLine |\n|
       ])
 //@[6:7) RightSquare |]|
@@ -768,7 +768,7 @@ var previousEmitLimit2 = [
 //@[13:14) NewLine |\n|
   '${4}'
 //@[2:5) StringLeftPiece |'${|
-//@[5:6) Number |4|
+//@[5:6) Integer |4|
 //@[6:8) StringRightPiece |}'|
 //@[8:9) NewLine |\n|
   {
@@ -797,9 +797,9 @@ var previousEmitLimit2 = [
         a: 12 + 3
 //@[8:9) Identifier |a|
 //@[9:10) Colon |:|
-//@[11:13) Number |12|
+//@[11:13) Integer |12|
 //@[14:15) Plus |+|
-//@[16:17) Number |3|
+//@[16:17) Integer |3|
 //@[17:18) NewLine |\n|
       }, {
 //@[6:7) RightBrace |}|
@@ -863,7 +863,7 @@ var previousEmitLimit2 = [
 //@[9:10) Colon |:|
 //@[11:14) StringComplete |'s'|
 //@[15:17) Equals |==|
-//@[18:20) Number |12|
+//@[18:20) Integer |12|
 //@[20:21) NewLine |\n|
       }, {})
 //@[6:7) RightBrace |}|
@@ -914,7 +914,7 @@ var previousEmitLimit3 = {
     } == 2
 //@[4:5) RightBrace |}|
 //@[6:8) Equals |==|
-//@[9:10) Number |2|
+//@[9:10) Integer |2|
 //@[10:11) NewLine |\n|
     c: concat([
 //@[4:5) Identifier |c|
@@ -1167,13 +1167,13 @@ var _ = 3
 //@[0:3) Identifier |var|
 //@[4:5) Identifier |_|
 //@[6:7) Assignment |=|
-//@[8:9) Number |3|
+//@[8:9) Integer |3|
 //@[9:10) NewLine |\n|
 var __ = 10 * _
 //@[0:3) Identifier |var|
 //@[4:6) Identifier |__|
 //@[7:8) Assignment |=|
-//@[9:11) Number |10|
+//@[9:11) Integer |10|
 //@[12:13) Asterisk |*|
 //@[14:15) Identifier |_|
 //@[15:16) NewLine |\n|
@@ -1194,9 +1194,9 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 //@[24:25) Plus |+|
 //@[26:27) Identifier |_|
 //@[28:29) Modulo |%|
-//@[30:31) Number |2|
+//@[30:31) Integer |2|
 //@[32:34) Equals |==|
-//@[35:36) Number |0|
+//@[35:36) Integer |0|
 //@[36:37) RightParen |)|
 //@[37:39) NewLine |\n\n|
 
@@ -1246,12 +1246,12 @@ var isTrue = sys.max(1, 2) == 3
 //@[16:17) Dot |.|
 //@[17:20) Identifier |max|
 //@[20:21) LeftParen |(|
-//@[21:22) Number |1|
+//@[21:22) Integer |1|
 //@[22:23) Comma |,|
-//@[24:25) Number |2|
+//@[24:25) Integer |2|
 //@[25:26) RightParen |)|
 //@[27:29) Equals |==|
-//@[30:31) Number |3|
+//@[30:31) Integer |3|
 //@[31:32) NewLine |\n|
 var isFalse = !isTrue
 //@[0:3) Identifier |var|
@@ -1322,4 +1322,76 @@ var scopesWithoutArmRepresentation = {
 //@[85:86) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// Issue #1332
+//@[14:15) NewLine |\n|
+var issue1332_propname = 'ptest'
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |issue1332_propname|
+//@[23:24) Assignment |=|
+//@[25:32) StringComplete |'ptest'|
+//@[32:33) NewLine |\n|
+var issue1332 = true ? {
+//@[0:3) Identifier |var|
+//@[4:13) Identifier |issue1332|
+//@[14:15) Assignment |=|
+//@[16:20) TrueKeyword |true|
+//@[21:22) Question |?|
+//@[23:24) LeftBrace |{|
+//@[24:25) NewLine |\n|
+    prop1: {
+//@[4:9) Identifier |prop1|
+//@[9:10) Colon |:|
+//@[11:12) LeftBrace |{|
+//@[12:13) NewLine |\n|
+        '${issue1332_propname}': {}
+//@[8:11) StringLeftPiece |'${|
+//@[11:29) Identifier |issue1332_propname|
+//@[29:31) StringRightPiece |}'|
+//@[31:32) Colon |:|
+//@[33:34) LeftBrace |{|
+//@[34:35) RightBrace |}|
+//@[35:36) NewLine |\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:6) NewLine |\n|
+} : {}
+//@[0:1) RightBrace |}|
+//@[2:3) Colon |:|
+//@[4:5) LeftBrace |{|
+//@[5:6) RightBrace |}|
+//@[6:8) NewLine |\n\n|
+
+// Issue #486
+//@[13:14) NewLine |\n|
+var myBigInt = 2199023255552
+//@[0:3) Identifier |var|
+//@[4:12) Identifier |myBigInt|
+//@[13:14) Assignment |=|
+//@[15:28) Integer |2199023255552|
+//@[28:29) NewLine |\n|
+var myIntExpression = 5 * 5
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |myIntExpression|
+//@[20:21) Assignment |=|
+//@[22:23) Integer |5|
+//@[24:25) Asterisk |*|
+//@[26:27) Integer |5|
+//@[27:28) NewLine |\n|
+var myBigIntExpression = 2199023255552 * 2
+//@[0:3) Identifier |var|
+//@[4:22) Identifier |myBigIntExpression|
+//@[23:24) Assignment |=|
+//@[25:38) Integer |2199023255552|
+//@[39:40) Asterisk |*|
+//@[41:42) Integer |2|
+//@[42:43) NewLine |\n|
+var myBigIntExpression2 = 2199023255552 * 2199023255552
+//@[0:3) Identifier |var|
+//@[4:23) Identifier |myBigIntExpression2|
+//@[24:25) Assignment |=|
+//@[26:39) Integer |2199023255552|
+//@[40:41) Asterisk |*|
+//@[42:55) Integer |2199023255552|
+//@[55:55) EndOfFile ||

@@ -60,10 +60,14 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
+                var syntaxPosition = symbolReference is IDeclarationSyntax declaration
+                    ? declaration.Keyword.Span.Position
+                    : symbolReference.Span.Position;
+
                 var hover = await client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
-                    Position = PositionHelper.GetPosition(lineStarts, symbolReference.Span.Position)
+                    Position = PositionHelper.GetPosition(lineStarts, syntaxPosition)
                 });
 
                 if (symbolTable.TryGetValue(symbolReference, out var symbol) == false)

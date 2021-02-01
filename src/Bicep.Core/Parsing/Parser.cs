@@ -51,6 +51,20 @@ namespace Bicep.Core.Parsing
                         declarationsOrTokens.Add(newLine);
                     }
                 }
+
+                if (this.IsAtEnd() &&
+                    declarationOrToken is MissingDeclarationSyntax missingDeclaration &&
+                    !missingDeclaration.HasParseErrors())
+                {
+                    // If there are dangling decorators and we hit EOF and there's no other decorator parsing error,
+                    // ask users to add a declration.
+                    var skippedTriviaSyntax = new SkippedTriviaSyntax(
+                        reader.Peek().Span,
+                        Enumerable.Empty<SyntaxBase>(),
+                        DiagnosticBuilder.ForPosition(missingDeclaration.Decorators.Last()).ExpectDeclarationAfterDecorator().AsEnumerable());
+
+                    declarationsOrTokens.Add(skippedTriviaSyntax);
+                }
             }
 
             var endOfFile = reader.Read();
@@ -62,23 +76,45 @@ namespace Bicep.Core.Parsing
             this.WithRecovery(
                 () =>
                 {
-                    var current = reader.Peek();
+                    List<SyntaxBase> leadingNodes = new();
+
+                    // Parse decorators before the declaration.
+                    while (this.Check(TokenType.At))
+                    {
+                        leadingNodes.Add(this.Decorator());
+
+                        // A decorators must followed by a newline.
+                        leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
+                    }
+
+                    if (leadingNodes.Count > 0 && this.Check(TokenType.NewLine))
+                    {
+                        // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                        // all the newlines after them.
+                        leadingNodes.Add(this.NewLine());
+                    }
+
+                    Token current = reader.Peek();
 
                     return current.Type switch
                     {
                         TokenType.Identifier => current.Text switch
                         {
-                            LanguageConstants.TargetScopeKeyword => this.TargetScope(),
-                            LanguageConstants.ParameterKeyword => this.ParameterDeclaration(),
-                            LanguageConstants.VariableKeyword => this.VariableDeclaration(),
-                            LanguageConstants.ResourceKeyword => this.ResourceDeclaration(),
-                            LanguageConstants.OutputKeyword => this.OutputDeclaration(),
-                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                            LanguageConstants.TargetScopeKeyword => this.TargetScope(leadingNodes),
+                            LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
+                            LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            _ => leadingNodes.Count > 0
+                                ? new MissingDeclarationSyntax(leadingNodes)
+                                : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
+                        _ => leadingNodes.Count > 0
+                            ? new MissingDeclarationSyntax(leadingNodes)
+                            : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                     };
                 },
                 RecoveryFlags.None,
@@ -108,16 +144,71 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxBase TargetScope()
+        private SyntaxBase TargetScope(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.TargetScopeKeyword);
             var assignment = this.WithRecovery(this.Assignment, RecoveryFlags.None, TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), RecoveryFlags.None, TokenType.NewLine);
 
-            return new TargetScopeSyntax(keyword, assignment, value);
+            return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
         }
 
-        private SyntaxBase ParameterDeclaration()
+        private SyntaxBase Decorator()
+        {
+            Token at = this.Expect(TokenType.At, b => b.ExpectedCharacter("@"));
+            SyntaxBase expression = this.WithRecovery(() =>
+            {
+                SyntaxBase current;
+                IdentifierSyntax identifier = this.Identifier(b => b.ExpectedNamespaceOrDecoratorName());
+
+                if (Check(TokenType.LeftParen))
+                {
+                    var functionCall = FunctionCallAccess(identifier, true);
+
+                    current = new FunctionCallSyntax(
+                        functionCall.Identifier,
+                        functionCall.OpenParen,
+                        functionCall.ArgumentNodes,
+                        functionCall.CloseParen);
+                }
+                else
+                {
+                    current = new VariableAccessSyntax(identifier);
+                }
+
+
+                while (this.Check(TokenType.Dot))
+                {
+                    Token dot = this.reader.Read();
+                    identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
+
+                    if (Check(TokenType.LeftParen))
+                    {
+                        var functionCall = FunctionCallAccess(identifier, true);
+
+                        current = new InstanceFunctionCallSyntax(
+                            current,
+                            dot,
+                            functionCall.Identifier,
+                            functionCall.OpenParen,
+                            functionCall.ArgumentNodes,
+                            functionCall.CloseParen);
+                    }
+                    else
+                    {
+                        current = new PropertyAccessSyntax(current, dot, identifier);
+                    }
+                }
+
+                return current;
+            },
+            RecoveryFlags.None,
+            TokenType.NewLine);
+
+            return new DecoratorSyntax(at, expression);
+        }
+
+        private SyntaxBase ParameterDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), TokenType.Identifier, TokenType.NewLine);
@@ -146,7 +237,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(type),
                 TokenType.NewLine);
 
-            return new ParameterDeclarationSyntax(keyword, name, type, modifier);
+            return new ParameterDeclarationSyntax(leadingNodes, keyword, name, type, modifier);
         }
 
         private SyntaxBase ParameterDefaultValue()
@@ -157,17 +248,17 @@ namespace Bicep.Core.Parsing
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
         }
 
-        private SyntaxBase VariableDeclaration()
+        private SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new VariableDeclarationSyntax(keyword, name, assignment, value);
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
-        private SyntaxBase OutputDeclaration()
+        private SyntaxBase OutputDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), TokenType.Identifier, TokenType.NewLine);
@@ -175,10 +266,10 @@ namespace Bicep.Core.Parsing
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new OutputDeclarationSyntax(keyword, name, type, assignment, value);
+            return new OutputDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
 
-        private SyntaxBase ResourceDeclaration()
+        private SyntaxBase ResourceDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ResourceKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedResourceIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
@@ -211,10 +302,10 @@ namespace Bicep.Core.Parsing
 
             var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(keyword, name, type, assignment, ifCondition, body);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, assignment, ifCondition, body);
         }
 
-        private SyntaxBase ModuleDeclaration()
+        private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ModuleKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
@@ -246,7 +337,7 @@ namespace Bicep.Core.Parsing
 
             var body = this.WithRecovery(this.Object, suppressionFlag, TokenType.NewLine);
 
-            return new ModuleDeclarationSyntax(keyword, name, path, assignment, ifCondition, body);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, ifCondition, body);
         }
 
         private Token? NewLineOrEof()
@@ -393,7 +484,7 @@ namespace Bicep.Core.Parsing
 
             switch (nextToken.Type)
             {
-                case TokenType.Number:
+                case TokenType.Integer:
                 case TokenType.NullKeyword:
                 case TokenType.TrueKeyword:
                 case TokenType.FalseKeyword:
@@ -617,13 +708,13 @@ namespace Bicep.Core.Parsing
             return new TypeSyntax(identifier);
         }
 
-        private NumericLiteralSyntax NumericLiteral()
+        private IntegerLiteralSyntax NumericLiteral()
         {
-            var literal = Expect(TokenType.Number, b => b.ExpectedNumericLiteral());
+            var literal = Expect(TokenType.Integer, b => b.ExpectedNumericLiteral());
 
-            if (Int32.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out int value))
+            if (long.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out long value))
             {
-                return new NumericLiteralSyntax(literal, value);
+                return new IntegerLiteralSyntax(literal, value);
             }
 
             // TODO: Should probably be moved to type checking
@@ -763,7 +854,7 @@ namespace Bicep.Core.Parsing
                 case TokenType.FalseKeyword:
                     return new BooleanLiteralSyntax(reader.Read(), false);
 
-                case TokenType.Number:
+                case TokenType.Integer:
                     return this.NumericLiteral();
 
                 case TokenType.NullKeyword:

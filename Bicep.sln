@@ -33,7 +33,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.LangServer.Integratio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli.IntegrationTests", "src\Bicep.Cli.IntegrationTests\Bicep.Cli.IntegrationTests.csproj", "{34D7A843-55CB-4A3A-B268-2D4ABB7044D3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{61643BA1-BE82-4430-A3D3-CB7A16E747E3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Decompiler", "Decompiler", "{61643BA1-BE82-4430-A3D3-CB7A16E747E3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Decompiler", "src\Bicep.Decompiler\Bicep.Decompiler.csproj", "{4CD48B4A-6297-49FC-90AC-5DF9213C1527}"
 EndProject

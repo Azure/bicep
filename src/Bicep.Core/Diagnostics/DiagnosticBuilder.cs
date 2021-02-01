@@ -11,7 +11,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -58,10 +57,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP005",
                 "The string at this location is not terminated. Complete the escape sequence and terminate the string with a single unescaped quote character.");
 
-            public ErrorDiagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeChars) => new(
+            public ErrorDiagnostic UnterminatedStringEscapeSequenceUnrecognized(IEnumerable<string> escapeSequences) => new(
                 TextSpan,
                 "BCP006",
-                $"The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: {ToQuotedString(escapeChars)}.");
+                $"The specified escape sequence is not recognized. Only the following escape sequences are allowed: {ToQuotedString(escapeSequences)}.");
 
             public ErrorDiagnostic UnrecognizedDeclaration() => new(
                 TextSpan,
@@ -666,14 +665,14 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Error,
                 "BCP115",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeSubscription}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
-                $"Permissible scopes include current subscription: subscription(), named subscription: subscription(<subId>), named resource group in same subscription: resourceGroup(<name>), or tenant: tenant().");
+                $"Permissible scopes include current subscription: subscription(), named subscription: subscription(<subId>), named resource group in same subscription: resourceGroup(<name>), named resource group in different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
 
             public Diagnostic InvalidModuleScopeForResourceGroup() => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP116",
                 $"Unsupported scope for module deployment in a \"{LanguageConstants.TargetScopeTypeResourceGroup}\" target scope. Omit this property to inherit the current scope, or specify a valid scope. " +
-                $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), or tenant: tenant().");
+                $"Permissible scopes include current resource group: resourceGroup(), named resource group in same subscription: resourceGroup(<name>), named resource group in a different subscription: resourceGroup(<subId>, <name>), current subscription: subscription(), named subscription: subscription(<subId>) or tenant: tenant().");
 
             public ErrorDiagnostic EmptyIndexerNotAllowed() => new(
                 TextSpan,
@@ -702,6 +701,7 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. {variableDependencyChainClause}Accessible properties of {accessedSymbol} are {ToQuotedString(usableProperties.OrderBy(s => s))}."
                 );
             }
+
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
                 TextSpan,                
                 "BCP121",
@@ -711,6 +711,61 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,                
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
+
+            public ErrorDiagnostic ExpectedNamespaceOrDecoratorName() => new(
+                TextSpan,
+                "BCP123",
+                "Expected a namespace or decorator name at this location.");
+
+            public ErrorDiagnostic CannotAttacheDecoratorToTarget(string decoratorName, TypeSymbol attachableType, TypeSymbol targetType) => new(
+                TextSpan,
+                "BCP124",
+                $"The decorator \"{decoratorName}\" can only be attached to targets of type \"{attachableType}\", but the target has type \"{targetType}\".");
+
+            public ErrorDiagnostic CannotUseFunctionAsParameterDecorator(string functionName) => new(
+                TextSpan,
+                "BCP125",
+                $"Function \"{functionName}\" cannot be used as a parameter decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsVariableDecorator(string functionName) => new(
+                TextSpan,
+                "BCP126",
+                $"Function \"{functionName}\" cannot be used as a variable decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsResourceDecorator(string functionName) => new(
+                TextSpan,
+                "BCP127",
+                $"Function \"{functionName}\" cannot be used as a resource decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsModuleDecorator(string functionName) => new(
+                TextSpan,
+                "BCP128",
+                $"Function \"{functionName}\" cannot be used as a module decorator.");
+
+            public ErrorDiagnostic CannotUseFunctionAsOuputDecorator(string functionName) => new(
+                TextSpan,
+                "BCP129",
+                $"Function \"{functionName}\" cannot be used as an output decorator.");
+
+            public ErrorDiagnostic DecoratorsNotAllowed() => new(
+                TextSpan,
+                "BCP130",
+                "Decorators are not allowed here.");
+
+            public ErrorDiagnostic CannotUseParameterDecoratorsAndModifiersTogether() => new(
+                TextSpan,
+                "BCP131",
+                "Parameter modifiers and decorators cannot be used together. Please use decorators only.");
+
+            public ErrorDiagnostic ExpectDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP132",
+                "Expected a declaration after the decorator.");
+
+            public ErrorDiagnostic InvalidUnicodeEscape() => new(
+                TextSpan,
+                "BCP133",
+                "The unicode escape sequence is not valid. Valid unicode escape sequences range from \\u{0} to \\u{10FFFF}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

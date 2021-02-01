@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
@@ -39,6 +40,22 @@ namespace Bicep.Core.FileSystem
             }
 
             return relativeUri;
+        }
+
+        public bool TryDirExists(Uri fileUri)
+        {
+            return this.fileLookup.Keys
+                .Any(key => key.ToString().StartsWith(fileUri.ToString()));
+        }
+
+        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
+        {
+            return Enumerable.Empty<Uri>();
+        }
+
+        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
+        {
+            return fileLookup.Keys;
         }
     }
 }

@@ -336,6 +336,10 @@
         "description": "201/log-analytics-with-solutions-and-diagnostics"
     },
     {
+        "filePath": "201/policy-definition-with-assignment/main.bicep",
+        "description": "201/policy-definition-with-assignment"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },
@@ -450,5 +454,9 @@
     {
         "filePath": "301/servicebus-namespace-vnet/main.bicep",
         "description": "301/servicebus-namespace-vnet"
+    },
+    {
+        "filePath": "301/web-app-managed-identity-sql-db/main.bicep",
+        "description": "301/web-app-managed-identity-sql-db"
     }
 ]

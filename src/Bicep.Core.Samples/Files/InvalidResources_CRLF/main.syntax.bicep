@@ -111,14 +111,14 @@ resource foo 'ddd'=if (1 + 1 == 2) {
 //@[22:23)    LeftParen |(|
 //@[23:33)    BinaryOperationSyntax
 //@[23:28)     BinaryOperationSyntax
-//@[23:24)      NumericLiteralSyntax
-//@[23:24)       Number |1|
+//@[23:24)      IntegerLiteralSyntax
+//@[23:24)       Integer |1|
 //@[25:26)      Plus |+|
-//@[27:28)      NumericLiteralSyntax
-//@[27:28)       Number |1|
+//@[27:28)      IntegerLiteralSyntax
+//@[27:28)       Integer |1|
 //@[29:31)     Equals |==|
-//@[32:33)     NumericLiteralSyntax
-//@[32:33)      Number |2|
+//@[32:33)     IntegerLiteralSyntax
+//@[32:33)      Integer |2|
 //@[33:34)    RightParen |)|
 //@[35:39)  ObjectSyntax
 //@[35:36)   LeftBrace |{|
@@ -429,8 +429,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[52:54)   Identifier |if|
 //@[55:60)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
-//@[56:59)    NumericLiteralSyntax
-//@[56:59)     Number |123|
+//@[56:59)    IntegerLiteralSyntax
+//@[56:59)     Integer |123|
 //@[59:60)    RightParen |)|
 //@[61:80)  ObjectSyntax
 //@[61:62)   LeftBrace |{|
@@ -786,8 +786,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[21:24)      StringSyntax
 //@[21:24)       StringComplete |'a'|
 //@[25:26)      Plus |+|
-//@[27:28)      NumericLiteralSyntax
-//@[27:28)       Number |1|
+//@[27:28)      IntegerLiteralSyntax
+//@[27:28)       Integer |1|
 //@[28:30)   NewLine |\r\n|
   properties: {
 //@[2:142)   ObjectPropertySyntax
@@ -825,8 +825,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[21:23)         LogicalOr ||||
 //@[24:26)         UnaryOperationSyntax
 //@[24:25)          Exclamation |!|
-//@[25:26)          NumericLiteralSyntax
-//@[25:26)           Number |4|
+//@[25:26)          IntegerLiteralSyntax
+//@[25:26)           Integer |4|
 //@[26:27)        RightParen |)|
 //@[27:29)     NewLine |\r\n|
     a: [
@@ -870,8 +870,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[30:34)            BooleanLiteralSyntax
 //@[30:34)             TrueKeyword |true|
 //@[35:36)           Asterisk |*|
-//@[37:38)           NumericLiteralSyntax
-//@[37:38)            Number |4|
+//@[37:38)           IntegerLiteralSyntax
+//@[37:38)            Integer |4|
 //@[38:40)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
@@ -961,8 +961,8 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[2:4)    IdentifierSyntax
 //@[2:4)     Identifier |id|
 //@[4:5)    Colon |:|
-//@[6:7)    NumericLiteralSyntax
-//@[6:7)     Number |2|
+//@[6:7)    IntegerLiteralSyntax
+//@[6:7)     Integer |2|
 //@[7:9)   NewLine |\r\n|
   type: 'hello'
 //@[2:15)   ObjectPropertySyntax
@@ -3904,4 +3904,54 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[62:64)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:5) NewLine |\r\n\r\n|
+
+@concat('foo', 'bar')
+//@[0:131) ResourceDeclarationSyntax
+//@[0:21)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:21)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |concat|
+//@[7:8)    LeftParen |(|
+//@[8:14)    FunctionArgumentSyntax
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:14)     Comma |,|
+//@[15:20)    FunctionArgumentSyntax
+//@[15:20)     StringSyntax
+//@[15:20)      StringComplete |'bar'|
+//@[20:21)    RightParen |)|
+//@[21:23)  NewLine |\r\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |invalidDecorator|
+//@[26:63)  StringSyntax
+//@[26:63)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[63:64)  Assignment |=|
+//@[65:97)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  name: 'invalidDecorator'
+//@[2:26)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:26)    StringSyntax
+//@[8:26)     StringComplete |'invalidDecorator'|
+//@[26:28)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

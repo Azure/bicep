@@ -38,3 +38,9 @@ module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
   scope: resourceGroup('RG')
 }
 
+module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
+//@[7:38) Module unsupportedScopeManagementGroup. Type: module. Declaration start char: 0, length: 149
+  name: 'unsupportedScopeManagementGroup'
+  scope: managementGroup('MG')
+}
+

@@ -740,3 +740,12 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[8:47) [BCP121 (Error)] Resources: "invalidExtensionResourceDuplicateName1", "invalidExtensionResourceDuplicateName2" are defined with this same name in a file. Rename them or split into different modules. |'invalidExtensionResourceDuplicateName'|
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }
+
+@concat('foo', 'bar')
+//@[1:7) [BCP127 (Error)] Function "concat" cannot be used as a resource decorator. |concat|
+@secure()
+//@[1:7) [BCP127 (Error)] Function "secure" cannot be used as a resource decorator. |secure|
+resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+  name: 'invalidDecorator'
+}
+

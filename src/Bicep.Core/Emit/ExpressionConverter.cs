@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
@@ -34,15 +35,15 @@ namespace Bicep.Core.Emit
             {
                 case BooleanLiteralSyntax boolSyntax:
                     return CreateFunction(boolSyntax.Value ? "true" : "false");
-                    
-                case NumericLiteralSyntax numericSyntax:
-                    return new JTokenExpression(numericSyntax.Value);
+
+                case IntegerLiteralSyntax integerSyntax:
+                    return integerSyntax.Value > int.MaxValue || integerSyntax.Value < int.MinValue ? CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToInvariantString())) : new JTokenExpression((int)integerSyntax.Value);
 
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because
                     // error checking should have caught any errors by now
                     return ConvertString(stringSyntax);
-                    
+
                 case NullLiteralSyntax _:
                     return CreateFunction("null");
 
@@ -170,7 +171,7 @@ namespace Bicep.Core.Emit
             {
                 return GetResourceNameExpression(resourceSymbol).AsEnumerable();
             }
-            
+
             return typeReference.Types.Select(
                 (type, i) => AppendProperties(
                     CreateFunction(
@@ -185,7 +186,7 @@ namespace Bicep.Core.Emit
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
             var nameSegments = GetResourceNameSegments(resourceSymbol, typeReference);
 
-            if (context.ResoureScopeData[resourceSymbol] is {} parentResourceSymbol)
+            if (context.ResoureScopeData[resourceSymbol] is { } parentResourceSymbol)
             {
                 // this should be safe because we've already checked for cycles by now
                 var parentResourceId = GetUnqualifiedResourceId(parentResourceSymbol);
@@ -210,7 +211,7 @@ namespace Bicep.Core.Emit
                 TemplateWriter.NestedDeploymentResourceType,
                 GetModuleNameExpression(moduleSymbol).AsEnumerable());
         }
-        
+
         public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol)
             => AppendProperties(
                 CreateFunction(
@@ -273,7 +274,7 @@ namespace Bicep.Core.Emit
             if (syntax.TryGetLiteralValue() is string literalStringValue)
             {
                 // no need to build a format string
-                return new JTokenExpression(literalStringValue);;
+                return new JTokenExpression(literalStringValue);
             }
 
             if (syntax.Expressions.Length == 1)
@@ -385,7 +386,12 @@ namespace Bicep.Core.Emit
             int index = 0;
             foreach (var propertySyntax in syntax.Properties)
             {
-                parameters[index] = new JTokenExpression(propertySyntax.TryGetKeyText());
+                parameters[index] = propertySyntax.Key switch
+                {
+                    IdentifierSyntax identifier => new JTokenExpression(identifier.IdentifierName),
+                    StringSyntax @string => ConvertString(@string),
+                    _ => throw new NotImplementedException($"Encountered an unexpected type '{propertySyntax.Key.GetType().Name}' when generating object's property name.")
+                };
                 index++;
 
                 parameters[index] = ConvertExpression(propertySyntax.Value);
@@ -397,7 +403,7 @@ namespace Bicep.Core.Emit
         }
 
         private static FunctionExpression GetCreateObjectExpression(params LanguageExpression[] parameters)
-            =>  CreateFunction("createObject", parameters);
+            => CreateFunction("createObject", parameters);
 
         private LanguageExpression ConvertBinary(BinaryOperationSyntax syntax)
         {
@@ -416,7 +422,7 @@ namespace Bicep.Core.Emit
                     return CreateFunction("equals", operand1, operand2);
 
                 case BinaryOperator.NotEquals:
-                    return CreateFunction("not", 
+                    return CreateFunction("not",
                         CreateFunction("equals", operand1, operand2));
 
                 case BinaryOperator.EqualsInsensitive:
@@ -504,7 +510,7 @@ namespace Bicep.Core.Emit
         public static LanguageExpression GenerateScopedResourceId(LanguageExpression scope, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
             => CreateFunction(
                 "extensionResourceId",
-                new [] { scope, new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
+                new[] { scope, new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
 
         public static LanguageExpression GenerateResourceGroupScope(LanguageExpression subscriptionId, LanguageExpression resourceGroup)
             => CreateFunction(
@@ -516,7 +522,7 @@ namespace Bicep.Core.Emit
         public static LanguageExpression GenerateTenantResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
             => CreateFunction(
                 "tenantResourceId",
-                new [] { new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
+                new[] { new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
 
         public LanguageExpression GenerateManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
         {
@@ -525,11 +531,11 @@ namespace Bicep.Core.Emit
 
             if (fullyQualified)
             {
-                return GenerateTenantResourceId(managementGroupType, new [] { managementGroupName });
+                return GenerateTenantResourceId(managementGroupType, new[] { managementGroupName });
             }
             else
             {
-                return GenerateUnqualifiedResourceId(managementGroupType, new [] { managementGroupName });
+                return GenerateUnqualifiedResourceId(managementGroupType, new[] { managementGroupName });
             }
         }
 

@@ -176,3 +176,9 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[28:33) [BCP044 (Error)] Cannot apply operator "-" to operand of type "bool". |-true|
 //@[37:46) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "int" and "'s'". |14 && 's'|
 
+@sys.maxValue(20)
+//@[5:13) [BCP129 (Error)] Function "maxValue" cannot be used as an output decorator. |maxValue|
+@minValue(10)
+//@[1:9) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. |minValue|
+output notAttachableDecorators int = 32
+

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static string SaveResultFile(TestContext testContext, string fileName, string contents)
         {
             var filePath = GetResultFilePath(testContext, fileName);
-            File.WriteAllText(filePath, contents);
+            File.WriteAllText(filePath, contents, Encoding.Unicode);
 
             return filePath;
         }

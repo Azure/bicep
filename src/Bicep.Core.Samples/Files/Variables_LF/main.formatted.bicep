@@ -225,3 +225,17 @@ var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
   resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
 }
+
+// Issue #1332
+var issue1332_propname = 'ptest'
+var issue1332 = true ? {
+  prop1: {
+    '${issue1332_propname}': {}
+  }
+} : {}
+
+// Issue #486
+var myBigInt = 2199023255552
+var myIntExpression = 5 * 5
+var myBigIntExpression = 2199023255552 * 2
+var myBigIntExpression2 = 2199023255552 * 2199023255552

@@ -4,9 +4,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class NumericLiteralSyntax : ExpressionSyntax
+    public class IntegerLiteralSyntax : ExpressionSyntax
     {
-        public NumericLiteralSyntax(Token literal, int value)
+        public IntegerLiteralSyntax(Token literal, long value)
         {
             Literal = literal;
             Value = value;
@@ -14,10 +14,10 @@ namespace Bicep.Core.Syntax
 
         public Token Literal { get; }
 
-        public int Value { get; }
+        public long Value { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
-            => visitor.VisitNumericLiteralSyntax(this);
+            => visitor.VisitIntegerLiteralSyntax(this);
 
         public override TextSpan Span
             => TextSpan.Between(Literal, Literal);

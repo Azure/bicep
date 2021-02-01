@@ -686,3 +686,11 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
   name: 'invalidExtensionResourceDuplicateName'
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }
+
+@concat('foo', 'bar')
+@secure()
+resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[9:25) Resource invalidDecorator. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 131
+  name: 'invalidDecorator'
+}
+

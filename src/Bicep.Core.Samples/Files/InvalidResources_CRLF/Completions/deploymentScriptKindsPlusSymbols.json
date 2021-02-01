@@ -805,6 +805,20 @@
     }
   },
   {
+    "label": "invalidDecorator",
+    "kind": "interface",
+    "detail": "invalidDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDecorator"
+    }
+  },
+  {
     "label": "invalidDuplicateName1",
     "kind": "interface",
     "detail": "invalidDuplicateName1",
@@ -2327,7 +2341,8 @@
       "range": {},
       "newText": "validModule"
     }
-},{
+  },
+  {
     "label": "validResourceForInvalidExtensionResourceDuplicateName",
     "kind": "interface",
     "detail": "validResourceForInvalidExtensionResourceDuplicateName",

@@ -4,6 +4,7 @@ namespace Bicep.Core.Parsing
 {
     public enum TokenType
     {
+        At,
         Unrecognized,
         LeftBrace,
         RightBrace,
@@ -38,7 +39,7 @@ namespace Bicep.Core.Parsing
         StringMiddlePiece,
         StringRightPiece,
         StringComplete,
-        Number,
+        Integer,
         TrueKeyword,
         FalseKeyword,
         NullKeyword,
