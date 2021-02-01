@@ -82,6 +82,10 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Keyword);
             allowedFlags = FunctionFlags.Default;
             this.Visit(syntax.ConditionExpression);
+            // if-condition syntax parent is always a resource/module declaration
+            // this means that we have to allow the functions that are only allowed
+            // in resource bodies by our runtime (like reference() or listKeys())
+            // TODO: Update when conditions can be composed together with loops
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Body);
             allowedFlags = FunctionFlags.Default;
