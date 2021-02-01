@@ -18,21 +18,40 @@ namespace Bicep.Core.Decompiler.Rewriters
             this.semanticModel = semanticModel;
         }
 
-        private ObjectSyntax? TryGetReplacementBody(SyntaxBase bodySyntax)
+        private SyntaxBase? TryGetReplacementValue(SyntaxBase value) =>
+            value switch
+            {
+                ObjectSyntax @object => TryGetReplacementBody(@object),
+                IfConditionSyntax ifCondition => TryGetReplacementIfCondition(ifCondition),
+                _ => null
+            };
+
+        private IfConditionSyntax? TryGetReplacementIfCondition(IfConditionSyntax ifCondition)
         {
-            if (bodySyntax is not ObjectSyntax objectSyntax)
+            if (ifCondition.Body is not ObjectSyntax @object)
             {
                 return null;
             }
 
-            var dependsOnProperty = objectSyntax.SafeGetPropertyByName("dependsOn");
+            var replacementBody = TryGetReplacementBody(@object);
+            if (replacementBody == null)
+            {
+                return null;
+            }
+
+            return new IfConditionSyntax(ifCondition.Keyword, ifCondition.ConditionExpression, replacementBody);
+        }
+
+        private ObjectSyntax? TryGetReplacementBody(ObjectSyntax @object)
+        {
+            var dependsOnProperty = @object.SafeGetPropertyByName("dependsOn");
             if (dependsOnProperty is null)
             {
                 return null;
             }
 
             var builtInDependencies = new HashSet<Symbol>();
-            foreach (var property in objectSyntax.Properties)
+            foreach (var property in @object.Properties)
             {
                 if (property == dependsOnProperty)
                 {
@@ -76,7 +95,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
 
             var newChildren = new List<SyntaxBase>();
-            foreach (var child in objectSyntax.Children)
+            foreach (var child in @object.Children)
             {
                 if (child == dependsOnProperty)
                 {
@@ -97,15 +116,15 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
 
             return new ObjectSyntax(
-                objectSyntax.OpenBrace,
+                @object.OpenBrace,
                 newChildren,
-                objectSyntax.CloseBrace);
+                @object.CloseBrace);
         }
 
         protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            var replacementBody = TryGetReplacementBody(syntax.Body);
-            if (replacementBody is null)
+            var replacementValue = TryGetReplacementValue(syntax.Value);
+            if (replacementValue is null)
             {
                 return base.ReplaceResourceDeclarationSyntax(syntax);
             }
@@ -117,14 +136,13 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.Type,
                 syntax.ExistingKeyword,
                 syntax.Assignment,
-                syntax.IfCondition,
-                replacementBody);
+                replacementValue);
         }
 
         protected override ModuleDeclarationSyntax ReplaceModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
-            var replacementBody = TryGetReplacementBody(syntax.Body);
-            if (replacementBody is null)
+            var replacementValue = TryGetReplacementValue(syntax.Value);
+            if (replacementValue is null)
             {
                 return base.ReplaceModuleDeclarationSyntax(syntax);
             }
@@ -135,8 +153,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 syntax.Name,
                 syntax.Path,
                 syntax.Assignment,
-                syntax.IfCondition,
-                replacementBody);
+                replacementValue);
         }
     }
 }

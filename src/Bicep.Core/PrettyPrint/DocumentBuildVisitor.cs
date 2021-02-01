@@ -109,8 +109,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Type);
                 this.Visit(syntax.ExistingKeyword);
                 this.Visit(syntax.Assignment);
-                this.Visit(syntax.IfCondition);
-                this.Visit(syntax.Body);
+                this.Visit(syntax.Value);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) =>
@@ -122,8 +121,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Name);
                 this.Visit(syntax.Path);
                 this.Visit(syntax.Assignment);
-                this.Visit(syntax.IfCondition);
-                this.Visit(syntax.Body);
+                this.Visit(syntax.Value);
             });
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>

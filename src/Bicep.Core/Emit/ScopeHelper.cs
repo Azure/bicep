@@ -267,7 +267,7 @@ namespace Bicep.Core.Emit
                 }
 
                 var scopeProperty = resourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resourceSymbol.DeclaringResource.Body, scopeProperty);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resourceType.ValidParentScopes, resourceSymbol.DeclaringResource.Value, scopeProperty);
 
                 if (scopeData is null)
                 {
@@ -326,7 +326,7 @@ namespace Bicep.Core.Emit
                 }
 
                 var scopeProperty = moduleSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Body, scopeProperty);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeProperty);
 
                 if (scopeData is null)
                 {

@@ -123,7 +123,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@[38:66)  StringSyntax
 //@[38:66)   StringComplete |'modules/subscription.bicep'|
 //@[67:68)  Assignment |=|
-//@[69:92)  IfConditionSyntax
+//@[69:199)  IfConditionSyntax
 //@[69:71)   Identifier |if|
 //@[72:92)   ParenthesizedExpressionSyntax
 //@[72:73)    LeftParen |(|
@@ -140,33 +140,33 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@[90:91)     IntegerLiteralSyntax
 //@[90:91)      Integer |3|
 //@[91:92)    RightParen |)|
-//@[93:199)  ObjectSyntax
-//@[93:94)   LeftBrace |{|
-//@[94:95)   NewLine |\n|
+//@[93:199)   ObjectSyntax
+//@[93:94)    LeftBrace |{|
+//@[94:95)    NewLine |\n|
   name: 'mySubscriptionModWithCondition'
-//@[2:40)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:40)    StringSyntax
-//@[8:40)     StringComplete |'mySubscriptionModWithCondition'|
-//@[40:41)   NewLine |\n|
+//@[2:40)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:40)     StringSyntax
+//@[8:40)      StringComplete |'mySubscriptionModWithCondition'|
+//@[40:41)    NewLine |\n|
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[2:61)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:61)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:60)     FunctionArgumentSyntax
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
-//@[60:61)     RightParen |)|
-//@[61:62)   NewLine |\n|
+//@[2:61)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:61)     FunctionCallSyntax
+//@[9:21)      IdentifierSyntax
+//@[9:21)       Identifier |subscription|
+//@[21:22)      LeftParen |(|
+//@[22:60)      FunctionArgumentSyntax
+//@[22:60)       StringSyntax
+//@[22:60)        StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[60:61)      RightParen |)|
+//@[61:62)    NewLine |\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {

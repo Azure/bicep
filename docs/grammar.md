@@ -18,9 +18,9 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> decorator* "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" ifCondition? object NL
+resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" (ifCondition | object) NL
 
-moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" object NL
+moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object) NL
 
 outputDecl -> decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
 
@@ -89,7 +89,7 @@ argumentList -> expression ("," expression)*
 
 parenthesizedExpression -> "(" expression ")"
 
-ifCondition -> "if" parenthesizedExpression
+ifCondition -> "if" parenthesizedExpression object
 
 interpString ->  interpStringLeftPiece ( expression interpStringMiddlePiece )* expression interpStringRightPiece | literalString
 interpStringLeftPiece -> "'" STRINGCHAR* "${"

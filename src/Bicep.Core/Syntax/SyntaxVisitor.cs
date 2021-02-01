@@ -90,8 +90,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
             this.Visit(syntax.ExistingKeyword);
             this.Visit(syntax.Assignment);
-            this.Visit(syntax.IfCondition);
-            this.Visit(syntax.Body);
+            this.Visit(syntax.Value);
         }
 
         public virtual void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -101,8 +100,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
-            this.Visit(syntax.IfCondition);
-            this.Visit(syntax.Body);
+            this.Visit(syntax.Value);
         }
 
         public virtual void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
@@ -194,6 +192,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Keyword);
             this.Visit(syntax.ConditionExpression);
+            this.Visit(syntax.Body);
         }
 
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)

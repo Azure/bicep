@@ -60,10 +60,8 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Type);
             this.Visit(syntax.ExistingKeyword);
             this.Visit(syntax.Assignment);
-            allowedFlags = FunctionFlags.Default;
-            this.Visit(syntax.IfCondition);
             allowedFlags = FunctionFlags.RequiresInlining;
-            this.Visit(syntax.Body);
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
 
@@ -75,8 +73,20 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Name);
             this.Visit(syntax.Path);
             this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
-            this.Visit(syntax.IfCondition);
+        }
+
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            allowedFlags = FunctionFlags.Default;
+            this.Visit(syntax.ConditionExpression);
+            // if-condition syntax parent is always a resource/module declaration
+            // this means that we have to allow the functions that are only allowed
+            // in resource bodies by our runtime (like reference() or listKeys())
+            // TODO: Update when conditions can be composed together with loops
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Body);
             allowedFlags = FunctionFlags.Default;
