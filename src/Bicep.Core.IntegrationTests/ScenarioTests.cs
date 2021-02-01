@@ -404,5 +404,75 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
                 template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1362_1()
+        {
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'resourceGroup'
+
+module sub './modules/subscription.bicep' = {
+  name: 'subDeploy'
+  scope: subscription()
+}"),
+                ("modules/subscription.bicep", @"
+targetScope = 'subscription'
+"));
+
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("[subscription().subscriptionId]");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1362_2()
+        {
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'resourceGroup'
+
+module sub './modules/subscription.bicep' = {
+  name: 'subDeploy'
+  scope: subscription('abcd-efgh')
+}"),
+                ("modules/subscription.bicep", @"
+targetScope = 'subscription'
+"));
+
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1402()
+        {
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'subscription'
+
+module sub './modules/resourceGroup.bicep' = {
+  name: 'subDeploy'
+  scope: resourceGroup('abcd-efgh','bicep-rg')
+}"),
+                ("modules/resourceGroup.bicep", @"
+targetScope = 'resourceGroup'
+"));
+
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
+            }
+        }
     }
 }

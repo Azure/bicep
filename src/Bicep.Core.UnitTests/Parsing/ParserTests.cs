@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Text;
@@ -254,6 +254,22 @@ namespace Bicep.Core.UnitTests.Parsing
         public void ArrayAccessShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(ArrayAccessSyntax));
+        }
+
+        [DataTestMethod]
+        // 3 alternative ways to produce the same character
+        [DataRow(@"'𐐷'", @"'𐐷'", @"𐐷")]
+        [DataRow(@"'\u{10437}'", @"'\u{10437}'", @"𐐷")]
+        [DataRow(@"'\u{D801}\u{DC37}'", @"'\u{D801}\u{DC37}'", @"𐐷")]
+        // simple ascii escape
+        [DataRow(@"'\u{20}'", @"'\u{20}'", " ")]
+        [DataRow(@"'Hello\u{20}World! ☕'", @"'Hello\u{20}World! ☕'", @"Hello World! ☕")]
+        public void UnicodeEscapesShouldProduceExpectedCharacters(string text, string expectedSerialized, string expectedLiteralValue)
+        {
+            var syntax = (StringSyntax) RunExpressionTest(text, expectedSerialized, typeof(StringSyntax));
+            var value = syntax.TryGetLiteralValue();
+            value.Should().NotBeNull();
+            value.Should().Be(expectedLiteralValue);
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

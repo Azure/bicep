@@ -10,6 +10,12 @@ module myResourceGroupMod2 'resourcegroup.bicep' = {
   scope: resourceGroup('myRg')
 }
 
+module myResourceGroupMod3 'resourcegroup.bicep' = {
+  name: 'myResourceGroupMod3'
+  scope: resourceGroup('subId', 'myRg')
+}
+
+
 module myTenantMod 'tenant.bicep' = {
   name: 'myTenantMod'
   scope: tenant()

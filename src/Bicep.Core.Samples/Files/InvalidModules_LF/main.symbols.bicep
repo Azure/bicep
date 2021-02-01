@@ -226,6 +226,18 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   scope: managementGroup()
 }
 
+module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+//@[7:33) Module moduleWithUnsupprtedScope1. Type: module. Declaration start char: 0, length: 122
+  name: 'moduleWithUnsupprtedScope1'
+  scope: managementGroup()
+}
+
+module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+//@[7:33) Module moduleWithUnsupprtedScope2. Type: module. Declaration start char: 0, length: 126
+  name: 'moduleWithUnsupprtedScope2'
+  scope: managementGroup('MG')
+}
+
 module moduleWithBadScope './empty.bicep' = {
 //@[7:25) Module moduleWithBadScope. Type: module. Declaration start char: 0, length: 99
   name: 'moduleWithBadScope'

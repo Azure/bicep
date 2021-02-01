@@ -227,6 +227,15 @@ namespace Bicep.Core.Emit
                     }
                     return;
                 case ResourceScope.Subscription:
+                    if (scopeData.SubscriptionIdProperty != null)
+                    {
+                        expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
+                    }
+                    else if (targetScope == ResourceScope.ResourceGroup)
+                    {
+                        expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
+                    }
+                    return;
                 case ResourceScope.ResourceGroup:
                     if (scopeData.SubscriptionIdProperty != null)
                     {
@@ -287,11 +296,11 @@ namespace Bicep.Core.Emit
                 case ResourceScope.ManagementGroup:
                     return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup);
                 case ResourceScope.Subscription when scopeData.SubscriptionIdProperty is not null:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription);
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription, ResourceScope.ResourceGroup);
                 case ResourceScope.Subscription:
-                    return checkScopes(ResourceScope.Subscription);
+                    return checkScopes(ResourceScope.Subscription, ResourceScope.ResourceGroup);
                 case ResourceScope.ResourceGroup when scopeData.SubscriptionIdProperty is not null && scopeData.ResourceGroupProperty is not null:
-                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.ResourceGroup);
+                    return checkScopes(ResourceScope.Tenant, ResourceScope.ManagementGroup, ResourceScope.Subscription, ResourceScope.ResourceGroup);
                 case ResourceScope.ResourceGroup when scopeData.ResourceGroupProperty is not null:
                     return checkScopes(ResourceScope.Subscription, ResourceScope.ResourceGroup);
                 case ResourceScope.ResourceGroup:

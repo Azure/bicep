@@ -56,15 +56,12 @@ namespace Bicep.Core.Parsing
                     declarationOrToken is MissingDeclarationSyntax missingDeclaration &&
                     !missingDeclaration.HasParseErrors())
                 {
-                    // If there are dangling decorators and we hit EOF, ask users to add a declration.
-                    // Set the span of the diagnostic so that it's on the line below the last decorator.
-                    var lastNewLine = missingDeclaration.LeadingNodes.Last(node => node is Token { Type: TokenType.NewLine });
-                    var diagnosticSpan = new TextSpan(lastNewLine.Span.Position + 2, 0);
-
+                    // If there are dangling decorators and we hit EOF and there's no other decorator parsing error,
+                    // ask users to add a declration.
                     var skippedTriviaSyntax = new SkippedTriviaSyntax(
                         reader.Peek().Span,
                         Enumerable.Empty<SyntaxBase>(),
-                        DiagnosticBuilder.ForPosition(diagnosticSpan).ExpectDeclarationAfterDecorator().AsEnumerable());
+                        DiagnosticBuilder.ForPosition(missingDeclaration.Decorators.Last()).ExpectDeclarationAfterDecorator().AsEnumerable());
 
                     declarationsOrTokens.Add(skippedTriviaSyntax);
                 }
