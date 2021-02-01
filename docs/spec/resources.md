@@ -98,7 +98,7 @@ Conditions may be used with dependency declarations. If the identifier of condit
 
 > Requires Bicep CLI v0.3 or later
 
-You may add referencs and access runtime properties from resources outside of the current file by using the `existing` keyword in a resource declaration. This is equivalent to using the ARM Template `reference()` function.
+You may add references and access runtime properties from resources outside of the current file by using the `existing` keyword in a resource declaration. This is equivalent to using the ARM Template `reference()` function.
 
 When using the `existing` keyword, you must provide the `name` of the resource, and may optionally also set the `scope` property to access a resource in a different scope. See [Resource Scopes](./resource-scopes.md) for more information on using the `scope` property.
 
