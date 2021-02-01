@@ -38,7 +38,7 @@ resource trafficManagerProfile 'Microsoft.Network/trafficmanagerprofiles@2018-04
     }
     endpoints: [
       {
-        name: '${uniqueDnsNameForWebApp}'
+        name: uniqueDnsNameForWebApp
         type: 'Microsoft.Network/trafficManagerProfiles/azureEndpoints'
         properties: {
           targetResourceId: webSite.id
