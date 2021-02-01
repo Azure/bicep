@@ -569,3 +569,13 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'invalidDecorator'
 }
+
+resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+  name: 'cyclicRes'
+  scope: cyclicRes
+}
+
+resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
+  name: 'cyclicExistingRes'
+  scope: cyclicExistingRes
+}

@@ -290,3 +290,20 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
   }
 }
 
+resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[9:18) Resource existing1. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 123
+  name: 'existing1'
+  scope: extension1
+}
+
+resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[9:18) Resource existing2. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 122
+  name: 'existing2'
+  scope: existing1
+}
+
+resource extension3 'My.Rp/extensionResource@2020-12-01' = {
+//@[9:19) Resource extension3. Type: My.Rp/extensionResource@2020-12-01. Declaration start char: 0, length: 105
+  name: 'extension3'
+  scope: existing1
+}

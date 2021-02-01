@@ -744,3 +744,14 @@ resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'invalidDecorator'
 }
 
+resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+  name: 'cyclicRes'
+  scope: cyclicRes
+//@[9:18) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |cyclicRes|
+}
+
+resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
+  name: 'cyclicExistingRes'
+  scope: cyclicExistingRes
+//@[9:26) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. |cyclicExistingRes|
+}

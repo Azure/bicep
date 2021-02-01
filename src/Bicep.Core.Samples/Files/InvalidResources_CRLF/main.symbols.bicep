@@ -694,3 +694,14 @@ resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'invalidDecorator'
 }
 
+resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[9:18) Resource cyclicRes. Type: Mock.Rp/mockExistingResource@2020-01-01. Declaration start char: 0, length: 108
+  name: 'cyclicRes'
+  scope: cyclicRes
+}
+
+resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
+//@[9:26) Resource cyclicExistingRes. Type: Mock.Rp/mockExistingResource@2020-01-01. Declaration start char: 0, length: 141
+  name: 'cyclicExistingRes'
+  scope: cyclicExistingRes
+}
