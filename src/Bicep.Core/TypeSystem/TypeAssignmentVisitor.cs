@@ -121,6 +121,13 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
+        public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                diagnostics.WriteMultiple(this.ValidateIfCondition(syntax));
+                return this.typeManager.GetTypeInfo(syntax.Body);
+            });
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -138,12 +145,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
 
-                if (syntax.IfCondition is IfConditionSyntax ifConditionSyntax)
-                {
-                    diagnostics.WriteMultiple(this.ValidateIfCondition(ifConditionSyntax));
-                }
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
             });
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -168,12 +170,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                 }
 
-                if (syntax.IfCondition is IfConditionSyntax ifConditionSyntax)
-                {
-                    diagnostics.WriteMultiple(this.ValidateIfCondition(ifConditionSyntax));
-                }
-                
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Body, declaredType, diagnostics);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, declaredType, diagnostics);
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)

@@ -22,7 +22,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
         protected override ResourceDeclarationSyntax ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (syntax.Body is not ObjectSyntax resourceBody ||
+            if (syntax.TryGetBody() is not ObjectSyntax resourceBody ||
                 resourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax resourceNameProp ||
                 resourceNameProp.Value is not StringSyntax resourceName)
             {
@@ -51,7 +51,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 }
 
                 // The other resource is a parent type to this one. check if we can refactor the name.
-                if (otherResourceSymbol.DeclaringResource.Body is not ObjectSyntax otherResourceBody ||
+                if (otherResourceSymbol.DeclaringResource.TryGetBody() is not ObjectSyntax otherResourceBody ||
                     otherResourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax otherResourceNameProp)
                 {
                     continue;
@@ -104,14 +104,24 @@ namespace Bicep.Core.Decompiler.Rewriters
                     resourceBody.Children.Replace(resourceNameProp, replacementNameProp),
                     resourceBody.CloseBrace);
 
+                // at the top we just checked if there is a legitimate body
+                // but to do the replacement correctly we may need to wrap it inside an IfConditionSyntax
+                SyntaxBase replacementValue = syntax.Value switch
+                {
+                    ObjectSyntax => replacementBody,
+                    IfConditionSyntax ifCondition => new IfConditionSyntax(ifCondition.Keyword, ifCondition.ConditionExpression, replacementBody),
+
+                    // should not be possible
+                    _ => throw new NotImplementedException($"Unexpected resource value type '{syntax.Value.GetType().Name}'.")
+                };
+
                 return new ResourceDeclarationSyntax(
                     syntax.LeadingNodes,
                     syntax.Keyword,
                     syntax.Name,
                     syntax.Type,
                     syntax.Assignment,
-                    syntax.IfCondition,
-                    replacementBody);
+                    replacementValue);
             }
 
             return syntax;
