@@ -30,3 +30,8 @@ module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
   name: 'resourceGroupModuleDuplicateName'
   scope: resourceGroup('RG')
 }
+
+module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
+  name: 'unsupportedScopeManagementGroup'
+  scope: managementGroup('MG')
+}
