@@ -1,2 +1,2 @@
-*.bicep -text
+*.bicep -text diff
 *.ts text eol=lf
