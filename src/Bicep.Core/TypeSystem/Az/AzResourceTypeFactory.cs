@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -73,6 +74,11 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 var scopeRequiredFlag = (scope == Azure.Bicep.Types.Concrete.ScopeType.Extension) ? TypePropertyFlags.Required : TypePropertyFlags.None;
                 properties.Add(new TypeProperty("scope", new ResourceReferenceType("resource", ResourceScope.Resource), TypePropertyFlags.WriteOnly | scopeRequiredFlag));
+            }
+            if (objectType.Name == TemplateWriter.NestedDeploymentResourceType)
+            {
+                properties.Add(new TypeProperty("resourceGroup", LanguageConstants.String));
+                properties.Add(new TypeProperty("subscriptionId", LanguageConstants.String));
             }
 
             // TODO: remove 'dependsOn' from the type library and add it here
