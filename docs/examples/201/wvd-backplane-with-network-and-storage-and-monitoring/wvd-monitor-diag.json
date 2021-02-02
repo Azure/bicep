@@ -5,10 +5,6 @@
     "logAnalyticsWorkspaceID": {
       "type": "string"
     },
-    "logAnalyticslocation": {
-      "type": "string",
-      "defaultValue": "westeurope"
-    },
     "hostpoolName": {
       "type": "string"
     },
@@ -17,68 +13,66 @@
     }
   },
   "functions": [],
-  "variables": {
-    "hostpoolDiagName": "[format('{0}/Microsoft.Insights/hostpool-diag', parameters('hostpoolName'))]",
-    "workspaceDiagName": "[format('{0}/Microsoft.Insights/workspacepool-diag', parameters('workspaceName'))]"
-  },
   "resources": [
     {
-      "type": "Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "name": "[variables('hostpoolDiagName')]",
-      "location": "[parameters('logAnalyticslocation')]",
+      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+      "name": "hostpool-diag",
       "properties": {
         "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
         "logs": [
           {
             "category": "Checkpoint",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Error",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Management",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Connection",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "HostRegistration",
-            "enabled": "True"
+            "enabled": true
           }
         ]
-      }
+      },
+      "dependsOn": []
     },
     {
-      "type": "Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "name": "[variables('workspaceDiagName')]",
-      "location": "[parameters('logAnalyticslocation')]",
+      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+      "name": "workspacepool-diag",
       "properties": {
         "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
         "logs": [
           {
             "category": "Checkpoint",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Error",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Management",
-            "enabled": "True"
+            "enabled": true
           },
           {
             "category": "Feed",
-            "enabled": "True"
+            "enabled": true
           }
         ]
-      }
+      },
+      "dependsOn": []
     }
   ]
 }
