@@ -464,7 +464,7 @@ targetScope = 'resourceGroup'
         }
 
         [TestMethod]
-        public void Test_Issue1267()
+        public void Test_Issue1391()
         {
             var bicepContents = @"
 resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
