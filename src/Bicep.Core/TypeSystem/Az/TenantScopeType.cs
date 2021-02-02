@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class TenantScopeType : NamedObjectType, IResourceScopeType
+    public class TenantScopeType : NamedObjectType, IScopeReference
     {
         public TenantScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
             : base("tenant", TypeSymbolValidationFlags.Default, properties, null)
@@ -16,6 +16,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
-        public ResourceScope ResourceScopeType => ResourceScope.Tenant;
+        public ResourceScope Scope => ResourceScope.Tenant;
     }
 }

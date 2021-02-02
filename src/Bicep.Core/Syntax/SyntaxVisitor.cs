@@ -88,6 +88,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
+            this.Visit(syntax.ExistingKeyword);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
         }

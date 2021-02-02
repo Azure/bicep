@@ -18,7 +18,7 @@ parameterDefaultValue -> "=" expression
 
 variableDecl -> decorator* "variable" IDENTIFIER(name) "=" expression NL
 
-resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "=" (ifCondition | object) NL
+resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" (ifCondition | object) NL
 
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object) NL
 

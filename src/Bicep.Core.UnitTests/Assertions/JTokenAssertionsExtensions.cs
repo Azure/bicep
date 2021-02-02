@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Assertions
     {
         public static JTokenAssertions Should(this JToken instance)
         {
-            return new JTokenAssertions(instance); 
+            return new JTokenAssertions(instance);
         }
 
         public static AndConstraint<JTokenAssertions> EqualWithJsonDiffOutput(this JTokenAssertions instance, TestContext testContext, JToken expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)

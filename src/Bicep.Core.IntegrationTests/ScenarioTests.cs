@@ -8,6 +8,7 @@ using FluentAssertions;
 using System;
 using Bicep.Core.UnitTests.Utils;
 using Newtonsoft.Json.Linq;
+using FluentAssertions.Execution;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -17,27 +18,27 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Test_Issue746()
         {
-            var bicepContents = @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 var l = l
 param l
-";
-
-            CompilationHelper.AssertFailureWithDiagnostics(
-                bicepContents,
-                new[] {
+");
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                     ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                     ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                     ("BCP014", DiagnosticLevel.Error, "Expected a parameter type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
                 });
+            }
         }
 
         [TestMethod]
         public void Test_Issue801()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///path/to/main.bicep")] = @"
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'subscription'
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
@@ -53,14 +54,14 @@ module vnet './vnet.bicep' = {
         name: 'myVnet'
     }
     dependsOn: [
-        rg        
-    ]  
+        rg
+    ]
 }
 
 output vnetid string = vnet.outputs.vnetId
 output vnetstate string = vnet.outputs.vnetstate
-",
-                [new Uri("file:///path/to/vnet.bicep")] = @"
+"),
+                ("vnet.bicep", @"
 param location string
 param name string
 
@@ -86,20 +87,23 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 
 output vnetId string = vnet.id
 output vnetstate string = vnet.properties.provisioningState
-",
-            };
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.Should().BeEmpty();
 
-            // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-            jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
-            jsonOutput.Should().Contain("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
+                // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
+                template!.SelectToken("$.outputs['vnetid'].value")!.Should().DeepEqual("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetId.value]");
+                template.SelectToken("$.outputs['vnetstate'].value")!.Should().DeepEqual("[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2019-10-01').outputs.vnetstate.value]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue982()
         {
-            var bicepContents = @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 param functionApp object
 param serverFarmId string
 
@@ -114,25 +118,29 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
     serverFarmId: serverFarmId
   }
 }
-";
+");
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(bicepContents);
-            jsonOutput.Should().Contain("[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.Should().BeEmpty();
+
+                template!.SelectToken("$.outputs['config'].value")!.Should().DeepEqual("[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1093()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///path/to/main.bicep")] = @"
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'managementGroup'
 
 module bicep3rg 'resourceGroup.bicep' = {
   name: 'rg30'
   params: {
     rgName: 'bicep3-rg'
-  }  
+  }
   scope: subscription('DEV1')
 }
 module bicep4rg 'resourceGroup.bicep' = {
@@ -142,8 +150,8 @@ module bicep4rg 'resourceGroup.bicep' = {
   }
   scope: subscription('DEV2')
 }
-",
-                [new Uri("file:///path/to/resourceGroup.bicep")] = @"
+"),
+                ("resourceGroup.bicep", @"
 param rgName string
 param location string = 'westeurope'
 
@@ -152,20 +160,23 @@ targetScope = 'subscription'
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: rgName
   location: location
-}",
-            };
+}
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///path/to/main.bicep"));
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.Should().BeEmpty();
 
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.resources[?(@.name == 'rg30')].location")!.Should().DeepEqual("[deployment().location]");
-            template.SelectToken("$.resources[?(@.name == 'rg31')].location")!.Should().DeepEqual("[deployment().location]");
+                template!.SelectToken("$.resources[?(@.name == 'rg30')].location")!.Should().DeepEqual("[deployment().location]");
+                template.SelectToken("$.resources[?(@.name == 'rg31')].location")!.Should().DeepEqual("[deployment().location]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1173()
         {
-            var (json, _) = CompilationHelper.Compile(
+            var (template, _, _) = CompilationHelper.Compile(
                 ("main.bicep", @"
 targetScope = 'subscription'
 
@@ -309,11 +320,10 @@ resource routetable 'Microsoft.Network/routeTables@2020-06-01' = {
 output id string = routetable.id
 "));
 
-            json.Should().NotBeNull();
-            var template = JToken.Parse(json!);
+            template!.Should().NotBeNull();
 
             // variable 'subnets' should have been inlined
-            template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value")!.Type.Should().Be(JTokenType.Array);
+            template!.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value")!.Type.Should().Be(JTokenType.Array);
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[0].name")!.Should().DeepEqual("GatewaySubnet");
             template.SelectToken("$.resources[?(@.name == '[variables(\\'vnetName\\')]')].properties.parameters.subnets.value[1].name")!.Should().DeepEqual("appsn01");
             // there should be no definition in the variables list for 'subnets'
@@ -323,9 +333,8 @@ output id string = routetable.id
         [TestMethod]
         public void Test_Issue1185()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'tenant'
 
 param allUpMgName string
@@ -336,131 +345,134 @@ module allup_mg './modules/rblab-allup-mg-policies.bicep' = {
   params: {
     mgName: allUpMgName
   }
-}",
-                [new Uri("file:///modules/rblab-allup-mg-policies.bicep")] = @"
+}
+"),
+                ("modules/rblab-allup-mg-policies.bicep", @"
 targetScope = 'managementGroup'
 
 param mgName string
-",
-            };
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.Should().BeEmpty();
 
-            // deploying a management group module at tenant scope requires an unqualified resource id
-            template.SelectToken("$.resources[?(@.name == 'allupmgdeploy')].scope")!.Should().DeepEqual("[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
+                // deploying a management group module at tenant scope requires an unqualified resource id
+                template!.SelectToken("$.resources[?(@.name == 'allupmgdeploy')].scope")!.Should().DeepEqual("[format('Microsoft.Management/managementGroups/{0}', parameters('allUpMgName'))]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1332()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 var propname = 'ptest'
 var issue = true ? {
     prop1: {
         '${propname}': {}
     }
 } : {}
-",
-            };
+");
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.variables.issue")!.Should().DeepEqual("[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.Should().BeEmpty();
+
+                template!.SelectToken("$.variables.issue")!.Should().DeepEqual("[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue486()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, _, _) = CompilationHelper.Compile(@"
 var myInt = 5
 var myBigInt = 2199023255552
 var myIntExpression = 5 * 5
 var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
-",
-            };
+");
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.variables.myInt")!.Should().DeepEqual(5);
-            template.SelectToken("$.variables.myBigInt")!.Should().DeepEqual(2199023255552);
-            template.SelectToken("$.variables.myIntExpression")!.Should().DeepEqual("[mul(5, 5)]");
-            template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.myInt")!.Should().DeepEqual(5);
+                template.SelectToken("$.variables.myBigInt")!.Should().DeepEqual(2199023255552);
+                template.SelectToken("$.variables.myIntExpression")!.Should().DeepEqual("[mul(5, 5)]");
+                template.SelectToken("$.variables.myBigIntExpression2")!.Should().DeepEqual("[mul(json('2199023255552'), json('2199023255552'))]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1362_1()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'resourceGroup'
 
 module sub './modules/subscription.bicep' = {
   name: 'subDeploy'
   scope: subscription()
-}",
-                [new Uri("file:///modules/subscription.bicep")] = @"
+}"),
+                ("modules/subscription.bicep", @"
 targetScope = 'subscription'
-",
-            };
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("[subscription().subscriptionId]");
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("[subscription().subscriptionId]");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1362_2()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'resourceGroup'
 
 module sub './modules/subscription.bicep' = {
   name: 'subDeploy'
   scope: subscription('abcd-efgh')
-}",
-                [new Uri("file:///modules/subscription.bicep")] = @"
+}"),
+                ("modules/subscription.bicep", @"
 targetScope = 'subscription'
-",
-            };
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().DeepEqual("[resourceGroup().location]");
+            }
         }
 
         [TestMethod]
         public void Test_Issue1402()
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [new Uri("file:///main.bicep")] = @"
+            var (template, _, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 targetScope = 'subscription'
 
 module sub './modules/resourceGroup.bicep' = {
   name: 'subDeploy'
   scope: resourceGroup('abcd-efgh','bicep-rg')
-}",
-                [new Uri("file:///modules/resourceGroup.bicep")] = @"
+}"),
+                ("modules/resourceGroup.bicep", @"
 targetScope = 'resourceGroup'
-",
-            };
+"));
 
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(files, new Uri("file:///main.bicep"));
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].resourceGroup")!.Should().DeepEqual("bicep-rg");
-            template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'subDeploy')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+                template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
+            }
         }
 
         [TestMethod]

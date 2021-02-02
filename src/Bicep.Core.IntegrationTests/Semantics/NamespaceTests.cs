@@ -56,7 +56,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             // local function
             static object[] CreateRow(NamespaceSymbol @namespace) => new object[] {@namespace};
 
-            var compilation = CompilationHelper.CreateCompilation(new TestResourceTypeProvider(), ("main.bicep", string.Empty));
+            var (_, _, compilation) = CompilationHelper.Compile(new TestResourceTypeProvider(), ("main.bicep", string.Empty));
 
             return compilation.GetEntrypointSemanticModel().Root.ImportedNamespaces.Values.Select(CreateRow);
         }
