@@ -56,7 +56,7 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName'))]",
-      "name": "[guid(resourceGroup().id)]",
+      "name": "[guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId'))]",
       "properties": {
         "roleDefinitionId": "[variables('storageAccountContributorRoleDefinitionId')]",
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript')).principalId]"
@@ -87,7 +87,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript')]",
-        "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName')), 'Microsoft.Authorization/roleAssignments', guid(resourceGroup().id))]",
+        "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName')), 'Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId')))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]"
       ]
     }
