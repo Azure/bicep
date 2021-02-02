@@ -80,7 +80,8 @@ namespace Bicep.Core.TypeSystem.Az
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList().Select(x => x.Type as ObjectType ?? throw new ArgumentException());
+                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
+                        .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
                     bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, isExistingResource));
                     bodyType = new DiscriminatedObjectType(
                         bodyDiscriminatedType.Name,
@@ -89,7 +90,9 @@ namespace Bicep.Core.TypeSystem.Az
                         bodyTypes);
                     break;
                 default:
-                    throw new ArgumentException();
+                    // we exhaustively test deserialization of every resource type during CI, and this happens in a deterministic fashion,
+                    // so this exception should never occur in the released product
+                    throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}");
             }
 
             return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
@@ -109,7 +112,7 @@ namespace Bicep.Core.TypeSystem.Az
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
-                var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, validParentScopes);
+                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
 
                 return new NamedObjectType(
@@ -124,7 +127,7 @@ namespace Bicep.Core.TypeSystem.Az
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {
-                    var scopeReference = new ResourceScopeType(LanguageConstants.ResourceScopePropertyName, ResourceScope.Resource);
+                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
                 }
 

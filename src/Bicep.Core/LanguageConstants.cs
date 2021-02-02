@@ -71,7 +71,7 @@ namespace Bicep.Core
         public const string StringHoleClose = "}";
 
         public static readonly TypeSymbol Any = new AnyType();
-        public static readonly TypeSymbol ResourceRef = new ResourceScopeType("resource | module", ResourceScope.Module | ResourceScope.Resource);
+        public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
         public static readonly TypeSymbol ResourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
@@ -153,15 +153,45 @@ namespace Bicep.Core
             yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
         }
 
-        private static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
-            => resourceScope switch
+        public static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
+        {
+            if (resourceScope == ResourceScope.None)
             {
-                ResourceScope.Tenant => new ResourceScopeType("tenant", resourceScope),
-                ResourceScope.ManagementGroup => new ResourceScopeType("managementGroup", resourceScope),
-                ResourceScope.Subscription => new ResourceScopeType("subscription", resourceScope),
-                ResourceScope.ResourceGroup => new ResourceScopeType("resourceGroup", resourceScope),
-                _ => new ResourceScopeType("none", ResourceScope.None),
-            };
+                yield return "none";
+            }
+
+            if (resourceScope.HasFlag(ResourceScope.Resource))
+            {
+                yield return "resource";
+            }
+            if (resourceScope.HasFlag(ResourceScope.Module))
+            {
+                yield return "module";
+            }
+            if (resourceScope.HasFlag(ResourceScope.Tenant))
+            {
+                yield return "tenant";
+            }
+            if (resourceScope.HasFlag(ResourceScope.ManagementGroup))
+            {
+                yield return "managementGroup";
+            }
+            if (resourceScope.HasFlag(ResourceScope.Subscription))
+            {
+                yield return "subscription";
+            }
+            if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
+            {
+                yield return "resourceGroup";
+            }
+        }        
+
+        public static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
+        {
+            var scopeDescriptions = string.Join(" | ", GetResourceScopeDescriptions(resourceScope));
+
+            return new ResourceScopeType(scopeDescriptions, resourceScope);
+        }
 
         public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
         {

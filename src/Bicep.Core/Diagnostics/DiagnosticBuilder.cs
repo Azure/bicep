@@ -32,34 +32,6 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
-            private static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
-            {
-                if (resourceScope.HasFlag(ResourceScope.Resource))
-                {
-                    yield return "resource";
-                }
-                if (resourceScope.HasFlag(ResourceScope.Module))
-                {
-                    yield return "module";
-                }
-                if (resourceScope.HasFlag(ResourceScope.Tenant))
-                {
-                    yield return "tenant";
-                }
-                if (resourceScope.HasFlag(ResourceScope.ManagementGroup))
-                {
-                    yield return "managementGroup";
-                }
-                if (resourceScope.HasFlag(ResourceScope.Subscription))
-                {
-                    yield return "subscription";
-                }
-                if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
-                {
-                    yield return "resourceGroup";
-                }
-            }
-
             public ErrorDiagnostic UnrecognizedToken(string token) => new(
                 TextSpan,
                 "BCP001",
@@ -799,13 +771,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP134",
-                $"Scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
+                $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
 
             public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP135",
-                $"Scope {ToQuotedString(GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(GetResourceScopeDescriptions(supportedScopes))}.");
+                $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
