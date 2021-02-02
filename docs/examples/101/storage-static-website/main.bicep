@@ -54,6 +54,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
   dependsOn: [
     roleAssignment
+    storageAccount
   ]
   properties: {
     azPowerShellVersion: '3.0'
