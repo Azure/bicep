@@ -165,6 +165,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= Rewrite(syntax.Keyword, out var keyword);
             hasChanges |= Rewrite(syntax.Name, out var name);
             hasChanges |= Rewrite(syntax.Type, out var type);
+            hasChanges |= RewriteNullable(syntax.ExistingKeyword, out var existingKeyword);
             hasChanges |= Rewrite(syntax.Assignment, out var assignment);
             hasChanges |= Rewrite(syntax.Value, out var value);
 
@@ -173,7 +174,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, value);
         }
         void ISyntaxVisitor.VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceDeclarationSyntax);
 

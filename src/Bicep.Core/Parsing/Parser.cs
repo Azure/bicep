@@ -297,6 +297,13 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(name),
                 TokenType.Assignment, TokenType.NewLine);
 
+            Token? existingKeyword = null;
+            var current = reader.Peek();
+            if (current.Type == TokenType.Identifier && current.Text == LanguageConstants.ExistingKeyword)
+            {
+                existingKeyword = reader.Read();
+            }
+
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
             var value = this.WithRecovery(() =>
@@ -312,7 +319,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, value);
         }
 
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)

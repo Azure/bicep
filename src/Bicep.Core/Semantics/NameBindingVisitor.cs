@@ -58,6 +58,7 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
+            this.Visit(syntax.ExistingKeyword);
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);

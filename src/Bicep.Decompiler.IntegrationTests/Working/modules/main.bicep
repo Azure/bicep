@@ -62,7 +62,7 @@ module moduleWithRgAndSub 'nested/module1.bicep' = {
 module moduleWithSub 'nested/module1.bicep' = {
   name: 'moduleWithSub'
   scope: subscription('${module1Url}test')
-//@[9:42) [BCP036 (Error)] The property "scope" expected a value of type "resourceGroup" but the provided value is of type "subscription". |subscription('${module1Url}test')|
+//@[9:42) [BCP134 (Error)] Scope "subscription" is not valid for this module. Permitted scopes: "resourceGroup". |subscription('${module1Url}test')|
   params: {}
 //@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "location", "objectParam". |params|
 }

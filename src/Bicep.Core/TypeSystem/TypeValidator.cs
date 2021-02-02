@@ -56,8 +56,9 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
-                case TypeSymbol _ when targetType is ResourceReferenceType scopeReference:
-                    return sourceType is IResourceScopeType resourceScopeType && scopeReference.ResourceScopeType.HasFlag(resourceScopeType.ResourceScopeType);
+                case IScopeReference targetScope:
+                    // checking for valid combinations of scopes happens after type checking. this allows us to provide a richer & more intuitive error message.
+                    return sourceType is IScopeReference;
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
@@ -148,14 +149,14 @@ namespace Bicep.Core.TypeSystem
                 // When assigning a resource, we're really assigning the value of the resource body.
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
-                return new ResourceType(targetResourceType.TypeReference, narrowedBody);
+                return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
             }
             
             if (targetType is ModuleType targetModuleType)
             {
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetModuleType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
-                return new ModuleType(targetModuleType.Name, narrowedBody);
+                return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
             }
 
             // TODO: The type of this expression and all subexpressions should be cached

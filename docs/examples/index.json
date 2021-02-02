@@ -216,6 +216,10 @@
         "description": "101/resource-with-lock"
     },
     {
+        "filePath": "101/resource-with-lock-existing/main.bicep",
+        "description": "101/resource-with-lock-existing"
+    },
+    {
         "filePath": "101/sql-database/main.bicep",
         "description": "101/sql-database"
     },

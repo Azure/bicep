@@ -766,6 +766,18 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP133",
                 "The unicode escape sequence is not valid. Valid unicode escape sequences range from \\u{0} to \\u{10FFFF}.");
+
+            public Diagnostic UnsupportedModuleScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP134",
+                $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this module. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
+
+            public Diagnostic UnsupportedResourceScope(ResourceScope suppliedScope, ResourceScope supportedScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP135",
+                $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

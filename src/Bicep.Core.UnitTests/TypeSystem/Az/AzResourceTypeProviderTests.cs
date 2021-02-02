@@ -22,29 +22,27 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        [DataTestMethod]
-        [DataRow(ResourceScope.Tenant)]
-        [DataRow(ResourceScope.ManagementGroup)]
-        [DataRow(ResourceScope.Subscription)]
-        [DataRow(ResourceScope.ResourceGroup)]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceScope scopeType)
+        [TestMethod]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing()
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
-            var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
+            var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = scopeType == ResourceScope.ResourceGroup ? 2000 : 100;
+            var expectedTypeCount = 3000;
             availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
 
             foreach (var availableType in availableTypes)
             {
-                resourceTypeProvider.HasType(scopeType, availableType).Should().BeTrue();
-                var knownResourceType = resourceTypeProvider.GetType(scopeType, availableType);
+                resourceTypeProvider.HasType(availableType).Should().BeTrue();
+                var resourceType = resourceTypeProvider.GetType(availableType, false);
+                var resourceTypeExisting = resourceTypeProvider.GetType(availableType, true);
 
                 try
                 {
                     var visited = new HashSet<TypeSymbol>();
-                    VisitAllReachableTypes(knownResourceType, visited);
+                    VisitAllReachableTypes(resourceType, visited);
+                    VisitAllReachableTypes(resourceTypeExisting, visited);
                 }
                 catch (Exception exception)
                 {
@@ -53,19 +51,15 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             }
         }
 
-        [DataTestMethod]
-        [DataRow(ResourceScope.Tenant)]
-        [DataRow(ResourceScope.ManagementGroup)]
-        [DataRow(ResourceScope.Subscription)]
-        [DataRow(ResourceScope.ResourceGroup)]
-        public void AzResourceTypeProvider_can_list_all_types_without_throwing(ResourceScope scopeType)
+        [TestMethod]
+        public void AzResourceTypeProvider_can_list_all_types_without_throwing()
         
         {
             var resourceTypeProvider = new AzResourceTypeProvider();
-            var availableTypes = resourceTypeProvider.GetAvailableTypes(scopeType);
+            var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = scopeType == ResourceScope.ResourceGroup ? 2000 : 100;
+            var expectedTypeCount = 3000;
             availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
         }
 
@@ -116,7 +110,7 @@ resource unexpectedTopLevel 'Mock.Rp/mockType@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new [] {
-                ("BCP037", DiagnosticLevel.Error, "No other properties are allowed on objects of type \"Mock.Rp/mockType@2020-01-01\"."),
+                ("BCP038", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"Mock.Rp/mockType@2020-01-01\". Permissible properties include \"dependsOn\"."),
             });
 
             // Missing non top-level properties - should be a warning

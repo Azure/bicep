@@ -248,6 +248,11 @@ namespace Bicep.Core.Emit
 
             foreach (var resourceSymbol in this.context.SemanticModel.Root.ResourceDeclarations)
             {
+                if (resourceSymbol.DeclaringResource.IsExistingResource())
+                {
+                    continue;
+                }
+                
                 this.EmitResource(resourceSymbol);
             }
 
@@ -273,7 +278,7 @@ namespace Bicep.Core.Emit
 
             this.emitter.EmitProperty("type", typeReference.FullyQualifiedType);
             this.emitter.EmitProperty("apiVersion", typeReference.ApiVersion);
-            if (context.SemanticModel.EmitLimitationInfo.ResoureScopeData[resourceSymbol] is ResourceSymbol scopeResource)
+            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resourceSymbol, out var scopeData) && scopeData.ResourceScopeSymbol is { } scopeResource)
             {
                 this.emitter.EmitProperty("scope", () => this.emitter.EmitUnqualifiedResourceId(scopeResource));
             }
@@ -407,7 +412,10 @@ namespace Bicep.Core.Emit
                 switch (dependency)
                 {
                     case ResourceSymbol resourceDependency:
-                        emitter.EmitResourceIdReference(resourceDependency);
+                        if (!resourceDependency.DeclaringResource.IsExistingResource())
+                        {
+                            emitter.EmitResourceIdReference(resourceDependency);
+                        }
                         break;
                     case ModuleSymbol moduleDependency:
                         emitter.EmitResourceIdReference(moduleDependency);

@@ -52,6 +52,25 @@
     ]
   },
   {
+    "name": "managementGroup",
+    "description": "Returns the scope for a named management group.",
+    "fixedParameters": [
+      {
+        "name": "name",
+        "description": "The unique identifier of the management group (not the display name).",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(name: string): managementGroup",
+    "parameterTypeSignatures": [
+      "name: string"
+    ]
+  },
+  {
     "name": "pickZones",
     "description": "Determines whether a resource type supports zones for a region.",
     "fixedParameters": [

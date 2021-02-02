@@ -46,7 +46,7 @@ resource resC 'My.Rp/resB@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -110,7 +110,7 @@ module modC 'modC.bicep' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -155,7 +155,7 @@ resource resB 'My.Rp/resB@2020-01-01' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -187,7 +187,7 @@ module modB 'modb.bicep' = {
   ]
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -212,7 +212,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);

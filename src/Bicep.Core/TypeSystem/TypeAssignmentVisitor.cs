@@ -131,7 +131,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = syntax.GetDeclaredType(binder.TargetScope, resourceTypeProvider);
+                var declaredType = syntax.GetDeclaredType(resourceTypeProvider);
 
                 this.ValidateDecortors(syntax.Decorators, declaredType, diagnostics);
 
@@ -140,7 +140,7 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(binder.TargetScope, resourceType.TypeReference))
+                if (declaredType is ResourceType resourceType && !resourceTypeProvider.HasType(resourceType.TypeReference))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Type).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
