@@ -160,6 +160,10 @@
         "description": "101/function-app-create"
     },
     {
+        "filePath": "101/function-http-trigger/main.bicep",
+        "description": "101/function-http-trigger"
+    },
+    {
         "filePath": "101/function-premium-vnet-integration/main.bicep",
         "description": "101/function-premium-vnet-integration"
     },
