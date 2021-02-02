@@ -144,7 +144,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
 resource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = {
   name: '${keyVault.name}/${functionAppKeySecretName}'
   properties: {
-    value: listKeys('${resourceId('Microsoft.Web/sites', functionApp.name)}/host/default', functionApp.apiVersion).functionKeys.default
+    value: listKeys('${functionApp.id}/host/default', functionApp.apiVersion).functionKeys.default
   }
 }
 
