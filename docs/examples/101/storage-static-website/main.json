@@ -87,7 +87,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript')]",
-        "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName')), 'Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId')))]",
+        "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName')), 'Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId')))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]"
       ]
     }
