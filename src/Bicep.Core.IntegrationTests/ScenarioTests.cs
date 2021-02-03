@@ -478,7 +478,8 @@ targetScope = 'resourceGroup'
         [TestMethod]
         public void Test_Issue1391()
         {
-            var bicepContents = @"
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
 resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
   name: 'nestedDeployment'
   resourceGroup: 'bicep-rg'
@@ -488,11 +489,14 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
     mode: 'Incremental'
   }
 }
-";
-            var jsonOutput = CompilationHelper.AssertSuccessWithTemplateOutput(bicepContents);
-            var template = JToken.Parse(jsonOutput);
-            template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
-            template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+"));
+            template!.Should().NotBeNull();
+            diags.Should().BeEmpty();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'nestedDeployment')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+            }
         }
     }
 }
