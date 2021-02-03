@@ -474,5 +474,29 @@ targetScope = 'resourceGroup'
                 template.SelectToken("$.resources[?(@.name == 'subDeploy')].location")!.Should().BeNull();
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1391()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
+  name: 'nestedDeployment'
+  resourceGroup: 'bicep-rg'
+  subscriptionId: 'abcd-efgh'
+  location: 'westus'
+  properties: {
+    mode: 'Incremental'
+  }
+}
+"));
+            template!.Should().NotBeNull();
+            diags.Should().BeEmpty();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'nestedDeployment')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
+                template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+            }
+        }
     }
 }

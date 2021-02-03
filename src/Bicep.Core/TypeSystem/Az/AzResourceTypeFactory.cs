@@ -97,7 +97,6 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
                     var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-
                     return new ResourceType(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:

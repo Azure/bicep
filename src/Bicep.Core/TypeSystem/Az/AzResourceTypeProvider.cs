@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -114,33 +115,31 @@ namespace Bicep.Core.TypeSystem.Az
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
                 var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
                 properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
-
-                return new NamedObjectType(
-                    objectType.Name,
-                    objectType.ValidationFlags,
-                    ConvertToReadOnly(properties.Values),
-                    objectType.AdditionalPropertiesType,
-                    ConvertToReadOnly(objectType.AdditionalPropertiesFlags));
             }
             else
             {
+                // TODO: remove 'dependsOn' from the type library
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceRefArray, TypePropertyFlags.WriteOnly));
+                
                 // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {
                     var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
                 }
-
-                // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceRefArray, TypePropertyFlags.WriteOnly));
-
-                return new NamedObjectType(
-                    objectType.Name,
-                    objectType.ValidationFlags,
-                    properties.Values,
-                    objectType.AdditionalPropertiesType,
-                    objectType.AdditionalPropertiesFlags);
             }
+            // Deployments RP
+            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType))
+            {
+                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String));
+                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String));
+            }
+            return new NamedObjectType(
+                objectType.Name,
+                objectType.ValidationFlags,
+                isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
+                objectType.AdditionalPropertiesType,
+                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags);
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
