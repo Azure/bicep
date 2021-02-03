@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -77,6 +78,20 @@ namespace Bicep.Core.TypeSystem.Az
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
+                    // Extra fields should be added here.
+                    // Deployments RP
+                    if (string.Equals(bodyObjectType.Name, TemplateWriter.NestedDeploymentResourceType, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        var properties = bodyObjectType.Properties.Values.ToList();
+                        properties.Add(new TypeProperty("resourceGroup", LanguageConstants.String));
+                        properties.Add(new TypeProperty("subscriptionId", LanguageConstants.String));
+                        bodyObjectType = new NamedObjectType(
+                            bodyObjectType.Name,
+                            bodyObjectType.ValidationFlags,
+                            properties,
+                            bodyObjectType.AdditionalPropertiesType,
+                            bodyObjectType.AdditionalPropertiesFlags);
+                    }
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
                     break;
                 case DiscriminatedObjectType bodyDiscriminatedType:

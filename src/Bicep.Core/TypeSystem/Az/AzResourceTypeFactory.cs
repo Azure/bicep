@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
-using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -67,25 +66,6 @@ namespace Bicep.Core.TypeSystem.Az
             return flags;
         }
 
-        private static ObjectType AddResourceProperties(ObjectType objectType)
-        {
-            var properties = objectType.Properties.Values.ToList();
-            if (string.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType, StringComparison.CurrentCultureIgnoreCase))
-            {
-                properties.Add(new TypeProperty("resourceGroup", LanguageConstants.String));
-                properties.Add(new TypeProperty("subscriptionId", LanguageConstants.String));
-            }
-
-            // TODO: remove 'dependsOn' from the type library and add it here
-
-            return new NamedObjectType(
-                objectType.Name,
-                objectType.ValidationFlags,
-                properties,
-                objectType.AdditionalPropertiesType,
-                objectType.AdditionalPropertiesFlags);
-        }
-
         private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
@@ -117,23 +97,6 @@ namespace Bicep.Core.TypeSystem.Az
                 {
                     var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
                     var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-                    switch (bodyType)
-                    {
-                        case ObjectType bodyObjectType:
-                            bodyType = AddResourceProperties(bodyObjectType);
-                            break;
-                        case DiscriminatedObjectType bodyDiscriminatedType:
-                            var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList().Select(x => x.Type as ObjectType ?? throw new ArgumentException());
-                            bodyTypes = bodyTypes.Select(x => AddResourceProperties(x));
-                            bodyType = new DiscriminatedObjectType(
-                                bodyDiscriminatedType.Name,
-                                bodyDiscriminatedType.ValidationFlags,
-                                bodyDiscriminatedType.DiscriminatorKey,
-                                bodyTypes);
-                            break;
-                        default:
-                            throw new ArgumentException();
-                    }
                     return new ResourceType(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
