@@ -236,6 +236,10 @@
         "description": "101/storage-blob-container"
     },
     {
+        "filePath": "101/storage-static-website/main.bicep",
+        "description": "101/storage-static-website"
+    },
+    {
         "filePath": "101/templatespec-create/main.bicep",
         "description": "101/templatespec-create"
     },
