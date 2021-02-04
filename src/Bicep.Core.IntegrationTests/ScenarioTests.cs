@@ -478,8 +478,7 @@ targetScope = 'resourceGroup'
         [TestMethod]
         public void Test_Issue1391()
         {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
+            var (template, diags, _) = CompilationHelper.Compile(@"
 resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
   name: 'nestedDeployment'
   resourceGroup: 'bicep-rg'
@@ -489,13 +488,29 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
     mode: 'Incremental'
   }
 }
-"));
+");
             template!.Should().NotBeNull();
             diags.Should().BeEmpty();
             using (new AssertionScope())
             {
                 template!.SelectToken("$.resources[?(@.name == 'nestedDeployment')].subscriptionId")!.Should().DeepEqual("abcd-efgh");
                 template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue1465()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+resource foo 'Microsoft.foo/bar@2020-01-01' existing = {
+  name: 'name'
+}
+output prop1 string = foo.properties.prop1
+");
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.outputs['prop1'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.foo/bar', 'name'), '2020-01-01').prop1]");
             }
         }
     }
