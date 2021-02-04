@@ -498,5 +498,72 @@ resource dep 'Microsoft.Resources/deployments@2020-06-01' = {
                 template.SelectToken("$.resources[?(@.name == 'nestedDeployment')].resourceGroup")!.Should().DeepEqual("bicep-rg");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1454()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'subscription'
+param name string = 'name'
+param location string = 'westus'
+param subscriptionId string = newGuid()
+
+module rg './resourcegroup.template.bicep' = {
+    name: '${uniqueString(deployment().name)}-1'
+    scope: subscription(subscriptionId)
+    params: {
+        name: name
+        location: location
+    }
+}
+
+var appResGrp = resourceGroup(rg.outputs.resourceGroupName)
+
+module redis './redis.template.bicep' = {
+    name: '${uniqueString(deployment().name)}-2'
+    scope: appResGrp
+}
+"),
+                ("resourcegroup.template.bicep", @"
+targetScope = 'subscription'
+param name string
+param location string
+
+resource rg 'Microsoft.Resources/resourceGroups@2018-05-01' = {
+    name: name
+    location: location
+    tags: {
+        'owner': 'me'
+    }
+}
+
+output resourceGroupName string = rg.name
+"),
+                ("redis.template.bicep", @"
+param redis_name string = 'redis'
+param redis_location string = 'westus'
+
+resource redis 'Microsoft.Cache/Redis@2019-07-01' = {
+    name: redis_name
+    location: redis_location
+    properties: {
+        sku: {
+            name: 'Standard'
+            family: 'C'
+            capacity: 2
+        }
+    }
+}
+"));
+                
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP120", DiagnosticLevel.Error, "The property \"scope\" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. You are referencing a variable which cannot be calculated in time (\"appResGrp\" -> \"rg\"). Accessible properties of rg are \"name\", \"scope\"."),
+                });
+            }
+        }
     }
 }
