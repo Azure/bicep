@@ -412,6 +412,10 @@
         "description": "201/vnet-to-vnet-peering"
     },
     {
+        "filePath": "201/vnet-with-subnet-and-user-defined-route/main.bicep",
+        "description": "201/vnet-with-subnet-and-user-defined-route"
+    },
+    {
         "filePath": "201/vwan-shared-services/main.bicep",
         "description": "201/vwan-shared-services"
     },

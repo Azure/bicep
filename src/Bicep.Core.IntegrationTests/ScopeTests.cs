@@ -149,10 +149,10 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
             }
         }
 
-        [DataRow("tenant", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA')).myProp]")]
-        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(format('My.Rp/myResource/{0}', 'resourceA')).myProp]")]
-        [DataRow("subscription", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA')).myProp]")]
-        [DataRow("resourceGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA')).myProp]")]
+        [DataRow("tenant", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(format('My.Rp/myResource/{0}', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("subscription", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("resourceGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataTestMethod]
         public void Emitter_should_generate_correct_references_for_existing_resources(string targetScope, string expectedScopeExpression, string expectedReferenceExpression)
         {

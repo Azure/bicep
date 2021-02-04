@@ -229,6 +229,15 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
+            if (resourceSymbol.DeclaringResource.IsExistingResource())
+            {
+                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
+                return CreateFunction(
+                    "reference",
+                    GetLocallyScopedResourceId(resourceSymbol),
+                    new JTokenExpression(typeReference.ApiVersion));
+            }
+
             return CreateFunction(
                 "reference",
                 GetLocallyScopedResourceId(resourceSymbol));
