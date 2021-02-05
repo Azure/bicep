@@ -50,7 +50,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
-            where TDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+            where TDeclarationSyntax : SyntaxBase, ITopLevelNamedDeclarationSyntax
         {
             if (!bindings.ContainsKey(syntax))
             {

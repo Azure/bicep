@@ -22,10 +22,10 @@ namespace Bicep.Core.Semantics
             // TODO use lazy or some other pattern for init
             this.syntaxTree = syntaxTree;
             this.TargetScope = SyntaxHelper.GetTargetScope(syntaxTree);
-            var allDeclarations = GetAllDeclarations(syntaxTree, symbolContext);
+            var (allDeclarations, outermostScopes) = GetAllDeclarations(syntaxTree, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(allDeclarations);
             var builtInNamespacs = GetBuiltInNamespaces(this.TargetScope);
-            this.bindings = GetBindings(syntaxTree, uniqueDeclarations, builtInNamespacs);
+            this.bindings = GetBindings(syntaxTree, uniqueDeclarations, builtInNamespacs, outermostScopes);
             this.cyclesBySymbol = GetCyclesBySymbol(syntaxTree, uniqueDeclarations, this.bindings);
 
             // TODO: Avoid looping 5 times?
@@ -33,6 +33,7 @@ namespace Bicep.Core.Semantics
                 syntaxTree.FileUri.LocalPath,
                 syntaxTree.ProgramSyntax,
                 builtInNamespacs,
+                outermostScopes,
                 allDeclarations.OfType<ParameterSymbol>(),
                 allDeclarations.OfType<VariableSymbol>(),
                 allDeclarations.OfType<ResourceSymbol>(),
@@ -45,7 +46,7 @@ namespace Bicep.Core.Semantics
         public FileSymbol FileSymbol { get; }
 
         public SyntaxBase? GetParent(SyntaxBase syntax)
-            => syntaxTree.Hierarchy.GetParent(syntax);        
+            => syntaxTree.Hierarchy.GetParent(syntax);
 
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
@@ -66,14 +67,15 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
-        private static ImmutableArray<DeclaredSymbol> GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
+        private static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScopeSymbol>) GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
         {
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
-            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations);
+            var outermostScopes = new List<LocalScopeSymbol>();
+            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations, outermostScopes);
             declarationVisitor.Visit(syntaxTree.ProgramSyntax);
 
-            return declarations.ToImmutableArray();
+            return (declarations.ToImmutableArray(), outermostScopes.ToImmutableArray());
         }
 
         private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> allDeclarations)
@@ -93,11 +95,11 @@ namespace Bicep.Core.Semantics
             return namespaces.ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
         }
 
-        private static ImmutableDictionary<SyntaxBase, Symbol> GetBindings(SyntaxTree syntaxTree, IReadOnlyDictionary<string, DeclaredSymbol> uniqueDeclarations, ImmutableDictionary<string, NamespaceSymbol> builtInNamespaces)
+        private static ImmutableDictionary<SyntaxBase, Symbol> GetBindings(SyntaxTree syntaxTree, IReadOnlyDictionary<string, DeclaredSymbol> uniqueDeclarations, ImmutableDictionary<string, NamespaceSymbol> builtInNamespaces, ImmutableArray<LocalScopeSymbol> outermostScopes)
         {
             // bind identifiers to declarations
             var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtInNamespaces);
+            var binder = new NameBindingVisitor(uniqueDeclarations, bindings, builtInNamespaces, outermostScopes);
             binder.Visit(syntaxTree.ProgramSyntax);
 
             return bindings.ToImmutableDictionary();

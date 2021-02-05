@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.DeclarationStart))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
                 yield return CreateContextualSnippetCompletion(LanguageConstants.ParameterKeyword, "Parameter declaration", "param ${1:Identifier} ${2:Type}", context.ReplacementRange);

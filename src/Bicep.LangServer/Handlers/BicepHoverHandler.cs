@@ -91,6 +91,9 @@ namespace Bicep.LanguageServer.Handlers
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
                     return GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel());
 
+                case LocalSymbol local:
+                    return $"```bicep\n{local.Name}: {local.Type}\n```";
+
                 default:
                     return null;
             }

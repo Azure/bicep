@@ -45,7 +45,7 @@ namespace Bicep.LangServer.IntegrationTests
                 .ToLookup(pair => pair.Value, pair => pair.Key);
 
             var validVariableAccessPairs = symbolTable
-                .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is INamedDeclarationSyntax)
+                .Where(pair => (pair.Key is VariableAccessSyntax || pair.Key is ITopLevelNamedDeclarationSyntax)
                                && pair.Value.Kind != SymbolKind.Error
                                && pair.Value.Kind != SymbolKind.Function
                                && pair.Value.Kind != SymbolKind.Namespace
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task RenamingNonSymbolsShouldProduceEmptyEdit(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 

@@ -7,10 +7,10 @@ using Bicep.Core.Syntax;
 namespace Bicep.Core.Navigation
 {
     /// <summary>
-    /// Represents a syntax declaration.
+    /// Represents a top-level syntax declaration.
     /// </summary>
     /// <remarks>This is used to identify a program syntax declaration.</remarks>
-    public interface IDeclarationSyntax
+    public interface ITopLevelDeclarationSyntax
     {
         Token Keyword { get; }
     }

@@ -13,6 +13,8 @@ namespace Bicep.Core.Semantics
         Module,
         Output,
         Namespace,
-        Function
+        Function,
+        Local,
+        Scope
     }
 }

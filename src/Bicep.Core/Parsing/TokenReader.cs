@@ -32,6 +32,12 @@ namespace Bicep.Core.Parsing
             return Tokens[Position];
         }
 
+        public Token? PeekAhead(int charCount = 1)
+        {
+            var effectivePosition = this.Position + charCount;
+            return effectivePosition < this.Tokens.Length ? this.AtPosition(effectivePosition) : null;
+        }
+
         public Token Read()
         {
             var output = Peek();

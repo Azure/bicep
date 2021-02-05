@@ -1,0 +1,44 @@
+[
+  {
+    "label": "id",
+    "kind": "property",
+    "detail": "id",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_id",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "id"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "properties",
+    "kind": "property",
+    "detail": "properties",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubnetPropertiesFormat`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_properties",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "properties"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  }
+]

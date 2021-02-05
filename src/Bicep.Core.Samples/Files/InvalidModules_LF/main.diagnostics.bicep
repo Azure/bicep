@@ -31,7 +31,7 @@ module
 // #completionTest(24,25) -> object
 module missingValue '' = 
 //@[20:22) [BCP050 (Error)] The specified module path is empty. |''|
-//@[25:25) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
+//@[25:25) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {
@@ -277,32 +277,32 @@ module runtimeValidModule1 'empty.bicep' = {
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1.location|
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1['location']|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
-//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1.sku.name|
+//@[8:33) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1.sku['name']|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1.sku['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
-//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1['sku']['name']|
+//@[8:39) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku']['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
-//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "scope", "type". |runtimeValidRes1['sku'].name|
+//@[8:36) [BCP120 (Error)] The property "name" must be evaluable at the start of the deployment, and cannot depend on any values that have not yet been calculated. Accessible properties of runtimeValidRes1 are "apiVersion", "id", "name", "type". |runtimeValidRes1['sku'].name|
 }
 
 module moduleWithDuplicateName1 './empty.bicep' = {
@@ -324,7 +324,7 @@ module completionB ''
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionC '' =
 //@[19:21) [BCP050 (Error)] The specified module path is empty. |''|
-//@[23:23) [BCP118 (Error)] Expected the "{" character or the "if" keyword at this location. ||
+//@[23:23) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. ||
 
 // #completionTest(19, 20, 21) -> cwdCompletions
 module completionD '' = {}
@@ -378,3 +378,177 @@ module moduleWithNotAttachableDecorators './empty.bicep' = {
   name: 'moduleWithNotAttachableDecorators'
 }
 
+// loop parsing cases
+module expectedForKeyword 'modulea.bicep' = []
+//@[45:46) [BCP012 (Error)] Expected the "for" keyword at this location. |]|
+
+module expectedForKeyword2 'modulea.bicep' = [f]
+//@[46:47) [BCP012 (Error)] Expected the "for" keyword at this location. |f|
+
+module expectedLoopVar 'modulea.bicep' = [for]
+//@[42:45) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[45:46) [BCP136 (Error)] Expected a loop variable identifier at this location. |]|
+
+module expectedInKeyword 'modulea.bicep' = [for x]
+//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[49:50) [BCP012 (Error)] Expected the "in" keyword at this location. |]|
+
+module expectedInKeyword2 'modulea.bicep' = [for x b]
+//@[45:48) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[51:52) [BCP012 (Error)] Expected the "in" keyword at this location. |b|
+//@[52:53) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+module expectedArrayExpression 'modulea.bicep' = [for x in]
+//@[50:53) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[58:59) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+module expectedColon 'modulea.bicep' = [for x in y]
+//@[40:43) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[49:50) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[50:51) [BCP018 (Error)] Expected the ":" character at this location. |]|
+
+module expectedLoopBody 'modulea.bicep' = [for x in y:]
+//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[52:53) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+//@[54:55) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |]|
+
+// wrong loop body type
+var emptyArray = []
+module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
+//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[64:65) [BCP033 (Error)] Expected a value of type "module" but the provided value is of type "int". |4|
+
+// missing loop body properties
+module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
+//@[7:32) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". |missingLoopBodyProperties|
+//@[52:55) [BCP138 (Error)] Loops are not currently supported. |for|
+}]
+
+// wrong array type
+var notAnArray = true
+module wrongArrayType 'modulea.bicep' = [for x in notAnArray:{
+//@[41:44) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[50:60) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". |notAnArray|
+}]
+
+// missing fewer properties
+module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
+//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'hello-${x}'
+  params: {
+//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". |params|
+
+  }
+}]
+
+// wrong parameter in the module loop
+module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
+//@[53:56) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'hello-${x}'
+  params: {
+    arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+//@[4:13) [BCP037 (Error)] No other properties are allowed on objects of type "params". |notAThing|
+  }
+}]
+
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
+//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[61:62) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. |x|
+  name: 'hello-${x}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: y]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[21:22) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. |x|
+//@[38:39) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+  }
+}]
+
+var someDuplicate = 'hello'
+//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
+//@[7:34) [BCP028 (Error)] Identifier "duplicateInGlobalAndOneLoop" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndOneLoop|
+//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[58:71) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+  }
+}]
+
+var otherDuplicate = 'there'
+//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for otherDuplicate in []: {
+//@[7:34) [BCP028 (Error)] Identifier "duplicateInGlobalAndOneLoop" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndOneLoop|
+//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[58:72) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: x]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[21:35) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+  }
+}]
+
+var someDuplicate = true
+//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
+var otherDuplicate = false
+//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+//@[47:50) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[51:64) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[21:35) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+  }
+}]
+
+/*
+  valid loop - this should be moved to Modules_* test case after E2E works
+*/ 
+var myModules = [
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+module storageResources 'modulea.bicep' = [for module in myModules: {
+//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: module.name
+  params: {
+    arrayParam: []
+    objParam: module
+    stringParamB: module.location
+  }
+}]
+
+module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
+//@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: module.name
+  params: {
+    arrayParam: [for i in range(0,3): concat('test', i)]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+    objParam: module
+    stringParamB: module.location
+  }
+}]

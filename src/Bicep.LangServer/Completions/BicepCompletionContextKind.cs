@@ -15,7 +15,7 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location represents the beginning of a declaration.
         /// </summary>
-        DeclarationStart = 1 << 0,
+        TopLevelDeclarationStart = 1 << 0,
 
         /// <summary>
         /// The current location needs a parameter type.

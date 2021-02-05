@@ -57,7 +57,7 @@ namespace Bicep.Core.Syntax
 
             return new SyntaxTreeGrouping(
                 entryPoint,
-                syntaxTrees.Values.OfType<SyntaxTree>().ToImmutableHashSet(), 
+                syntaxTrees.Values.ToImmutableHashSet(), 
                 moduleLookup.ToImmutableDictionary(),
                 moduleFailureLookup.ToImmutableDictionary());
         }

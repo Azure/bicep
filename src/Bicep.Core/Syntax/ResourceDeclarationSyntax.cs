@@ -12,7 +12,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ResourceDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
+    public class ResourceDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
         public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(value, nameof(value), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax), typeof(IfConditionSyntax));
+            AssertSyntaxType(value, nameof(value), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax), typeof(IfConditionSyntax), typeof(ForSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
@@ -54,6 +54,11 @@ namespace Bicep.Core.Syntax
 
         public bool IsExistingResource() => ExistingKeyword is not null;
 
+        /// <summary>
+        /// Returns the declared type of the resource body (based on the type string).
+        /// Returns the same value for single resource or resource loops declarations.
+        /// </summary>
+        /// <param name="resourceTypeProvider">resource type provider</param>
         public TypeSymbol GetDeclaredType(IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
@@ -85,6 +90,7 @@ namespace Bicep.Core.Syntax
             {
                 ObjectSyntax @object => @object,
                 IfConditionSyntax ifCondition => ifCondition.Body as ObjectSyntax,
+                ForSyntax @for => @for.Body as ObjectSyntax,
                 SkippedTriviaSyntax => null,
 
                 // blocked by assert in the constructor

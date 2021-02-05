@@ -9,7 +9,7 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[9:16) Resource dnsZone. Type: Microsoft.Network/dnszones@2018-05-01. Declaration start char: 0, length: 103
+//@[9:16) Resource dnsZone. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 103
   name: 'myZone'
   location: 'global'
 }
@@ -81,7 +81,7 @@ var location = resourceGroup().location
 //@[4:12) Variable location. Type: string. Declaration start char: 0, length: 39
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
-//@[9:13) Resource farm. Type: Microsoft.Web/serverFarms@2019-08-01. Declaration start char: 0, length: 371
+//@[9:13) Resource farm. Type: Microsoft.Web/serverfarms@2019-08-01. Declaration start char: 0, length: 371
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
   name: hostingPlanName
   location: location

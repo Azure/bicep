@@ -39,9 +39,11 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            // filter out symbols that don't have locations
+            // filter out symbols that don't have locations as well as locals with invalid identifiers
+            // (locals are special because their full span is the same as the identifier span,
+            // which makes it impossible to go to definition on a local with invalid identifiers)
             var declaredSymbolBindings = symbolTable
-                .Where(pair => pair.Value is DeclaredSymbol)
+                .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalSymbol local || local.NameSyntax.IsValid))
                 .Select(pair => new KeyValuePair<SyntaxBase, DeclaredSymbol>(pair.Key, (DeclaredSymbol) pair.Value));
 
             foreach (var (syntax, symbol) in declaredSymbolBindings)

@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Completions
                 return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null);
             }
 
-            var declarationInfo = SyntaxMatcher.FindLastNodeOfType<INamedDeclarationSyntax, SyntaxBase>(matchingNodes);
+            var topLeveldeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
             var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
             var propertyInfo = SyntaxMatcher.FindLastNodeOfType<ObjectPropertySyntax, ObjectPropertySyntax>(matchingNodes);
             var arrayInfo = SyntaxMatcher.FindLastNodeOfType<ArraySyntax, ArraySyntax>(matchingNodes);
@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Completions
             var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
 
-            var kind = ConvertFlag(IsDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.DeclarationStart) |
+            var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
                        GetDeclarationTypeFlags(matchingNodes, offset) |
                        ConvertFlag(IsObjectPropertyNameContext(matchingNodes, objectInfo), BicepCompletionContextKind.ObjectPropertyName) |
                        ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
@@ -112,7 +112,7 @@ namespace Bicep.LanguageServer.Completions
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes), BicepCompletionContextKind.Expression);
             }
 
-            return new BicepCompletionContext(kind, replacementRange, declarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
+            return new BicepCompletionContext(kind, replacementRange, topLeveldeclarationInfo.node, objectInfo.node, propertyInfo.node, arrayInfo.node, propertyAccessInfo.node, arrayAccessInfo.node, targetScopeInfo.node);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Bicep.LanguageServer.Completions
                 token.Type == TokenType.Assignment &&
                 ReferenceEquals(targetScope.Assignment, token));
 
-        private static bool IsDeclarationStartContext(List<SyntaxBase> matchingNodes, int offset)
+        private static bool IsTopLevelDeclarationStartContext(List<SyntaxBase> matchingNodes, int offset)
         {
             if (matchingNodes.Count == 1 && matchingNodes[0] is ProgramSyntax)
             {
@@ -221,7 +221,7 @@ namespace Bicep.LanguageServer.Completions
                         // (completions will be filtered by the text that is present, so we don't have to be 100% right)
                         return token.Type == TokenType.Identifier && matchingNodes[^3] is ProgramSyntax;
 
-                    case INamedDeclarationSyntax declaration:
+                    case ITopLevelNamedDeclarationSyntax declaration:
                         // we are in a fully or partially parsed declaration
                         // whether we are in a declaration context depends on whether our offset is within the keyword token
                         // (by using exclusive span containment, the cursor position at the end of a keyword token 
