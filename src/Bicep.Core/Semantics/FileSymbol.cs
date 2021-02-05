@@ -12,6 +12,8 @@ namespace Bicep.Core.Semantics
 {
     public class FileSymbol : Symbol, ILanguageScope
     {
+        private readonly ILookup<string, DeclaredSymbol> declarationsByName;
+
         public FileSymbol(string name,
             ProgramSyntax syntax,
             ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
@@ -26,11 +28,14 @@ namespace Bicep.Core.Semantics
             this.Syntax = syntax;
             this.ImportedNamespaces = importedNamespaces;
             this.LocalScopes = outermostScopes.ToImmutableArray();
+
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
             this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
+
+            this.declarationsByName = this.AllDeclarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
@@ -47,7 +52,6 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
-        // TODO: Make this hierarchical at some point.
         public ImmutableArray<LocalScopeSymbol> LocalScopes { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
@@ -93,7 +97,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.AllDeclarations.Where(symbol => symbol.NameSyntax.IsValid && string.Equals(symbol.Name, name, LanguageConstants.IdentifierComparison)).ToList();
+        public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
 
         private sealed class DuplicateIdentifierDiagnosticCollectorVisitor : SymbolVisitor
         {
