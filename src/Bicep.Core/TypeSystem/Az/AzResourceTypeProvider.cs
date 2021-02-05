@@ -103,18 +103,18 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var properties = objectType.Properties;
 
-            var scopeRequiredFlag = TypePropertyFlags.WriteOnly;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
             if (validParentScopes == ResourceScope.Resource)
             {
                 // resource can only be deployed as an extension resource - scope should be required
-                scopeRequiredFlag |= TypePropertyFlags.Required;
+                scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
                 var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
-                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
             }
             else
             {
@@ -125,14 +125,14 @@ namespace Bicep.Core.TypeSystem.Az
                 if (validParentScopes.HasFlag(ResourceScope.Resource))
                 {
                     var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
-                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopeRequiredFlag));
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
                 }
             }
             // Deployments RP
             if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType))
             {
-                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String));
-                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String));
+                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
+                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
             return new NamedObjectType(
                 objectType.Name,

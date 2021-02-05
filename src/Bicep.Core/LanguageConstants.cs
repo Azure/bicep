@@ -201,8 +201,12 @@ namespace Bicep.Core
 
             var outputsType = new NamedObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
 
-            // If the module scope matches the parent scope, we can safely omit the scope property
-            var scopeRequiredFlag = moduleScope != containingScope ? TypePropertyFlags.Required : TypePropertyFlags.None;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+            if (moduleScope != containingScope)
+            {
+                // If the module scope matches the parent scope, we can safely omit the scope property
+                scopePropertyFlags |= TypePropertyFlags.Required;
+            }
 
             var moduleBody = new NamedObjectType(
                 typeName,
@@ -210,7 +214,7 @@ namespace Bicep.Core
                 new[]
                 {
                     new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant),
-                    new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), TypePropertyFlags.WriteOnly | scopeRequiredFlag),
+                    new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                     new TypeProperty(ResourceDependsOnPropertyName, ResourceRefArray, TypePropertyFlags.WriteOnly),
