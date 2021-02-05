@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static string SaveResultFile(TestContext testContext, string fileName, string contents)
         {
             var filePath = GetResultFilePath(testContext, fileName);
-            File.WriteAllText(filePath, contents, Encoding.Unicode);
+            File.WriteAllText(filePath, contents);
 
             return filePath;
         }
