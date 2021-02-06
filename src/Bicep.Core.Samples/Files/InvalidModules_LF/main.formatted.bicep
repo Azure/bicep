@@ -296,45 +296,14 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray: {
   }
 }]
 
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray: {
-  name: 'hello-${x}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: y]
-  }
-}]
-
-var someDuplicate = 'hello'
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
-  }
-}]
-
-var otherDuplicate = 'there'
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for otherDuplicate in []: {
-  name: 'hello-${someDuplicate}'
+// nonexistent arrays and loop variables
+var evenMoreDuplicates = 'there'
+module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
   params: {
     objParam: {}
     stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: x]
-  }
-}]
-
-var someDuplicate = true
-var otherDuplicate = false
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
   }
 }]
 
@@ -351,6 +320,42 @@ var myModules = [
     location: 'westus'
   }
 ]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray: {
+  name: 'hello-${x}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: y]
+  }
+}]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+var duplicateAcrossScopes = 'hello'
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+  name: 'hello-${duplicateAcrossScopes}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+  }
+}]
+
+var someDuplicate = true
+var otherDuplicate = false
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+  }
+}]
+
+// simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {
@@ -360,6 +365,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   }
 }]
 
+// nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {

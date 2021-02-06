@@ -852,47 +852,13 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
   }
 }]
 
-// duplicate identifiers within the loop
-// (these duplicates are self-contained - usage of i above is allowed)
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-  name: 'vnet-${i}'
+// nonexistent arrays and loop variables
+resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
+  name: 'vnet-${justPlainWrong}'
   properties: {
-    subnets: [for i in range(0, 4): {
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate identifers in global and single loop scope
-var someDuplicate = 'hello'
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate in global and multiple loop scopes
-var otherDuplicate = 'hello'
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for otherDuplicate in range(0, 3): {
-  name: 'vnet-${otherDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-      name: 'subnet-${otherDuplicate}'
-    }]
-  }
-}]
-
-// joining the other duplicates above (we should not be having multiple errors on the same identifier being duplicated)
-var someDuplicate = true
-var otherDuplicate = []
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-      name: 'subnet-${otherDuplicate}-${someDuplicate}'
+    subnets: [for j in alsoNotAThing: {
+      doesNotExist: 'test'
+      name: 'subnet-${fake}-${totallyFake}'
     }]
   }
 }]
@@ -910,6 +876,35 @@ var storageAccounts = [
     location: 'westus'
   }
 ]
+// duplicate identifiers within the loop are allowed
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+var canHaveDuplicatesAcrossScopes = 'hello'
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+var duplicatesEverywhere = 'hello'
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+  name: 'vnet-${duplicatesEverywhere}'
+  properties: {
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+      name: 'subnet-${duplicatesEverywhere}'
+    }]
+  }
+}]
 // just a storage account loop
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
   name: account.name

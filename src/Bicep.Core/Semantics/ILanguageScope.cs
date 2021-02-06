@@ -8,5 +8,7 @@ namespace Bicep.Core.Semantics
     public interface ILanguageScope
     {
         IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name);
+
+        IEnumerable<DeclaredSymbol> AllDeclarations { get; }
     }
 }

@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
             // include all the locals in the symbol table as well
             // since we only allow lookups by object and not by name,
             // a flat symbol table should be sufficient
-            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.DeclaredSymbols))
+            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.AllDeclarations))
             {
                 this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
             }
@@ -253,7 +253,7 @@ namespace Bicep.Core.Semantics
             // loops currently are the only source of local symbols
             // as a result a local scope can contain between 1 to 2 local symbols
             // linear search should be fine, but this should be revisited if the above is no longer holds true
-            scope.DeclaredSymbols.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+            scope.AllDeclarations.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
 
         private Symbol LookupGlobalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {

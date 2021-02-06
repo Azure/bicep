@@ -242,6 +242,20 @@
     }
   },
   {
+    "label": "canHaveDuplicatesAcrossScopes",
+    "kind": "variable",
+    "detail": "canHaveDuplicatesAcrossScopes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_canHaveDuplicatesAcrossScopes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "canHaveDuplicatesAcrossScopes"
+    }
+  },
+  {
     "label": "coalesce",
     "kind": "function",
     "detail": "coalesce()",
@@ -1027,6 +1041,20 @@
     "textEdit": {
       "range": {},
       "newText": "duplicateInGlobalAndTwoLoops"
+    }
+  },
+  {
+    "label": "duplicatesEverywhere",
+    "kind": "variable",
+    "detail": "duplicatesEverywhere",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_duplicatesEverywhere",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "duplicatesEverywhere"
     }
   },
   {
@@ -2229,6 +2257,20 @@
     }
   },
   {
+    "label": "nonexistentArrays",
+    "kind": "interface",
+    "detail": "nonexistentArrays",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonexistentArrays",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonexistentArrays"
+    }
+  },
+  {
     "label": "notAResource",
     "kind": "variable",
     "detail": "notAResource",
@@ -2254,20 +2296,6 @@
     "textEdit": {
       "range": {},
       "newText": "notAnArray"
-    }
-  },
-  {
-    "label": "otherDuplicate",
-    "kind": "variable",
-    "detail": "otherDuplicate",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_otherDuplicate",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "otherDuplicate"
     }
   },
   {
@@ -2967,20 +2995,6 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
-    }
-  },
-  {
-    "label": "someDuplicate",
-    "kind": "variable",
-    "detail": "someDuplicate",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_someDuplicate",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "someDuplicate"
     }
   },
   {

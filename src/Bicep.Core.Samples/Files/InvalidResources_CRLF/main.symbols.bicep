@@ -1101,63 +1101,16 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
   }
 }]
 
-// duplicate identifiers within the loop
-// (these duplicates are self-contained - usage of i above is allowed)
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[94:95) Local i. Type: any. Declaration start char: 94, length: 1
-//@[9:39) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
-  name: 'vnet-${i}'
+// nonexistent arrays and loop variables
+resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
+//@[81:82) Local i. Type: any. Declaration start char: 81, length: 1
+//@[9:26) Resource nonexistentArrays. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 280
+  name: 'vnet-${justPlainWrong}'
   properties: {
-    subnets: [for i in range(0, 4): {
-//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate identifers in global and single loop scope
-var someDuplicate = 'hello'
-//@[4:17) Variable someDuplicate. Type: 'hello'. Declaration start char: 0, length: 27
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-//@[91:104) Local someDuplicate. Type: any. Declaration start char: 91, length: 13
-//@[9:36) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 260
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate in global and multiple loop scopes
-var otherDuplicate = 'hello'
-//@[4:18) Variable otherDuplicate. Type: 'hello'. Declaration start char: 0, length: 28
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for otherDuplicate in range(0, 3): {
-//@[92:106) Local otherDuplicate. Type: any. Declaration start char: 92, length: 14
-//@[9:37) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 284
-  name: 'vnet-${otherDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-//@[18:32) Local otherDuplicate. Type: any. Declaration start char: 18, length: 14
-      name: 'subnet-${otherDuplicate}'
-    }]
-  }
-}]
-
-// joining the other duplicates above (we should not be having multiple errors on the same identifier being duplicated)
-var someDuplicate = true
-//@[4:17) Variable someDuplicate. Type: bool. Declaration start char: 0, length: 24
-var otherDuplicate = []
-//@[4:18) Variable otherDuplicate. Type: array. Declaration start char: 0, length: 23
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-//@[92:105) Local someDuplicate. Type: any. Declaration start char: 92, length: 13
-//@[9:37) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 299
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-//@[18:32) Local otherDuplicate. Type: any. Declaration start char: 18, length: 14
-      name: 'subnet-${otherDuplicate}-${someDuplicate}'
+    subnets: [for j in alsoNotAThing: {
+//@[18:19) Local j. Type: any. Declaration start char: 18, length: 1
+      doesNotExist: 'test'
+      name: 'subnet-${fake}-${totallyFake}'
     }]
   }
 }]
@@ -1176,6 +1129,46 @@ var storageAccounts = [
     location: 'westus'
   }
 ]
+// duplicate identifiers within the loop are allowed
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[94:95) Local i. Type: any. Declaration start char: 94, length: 1
+//@[9:39) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+var canHaveDuplicatesAcrossScopes = 'hello'
+//@[4:33) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: any. Declaration start char: 91, length: 29
+//@[9:36) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 292
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+var duplicatesEverywhere = 'hello'
+//@[4:24) Variable duplicatesEverywhere. Type: 'hello'. Declaration start char: 0, length: 34
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+//@[92:112) Local duplicatesEverywhere. Type: any. Declaration start char: 92, length: 20
+//@[9:37) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 308
+  name: 'vnet-${duplicatesEverywhere}'
+  properties: {
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+//@[18:38) Local duplicatesEverywhere. Type: any. Declaration start char: 18, length: 20
+      name: 'subnet-${duplicatesEverywhere}'
+    }]
+  }
+}]
 // just a storage account loop
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[80:87) Local account. Type: any. Declaration start char: 80, length: 7

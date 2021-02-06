@@ -455,67 +455,20 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
   }
 }]
 
-module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[61:62) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. |x|
-  name: 'hello-${x}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: y]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[21:22) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. |x|
-//@[38:39) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
-  }
-}]
-
-var someDuplicate = 'hello'
-//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
-//@[7:34) [BCP028 (Error)] Identifier "duplicateInGlobalAndOneLoop" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndOneLoop|
-//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[58:71) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamA: 'test'
-    stringParamB: 'test'
-    arrayParam: [for x in emptyArray: x]
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-  }
-}]
-
-var otherDuplicate = 'there'
-//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for otherDuplicate in []: {
-//@[7:34) [BCP028 (Error)] Identifier "duplicateInGlobalAndOneLoop" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndOneLoop|
-//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[58:72) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-  name: 'hello-${someDuplicate}'
+// nonexistent arrays and loop variables
+var evenMoreDuplicates = 'there'
+module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+//@[44:47) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[70:86) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. |alsoDoesNotExist|
+  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
+//@[17:55) [BCP057 (Error)] The name "whyChooseRealVariablesWhenWeCanPretend" does not exist in the current context. |whyChooseRealVariablesWhenWeCanPretend|
   params: {
     objParam: {}
     stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: x]
+    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
 //@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[21:35) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-  }
-}]
-
-var someDuplicate = true
-//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-var otherDuplicate = false
-//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[47:50) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[51:64) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[21:35) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
+//@[43:54) [BCP057 (Error)] The name "totallyFake" does not exist in the current context. |totallyFake|
+//@[56:68) [BCP057 (Error)] The name "doesNotExist" does not exist in the current context. |doesNotExist|
   }
 }]
 
@@ -532,6 +485,49 @@ var myModules = [
     location: 'westus'
   }
 ]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
+//@[57:60) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'hello-${x}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: y]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[38:39) [BCP057 (Error)] The name "y" does not exist in the current context. |y|
+  }
+}]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+var duplicateAcrossScopes = 'hello'
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+//@[54:57) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'hello-${duplicateAcrossScopes}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+  }
+}]
+
+var someDuplicate = true
+var otherDuplicate = false
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+//@[47:50) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+//@[17:20) [BCP138 (Error)] Loops are not currently supported. |for|
+  }
+}]
+
+// simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
 //@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
   name: module.name
@@ -542,6 +538,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   }
 }]
 
+// nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[43:46) [BCP138 (Error)] Loops are not currently supported. |for|
   name: module.name

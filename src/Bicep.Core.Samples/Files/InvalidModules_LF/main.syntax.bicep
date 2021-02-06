@@ -2132,6 +2132,172 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+// nonexistent arrays and loop variables
+//@[40:41) NewLine |\n|
+var evenMoreDuplicates = 'there'
+//@[0:32) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |evenMoreDuplicates|
+//@[23:24)  Assignment |=|
+//@[25:32)  StringSyntax
+//@[25:32)   StringComplete |'there'|
+//@[32:33) NewLine |\n|
+module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+//@[0:278) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:24)  IdentifierSyntax
+//@[7:24)   Identifier |nonexistentArrays|
+//@[25:40)  StringSyntax
+//@[25:40)   StringComplete |'modulea.bicep'|
+//@[41:42)  Assignment |=|
+//@[43:278)  ForSyntax
+//@[43:44)   LeftSquare |[|
+//@[44:47)   Identifier |for|
+//@[48:66)   LocalVariableSyntax
+//@[48:66)    IdentifierSyntax
+//@[48:66)     Identifier |evenMoreDuplicates|
+//@[67:69)   Identifier |in|
+//@[70:86)   VariableAccessSyntax
+//@[70:86)    IdentifierSyntax
+//@[70:86)     Identifier |alsoDoesNotExist|
+//@[86:87)   Colon |:|
+//@[88:277)   ObjectSyntax
+//@[88:89)    LeftBrace |{|
+//@[89:90)    NewLine |\n|
+  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
+//@[2:57)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:57)     StringSyntax
+//@[8:17)      StringLeftPiece |'hello-${|
+//@[17:55)      VariableAccessSyntax
+//@[17:55)       IdentifierSyntax
+//@[17:55)        Identifier |whyChooseRealVariablesWhenWeCanPretend|
+//@[55:57)      StringRightPiece |}'|
+//@[57:58)    NewLine |\n|
+  params: {
+//@[2:127)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:127)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+    objParam: {}
+//@[4:16)      ObjectPropertySyntax
+//@[4:12)       IdentifierSyntax
+//@[4:12)        Identifier |objParam|
+//@[12:13)       Colon |:|
+//@[14:16)       ObjectSyntax
+//@[14:15)        LeftBrace |{|
+//@[15:16)        RightBrace |}|
+//@[16:17)      NewLine |\n|
+    stringParamB: 'test'
+//@[4:24)      ObjectPropertySyntax
+//@[4:16)       IdentifierSyntax
+//@[4:16)        Identifier |stringParamB|
+//@[16:17)       Colon |:|
+//@[18:24)       StringSyntax
+//@[18:24)        StringComplete |'test'|
+//@[24:25)      NewLine |\n|
+    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
+//@[4:69)      ObjectPropertySyntax
+//@[4:14)       IdentifierSyntax
+//@[4:14)        Identifier |arrayParam|
+//@[14:15)       Colon |:|
+//@[16:69)       ForSyntax
+//@[16:17)        LeftSquare |[|
+//@[17:20)        Identifier |for|
+//@[21:39)        LocalVariableSyntax
+//@[21:39)         IdentifierSyntax
+//@[21:39)          Identifier |evenMoreDuplicates|
+//@[40:42)        Identifier |in|
+//@[43:54)        VariableAccessSyntax
+//@[43:54)         IdentifierSyntax
+//@[43:54)          Identifier |totallyFake|
+//@[54:55)        Colon |:|
+//@[56:68)        VariableAccessSyntax
+//@[56:68)         IdentifierSyntax
+//@[56:68)          Identifier |doesNotExist|
+//@[68:69)        RightSquare |]|
+//@[69:70)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
+/*
+  valid loop - this should be moved to Modules_* test case after E2E works
+*/ 
+//@[3:4) NewLine |\n|
+var myModules = [
+//@[0:114) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |myModules|
+//@[14:15)  Assignment |=|
+//@[16:114)  ArraySyntax
+//@[16:17)   LeftSquare |[|
+//@[17:18)   NewLine |\n|
+  {
+//@[2:47)   ArrayItemSyntax
+//@[2:47)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    name: 'one'
+//@[4:15)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:15)      StringSyntax
+//@[10:15)       StringComplete |'one'|
+//@[15:16)     NewLine |\n|
+    location: 'eastus2'
+//@[4:23)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:23)      StringSyntax
+//@[14:23)       StringComplete |'eastus2'|
+//@[23:24)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+  {
+//@[2:46)   ArrayItemSyntax
+//@[2:46)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    name: 'two'
+//@[4:15)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:15)      StringSyntax
+//@[10:15)       StringComplete |'two'|
+//@[15:16)     NewLine |\n|
+    location: 'westus'
+//@[4:22)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:22)      StringSyntax
+//@[14:22)       StringComplete |'westus'|
+//@[22:23)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+//@[74:75) NewLine |\n|
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[0:226) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -2228,49 +2394,51 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
-var someDuplicate = 'hello'
-//@[0:27) VariableDeclarationSyntax
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+//@[74:75) NewLine |\n|
+var duplicateAcrossScopes = 'hello'
+//@[0:35) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
-//@[4:17)  IdentifierSyntax
-//@[4:17)   Identifier |someDuplicate|
-//@[18:19)  Assignment |=|
-//@[20:27)  StringSyntax
-//@[20:27)   StringComplete |'hello'|
-//@[27:28) NewLine |\n|
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
-//@[0:240) ModuleDeclarationSyntax
+//@[4:25)  IdentifierSyntax
+//@[4:25)   Identifier |duplicateAcrossScopes|
+//@[26:27)  Assignment |=|
+//@[28:35)  StringSyntax
+//@[28:35)   StringComplete |'hello'|
+//@[35:36) NewLine |\n|
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+//@[0:256) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:34)  IdentifierSyntax
 //@[7:34)   Identifier |duplicateInGlobalAndOneLoop|
 //@[35:50)  StringSyntax
 //@[35:50)   StringComplete |'modulea.bicep'|
 //@[51:52)  Assignment |=|
-//@[53:240)  ForSyntax
+//@[53:256)  ForSyntax
 //@[53:54)   LeftSquare |[|
 //@[54:57)   Identifier |for|
-//@[58:71)   LocalVariableSyntax
-//@[58:71)    IdentifierSyntax
-//@[58:71)     Identifier |someDuplicate|
-//@[72:74)   Identifier |in|
-//@[75:77)   ArraySyntax
-//@[75:76)    LeftSquare |[|
-//@[76:77)    RightSquare |]|
-//@[77:78)   Colon |:|
-//@[79:239)   ObjectSyntax
-//@[79:80)    LeftBrace |{|
-//@[80:81)    NewLine |\n|
-  name: 'hello-${someDuplicate}'
-//@[2:32)    ObjectPropertySyntax
+//@[58:79)   LocalVariableSyntax
+//@[58:79)    IdentifierSyntax
+//@[58:79)     Identifier |duplicateAcrossScopes|
+//@[80:82)   Identifier |in|
+//@[83:85)   ArraySyntax
+//@[83:84)    LeftSquare |[|
+//@[84:85)    RightSquare |]|
+//@[85:86)   Colon |:|
+//@[87:255)   ObjectSyntax
+//@[87:88)    LeftBrace |{|
+//@[88:89)    NewLine |\n|
+  name: 'hello-${duplicateAcrossScopes}'
+//@[2:40)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
 //@[2:6)      Identifier |name|
 //@[6:7)     Colon |:|
-//@[8:32)     StringSyntax
+//@[8:40)     StringSyntax
 //@[8:17)      StringLeftPiece |'hello-${|
-//@[17:30)      VariableAccessSyntax
-//@[17:30)       IdentifierSyntax
-//@[17:30)        Identifier |someDuplicate|
-//@[30:32)      StringRightPiece |}'|
-//@[32:33)    NewLine |\n|
+//@[17:38)      VariableAccessSyntax
+//@[17:38)       IdentifierSyntax
+//@[17:38)        Identifier |duplicateAcrossScopes|
+//@[38:40)      StringRightPiece |}'|
+//@[40:41)    NewLine |\n|
   params: {
 //@[2:123)    ObjectPropertySyntax
 //@[2:8)     IdentifierSyntax
@@ -2325,103 +2493,6 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
 //@[38:39)          Identifier |x|
 //@[39:40)        RightSquare |]|
 //@[40:41)      NewLine |\n|
-  }
-//@[2:3)      RightBrace |}|
-//@[3:4)    NewLine |\n|
-}]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\n\n|
-
-var otherDuplicate = 'there'
-//@[0:28) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |otherDuplicate|
-//@[19:20)  Assignment |=|
-//@[21:28)  StringSyntax
-//@[21:28)   StringComplete |'there'|
-//@[28:29) NewLine |\n|
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for otherDuplicate in []: {
-//@[0:229) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:34)  IdentifierSyntax
-//@[7:34)   Identifier |duplicateInGlobalAndOneLoop|
-//@[35:50)  StringSyntax
-//@[35:50)   StringComplete |'modulea.bicep'|
-//@[51:52)  Assignment |=|
-//@[53:229)  ForSyntax
-//@[53:54)   LeftSquare |[|
-//@[54:57)   Identifier |for|
-//@[58:72)   LocalVariableSyntax
-//@[58:72)    IdentifierSyntax
-//@[58:72)     Identifier |otherDuplicate|
-//@[73:75)   Identifier |in|
-//@[76:78)   ArraySyntax
-//@[76:77)    LeftSquare |[|
-//@[77:78)    RightSquare |]|
-//@[78:79)   Colon |:|
-//@[80:228)   ObjectSyntax
-//@[80:81)    LeftBrace |{|
-//@[81:82)    NewLine |\n|
-  name: 'hello-${someDuplicate}'
-//@[2:32)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:32)     StringSyntax
-//@[8:17)      StringLeftPiece |'hello-${|
-//@[17:30)      VariableAccessSyntax
-//@[17:30)       IdentifierSyntax
-//@[17:30)        Identifier |someDuplicate|
-//@[30:32)      StringRightPiece |}'|
-//@[32:33)    NewLine |\n|
-  params: {
-//@[2:111)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:111)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:12)      NewLine |\n|
-    objParam: {}
-//@[4:16)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:16)       ObjectSyntax
-//@[14:15)        LeftBrace |{|
-//@[15:16)        RightBrace |}|
-//@[16:17)      NewLine |\n|
-    stringParamB: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:25)      NewLine |\n|
-    arrayParam: [for otherDuplicate in emptyArray: x]
-//@[4:53)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:53)       ForSyntax
-//@[16:17)        LeftSquare |[|
-//@[17:20)        Identifier |for|
-//@[21:35)        LocalVariableSyntax
-//@[21:35)         IdentifierSyntax
-//@[21:35)          Identifier |otherDuplicate|
-//@[36:38)        Identifier |in|
-//@[39:49)        VariableAccessSyntax
-//@[39:49)         IdentifierSyntax
-//@[39:49)          Identifier |emptyArray|
-//@[49:50)        Colon |:|
-//@[51:52)        VariableAccessSyntax
-//@[51:52)         IdentifierSyntax
-//@[51:52)          Identifier |x|
-//@[52:53)        RightSquare |]|
-//@[53:54)      NewLine |\n|
   }
 //@[2:3)      RightBrace |}|
 //@[3:4)    NewLine |\n|
@@ -2543,70 +2614,8 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-//@[3:4) NewLine |\n|
-var myModules = [
-//@[0:114) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:13)  IdentifierSyntax
-//@[4:13)   Identifier |myModules|
-//@[14:15)  Assignment |=|
-//@[16:114)  ArraySyntax
-//@[16:17)   LeftSquare |[|
-//@[17:18)   NewLine |\n|
-  {
-//@[2:47)   ArrayItemSyntax
-//@[2:47)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:4)     NewLine |\n|
-    name: 'one'
-//@[4:15)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:15)      StringSyntax
-//@[10:15)       StringComplete |'one'|
-//@[15:16)     NewLine |\n|
-    location: 'eastus2'
-//@[4:23)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:23)      StringSyntax
-//@[14:23)       StringComplete |'eastus2'|
-//@[23:24)     NewLine |\n|
-  }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
-  {
-//@[2:46)   ArrayItemSyntax
-//@[2:46)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:4)     NewLine |\n|
-    name: 'two'
-//@[4:15)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:15)      StringSyntax
-//@[10:15)       StringComplete |'two'|
-//@[15:16)     NewLine |\n|
-    location: 'westus'
-//@[4:22)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:22)      StringSyntax
-//@[14:22)       StringComplete |'westus'|
-//@[22:23)     NewLine |\n|
-  }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
-]
-//@[0:1)   RightSquare |]|
-//@[1:2) NewLine |\n|
+// simple module loop
+//@[21:22) NewLine |\n|
 module storageResources 'modulea.bicep' = [for module in myModules: {
 //@[0:182) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -2689,6 +2698,8 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+// nested module loop
+//@[21:22) NewLine |\n|
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[0:220) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|

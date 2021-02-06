@@ -1201,68 +1201,20 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
   }
 }]
 
-// duplicate identifiers within the loop
-// (these duplicates are self-contained - usage of i above is allowed)
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[90:93) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[94:95) [BCP028 (Error)] Identifier "i" is declared multiple times. Remove or rename the duplicates. |i|
-  name: 'vnet-${i}'
+// nonexistent arrays and loop variables
+resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
+//@[77:80) [BCP138 (Error)] Loops are not currently supported. |for|
+//@[86:95) [BCP057 (Error)] The name "notAThing" does not exist in the current context. |notAThing|
+  name: 'vnet-${justPlainWrong}'
+//@[16:30) [BCP057 (Error)] The name "justPlainWrong" does not exist in the current context. |justPlainWrong|
   properties: {
-    subnets: [for i in range(0, 4): {
+    subnets: [for j in alsoNotAThing: {
 //@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[18:19) [BCP028 (Error)] Identifier "i" is declared multiple times. Remove or rename the duplicates. |i|
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate identifers in global and single loop scope
-var someDuplicate = 'hello'
-//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-//@[87:90) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[91:104) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-      name: 'subnet-${i}-${i}'
-    }]
-  }
-}]
-
-// duplicate in global and multiple loop scopes
-var otherDuplicate = 'hello'
-//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for otherDuplicate in range(0, 3): {
-//@[9:37) [BCP028 (Error)] Identifier "duplicateInGlobalAndTwoLoops" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndTwoLoops|
-//@[88:91) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[92:106) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-  name: 'vnet-${otherDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[18:32) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-      name: 'subnet-${otherDuplicate}'
-    }]
-  }
-}]
-
-// joining the other duplicates above (we should not be having multiple errors on the same identifier being duplicated)
-var someDuplicate = true
-//@[4:17) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-var otherDuplicate = []
-//@[4:18) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for someDuplicate in range(0, 3): {
-//@[9:37) [BCP028 (Error)] Identifier "duplicateInGlobalAndTwoLoops" is declared multiple times. Remove or rename the duplicates. |duplicateInGlobalAndTwoLoops|
-//@[88:91) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[92:105) [BCP028 (Error)] Identifier "someDuplicate" is declared multiple times. Remove or rename the duplicates. |someDuplicate|
-  name: 'vnet-${someDuplicate}'
-  properties: {
-    subnets: [for otherDuplicate in range(0, 4): {
-//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
-//@[18:32) [BCP028 (Error)] Identifier "otherDuplicate" is declared multiple times. Remove or rename the duplicates. |otherDuplicate|
-      name: 'subnet-${otherDuplicate}-${someDuplicate}'
+//@[23:36) [BCP057 (Error)] The name "alsoNotAThing" does not exist in the current context. |alsoNotAThing|
+      doesNotExist: 'test'
+      name: 'subnet-${fake}-${totallyFake}'
+//@[22:26) [BCP057 (Error)] The name "fake" does not exist in the current context. |fake|
+//@[30:41) [BCP057 (Error)] The name "totallyFake" does not exist in the current context. |totallyFake|
     }]
   }
 }]
@@ -1280,6 +1232,41 @@ var storageAccounts = [
     location: 'westus'
   }
 ]
+// duplicate identifiers within the loop are allowed
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[90:93) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+var canHaveDuplicatesAcrossScopes = 'hello'
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+//@[87:90) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+var duplicatesEverywhere = 'hello'
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+//@[88:91) [BCP138 (Error)] Loops are not currently supported. |for|
+  name: 'vnet-${duplicatesEverywhere}'
+  properties: {
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+//@[14:17) [BCP138 (Error)] Loops are not currently supported. |for|
+      name: 'subnet-${duplicatesEverywhere}'
+    }]
+  }
+}]
 // just a storage account loop
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[76:79) [BCP138 (Error)] Loops are not currently supported. |for|

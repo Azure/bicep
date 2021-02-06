@@ -428,6 +428,37 @@ module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray:{
   }
 }]
 
+// nonexistent arrays and loop variables
+var evenMoreDuplicates = 'there'
+//@[4:22) Variable evenMoreDuplicates. Type: 'there'. Declaration start char: 0, length: 32
+module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+//@[48:66) Local evenMoreDuplicates. Type: any. Declaration start char: 48, length: 18
+//@[7:24) Module nonexistentArrays. Type: module[]. Declaration start char: 0, length: 278
+  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
+//@[21:39) Local evenMoreDuplicates. Type: any. Declaration start char: 21, length: 18
+  }
+}]
+
+/*
+  valid loop - this should be moved to Modules_* test case after E2E works
+*/ 
+var myModules = [
+//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 114
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@[61:62) Local x. Type: any. Declaration start char: 61, length: 1
 //@[7:37) Module duplicateIdentifiersWithinLoop. Type: module[]. Declaration start char: 0, length: 226
@@ -441,32 +472,19 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
   }
 }]
 
-var someDuplicate = 'hello'
-//@[4:17) Variable someDuplicate. Type: 'hello'. Declaration start char: 0, length: 27
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for someDuplicate in []: {
-//@[58:71) Local someDuplicate. Type: any. Declaration start char: 58, length: 13
-//@[7:34) Module duplicateInGlobalAndOneLoop. Type: module[]. Declaration start char: 0, length: 240
-  name: 'hello-${someDuplicate}'
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+var duplicateAcrossScopes = 'hello'
+//@[4:25) Variable duplicateAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 35
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+//@[58:79) Local duplicateAcrossScopes. Type: any. Declaration start char: 58, length: 21
+//@[7:34) Module duplicateInGlobalAndOneLoop. Type: module[]. Declaration start char: 0, length: 256
+  name: 'hello-${duplicateAcrossScopes}'
   params: {
     objParam: {}
     stringParamA: 'test'
     stringParamB: 'test'
     arrayParam: [for x in emptyArray: x]
 //@[21:22) Local x. Type: any. Declaration start char: 21, length: 1
-  }
-}]
-
-var otherDuplicate = 'there'
-//@[4:18) Variable otherDuplicate. Type: 'there'. Declaration start char: 0, length: 28
-module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for otherDuplicate in []: {
-//@[58:72) Local otherDuplicate. Type: any. Declaration start char: 58, length: 14
-//@[7:34) Module duplicateInGlobalAndOneLoop. Type: error. Declaration start char: 0, length: 229
-  name: 'hello-${someDuplicate}'
-  params: {
-    objParam: {}
-    stringParamB: 'test'
-    arrayParam: [for otherDuplicate in emptyArray: x]
-//@[21:35) Local otherDuplicate. Type: any. Declaration start char: 21, length: 14
   }
 }]
 
@@ -486,20 +504,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   }
 }]
 
-/*
-  valid loop - this should be moved to Modules_* test case after E2E works
-*/ 
-var myModules = [
-//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 114
-  {
-    name: 'one'
-    location: 'eastus2'
-  }
-  {
-    name: 'two'
-    location: 'westus'
-  }
-]
+// simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
 //@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
 //@[7:23) Module storageResources. Type: module[]. Declaration start char: 0, length: 182
@@ -511,6 +516,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
   }
 }]
 
+// nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
 //@[7:23) Module nestedModuleLoop. Type: module[]. Declaration start char: 0, length: 220

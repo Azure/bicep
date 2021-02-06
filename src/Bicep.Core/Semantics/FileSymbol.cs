@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
@@ -74,101 +73,57 @@ namespace Bicep.Core.Semantics
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
-        {
-            foreach (var duplicatedSymbol in DuplicateIdentifierDiagnosticCollectorVisitor.GetDuplicateDeclarations(this))
-            {
-                yield return this.CreateError(duplicatedSymbol.NameSyntax, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
-            }
-
-            // TODO: This isn't aware of locals. Fix it.
-            var namespaceKeys = this.ImportedNamespaces.Keys;
-            var reservedSymbols = this.AllDeclarations
-                .Where(decl => decl.NameSyntax.IsValid)
-                .Where(decl => namespaceKeys.Contains(decl.Name));
-
-            foreach (DeclaredSymbol reservedSymbol in reservedSymbols)
-            {
-                yield return this.CreateError(
-                    reservedSymbol.NameSyntax, 
-                    b => b.SymbolicNameCannotUseReservedNamespaceName(
-                        reservedSymbol.Name,
-                        namespaceKeys));
-            }
-        }
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
 
-        private sealed class DuplicateIdentifierDiagnosticCollectorVisitor : SymbolVisitor
+        private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
-            private readonly List<ILanguageScope> activeScopes = new();
+            private readonly ImmutableDictionary<string, NamespaceSymbol> importedNamespaces;
 
-            private readonly FileSymbol file;
-
-            private DuplicateIdentifierDiagnosticCollectorVisitor(FileSymbol file)
+            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, NamespaceSymbol> importedNamespaces)
             {
-                this.file = file;
-
-                // initialize global scope
-                this.activeScopes.Add(file);
+                this.importedNamespaces = importedNamespaces;
             }
 
-            private HashSet<DeclaredSymbol> Duplicates { get; } = new();
-            
-            public static IEnumerable<DeclaredSymbol> GetDuplicateDeclarations(FileSymbol file)
+            public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
             {
-                var visitor = new DuplicateIdentifierDiagnosticCollectorVisitor(file);
+                var visitor = new DuplicateIdentifierValidatorVisitor(file.ImportedNamespaces);
                 visitor.Visit(file);
 
-                return visitor.Duplicates;
+                return visitor.Diagnostics;
             }
+
+            private IList<ErrorDiagnostic> Diagnostics { get; } = new List<ErrorDiagnostic>();
 
             protected override void VisitInternal(Symbol node)
             {
-                if (node is DeclaredSymbol declaredSymbol && declaredSymbol.NameSyntax.IsValid)
+                if (node is ILanguageScope scope)
                 {
-                    // TODO: There's an 
-                    // collect symbols with the same name from current and parent scopes
-                    var symbolsWithMatchingName = FindSymbolsByName(declaredSymbol.Name);
-
-                    // we're visiting the symbol now, so we should have at least 1
-                    // (0 would be possible if we didn't assert on NameSyntax being valid at the top)
-                    Debug.Assert(symbolsWithMatchingName.Count > 0, "symbolsWithMatchingName.Count > 0");
-
-                    // more than 1 in currently active scopes indicates a user error
-                    if (symbolsWithMatchingName.Count > 1)
-                    {
-                        // add to the list of duplicates
-                        this.Duplicates.AddRange(symbolsWithMatchingName);
-                    }
+                    ValidateScope(scope);
                 }
 
                 base.VisitInternal(node);
             }
 
-            public override void VisitLocalScope(LocalScope symbol)
+            private void ValidateScope(ILanguageScope scope)
             {
-                var localSymbols = symbol.DeclaredSymbols.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
-                this.activeScopes.Add(symbol);
+                // collect duplicate identifiers at this scope
+                // declaring a variable in a local scope hides the parent scope variables,
+                // so we don't need to look at other levels
+                this.Diagnostics.AddRange(scope.AllDeclarations
+                    .Where(decl => decl.NameSyntax.IsValid)
+                    .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
+                    .Where(group => group.Count() > 1)
+                    .SelectMany(group => group)
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
 
-                base.VisitLocalScope(symbol);
-
-                this.activeScopes.RemoveAt(this.activeScopes.Count - 1);
-            }
-
-            private IList<DeclaredSymbol> FindSymbolsByName(string name)
-            {
-                var symbols = new List<DeclaredSymbol>();
-
-                // iterating from outer to inner scopes
-                // the order doesn't matter because we are only collecting symbols
-                foreach (var scope in this.activeScopes)
-                {
-                    // lookups return empty for non-existed keys
-                    symbols.AddRange(scope.GetDeclarationsByName(name));
-                }
-
-                return symbols;
+                // imported namespaces are reserved in all the scopes
+                // otherwise the user could accidentally hide a namespace which would remove the ability
+                // to fully qualify a function
+                this.Diagnostics.AddRange(scope.AllDeclarations
+                    .Where(decl => decl.NameSyntax.IsValid && this.importedNamespaces.ContainsKey(decl.Name))
+                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.importedNamespaces.Keys)));
             }
         }
     }
