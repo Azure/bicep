@@ -64,7 +64,7 @@ az deployment group create -f ./main.json -g my-rg
   * Previously all parameters had to be declared together in one `"parameters": {}` object, variables had to be declared together in one `"variables": {}` object, etc.
 * Automatic dependency management in certain scenarios. Bicep will automatically add `dependsOn` in the compiled ARM Template if the symbolic name is used in another resource declaration.
 * Richer validation and intellisense than what is available in the ARM Tools VS Code extension. For example, in bicep we have intellisense on GET properties (`output sample string = resource.properties.*`)
-* All resource type properties that exist via Azure Resource Manager are available in bicep. Since Bicep produces ARM templates there are no descrepencies of what properties and settings are available.  
+* All resource type properties that exist via Azure Resource Manager are available in bicep. Since bicep produces ARM templates there are no descrepencies of what properties and settings are available.  
 
 For more detail on taking advantage of new bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
 
