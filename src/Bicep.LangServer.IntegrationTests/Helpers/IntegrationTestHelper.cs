@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Navigation;
+using Microsoft.Extensions.Logging;
+using Bicep.Cli.Logging;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -48,7 +50,9 @@ namespace Bicep.LangServer.IntegrationTests
             {   
                 options
                     .WithInput(clientPipe.Reader)
-                    .WithOutput(serverPipe.Writer);
+                    .WithOutput(serverPipe.Writer)
+                    .WithLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+                    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Debug));
 
                 onClientOptions(options);
             });
