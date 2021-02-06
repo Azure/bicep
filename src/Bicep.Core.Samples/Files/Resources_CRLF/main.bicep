@@ -251,3 +251,18 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res3runtime: extension2.properties.something
   }
 }
+
+resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+  name: 'existing1'
+  scope: extension1
+}
+
+resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+  name: 'existing2'
+  scope: existing1
+}
+
+resource extension3 'My.Rp/extensionResource@2020-12-01' = {
+  name: 'extension3'
+  scope: existing1
+}

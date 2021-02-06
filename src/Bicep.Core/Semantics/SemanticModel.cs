@@ -107,6 +107,6 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public FileSymbol Root => this.Binder.FileSymbol;
 
-        public ResourceScopeType TargetScope => this.Binder.TargetScope;
+        public ResourceScope TargetScope => this.Binder.TargetScope;
     }
 }

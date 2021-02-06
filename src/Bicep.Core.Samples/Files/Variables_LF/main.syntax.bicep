@@ -8,8 +8,8 @@ var myInt = 42
 //@[4:9)  IdentifierSyntax
 //@[4:9)   Identifier |myInt|
 //@[10:11)  Assignment |=|
-//@[12:14)  NumericLiteralSyntax
-//@[12:14)   Number |42|
+//@[12:14)  IntegerLiteralSyntax
+//@[12:14)   Integer |42|
 //@[14:16) NewLine |\n\n|
 
 // a string variable
@@ -40,8 +40,8 @@ var interp1 = 'abc${123}def'
 //@[12:13)  Assignment |=|
 //@[14:28)  StringSyntax
 //@[14:20)   StringLeftPiece |'abc${|
-//@[20:23)   NumericLiteralSyntax
-//@[20:23)    Number |123|
+//@[20:23)   IntegerLiteralSyntax
+//@[20:23)    Integer |123|
 //@[23:28)   StringRightPiece |}def'|
 //@[28:29) NewLine |\n|
 var interp2 = '${123}def'
@@ -52,8 +52,8 @@ var interp2 = '${123}def'
 //@[12:13)  Assignment |=|
 //@[14:25)  StringSyntax
 //@[14:17)   StringLeftPiece |'${|
-//@[17:20)   NumericLiteralSyntax
-//@[17:20)    Number |123|
+//@[17:20)   IntegerLiteralSyntax
+//@[17:20)    Integer |123|
 //@[20:25)   StringRightPiece |}def'|
 //@[25:26) NewLine |\n|
 var interp3 = 'abc${123}'
@@ -64,8 +64,8 @@ var interp3 = 'abc${123}'
 //@[12:13)  Assignment |=|
 //@[14:25)  StringSyntax
 //@[14:20)   StringLeftPiece |'abc${|
-//@[20:23)   NumericLiteralSyntax
-//@[20:23)    Number |123|
+//@[20:23)   IntegerLiteralSyntax
+//@[20:23)    Integer |123|
 //@[23:25)   StringRightPiece |}'|
 //@[25:26) NewLine |\n|
 var interp4 = 'abc${123}${456}jk$l${789}p$'
@@ -76,14 +76,14 @@ var interp4 = 'abc${123}${456}jk$l${789}p$'
 //@[12:13)  Assignment |=|
 //@[14:43)  StringSyntax
 //@[14:20)   StringLeftPiece |'abc${|
-//@[20:23)   NumericLiteralSyntax
-//@[20:23)    Number |123|
+//@[20:23)   IntegerLiteralSyntax
+//@[20:23)    Integer |123|
 //@[23:26)   StringMiddlePiece |}${|
-//@[26:29)   NumericLiteralSyntax
-//@[26:29)    Number |456|
+//@[26:29)   IntegerLiteralSyntax
+//@[26:29)    Integer |456|
 //@[29:36)   StringMiddlePiece |}jk$l${|
-//@[36:39)   NumericLiteralSyntax
-//@[36:39)    Number |789|
+//@[36:39)   IntegerLiteralSyntax
+//@[36:39)    Integer |789|
 //@[39:43)   StringRightPiece |}p$'|
 //@[43:44) NewLine |\n|
 var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
@@ -96,17 +96,17 @@ var doubleInterp = 'abc${'def${123}'}_${'${456}${789}'}'
 //@[19:25)   StringLeftPiece |'abc${|
 //@[25:36)   StringSyntax
 //@[25:31)    StringLeftPiece |'def${|
-//@[31:34)    NumericLiteralSyntax
-//@[31:34)     Number |123|
+//@[31:34)    IntegerLiteralSyntax
+//@[31:34)     Integer |123|
 //@[34:36)    StringRightPiece |}'|
 //@[36:40)   StringMiddlePiece |}_${|
 //@[40:54)   StringSyntax
 //@[40:43)    StringLeftPiece |'${|
-//@[43:46)    NumericLiteralSyntax
-//@[43:46)     Number |456|
+//@[43:46)    IntegerLiteralSyntax
+//@[43:46)     Integer |456|
 //@[46:49)    StringMiddlePiece |}${|
-//@[49:52)    NumericLiteralSyntax
-//@[49:52)     Number |789|
+//@[49:52)    IntegerLiteralSyntax
+//@[49:52)     Integer |789|
 //@[52:54)    StringRightPiece |}'|
 //@[54:56)   StringRightPiece |}'|
 //@[56:57) NewLine |\n|
@@ -118,8 +118,8 @@ var curliesInInterp = '{${123}{0}${true}}'
 //@[20:21)  Assignment |=|
 //@[22:42)  StringSyntax
 //@[22:26)   StringLeftPiece |'{${|
-//@[26:29)   NumericLiteralSyntax
-//@[26:29)    Number |123|
+//@[26:29)   IntegerLiteralSyntax
+//@[26:29)    Integer |123|
 //@[29:35)   StringMiddlePiece |}{0}${|
 //@[35:39)   BooleanLiteralSyntax
 //@[35:39)    TrueKeyword |true|
@@ -296,8 +296,8 @@ var myObj = {
 //@[3:4)    Colon |:|
 //@[5:8)    UnaryOperationSyntax
 //@[5:6)     Minus |-|
-//@[6:8)     NumericLiteralSyntax
-//@[6:8)      Number |12|
+//@[6:8)     IntegerLiteralSyntax
+//@[6:8)      Integer |12|
 //@[8:9)   NewLine |\n|
   c: true
 //@[2:9)   ObjectPropertySyntax
@@ -327,22 +327,22 @@ var myObj = {
 //@[9:10)     NewLine |\n|
     1
 //@[4:5)     ArrayItemSyntax
-//@[4:5)      NumericLiteralSyntax
-//@[4:5)       Number |1|
+//@[4:5)      IntegerLiteralSyntax
+//@[4:5)       Integer |1|
 //@[5:6)     NewLine |\n|
     2
 //@[4:5)     ArrayItemSyntax
-//@[4:5)      NumericLiteralSyntax
-//@[4:5)       Number |2|
+//@[4:5)      IntegerLiteralSyntax
+//@[4:5)       Integer |2|
 //@[5:6)     NewLine |\n|
     2+1
 //@[4:7)     ArrayItemSyntax
 //@[4:7)      BinaryOperationSyntax
-//@[4:5)       NumericLiteralSyntax
-//@[4:5)        Number |2|
+//@[4:5)       IntegerLiteralSyntax
+//@[4:5)        Integer |2|
 //@[5:6)       Plus |+|
-//@[6:7)       NumericLiteralSyntax
-//@[6:7)        Number |1|
+//@[6:7)       IntegerLiteralSyntax
+//@[6:7)        Integer |1|
 //@[7:8)     NewLine |\n|
     {
 //@[4:53)     ArrayItemSyntax
@@ -357,21 +357,21 @@ var myObj = {
 //@[12:41)        BinaryOperationSyntax
 //@[12:28)         BinaryOperationSyntax
 //@[12:20)          BinaryOperationSyntax
-//@[12:15)           NumericLiteralSyntax
-//@[12:15)            Number |144|
+//@[12:15)           IntegerLiteralSyntax
+//@[12:15)            Integer |144|
 //@[16:17)           GreaterThan |>|
-//@[18:20)           NumericLiteralSyntax
-//@[18:20)            Number |33|
+//@[18:20)           IntegerLiteralSyntax
+//@[18:20)            Integer |33|
 //@[21:23)          LogicalAnd |&&|
 //@[24:28)          BooleanLiteralSyntax
 //@[24:28)           TrueKeyword |true|
 //@[29:31)         LogicalOr ||||
 //@[32:41)         BinaryOperationSyntax
-//@[32:34)          NumericLiteralSyntax
-//@[32:34)           Number |99|
+//@[32:34)          IntegerLiteralSyntax
+//@[32:34)           Integer |99|
 //@[35:37)          LessThanOrEqual |<=|
-//@[38:41)          NumericLiteralSyntax
-//@[38:41)           Number |199|
+//@[38:41)          IntegerLiteralSyntax
+//@[38:41)           Integer |199|
 //@[41:42)       NewLine |\n|
     }
 //@[4:5)       RightBrace |}|
@@ -437,8 +437,8 @@ var objWithInterp = {
 //@[5:10)       Identifier |myStr|
 //@[10:12)     StringRightPiece |}'|
 //@[12:13)    Colon |:|
-//@[14:15)    NumericLiteralSyntax
-//@[14:15)     Number |1|
+//@[14:15)    IntegerLiteralSyntax
+//@[14:15)     Integer |1|
 //@[15:16)   NewLine |\n|
   'abc${myStr}def': 2
 //@[2:21)   ObjectPropertySyntax
@@ -449,8 +449,8 @@ var objWithInterp = {
 //@[8:13)       Identifier |myStr|
 //@[13:18)     StringRightPiece |}def'|
 //@[18:19)    Colon |:|
-//@[20:21)    NumericLiteralSyntax
-//@[20:21)     Number |2|
+//@[20:21)    IntegerLiteralSyntax
+//@[20:21)     Integer |2|
 //@[21:22)   NewLine |\n|
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'
 //@[2:54)   ObjectPropertySyntax
@@ -766,8 +766,8 @@ var firstLocation = environment().locations[0].displayName
 //@[34:43)     IdentifierSyntax
 //@[34:43)      Identifier |locations|
 //@[43:44)    LeftSquare |[|
-//@[44:45)    NumericLiteralSyntax
-//@[44:45)     Number |0|
+//@[44:45)    IntegerLiteralSyntax
+//@[44:45)     Integer |0|
 //@[45:46)    RightSquare |]|
 //@[46:47)   Dot |.|
 //@[47:58)   IdentifierSyntax
@@ -818,8 +818,8 @@ var intIndexer = [
 ][0]
 //@[0:1)    RightSquare |]|
 //@[1:2)   LeftSquare |[|
-//@[2:3)   NumericLiteralSyntax
-//@[2:3)    Number |0|
+//@[2:3)   IntegerLiteralSyntax
+//@[2:3)    Integer |0|
 //@[3:4)   RightSquare |]|
 //@[4:6) NewLine |\n\n|
 
@@ -846,8 +846,8 @@ var functionOnIndexer1 = concat([
 ][0], 's')
 //@[0:1)      RightSquare |]|
 //@[1:2)     LeftSquare |[|
-//@[2:3)     NumericLiteralSyntax
-//@[2:3)      Number |0|
+//@[2:3)     IntegerLiteralSyntax
+//@[2:3)      Integer |0|
 //@[3:4)     RightSquare |]|
 //@[4:5)    Comma |,|
 //@[6:9)   FunctionArgumentSyntax
@@ -874,8 +874,8 @@ var functionOnIndexer2 = concat([
 ][0], 's')
 //@[0:1)      RightSquare |]|
 //@[1:2)     LeftSquare |[|
-//@[2:3)     NumericLiteralSyntax
-//@[2:3)      Number |0|
+//@[2:3)     IntegerLiteralSyntax
+//@[2:3)      Integer |0|
 //@[3:4)     RightSquare |]|
 //@[4:5)    Comma |,|
 //@[6:9)   FunctionArgumentSyntax
@@ -902,8 +902,8 @@ var functionOnIndexer3 = concat([
 ][0], any('s'))
 //@[0:1)      RightSquare |]|
 //@[1:2)     LeftSquare |[|
-//@[2:3)     NumericLiteralSyntax
-//@[2:3)      Number |0|
+//@[2:3)     IntegerLiteralSyntax
+//@[2:3)      Integer |0|
 //@[3:4)     RightSquare |]|
 //@[4:5)    Comma |,|
 //@[6:14)   FunctionArgumentSyntax
@@ -1015,8 +1015,8 @@ var previousEmitLimit = [
 //@[2:8)   ArrayItemSyntax
 //@[2:8)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
-//@[5:6)     NumericLiteralSyntax
-//@[5:6)      Number |4|
+//@[5:6)     IntegerLiteralSyntax
+//@[5:6)      Integer |4|
 //@[6:8)     StringRightPiece |}'|
 //@[8:9)   NewLine |\n|
   {
@@ -1062,11 +1062,11 @@ var previousEmitLimit = [
         12 + 3
 //@[8:14)           ArrayItemSyntax
 //@[8:14)            BinaryOperationSyntax
-//@[8:10)             NumericLiteralSyntax
-//@[8:10)              Number |12|
+//@[8:10)             IntegerLiteralSyntax
+//@[8:10)              Integer |12|
 //@[11:12)             Plus |+|
-//@[13:14)             NumericLiteralSyntax
-//@[13:14)              Number |3|
+//@[13:14)             IntegerLiteralSyntax
+//@[13:14)              Integer |3|
 //@[14:15)           NewLine |\n|
       ], [
 //@[6:7)           RightSquare |]|
@@ -1151,8 +1151,8 @@ var previousEmitLimit = [
 //@[8:11)             StringSyntax
 //@[8:11)              StringComplete |'s'|
 //@[12:14)             Equals |==|
-//@[15:17)             NumericLiteralSyntax
-//@[15:17)              Number |12|
+//@[15:17)             IntegerLiteralSyntax
+//@[15:17)              Integer |12|
 //@[17:18)           NewLine |\n|
       ])
 //@[6:7)           RightSquare |]|
@@ -1194,8 +1194,8 @@ var previousEmitLimit2 = [
 //@[2:8)   ArrayItemSyntax
 //@[2:8)    StringSyntax
 //@[2:5)     StringLeftPiece |'${|
-//@[5:6)     NumericLiteralSyntax
-//@[5:6)      Number |4|
+//@[5:6)     IntegerLiteralSyntax
+//@[5:6)      Integer |4|
 //@[6:8)     StringRightPiece |}'|
 //@[8:9)   NewLine |\n|
   {
@@ -1244,11 +1244,11 @@ var previousEmitLimit2 = [
 //@[8:9)             Identifier |a|
 //@[9:10)            Colon |:|
 //@[11:17)            BinaryOperationSyntax
-//@[11:13)             NumericLiteralSyntax
-//@[11:13)              Number |12|
+//@[11:13)             IntegerLiteralSyntax
+//@[11:13)              Integer |12|
 //@[14:15)             Plus |+|
-//@[16:17)             NumericLiteralSyntax
-//@[16:17)              Number |3|
+//@[16:17)             IntegerLiteralSyntax
+//@[16:17)              Integer |3|
 //@[17:18)           NewLine |\n|
       }, {
 //@[6:7)           RightBrace |}|
@@ -1350,8 +1350,8 @@ var previousEmitLimit2 = [
 //@[11:14)             StringSyntax
 //@[11:14)              StringComplete |'s'|
 //@[15:17)             Equals |==|
-//@[18:20)             NumericLiteralSyntax
-//@[18:20)              Number |12|
+//@[18:20)             IntegerLiteralSyntax
+//@[18:20)              Integer |12|
 //@[20:21)           NewLine |\n|
       }, {})
 //@[6:7)           RightBrace |}|
@@ -1422,8 +1422,8 @@ var previousEmitLimit3 = {
     } == 2
 //@[4:5)        RightBrace |}|
 //@[6:8)       Equals |==|
-//@[9:10)       NumericLiteralSyntax
-//@[9:10)        Number |2|
+//@[9:10)       IntegerLiteralSyntax
+//@[9:10)        Integer |2|
 //@[10:11)     NewLine |\n|
     c: concat([
 //@[4:43)     ObjectPropertySyntax
@@ -1843,8 +1843,8 @@ var _ = 3
 //@[4:5)  IdentifierSyntax
 //@[4:5)   Identifier |_|
 //@[6:7)  Assignment |=|
-//@[8:9)  NumericLiteralSyntax
-//@[8:9)   Number |3|
+//@[8:9)  IntegerLiteralSyntax
+//@[8:9)   Integer |3|
 //@[9:10) NewLine |\n|
 var __ = 10 * _
 //@[0:15) VariableDeclarationSyntax
@@ -1853,8 +1853,8 @@ var __ = 10 * _
 //@[4:6)   Identifier |__|
 //@[7:8)  Assignment |=|
 //@[9:15)  BinaryOperationSyntax
-//@[9:11)   NumericLiteralSyntax
-//@[9:11)    Number |10|
+//@[9:11)   IntegerLiteralSyntax
+//@[9:11)    Integer |10|
 //@[12:13)   Asterisk |*|
 //@[14:15)   VariableAccessSyntax
 //@[14:15)    IdentifierSyntax
@@ -1893,11 +1893,11 @@ var _1_ = _0a_1b || (__ + _ % 2 == 0)
 //@[26:27)        IdentifierSyntax
 //@[26:27)         Identifier |_|
 //@[28:29)       Modulo |%|
-//@[30:31)       NumericLiteralSyntax
-//@[30:31)        Number |2|
+//@[30:31)       IntegerLiteralSyntax
+//@[30:31)        Integer |2|
 //@[32:34)     Equals |==|
-//@[35:36)     NumericLiteralSyntax
-//@[35:36)      Number |0|
+//@[35:36)     IntegerLiteralSyntax
+//@[35:36)      Integer |0|
 //@[36:37)    RightParen |)|
 //@[37:39) NewLine |\n\n|
 
@@ -1978,16 +1978,16 @@ var isTrue = sys.max(1, 2) == 3
 //@[17:20)     Identifier |max|
 //@[20:21)    LeftParen |(|
 //@[21:23)    FunctionArgumentSyntax
-//@[21:22)     NumericLiteralSyntax
-//@[21:22)      Number |1|
+//@[21:22)     IntegerLiteralSyntax
+//@[21:22)      Integer |1|
 //@[22:23)     Comma |,|
 //@[24:25)    FunctionArgumentSyntax
-//@[24:25)     NumericLiteralSyntax
-//@[24:25)      Number |2|
+//@[24:25)     IntegerLiteralSyntax
+//@[24:25)      Integer |2|
 //@[25:26)    RightParen |)|
 //@[27:29)   Equals |==|
-//@[30:31)   NumericLiteralSyntax
-//@[30:31)    Number |3|
+//@[30:31)   IntegerLiteralSyntax
+//@[30:31)    Integer |3|
 //@[31:32) NewLine |\n|
 var isFalse = !isTrue
 //@[0:21) VariableDeclarationSyntax
@@ -2107,4 +2107,111 @@ var scopesWithoutArmRepresentation = {
 //@[85:86)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// Issue #1332
+//@[14:15) NewLine |\n|
+var issue1332_propname = 'ptest'
+//@[0:32) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |issue1332_propname|
+//@[23:24)  Assignment |=|
+//@[25:32)  StringSyntax
+//@[25:32)   StringComplete |'ptest'|
+//@[32:33) NewLine |\n|
+var issue1332 = true ? {
+//@[0:86) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |issue1332|
+//@[14:15)  Assignment |=|
+//@[16:86)  TernaryOperationSyntax
+//@[16:20)   BooleanLiteralSyntax
+//@[16:20)    TrueKeyword |true|
+//@[21:22)   Question |?|
+//@[23:81)   ObjectSyntax
+//@[23:24)    LeftBrace |{|
+//@[24:25)    NewLine |\n|
+    prop1: {
+//@[4:54)    ObjectPropertySyntax
+//@[4:9)     IdentifierSyntax
+//@[4:9)      Identifier |prop1|
+//@[9:10)     Colon |:|
+//@[11:54)     ObjectSyntax
+//@[11:12)      LeftBrace |{|
+//@[12:13)      NewLine |\n|
+        '${issue1332_propname}': {}
+//@[8:35)      ObjectPropertySyntax
+//@[8:31)       StringSyntax
+//@[8:11)        StringLeftPiece |'${|
+//@[11:29)        VariableAccessSyntax
+//@[11:29)         IdentifierSyntax
+//@[11:29)          Identifier |issue1332_propname|
+//@[29:31)        StringRightPiece |}'|
+//@[31:32)       Colon |:|
+//@[33:35)       ObjectSyntax
+//@[33:34)        LeftBrace |{|
+//@[34:35)        RightBrace |}|
+//@[35:36)      NewLine |\n|
+    }
+//@[4:5)      RightBrace |}|
+//@[5:6)    NewLine |\n|
+} : {}
+//@[0:1)    RightBrace |}|
+//@[2:3)   Colon |:|
+//@[4:6)   ObjectSyntax
+//@[4:5)    LeftBrace |{|
+//@[5:6)    RightBrace |}|
+//@[6:8) NewLine |\n\n|
+
+// Issue #486
+//@[13:14) NewLine |\n|
+var myBigInt = 2199023255552
+//@[0:28) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:12)  IdentifierSyntax
+//@[4:12)   Identifier |myBigInt|
+//@[13:14)  Assignment |=|
+//@[15:28)  IntegerLiteralSyntax
+//@[15:28)   Integer |2199023255552|
+//@[28:29) NewLine |\n|
+var myIntExpression = 5 * 5
+//@[0:27) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |myIntExpression|
+//@[20:21)  Assignment |=|
+//@[22:27)  BinaryOperationSyntax
+//@[22:23)   IntegerLiteralSyntax
+//@[22:23)    Integer |5|
+//@[24:25)   Asterisk |*|
+//@[26:27)   IntegerLiteralSyntax
+//@[26:27)    Integer |5|
+//@[27:28) NewLine |\n|
+var myBigIntExpression = 2199023255552 * 2
+//@[0:42) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |myBigIntExpression|
+//@[23:24)  Assignment |=|
+//@[25:42)  BinaryOperationSyntax
+//@[25:38)   IntegerLiteralSyntax
+//@[25:38)    Integer |2199023255552|
+//@[39:40)   Asterisk |*|
+//@[41:42)   IntegerLiteralSyntax
+//@[41:42)    Integer |2|
+//@[42:43) NewLine |\n|
+var myBigIntExpression2 = 2199023255552 * 2199023255552
+//@[0:55) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |myBigIntExpression2|
+//@[24:25)  Assignment |=|
+//@[26:55)  BinaryOperationSyntax
+//@[26:39)   IntegerLiteralSyntax
+//@[26:39)    Integer |2199023255552|
+//@[40:41)   Asterisk |*|
+//@[42:55)   IntegerLiteralSyntax
+//@[42:55)    Integer |2199023255552|
+//@[55:55) EndOfFile ||

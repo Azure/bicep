@@ -18,6 +18,20 @@
     }
   },
   {
+    "label": "a",
+    "kind": "variable",
+    "detail": "a",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_a",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "a"
+    }
+  },
+  {
     "label": "any",
     "kind": "function",
     "detail": "any()",
@@ -628,6 +642,23 @@
     }
   },
   {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -715,6 +746,20 @@
     "textEdit": {
       "range": {},
       "newText": "myConcat"
+    }
+  },
+  {
+    "label": "myFloat",
+    "kind": "variable",
+    "detail": "myFloat",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myFloat",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myFloat"
     }
   },
   {
@@ -991,6 +1036,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "something",
+    "kind": "variable",
+    "detail": "something",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_something",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "something"
     }
   },
   {

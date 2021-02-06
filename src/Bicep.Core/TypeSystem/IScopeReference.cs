@@ -3,8 +3,8 @@
 
 namespace Bicep.Core.TypeSystem
 {
-    public interface IResourceScopeType
+    public interface IScopeReference
     {
-        ResourceScopeType ResourceScopeType { get; }
+        ResourceScope Scope { get; }
     }
 }

@@ -113,7 +113,7 @@ var test2 = newGuid()
 var test3 = {
   'bad\escape': true
 //@[2:14) [BCP022 (Error)] Expected a property name at this location. |'bad\escape'|
-//@[6:8) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: "\$", "\'", "\\", "\n", "\r", "\t". |\e|
+//@[6:8) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". |\e|
 }
 
 // duplicate properties
@@ -212,3 +212,22 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[58:58) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. ||
 
+// Issue 486
+var myFloat = 3.14
+//@[16:16) [BCP020 (Error)] Expected a function or property name at this location. ||
+//@[16:18) [BCP019 (Error)] Expected a new line character at this location. |14|
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. ||
+
+// secure cannot be used as a varaible decorator
+@sys.secure()
+//@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. |secure|
+var something = 1
+
+// invalid identifier character classes
+var ☕ = true
+//@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |☕|
+//@[4:5) [BCP001 (Error)] The following token is not recognized: "☕". |☕|
+var a☕ = true
+//@[5:6) [BCP018 (Error)] Expected the "=" character at this location. |☕|
+//@[5:6) [BCP001 (Error)] The following token is not recognized: "☕". |☕|
+//@[13:13) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. ||

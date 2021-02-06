@@ -6,18 +6,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.UnitTests.Utils
 {
     public class TestResourceTypeProvider : IResourceTypeProvider
     {
-        public ResourceType GetType(ResourceScopeType scopeType, ResourceTypeReference reference)
-            => new ResourceType(reference, new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null));
+        public ResourceType GetType(ResourceTypeReference reference, bool isExistingResource)
+        {
+            var bodyType = new NamedObjectType(reference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(reference), null);
+            var resourceType = new ResourceType(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
 
-        public bool HasType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
+            return AzResourceTypeProvider.SetBicepResourceProperties(resourceType, isExistingResource);
+        }
+
+        public bool HasType(ResourceTypeReference typeReference)
             => true;
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScopeType scopeType)
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => Enumerable.Empty<ResourceTypeReference>();
 
         public static IResourceTypeProvider Create()

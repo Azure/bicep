@@ -56,8 +56,9 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
-                case TypeSymbol _ when targetType is ResourceScopeReference scopeReference:
-                    return sourceType is IResourceScopeType resourceScopeType && scopeReference.ResourceScopeType.HasFlag(resourceScopeType.ResourceScopeType);
+                case IScopeReference targetScope:
+                    // checking for valid combinations of scopes happens after type checking. this allows us to provide a richer & more intuitive error message.
+                    return sourceType is IScopeReference;
 
                 case TypeSymbol _ when sourceType is ResourceType sourceResourceType:
                     // When assigning a resource, we're really assigning the value of the resource body.
@@ -148,14 +149,14 @@ namespace Bicep.Core.TypeSystem
                 // When assigning a resource, we're really assigning the value of the resource body.
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetResourceType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
-                return new ResourceType(targetResourceType.TypeReference, narrowedBody);
+                return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
             }
             
             if (targetType is ModuleType targetModuleType)
             {
                 var narrowedBody = NarrowTypeInternal(typeManager, expression, targetModuleType.Body.Type, diagnosticWriter, typeMismatchErrorFactory, skipConstantCheck, skipTypeErrors);
 
-                return new ModuleType(targetModuleType.Name, narrowedBody);
+                return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
             }
 
             // TODO: The type of this expression and all subexpressions should be cached
@@ -177,16 +178,31 @@ namespace Bicep.Core.TypeSystem
             }
 
             // object assignability check
-            if (expression is ObjectSyntax objectValue && targetType is ObjectType targetObjectType)
+            if (expression is ObjectSyntax objectValue)
             {
-                return NarrowObjectType(typeManager, objectValue, targetObjectType, diagnosticWriter, skipConstantCheck);
+                switch (targetType)
+                {
+                    case ObjectType targetObjectType:
+                        return NarrowObjectType(typeManager, objectValue, targetObjectType, diagnosticWriter, skipConstantCheck);
+
+                    case DiscriminatedObjectType targetDiscriminated:
+                        return NarrowDiscriminatedObjectType(typeManager, objectValue, targetDiscriminated, diagnosticWriter, skipConstantCheck);
+                }
             }
 
-            if (expression is ObjectSyntax objectDiscriminated && targetType is DiscriminatedObjectType targetDiscriminated)
+            // if-condition assignability check
+            if (expression is IfConditionSyntax {Body:ObjectSyntax body})
             {
-                return NarrowDiscriminatedObjectType(typeManager, objectDiscriminated, targetDiscriminated, diagnosticWriter, skipConstantCheck);
-            }
+                switch (targetType)
+                {
+                    case ObjectType targetObjectType:
+                        return NarrowObjectType(typeManager, body, targetObjectType, diagnosticWriter, skipConstantCheck);
 
+                    case DiscriminatedObjectType targetDiscriminated:
+                        return NarrowDiscriminatedObjectType(typeManager, body, targetDiscriminated, diagnosticWriter, skipConstantCheck);
+                }
+            }
+            
             // array assignability check
             if (expression is ArraySyntax arrayValue && targetType is ArrayType targetArrayType)
             {
@@ -313,23 +329,9 @@ namespace Bicep.Core.TypeSystem
 
             if (missingRequiredProperties.Any())
             {
-                IPositionable positionable = expression;
-                string blockName = "object";
-
-                var parent = typeManager.GetParent(expression);
-                if (parent is ObjectPropertySyntax objectPropertyParent)
-                {
-                    positionable = objectPropertyParent.Key;
-                    blockName = "object";
-                }
-                else if (parent is INamedDeclarationSyntax declarationParent)
-                {
-                    positionable = declarationParent.Name;
-                    blockName = declarationParent.Keyword.Text;
-                }
+                var (positionable, blockName) = GetMissingPropertyContext(typeManager, expression);
 
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(positionable).MissingRequiredProperties(ShouldWarn(targetType), missingRequiredProperties, blockName));
-
             }
 
             var narrowedProperties = new List<TypeProperty>();
@@ -459,6 +461,28 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new NamedObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags);
+        }
+
+        private static (IPositionable positionable, string blockName) GetMissingPropertyContext(ITypeManager typeManager, SyntaxBase expression)
+        {
+            var parent = typeManager.GetParent(expression);
+            
+            // determine where to place the missing property error
+            return parent switch
+            {
+                // for properties, put it on the property name in the parent object
+                ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
+
+                // for declaration bodies, put it on the declaration identifier
+                INamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),
+                
+                // for conditionals, put it on the parent declaration identifier
+                // (the parent of a conditional can only be a resource or module declaration)
+                IfConditionSyntax ifCondition => GetMissingPropertyContext(typeManager, ifCondition),
+
+                // fall back to marking the entire object with the error
+                _ => (expression, "object")
+            };
         }
 
         private static TypeMismatchErrorFactory GetPropertyMismatchErrorFactory(bool shouldWarn, string propertyName)

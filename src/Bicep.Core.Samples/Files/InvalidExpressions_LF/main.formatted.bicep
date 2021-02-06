@@ -234,3 +234,10 @@ var partialObject = {
   c :
   d  : %
 }
+
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+@concat()
+@sys.secure()
+xxxxx
+
+@minLength()

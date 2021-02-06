@@ -17,14 +17,12 @@ resource
 //@[9:9)  SkippedTriviaSyntax
 //@[9:9)  SkippedTriviaSyntax
 //@[9:9)  SkippedTriviaSyntax
-//@[9:9)  SkippedTriviaSyntax
 //@[9:11) NewLine |\r\n|
 resource foo
 //@[0:12) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:12)  IdentifierSyntax
 //@[9:12)   Identifier |foo|
-//@[12:12)  SkippedTriviaSyntax
 //@[12:12)  SkippedTriviaSyntax
 //@[12:12)  SkippedTriviaSyntax
 //@[12:12)  SkippedTriviaSyntax
@@ -39,7 +37,6 @@ resource fo/o
 //@[12:13)   Identifier |o|
 //@[13:13)  SkippedTriviaSyntax
 //@[13:13)  SkippedTriviaSyntax
-//@[13:13)  SkippedTriviaSyntax
 //@[13:15) NewLine |\r\n|
 resource foo 'ddd'
 //@[0:18) ResourceDeclarationSyntax
@@ -48,7 +45,6 @@ resource foo 'ddd'
 //@[9:12)   Identifier |foo|
 //@[13:18)  StringSyntax
 //@[13:18)   StringComplete |'ddd'|
-//@[18:18)  SkippedTriviaSyntax
 //@[18:18)  SkippedTriviaSyntax
 //@[18:18)  SkippedTriviaSyntax
 //@[18:22) NewLine |\r\n\r\n|
@@ -60,7 +56,6 @@ resource trailingSpace
 //@[0:8)  Identifier |resource|
 //@[9:22)  IdentifierSyntax
 //@[9:22)   Identifier |trailingSpace|
-//@[24:24)  SkippedTriviaSyntax
 //@[24:24)  SkippedTriviaSyntax
 //@[24:24)  SkippedTriviaSyntax
 //@[24:24)  SkippedTriviaSyntax
@@ -76,7 +71,6 @@ resource foo 'ddd'=
 //@[13:18)  StringSyntax
 //@[13:18)   StringComplete |'ddd'|
 //@[18:19)  Assignment |=|
-//@[20:20)  SkippedTriviaSyntax
 //@[20:20)  SkippedTriviaSyntax
 //@[20:24) NewLine |\r\n\r\n|
 
@@ -105,26 +99,26 @@ resource foo 'ddd'=if (1 + 1 == 2) {
 //@[13:18)  StringSyntax
 //@[13:18)   StringComplete |'ddd'|
 //@[18:19)  Assignment |=|
-//@[19:34)  IfConditionSyntax
+//@[19:39)  IfConditionSyntax
 //@[19:21)   Identifier |if|
 //@[22:34)   ParenthesizedExpressionSyntax
 //@[22:23)    LeftParen |(|
 //@[23:33)    BinaryOperationSyntax
 //@[23:28)     BinaryOperationSyntax
-//@[23:24)      NumericLiteralSyntax
-//@[23:24)       Number |1|
+//@[23:24)      IntegerLiteralSyntax
+//@[23:24)       Integer |1|
 //@[25:26)      Plus |+|
-//@[27:28)      NumericLiteralSyntax
-//@[27:28)       Number |1|
+//@[27:28)      IntegerLiteralSyntax
+//@[27:28)       Integer |1|
 //@[29:31)     Equals |==|
-//@[32:33)     NumericLiteralSyntax
-//@[32:33)      Number |2|
+//@[32:33)     IntegerLiteralSyntax
+//@[32:33)      Integer |2|
 //@[33:34)    RightParen |)|
-//@[35:39)  ObjectSyntax
-//@[35:36)   LeftBrace |{|
-//@[36:38)   NewLine |\r\n|
+//@[35:39)   ObjectSyntax
+//@[35:36)    LeftBrace |{|
+//@[36:38)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // using string interpolation for the resource type
@@ -160,18 +154,18 @@ resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
 //@[26:34)     Identifier |provider|
 //@[34:58)   StringRightPiece |}/foos@2020-02-02-alpha'|
 //@[58:59)  Assignment |=|
-//@[60:69)  IfConditionSyntax
+//@[60:74)  IfConditionSyntax
 //@[60:62)   Identifier |if|
 //@[63:69)   ParenthesizedExpressionSyntax
 //@[63:64)    LeftParen |(|
 //@[64:68)    BooleanLiteralSyntax
 //@[64:68)     TrueKeyword |true|
 //@[68:69)    RightParen |)|
-//@[70:74)  ObjectSyntax
-//@[70:71)   LeftBrace |{|
-//@[71:73)   NewLine |\r\n|
+//@[70:74)   ObjectSyntax
+//@[70:71)    LeftBrace |{|
+//@[71:73)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // missing required property
@@ -199,7 +193,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[50:51)  Assignment |=|
-//@[52:72)  IfConditionSyntax
+//@[52:77)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:72)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
@@ -211,11 +205,11 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
 //@[64:71)     StringSyntax
 //@[64:71)      StringComplete |'value'|
 //@[71:72)    RightParen |)|
-//@[73:77)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:76)   NewLine |\r\n|
+//@[73:77)   ObjectSyntax
+//@[73:74)    LeftBrace |{|
+//@[74:76)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
@@ -251,7 +245,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 }
 //@[0:1)     RightBrace |}|
 //@[1:1)    SkippedTriviaSyntax
-//@[1:1)  SkippedTriviaSyntax
+//@[1:1)   SkippedTriviaSyntax
 //@[1:5) NewLine |\r\n\r\n|
 
 // simulate typing if condition
@@ -267,7 +261,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
 //@[52:54)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[54:54)   SkippedTriviaSyntax
-//@[54:54)  SkippedTriviaSyntax
+//@[54:54)   SkippedTriviaSyntax
 //@[54:58) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
@@ -284,7 +278,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
 //@[55:56)    LeftParen |(|
 //@[56:56)    SkippedTriviaSyntax
 //@[56:56)    SkippedTriviaSyntax
-//@[56:56)  SkippedTriviaSyntax
+//@[56:56)   SkippedTriviaSyntax
 //@[56:60) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
@@ -302,7 +296,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
 //@[56:60)    BooleanLiteralSyntax
 //@[56:60)     TrueKeyword |true|
 //@[60:60)    SkippedTriviaSyntax
-//@[60:60)  SkippedTriviaSyntax
+//@[60:60)   SkippedTriviaSyntax
 //@[60:64) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
@@ -320,7 +314,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
 //@[56:60)    BooleanLiteralSyntax
 //@[56:60)     TrueKeyword |true|
 //@[60:61)    RightParen |)|
-//@[61:61)  SkippedTriviaSyntax
+//@[61:61)   SkippedTriviaSyntax
 //@[61:65) NewLine |\r\n\r\n|
 
 // missing condition
@@ -333,22 +327,22 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[50:51)  Assignment |=|
-//@[52:55)  IfConditionSyntax
+//@[52:74)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:55)   SkippedTriviaSyntax
-//@[55:74)  ObjectSyntax
-//@[55:56)   LeftBrace |{|
-//@[56:58)   NewLine |\r\n|
+//@[55:74)   ObjectSyntax
+//@[55:56)    LeftBrace |{|
+//@[56:58)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // empty condition
@@ -363,25 +357,25 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[50:51)  Assignment |=|
-//@[52:57)  IfConditionSyntax
+//@[52:77)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:57)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
 //@[56:56)    SkippedTriviaSyntax
 //@[56:57)    RightParen |)|
-//@[58:77)  ObjectSyntax
-//@[58:59)   LeftBrace |{|
-//@[59:61)   NewLine |\r\n|
+//@[58:77)   ObjectSyntax
+//@[58:59)    LeftBrace |{|
+//@[59:61)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // #completionTest(57, 59) -> symbols
@@ -394,25 +388,25 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[50:51)  Assignment |=|
-//@[52:62)  IfConditionSyntax
+//@[52:82)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:62)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
 //@[61:61)    SkippedTriviaSyntax
 //@[61:62)    RightParen |)|
-//@[63:82)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[63:82)   ObjectSyntax
+//@[63:64)    LeftBrace |{|
+//@[64:66)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // invalid condition type
@@ -425,26 +419,26 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[50:51)  Assignment |=|
-//@[52:60)  IfConditionSyntax
+//@[52:80)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:60)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
-//@[56:59)    NumericLiteralSyntax
-//@[56:59)     Number |123|
+//@[56:59)    IntegerLiteralSyntax
+//@[56:59)     Integer |123|
 //@[59:60)    RightParen |)|
-//@[61:80)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[61:80)   ObjectSyntax
+//@[61:62)    LeftBrace |{|
+//@[62:64)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // runtime functions are no allowed in resource conditions
@@ -457,7 +451,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[51:52)  Assignment |=|
-//@[53:145)  IfConditionSyntax
+//@[53:165)  IfConditionSyntax
 //@[53:55)   Identifier |if|
 //@[56:145)   ParenthesizedExpressionSyntax
 //@[56:57)    LeftParen |(|
@@ -482,19 +476,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[133:144)     StringSyntax
 //@[133:144)      StringComplete |'something'|
 //@[144:145)    RightParen |)|
-//@[146:165)  ObjectSyntax
-//@[146:147)   LeftBrace |{|
-//@[147:149)   NewLine |\r\n|
+//@[146:165)   ObjectSyntax
+//@[146:147)    LeftBrace |{|
+//@[147:149)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
@@ -505,7 +499,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[13:50)  StringSyntax
 //@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[51:52)  Assignment |=|
-//@[53:99)  IfConditionSyntax
+//@[53:119)  IfConditionSyntax
 //@[53:55)   Identifier |if|
 //@[56:99)   ParenthesizedExpressionSyntax
 //@[56:57)    LeftParen |(|
@@ -530,19 +524,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[94:98)     BooleanLiteralSyntax
 //@[94:98)      TrueKeyword |true|
 //@[98:99)    RightParen |)|
-//@[100:119)  ObjectSyntax
-//@[100:101)   LeftBrace |{|
-//@[101:103)   NewLine |\r\n|
+//@[100:119)   ObjectSyntax
+//@[100:101)    LeftBrace |{|
+//@[101:103)    NewLine |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[2:13)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:15)    NewLine |\r\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // duplicate property at the top level
@@ -786,8 +780,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[21:24)      StringSyntax
 //@[21:24)       StringComplete |'a'|
 //@[25:26)      Plus |+|
-//@[27:28)      NumericLiteralSyntax
-//@[27:28)       Number |1|
+//@[27:28)      IntegerLiteralSyntax
+//@[27:28)       Integer |1|
 //@[28:30)   NewLine |\r\n|
   properties: {
 //@[2:142)   ObjectPropertySyntax
@@ -825,8 +819,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[21:23)         LogicalOr ||||
 //@[24:26)         UnaryOperationSyntax
 //@[24:25)          Exclamation |!|
-//@[25:26)          NumericLiteralSyntax
-//@[25:26)           Number |4|
+//@[25:26)          IntegerLiteralSyntax
+//@[25:26)           Integer |4|
 //@[26:27)        RightParen |)|
 //@[27:29)     NewLine |\r\n|
     a: [
@@ -870,8 +864,8 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[30:34)            BooleanLiteralSyntax
 //@[30:34)             TrueKeyword |true|
 //@[35:36)           Asterisk |*|
-//@[37:38)           NumericLiteralSyntax
-//@[37:38)            Number |4|
+//@[37:38)           IntegerLiteralSyntax
+//@[37:38)            Integer |4|
 //@[38:40)       NewLine |\r\n|
     ]
 //@[4:5)       RightSquare |]|
@@ -961,8 +955,8 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[2:4)    IdentifierSyntax
 //@[2:4)     Identifier |id|
 //@[4:5)    Colon |:|
-//@[6:7)    NumericLiteralSyntax
-//@[6:7)     Number |2|
+//@[6:7)    IntegerLiteralSyntax
+//@[6:7)     Integer |2|
 //@[7:9)   NewLine |\r\n|
   type: 'hello'
 //@[2:15)   ObjectPropertySyntax
@@ -3234,7 +3228,6 @@ resource missingType
 //@[21:21)  SkippedTriviaSyntax
 //@[21:21)  SkippedTriviaSyntax
 //@[21:21)  SkippedTriviaSyntax
-//@[21:21)  SkippedTriviaSyntax
 //@[21:25) NewLine |\r\n\r\n|
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
@@ -3248,7 +3241,6 @@ resource startedTypingTypeWithQuotes 'virma'
 //@[37:44)   StringComplete |'virma'|
 //@[44:44)  SkippedTriviaSyntax
 //@[44:44)  SkippedTriviaSyntax
-//@[44:44)  SkippedTriviaSyntax
 //@[44:48) NewLine |\r\n\r\n|
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
@@ -3260,7 +3252,6 @@ resource startedTypingTypeWithoutQuotes virma
 //@[9:39)   Identifier |startedTypingTypeWithoutQuotes|
 //@[40:45)  SkippedTriviaSyntax
 //@[40:45)   Identifier |virma|
-//@[45:45)  SkippedTriviaSyntax
 //@[45:45)  SkippedTriviaSyntax
 //@[45:45)  SkippedTriviaSyntax
 //@[45:49) NewLine |\r\n\r\n|
@@ -3902,6 +3893,119 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[9:62)     IdentifierSyntax
 //@[9:62)      Identifier |validResourceForInvalidExtensionResourceDuplicateName|
 //@[62:64)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+@concat('foo', 'bar')
+//@[0:131) ResourceDeclarationSyntax
+//@[0:21)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:21)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |concat|
+//@[7:8)    LeftParen |(|
+//@[8:14)    FunctionArgumentSyntax
+//@[8:13)     StringSyntax
+//@[8:13)      StringComplete |'foo'|
+//@[13:14)     Comma |,|
+//@[15:20)    FunctionArgumentSyntax
+//@[15:20)     StringSyntax
+//@[15:20)      StringComplete |'bar'|
+//@[20:21)    RightParen |)|
+//@[21:23)  NewLine |\r\n|
+@secure()
+//@[0:9)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:9)   FunctionCallSyntax
+//@[1:7)    IdentifierSyntax
+//@[1:7)     Identifier |secure|
+//@[7:8)    LeftParen |(|
+//@[8:9)    RightParen |)|
+//@[9:11)  NewLine |\r\n|
+resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[0:8)  Identifier |resource|
+//@[9:25)  IdentifierSyntax
+//@[9:25)   Identifier |invalidDecorator|
+//@[26:63)  StringSyntax
+//@[26:63)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[63:64)  Assignment |=|
+//@[65:97)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  name: 'invalidDecorator'
+//@[2:26)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:26)    StringSyntax
+//@[8:26)     StringComplete |'invalidDecorator'|
+//@[26:28)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[0:108) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |cyclicRes|
+//@[19:60)  StringSyntax
+//@[19:60)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[61:62)  Assignment |=|
+//@[63:108)  ObjectSyntax
+//@[63:64)   LeftBrace |{|
+//@[64:66)   NewLine |\r\n|
+  name: 'cyclicRes'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'cyclicRes'|
+//@[19:21)   NewLine |\r\n|
+  scope: cyclicRes
+//@[2:18)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:18)    VariableAccessSyntax
+//@[9:18)     IdentifierSyntax
+//@[9:18)      Identifier |cyclicRes|
+//@[18:20)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
+//@[0:141) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:26)  IdentifierSyntax
+//@[9:26)   Identifier |cyclicExistingRes|
+//@[27:68)  StringSyntax
+//@[27:68)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[69:77)  Identifier |existing|
+//@[78:79)  Assignment |=|
+//@[80:141)  ObjectSyntax
+//@[80:81)   LeftBrace |{|
+//@[81:83)   NewLine |\r\n|
+  name: 'cyclicExistingRes'
+//@[2:27)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:27)    StringSyntax
+//@[8:27)     StringComplete |'cyclicExistingRes'|
+//@[27:29)   NewLine |\r\n|
+  scope: cyclicExistingRes
+//@[2:26)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:26)    VariableAccessSyntax
+//@[9:26)     IdentifierSyntax
+//@[9:26)      Identifier |cyclicExistingRes|
+//@[26:28)   NewLine |\r\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:1) EndOfFile ||

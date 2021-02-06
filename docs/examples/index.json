@@ -36,6 +36,10 @@
         "description": "101/application-gateway-v2-autoscale-create"
     },
     {
+        "filePath": "101/azure-automation-account/main.bicep",
+        "description": "101/azure-automation-account"
+    },
+    {
         "filePath": "101/azure-bastion/main.bicep",
         "description": "101/azure-bastion"
     },
@@ -156,6 +160,10 @@
         "description": "101/function-app-create"
     },
     {
+        "filePath": "101/function-http-trigger/main.bicep",
+        "description": "101/function-http-trigger"
+    },
+    {
         "filePath": "101/function-premium-vnet-integration/main.bicep",
         "description": "101/function-premium-vnet-integration"
     },
@@ -212,6 +220,10 @@
         "description": "101/resource-with-lock"
     },
     {
+        "filePath": "101/resource-with-lock-existing/main.bicep",
+        "description": "101/resource-with-lock-existing"
+    },
+    {
         "filePath": "101/sql-database/main.bicep",
         "description": "101/sql-database"
     },
@@ -222,6 +234,10 @@
     {
         "filePath": "101/storage-blob-container/main.bicep",
         "description": "101/storage-blob-container"
+    },
+    {
+        "filePath": "101/storage-static-website/main.bicep",
+        "description": "101/storage-static-website"
     },
     {
         "filePath": "101/templatespec-create/main.bicep",
@@ -332,6 +348,10 @@
         "description": "201/log-analytics-with-solutions-and-diagnostics"
     },
     {
+        "filePath": "201/policy-definition-with-assignment/main.bicep",
+        "description": "201/policy-definition-with-assignment"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },
@@ -354,6 +374,10 @@
     {
         "filePath": "201/sql/main.bicep",
         "description": "201/sql"
+    },
+    {
+        "filePath": "201/traffic-manager-webapp/main.bicep",
+        "description": "201/traffic-manager-webapp"
     },
     {
         "filePath": "201/vm-domain-join/main.bicep",
@@ -386,6 +410,10 @@
     {
         "filePath": "201/vnet-to-vnet-peering/main.bicep",
         "description": "201/vnet-to-vnet-peering"
+    },
+    {
+        "filePath": "201/vnet-with-subnet-and-user-defined-route/main.bicep",
+        "description": "201/vnet-with-subnet-and-user-defined-route"
     },
     {
         "filePath": "201/vwan-shared-services/main.bicep",
@@ -446,5 +474,9 @@
     {
         "filePath": "301/servicebus-namespace-vnet/main.bicep",
         "description": "301/servicebus-namespace-vnet"
+    },
+    {
+        "filePath": "301/web-app-managed-identity-sql-db/main.bicep",
+        "description": "301/web-app-managed-identity-sql-db"
     }
 ]

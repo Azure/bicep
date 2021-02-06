@@ -1,65 +1,68 @@
 //Define diagnostic setting  parameters
 param logAnalyticsWorkspaceID string
-param logAnalyticslocation string = 'westeurope'
 param hostpoolName string
 param workspaceName string
 
-//Concat diagnostic setting names
-var hostpoolDiagName = '${hostpoolName}/Microsoft.Insights/hostpool-diag'
-var workspaceDiagName = '${workspaceName}/Microsoft.Insights/workspacepool-diag'
+resource hostPool 'Microsoft.DesktopVirtualization/hostPools@2020-11-02-preview' existing = {
+  name: hostpoolName
+}
+
+resource workspace 'Microsoft.DesktopVirtualization/workspaces@2020-11-02-preview' existing = {
+  name: workspaceName
+}
 
 //Create diagnostic settings for WVD Objects
-resource wvdhpds 'Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview' = {
-  name: hostpoolDiagName
-  location: logAnalyticslocation
+resource wvdhpds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+  scope: hostPool
+  name: 'hostpool-diag'
   properties: {
     workspaceId: logAnalyticsWorkspaceID
     logs: [
       {
         category: 'Checkpoint'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Error'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Management'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Connection'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'HostRegistration'
-        enabled: 'True'
+        enabled: true
       }
     ]
   }
 }
 
-resource wvdwsds 'Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview' = {
-  name: workspaceDiagName
-  location: logAnalyticslocation
+resource wvdwsds 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+  scope: hostPool
+  name: 'workspacepool-diag'
   properties: {
     workspaceId: logAnalyticsWorkspaceID
     logs: [
       {
         category: 'Checkpoint'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Error'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Management'
-        enabled: 'True'
+        enabled: true
       }
       {
         category: 'Feed'
-        enabled: 'True'
+        enabled: true
       }
     ]
   }

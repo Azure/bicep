@@ -21,7 +21,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
 
-            var compilation = CompilationHelper.CreateCompilation(("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -65,7 +65,7 @@ output myObj object = {
                 new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(typeDefinition.AsEnumerable());
 
-            var compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -114,7 +114,7 @@ output myObj object = {
                 }, null)));
             var typeProvider = ResourceTypeProviderHelper.CreateMockTypeProvider(typeDefinition.AsEnumerable());
 
-            var compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);
@@ -133,7 +133,7 @@ output myObj object = {
   lowerCaseProp: resA.properties.lowercaseobj.lowerCaseStr
 }");
 
-            compilation = CompilationHelper.CreateCompilation(typeProvider, ("main.bicep", firstPassBicepFile));
+            (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", firstPassBicepFile));
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             newProgramSyntax = rewriter.Rewrite(compilation.SyntaxTreeGrouping.EntryPoint.ProgramSyntax);

@@ -23,7 +23,6 @@ module wvdmonitor './wvd-monitor-diag.bicep' = {
   name: 'myBicepLADiag'
   scope: resourceGroup(wvdBackplaneResourceGroup)
   params: {
-    logAnalyticslocation: logAnalyticslocation
     logAnalyticsWorkspaceID: wvdla.id
     hostpoolName: hostpoolName
     workspaceName: workspaceName

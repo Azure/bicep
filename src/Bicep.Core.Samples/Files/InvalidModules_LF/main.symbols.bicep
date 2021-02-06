@@ -226,6 +226,18 @@ module moduleWithInvalidScope2 './empty.bicep' = {
   scope: managementGroup()
 }
 
+module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+//@[7:33) Module moduleWithUnsupprtedScope1. Type: module. Declaration start char: 0, length: 122
+  name: 'moduleWithUnsupprtedScope1'
+  scope: managementGroup()
+}
+
+module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+//@[7:33) Module moduleWithUnsupprtedScope2. Type: module. Declaration start char: 0, length: 126
+  name: 'moduleWithUnsupprtedScope2'
+  scope: managementGroup('MG')
+}
+
 module moduleWithBadScope './empty.bicep' = {
 //@[7:25) Module moduleWithBadScope. Type: module. Declaration start char: 0, length: 99
   name: 'moduleWithBadScope'
@@ -286,5 +298,57 @@ module moduleWithDuplicateName1 './empty.bicep' = {
 module moduleWithDuplicateName2 './empty.bicep' = {
 //@[7:31) Module moduleWithDuplicateName2. Type: module. Declaration start char: 0, length: 87
   name: 'moduleWithDuplicateName'
+}
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionB ''
+//@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 21
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionC '' =
+//@[7:18) Module completionC. Type: error. Declaration start char: 0, length: 23
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionD '' = {}
+//@[7:18) Module completionD. Type: error. Declaration start char: 0, length: 26
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+module completionE '' = {
+//@[7:18) Module completionE. Type: error. Declaration start char: 0, length: 43
+  name: 'hello'
+}
+
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+module cwdFileCompletionA '.'
+//@[7:25) Module cwdFileCompletionA. Type: error. Declaration start char: 0, length: 29
+
+// #completionTest(26, 27) -> cwdMCompletions
+module cwdFileCompletionB m
+//@[7:25) Module cwdFileCompletionB. Type: error. Declaration start char: 0, length: 27
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+module cwdFileCompletionC 'm'
+//@[7:25) Module cwdFileCompletionC. Type: error. Declaration start char: 0, length: 29
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+module childCompletionA 'ChildModules/'
+//@[7:23) Module childCompletionA. Type: error. Declaration start char: 0, length: 39
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+module childCompletionB './ChildModules/'
+//@[7:23) Module childCompletionB. Type: error. Declaration start char: 0, length: 41
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+module childCompletionC './ChildModules/m'
+//@[7:23) Module childCompletionC. Type: error. Declaration start char: 0, length: 42
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+module childCompletionD 'ChildModules/e'
+//@[7:23) Module childCompletionD. Type: error. Declaration start char: 0, length: 40
+
+@minValue()
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[7:40) Module moduleWithNotAttachableDecorators. Type: module. Declaration start char: 0, length: 118
+  name: 'moduleWithNotAttachableDecorators'
 }
 

@@ -189,6 +189,20 @@
     }
   },
   {
+    "label": "commaOneWithDecorator",
+    "kind": "field",
+    "detail": "commaOneWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_commaOneWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "commaOneWithDecorator"
+    }
+  },
+  {
     "label": "commaTwo",
     "kind": "field",
     "detail": "commaTwo",
@@ -375,6 +389,20 @@
     }
   },
   {
+    "label": "emptyAllowedIntWithDecorator",
+    "kind": "field",
+    "detail": "emptyAllowedIntWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_emptyAllowedIntWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "emptyAllowedIntWithDecorator"
+    }
+  },
+  {
     "label": "emptyAllowedString",
     "kind": "field",
     "detail": "emptyAllowedString",
@@ -386,6 +414,20 @@
     "textEdit": {
       "range": {},
       "newText": "emptyAllowedString"
+    }
+  },
+  {
+    "label": "emptyAllowedStringWithDecorator",
+    "kind": "field",
+    "detail": "emptyAllowedStringWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_emptyAllowedStringWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "emptyAllowedStringWithDecorator"
     }
   },
   {
@@ -417,6 +459,20 @@
     "textEdit": {
       "range": {},
       "newText": "environment()$0"
+    }
+  },
+  {
+    "label": "expressionInModifierWithDecorator",
+    "kind": "field",
+    "detail": "expressionInModifierWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionInModifierWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionInModifierWithDecorator"
     }
   },
   {
@@ -485,6 +541,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "incompleteDecorators",
+    "kind": "field",
+    "detail": "incompleteDecorators",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incompleteDecorators",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "incompleteDecorators"
     }
   },
   {
@@ -660,6 +730,23 @@
     "textEdit": {
       "range": {},
       "newText": "malformedType2"
+    }
+  },
+  {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -879,6 +966,20 @@
     }
   },
   {
+    "label": "nonCompileTimeConstantWithDecorator",
+    "kind": "field",
+    "detail": "nonCompileTimeConstantWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nonCompileTimeConstantWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "nonCompileTimeConstantWithDecorator"
+    }
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "detail": "padLeft()",
@@ -1075,6 +1176,20 @@
     "textEdit": {
       "range": {},
       "newText": "paramModifierSelfCycle"
+    }
+  },
+  {
+    "label": "paramModifierSelfCycleWithDecorator",
+    "kind": "field",
+    "detail": "paramModifierSelfCycleWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_paramModifierSelfCycleWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "paramModifierSelfCycleWithDecorator"
     }
   },
   {
@@ -1281,6 +1396,20 @@
     }
   },
   {
+    "label": "secureIntWithDecorator",
+    "kind": "field",
+    "detail": "secureIntWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_secureIntWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "secureIntWithDecorator"
+    }
+  },
+  {
     "label": "skip",
     "kind": "function",
     "detail": "skip()",
@@ -1309,6 +1438,48 @@
     "textEdit": {
       "range": {},
       "newText": "someArray"
+    }
+  },
+  {
+    "label": "someArrayWithDecorator",
+    "kind": "field",
+    "detail": "someArrayWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someArrayWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "someArrayWithDecorator"
+    }
+  },
+  {
+    "label": "someInteger",
+    "kind": "field",
+    "detail": "someInteger",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someInteger",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "someInteger"
+    }
+  },
+  {
+    "label": "someString",
+    "kind": "field",
+    "detail": "someString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "someString"
     }
   },
   {
@@ -1566,6 +1737,34 @@
     }
   },
   {
+    "label": "tooManyArguments1",
+    "kind": "field",
+    "detail": "tooManyArguments1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tooManyArguments1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tooManyArguments1"
+    }
+  },
+  {
+    "label": "tooManyArguments2",
+    "kind": "field",
+    "detail": "tooManyArguments2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_tooManyArguments2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "tooManyArguments2"
+    }
+  },
+  {
     "label": "trailingSpace",
     "kind": "field",
     "detail": "trailingSpace",
@@ -1741,6 +1940,20 @@
     }
   },
   {
+    "label": "wrongIntModifierWithDecorator",
+    "kind": "field",
+    "detail": "wrongIntModifierWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongIntModifierWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongIntModifierWithDecorator"
+    }
+  },
+  {
     "label": "wrongMetadataSchema",
     "kind": "field",
     "detail": "wrongMetadataSchema",
@@ -1752,6 +1965,20 @@
     "textEdit": {
       "range": {},
       "newText": "wrongMetadataSchema"
+    }
+  },
+  {
+    "label": "wrongMetadataSchemaWithDecorator",
+    "kind": "field",
+    "detail": "wrongMetadataSchemaWithDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_wrongMetadataSchemaWithDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "wrongMetadataSchemaWithDecorator"
     }
   },
   {

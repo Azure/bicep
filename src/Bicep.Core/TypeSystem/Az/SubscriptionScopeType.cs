@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class SubscriptionScopeType : NamedObjectType, IResourceScopeType
+    public class SubscriptionScopeType : NamedObjectType, IScopeReference
     {
         public SubscriptionScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
             : base("subscription", TypeSymbolValidationFlags.Default, properties, null)
@@ -16,6 +16,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
-        public ResourceScopeType ResourceScopeType => ResourceScopeType.SubscriptionScope;
+        public ResourceScope Scope => ResourceScope.Subscription;
     }
 }

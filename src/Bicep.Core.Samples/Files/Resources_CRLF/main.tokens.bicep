@@ -963,14 +963,14 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[7:18) Identifier |myInterpKey|
 //@[18:20) StringRightPiece |}'|
 //@[20:21) Colon |:|
-//@[22:23) Number |1|
+//@[22:23) Integer |1|
 //@[23:25) NewLine |\r\n|
     'abc${myInterpKey}def': 2
 //@[4:10) StringLeftPiece |'abc${|
 //@[10:21) Identifier |myInterpKey|
 //@[21:26) StringRightPiece |}def'|
 //@[26:27) Colon |:|
-//@[28:29) Number |2|
+//@[28:29) Integer |2|
 //@[29:31) NewLine |\r\n|
     '${myInterpKey}abc${myInterpKey}': 3
 //@[4:7) StringLeftPiece |'${|
@@ -979,7 +979,7 @@ resource resourceWithInterp 'My.Rp/interp@2020-01-01' = {
 //@[24:35) Identifier |myInterpKey|
 //@[35:37) StringRightPiece |}'|
 //@[37:38) Colon |:|
-//@[39:40) Number |3|
+//@[39:40) Integer |3|
 //@[40:42) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
@@ -1192,6 +1192,69 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[1:5) NewLine |\r\n\r\n|
 
-//@[0:0) EndOfFile ||
+resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |existing1|
+//@[19:65) StringComplete |'Mock.Rp/existingExtensionResource@2020-01-01'|
+//@[66:74) Identifier |existing|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  name: 'existing1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'existing1'|
+//@[19:21) NewLine |\r\n|
+  scope: extension1
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:19) Identifier |extension1|
+//@[19:21) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |existing2|
+//@[19:65) StringComplete |'Mock.Rp/existingExtensionResource@2020-01-01'|
+//@[66:74) Identifier |existing|
+//@[75:76) Assignment |=|
+//@[77:78) LeftBrace |{|
+//@[78:80) NewLine |\r\n|
+  name: 'existing2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'existing2'|
+//@[19:21) NewLine |\r\n|
+  scope: existing1
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |existing1|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource extension3 'My.Rp/extensionResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:19) Identifier |extension3|
+//@[20:56) StringComplete |'My.Rp/extensionResource@2020-12-01'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:62) NewLine |\r\n|
+  name: 'extension3'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:20) StringComplete |'extension3'|
+//@[20:22) NewLine |\r\n|
+  scope: existing1
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:18) Identifier |existing1|
+//@[18:20) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:1) EndOfFile ||

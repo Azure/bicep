@@ -62,7 +62,7 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-01-01' = {
               address: backendAddress
               backendHostHeader: backendAddress
               httpPort: 80
-              httpsPort: 442
+              httpsPort: 443
               weight: 50
               priority: 1
               enabledState: 'Enabled'

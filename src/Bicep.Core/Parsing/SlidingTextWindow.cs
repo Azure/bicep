@@ -35,7 +35,7 @@ namespace Bicep.Core.Parsing
                 throw new ArgumentException($"{nameof(charCount)} must be zero or positive.");
             }
 
-            int effectivePosition = position + offset - charCount;
+            int effectivePosition = GetAbsolutePosition() - charCount;
             if (effectivePosition < 0)
             {
                 throw new ArgumentException("Unable to look behind the beginning of the file.");
@@ -43,6 +43,23 @@ namespace Bicep.Core.Parsing
 
             return new TextSpan(effectivePosition, charCount);
         }
+
+        public TextSpan GetSpanFromPosition(int referencePosition)
+        {
+            int currentPosition = GetAbsolutePosition();
+            int delta = currentPosition - referencePosition;
+            if (delta >= 0)
+            {
+                return new TextSpan(referencePosition, delta);
+            }
+
+            return new TextSpan(currentPosition, -delta);
+        }
+
+        /// <summary>
+        /// Returns the current absolute position within the text.
+        /// </summary>
+        public int GetAbsolutePosition() => position + offset;
 
         public string GetText()
             => text.Substring(position, offset);

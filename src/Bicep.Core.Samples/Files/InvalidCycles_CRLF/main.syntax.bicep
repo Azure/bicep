@@ -64,8 +64,8 @@ var b = max(a,1)
 //@[12:13)      Identifier |a|
 //@[13:14)    Comma |,|
 //@[14:15)   FunctionArgumentSyntax
-//@[14:15)    NumericLiteralSyntax
-//@[14:15)     Number |1|
+//@[14:15)    IntegerLiteralSyntax
+//@[14:15)     Integer |1|
 //@[15:16)   RightParen |)|
 //@[16:20) NewLine |\r\n\r\n|
 

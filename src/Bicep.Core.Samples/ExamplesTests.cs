@@ -93,17 +93,13 @@ namespace Bicep.Core.Samples
 
             var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Resource type \"Microsoft.AppConfiguration/configurationStores@2020-07-01-preview\" does not have types available.",
                 "Resource type \"Microsoft.AppConfiguration/configurationStores/keyValues@2020-07-01-preview\" does not have types available.",
-                "Resource type \"Microsoft.DesktopVirtualization/hostpools/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.",
-                "Resource type \"Microsoft.DesktopVirtualization/workspaces/providers/diagnosticSettings@2017-05-01-preview\" does not have types available.", 
+                "Resource type \"Microsoft.AppConfiguration/configurationStores@2020-07-01-preview\" does not have types available.",
                 "Resource type \"microsoft.network/networkSecurityGroups@2020-08-01\" does not have types available.",
-                "Resource type \"Microsoft.Sql/servers@2020-02-02-preview\" does not have types available.",
                 "Resource type \"Microsoft.Sql/servers/databases/transparentDataEncryption@2017-03-01-preview\" does not have types available.",
-                "Resource type \"microsoft.web/serverFarms@2018-11-01\" does not have types available.",
-                "Resource type \"Microsoft.Web/sites/config@2018-11-01\" does not have types available.",
+                "Resource type \"Microsoft.Sql/servers@2020-02-02-preview\" does not have types available.",
                 "Resource type \"Microsoft.Web/sites/config@2020-06-01\" does not have types available.",
-                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available."
+                "Resource type \"Microsoft.Web/sites/siteextensions@2020-06-01\" does not have types available.",
             };
 
             return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);

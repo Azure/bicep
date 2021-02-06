@@ -60,7 +60,6 @@ module moduleWithoutPath = {
 //@[27:28)   LeftBrace |{|
 //@[28:28)  SkippedTriviaSyntax
 //@[28:28)  SkippedTriviaSyntax
-//@[28:28)  SkippedTriviaSyntax
 //@[28:30) NewLine |\n\n|
 
 }
@@ -78,7 +77,6 @@ module
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
 //@[7:7)  SkippedTriviaSyntax
-//@[7:7)  SkippedTriviaSyntax
 //@[7:9) NewLine |\n\n|
 
 // #completionTest(24,25) -> object
@@ -91,7 +89,6 @@ module missingValue '' =
 //@[20:22)  StringSyntax
 //@[20:22)   StringComplete |''|
 //@[23:24)  Assignment |=|
-//@[25:25)  SkippedTriviaSyntax
 //@[25:25)  SkippedTriviaSyntax
 //@[25:27) NewLine |\n\n|
 
@@ -136,19 +133,19 @@ module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
 //@[45:51)     Identifier |interp|
 //@[51:59)   StringRightPiece |}.bicep'|
 //@[60:61)  Assignment |=|
-//@[62:71)  IfConditionSyntax
+//@[62:76)  IfConditionSyntax
 //@[62:64)   Identifier |if|
 //@[65:71)   ParenthesizedExpressionSyntax
 //@[65:66)    LeftParen |(|
 //@[66:70)    BooleanLiteralSyntax
 //@[66:70)     TrueKeyword |true|
 //@[70:71)    RightParen |)|
-//@[72:76)  ObjectSyntax
-//@[72:73)   LeftBrace |{|
-//@[73:75)   NewLine |\n\n|
+//@[72:76)   ObjectSyntax
+//@[72:73)    LeftBrace |{|
+//@[73:75)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module moduleWithSelfCycle './main.bicep' = {
@@ -175,7 +172,7 @@ module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
 //@[39:53)  StringSyntax
 //@[39:53)   StringComplete |'./main.bicep'|
 //@[54:55)  Assignment |=|
-//@[56:75)  IfConditionSyntax
+//@[56:80)  IfConditionSyntax
 //@[56:58)   Identifier |if|
 //@[59:75)   ParenthesizedExpressionSyntax
 //@[59:60)    LeftParen |(|
@@ -186,12 +183,12 @@ module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
 //@[69:74)     StringSyntax
 //@[69:74)      StringComplete |'bar'|
 //@[74:75)    RightParen |)|
-//@[76:80)  ObjectSyntax
-//@[76:77)   LeftBrace |{|
-//@[77:79)   NewLine |\n\n|
+//@[76:80)   ObjectSyntax
+//@[76:77)    LeftBrace |{|
+//@[77:79)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module './main.bicep' = {
@@ -218,27 +215,27 @@ module './main.bicep' = if (1 + 2 == 3) {
 //@[7:21)  StringSyntax
 //@[7:21)   StringComplete |'./main.bicep'|
 //@[22:23)  Assignment |=|
-//@[24:39)  IfConditionSyntax
+//@[24:44)  IfConditionSyntax
 //@[24:26)   Identifier |if|
 //@[27:39)   ParenthesizedExpressionSyntax
 //@[27:28)    LeftParen |(|
 //@[28:38)    BinaryOperationSyntax
 //@[28:33)     BinaryOperationSyntax
-//@[28:29)      NumericLiteralSyntax
-//@[28:29)       Number |1|
+//@[28:29)      IntegerLiteralSyntax
+//@[28:29)       Integer |1|
 //@[30:31)      Plus |+|
-//@[32:33)      NumericLiteralSyntax
-//@[32:33)       Number |2|
+//@[32:33)      IntegerLiteralSyntax
+//@[32:33)       Integer |2|
 //@[34:36)     Equals |==|
-//@[37:38)     NumericLiteralSyntax
-//@[37:38)      Number |3|
+//@[37:38)     IntegerLiteralSyntax
+//@[37:38)      Integer |3|
 //@[38:39)    RightParen |)|
-//@[40:44)  ObjectSyntax
-//@[40:41)   LeftBrace |{|
-//@[41:43)   NewLine |\n\n|
+//@[40:44)   ObjectSyntax
+//@[40:41)    LeftBrace |{|
+//@[41:43)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module './main.bicep' = if
@@ -252,7 +249,7 @@ module './main.bicep' = if
 //@[24:26)  IfConditionSyntax
 //@[24:26)   Identifier |if|
 //@[26:26)   SkippedTriviaSyntax
-//@[26:26)  SkippedTriviaSyntax
+//@[26:26)   SkippedTriviaSyntax
 //@[26:28) NewLine |\n\n|
 
 module './main.bicep' = if (
@@ -269,7 +266,7 @@ module './main.bicep' = if (
 //@[27:28)    LeftParen |(|
 //@[28:28)    SkippedTriviaSyntax
 //@[28:28)    SkippedTriviaSyntax
-//@[28:28)  SkippedTriviaSyntax
+//@[28:28)   SkippedTriviaSyntax
 //@[28:30) NewLine |\n\n|
 
 module './main.bicep' = if (true
@@ -287,7 +284,7 @@ module './main.bicep' = if (true
 //@[28:32)    BooleanLiteralSyntax
 //@[28:32)     TrueKeyword |true|
 //@[32:32)    SkippedTriviaSyntax
-//@[32:32)  SkippedTriviaSyntax
+//@[32:32)   SkippedTriviaSyntax
 //@[32:34) NewLine |\n\n|
 
 module './main.bicep' = if (true)
@@ -305,7 +302,7 @@ module './main.bicep' = if (true)
 //@[28:32)    BooleanLiteralSyntax
 //@[28:32)     TrueKeyword |true|
 //@[32:33)    RightParen |)|
-//@[33:33)  SkippedTriviaSyntax
+//@[33:33)   SkippedTriviaSyntax
 //@[33:35) NewLine |\n\n|
 
 module './main.bicep' = if {
@@ -316,15 +313,15 @@ module './main.bicep' = if {
 //@[7:21)  StringSyntax
 //@[7:21)   StringComplete |'./main.bicep'|
 //@[22:23)  Assignment |=|
-//@[24:27)  IfConditionSyntax
+//@[24:31)  IfConditionSyntax
 //@[24:26)   Identifier |if|
 //@[27:27)   SkippedTriviaSyntax
-//@[27:31)  ObjectSyntax
-//@[27:28)   LeftBrace |{|
-//@[28:30)   NewLine |\n\n|
+//@[27:31)   ObjectSyntax
+//@[27:28)    LeftBrace |{|
+//@[28:30)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module './main.bicep' = if () {
@@ -335,18 +332,18 @@ module './main.bicep' = if () {
 //@[7:21)  StringSyntax
 //@[7:21)   StringComplete |'./main.bicep'|
 //@[22:23)  Assignment |=|
-//@[24:29)  IfConditionSyntax
+//@[24:34)  IfConditionSyntax
 //@[24:26)   Identifier |if|
 //@[27:29)   ParenthesizedExpressionSyntax
 //@[27:28)    LeftParen |(|
 //@[28:28)    SkippedTriviaSyntax
 //@[28:29)    RightParen |)|
-//@[30:34)  ObjectSyntax
-//@[30:31)   LeftBrace |{|
-//@[31:33)   NewLine |\n\n|
+//@[30:34)   ObjectSyntax
+//@[30:31)    LeftBrace |{|
+//@[31:33)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module './main.bicep' = if ('true') {
@@ -357,19 +354,19 @@ module './main.bicep' = if ('true') {
 //@[7:21)  StringSyntax
 //@[7:21)   StringComplete |'./main.bicep'|
 //@[22:23)  Assignment |=|
-//@[24:35)  IfConditionSyntax
+//@[24:40)  IfConditionSyntax
 //@[24:26)   Identifier |if|
 //@[27:35)   ParenthesizedExpressionSyntax
 //@[27:28)    LeftParen |(|
 //@[28:34)    StringSyntax
 //@[28:34)     StringComplete |'true'|
 //@[34:35)    RightParen |)|
-//@[36:40)  ObjectSyntax
-//@[36:37)   LeftBrace |{|
-//@[37:39)   NewLine |\n\n|
+//@[36:40)   ObjectSyntax
+//@[36:37)    LeftBrace |{|
+//@[37:39)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modANoName './modulea.bicep' = {
@@ -398,21 +395,21 @@ module modANoNameWithCondition './modulea.bicep' = if (true) {
 //@[31:48)  StringSyntax
 //@[31:48)   StringComplete |'./modulea.bicep'|
 //@[49:50)  Assignment |=|
-//@[51:60)  IfConditionSyntax
+//@[51:129)  IfConditionSyntax
 //@[51:53)   Identifier |if|
 //@[54:60)   ParenthesizedExpressionSyntax
 //@[54:55)    LeftParen |(|
 //@[55:59)    BooleanLiteralSyntax
 //@[55:59)     TrueKeyword |true|
 //@[59:60)    RightParen |)|
-//@[61:129)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:63)   NewLine |\n|
+//@[61:129)   ObjectSyntax
+//@[61:62)    LeftBrace |{|
+//@[62:63)    NewLine |\n|
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
-//@[63:65)   NewLine |\n\n|
+//@[63:65)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
@@ -423,7 +420,7 @@ module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Man
 //@[35:49)  StringSyntax
 //@[35:49)   StringComplete |'./main.bicep'|
 //@[50:51)  Assignment |=|
-//@[52:144)  IfConditionSyntax
+//@[52:149)  IfConditionSyntax
 //@[52:54)   Identifier |if|
 //@[55:144)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
@@ -448,12 +445,12 @@ module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Man
 //@[132:143)     StringSyntax
 //@[132:143)      StringComplete |'something'|
 //@[143:144)    RightParen |)|
-//@[145:149)  ObjectSyntax
-//@[145:146)   LeftBrace |{|
-//@[146:148)   NewLine |\n\n|
+//@[145:149)   ObjectSyntax
+//@[145:146)    LeftBrace |{|
+//@[146:148)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
@@ -464,7 +461,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 //@[34:48)  StringSyntax
 //@[34:48)   StringComplete |'./main.bicep'|
 //@[49:50)  Assignment |=|
-//@[51:97)  IfConditionSyntax
+//@[51:102)  IfConditionSyntax
 //@[51:53)   Identifier |if|
 //@[54:97)   ParenthesizedExpressionSyntax
 //@[54:55)    LeftParen |(|
@@ -489,12 +486,12 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 //@[92:96)     BooleanLiteralSyntax
 //@[92:96)      TrueKeyword |true|
 //@[96:97)    RightParen |)|
-//@[98:102)  ObjectSyntax
-//@[98:99)   LeftBrace |{|
-//@[99:101)   NewLine |\n\n|
+//@[98:102)   ObjectSyntax
+//@[98:99)    LeftBrace |{|
+//@[99:101)    NewLine |\n\n|
 
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:4) NewLine |\n\n\n|
 
 
@@ -532,7 +529,7 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 }
 //@[0:1)     RightBrace |}|
 //@[1:1)    SkippedTriviaSyntax
-//@[1:1)  SkippedTriviaSyntax
+//@[1:1)   SkippedTriviaSyntax
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {
@@ -570,7 +567,7 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 //@[33:50)  StringSyntax
 //@[33:50)   StringComplete |'./modulea.bicep'|
 //@[51:52)  Assignment |=|
-//@[53:82)  IfConditionSyntax
+//@[53:191)  IfConditionSyntax
 //@[53:55)   Identifier |if|
 //@[56:82)   ParenthesizedExpressionSyntax
 //@[56:57)    LeftParen |(|
@@ -592,26 +589,26 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 //@[0:1)        RightSquare |]|
 //@[1:2)      RightParen |)|
 //@[3:5)     Equals |==|
-//@[6:7)     NumericLiteralSyntax
-//@[6:7)      Number |1|
+//@[6:7)     IntegerLiteralSyntax
+//@[6:7)      Integer |1|
 //@[7:8)    RightParen |)|
-//@[9:117)  ObjectSyntax
-//@[9:10)   LeftBrace |{|
-//@[10:11)   NewLine |\n|
+//@[9:117)   ObjectSyntax
+//@[9:10)    LeftBrace |{|
+//@[10:11)    NewLine |\n|
   name: 'modANoInputs'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'modANoInputs'|
-//@[22:23)   NewLine |\n|
+//@[2:22)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:22)     StringSyntax
+//@[8:22)      StringComplete |'modANoInputs'|
+//@[22:23)    NewLine |\n|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
-//@[78:79)   NewLine |\n|
+//@[78:79)    NewLine |\n|
   
-//@[2:3)   NewLine |\n|
+//@[2:3)    NewLine |\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modAEmptyInputs './modulea.bicep' = {
@@ -660,49 +657,49 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 //@[36:53)  StringSyntax
 //@[36:53)   StringComplete |'./modulea.bicep'|
 //@[54:55)  Assignment |=|
-//@[56:71)  IfConditionSyntax
+//@[56:183)  IfConditionSyntax
 //@[56:58)   Identifier |if|
 //@[59:71)   ParenthesizedExpressionSyntax
 //@[59:60)    LeftParen |(|
 //@[60:70)    BinaryOperationSyntax
 //@[60:65)     BinaryOperationSyntax
-//@[60:61)      NumericLiteralSyntax
-//@[60:61)       Number |1|
+//@[60:61)      IntegerLiteralSyntax
+//@[60:61)       Integer |1|
 //@[62:63)      Plus |+|
-//@[64:65)      NumericLiteralSyntax
-//@[64:65)       Number |2|
+//@[64:65)      IntegerLiteralSyntax
+//@[64:65)       Integer |2|
 //@[66:68)     Equals |==|
-//@[69:70)     NumericLiteralSyntax
-//@[69:70)      Number |2|
+//@[69:70)     IntegerLiteralSyntax
+//@[69:70)      Integer |2|
 //@[70:71)    RightParen |)|
-//@[72:183)  ObjectSyntax
-//@[72:73)   LeftBrace |{|
-//@[73:74)   NewLine |\n|
+//@[72:183)   ObjectSyntax
+//@[72:73)    LeftBrace |{|
+//@[73:74)    NewLine |\n|
   name: 'modANoInputs'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'modANoInputs'|
-//@[22:23)   NewLine |\n|
+//@[2:22)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:22)     StringSyntax
+//@[8:22)      StringComplete |'modANoInputs'|
+//@[22:23)    NewLine |\n|
   params: {
-//@[2:84)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:84)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:12)     NewLine |\n|
+//@[2:84)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:84)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
-//@[63:64)     NewLine |\n|
+//@[63:64)      NewLine |\n|
     
-//@[4:5)     NewLine |\n|
+//@[4:5)      NewLine |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
 }
-//@[0:1)   RightBrace |}|
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 // #completionTest(55) -> moduleATopLevelPropertyAccess
@@ -1068,6 +1065,77 @@ module moduleWithInvalidScope2 './empty.bicep' = {
 //@[24:25)     LeftParen |(|
 //@[25:26)     RightParen |)|
 //@[26:27)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithUnsupprtedScope1 './mg_empty.bicep' = {
+//@[0:122) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |moduleWithUnsupprtedScope1|
+//@[34:52)  StringSyntax
+//@[34:52)   StringComplete |'./mg_empty.bicep'|
+//@[53:54)  Assignment |=|
+//@[55:122)  ObjectSyntax
+//@[55:56)   LeftBrace |{|
+//@[56:57)   NewLine |\n|
+  name: 'moduleWithUnsupprtedScope1'
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    StringSyntax
+//@[8:36)     StringComplete |'moduleWithUnsupprtedScope1'|
+//@[36:37)   NewLine |\n|
+  scope: managementGroup()
+//@[2:26)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:26)    FunctionCallSyntax
+//@[9:24)     IdentifierSyntax
+//@[9:24)      Identifier |managementGroup|
+//@[24:25)     LeftParen |(|
+//@[25:26)     RightParen |)|
+//@[26:27)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module moduleWithUnsupprtedScope2 './mg_empty.bicep' = {
+//@[0:126) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:33)  IdentifierSyntax
+//@[7:33)   Identifier |moduleWithUnsupprtedScope2|
+//@[34:52)  StringSyntax
+//@[34:52)   StringComplete |'./mg_empty.bicep'|
+//@[53:54)  Assignment |=|
+//@[55:126)  ObjectSyntax
+//@[55:56)   LeftBrace |{|
+//@[56:57)   NewLine |\n|
+  name: 'moduleWithUnsupprtedScope2'
+//@[2:36)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:36)    StringSyntax
+//@[8:36)     StringComplete |'moduleWithUnsupprtedScope2'|
+//@[36:37)   NewLine |\n|
+  scope: managementGroup('MG')
+//@[2:30)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:30)    FunctionCallSyntax
+//@[9:24)     IdentifierSyntax
+//@[9:24)      Identifier |managementGroup|
+//@[24:25)     LeftParen |(|
+//@[25:29)     FunctionArgumentSyntax
+//@[25:29)      StringSyntax
+//@[25:29)       StringComplete |'MG'|
+//@[29:30)     RightParen |)|
+//@[30:31)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -1461,6 +1529,195 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[8:33)    StringSyntax
 //@[8:33)     StringComplete |'moduleWithDuplicateName'|
 //@[33:34)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionB ''
+//@[0:21) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |completionB|
+//@[19:21)  StringSyntax
+//@[19:21)   StringComplete |''|
+//@[21:21)  SkippedTriviaSyntax
+//@[21:21)  SkippedTriviaSyntax
+//@[21:23) NewLine |\n\n|
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionC '' =
+//@[0:23) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |completionC|
+//@[19:21)  StringSyntax
+//@[19:21)   StringComplete |''|
+//@[22:23)  Assignment |=|
+//@[23:23)  SkippedTriviaSyntax
+//@[23:25) NewLine |\n\n|
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionD '' = {}
+//@[0:26) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |completionD|
+//@[19:21)  StringSyntax
+//@[19:21)   StringComplete |''|
+//@[22:23)  Assignment |=|
+//@[24:26)  ObjectSyntax
+//@[24:25)   LeftBrace |{|
+//@[25:26)   RightBrace |}|
+//@[26:28) NewLine |\n\n|
+
+// #completionTest(19, 20, 21) -> cwdCompletions
+//@[48:49) NewLine |\n|
+module completionE '' = {
+//@[0:43) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |completionE|
+//@[19:21)  StringSyntax
+//@[19:21)   StringComplete |''|
+//@[22:23)  Assignment |=|
+//@[24:43)  ObjectSyntax
+//@[24:25)   LeftBrace |{|
+//@[25:26)   NewLine |\n|
+  name: 'hello'
+//@[2:15)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:15)    StringSyntax
+//@[8:15)     StringComplete |'hello'|
+//@[15:16)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+//@[56:57) NewLine |\n|
+module cwdFileCompletionA '.'
+//@[0:29) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |cwdFileCompletionA|
+//@[26:29)  StringSyntax
+//@[26:29)   StringComplete |'.'|
+//@[29:29)  SkippedTriviaSyntax
+//@[29:29)  SkippedTriviaSyntax
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(26, 27) -> cwdMCompletions
+//@[45:46) NewLine |\n|
+module cwdFileCompletionB m
+//@[0:27) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |cwdFileCompletionB|
+//@[26:27)  SkippedTriviaSyntax
+//@[26:27)   Identifier |m|
+//@[27:27)  SkippedTriviaSyntax
+//@[27:27)  SkippedTriviaSyntax
+//@[27:29) NewLine |\n\n|
+
+// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+//@[53:54) NewLine |\n|
+module cwdFileCompletionC 'm'
+//@[0:29) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:25)  IdentifierSyntax
+//@[7:25)   Identifier |cwdFileCompletionC|
+//@[26:29)  StringSyntax
+//@[26:29)   StringComplete |'m'|
+//@[29:29)  SkippedTriviaSyntax
+//@[29:29)  SkippedTriviaSyntax
+//@[29:31) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+//@[102:103) NewLine |\n|
+module childCompletionA 'ChildModules/'
+//@[0:39) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionA|
+//@[24:39)  StringSyntax
+//@[24:39)   StringComplete |'ChildModules/'|
+//@[39:39)  SkippedTriviaSyntax
+//@[39:39)  SkippedTriviaSyntax
+//@[39:41) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+//@[105:106) NewLine |\n|
+module childCompletionB './ChildModules/'
+//@[0:41) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionB|
+//@[24:41)  StringSyntax
+//@[24:41)   StringComplete |'./ChildModules/'|
+//@[41:41)  SkippedTriviaSyntax
+//@[41:41)  SkippedTriviaSyntax
+//@[41:43) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+//@[107:108) NewLine |\n|
+module childCompletionC './ChildModules/m'
+//@[0:42) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionC|
+//@[24:42)  StringSyntax
+//@[24:42)   StringComplete |'./ChildModules/m'|
+//@[42:42)  SkippedTriviaSyntax
+//@[42:42)  SkippedTriviaSyntax
+//@[42:44) NewLine |\n\n|
+
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+//@[107:108) NewLine |\n|
+module childCompletionD 'ChildModules/e'
+//@[0:40) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:23)  IdentifierSyntax
+//@[7:23)   Identifier |childCompletionD|
+//@[24:40)  StringSyntax
+//@[24:40)   StringComplete |'ChildModules/e'|
+//@[40:40)  SkippedTriviaSyntax
+//@[40:40)  SkippedTriviaSyntax
+//@[40:42) NewLine |\n\n|
+
+@minValue()
+//@[0:118) ModuleDeclarationSyntax
+//@[0:11)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:11)   FunctionCallSyntax
+//@[1:9)    IdentifierSyntax
+//@[1:9)     Identifier |minValue|
+//@[9:10)    LeftParen |(|
+//@[10:11)    RightParen |)|
+//@[11:12)  NewLine |\n|
+module moduleWithNotAttachableDecorators './empty.bicep' = {
+//@[0:6)  Identifier |module|
+//@[7:40)  IdentifierSyntax
+//@[7:40)   Identifier |moduleWithNotAttachableDecorators|
+//@[41:56)  StringSyntax
+//@[41:56)   StringComplete |'./empty.bicep'|
+//@[57:58)  Assignment |=|
+//@[59:106)  ObjectSyntax
+//@[59:60)   LeftBrace |{|
+//@[60:61)   NewLine |\n|
+  name: 'moduleWithNotAttachableDecorators'
+//@[2:43)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:43)    StringSyntax
+//@[8:43)     StringComplete |'moduleWithNotAttachableDecorators'|
+//@[43:44)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:2) NewLine |\n|

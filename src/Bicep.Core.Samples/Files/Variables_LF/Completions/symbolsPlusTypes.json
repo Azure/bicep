@@ -920,6 +920,34 @@
     }
   },
   {
+    "label": "issue1332",
+    "kind": "variable",
+    "detail": "issue1332",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue1332",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "issue1332"
+    }
+  },
+  {
+    "label": "issue1332_propname",
+    "kind": "variable",
+    "detail": "issue1332_propname",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue1332_propname",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "issue1332_propname"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
@@ -1047,6 +1075,23 @@
     }
   },
   {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "detail": "max()",
@@ -1137,6 +1182,48 @@
     }
   },
   {
+    "label": "myBigInt",
+    "kind": "variable",
+    "detail": "myBigInt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigInt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigInt"
+    }
+  },
+  {
+    "label": "myBigIntExpression",
+    "kind": "variable",
+    "detail": "myBigIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression"
+    }
+  },
+  {
+    "label": "myBigIntExpression2",
+    "kind": "variable",
+    "detail": "myBigIntExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression2"
+    }
+  },
+  {
     "label": "myEmptyArray",
     "kind": "variable",
     "detail": "myEmptyArray",
@@ -1190,6 +1277,20 @@
     "textEdit": {
       "range": {},
       "newText": "myInt"
+    }
+  },
+  {
+    "label": "myIntExpression",
+    "kind": "variable",
+    "detail": "myIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "myIntExpression"
     }
   },
   {

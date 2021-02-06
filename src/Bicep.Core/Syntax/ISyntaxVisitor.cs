@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
 
-        void VisitNumericLiteralSyntax(NumericLiteralSyntax syntax);
+        void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax);
 
         void VisitObjectPropertySyntax(ObjectPropertySyntax syntax);
 
@@ -69,5 +69,9 @@ namespace Bicep.Core.Syntax
         void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax);
 
         void VisitIfConditionSyntax(IfConditionSyntax syntax);
+
+        void VisitDecoratorSyntax(DecoratorSyntax syntax);
+
+        void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
     }
 }

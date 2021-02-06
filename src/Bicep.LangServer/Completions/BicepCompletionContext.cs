@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
         private static readonly ImmutableHashSet<TokenType> ReplaceableTokens = new[]
         {
             TokenType.Identifier,
-            TokenType.Number,
+            TokenType.Integer,
             TokenType.StringComplete
         }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
 
@@ -169,7 +169,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => CheckTypeIsExpected(module.Name, module.Path)) ||
-                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete))
+                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
+                SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a module declaration
                 // the declaration syntax is "module <identifier> '<path>' ..."
@@ -389,7 +390,7 @@ namespace Bicep.LanguageServer.Completions
                     return !resource.Name.Span.ContainsInclusive(offset) &&
                            !resource.Type.Span.ContainsInclusive(offset) &&
                            !resource.Assignment.Span.ContainsInclusive(offset) &&
-                           resource.Body is SkippedTriviaSyntax && offset == resource.Body.Span.Position;
+                           resource.Value is SkippedTriviaSyntax && offset == resource.Value.Span.Position;
 
                 case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
@@ -410,7 +411,7 @@ namespace Bicep.LanguageServer.Completions
                     return !module.Name.Span.ContainsInclusive(offset) &&
                            !module.Path.Span.ContainsInclusive(offset) &&
                            !module.Assignment.Span.ContainsInclusive(offset) &&
-                           module.Body is SkippedTriviaSyntax && offset == module.Body.Span.Position;
+                           module.Value is SkippedTriviaSyntax && offset == module.Value.Span.Position;
 
                 case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token

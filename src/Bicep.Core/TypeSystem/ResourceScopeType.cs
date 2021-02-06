@@ -1,25 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-
 namespace Bicep.Core.TypeSystem
 {
-    [Flags]
-    public enum ResourceScopeType
+    public class ResourceScopeType : TypeSymbol, IScopeReference
     {
-        None = 0,
+        public ResourceScopeType(string name, ResourceScope scopeType)
+            : base(name)
+        {
+            Scope = scopeType;
+        }
 
-        ResourceScope = 1 << 0,
+        public override TypeKind TypeKind => TypeKind.ResourceScopeReference;
 
-        ModuleScope = 1 << 1,
-
-        TenantScope = 1 << 2,
-
-        ManagementGroupScope = 1 << 3,
-
-        SubscriptionScope = 1 << 4,
-
-        ResourceGroupScope = 1 << 5,
+        public ResourceScope Scope { get; }
     }
 }

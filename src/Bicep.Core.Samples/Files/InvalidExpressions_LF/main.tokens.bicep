@@ -34,7 +34,7 @@ var bad = 33-
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |bad|
 //@[8:9) Assignment |=|
-//@[10:12) Number |33|
+//@[10:12) Integer |33|
 //@[12:13) Minus |-|
 //@[13:14) NewLine |\n|
 var bad = --33
@@ -43,24 +43,24 @@ var bad = --33
 //@[8:9) Assignment |=|
 //@[10:11) Minus |-|
 //@[11:12) Minus |-|
-//@[12:14) Number |33|
+//@[12:14) Integer |33|
 //@[14:15) NewLine |\n|
 var bad = 3 * 4 /
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |bad|
 //@[8:9) Assignment |=|
-//@[10:11) Number |3|
+//@[10:11) Integer |3|
 //@[12:13) Asterisk |*|
-//@[14:15) Number |4|
+//@[14:15) Integer |4|
 //@[16:17) Slash |/|
 //@[17:18) NewLine |\n|
 var bad = 222222222222222222222222222222222222222222 * 4
 //@[0:3) Identifier |var|
 //@[4:7) Identifier |bad|
 //@[8:9) Assignment |=|
-//@[10:52) Number |222222222222222222222222222222222222222222|
+//@[10:52) Integer |222222222222222222222222222222222222222222|
 //@[53:54) Asterisk |*|
-//@[55:56) Number |4|
+//@[55:56) Integer |4|
 //@[56:57) NewLine |\n|
 var bad = (null) ?
 //@[0:3) Identifier |var|
@@ -108,7 +108,7 @@ var bad = (null)[0]
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
 //@[16:17) LeftSquare |[|
-//@[17:18) Number |0|
+//@[17:18) Integer |0|
 //@[18:19) RightSquare |]|
 //@[19:20) NewLine |\n|
 var bad = ()
@@ -132,7 +132,7 @@ var x = a + 2
 //@[6:7) Assignment |=|
 //@[8:9) Identifier |a|
 //@[10:11) Plus |+|
-//@[12:13) Number |2|
+//@[12:13) Integer |2|
 //@[13:15) NewLine |\n\n|
 
 // unary NOT
@@ -149,7 +149,7 @@ var not = !4
 //@[4:7) Identifier |not|
 //@[8:9) Assignment |=|
 //@[10:11) Exclamation |!|
-//@[11:12) Number |4|
+//@[11:12) Integer |4|
 //@[12:13) NewLine |\n|
 var not = !'s'
 //@[0:3) Identifier |var|
@@ -207,7 +207,7 @@ var minus = ------12
 //@[15:16) Minus |-|
 //@[16:17) Minus |-|
 //@[17:18) Minus |-|
-//@[18:20) Number |12|
+//@[18:20) Integer |12|
 //@[20:22) NewLine |\n\n|
 
 // unary minus
@@ -320,7 +320,7 @@ var ne = 15 !~ [
 //@[0:3) Identifier |var|
 //@[4:6) Identifier |ne|
 //@[7:8) Assignment |=|
-//@[9:11) Number |15|
+//@[9:11) Integer |15|
 //@[12:14) NotEqualsInsensitive |!~|
 //@[15:16) LeftSquare |[|
 //@[16:17) NewLine |\n|
@@ -334,7 +334,7 @@ var lt = 4 < 's'
 //@[0:3) Identifier |var|
 //@[4:6) Identifier |lt|
 //@[7:8) Assignment |=|
-//@[9:10) Number |4|
+//@[9:10) Integer |4|
 //@[11:12) LessThan |<|
 //@[13:16) StringComplete |'s'|
 //@[16:17) NewLine |\n|
@@ -344,7 +344,7 @@ var lteq = null <= 10
 //@[9:10) Assignment |=|
 //@[11:15) NullKeyword |null|
 //@[16:18) LessThanOrEqual |<=|
-//@[19:21) Number |10|
+//@[19:21) Integer |10|
 //@[21:22) NewLine |\n|
 var gt = false>[
 //@[0:3) Identifier |var|
@@ -383,9 +383,9 @@ var or = 10 || 4
 //@[0:3) Identifier |var|
 //@[4:6) Identifier |or|
 //@[7:8) Assignment |=|
-//@[9:11) Number |10|
+//@[9:11) Integer |10|
 //@[12:14) LogicalOr ||||
-//@[15:16) Number |4|
+//@[15:16) Integer |4|
 //@[16:18) NewLine |\n\n|
 
 // conditional
@@ -396,7 +396,7 @@ var ternary = null ? 4 : false
 //@[12:13) Assignment |=|
 //@[14:18) NullKeyword |null|
 //@[19:20) Question |?|
-//@[21:22) Number |4|
+//@[21:22) Integer |4|
 //@[23:24) Colon |:|
 //@[25:30) FalseKeyword |false|
 //@[30:32) NewLine |\n\n|
@@ -409,11 +409,11 @@ var complex = test(2 + 3*4, true || false && null)
 //@[12:13) Assignment |=|
 //@[14:18) Identifier |test|
 //@[18:19) LeftParen |(|
-//@[19:20) Number |2|
+//@[19:20) Integer |2|
 //@[21:22) Plus |+|
-//@[23:24) Number |3|
+//@[23:24) Integer |3|
 //@[24:25) Asterisk |*|
-//@[25:26) Number |4|
+//@[25:26) Integer |4|
 //@[26:27) Comma |,|
 //@[28:32) TrueKeyword |true|
 //@[33:35) LogicalOr ||||
@@ -427,14 +427,14 @@ var complex = -2 && 3 && !4 && 5
 //@[4:11) Identifier |complex|
 //@[12:13) Assignment |=|
 //@[14:15) Minus |-|
-//@[15:16) Number |2|
+//@[15:16) Integer |2|
 //@[17:19) LogicalAnd |&&|
-//@[20:21) Number |3|
+//@[20:21) Integer |3|
 //@[22:24) LogicalAnd |&&|
 //@[25:26) Exclamation |!|
-//@[26:27) Number |4|
+//@[26:27) Integer |4|
 //@[28:30) LogicalAnd |&&|
-//@[31:32) Number |5|
+//@[31:32) Integer |5|
 //@[32:33) NewLine |\n|
 var complex = null ? !4: false
 //@[0:3) Identifier |var|
@@ -443,7 +443,7 @@ var complex = null ? !4: false
 //@[14:18) NullKeyword |null|
 //@[19:20) Question |?|
 //@[21:22) Exclamation |!|
-//@[22:23) Number |4|
+//@[22:23) Integer |4|
 //@[23:24) Colon |:|
 //@[25:30) FalseKeyword |false|
 //@[30:31) NewLine |\n|
@@ -457,19 +457,19 @@ var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || f
 //@[28:30) NotEquals |!=|
 //@[31:35) NullKeyword |null|
 //@[36:38) Equals |==|
-//@[39:40) Number |4|
+//@[39:40) Integer |4|
 //@[41:43) NotEquals |!=|
 //@[44:47) StringComplete |'a'|
 //@[48:49) Question |?|
 //@[50:51) Minus |-|
-//@[51:52) Number |2|
+//@[51:52) Integer |2|
 //@[53:55) LogicalAnd |&&|
-//@[56:57) Number |3|
+//@[56:57) Integer |3|
 //@[58:60) LogicalAnd |&&|
 //@[61:62) Exclamation |!|
-//@[62:63) Number |4|
+//@[62:63) Integer |4|
 //@[64:66) LogicalAnd |&&|
-//@[67:68) Number |5|
+//@[67:68) Integer |5|
 //@[69:70) Colon |:|
 //@[71:75) TrueKeyword |true|
 //@[76:78) LogicalOr ||||
@@ -484,9 +484,9 @@ var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[18:19) Assignment |=|
 //@[20:24) NullKeyword |null|
 //@[25:26) Question |?|
-//@[27:28) Number |1|
+//@[27:28) Integer |1|
 //@[29:30) Colon |:|
-//@[31:32) Number |2|
+//@[31:32) Integer |2|
 //@[33:34) Question |?|
 //@[35:39) TrueKeyword |true|
 //@[40:41) Question |?|
@@ -498,7 +498,7 @@ var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[59:60) Question |?|
 //@[61:64) StringComplete |'d'|
 //@[65:66) Colon |:|
-//@[67:69) Number |15|
+//@[67:69) Integer |15|
 //@[69:70) NewLine |\n|
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 //@[0:3) Identifier |var|
@@ -507,9 +507,9 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 //@[20:21) LeftParen |(|
 //@[21:25) NullKeyword |null|
 //@[26:27) Question |?|
-//@[28:29) Number |1|
+//@[28:29) Integer |1|
 //@[30:31) Colon |:|
-//@[32:33) Number |2|
+//@[32:33) Integer |2|
 //@[33:34) RightParen |)|
 //@[35:36) Question |?|
 //@[37:38) LeftParen |(|
@@ -525,7 +525,7 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 //@[64:65) Question |?|
 //@[66:69) StringComplete |'d'|
 //@[70:71) Colon |:|
-//@[72:74) Number |15|
+//@[72:74) Integer |15|
 //@[74:75) RightParen |)|
 //@[75:77) NewLine |\n\n|
 
@@ -545,7 +545,7 @@ var errorInsideArrayAccess = [
 //@[0:1) RightSquare |]|
 //@[1:2) LeftSquare |[|
 //@[2:3) Exclamation |!|
-//@[3:4) Number |0|
+//@[3:4) Integer |0|
 //@[4:5) RightSquare |]|
 //@[5:6) NewLine |\n|
 var integerIndexOnNonArray = (null)[0]
@@ -556,7 +556,7 @@ var integerIndexOnNonArray = (null)[0]
 //@[30:34) NullKeyword |null|
 //@[34:35) RightParen |)|
 //@[35:36) LeftSquare |[|
-//@[36:37) Number |0|
+//@[36:37) Integer |0|
 //@[37:38) RightSquare |]|
 //@[38:39) NewLine |\n|
 var stringIndexOnNonObject = 'test'['test']
@@ -629,7 +629,7 @@ var badIndexOverObj2 = {}[0]
 //@[23:24) LeftBrace |{|
 //@[24:25) RightBrace |}|
 //@[25:26) LeftSquare |[|
-//@[26:27) Number |0|
+//@[26:27) Integer |0|
 //@[27:28) RightSquare |]|
 //@[28:29) NewLine |\n|
 var badExpressionIndexer = {}[base64('a')]
@@ -812,9 +812,9 @@ var takeTooMany = take([
 ],1,2,'s')
 //@[0:1) RightSquare |]|
 //@[1:2) Comma |,|
-//@[2:3) Number |1|
+//@[2:3) Integer |1|
 //@[3:4) Comma |,|
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[5:6) Comma |,|
 //@[6:9) StringComplete |'s'|
 //@[9:10) RightParen |)|
@@ -923,9 +923,9 @@ var indexOfWrongTypes = indexOf(1,1)
 //@[22:23) Assignment |=|
 //@[24:31) Identifier |indexOf|
 //@[31:32) LeftParen |(|
-//@[32:33) Number |1|
+//@[32:33) Integer |1|
 //@[33:34) Comma |,|
-//@[34:35) Number |1|
+//@[34:35) Integer |1|
 //@[35:36) RightParen |)|
 //@[36:38) NewLine |\n\n|
 
@@ -978,7 +978,7 @@ var sampleObject = {
   myInt: 42
 //@[2:7) Identifier |myInt|
 //@[7:8) Colon |:|
-//@[9:11) Number |42|
+//@[9:11) Integer |42|
 //@[11:12) NewLine |\n|
   myStr: 's'
 //@[2:7) Identifier |myStr|
@@ -1028,13 +1028,13 @@ var sampleObject = {
 //@[9:10) LeftSquare |[|
 //@[10:11) NewLine |\n|
     1
-//@[4:5) Number |1|
+//@[4:5) Integer |1|
 //@[5:6) NewLine |\n|
     2
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[5:6) NewLine |\n|
     3
-//@[4:5) Number |3|
+//@[4:5) Integer |3|
 //@[5:6) NewLine |\n|
   ]
 //@[2:3) RightSquare |]|
@@ -1076,7 +1076,7 @@ var badType = sampleObject.myStr / 32
 //@[26:27) Dot |.|
 //@[27:32) Identifier |myStr|
 //@[33:34) Slash |/|
-//@[35:37) Number |32|
+//@[35:37) Integer |32|
 //@[37:38) NewLine |\n|
 var badInnerProperty = sampleObject.myInner.fake
 //@[0:3) Identifier |var|
@@ -1098,7 +1098,7 @@ var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[39:40) Dot |.|
 //@[40:50) Identifier |anotherStr|
 //@[51:52) Plus |+|
-//@[53:54) Number |2|
+//@[53:54) Integer |2|
 //@[54:55) NewLine |\n|
 var badArrayIndexer = sampleObject.myArr['s']
 //@[0:3) Identifier |var|
@@ -1208,7 +1208,7 @@ var invalidOperands = 1 + az
 //@[0:3) Identifier |var|
 //@[4:19) Identifier |invalidOperands|
 //@[20:21) Assignment |=|
-//@[22:23) Number |1|
+//@[22:23) Integer |1|
 //@[24:25) Plus |+|
 //@[26:28) Identifier |az|
 //@[28:30) NewLine |\n\n|
@@ -1233,7 +1233,7 @@ var bannedFunctions = {
 //@[19:20) LeftParen |(|
 //@[20:21) RightParen |)|
 //@[22:23) Plus |+|
-//@[24:25) Number |2|
+//@[24:25) Integer |2|
 //@[25:26) NewLine |\n|
   if: sys.if(null,null)
 //@[2:4) Identifier |if|
@@ -1272,23 +1272,23 @@ var bannedFunctions = {
 //@[14:15) Dot |.|
 //@[15:18) Identifier |add|
 //@[18:19) LeftParen |(|
-//@[19:20) Number |1|
+//@[19:20) Integer |1|
 //@[20:21) RightParen |)|
 //@[22:23) Plus |+|
 //@[24:27) Identifier |sys|
 //@[27:28) Dot |.|
 //@[28:31) Identifier |sub|
 //@[31:32) LeftParen |(|
-//@[32:33) Number |2|
+//@[32:33) Integer |2|
 //@[33:34) Comma |,|
-//@[34:35) Number |3|
+//@[34:35) Integer |3|
 //@[35:36) RightParen |)|
 //@[37:38) Plus |+|
 //@[39:42) Identifier |sys|
 //@[42:43) Dot |.|
 //@[43:46) Identifier |mul|
 //@[46:47) LeftParen |(|
-//@[47:48) Number |8|
+//@[47:48) Integer |8|
 //@[48:49) Comma |,|
 //@[49:52) StringComplete |'s'|
 //@[52:53) RightParen |)|
@@ -1439,7 +1439,7 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 //@[54:55) LeftSquare |[|
 //@[55:56) RightSquare |]|
 //@[56:57) LeftSquare |[|
-//@[57:58) Number |1|
+//@[57:58) Integer |1|
 //@[58:59) RightSquare |]|
 //@[59:60) LeftSquare |[|
 //@[60:61) RightSquare |]|
@@ -1499,7 +1499,7 @@ var partialObject = {
 //@[20:21) LeftBrace |{|
 //@[21:22) NewLine |\n|
   2: true
-//@[2:3) Number |2|
+//@[2:3) Integer |2|
 //@[3:4) Colon |:|
 //@[5:9) TrueKeyword |true|
 //@[9:10) NewLine |\n|
@@ -1507,7 +1507,7 @@ var partialObject = {
 //@[2:3) Plus |+|
 //@[3:4) NewLine |\n|
   3 : concat('s')
-//@[2:3) Number |3|
+//@[2:3) Integer |3|
 //@[4:5) Colon |:|
 //@[6:12) Identifier |concat|
 //@[12:13) LeftParen |(|
@@ -1542,7 +1542,7 @@ var partialObject = {
   a # 22
 //@[2:3) Identifier |a|
 //@[4:5) Unrecognized |#|
-//@[6:8) Number |22|
+//@[6:8) Integer |22|
 //@[8:9) NewLine |\n|
   c :
 //@[2:3) Identifier |c|
@@ -1555,4 +1555,42 @@ var partialObject = {
 //@[8:9) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\n\n|
+
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+//@[96:97) NewLine |\n|
+@concat()
+//@[0:1) At |@|
+//@[1:7) Identifier |concat|
+//@[7:8) LeftParen |(|
+//@[8:9) RightParen |)|
+//@[9:10) NewLine |\n|
+@sys.secure()
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:11) Identifier |secure|
+//@[11:12) LeftParen |(|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+xxxxx
+//@[0:5) Identifier |xxxxx|
+//@[5:8) NewLine |\n\n\n|
+
+
+@minLength()
+//@[0:1) At |@|
+//@[1:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) RightParen |)|
+//@[12:21) NewLine |\n\n\n\n\n\n\n\n\n|
+
+
+
+
+
+
+
+
+
+//@[0:0) EndOfFile ||

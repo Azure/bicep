@@ -24,5 +24,30 @@ namespace Bicep.Core.TypeSystem
         /// The function requires inlining.
         /// </summary>
         RequiresInlining = 1 << 1,
+
+        /// <summary>
+        /// The function can be used as a parameter decorator.
+        /// </summary>
+        ParameterDecorator = 1 << 2,
+
+        /// <summary>
+        /// The function can be used as a parameter decorator.
+        /// </summary>
+        VariableDecorator = 1 << 3,
+
+        /// <summary>
+        /// The function can be used as a resource decorator.
+        /// </summary>
+        ResoureDecorator = 1 << 4,
+
+        /// <summary>
+        /// The function can be used as a module decorator.
+        /// </summary>
+        ModuleDecorator = 1 << 5,
+
+        /// <summary>
+        /// The function can be used as an output decorator.
+        /// </summary>
+        OutputDecorator = 1 << 6,
     }
 }

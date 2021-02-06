@@ -20,8 +20,8 @@ output myInt int = 7
 //@[13:16)  TypeSyntax
 //@[13:16)   Identifier |int|
 //@[17:18)  Assignment |=|
-//@[19:20)  NumericLiteralSyntax
-//@[19:20)   Number |7|
+//@[19:20)  IntegerLiteralSyntax
+//@[19:20)   Integer |7|
 //@[20:22) NewLine |\r\n|
 output myOtherInt int = 20 / 13 + 80 % -4
 //@[0:41) OutputDeclarationSyntax
@@ -33,20 +33,20 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[22:23)  Assignment |=|
 //@[24:41)  BinaryOperationSyntax
 //@[24:31)   BinaryOperationSyntax
-//@[24:26)    NumericLiteralSyntax
-//@[24:26)     Number |20|
+//@[24:26)    IntegerLiteralSyntax
+//@[24:26)     Integer |20|
 //@[27:28)    Slash |/|
-//@[29:31)    NumericLiteralSyntax
-//@[29:31)     Number |13|
+//@[29:31)    IntegerLiteralSyntax
+//@[29:31)     Integer |13|
 //@[32:33)   Plus |+|
 //@[34:41)   BinaryOperationSyntax
-//@[34:36)    NumericLiteralSyntax
-//@[34:36)     Number |80|
+//@[34:36)    IntegerLiteralSyntax
+//@[34:36)     Integer |80|
 //@[37:38)    Modulo |%|
 //@[39:41)    UnaryOperationSyntax
 //@[39:40)     Minus |-|
-//@[40:41)     NumericLiteralSyntax
-//@[40:41)      Number |4|
+//@[40:41)     IntegerLiteralSyntax
+//@[40:41)      Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
 output myBool bool = !false
@@ -128,8 +128,8 @@ output obj object = {
 //@[2:3)    IdentifierSyntax
 //@[2:3)     Identifier |b|
 //@[3:4)    Colon |:|
-//@[5:7)    NumericLiteralSyntax
-//@[5:7)     Number |12|
+//@[5:7)    IntegerLiteralSyntax
+//@[5:7)     Integer |12|
 //@[7:9)   NewLine |\r\n|
   c: true
 //@[2:9)   ObjectPropertySyntax
@@ -157,18 +157,18 @@ output obj object = {
 //@[9:11)     NewLine |\r\n|
     1
 //@[4:5)     ArrayItemSyntax
-//@[4:5)      NumericLiteralSyntax
-//@[4:5)       Number |1|
+//@[4:5)      IntegerLiteralSyntax
+//@[4:5)       Integer |1|
 //@[5:7)     NewLine |\r\n|
     2
 //@[4:5)     ArrayItemSyntax
-//@[4:5)      NumericLiteralSyntax
-//@[4:5)       Number |2|
+//@[4:5)      IntegerLiteralSyntax
+//@[4:5)       Integer |2|
 //@[5:7)     NewLine |\r\n|
     3
 //@[4:5)     ArrayItemSyntax
-//@[4:5)      NumericLiteralSyntax
-//@[4:5)       Number |3|
+//@[4:5)      IntegerLiteralSyntax
+//@[4:5)       Integer |3|
 //@[5:7)     NewLine |\r\n|
     null
 //@[4:8)     ArrayItemSyntax

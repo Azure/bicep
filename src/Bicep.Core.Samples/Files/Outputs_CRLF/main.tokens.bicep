@@ -13,21 +13,21 @@ output myInt int = 7
 //@[7:12) Identifier |myInt|
 //@[13:16) Identifier |int|
 //@[17:18) Assignment |=|
-//@[19:20) Number |7|
+//@[19:20) Integer |7|
 //@[20:22) NewLine |\r\n|
 output myOtherInt int = 20 / 13 + 80 % -4
 //@[0:6) Identifier |output|
 //@[7:17) Identifier |myOtherInt|
 //@[18:21) Identifier |int|
 //@[22:23) Assignment |=|
-//@[24:26) Number |20|
+//@[24:26) Integer |20|
 //@[27:28) Slash |/|
-//@[29:31) Number |13|
+//@[29:31) Integer |13|
 //@[32:33) Plus |+|
-//@[34:36) Number |80|
+//@[34:36) Integer |80|
 //@[37:38) Modulo |%|
 //@[39:40) Minus |-|
-//@[40:41) Number |4|
+//@[40:41) Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
 output myBool bool = !false
@@ -83,7 +83,7 @@ output obj object = {
   b: 12
 //@[2:3) Identifier |b|
 //@[3:4) Colon |:|
-//@[5:7) Number |12|
+//@[5:7) Integer |12|
 //@[7:9) NewLine |\r\n|
   c: true
 //@[2:3) Identifier |c|
@@ -101,13 +101,13 @@ output obj object = {
 //@[8:9) LeftSquare |[|
 //@[9:11) NewLine |\r\n|
     1
-//@[4:5) Number |1|
+//@[4:5) Integer |1|
 //@[5:7) NewLine |\r\n|
     2
-//@[4:5) Number |2|
+//@[4:5) Integer |2|
 //@[5:7) NewLine |\r\n|
     3
-//@[4:5) Number |3|
+//@[4:5) Integer |3|
 //@[5:7) NewLine |\r\n|
     null
 //@[4:8) NullKeyword |null|

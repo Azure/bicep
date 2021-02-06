@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -9,9 +10,10 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class ModuleDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
     {
-        public ModuleDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase? ifCondition, SyntaxBase body)
+        public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ModuleKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -19,15 +21,13 @@ namespace Bicep.Core.Syntax
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
-            AssertSyntaxType(ifCondition, nameof(ifCondition), typeof(SkippedTriviaSyntax), typeof(IfConditionSyntax));
-            AssertSyntaxType(body, nameof(body), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
+            AssertSyntaxType(value, nameof(value), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax), typeof(IfConditionSyntax));
 
             this.Keyword = keyword;
             this.Name = name;
             this.Path = path;
             this.Assignment = assignment;
-            this.IfCondition = ifCondition;
-            this.Body = body;
+            this.Value = value;
         }
 
         public Token Keyword { get; }
@@ -37,18 +37,16 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Path { get; }
 
         public SyntaxBase Assignment { get; }
-
-        public SyntaxBase? IfCondition { get; }
-
-        public SyntaxBase Body { get; }
+        
+        public SyntaxBase Value { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(Keyword, Body);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.Value);
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(ResourceScopeType containingScope, SemanticModel moduleSemanticModel)
+        public TypeSymbol GetDeclaredType(ResourceScope containingScope, SemanticModel moduleSemanticModel)
         {
             var paramTypeProperties = new List<TypeProperty>();
             foreach (var param in moduleSemanticModel.Root.ParameterDeclarations)
@@ -71,5 +69,16 @@ namespace Bicep.Core.Syntax
 
             return LanguageConstants.CreateModuleType(paramTypeProperties, outputTypeProperties, moduleSemanticModel.TargetScope, containingScope, "module");
         }
+
+        public ObjectSyntax? TryGetBody() =>
+            this.Value switch
+            {
+                ObjectSyntax @object => @object,
+                IfConditionSyntax ifCondition => ifCondition.Body as ObjectSyntax,
+                SkippedTriviaSyntax => null,
+
+                // blocked by assert in the constructor
+                _ => throw new NotImplementedException($"Unexpected type of module value '{this.Value.GetType().Name}'.")
+            };
     }
 }

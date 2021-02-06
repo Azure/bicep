@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,8 +17,8 @@ namespace Bicep.Core.Emit
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            var moduleScopeData = GetSupportedScopeInfo(model, diagnosticWriter);
-            var resourceScopeData = GetResoureScopeInfo(model, diagnosticWriter);
+            var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
+            var resourceScopeData = ScopeHelper.GetResoureScopeInfo(model, diagnosticWriter);
             DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
             diagnosticWriter.WriteMultiple(DetectDuplicateNames(model, resourceScopeData, moduleScopeData));
@@ -27,79 +26,7 @@ namespace Bicep.Core.Emit
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
-        public static ImmutableDictionary<ResourceSymbol, ResourceSymbol?> GetResoureScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
-        {
-            var scopeInfo = new Dictionary<ResourceSymbol, ResourceSymbol?>();
-
-            foreach (var resourceSymbol in semanticModel.Root.ResourceDeclarations)
-            {
-                var scopeValue = resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
-                if (scopeValue is null)
-                {
-                    scopeInfo[resourceSymbol] = null;
-                    continue;
-                }
-
-                var scopeSymbol = semanticModel.GetSymbolInfo(scopeValue);
-                if (scopeSymbol is not ResourceSymbol targetResourceSymbol)
-                {
-                    scopeInfo[resourceSymbol] = null;
-                    diagnosticWriter.Write(scopeValue, x => x.InvalidExtensionResourceScope());
-                    continue;
-                }
-
-                scopeInfo[resourceSymbol] = targetResourceSymbol;
-            }
-
-            return scopeInfo.ToImmutableDictionary();
-        }
-
-        private static ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> GetSupportedScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
-        {
-            var moduleScopeData = new Dictionary<ModuleSymbol, ScopeHelper.ScopeData>();
-
-            foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
-            {
-                var scopeValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
-                if (scopeValue == null)
-                {
-                    // no scope provided - assume the parent scope
-                    moduleScopeData[moduleSymbol] = new ScopeHelper.ScopeData { RequestedScope = semanticModel.TargetScope };
-                    continue;
-                }
-
-                var scopeType = semanticModel.GetTypeInfo(scopeValue);
-                var scopeData = ScopeHelper.TryGetScopeData(semanticModel.TargetScope, scopeType);
-
-                if (scopeData != null)
-                {
-                    moduleScopeData[moduleSymbol] = scopeData;
-                    continue;
-                }
-
-                switch (semanticModel.TargetScope)
-                {
-                    case ResourceScopeType.TenantScope:
-                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForTenantScope());
-                        break;
-                    case ResourceScopeType.ManagementGroupScope:
-                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForManagementScope());
-                        break;
-                    case ResourceScopeType.SubscriptionScope:
-                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForSubscriptionScope());
-                        break;
-                    case ResourceScopeType.ResourceGroupScope:
-                        diagnosticWriter.Write(scopeValue, x => x.InvalidModuleScopeForResourceGroup());
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unrecognized target scope {semanticModel.TargetScope}");
-                }
-            }
-
-            return moduleScopeData.ToImmutableDictionary();
-        }
-
-        private static IEnumerable<Diagnostic> DetectDuplicateNames(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ResourceSymbol?> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private static IEnumerable<Diagnostic> DetectDuplicateNames(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
@@ -135,7 +62,7 @@ namespace Bicep.Core.Emit
         {
             foreach (var module in semanticModel.Root.ModuleDeclarations)
             {
-                if (!moduleScopeData.ContainsKey(module))
+                if (!moduleScopeData.TryGetValue(module, out var scopeData))
                 {
                     //module has invalid scope provided, ignoring from duplicate check
                     continue;
@@ -148,18 +75,23 @@ namespace Bicep.Core.Emit
 
                 var propertyScopeValue = (module.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName) as FunctionCallSyntax)?.Arguments.Select(x => x.Expression as StringSyntax).ToImmutableArray();
 
-                yield return new ModuleDefinition(module.Name, moduleScopeData[module].RequestedScope, propertyScopeValue, propertyNameValue);
+                yield return new ModuleDefinition(module.Name, scopeData.RequestedScope, propertyScopeValue, propertyNameValue);
             }
         }
 
-        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ResourceSymbol?> resourceScopeData)
+        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceSymbol, ScopeHelper.ScopeData> resourceScopeData)
         {
             foreach (var resource in semanticModel.Root.ResourceDeclarations)
             {
-                if (!resourceScopeData.ContainsKey(resource))
+                if (resource.DeclaringResource.IsExistingResource())
                 {
-                    //resource contains invlid scope data, ignoring from duplicate check
+                    // 'existing' resources are not being deployed so duplicates are allowed
                     continue;
+                }
+
+                if (!resourceScopeData.TryGetValue(resource, out var scopeData))
+                {
+                    scopeData = null;
                 }
 
                 if (resource.Type is not ResourceType resourceType || resource.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax namePropertyValue)
@@ -168,7 +100,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Name, resourceScopeData[resource], resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Name, scopeData?.ResourceScopeSymbol, resourceType.TypeReference.FullyQualifiedType, namePropertyValue);
             }
         }
     }

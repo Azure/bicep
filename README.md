@@ -110,6 +110,8 @@ Note that while we want to make it easy to transition to Bicep, we will continue
 
 * [Bicep GitHub Action](https://github.com/marketplace/actions/bicep-build)
 * [Bicep Language Service support in Neovim](https://github.com/Azure/bicep/issues/1141#issuecomment-749372637)
+* [Bicep PowerShell Module](https://github.com/StefanIvemo/BicepPowerShell)
+* [Bicep Tasks extension for Azure Pipelines](https://marketplace.visualstudio.com/items?itemName=piraces.bicep-tasks)
 
 ## Alternatives
 

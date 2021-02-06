@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Resources;
+using Bicep.Core.Emit;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -11,31 +13,35 @@ namespace Bicep.Core.TypeSystem.Az
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> availableResourceTypes;
+        private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
         private readonly IDictionary<ResourceTypeReference, ResourceType> loadedTypeCache;
+        private readonly IDictionary<ResourceTypeReference, ResourceType> loadedExistingTypeCache;
 
         public AzResourceTypeProvider()
             : this(new TypeLoader())
         {
         }
 
-        private static IReadOnlyDictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>> GetAvailableResourceTypes(ITypeLoader typeLoader)
+        private static IReadOnlyDictionary<ResourceTypeReference, TypeLocation> GetAvailableResourceTypes(ITypeLoader typeLoader)
         {
-            IReadOnlyDictionary<ResourceTypeReference, TypeLocation> ToResourceReferenceDictionary(IReadOnlyDictionary<string, TypeLocation> typeDict)
-                => typeDict.ToDictionary(
-                kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
-
-            var availableResourceTypes = new Dictionary<ResourceScopeType, IReadOnlyDictionary<ResourceTypeReference, TypeLocation>>();
+            var typeDict = new Dictionary<ResourceTypeReference, TypeLocation>(ResourceTypeReferenceComparer.Instance);
             var indexedTypes = typeLoader.GetIndexedTypes();
-            availableResourceTypes[ResourceScopeType.TenantScope] = ToResourceReferenceDictionary(indexedTypes.Tenant);
-            availableResourceTypes[ResourceScopeType.ManagementGroupScope] = ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
-            availableResourceTypes[ResourceScopeType.SubscriptionScope] = ToResourceReferenceDictionary(indexedTypes.Subscription);
-            availableResourceTypes[ResourceScopeType.ResourceGroupScope] = ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
-            availableResourceTypes[ResourceScopeType.ResourceScope] = ToResourceReferenceDictionary(indexedTypes.Extension);
 
-            return availableResourceTypes;
+            void ToResourceReferenceDictionary(IReadOnlyDictionary<string, TypeLocation> inputDict)
+            {
+                foreach (var (key, value) in inputDict)
+                {
+                    typeDict[ResourceTypeReference.Parse(key)] = value;
+                }
+            }
+
+            ToResourceReferenceDictionary(indexedTypes.Tenant);
+            ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
+            ToResourceReferenceDictionary(indexedTypes.Subscription);
+            ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
+            ToResourceReferenceDictionary(indexedTypes.Extension);
+
+            return typeDict;
         }
 
         public AzResourceTypeProvider(ITypeLoader typeLoader)
@@ -44,36 +50,136 @@ namespace Bicep.Core.TypeSystem.Az
             this.resourceTypeFactory = new AzResourceTypeFactory();
             this.availableResourceTypes = GetAvailableResourceTypes(typeLoader);
             this.loadedTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
+            this.loadedExistingTypeCache = new Dictionary<ResourceTypeReference, ResourceType>(ResourceTypeReferenceComparer.Instance);
         }
 
-        public ResourceType GetType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
+        private ResourceType GenerateResourceType(ResourceTypeReference typeReference, bool isExistingResource)
         {
-            if (loadedTypeCache.TryGetValue(typeReference, out var resourceType))
+            if (availableResourceTypes.TryGetValue(typeReference, out var typeLocation))
             {
-                return resourceType;
-            }
-
-            if (availableResourceTypes[scopeType].TryGetValue(typeReference, out var typeLocation))
-            {
-                // It's important to cache this result because LoadResourceType is an expensive operation, and
-                // duplicating types means the resourceTypeFactor won't be able to use its cache.
                 var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-                resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
+                var resourceType = resourceTypeFactory.GetResourceType(serializedResourceType);
+
+                return SetBicepResourceProperties(resourceType, isExistingResource);
             }
             else
             {
                 var resourceBodyType = new NamedObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, LanguageConstants.CreateResourceProperties(typeReference), null);
-                resourceType = new ResourceType(typeReference, resourceBodyType);
+                var resourceType = new ResourceType(typeReference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, resourceBodyType);
+
+                return SetBicepResourceProperties(resourceType, isExistingResource);
+            }
+        }
+
+        public static ResourceType SetBicepResourceProperties(ResourceType resourceType, bool isExistingResource)
+        {
+            var bodyType = resourceType.Body.Type;
+
+            switch (bodyType)
+            {
+                case ObjectType bodyObjectType:
+                    bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, isExistingResource);
+                    break;
+                case DiscriminatedObjectType bodyDiscriminatedType:
+                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values.ToList()
+                        .Select(x => x.Type as ObjectType ?? throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}"));
+                    bodyTypes = bodyTypes.Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, isExistingResource));
+                    bodyType = new DiscriminatedObjectType(
+                        bodyDiscriminatedType.Name,
+                        bodyDiscriminatedType.ValidationFlags,
+                        bodyDiscriminatedType.DiscriminatorKey,
+                        bodyTypes);
+                    break;
+                default:
+                    // we exhaustively test deserialization of every resource type during CI, and this happens in a deterministic fashion,
+                    // so this exception should never occur in the released product
+                    throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}");
             }
 
-            loadedTypeCache[typeReference] = resourceType;
+            return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
+        }
+
+        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, bool isExistingResource)
+        {
+            var properties = objectType.Properties;
+
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant;
+            if (validParentScopes == ResourceScope.Resource)
+            {
+                // resource can only be deployed as an extension resource - scope should be required
+                scopePropertyFlags |= TypePropertyFlags.Required;
+            }
+
+            if (isExistingResource)
+            {
+                // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
+                var scopeReference = LanguageConstants.CreateResourceScopeReference(validParentScopes);
+                properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+            }
+            else
+            {
+                // TODO: remove 'dependsOn' from the type library
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceRefArray, TypePropertyFlags.WriteOnly));
+                
+                // we only support scope for extension resources (or resources where the scope is unknown and thus may be an extension resource)
+                if (validParentScopes.HasFlag(ResourceScope.Resource))
+                {
+                    var scopeReference = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
+                    properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, new TypeProperty(LanguageConstants.ResourceScopePropertyName, scopeReference, scopePropertyFlags));
+                }
+            }
+            // Deployments RP
+            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType))
+            {
+                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
+                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
+            }
+            return new NamedObjectType(
+                objectType.Name,
+                objectType.ValidationFlags,
+                isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
+                objectType.AdditionalPropertiesType,
+                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags);
+        }
+
+        private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
+        {
+            foreach (var property in properties)
+            {
+                // "name" and "scope" can be set for existing resources - everything else should be read-only
+                if (property.Name == LanguageConstants.ResourceNamePropertyName ||
+                    property.Name == LanguageConstants.ResourceScopePropertyName)
+                {
+                    yield return property;
+                }
+                else
+                {
+                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags));
+                }
+            }
+        }
+
+        private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
+            => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
+
+        public ResourceType GetType(ResourceTypeReference typeReference, bool isExistingResource)
+        {
+            var typeCache = isExistingResource ? loadedExistingTypeCache : loadedTypeCache;
+
+            // It's important to cache this result because LoadResourceType is an expensive operation
+            if (!typeCache.TryGetValue(typeReference, out var resourceType))
+            {
+                resourceType = GenerateResourceType(typeReference, isExistingResource);
+                typeCache[typeReference] = resourceType;
+            }
+
             return resourceType;
         }
 
-        public bool HasType(ResourceScopeType scopeType, ResourceTypeReference typeReference)
-            => availableResourceTypes[scopeType].ContainsKey(typeReference);
+        public bool HasType(ResourceTypeReference typeReference)
+            => availableResourceTypes.ContainsKey(typeReference);
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes(ResourceScopeType scopeType)
-            => availableResourceTypes[scopeType].Keys;
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
+            => availableResourceTypes.Keys;
     }
 }

@@ -297,6 +297,34 @@
     }
   },
   {
+    "label": "cyclicExistingRes",
+    "kind": "interface",
+    "detail": "cyclicExistingRes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_cyclicExistingRes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "cyclicExistingRes"
+    }
+  },
+  {
+    "label": "cyclicRes",
+    "kind": "interface",
+    "detail": "cyclicRes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_cyclicRes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "cyclicRes"
+    }
+  },
+  {
     "label": "dashesInPropertyNames",
     "kind": "interface",
     "detail": "dashesInPropertyNames",
@@ -795,6 +823,20 @@
     }
   },
   {
+    "label": "invalidDecorator",
+    "kind": "interface",
+    "detail": "invalidDecorator",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidDecorator",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidDecorator"
+    }
+  },
+  {
     "label": "invalidDuplicateName1",
     "kind": "interface",
     "detail": "invalidDuplicateName1",
@@ -1045,6 +1087,23 @@
     "textEdit": {
       "range": {},
       "newText": "magicString2"
+    }
+  },
+  {
+    "label": "managementGroup",
+    "kind": "function",
+    "detail": "managementGroup()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
@@ -2317,7 +2376,8 @@
       "range": {},
       "newText": "validModule"
     }
-},{
+  },
+  {
     "label": "validResourceForInvalidExtensionResourceDuplicateName",
     "kind": "interface",
     "detail": "validResourceForInvalidExtensionResourceDuplicateName",

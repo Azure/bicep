@@ -187,3 +187,17 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 //@[4:28) Variable oneArrayIndexCompletions. Type: error. Declaration start char: 0, length: 59
 
+// Issue 486
+var myFloat = 3.14
+//@[4:11) Variable myFloat. Type: error. Declaration start char: 0, length: 16
+
+// secure cannot be used as a varaible decorator
+@sys.secure()
+var something = 1
+//@[4:13) Variable something. Type: int. Declaration start char: 0, length: 31
+
+// invalid identifier character classes
+var ☕ = true
+//@[4:5) Variable <error>. Type: bool. Declaration start char: 0, length: 12
+var a☕ = true
+//@[4:5) Variable a. Type: error. Declaration start char: 0, length: 13

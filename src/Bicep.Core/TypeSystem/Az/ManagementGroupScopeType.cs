@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class ManagementGroupScopeType : NamedObjectType, IResourceScopeType
+    public class ManagementGroupScopeType : NamedObjectType, IScopeReference
     {
         public ManagementGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
             : base("managementGroup", TypeSymbolValidationFlags.Default, properties, null)
@@ -16,6 +16,6 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
-        public ResourceScopeType ResourceScopeType => ResourceScopeType.ManagementGroupScope;
+        public ResourceScope Scope => ResourceScope.ManagementGroup;
     }
 }

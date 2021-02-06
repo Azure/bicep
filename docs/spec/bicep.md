@@ -15,14 +15,14 @@ Spaces and tabs are ignored when authoring Bicep files. New lines however have s
 ### Single line
 Single line comments begin with `//`.
 #### Examples
-```
+```bicep
 var myVar = 'hi!' // this is a comment
 ```
 
 ### Multi line
 Multi-line comments are declared between `/*` and `*/` characters.
 #### Examples
-```
+```bicep
 /* this 
 is a 
 multi line comment */
@@ -50,7 +50,7 @@ The following are the set of reserved characters which must be escaped by a back
 All strings in Bicep support interpolation, in order to reference expressions in-place. To inject an expression, surround it by `${` and `}`. Expressions that are referenced cannot span multiple lines.
 
 #### Examples
-```
+```bicep
 // myVar evaluates to "hello!"
 var myVar = 'hello!'
 
@@ -66,7 +66,7 @@ var myVar3 = 'hello ${name}!'
 Number literals are formatted as integers - a list of digits optionally preceeded by a `-`. Floating point, decimal or binary formats are not currently supported.
 
 #### Examples
-```
+```bicep
 var myVar = 123
 var myVar2 = -454
 var mvVar3 = 0
@@ -76,7 +76,7 @@ var mvVar3 = 0
 Boolean literals consist of the keywords `true` and `false`
 
 #### Examples
-```
+```bicep
 var myVar = false
 var myVar2 = true
 ```
@@ -87,7 +87,7 @@ Arrays are declared using the open and close square bracket characters (`[` and 
 Note that commas are not required or permitted between array values.
 
 #### Examples
-```
+```bicep
 var myArray = [
   5983
   3923
@@ -108,11 +108,11 @@ var myMixedArray = [
 ### Objects
 Objects are declared using the open and close brace characters (`{` and `}`), and consist of a set of keys and values. Each key/value pair **must** be on a new line, and there **must** be a new line after the opening brace and before the closing brace. Keys and values are separated with the colon (`:`) character.
 
-Keys must either be a sequence of alphanumeric characters, or an uninterpolated string in cases where special characters are needed. Values may consist of any [literal](#literals) or an [expression](./expressions.md).
+Keys must either be a sequence of alphanumeric characters, or a string in cases where special characters or in-line expression interpolation is needed. Values may consist of any [literal](#literals) or an [expression](./expressions.md).
 
 Note that commas are not required or permitted between object property pairs.
 #### Examples
-```
+```bicep
 var myObj = {
   stringProp: 'hello!'
   boolProp: false
@@ -132,14 +132,21 @@ var myObjWithSpecialChars = {
   normalKey: 'val'
 }
 
-var myEmptyObj = {
+var name = 'Steve'
+var objWithInterpolatedKeys = {
+  'Hello ${name}!': 'val'
+  '${name}': 'val'
+  '${name == 'Steve' ? 'wibble' : 'wobble'}': 'val'
+  '${guid(name)}': 'val'
 }
+
+var myEmptyObj = {}
 ```
 
 ### Null
 Null may be declared using the keyword `null`
 
 #### Examples
-```
+```bicep
 var myVar = null
 ```

@@ -183,7 +183,7 @@ var stringIndexOnNonObject = 'test'['test']
 //@[29:35) [BCP076 (Error)] Cannot index over expression of type "'test'". Arrays or objects are required. |'test'|
 var malformedStringIndex = {
 }['test\e']
-//@[7:9) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following characters can be escaped with a backslash: "\$", "\'", "\\", "\n", "\r", "\t". |\e|
+//@[7:9) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". |\e|
 var invalidIndexTypeOverAny = any(true)[true]
 //@[40:44) [BCP049 (Error)] The array index must be of type "string" or "int" but the provided index was of type "bool". |true|
 var badIndexOverArray = [][null]
@@ -454,3 +454,22 @@ var partialObject = {
   d  : %
 //@[7:8) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. |%|
 }
+
+// dangling decorators - to make sure the tests work, please do not add contents after this line
+@concat()
+@sys.secure()
+xxxxx
+//@[0:5) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. |xxxxx|
+
+
+@minLength()
+//@[0:12) [BCP132 (Error)] Expected a declaration after the decorator. |@minLength()|
+
+
+
+
+
+
+
+
+

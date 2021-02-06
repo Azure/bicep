@@ -157,6 +157,30 @@ module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
 //@[28:29) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
+//@[0:6) Identifier |module|
+//@[7:38) Identifier |unsupportedScopeManagementGroup|
+//@[39:70) StringComplete |'modules/managementGroup.bicep'|
+//@[71:72) Assignment |=|
+//@[73:74) LeftBrace |{|
+//@[74:75) NewLine |\n|
+  name: 'unsupportedScopeManagementGroup'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:41) StringComplete |'unsupportedScopeManagementGroup'|
+//@[41:42) NewLine |\n|
+  scope: managementGroup('MG')
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:24) Identifier |managementGroup|
+//@[24:25) LeftParen |(|
+//@[25:29) StringComplete |'MG'|
+//@[29:30) RightParen |)|
+//@[30:31) NewLine |\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:2) NewLine |\n|
 
 //@[0:0) EndOfFile ||

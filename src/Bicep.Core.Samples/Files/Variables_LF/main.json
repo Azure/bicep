@@ -164,7 +164,13 @@
       "tenant": "[createObject()]",
       "subscription": "[createObject()]",
       "resourceGroup": "[createObject()]"
-    }
+    },
+    "issue1332_propname": "ptest",
+    "issue1332": "[if(true(), createObject('prop1', createObject(variables('issue1332_propname'), createObject())), createObject())]",
+    "myBigInt": 2199023255552,
+    "myIntExpression": "[mul(5, 5)]",
+    "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
+    "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]"
   },
   "resources": []
 }

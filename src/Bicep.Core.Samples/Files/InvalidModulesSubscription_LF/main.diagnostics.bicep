@@ -38,3 +38,9 @@ module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
   scope: resourceGroup('RG')
 }
 
+module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
+  name: 'unsupportedScopeManagementGroup'
+  scope: managementGroup('MG')
+//@[9:30) [BCP115 (Error)] Unsupported scope for module deployment in a "subscription" target scope. Omit this property to inherit the current scope, or specify a valid scope. Permissible scopes include current subscription: subscription(), named subscription: subscription(<subId>), named resource group in same subscription: resourceGroup(<name>), named resource group in different subscription: resourceGroup(<subId>, <name>), or tenant: tenant(). |managementGroup('MG')|
+}
+
