@@ -124,6 +124,7 @@ namespace Bicep.Decompiler.BicepHelpers
             "equals" => CreateToken(TokenType.Equals, "=="),
             "and" => CreateToken(TokenType.LogicalAnd, "&&"),
             "or" => CreateToken(TokenType.LogicalOr, "||"),
+            "coalesce" => CreateToken(TokenType.DoubleQuestion, "??"),
             _ => null,
         };
 
