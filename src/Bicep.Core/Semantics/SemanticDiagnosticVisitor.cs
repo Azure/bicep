@@ -75,9 +75,9 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitLocalScopeSymbol(LocalScopeSymbol symbol)
+        public override void VisitLocalScope(LocalScope symbol)
         {
-            base.VisitLocalScopeSymbol(symbol);
+            base.VisitLocalScope(symbol);
             this.CollectDiagnostics(symbol);
         }
 

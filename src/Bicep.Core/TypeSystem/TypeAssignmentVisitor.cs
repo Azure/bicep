@@ -877,7 +877,7 @@ namespace Bicep.Core.TypeSystem
                     case VariableSymbol variable:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, variable));
 
-                    case LocalSymbol local:
+                    case LocalVariableSymbol local:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, local));
                     
                     case NamespaceSymbol @namespace:

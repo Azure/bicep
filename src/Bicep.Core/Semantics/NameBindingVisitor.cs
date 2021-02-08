@@ -24,19 +24,17 @@ namespace Bicep.Core.Semantics
 
         private readonly ImmutableDictionary<string, NamespaceSymbol> namespaces;
 
-        private readonly IReadOnlyDictionary<SyntaxBase, LocalScopeSymbol> localScopes;
+        private readonly IReadOnlyDictionary<SyntaxBase, LocalScope> allLocalScopes;
 
-        // list of active local scopes - we're using it like a stack but with the ability
-        // to peek at all the items that have been pushed already
-        private readonly IList<LocalScopeSymbol> activeScopes;
+        private readonly Stack<LocalScope> activeScopes;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces, ImmutableArray<LocalScopeSymbol> outermostScopes)
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces, ImmutableArray<LocalScope> localScopes)
         {
             this.declarations = declarations;
             this.bindings = bindings;
             this.namespaces = namespaces;
-            this.localScopes = ScopeCollectorVisitor.Build(outermostScopes);
-            this.activeScopes = new List<LocalScopeSymbol>();
+            this.allLocalScopes = ScopeCollectorVisitor.Build(localScopes);
+            this.activeScopes = new Stack<LocalScope>();
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -54,7 +52,7 @@ namespace Bicep.Core.Semantics
             // include all the locals in the symbol table as well
             // since we only allow lookups by object and not by name,
             // a flat symbol table should be sufficient
-            foreach (var declaredSymbol in localScopes.Values.SelectMany(scope => scope.DeclaredSymbols))
+            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.DeclaredSymbols))
             {
                 this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
             }
@@ -201,7 +199,7 @@ namespace Bicep.Core.Semantics
 
         public override void VisitForSyntax(ForSyntax syntax)
         {
-            if (!this.localScopes.TryGetValue(syntax, out var localScope))
+            if (!this.allLocalScopes.TryGetValue(syntax, out var localScope))
             {
                 // code defect in the declaration visitor
                 throw new InvalidOperationException($"Local scope is missing for {syntax.GetType().Name} at {syntax.Span}");
@@ -210,15 +208,15 @@ namespace Bicep.Core.Semantics
             // push it to the stack of active scopes
             // as a result this scope will be used to resolve symbols first
             // (then all the previous one and then finally the global scope)
-            this.activeScopes.Add(localScope);
+            this.activeScopes.Push(localScope);
 
             // visit all the children
             base.VisitForSyntax(syntax);
 
             // we are leaving the loop scope
             // pop the scope - no symbols will be resolved against it ever again
-            Debug.Assert(ReferenceEquals(this.activeScopes[^1], localScope), "ReferenceEquals(this.activeScopes[^1], localScope)");
-            this.activeScopes.RemoveAt(this.activeScopes.Count - 1);
+            var lastPopped = this.activeScopes.Pop();
+            Debug.Assert(ReferenceEquals(lastPopped, localScope), "ReferenceEquals(lastPopped, localScope)");
         }
 
         private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
@@ -232,14 +230,12 @@ namespace Bicep.Core.Semantics
                 return null;
             }
 
-            // loop iterates in reverse order
-            for (int depth = this.activeScopes.Count - 1; depth >= 0; depth--)
+            // iterating over a stack gives you the items in the same
+            // order as if you popped each one but without modifying the stack
+            foreach (var scope in activeScopes)
             {
                 // resolve symbol against current scope
-                // this has a side-effect of binding to the innermost symbol even if there exists 
-                // a symbol with duplicate name in one of the parent scopes
-                // the duplicate detection errors will be emitted by logic elsewhere
-                var scope = this.activeScopes[depth];
+                // this binds to the innermost symbol even if there exists one at the parent scope
                 var symbol = LookupLocalSymbolByName(scope, identifierSyntax);
                 if (symbol != null)
                 {
@@ -251,7 +247,7 @@ namespace Bicep.Core.Semantics
             return null;
         }
 
-        private static Symbol? LookupLocalSymbolByName(LocalScopeSymbol scope, IdentifierSyntax identifierSyntax) => 
+        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) => 
             // bind to first symbol matching the specified identifier
             // (errors about duplicate identifiers are emitted elsewhere)
             // loops currently are the only source of local symbols
@@ -298,18 +294,18 @@ namespace Bicep.Core.Semantics
         
         private class ScopeCollectorVisitor: SymbolVisitor
         {
-            private IDictionary<SyntaxBase, LocalScopeSymbol> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScopeSymbol>();
+            private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();
 
-            public override void VisitLocalScopeSymbol(LocalScopeSymbol symbol)
+            public override void VisitLocalScope(LocalScope symbol)
             {
                 this.ScopeMap.Add(symbol.EnclosingSyntax, symbol);
-                base.VisitLocalScopeSymbol(symbol);
+                base.VisitLocalScope(symbol);
             }
 
-            public static IReadOnlyDictionary<SyntaxBase, LocalScopeSymbol> Build(ImmutableArray<LocalScopeSymbol> outermostScopes)
+            public static IReadOnlyDictionary<SyntaxBase, LocalScope> Build(ImmutableArray<LocalScope> outermostScopes)
             {
                 var visitor = new ScopeCollectorVisitor();
-                foreach (LocalScopeSymbol outermostScope in outermostScopes)
+                foreach (LocalScope outermostScope in outermostScopes)
                 {
                     visitor.Visit(outermostScope);
                 }

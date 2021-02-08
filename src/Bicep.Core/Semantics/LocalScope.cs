@@ -11,9 +11,9 @@ namespace Bicep.Core.Semantics
     /// <summary>
     /// Represents a language scope that declares local symbols. (For example the item or index variables in loops are local symbols.)
     /// </summary>
-    public class LocalScopeSymbol : Symbol, ILanguageScope
+    public class LocalScope : Symbol, ILanguageScope
     {
-        public LocalScopeSymbol(string name, SyntaxBase enclosingSyntax, IEnumerable<DeclaredSymbol> declaredSymbols, IEnumerable<LocalScopeSymbol> childScopes)
+        public LocalScope(string name, SyntaxBase enclosingSyntax, IEnumerable<DeclaredSymbol> declaredSymbols, IEnumerable<LocalScope> childScopes)
             : base(name)
         {
             this.EnclosingSyntax = enclosingSyntax;
@@ -25,15 +25,15 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<DeclaredSymbol> DeclaredSymbols { get; }
 
-        public ImmutableArray<LocalScopeSymbol> ChildScopes { get; }
+        public ImmutableArray<LocalScope> ChildScopes { get; }
 
-        public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalScopeSymbol(this);
+        public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalScope(this);
 
         public override SymbolKind Kind => SymbolKind.Scope;
 
         public override IEnumerable<Symbol> Descendants => this.ChildScopes.Concat<Symbol>(this.DeclaredSymbols);
 
-        public LocalScopeSymbol AppendChild(LocalScopeSymbol newChild) => new(this.Name, this.EnclosingSyntax, this.DeclaredSymbols, this.ChildScopes.Append(newChild));
+        public LocalScope AppendChild(LocalScope newChild) => new(this.Name, this.EnclosingSyntax, this.DeclaredSymbols, this.ChildScopes.Append(newChild));
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.DeclaredSymbols.Where(symbol => symbol.NameSyntax.IsValid && string.Equals(symbol.Name, name, LanguageConstants.IdentifierComparison)).ToList();
 

@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
         public FileSymbol(string name,
             ProgramSyntax syntax,
             ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
-            IEnumerable<LocalScopeSymbol> outermostScopes,
+            IEnumerable<LocalScope> outermostScopes,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
-        public ImmutableArray<LocalScopeSymbol> LocalScopes { get; }
+        public ImmutableArray<LocalScope> LocalScopes { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
@@ -146,12 +146,12 @@ namespace Bicep.Core.Semantics
                 base.VisitInternal(node);
             }
 
-            public override void VisitLocalScopeSymbol(LocalScopeSymbol symbol)
+            public override void VisitLocalScope(LocalScope symbol)
             {
                 var localSymbols = symbol.DeclaredSymbols.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
                 this.activeScopes.Add(symbol);
 
-                base.VisitLocalScopeSymbol(symbol);
+                base.VisitLocalScope(symbol);
 
                 this.activeScopes.RemoveAt(this.activeScopes.Count - 1);
             }

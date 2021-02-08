@@ -61,12 +61,12 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitLocalScopeSymbol(LocalScopeSymbol symbol)
+        public virtual void VisitLocalScope(LocalScope symbol)
         {
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitLocalSymbol(LocalSymbol symbol)
+        public virtual void VisitLocalVariableSymbol(LocalVariableSymbol symbol)
         {
             VisitDescendants(symbol);
         }

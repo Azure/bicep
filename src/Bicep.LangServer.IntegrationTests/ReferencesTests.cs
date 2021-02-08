@@ -44,7 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalSymbol local || local.NameSyntax.IsValid));
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
             foreach (var (syntax, symbol) in filteredSymbolTable)
@@ -84,7 +84,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalSymbol local || local.NameSyntax.IsValid));
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
             foreach (var (syntax, symbol) in filteredSymbolTable)

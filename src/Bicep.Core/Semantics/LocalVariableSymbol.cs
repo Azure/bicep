@@ -7,14 +7,14 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class LocalSymbol : DeclaredSymbol
+    public class LocalVariableSymbol : DeclaredSymbol
     {
-        public LocalSymbol(ISymbolContext context, string name, LocalVariableSyntax declaringSyntax)
+        public LocalVariableSymbol(ISymbolContext context, string name, LocalVariableSyntax declaringSyntax)
             : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
         }
 
-        public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalSymbol(this);
+        public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalVariableSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Local;
     }

@@ -192,7 +192,7 @@ namespace Bicep.LangServer.IntegrationTests
                     hover.Contents.MarkupContent.Value.Should().Contain($"function {function.Name}(");
                     break;
 
-                case LocalSymbol local:
+                case LocalVariableSymbol local:
                     hover.Contents.MarkupContent.Value.Should().Contain($"{local.Name}: {local.Type}");
                     break;
 
