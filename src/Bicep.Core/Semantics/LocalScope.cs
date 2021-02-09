@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants => this.ChildScopes.Concat<Symbol>(this.Locals);
 
-        public LocalScope AppendChild(LocalScope newChild) => new(this.Name, this.EnclosingSyntax, this.Locals, this.ChildScopes.Append(newChild));
+        public LocalScope ReplaceChildren(IEnumerable<LocalScope> newChildren) => new(this.Name, this.EnclosingSyntax, this.Locals, newChildren);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.Locals.Where(symbol => symbol.NameSyntax.IsValid && string.Equals(symbol.Name, name, LanguageConstants.IdentifierComparison)).ToList();
         

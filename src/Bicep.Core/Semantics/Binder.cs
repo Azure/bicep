@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
             // TODO use lazy or some other pattern for init
             this.syntaxTree = syntaxTree;
             this.TargetScope = SyntaxHelper.GetTargetScope(syntaxTree);
-            var (allDeclarations, outermostScopes) = GetAllDeclarations(syntaxTree, symbolContext);
+            var (allDeclarations, outermostScopes) = DeclarationVisitor.GetAllDeclarations(syntaxTree, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(allDeclarations);
             var builtInNamespacs = GetBuiltInNamespaces(this.TargetScope);
             this.bindings = GetBindings(syntaxTree, uniqueDeclarations, builtInNamespacs, outermostScopes);
@@ -66,17 +66,6 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
-
-        private static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
-        {
-            // collect declarations
-            var declarations = new List<DeclaredSymbol>();
-            var childScopes = new List<LocalScope>();
-            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations, childScopes);
-            declarationVisitor.Visit(syntaxTree.ProgramSyntax);
-
-            return (declarations.ToImmutableArray(), childScopes.ToImmutableArray());
-        }
 
         private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> allDeclarations)
         {

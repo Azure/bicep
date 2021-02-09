@@ -2,26 +2,38 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class DeclarationVisitor: SyntaxVisitor
+    public sealed class DeclarationVisitor: SyntaxVisitor
     {
         private readonly ISymbolContext context;
 
         private readonly IList<DeclaredSymbol> declaredSymbols;
 
-        private readonly IList<LocalScope> childScopes;
+        private readonly IList<ScopeInfo> childScopes;
 
-        private readonly Stack<LocalScope> activeScopes = new();
+        private readonly Stack<ScopeInfo> activeScopes = new();
 
-        public DeclarationVisitor(ISymbolContext context, IList<DeclaredSymbol> declaredSymbols, IList<LocalScope> childScopes)
+        private DeclarationVisitor(ISymbolContext context, IList<DeclaredSymbol> declaredSymbols, IList<ScopeInfo> childScopes)
         {
             this.context = context;
             this.declaredSymbols = declaredSymbols;
             this.childScopes = childScopes;
+        }
+
+        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetAllDeclarations(SyntaxTree syntaxTree, ISymbolContext symbolContext)
+        {
+            // collect declarations
+            var declarations = new List<DeclaredSymbol>();
+            var childScopes = new List<ScopeInfo>();
+            var declarationVisitor = new DeclarationVisitor(symbolContext, declarations, childScopes);
+            declarationVisitor.Visit(syntaxTree.ProgramSyntax);
+
+            return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
         }
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -75,42 +87,57 @@ namespace Bicep.Core.Semantics
             // create new scope without any descendants
             var scope = new LocalScope(string.Empty, syntax, itemVariable.AsEnumerable(), ImmutableArray<LocalScope>.Empty);
 
-            // potentially swap out the top of the stack to append this child (unless we're just starting)
-            AppendChildScope(scope);
-
-            // push it
-            this.activeScopes.Push(scope);
+            this.PushScope(scope);
 
             // visit the children
             base.VisitForSyntax(syntax);
 
-            // remove from stack
-            var lastPopped = this.activeScopes.Pop();
-
-            if (this.activeScopes.Count <= 0)
-            {
-                // the stack is empty
-                // we must add this scope to the list of outermost scopes
-                // to keep the whole chain reachable
-                // (we also must use what was popped instead of what was pushed since it may have been replaced)
-                this.childScopes.Add(lastPopped);
-            }
+            this.PopScope();
         }
 
-        private void AppendChildScope(LocalScope newChildScope)
+        private void PushScope(LocalScope scope)
         {
-            if (this.activeScopes.Count <= 0)
+            var item = new ScopeInfo(scope);
+
+            if (this.activeScopes.TryPeek(out var current))
             {
-                // this is the outermost local scope - no descendants to append
-                return;
+                // add this one to the parent
+                current.Children.Add(item);
+            }
+            else
+            {
+                // add this to the root list
+                this.childScopes.Add(item);
+            }
+            
+            this.activeScopes.Push(item);
+        }
+
+        private void PopScope()
+        {
+            this.activeScopes.Pop();
+        }
+
+        private static LocalScope MakeImmutable(ScopeInfo info)
+        {
+            return info.Scope.ReplaceChildren(info.Children.Select(MakeImmutable));
+        }
+
+        /// <summary>
+        /// Allows us to mutate child scopes without having to swap out items on the stack
+        /// which is fragile.
+        /// </summary>
+        /// <remarks>This could be replaced with a record if we could target .net 5</remarks>
+        private class ScopeInfo
+        {
+            public ScopeInfo(LocalScope scope)
+            {
+                this.Scope = scope;
             }
 
-            // pop the parent and append the new child to it by replacing the object
-            var parent = this.activeScopes.Pop();
-            parent = parent.AppendChild(newChildScope);
+            public LocalScope Scope { get; }
 
-            // push the parent back
-            this.activeScopes.Push(parent);
+            public IList<ScopeInfo> Children { get; } = new List<ScopeInfo>();
         }
     }
 }
