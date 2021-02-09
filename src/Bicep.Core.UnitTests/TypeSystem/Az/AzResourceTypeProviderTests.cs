@@ -208,12 +208,7 @@ resource unexpectedPropertiesProperty 'Mock.Rp/mockType@2020-01-01' = {
             {
                 [resourceTypeReference.FormatName()] = mockTypeLocation,
             };
-            mockTypeLoader.Setup(x => x.GetIndexedTypes()).Returns(new Azure.Bicep.Types.Az.Index.IndexedTypes(
-                resourceTypes,
-                resourceTypes,
-                resourceTypes,
-                resourceTypes,
-                resourceTypes));
+            mockTypeLoader.Setup(x => x.GetIndexedTypes()).Returns(new Azure.Bicep.Types.Az.Index.TypeIndex(resourceTypes));
             mockTypeLoader.Setup(x => x.LoadResourceType(mockTypeLocation)).Returns(resourceType);
 
             return mockTypeLoader.Object;

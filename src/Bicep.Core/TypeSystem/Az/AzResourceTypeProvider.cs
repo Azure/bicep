@@ -24,24 +24,12 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static IReadOnlyDictionary<ResourceTypeReference, TypeLocation> GetAvailableResourceTypes(ITypeLoader typeLoader)
         {
-            var typeDict = new Dictionary<ResourceTypeReference, TypeLocation>(ResourceTypeReferenceComparer.Instance);
             var indexedTypes = typeLoader.GetIndexedTypes();
 
-            void ToResourceReferenceDictionary(IReadOnlyDictionary<string, TypeLocation> inputDict)
-            {
-                foreach (var (key, value) in inputDict)
-                {
-                    typeDict[ResourceTypeReference.Parse(key)] = value;
-                }
-            }
-
-            ToResourceReferenceDictionary(indexedTypes.Tenant);
-            ToResourceReferenceDictionary(indexedTypes.ManagementGroup);
-            ToResourceReferenceDictionary(indexedTypes.Subscription);
-            ToResourceReferenceDictionary(indexedTypes.ResourceGroup);
-            ToResourceReferenceDictionary(indexedTypes.Extension);
-
-            return typeDict;
+            return indexedTypes.Types.ToDictionary(
+                kvp => ResourceTypeReference.Parse(kvp.Key),
+                kvp => kvp.Value,
+                ResourceTypeReferenceComparer.Instance);
         }
 
         public AzResourceTypeProvider(ITypeLoader typeLoader)
