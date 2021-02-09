@@ -55,11 +55,14 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("Unbound declaration");
             }
 
+            // Resource ancestors are always dependencies.
+            var ancestors = this.model.ResourceAncestors.GetAncestors(resourceSymbol);
+
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resourceSymbol;
-            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>();
+            this.resourceDependencies[resourceSymbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a, null)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration

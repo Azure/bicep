@@ -128,6 +128,12 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitPropertyAccessSyntax(syntax);
         }
 
+        public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
+        {
+            AddTokenType(syntax.ResourceName, SemanticTokenType.Property);
+            base.VisitResourceAccessSyntax(syntax);
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

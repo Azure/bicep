@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -78,6 +80,9 @@ namespace Bicep.Core.TypeSystem
                 case PropertyAccessSyntax propertyAccess:
                     return GetPropertyAccessType(propertyAccess);
 
+                case ResourceAccessSyntax resourceAccess:
+                    return GetResourceAccessType(resourceAccess);
+
                 case ArrayAccessSyntax arrayAccess:
                     return GetArrayAccessType(arrayAccess);
 
@@ -114,7 +119,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
-            var declaredResourceType = syntax.GetDeclaredType(this.resourceTypeProvider);
+            var declaredResourceType = syntax.GetDeclaredType(this.binder, this.resourceTypeProvider);
 
             // if the value is a loop (not a condition or object), the type is an array of the declared resource type
             return new DeclaredTypeAssignment(
@@ -144,10 +149,6 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
-            // references to symbols can be involved in cycles
-            // we should not try to obtain the declared type for such symbols because we will likely never finish
-            bool IsCycleFree(DeclaredSymbol declaredSymbol) => this.binder.TryGetCycle(declaredSymbol) is null;
-
             // because all variable access nodes are normally bound to something, this should always return true
             // (if not, the following code handles that gracefully)
             var symbol = this.binder.GetSymbolInfo(syntax);
@@ -187,11 +188,50 @@ namespace Bicep.Core.TypeSystem
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
             
             // it's ok to rely on useSyntax=true because those types have already been established
+
+            var body = baseExpressionAssignment?.DeclaringSyntax switch
+            {
+                ResourceDeclarationSyntax resourceDeclarationSyntax => resourceDeclarationSyntax.TryGetBody(),
+                _ => baseExpressionAssignment?.DeclaringSyntax as ObjectSyntax,
+            };
             return GetObjectPropertyType(
                 baseExpressionAssignment?.Reference.Type,
-                baseExpressionAssignment?.DeclaringSyntax as ObjectSyntax,
+                body,
                 syntax.PropertyName.IdentifierName,
                 useSyntax: true);
+        }
+
+        private DeclaredTypeAssignment? GetResourceAccessType(ResourceAccessSyntax syntax)
+        {
+            if (!syntax.ResourceName.IsValid)
+            {
+                return null;
+            }
+
+            // We should already have a symbol, use its type.
+            var symbol = this.binder.GetSymbolInfo(syntax);
+            if (symbol == null)
+            {
+                throw new InvalidOperationException("ResourceAccessSyntax was not assigned a symbol during name binding.");
+            }
+
+            if (symbol is ErrorSymbol error)
+            {
+                return new DeclaredTypeAssignment(ErrorType.Create(error.GetDiagnostics()), syntax);
+            }
+            else if (symbol is not ResourceSymbol resourceSymbol)
+            {
+                var baseType = GetDeclaredType(syntax.BaseExpression);
+                var typeString = baseType?.Kind.ToString() ?? LanguageConstants.ErrorName;
+                return new DeclaredTypeAssignment(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.ResourceName).ResourceRequiredForResourceAccess(typeString)), syntax);
+            }
+            else if (IsCycleFree(resourceSymbol))
+            {
+                // cycle: bail
+            }
+
+            // This is a valid nested resource. Return its type.
+            return this.GetDeclaredTypeAssignment(((ResourceSymbol)symbol).DeclaringResource.Value);
         }
 
         
@@ -543,5 +583,9 @@ namespace Bicep.Core.TypeSystem
             // return the match if we have it
             return matchingObjectType?.Type;
         }
+
+        // references to symbols can be involved in cycles
+        // we should not try to obtain the declared type for such symbols because we will likely never finish
+        private bool IsCycleFree(DeclaredSymbol declaredSymbol) => this.binder.TryGetCycle(declaredSymbol) is null;
     }
 }

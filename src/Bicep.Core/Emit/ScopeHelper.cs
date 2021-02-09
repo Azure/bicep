@@ -354,7 +354,7 @@ namespace Bicep.Core.Emit
 
             var scopeInfo = new Dictionary<ResourceSymbol, ScopeData>();
 
-            foreach (var resourceSymbol in semanticModel.Root.ResourceDeclarations)
+            foreach (var resourceSymbol in semanticModel.Root.GetAllResourceDeclarations())
             {
                 var resourceType = GetResourceType(resourceSymbol);
                 if (resourceType is null)

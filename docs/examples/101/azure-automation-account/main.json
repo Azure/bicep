@@ -29,8 +29,8 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-03-01-preview",
-      "location": "[parameters('location')]",
       "name": "[variables('workspaceName')]",
+      "location": "[parameters('location')]",
       "properties": {
         "sku": {
           "name": "[parameters('sku')]"
@@ -41,8 +41,8 @@
     {
       "type": "Microsoft.Automation/automationAccounts",
       "apiVersion": "2015-10-31",
-      "location": "[parameters('location')]",
       "name": "[variables('automationaccountName')]",
+      "location": "[parameters('location')]",
       "properties": {
         "sku": {
           "name": "Basic"
@@ -73,7 +73,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17352343791615047991"
+      "templateHash": "12561374295951696718"
     }
   }
 }

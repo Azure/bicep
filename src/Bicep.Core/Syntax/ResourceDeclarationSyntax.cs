@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
@@ -59,7 +60,7 @@ namespace Bicep.Core.Syntax
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
         /// <param name="resourceTypeProvider">resource type provider</param>
-        public TypeSymbol GetDeclaredType(IResourceTypeProvider resourceTypeProvider)
+        public TypeSymbol GetDeclaredType(IBinder binder, IResourceTypeProvider resourceTypeProvider)
         {
             var stringSyntax = this.TypeString;
 
@@ -76,10 +77,78 @@ namespace Bicep.Core.Syntax
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
             }
 
-            var typeReference = ResourceTypeReference.TryParse(stringContent);
-            if (typeReference == null)
+            // Before we parse the type name we need to determine if it's a top level resource or not.
+            ResourceTypeReference? typeReference;
+            var ancestors = binder.GetAllAncestors<ResourceDeclarationSyntax>(this);
+            if (ancestors.Length == 0)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
+                // This is a top level resource - the type is a fully-qualified type.
+                typeReference = ResourceTypeReference.TryParse(stringContent);
+                if (typeReference == null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceType());
+                }
+            }
+            else
+            {
+                // This is a nested resource, the type name is a compound of all of the ancestor
+                // type names.
+                //
+                // Ex: 'My.Rp/someType@2020-01-01' -> 'someChild' -> 'someGrandchild'
+
+                // The top-most resource must have a qualified type name.
+                var baseTypeStringContent = ancestors[0].TypeString?.TryGetLiteralValue();
+                if (baseTypeStringContent == null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[0].Name.IdentifierName));
+                }
+
+                var baseTypeReference = ResourceTypeReference.TryParse(baseTypeStringContent);
+                if (baseTypeReference == null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[0].Name.IdentifierName));
+                }
+
+                // Collect each other ancestor resource's type.
+                var typeSegments = new List<string>();
+                for (var i = 1; i < ancestors.Length; i++)
+                {
+                    var typeSegmentStringContent = ancestors[i].TypeString?.TryGetLiteralValue();
+                    if (typeSegmentStringContent == null)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[i].Name.IdentifierName));
+                    }
+
+                    typeSegments.Add(typeSegmentStringContent);
+                }
+
+                // Add *this* resource's type
+                typeSegments.Add(stringContent);
+
+                // If this fails, let's walk through and find the root cause. This could be confusing
+                // for people seeing it the first time.
+                typeReference = ResourceTypeReference.TryCombine(baseTypeReference, typeSegments);
+                if (typeReference == null)
+                {
+                    // We'll special case the last one since it refers to *this* resource. We don't
+                    // want to cascade a bunch of noisy errors for parents, they get their own errors.
+                    for (var j = 0; j < typeSegments.Count - 1; j++)
+                    {
+                        if (!ResourceTypeReference.TryParseSingleTypeSegment(typeSegments[j], out _, out _))
+                        {
+                            return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidAncestorResourceType(ancestors[j+1].Name.IdentifierName));
+                        }
+                    }
+
+                    if (!ResourceTypeReference.TryParseSingleTypeSegment(stringContent, out _, out _))
+                    {
+                        // OK this resource is the one that's wrong.
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidResourceTypeSegment(stringContent));
+                    }
+
+                    // Something went wrong, this should be unreachable.
+                    throw new InvalidOperationException("Failed to find the root cause of an invalid compound resource type.");
+                }
             }
 
             return resourceTypeProvider.GetType(typeReference, IsExistingResource());

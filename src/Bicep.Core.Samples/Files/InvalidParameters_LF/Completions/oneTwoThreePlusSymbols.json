@@ -1435,7 +1435,10 @@
     "textEdit": {
       "range": {},
       "newText": "sampleResource"
-    }
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "sampleVar",

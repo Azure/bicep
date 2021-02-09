@@ -79,6 +79,7 @@ namespace Bicep.Core.Emit
                 case FunctionCallSyntax _:
                 case ArrayAccessSyntax _:
                 case PropertyAccessSyntax _:
+                case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                     EmitLanguageExpression(syntax);
                     
@@ -115,6 +116,11 @@ namespace Bicep.Core.Emit
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
+        }
+
+        public LanguageExpression GetResourceNameExpression(ResourceSymbol resourceSymbol)
+        {
+            return converter.GetResourceNameExpression(resourceSymbol);
         }
 
         public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)

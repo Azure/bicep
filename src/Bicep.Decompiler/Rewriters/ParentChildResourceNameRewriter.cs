@@ -41,7 +41,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResourceSymbol in semanticModel.Root.ResourceDeclarations)
+            foreach (var otherResourceSymbol in semanticModel.Root.GetAllResourceDeclarations())
             {
                 if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
                     otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||

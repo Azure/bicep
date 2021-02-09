@@ -10,6 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Diagnostics
@@ -879,6 +880,31 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP155",
                 $"The decorator \"{decoratorName}\" can only be attached to resource or module collections.");
+       
+            public ErrorDiagnostic InvalidResourceTypeSegment(string typeSegment) => new(
+                TextSpan,
+                "BCP156",
+                $"The resource type segment \"{typeSegment}\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\".");
+
+            public ErrorDiagnostic InvalidAncestorResourceType(string resourceName) => new(
+                TextSpan,
+                "BCP157",
+                $"The resource type cannot be determined due to an error in containing resource \"{resourceName}\".");
+
+            public ErrorDiagnostic ResourceRequiredForResourceAccess(string wrongType) => new(
+                TextSpan,
+                "BCP158",
+                $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
+
+            public ErrorDiagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => new(
+                TextSpan,
+                "BCP159",
+                $"The resource \"{resourceName}\" does not contain a nested resource named \"{identifierName}\". Known nested resources are: {ToQuotedString(nestedResourceNames)}.");
+
+            public ErrorDiagnostic NestedResourceNotAllowedInLoop() => new(
+                TextSpan,
+                "BCP160",
+                $"A nested resource cannot appear inside of a resource with a for-expression.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

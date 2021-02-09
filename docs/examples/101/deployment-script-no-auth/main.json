@@ -20,8 +20,8 @@
     {
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2020-10-01",
-      "kind": "AzurePowerShell",
       "name": "[parameters('dsName')]",
+      "kind": "AzurePowerShell",
       "location": "[parameters('location')]",
       "properties": {
         "azPowerShellVersion": "3.0",
@@ -41,7 +41,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9459865245622089966"
+      "templateHash": "5388873385114824013"
     }
   }
 }
