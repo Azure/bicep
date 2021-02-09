@@ -44,7 +44,7 @@ namespace Bicep.Core.TypeSystem
             new BinaryOperatorInfo(BinaryOperator.Divide, LanguageConstants.Int, LanguageConstants.Int),
             new BinaryOperatorInfo(BinaryOperator.Modulo, LanguageConstants.Int, LanguageConstants.Int),
 
-            //coalessce
+            //coalesce
             new BinaryOperatorInfo(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any)            
         }.ToLookup(info => info.Operator);
 

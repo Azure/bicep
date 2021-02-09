@@ -15,6 +15,7 @@ The operators below are listed in descending order of precedence (the higher the
 | `&&` | Logical AND | Left to right |
 | `\|\|` | Logical OR | Left to right |
 | `?` `:` | Conditional expression (ternary) | Right to left
+| `??` | Coalesce | Left to right
 
 ## Unary operators
 Unary operators operate on a single operand. Bicep supports the following unary operators:
@@ -48,6 +49,7 @@ Binary operators operate on a pair of operands. Bicep supports the following bin
 | `!~` | Equals (case-insensitive) | `string` `string` | `bool` | `[not(equals(toLower(<value1>),toLower(<value2>)))]` | Less than |
 | `&&` | Logical AND | `bool` *n | `bool` | `[and(<value1>, ...)]` | Returns true if all values are true |
 | `\|\|` | Logical OR | `bool` *n | `bool` | `[or(<value1>, ...)]` | Returns true if any value is true |
+| `??` | Coalesce | `any` *n | `any` | `[coalesce(<value1>, ...)]` | Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null. |
 
 ## Ternary operator
 Ternary operators operate on 3 operands. Bicep supports only one such operator.
