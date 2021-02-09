@@ -118,7 +118,8 @@ namespace Bicep.LanguageServer
             {
                 AddTokenType(syntax.Key, SemanticTokenType.Member);
             }
-            base.VisitObjectPropertySyntax(syntax);
+            Visit(syntax.Colon);
+            Visit(syntax.Value);
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax)
