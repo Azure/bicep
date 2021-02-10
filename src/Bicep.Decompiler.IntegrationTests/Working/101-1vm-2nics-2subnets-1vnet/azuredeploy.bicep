@@ -1,16 +1,20 @@
 @description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
 param virtualMachineSize string = 'Standard_DS1_v2'
+
 @description('Default Admin username')
 param adminUsername string
+
 @description('Default Admin password')
 @secure()
 param adminPassword string
+
 @allowed([
   'Standard_LRS'
   'Premium_LRS'
 ])
 @description('Storage Account type for the VM and VM diagnostic storage')
 param storageAccountType string = 'Standard_LRS'
+
 @description('Location for all resources.')
 param location string = resourceGroup().location
 

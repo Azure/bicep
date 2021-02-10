@@ -577,6 +577,11 @@ namespace Bicep.Decompiler
                 decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
             }
 
+            // If there are decorators, insert a NewLine token at the beginning to make it more readable.
+            var leadingNodes = decoratorsAndNewLines.Count > 0
+                ? SyntaxFactory.NewlineToken.AsEnumerable().Concat(decoratorsAndNewLines)
+                : decoratorsAndNewLines;
+
             SyntaxBase? modifier = TryParseJToken(value.Value?["defaultValue"]) is SyntaxBase defaultValue
                 ? new ParameterDefaultValueSyntax(SyntaxFactory.CreateToken(TokenType.Assignment, "="), defaultValue)
                 : null;
@@ -584,7 +589,7 @@ namespace Bicep.Decompiler
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
             return new ParameterDeclarationSyntax(
-                decoratorsAndNewLines,
+                leadingNodes,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "param"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 typeSyntax,

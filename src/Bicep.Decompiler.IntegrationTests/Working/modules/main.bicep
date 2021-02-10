@@ -1,4 +1,5 @@
 param location string = resourceGroup().location
+
 @description('Base URL for the reference templates and scripts')
 param baseUrl string = 'https://my.base/url'
 

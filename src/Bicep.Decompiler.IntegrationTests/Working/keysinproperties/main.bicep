@@ -4,13 +4,17 @@
 ])
 @description('Storage account type')
 param storageAccountType string = 'Standard_LRS'
+
 @description('Name of file share to be created')
 param fileShareName string = 'sftpfileshare'
+
 @description('Username to use for SFTP access')
 param sftpUser string
+
 @description('Password to use for SFTP access')
 @secure()
 param sftpPassword string
+
 @description('Primary location for resources')
 param location string = resourceGroup().location
 
