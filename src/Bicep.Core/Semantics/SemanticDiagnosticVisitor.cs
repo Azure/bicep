@@ -75,6 +75,12 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitLocalScope(LocalScope symbol)
+        {
+            base.VisitLocalScope(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         protected void CollectDiagnostics(Symbol symbol)
         {
             diagnosticWriter.WriteMultiple(symbol.GetDiagnostics());

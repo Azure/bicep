@@ -680,10 +680,10 @@ namespace Bicep.Core.Diagnostics
                 "An empty indexer is not allowed. Specify a valid expression."
             );
 
-            public ErrorDiagnostic ExpectBodyStartOrIf() => new(
+            public ErrorDiagnostic ExpectBodyStartOrIfOrLoopStart() => new(
                 TextSpan,
                 "BCP118",
-                "Expected the \"{\" character or the \"if\" keyword at this location.");
+                "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location.");
 
             public Diagnostic InvalidExtensionResourceScope() => new(
                 TextSpan,
@@ -778,6 +778,21 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Error,
                 "BCP135",
                 $"Scope {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(suppliedScope))} is not valid for this resource type. Permitted scopes: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(supportedScopes))}.");
+
+            public ErrorDiagnostic ExpectedLoopVariableIdentifier() => new(
+                TextSpan,
+                "BCP136",
+                "Expected a loop variable identifier at this location.");
+
+            public ErrorDiagnostic LoopArrayExpressionTypeMismatch(TypeSymbol actualType) => new(
+                TextSpan,
+                "BCP137",
+                $"Loop expected an expression of type \"{LanguageConstants.Array}\" but the provided value is of type \"{actualType}\".");
+
+            public ErrorDiagnostic LoopsNotSupported() => new(
+                TextSpan,
+                "BCP138",
+                "Loops are not currently supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

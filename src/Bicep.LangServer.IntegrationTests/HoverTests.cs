@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -11,6 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
@@ -37,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri, resourceTypeProvider: new AzResourceTypeProvider(new TypeLoader()));
 
             // construct a parallel compilation
             var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _);
@@ -49,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
-                    if (node is ISymbolReference || node is INamedDeclarationSyntax)
+                    if (node is ISymbolReference || node is ITopLevelNamedDeclarationSyntax)
                     {
                         accumulated.Add(node);
                     }
@@ -60,7 +62,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (SyntaxBase symbolReference in symbolReferences)
             {
-                var syntaxPosition = symbolReference is IDeclarationSyntax declaration
+                var syntaxPosition = symbolReference is ITopLevelDeclarationSyntax declaration
                     ? declaration.Keyword.Span.Position
                     : symbolReference.Span.Position;
 
@@ -110,7 +112,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverNonHoverableElementsShouldProduceEmptyHovers(DataSet dataSet)
         {
             // local function
-            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
+            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);
@@ -188,6 +190,10 @@ namespace Bicep.LangServer.IntegrationTests
 
                 case FunctionSymbol function:
                     hover.Contents.MarkupContent.Value.Should().Contain($"function {function.Name}(");
+                    break;
+
+                case LocalVariableSymbol local:
+                    hover.Contents.MarkupContent.Value.Should().Contain($"{local.Name}: {local.Type}");
                     break;
 
                 default:

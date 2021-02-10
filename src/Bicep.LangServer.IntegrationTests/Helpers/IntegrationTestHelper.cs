@@ -121,7 +121,7 @@ namespace Bicep.LangServer.IntegrationTests
                 return PositionHelper.GetPosition(lineStarts, instanceFunctionCall.Name.Span.Position);
             }
 
-            if (syntax is IDeclarationSyntax declaration)
+            if (syntax is ITopLevelDeclarationSyntax declaration)
             {
                 return PositionHelper.GetPosition(lineStarts, declaration.Keyword.Span.Position);
             }

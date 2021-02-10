@@ -3,16 +3,20 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class FileSymbol : Symbol
+    public class FileSymbol : Symbol, ILanguageScope
     {
+        private readonly ILookup<string, DeclaredSymbol> declarationsByName;
+
         public FileSymbol(string name,
             ProgramSyntax syntax,
             ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
+            IEnumerable<LocalScope> outermostScopes,
             IEnumerable<ParameterSymbol> parameterDeclarations,
             IEnumerable<VariableSymbol> variableDeclarations,
             IEnumerable<ResourceSymbol> resourceDeclarations,
@@ -22,15 +26,20 @@ namespace Bicep.Core.Semantics
         {
             this.Syntax = syntax;
             this.ImportedNamespaces = importedNamespaces;
+            this.LocalScopes = outermostScopes.ToImmutableArray();
+
             this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
             this.VariableDeclarations = variableDeclarations.ToImmutableArray();
             this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
             this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
             this.OutputDeclarations = outputDeclarations.ToImmutableArray();
+
+            this.declarationsByName = this.AllDeclarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
-            .Concat<Symbol>(this.ParameterDeclarations)
+            .Concat<Symbol>(this.LocalScopes)
+            .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
@@ -42,6 +51,8 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
+        public ImmutableArray<LocalScope> LocalScopes { get; }
+
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
         public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
@@ -52,6 +63,9 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
         
+        /// <summary>
+        /// Returns all the top-level declaration symbols.
+        /// </summary>
         public IEnumerable<DeclaredSymbol> AllDeclarations => this.Descendants.OfType<DeclaredSymbol>();
 
         public override void Accept(SymbolVisitor visitor)
@@ -59,34 +73,57 @@ namespace Bicep.Core.Semantics
             visitor.VisitFileSymbol(this);
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
-        {
-            // only consider declarations with valid identifiers
-            var duplicateSymbols = this.AllDeclarations
-                .Where(decl => decl.NameSyntax.IsValid)
-                .GroupBy(decl => decl.Name)
-                .Where(group => group.Count() > 1);
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
-            foreach (IGrouping<string, DeclaredSymbol> group in duplicateSymbols)
+        public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
+
+        private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
+        {
+            private readonly ImmutableDictionary<string, NamespaceSymbol> importedNamespaces;
+
+            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, NamespaceSymbol> importedNamespaces)
             {
-                foreach (DeclaredSymbol duplicatedSymbol in group)
-                {
-                    yield return this.CreateError(duplicatedSymbol.NameSyntax, b => b.IdentifierMultipleDeclarations(duplicatedSymbol.Name));
-                }
+                this.importedNamespaces = importedNamespaces;
             }
 
-            var namespaceKeys = this.ImportedNamespaces.Keys;
-            var reservedSymbols = this.AllDeclarations
-                .Where(decl => decl.NameSyntax.IsValid)
-                .Where(decl => namespaceKeys.Contains(decl.Name));
-
-            foreach (DeclaredSymbol reservedSymbol in reservedSymbols)
+            public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
             {
-                yield return this.CreateError(
-                    reservedSymbol.NameSyntax, 
-                    b => b.SymbolicNameCannotUseReservedNamespaceName(
-                        reservedSymbol.Name,
-                        namespaceKeys));
+                var visitor = new DuplicateIdentifierValidatorVisitor(file.ImportedNamespaces);
+                visitor.Visit(file);
+
+                return visitor.Diagnostics;
+            }
+
+            private IList<ErrorDiagnostic> Diagnostics { get; } = new List<ErrorDiagnostic>();
+
+            protected override void VisitInternal(Symbol node)
+            {
+                if (node is ILanguageScope scope)
+                {
+                    ValidateScope(scope);
+                }
+
+                base.VisitInternal(node);
+            }
+
+            private void ValidateScope(ILanguageScope scope)
+            {
+                // collect duplicate identifiers at this scope
+                // declaring a variable in a local scope hides the parent scope variables,
+                // so we don't need to look at other levels
+                this.Diagnostics.AddRange(scope.AllDeclarations
+                    .Where(decl => decl.NameSyntax.IsValid)
+                    .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
+                    .Where(group => group.Count() > 1)
+                    .SelectMany(group => group)
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
+
+                // imported namespaces are reserved in all the scopes
+                // otherwise the user could accidentally hide a namespace which would remove the ability
+                // to fully qualify a function
+                this.Diagnostics.AddRange(scope.AllDeclarations
+                    .Where(decl => decl.NameSyntax.IsValid && this.importedNamespaces.ContainsKey(decl.Name))
+                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.importedNamespaces.Keys)));
             }
         }
     }

@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
@@ -21,11 +24,17 @@ namespace Bicep.Core.Semantics
 
         private readonly ImmutableDictionary<string, NamespaceSymbol> namespaces;
 
-        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces)
+        private readonly IReadOnlyDictionary<SyntaxBase, LocalScope> allLocalScopes;
+
+        private readonly Stack<LocalScope> activeScopes;
+
+        public NameBindingVisitor(IReadOnlyDictionary<string, DeclaredSymbol> declarations, IDictionary<SyntaxBase, Symbol> bindings, ImmutableDictionary<string, NamespaceSymbol> namespaces, ImmutableArray<LocalScope> localScopes)
         {
             this.declarations = declarations;
             this.bindings = bindings;
             this.namespaces = namespaces;
+            this.allLocalScopes = ScopeCollectorVisitor.Build(localScopes);
+            this.activeScopes = new Stack<LocalScope>();
         }
 
         public override void VisitProgramSyntax(ProgramSyntax syntax)
@@ -36,6 +45,14 @@ namespace Bicep.Core.Semantics
             // this is needed to make find all references work correctly
             // (doing this here to avoid side-effects in the constructor)
             foreach (DeclaredSymbol declaredSymbol in this.declarations.Values)
+            {
+                this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
+            }
+
+            // include all the locals in the symbol table as well
+            // since we only allow lookups by object and not by name,
+            // a flat symbol table should be sufficient
+            foreach (var declaredSymbol in allLocalScopes.Values.SelectMany(scope => scope.AllDeclarations))
             {
                 this.bindings.Add(declaredSymbol.DeclaringSyntax, declaredSymbol);
             }
@@ -180,7 +197,65 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
+        public override void VisitForSyntax(ForSyntax syntax)
+        {
+            if (!this.allLocalScopes.TryGetValue(syntax, out var localScope))
+            {
+                // code defect in the declaration visitor
+                throw new InvalidOperationException($"Local scope is missing for {syntax.GetType().Name} at {syntax.Span}");
+            }
+
+            // push it to the stack of active scopes
+            // as a result this scope will be used to resolve symbols first
+            // (then all the previous one and then finally the global scope)
+            this.activeScopes.Push(localScope);
+
+            // visit all the children
+            base.VisitForSyntax(syntax);
+
+            // we are leaving the loop scope
+            // pop the scope - no symbols will be resolved against it ever again
+            var lastPopped = this.activeScopes.Pop();
+            Debug.Assert(ReferenceEquals(lastPopped, localScope), "ReferenceEquals(lastPopped, localScope)");
+        }
+
+        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
+            this.LookupLocalSymbolByName(identifierSyntax, isFunctionCall) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
+
+        private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
+        {
+            if (isFunctionCall)
+            {
+                // functions can't be local symbols
+                return null;
+            }
+
+            // iterating over a stack gives you the items in the same
+            // order as if you popped each one but without modifying the stack
+            foreach (var scope in activeScopes)
+            {
+                // resolve symbol against current scope
+                // this binds to the innermost symbol even if there exists one at the parent scope
+                var symbol = LookupLocalSymbolByName(scope, identifierSyntax);
+                if (symbol != null)
+                {
+                    // found a symbol - return it
+                    return symbol;
+                }
+            }
+
+            return null;
+        }
+
+        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) => 
+            // bind to first symbol matching the specified identifier
+            // (errors about duplicate identifiers are emitted elsewhere)
+            // loops currently are the only source of local symbols
+            // as a result a local scope can contain between 1 to 2 local symbols
+            // linear search should be fine, but this should be revisited if the above is no longer holds true
+            scope.AllDeclarations.FirstOrDefault(symbol => string.Equals(identifierSyntax.IdentifierName, symbol.Name, LanguageConstants.IdentifierComparison));
+
+        private Symbol LookupGlobalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {
             // attempt to find name in the imported namespaces
             if (this.namespaces.TryGetValue(identifierSyntax.IdentifierName, out var namespaceSymbol))
@@ -193,10 +268,10 @@ namespace Bicep.Core.Semantics
             // There might be instances where a variable declaration for example uses the same name as one of the imported
             // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
             // the former case must have an empty namespace value whereas the latter will have a namespace value.
-            if (this.declarations.TryGetValue(identifierSyntax.IdentifierName, out var localSymbol))
+            if (this.declarations.TryGetValue(identifierSyntax.IdentifierName, out var globalSymbol))
             {
-                // we found the symbol in the local namespace
-                return localSymbol;
+                // we found the symbol in the global namespace
+                return globalSymbol;
             }
 
             // attempt to find function in all imported namespaces
@@ -213,10 +288,30 @@ namespace Bicep.Core.Semantics
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, this.namespaces.Keys));
             }
 
-            var foundSymbol = foundSymbols.FirstOrDefault();
-            return isFunctionCall ?
-                SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaces.Values) :
-                SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaces.Values, declarations.Keys);
+            var foundSymbol = Enumerable.FirstOrDefault(foundSymbols);
+            return isFunctionCall ? SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaces.Values) : SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaces.Values, declarations.Keys);
+        }
+        
+        private class ScopeCollectorVisitor: SymbolVisitor
+        {
+            private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();
+
+            public override void VisitLocalScope(LocalScope symbol)
+            {
+                this.ScopeMap.Add(symbol.EnclosingSyntax, symbol);
+                base.VisitLocalScope(symbol);
+            }
+
+            public static IReadOnlyDictionary<SyntaxBase, LocalScope> Build(ImmutableArray<LocalScope> outermostScopes)
+            {
+                var visitor = new ScopeCollectorVisitor();
+                foreach (LocalScope outermostScope in outermostScopes)
+                {
+                    visitor.Visit(outermostScope);
+                }
+
+                return visitor.ScopeMap.AsReadOnly();
+            }
         }
     }
 }

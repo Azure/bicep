@@ -9,7 +9,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
-    public class TargetScopeSyntax : StatementSyntax, IDeclarationSyntax
+    public class TargetScopeSyntax : StatementSyntax, ITopLevelDeclarationSyntax
     {
         public TargetScopeSyntax(Token keyword, SyntaxBase assignment, SyntaxBase value)
             : base(ImmutableArray<SyntaxBase>.Empty)

@@ -366,6 +366,7 @@ param paramMixedTwoCycle2 string {
 // wrong types of "variable"/identifier access
 var sampleVar = 'sample'
 resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+//@[24:55) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02" does not have types available. |'Microsoft.Foo/foos@2020-02-02'|
   name: 'foo'
 }
 output sampleOutput string = 'hello'
