@@ -545,6 +545,19 @@ namespace Bicep.Decompiler
                 if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
                 {
                     var functionName = parameterPropertyName == "allowedValues" ? "allowed" : parameterPropertyName;
+
+                    if (parameterPropertyName == "metadata" &&
+                        expression is ObjectSyntax metadataObject &&
+                        metadataObject.Properties.Any() &&
+                        !metadataObject.Properties.Skip(1).Any() &&
+                        metadataObject.Properties.Single() is ObjectPropertySyntax metadataProperty &&
+                        metadataProperty.TryGetKeyText() == "description")
+                    {
+                        // Replace metadata decorator with description decorator if the metadata object only contains description.
+                        functionName = "description";
+                        expression = metadataProperty.Value;
+                    }
+
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(functionName, expression.AsEnumerable()));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                 }

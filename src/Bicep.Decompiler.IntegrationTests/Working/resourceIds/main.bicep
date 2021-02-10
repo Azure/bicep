@@ -1,6 +1,4 @@
-@metadata({
-  description: 'Location for all resources.'
-})
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var fooName = 'Foo!'

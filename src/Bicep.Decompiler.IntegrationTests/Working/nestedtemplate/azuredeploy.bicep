@@ -1,41 +1,27 @@
-@metadata({
-  description: 'Region where you resources are located'
-})
+@description('Region where you resources are located')
 param location string = resourceGroup().location
-@metadata({
-  description: 'Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>'
-})
+@description('Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>')
 param NetworkWatcherName string = 'NetworkWatcher_${location}'
-@metadata({
-  description: 'Chosen name of your Flow log resource'
-})
+@description('Chosen name of your Flow log resource')
 param FlowLogName string = 'FlowLog1'
-@metadata({
-  description: 'Resource ID of the target NSG'
-})
+@description('Resource ID of the target NSG')
 param existingNSG string
 @minValue(0)
 @maxValue(365)
-@metadata({
-  description: 'Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365'
-})
+@description('Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365')
 param RetentionDays int = 0
 @allowed([
   '1'
   '2'
 ])
-@metadata({
-  description: 'FlowLogs Version. Correct values are 1 or 2 (default)'
-})
+@description('FlowLogs Version. Correct values are 1 or 2 (default)')
 param FlowLogsversion string = '2'
 @allowed([
   'Standard_LRS'
   'Standard_GRS'
   'Standard_ZRS'
 ])
-@metadata({
-  description: 'Storage Account type'
-})
+@description('Storage Account type')
 param storageAccountType string = 'Standard_LRS'
 
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'

@@ -1,27 +1,17 @@
-@metadata({
-  description: 'Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)'
-})
+@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
 param virtualMachineSize string = 'Standard_DS1_v2'
-@metadata({
-  description: 'Default Admin username'
-})
+@description('Default Admin username')
 param adminUsername string
-@metadata({
-  description: 'Default Admin password'
-})
+@description('Default Admin password')
 @secure()
 param adminPassword string
 @allowed([
   'Standard_LRS'
   'Premium_LRS'
 ])
-@metadata({
-  description: 'Storage Account type for the VM and VM diagnostic storage'
-})
+@description('Storage Account type for the VM and VM diagnostic storage')
 param storageAccountType string = 'Standard_LRS'
-@metadata({
-  description: 'Location for all resources.'
-})
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var virtualMachineName_var = 'VM-MultiNic'

@@ -2,26 +2,16 @@
   'Standard_LRS'
   'Standard_GRS'
 ])
-@metadata({
-  description: 'Storage account type'
-})
+@description('Storage account type')
 param storageAccountType string = 'Standard_LRS'
-@metadata({
-  description: 'Name of file share to be created'
-})
+@description('Name of file share to be created')
 param fileShareName string = 'sftpfileshare'
-@metadata({
-  description: 'Username to use for SFTP access'
-})
+@description('Username to use for SFTP access')
 param sftpUser string
-@metadata({
-  description: 'Password to use for SFTP access'
-})
+@description('Password to use for SFTP access')
 @secure()
 param sftpPassword string
-@metadata({
-  description: 'Primary location for resources'
-})
+@description('Primary location for resources')
 param location string = resourceGroup().location
 
 var scriptName_var = 'createFileShare'
