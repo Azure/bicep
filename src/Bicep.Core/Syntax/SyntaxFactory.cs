@@ -105,6 +105,26 @@ namespace Bicep.Core.Syntax
             return CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{");
         }
 
+        public static FunctionCallSyntax CreateFunctionCall(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        {
+            var arguments = argumentExpressions.Any()
+                ? argumentExpressions.SkipLast(1)
+                    .Select(expression => new FunctionArgumentSyntax(expression, CreateToken(TokenType.Comma, ",")))
+                    .Append(new FunctionArgumentSyntax(argumentExpressions.Last(), null))
+                : Enumerable.Empty<FunctionArgumentSyntax>();
+
+            return new FunctionCallSyntax(
+                CreateIdentifier(functionName),
+                CreateToken(TokenType.LeftParen, "("),
+                arguments,
+                CreateToken(TokenType.RightParen, ")"));
+        }
+
+        public static DecoratorSyntax CreateDecorator(string functionName, IEnumerable<SyntaxBase> argumentExpressions)
+        {
+            return new DecoratorSyntax(CreateToken(TokenType.At, "@"), CreateFunctionCall(functionName, argumentExpressions));
+        }
+
         private static string EscapeBicepString(string value)
             => value
             .Replace("\\", "\\\\") // must do this first!

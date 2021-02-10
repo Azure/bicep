@@ -1,10 +1,8 @@
 param location string = resourceGroup().location
-param baseUrl string {
-  metadata: {
-    description: 'Base URL for the reference templates and scripts'
-  }
-  default: 'https://my.base/url'
-}
+@metadata({
+  description: 'Base URL for the reference templates and scripts'
+})
+param baseUrl string = 'https://my.base/url'
 
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'

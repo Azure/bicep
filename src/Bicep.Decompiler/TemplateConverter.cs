@@ -538,61 +538,42 @@ namespace Bicep.Decompiler
 
         public ParameterDeclarationSyntax ParseParam(JProperty value)
         {
-            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
+            var decoratorsAndNewLines = new List<SyntaxBase>();
 
-            var defaultValue = TryParseJToken(value.Value?["defaultValue"]);
-            var objProperties = new Dictionary<string, SyntaxBase?>
+            foreach (var parameterPropertyName in new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues", "metadata" })
             {
-                ["allowed"] = TryParseJToken(value.Value?["allowedValues"]),
-                ["minValue"] = TryParseJToken(value.Value?["minValue"]),
-                ["maxValue"] = TryParseJToken(value.Value?["maxValue"]),
-                ["minLength"] = TryParseJToken(value.Value?["minLength"]),
-                ["maxLength"] = TryParseJToken(value.Value?["maxLength"]),
-                ["metadata"] = TryParseJToken(value.Value?["metadata"]),
-            };
+                if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
+                {
+                    var functionName = parameterPropertyName == "allowedValues" ? "allowed" : parameterPropertyName;
+                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(functionName, expression.AsEnumerable()));
+                    decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
+                }
+            }
+
+            var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
 
             if (typeSyntax.TypeName == "securestring")
             {
                 typeSyntax = new TypeSyntax(SyntaxHelpers.CreateToken(TokenType.Identifier, "string"));
-                objProperties["secure"] = new BooleanLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.TrueKeyword, "true"), true);
+                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure", Enumerable.Empty<SyntaxBase>()));
+                decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
             }
 
             if (typeSyntax.TypeName == "secureobject")
             {
                 typeSyntax = new TypeSyntax(SyntaxHelpers.CreateToken(TokenType.Identifier, "object"));
-                objProperties["secure"] = new BooleanLiteralSyntax(SyntaxHelpers.CreateToken(TokenType.TrueKeyword, "true"), true);
+                decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator("secure", Enumerable.Empty<SyntaxBase>()));
+                decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
             }
 
-            SyntaxBase? modifier = null;
-            if (objProperties.Any(x => x.Value != null))
-            {
-                objProperties["default"] = defaultValue;
-                var nonNullProperties = new List<ObjectPropertySyntax>();
-
-                foreach (var (key, propValue) in objProperties)
-                {
-                    if (propValue is null)
-                    {
-                        continue;
-                    }
-
-                    nonNullProperties.Add(SyntaxHelpers.CreateObjectProperty(key, propValue));
-                }
-
-                modifier = SyntaxHelpers.CreateObject(nonNullProperties);
-            }
-            else if (defaultValue != null)
-            {
-                modifier = new ParameterDefaultValueSyntax(
-                    SyntaxHelpers.CreateToken(TokenType.Assignment, "="),
-                    defaultValue);
-            }
+            SyntaxBase? modifier = TryParseJToken(value.Value?["defaultValue"]) is SyntaxBase defaultValue
+                ? new ParameterDefaultValueSyntax(SyntaxHelpers.CreateToken(TokenType.Assignment, "="), defaultValue)
+                : null;
 
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
             return new ParameterDeclarationSyntax(
-                // TODO: add support to parameter decorators.
-                Enumerable.Empty<SyntaxBase>(),
+                decoratorsAndNewLines,
                 SyntaxHelpers.CreateToken(TokenType.Identifier, "param"),
                 SyntaxHelpers.CreateIdentifier(identifier),
                 typeSyntax,
