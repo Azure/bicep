@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
             }
-            
+
             return Task.FromResult(new CompletionList(completions, isIncomplete: false));
         }
 
@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
             DocumentSelector = DocumentSelectorFactory.Create(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
-            TriggerCharacters = new Container<string>(":", " ", ".", "/")
+            TriggerCharacters = new Container<string>(":", " ", ".", "/", "'")
         };
     }
 }

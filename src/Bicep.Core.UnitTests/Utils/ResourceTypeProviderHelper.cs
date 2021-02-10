@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var typeLoader = new Mock<ITypeLoader>();
-            typeLoader.Setup(x => x.GetIndexedTypes()).Returns(new IndexedTypes(typeDict, typeDict, typeDict, typeDict, typeDict));
+            typeLoader.Setup(x => x.GetIndexedTypes()).Returns(new TypeIndex(typeDict));
             typeLoader.Setup(x => x.LoadResourceType(It.IsAny<TypeLocation>())).Returns<TypeLocation>(typeLocation => resourceDict[typeLocation]);
 
             return new AzResourceTypeProvider(typeLoader.Object);

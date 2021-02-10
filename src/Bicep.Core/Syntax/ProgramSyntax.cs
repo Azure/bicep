@@ -30,6 +30,6 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(new TextSpan(0, 0), this.EndOfFile);
 
         // TODO: Should we have a DeclarationSyntax abstract class?
-        public IEnumerable<SyntaxBase> Declarations => this.Children.Where(c => c is INamedDeclarationSyntax);
+        public IEnumerable<SyntaxBase> Declarations => this.Children.Where(c => c is ITopLevelNamedDeclarationSyntax);
     }
 }

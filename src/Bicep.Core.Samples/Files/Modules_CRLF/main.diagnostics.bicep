@@ -51,6 +51,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 }
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+//@[29:62) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. |'Mock.Rp/mockResource@2020-01-01'|
   name: 'harry'
   properties: {
     modADep: modATest.outputs.stringOutputA
@@ -93,6 +94,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 }
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+//@[43:76) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. |'Mock.Rp/mockResource@2020-01-01'|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   properties: {
     modADep: moduleWithCalculatedName.outputs.outputObj

@@ -89,7 +89,7 @@ namespace Bicep.LangServer.UnitTests
                 var parser = new Parser(replaced);
                 var declaration = parser.Declaration();
 
-                declaration.Should().BeAssignableTo<INamedDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
+                declaration.Should().BeAssignableTo<ITopLevelNamedDeclarationSyntax>($"because the snippet for '{detail}' failed to parse after replacements:\n{replaced}");
             }
         }
 

@@ -352,6 +352,10 @@
         "description": "201/policy-definition-with-assignment"
     },
     {
+        "filePath": "201/portal-dashboard-with-appinsights/main.bicep",
+        "description": "201/portal-dashboard-with-appinsights"
+    },
+    {
         "filePath": "201/policy-with-initiative-definition-and-assignment/main.bicep",
         "description": "201/policy-with-initiative-definition-and-assignment"
     },
