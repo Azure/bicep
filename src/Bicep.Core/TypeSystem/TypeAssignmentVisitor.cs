@@ -211,7 +211,6 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Value is ForSyntax)
                 {
-                    // TODO: Narrowing doesn't work
                     return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
                 }
 
@@ -242,7 +241,6 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Value is ForSyntax)
                 {
-                    // TODO: Narrowing doesn't work
                     return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, syntax.Value, new TypedArrayType(declaredType, TypeSymbolValidationFlags.Default), diagnostics);
                 }
                 
