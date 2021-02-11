@@ -61,40 +61,34 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamedObjectType("environment", TypeSymbolValidationFlags.Default, new []
             {
-                new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("gallery", LanguageConstants.String),
-                new TypeProperty("graph", LanguageConstants.String),
-                new TypeProperty("portal", LanguageConstants.String),
-                new TypeProperty("graphAudience", LanguageConstants.String),
                 new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
-                new TypeProperty("batch", LanguageConstants.String),
-                new TypeProperty("media", LanguageConstants.String),
-                new TypeProperty("sqlManagement", LanguageConstants.String),
-                new TypeProperty("vmImageAliasDoc", LanguageConstants.String),
-                new TypeProperty("resourceManager", LanguageConstants.String),
                 new TypeProperty("authentication", new NamedObjectType("authentication", TypeSymbolValidationFlags.Default, new []
                 {
-                    new TypeProperty("loginEndpoint", LanguageConstants.String),
                     new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
-                    new TypeProperty("tenant", LanguageConstants.String),
                     new TypeProperty("identityProvider", LanguageConstants.String),
+                    new TypeProperty("loginEndpoint", LanguageConstants.String),
+                    new TypeProperty("tenant", LanguageConstants.String),
                 }, null)),
+                new TypeProperty("batch", LanguageConstants.String),
+                new TypeProperty("gallery", LanguageConstants.String),
+                new TypeProperty("graph", LanguageConstants.String),
+                new TypeProperty("graphAudience", LanguageConstants.String),
+                new TypeProperty("media", LanguageConstants.String),
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("portal", LanguageConstants.String),
+                new TypeProperty("resourceManager", LanguageConstants.String),
+                new TypeProperty("sqlManagement", LanguageConstants.String),
                 new TypeProperty("suffixes", new NamedObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("acrLoginServer", LanguageConstants.String),
                     new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
                     new TypeProperty("azureDatalakeStoreFileSystem", LanguageConstants.String),
+                    new TypeProperty("azureFrontDoorEndpointSuffix", LanguageConstants.String),
                     new TypeProperty("keyvaultDns", LanguageConstants.String),
                     new TypeProperty("sqlServerHostname", LanguageConstants.String),
                     new TypeProperty("storage", LanguageConstants.String),
                 }, null)),
-                new TypeProperty("locations", new TypedArrayType(new NamedObjectType("locations", TypeSymbolValidationFlags.Default, new []
-                {
-                    new  TypeProperty("id", LanguageConstants.String),
-                    new  TypeProperty("name", LanguageConstants.String),
-                    new  TypeProperty("displayName", LanguageConstants.String),
-                    new  TypeProperty("longitude", LanguageConstants.String),
-                }, null), TypeSymbolValidationFlags.Default)),
+                new TypeProperty("vmImageAliasDoc", LanguageConstants.String),
             }, null);
         }
 
