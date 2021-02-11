@@ -9,6 +9,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -16,7 +17,7 @@ namespace Bicep.Core.Emit
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateWriter
     {
-        public const string NestedDeploymentResourceType = "Microsoft.Resources/deployments";
+        public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string NestedDeploymentResourceApiVersion = "2019-10-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications

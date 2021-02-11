@@ -14,7 +14,7 @@ resource spokerg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 
 module hubVNET 'modules/vnet.bicep' = {
   name: 'hub-vnet'
-  scope: resourceGroup(hubrg.name)
+  scope: hubrg
   params: {
     prefix: 'hub'
     addressSpaces: [
@@ -33,7 +33,7 @@ module hubVNET 'modules/vnet.bicep' = {
 
 module spokeVNET 'modules/vnet.bicep' = {
   name: 'spoke-vnet'
-  scope: resourceGroup(spokerg.name)
+  scope: spokerg
   params: {
     prefix: 'spoke'
     addressSpaces: [
@@ -56,7 +56,7 @@ module spokeVNET 'modules/vnet.bicep' = {
 
 module Hubfwl 'modules/fwl.bicep' = {
   name: 'hub-fwl'
-  scope: resourceGroup(hubrg.name)
+  scope: hubrg
   params: {
     prefix: 'hub'
     hubId: hubVNET.outputs.id
@@ -65,7 +65,7 @@ module Hubfwl 'modules/fwl.bicep' = {
 
 module HubToSpokePeering 'modules/peering.bicep' = {
   name: 'hub-to-spoke-peering'
-  scope: resourceGroup(hubrg.name)
+  scope: hubrg
   params: {
     localVnetName: hubVNET.outputs.name
     remoteVnetName: 'spoke'
@@ -75,7 +75,7 @@ module HubToSpokePeering 'modules/peering.bicep' = {
 
 module SpokeToHubPeering 'modules/peering.bicep' = {
   name: 'spoke-to-hub-peering'
-  scope: resourceGroup(spokerg.name)
+  scope: spokerg
   params: {
     localVnetName: spokeVNET.outputs.name
     remoteVnetName: 'hub'
@@ -85,7 +85,7 @@ module SpokeToHubPeering 'modules/peering.bicep' = {
 
 module route 'modules/rot.bicep' = {
   name: 'spoke-rot'
-  scope: resourceGroup(spokerg.name)
+  scope: spokerg
   params: {
     prefix: 'spoke'
     azFwlIp: Hubfwl.outputs.privateIp

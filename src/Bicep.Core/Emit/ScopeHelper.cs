@@ -94,6 +94,28 @@ namespace Bicep.Core.Emit
                         _ => new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = type.Arguments[0].Expression, ResourceGroupProperty = type.Arguments[1].Expression },
                     };
                 case {} when scopeSymbol is ResourceSymbol targetResourceSymbol:
+                    if (targetResourceSymbol.Type is ResourceType resourceType && 
+                        StringComparer.OrdinalIgnoreCase.Equals(resourceType.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
+                    {
+                        // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
+                        var rgScopeProperty = targetResourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceScopePropertyName);
+                        var rgNameProperty = targetResourceSymbol.SafeGetBodyProperty(LanguageConstants.ResourceNamePropertyName);
+
+                        // ignore diagnostics - these will be collected separately in the pass over resources
+                        var hasErrors = false;
+                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, resourceType.ValidParentScopes, targetResourceSymbol.DeclaringResource.Value, rgScopeProperty);
+                        if (rgNameProperty is not null && !hasErrors)
+                        {
+                            if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
+                            {
+                                logInvalidScopeFunc(scopeProperty.Value, ResourceScope.ResourceGroup, supportedScopes);
+                                return null;
+                            }
+
+                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = rgNameProperty.Value };
+                        }
+                    }
+
                     if (!supportedScopes.HasFlag(ResourceScope.Resource))
                     {
                         logInvalidScopeFunc(scopeProperty.Value, ResourceScope.Resource, supportedScopes);
