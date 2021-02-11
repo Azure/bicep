@@ -580,5 +580,74 @@ output prop1 string = foo.properties.prop1
                 template!.SelectToken("$.outputs['prop1'].value")!.Should().DeepEqual("[reference(resourceId('Microsoft.foo/bar', 'name'), '2020-01-01').prop1]");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue822()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  location: 'eastus'
+  name: 'rg'
+}
+
+module vnetmodule './vnet.bicep' = {
+  scope: myRg
+  name: 'vnet'
+  params: {
+    location: 'eastus'
+    name: 'myVnet'
+  }
+}
+"),
+                ("vnet.bicep", @"
+param location string
+param name string
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().BeNull();
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].dependsOn[0]")!.Should().DeepEqual("[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'rg')]");
+            }
+        }
+
+        [TestMethod]
+        public void Test_Issue822_scoped()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource myRg 'Microsoft.Resources/resourceGroups@2020-06-01' existing = {
+  scope: subscription('abcdef')
+  name: 'rg'
+}
+
+module vnetmodule './vnet.bicep' = {
+  scope: myRg
+  name: 'vnet'
+  params: {
+    location: 'eastus'
+    name: 'myVnet'
+  }
+}
+"),
+                ("vnet.bicep", @"
+param location string
+param name string
+"));
+
+            diags.Should().BeEmpty();
+            template!.Should().NotBeNull();
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].subscriptionId")!.Should().DeepEqual("abcdef");
+                template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
+            }
+        }
     }
 }

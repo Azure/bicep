@@ -49,7 +49,7 @@ resource rdmon 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //Create WVD backplane objects and configure Log Analytics Diagnostics Settings
 module wvdbackplane './wvd-backplane-module.bicep' = {
   name: 'wvdbackplane'
-  scope: resourceGroup(rgwvd.name)
+  scope: rgwvd
   params: {
     hostpoolName: hostpoolName
     hostpoolFriendlyName: hostpoolFriendlyName
@@ -71,7 +71,7 @@ module wvdbackplane './wvd-backplane-module.bicep' = {
 //Create WVD Netwerk and Subnet
 module wvdnetwork './wvd-network-module.bicep' = {
   name: 'wvdnetwork'
-  scope: resourceGroup(rgnetw.name)
+  scope: rgnetw
   params: {
     vnetName: vnetName
     vnetaddressPrefix: vnetaddressPrefix
@@ -84,7 +84,7 @@ module wvdnetwork './wvd-network-module.bicep' = {
 //Create WVD Azure File Services and FileShare`
 module wvdFileServices './wvd-fileservices-module.bicep' = {
   name: 'wvdFileServices'
-  scope: resourceGroup(rgfs.name)
+  scope: rgfs
   params: {
     storageaccountlocation: storageaccountlocation
     storageaccountName: storageaccountName
