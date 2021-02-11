@@ -1,31 +1,68 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Cli.CommandLine.Arguments
 {
     public class BuildArguments : ArgumentsBase
     {
-        private static bool IsStdOutArgument(string argument)
-            => StringComparer.OrdinalIgnoreCase.Equals(argument, CliConstants.ArgumentStdOut);
-
-        public BuildArguments(IEnumerable<string> arguments)
+        public BuildArguments(string[] args)
         {
-            this.OutputToStdOut = arguments.Where(IsStdOutArgument).Any();
-            this.Files = arguments.Where(f => !IsStdOutArgument(f)).ToImmutableArray();
-
-            if (this.Files.Any() == false)
+            for (var i = 0; i < args.Length; i++)
             {
-                throw new CommandLineException($"At least one file must be specified to the {CliConstants.CommandBuild} command.");
+                switch (args[i].ToLowerInvariant()) {
+                    case "--stdout":
+                        this.OutputToStdOut = true;
+                        break;
+                    case "--outdir":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --outdir parameter expects an argument");
+                        }
+                        if (this.OutputDir is not null)
+                        {
+                            throw new CommandLineException($"The --outdir parameter cannot be specified twice");
+                        }
+                        this.OutputDir = args[i + 1];
+                        i++;
+                        break;
+                    case "--outfile":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --outfile parameter expects an argument");
+                        }
+                        if (this.OutputFile is not null)
+                        {
+                            throw new CommandLineException($"The --outfile parameter cannot be specified twice");
+                        }
+                        this.OutputFile = args[i + 1];
+                        i++;
+                        break;
+                    default:
+                        if (args[i].StartsWith("--"))
+                        {
+                            throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+                        }
+                        if (this.InputFile is not null)
+                        {
+                            throw new CommandLineException($"The input file path cannot be specified multiple times");
+                        }
+                        this.InputFile = args[i];
+                        break;
+                }
+            }
+
+            if (this.InputFile is null)
+            {
+                throw new CommandLineException($"The input file path was not specified");
             }
         }
 
-        public ImmutableArray<string> Files { get; }
+        public bool OutputToStdOut { get; }
 
-        public bool OutputToStdOut {private set; get;}
+        public string InputFile { get; }
+
+        public string? OutputDir { get; }
+
+        public string? OutputFile { get; }
     }
 }
-
