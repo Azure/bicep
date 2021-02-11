@@ -85,5 +85,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', split(format('{0}/AzureBastionSubnet', parameters('virtualNetworkName')), '/')[0], split(format('{0}/AzureBastionSubnet', parameters('virtualNetworkName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "11696126123344925606"
+    }
+  }
 }

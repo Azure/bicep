@@ -193,5 +193,12 @@
         "[resourceId('Microsoft.AppPlatform/Spring/apps/deployments', split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[0], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[1], split(format('{0}/default', format('{0}/{1}', parameters('serviceName'), parameters('app3Name'))), '/')[2])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "14759156622575656183"
+    }
+  }
 }

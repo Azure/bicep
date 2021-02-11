@@ -623,5 +623,12 @@
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'bicep-workload-rg')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "18043701378732240581"
+    }
+  }
 }

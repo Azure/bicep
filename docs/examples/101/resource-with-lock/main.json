@@ -30,5 +30,12 @@
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "14205076670878621403"
+    }
+  }
 }

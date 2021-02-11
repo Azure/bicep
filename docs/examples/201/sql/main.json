@@ -68,5 +68,12 @@
         "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[0], split(format('{0}/{1}', variables('sqlServerName'), variables('databaseName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "4978883899655991889"
+    }
+  }
 }

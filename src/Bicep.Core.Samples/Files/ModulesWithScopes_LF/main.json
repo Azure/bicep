@@ -963,5 +963,12 @@
       "type": "string",
       "value": "[reference(subscriptionResourceId('ee44cd78-68c6-43d9-874e-e684ec8d1191', 'Microsoft.Resources/deployments', 'mySubscriptionMod'), '2019-10-01').outputs.myOutput.value]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "7322445446323901995"
+    }
   }
 }

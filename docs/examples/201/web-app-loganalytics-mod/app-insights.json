@@ -39,5 +39,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "1005119578152255349"
+    }
   }
 }

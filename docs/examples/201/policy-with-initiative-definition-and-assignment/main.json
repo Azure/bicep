@@ -109,5 +109,12 @@
         "[subscriptionResourceId('Microsoft.Authorization/policySetDefinitions', variables('initiativeDefinitionName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "15501174728161383871"
+    }
+  }
 }

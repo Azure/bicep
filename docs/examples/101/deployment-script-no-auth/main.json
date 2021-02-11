@@ -36,5 +36,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', parameters('dsName'))).outputs.test]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "13454062667440618497"
+    }
   }
 }

@@ -214,5 +214,12 @@
       "type": "array",
       "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "1236858557633496101"
+    }
   }
 }

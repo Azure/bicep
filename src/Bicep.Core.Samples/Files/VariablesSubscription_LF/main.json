@@ -5,5 +5,12 @@
   "variables": {
     "deploymentLocation": "[deployment().location]"
   },
-  "resources": []
+  "resources": [],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "15657310928943967911"
+    }
+  }
 }

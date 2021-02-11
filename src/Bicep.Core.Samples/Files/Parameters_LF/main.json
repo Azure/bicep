@@ -256,5 +256,12 @@
     }
   },
   "functions": [],
-  "resources": []
+  "resources": [],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "2516781327042626637"
+    }
+  }
 }

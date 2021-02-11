@@ -197,5 +197,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "4973153964233911848"
+    }
+  }
 }

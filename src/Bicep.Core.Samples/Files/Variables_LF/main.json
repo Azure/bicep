@@ -171,5 +171,12 @@
     "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
     "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]"
   },
-  "resources": []
+  "resources": [],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "17059716310146078589"
+    }
+  }
 }

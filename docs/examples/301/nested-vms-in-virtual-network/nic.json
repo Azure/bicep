@@ -68,5 +68,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "15333069192402795484"
+    }
   }
 }

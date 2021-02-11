@@ -90,5 +90,12 @@
         "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "968483568279777198"
+    }
+  }
 }

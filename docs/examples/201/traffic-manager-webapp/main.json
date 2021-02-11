@@ -75,5 +75,12 @@
         "[resourceId('Microsoft.Web/sites', parameters('uniqueDnsNameForWebApp'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "13670117152655996904"
+    }
+  }
 }

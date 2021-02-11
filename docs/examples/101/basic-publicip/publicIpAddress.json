@@ -37,5 +37,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "5716811585102203346"
+    }
   }
 }

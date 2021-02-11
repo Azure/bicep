@@ -54,5 +54,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "68166320157292635"
+    }
   }
 }

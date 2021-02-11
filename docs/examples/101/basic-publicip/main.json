@@ -75,5 +75,12 @@
       "type": "string",
       "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "1055370769576989448"
+    }
   }
 }

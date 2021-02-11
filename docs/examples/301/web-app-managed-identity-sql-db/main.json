@@ -174,5 +174,12 @@
         "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "9505604999025743141"
+    }
+  }
 }

@@ -91,5 +91,12 @@
         "[resourceId('Microsoft.Network/localNetworkGateways', parameters('localnetworkgwname'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "902772585276686597"
+    }
+  }
 }

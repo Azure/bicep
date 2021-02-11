@@ -627,5 +627,12 @@
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}FILESERVICES', parameters('resourceGroupPrefrix')))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "5402074644296560561"
+    }
+  }
 }

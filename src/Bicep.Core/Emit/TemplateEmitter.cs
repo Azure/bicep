@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
@@ -14,6 +15,8 @@ namespace Bicep.Core.Emit
     {
         private readonly SemanticModel model;
 
+        private string? templateHash;
+
         /// <summary>
         /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.
         /// </summary>
@@ -22,6 +25,17 @@ namespace Bicep.Core.Emit
         public TemplateEmitter(SemanticModel model)
         {
             this.model = model;
+        }
+
+        private void CalculateTemplateHash()
+        {
+            using MemoryStream memoryStream = new();
+            using (var streamWriter = new StreamWriter(memoryStream, UTF8EncodingWithoutBom))
+            using (var writer = new JsonTextWriter(streamWriter))
+            {
+                new TemplateWriter(writer, this.model).Write(true, null);
+            }
+            this.templateHash = TemplateHashExtensions.ComputeTemplateHash(UTF8EncodingWithoutBom.GetString(memoryStream.ToArray()));
         }
 
         /// <summary>
@@ -35,7 +49,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(writer, this.model).Write();
+            new TemplateWriter(writer, this.model).Write(true, this.templateHash);
         });
 
         /// <summary>
@@ -49,7 +63,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(writer, this.model).Write();
+            new TemplateWriter(writer, this.model).Write(true, this.templateHash);
         });
 
         /// <summary>
@@ -58,7 +72,7 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new TemplateWriter(writer, this.model).Write();
+            new TemplateWriter(writer, this.model).Write(true, this.templateHash);
         });
 
         private EmitResult EmitOrFail(Action write)
@@ -70,7 +84,8 @@ namespace Bicep.Core.Emit
             {
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
-
+            
+            this.CalculateTemplateHash();
             write();
 
             return new EmitResult(EmitStatus.Succeeded, diagnostics);

@@ -79,5 +79,12 @@
         "[resourceId('Microsoft.ServiceBus/namespaces/queues', split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[0], split(format('{0}/{1}', parameters('serviceBusNamespaceName'), parameters('serviceBusQueueName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "7383903588538394351"
+    }
+  }
 }

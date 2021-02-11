@@ -42,5 +42,12 @@
         "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', guid(variables('roleName')))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "13785019161324221951"
+    }
+  }
 }

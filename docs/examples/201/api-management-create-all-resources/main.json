@@ -373,5 +373,12 @@
         "[resourceId('Microsoft.ApiManagement/service', variables('apiManagementServiceName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "13996460128256959685"
+    }
+  }
 }

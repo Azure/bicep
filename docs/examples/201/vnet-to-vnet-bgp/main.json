@@ -239,5 +239,12 @@
         "[resourceId('Microsoft.Network/virtualNetworkGateways', variables('vnet2cfg').gatewayName)]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "13057998243513093877"
+    }
+  }
 }

@@ -49,5 +49,12 @@
         "type": "SystemAssigned"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "9346219636260608456"
+    }
+  }
 }

@@ -74,5 +74,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', split(variables('endPointName'), '/')[0], split(variables('endPointName'), '/')[1])).originHostHeader]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "15960801535443799463"
+    }
   }
 }

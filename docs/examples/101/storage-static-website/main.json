@@ -101,5 +101,12 @@
       "type": "string",
       "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))).primaryEndpoints.web, 'https://', ''), '/', '')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "2308239298244853728"
+    }
   }
 }

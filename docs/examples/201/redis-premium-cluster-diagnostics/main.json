@@ -60,5 +60,12 @@
         "[resourceId('Microsoft.Cache/Redis', parameters('redisCacheName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "3208265045990165327"
+    }
+  }
 }

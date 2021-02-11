@@ -311,5 +311,12 @@
       "type": "string",
       "value": "Microsoft.Web/sites"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "9154301823236837158"
+    }
   }
 }

@@ -190,5 +190,12 @@
       "type": "string",
       "value": "[variables('functionNameComputed')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "2789504253224301601"
+    }
   }
 }

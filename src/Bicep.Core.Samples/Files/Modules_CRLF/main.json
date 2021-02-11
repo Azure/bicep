@@ -602,5 +602,12 @@
       "type": "object",
       "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', format('{0}{1}', reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency'), '2019-10-01').outputs.name, parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "10529533450356446052"
+    }
   }
 }

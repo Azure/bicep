@@ -43,5 +43,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "7847190100015841865"
+    }
   }
 }

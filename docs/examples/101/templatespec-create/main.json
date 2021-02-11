@@ -67,5 +67,12 @@
         "[resourceId('Microsoft.Resources/templateSpecs', parameters('templateSpecName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "15103616311868105458"
+    }
+  }
 }

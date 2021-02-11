@@ -41,5 +41,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/virtualWans', parameters('wanname'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "9808605326766230010"
+    }
   }
 }

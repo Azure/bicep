@@ -91,5 +91,12 @@
         "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "8092257107101941324"
+    }
+  }
 }

@@ -161,5 +161,12 @@
       "type": "object",
       "value": "[reference(resourceId('Microsoft.KeyVault/vaults/keys', split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[0], split(format('{0}/{1}', parameters('vaultName'), parameters('keyName')), '/')[1]), '2019-09-01', 'full')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "141837066716926904"
+    }
   }
 }

@@ -60,5 +60,12 @@
       "type": "int",
       "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).bgpSettings.asn]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "16179063149814672727"
+    }
   }
 }

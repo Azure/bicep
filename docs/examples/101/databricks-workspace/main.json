@@ -41,5 +41,12 @@
       "type": "object",
       "value": "[reference(resourceId('Microsoft.Databricks/workspaces', parameters('workspaceName')), '2018-04-01', 'full')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "4076722592414083786"
+    }
   }
 }

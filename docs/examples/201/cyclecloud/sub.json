@@ -9,5 +9,12 @@
       "name": "rg-bicep",
       "location": "uksouth"
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "18344539665240199789"
+    }
+  }
 }

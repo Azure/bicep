@@ -68,5 +68,12 @@
         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "16870137213063802149"
+    }
+  }
 }

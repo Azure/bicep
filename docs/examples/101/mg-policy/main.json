@@ -53,5 +53,12 @@
         "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinition'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "Bicep.Core",
+      "version": "0.2.416.20928",
+      "templateHash": "6926470756271130136"
+    }
+  }
 }
