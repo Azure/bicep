@@ -88,7 +88,6 @@ var templateLinkId = deployment().properties.templateLink.id
 
 var portalEndpoint = environment().portal
 var loginEndpoint = environment().authentication.loginEndpoint
-var firstLocation = environment().locations[0].displayName
 
 var namedPropertyIndexer = {
   foo: 's'

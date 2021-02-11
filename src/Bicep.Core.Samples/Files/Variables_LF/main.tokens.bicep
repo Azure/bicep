@@ -485,22 +485,7 @@ var loginEndpoint = environment().authentication.loginEndpoint
 //@[34:48) Identifier |authentication|
 //@[48:49) Dot |.|
 //@[49:62) Identifier |loginEndpoint|
-//@[62:63) NewLine |\n|
-var firstLocation = environment().locations[0].displayName
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |firstLocation|
-//@[18:19) Assignment |=|
-//@[20:31) Identifier |environment|
-//@[31:32) LeftParen |(|
-//@[32:33) RightParen |)|
-//@[33:34) Dot |.|
-//@[34:43) Identifier |locations|
-//@[43:44) LeftSquare |[|
-//@[44:45) Integer |0|
-//@[45:46) RightSquare |]|
-//@[46:47) Dot |.|
-//@[47:58) Identifier |displayName|
-//@[58:60) NewLine |\n\n|
+//@[62:64) NewLine |\n\n|
 
 var namedPropertyIndexer = {
 //@[0:3) Identifier |var|

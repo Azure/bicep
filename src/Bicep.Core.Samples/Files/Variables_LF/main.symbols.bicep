@@ -122,8 +122,6 @@ var portalEndpoint = environment().portal
 //@[4:18) Variable portalEndpoint. Type: string. Declaration start char: 0, length: 41
 var loginEndpoint = environment().authentication.loginEndpoint
 //@[4:17) Variable loginEndpoint. Type: string. Declaration start char: 0, length: 62
-var firstLocation = environment().locations[0].displayName
-//@[4:17) Variable firstLocation. Type: string. Declaration start char: 0, length: 58
 
 var namedPropertyIndexer = {
 //@[4:24) Variable namedPropertyIndexer. Type: 's'. Declaration start char: 0, length: 48

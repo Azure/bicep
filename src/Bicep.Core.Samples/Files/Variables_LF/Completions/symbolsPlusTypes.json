@@ -625,20 +625,6 @@
     }
   },
   {
-    "label": "firstLocation",
-    "kind": "variable",
-    "detail": "firstLocation",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_firstLocation",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "firstLocation"
-    }
-  },
-  {
     "label": "format",
     "kind": "function",
     "detail": "format()",
