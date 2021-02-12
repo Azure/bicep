@@ -418,7 +418,8 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("equals", "=="),
             BannedFunction.CreateForOperator("not", "!"),
             BannedFunction.CreateForOperator("and", "&&"),
-            BannedFunction.CreateForOperator("or", "||")
+            BannedFunction.CreateForOperator("or", "||"),
+            BannedFunction.CreateForOperator("coalesce", "??")
         }.ToImmutableArray();
 
         private static IEnumerable<Decorator> GetSystemDecorators()

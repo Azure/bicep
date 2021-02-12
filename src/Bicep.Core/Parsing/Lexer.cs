@@ -656,6 +656,15 @@ namespace Bicep.Core.Parsing
                 case '.':
                     return TokenType.Dot;
                 case '?':
+                    if (!textWindow.IsAtEnd())
+                    {
+                        switch (textWindow.Peek())
+                        {
+                            case '?':
+                                textWindow.Advance();
+                                return TokenType.DoubleQuestion;
+                        }
+                    }
                     return TokenType.Question;
                 case ':':
                     return TokenType.Colon;

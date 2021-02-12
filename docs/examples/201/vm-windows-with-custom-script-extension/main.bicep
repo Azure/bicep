@@ -58,8 +58,8 @@ param virtualMachineSku string {
 param virtualMachineExtensionCustomScriptUri string = 'https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1'
 
 var metadata = {
-  longName: '{0}-${name}-${coalesce(suffix, '') == '' ? '' : concat('-', suffix)}'
-  shortName: '{0}${replace(name, '-', '')}${coalesce(suffix, '') == '' ? '' : suffix}'
+  longName: '{0}-${name}-${(suffix ?? '') == '' ? '' : concat('-', suffix)}'
+  shortName: '{0}${replace(name, '-', '')}${(suffix ?? '') == '' ? '' : suffix}'
 }
 
 // Stroage Account
@@ -89,7 +89,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   properties: {
     publicIPAllocationMethod: 'Static'
     dnsSettings: {
-      domainNameLabel: coalesce(publicIpDnsLabel, '') == '' ? replace(metadata.shortName, '{0}', 'vm') : publicIpDnsLabel
+      domainNameLabel: (publicIpDnsLabel ?? '') == '' ? replace(metadata.shortName, '{0}', 'vm') : publicIpDnsLabel
     }
   }
 }

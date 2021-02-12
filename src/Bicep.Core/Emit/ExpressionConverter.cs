@@ -469,6 +469,9 @@ namespace Bicep.Core.Emit
                 case BinaryOperator.Modulo:
                     return CreateFunction("mod", operand1, operand2);
 
+                case BinaryOperator.Coalesce:
+                    return CreateFunction("coalesce", operand1, operand2);
+
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected binary operator '{syntax.Operator}'.");
             }
