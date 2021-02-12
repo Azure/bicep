@@ -180,13 +180,25 @@ namespace Bicep.Decompiler
 
         private bool TryReplaceBannedFunction(FunctionExpression expression, [NotNullWhen(true)] out SyntaxBase? syntax)
         {
-            var binaryOperator = SyntaxHelpers.TryGetBinaryOperatorReplacement(expression.Function);
-
-            if (binaryOperator != null)
+            if (SyntaxHelpers.TryGetBinaryOperatorReplacement(expression.Function) is TokenType binaryTokenType)
             {
-                if (expression.Parameters.Length != 2)
+                var binaryOperator = Operators.TokenTypeToBinaryOperator[binaryTokenType];
+                switch (binaryOperator)
                 {
-                    throw new ArgumentException($"Expected 2 parameters for binary function {expression.Function}");
+                    // ARM actually allows >= 2 args for and() and or()
+                    case BinaryOperator.LogicalAnd:
+                    case BinaryOperator.LogicalOr:
+                        if (expression.Parameters.Length < 2)
+                        {
+                            throw new ArgumentException($"Expected a minimum of 2 parameters for function {expression.Function}");
+                        }
+                        break;
+                    default:
+                        if (expression.Parameters.Length != 2)
+                        {
+                            throw new ArgumentException($"Expected 2 parameters for binary function {expression.Function}");
+                        }
+                        break;
                 }
 
                 if (expression.Properties.Any())
@@ -194,12 +206,22 @@ namespace Bicep.Decompiler
                     throw new ArgumentException($"Expected 0 properties for binary function {expression.Function}");
                 }
 
+                var binaryOperation = new BinaryOperationSyntax(
+                    ParseLanguageExpression(expression.Parameters[0]),
+                    SyntaxFactory.CreateToken(binaryTokenType, Operators.BinaryOperatorToText[binaryOperator]),
+                    ParseLanguageExpression(expression.Parameters[1]));
+
+                foreach (var parameter in expression.Parameters.Skip(2))
+                {
+                    binaryOperation = new BinaryOperationSyntax(
+                        binaryOperation,
+                        SyntaxFactory.CreateToken(binaryTokenType, Operators.BinaryOperatorToText[binaryOperator]),
+                        ParseLanguageExpression(parameter));
+                }
+
                 syntax = new ParenthesizedExpressionSyntax(
                     SyntaxFactory.CreateToken(TokenType.LeftParen, "("),
-                    new BinaryOperationSyntax(
-                        ParseLanguageExpression(expression.Parameters[0]),
-                        binaryOperator,
-                        ParseLanguageExpression(expression.Parameters[1])),
+                    binaryOperation,
                     SyntaxFactory.CreateToken(TokenType.RightParen, ")"));
                 return true;
             }

@@ -85,6 +85,22 @@ namespace Bicep.Decompiler.BicepHelpers
             "reference",
         }.ToDictionary(x => x, StringComparer.OrdinalIgnoreCase);
 
+        private static IReadOnlyDictionary<string, TokenType> BinaryOperatorReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["add"] = TokenType.Plus,
+            ["sub"] = TokenType.Minus,
+            ["mul"] = TokenType.Asterisk,
+            ["div"] = TokenType.Slash,
+            ["mod"] = TokenType.Modulo,
+            ["less"] = TokenType.LessThan,
+            ["lessOrEquals"] = TokenType.LessThanOrEqual,
+            ["greater"] = TokenType.GreaterThan,
+            ["greaterOrEquals"] = TokenType.GreaterThanOrEqual,
+            ["equals"] = TokenType.Equals,
+            ["and"] = TokenType.LogicalAnd,
+            ["or"] = TokenType.LogicalOr,
+        };
+
         public static string CorrectWellKnownFunctionCasing(string functionName)
         {
             if (WellKnownFunctions.TryGetValue(functionName, out var correctedFunctionName))
@@ -95,21 +111,7 @@ namespace Bicep.Decompiler.BicepHelpers
             return functionName;
         }
 
-        public static Token? TryGetBinaryOperatorReplacement(string bannedFunctionName) => bannedFunctionName switch
-        {
-            "add" => SyntaxFactory.CreateToken(TokenType.Plus),
-            "sub" => SyntaxFactory.CreateToken(TokenType.Minus),
-            "mul" => SyntaxFactory.CreateToken(TokenType.Asterisk),
-            "div" => SyntaxFactory.CreateToken(TokenType.Slash),
-            "mod" => SyntaxFactory.CreateToken(TokenType.Modulo),
-            "less" => SyntaxFactory.CreateToken(TokenType.LessThan),
-            "lessOrEquals" => SyntaxFactory.CreateToken(TokenType.LessThanOrEqual),
-            "greater" => SyntaxFactory.CreateToken(TokenType.GreaterThan),
-            "greaterOrEquals" => SyntaxFactory.CreateToken(TokenType.GreaterThanOrEqual),
-            "equals" => SyntaxFactory.CreateToken(TokenType.Equals),
-            "and" => SyntaxFactory.CreateToken(TokenType.LogicalAnd),
-            "or" => SyntaxFactory.CreateToken(TokenType.LogicalOr),
-            _ => null,
-        };
+        public static TokenType? TryGetBinaryOperatorReplacement(string bannedFunctionName)
+            => BinaryOperatorReplacements.TryGetValue(bannedFunctionName, out var tokenType) ? tokenType : null;
     }
 }
