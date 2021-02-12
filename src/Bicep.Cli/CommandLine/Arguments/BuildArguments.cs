@@ -55,6 +55,21 @@ namespace Bicep.Cli.CommandLine.Arguments
             {
                 throw new CommandLineException($"The input file path was not specified");
             }
+
+            if (this.OutputToStdOut && this.OutputDir is not null)
+            {
+                throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
+            }
+
+            if (this.OutputToStdOut && this.OutputFile is not null)
+            {
+                throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
+            }
+
+            if (this.OutputDir is not null && this.OutputFile is not null)
+            {
+                throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
+            }
         }
 
         public bool OutputToStdOut { get; }
