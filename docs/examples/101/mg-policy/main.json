@@ -57,8 +57,8 @@
   "metadata": {
     "_generator": {
       "name": "Bicep.Core",
-      "version": "0.2.418.59698",
-      "templateHash": "17559260509097140423"
+      "version": "dev",
+      "templateHash": "12208813535725383898"
     }
   }
 }

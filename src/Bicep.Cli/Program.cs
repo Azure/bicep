@@ -144,7 +144,7 @@ namespace Bicep.Cli
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
                 using var outputStream = CreateFileStream(outputPath);
-                emitter.Emit(outputStream);
+                emitter.Emit(outputStream, ThisAssembly.AssemblyFileVersion);
             }
         }
 

@@ -37,7 +37,7 @@
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net5.0/Bicep.dll",
             "args": [
                 "build",
-                "${file}"
+                "/Users/tsunkaraneni/Documents/BicepFiles/main.bicep"
             ],
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",

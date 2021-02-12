@@ -83,7 +83,7 @@ namespace Bicep.Core.Emit
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
-        public void Write(bool emitMetadata, string? templateHash)
+        public void Write(bool emitMetadata, string assemblyVersion, string? templateHash)
         {
             writer.WriteStartObject();
 
@@ -105,7 +105,7 @@ namespace Bicep.Core.Emit
             
             if (emitMetadata)
             {
-                this.EmitMetadata(templateHash);
+                this.EmitMetadata(templateHash, assemblyVersion);
             }
 
             writer.WriteEndObject();
@@ -392,7 +392,7 @@ namespace Bicep.Core.Emit
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
                     var moduleWriter = new TemplateWriter(writer, moduleSemanticModel);
                     // we don't need the hash of a module, we use a global hash for the template
-                    moduleWriter.Write(false, null);
+                    moduleWriter.Write(false, string.Empty, null);
                 }
 
                 writer.WriteEndObject();
@@ -463,7 +463,7 @@ namespace Bicep.Core.Emit
             writer.WriteEndObject();
         }
 
-        public void EmitMetadata(string? templateHash)
+        public void EmitMetadata(string? templateHash, string assemblyVersion)
         {
             writer.WritePropertyName("metadata");
             writer.WriteStartObject();
@@ -471,7 +471,7 @@ namespace Bicep.Core.Emit
             writer.WriteStartObject();
             
             this.emitter.EmitProperty("name", ThisAssembly.AssemblyName);
-            this.emitter.EmitProperty("version", ThisAssembly.AssemblyFileVersion);
+            this.emitter.EmitProperty("version", assemblyVersion);
             if (templateHash is not null)
             {
                 this.emitter.EmitProperty("templateHash", templateHash);
