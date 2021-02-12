@@ -329,3 +329,52 @@ var myBigIntExpression = 2199023255552 * 2
 //@[4:22) Variable myBigIntExpression. Type: int. Declaration start char: 0, length: 42
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[4:23) Variable myBigIntExpression2. Type: int. Declaration start char: 0, length: 55
+
+
+var multilineString = '''
+//@[4:19) Variable multilineString. Type: 'HELLO!\n'. Declaration start char: 0, length: 36
+HELLO!
+'''
+
+var multilineManyQuotes = ''''''''''
+//@[4:23) Variable multilineManyQuotes. Type: '\'\'\'\'\n\'\'\'\n\'\'\'\'\'\'\'\'\'\n'. Declaration start char: 0, length: 66
+''''
+'''
+'''''''''
+''''''''''
+
+var multilineSingleLine = '''hello!'''
+//@[4:23) Variable multilineSingleLine. Type: 'hello!'. Declaration start char: 0, length: 38
+
+var multilineFormatted = format('''
+//@[4:22) Variable multilineFormatted. Type: string. Declaration start char: 0, length: 73
+Hello,
+my
+name is
+{0}
+''', 'Anthony')
+
+// verify that we can embed a typical bicep file within a multiline string - a good test for correct escaping
+var embeddedBicepFile = ''''
+//@[4:21) Variable embeddedBicepFile. Type: 'param location string = \'westus\'\nparam timestamp string = utcNow()\nparam dsName string = \'ds\${uniqueString(resourceGroup().name)}\'\n\nresource script \'Microsoft.Resources/deploymentScripts@2020-10-01\' = {\n  kind: \'AzurePowerShell\'\n  name: dsName\n  location: location\n  // identity property no longer required\n  properties: {\n    azPowerShellVersion: \'3.0\'\n    scriptContent: \'\'\'\n$DeploymentScriptOutputs["test"] = "test this output"\n\'\'\'\n    forceUpdateTag: timestamp // script will run every time\n    retentionInterval: \'PT4H\' // deploymentScript resource will delete itself in 4 hours\n  }\n}\n\noutput scriptOutput string = script.properties.outputs.test\n'. Declaration start char: 0, length: 684
+param location string = 'westus'
+param timestamp string = utcNow()
+param dsName string = 'ds${uniqueString(resourceGroup().name)}'
+
+resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzurePowerShell'
+  name: dsName
+  location: location
+  // identity property no longer required
+  properties: {
+    azPowerShellVersion: '3.0'
+    scriptContent: '''
+$DeploymentScriptOutputs["test"] = "test this output"
+'''
+    forceUpdateTag: timestamp // script will run every time
+    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
+  }
+}
+
+output scriptOutput string = script.properties.outputs.test
+''''

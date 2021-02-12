@@ -487,6 +487,20 @@
     }
   },
   {
+    "label": "embeddedBicepFile",
+    "kind": "variable",
+    "detail": "embeddedBicepFile",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_embeddedBicepFile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "embeddedBicepFile"
+    }
+  },
+  {
     "label": "empty",
     "kind": "function",
     "detail": "empty()",
@@ -1137,6 +1151,62 @@
     "textEdit": {
       "range": {},
       "newText": "mul"
+    }
+  },
+  {
+    "label": "multilineFormatted",
+    "kind": "variable",
+    "detail": "multilineFormatted",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineFormatted",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineFormatted"
+    }
+  },
+  {
+    "label": "multilineManyQuotes",
+    "kind": "variable",
+    "detail": "multilineManyQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineManyQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineManyQuotes"
+    }
+  },
+  {
+    "label": "multilineSingleLine",
+    "kind": "variable",
+    "detail": "multilineSingleLine",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineSingleLine",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineSingleLine"
+    }
+  },
+  {
+    "label": "multilineString",
+    "kind": "variable",
+    "detail": "multilineString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineString"
     }
   },
   {

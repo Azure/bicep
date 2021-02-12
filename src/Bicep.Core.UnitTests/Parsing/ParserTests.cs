@@ -79,6 +79,27 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("'''abc'''", "abc")]
+        // first preceding newline should be stripped
+        [DataRow("'''\r\nabc'''", "abc")]
+        [DataRow("'''\nabc'''", "abc")]
+        [DataRow("'''\rabc'''", "abc")]
+        // only the first should be stripped!
+        [DataRow("'''\n\nabc'''", "\nabc")]
+        [DataRow("'''\n\rabc'''", "\rabc")]
+        // no escaping necessary
+        [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
+        // different combinations of '''
+        [DataRow("''' 'a''b''''c'''''d''''''e '''", " 'a''b''''c'''''d''''''e ")]
+        [DataRow("''''' 'a''b'''c''''d''''''e '''''", " 'a''b'''c''''d''''''e ")]
+        public void Multiline_strings_should_parse_correctly(string text, string expectedValue)
+        {
+            var stringSyntax = ParseAndVerifyType<StringSyntax>(text);
+
+            stringSyntax.TryGetLiteralValue().Should().Be(expectedValue);
+        }
+
+        [DataTestMethod]
         [DataRow("'${>}def'")]
         [DataRow("'${b+}def'")]
         [DataRow("'${concat(}def'")]

@@ -793,6 +793,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP138",
                 "Loops are not currently supported.");
+
+            public ErrorDiagnostic UnterminatedMultilineString(int terminatingQuoteCount) => new(
+                TextSpan,
+                "BCP0139",
+                $"The multi-line string at this location is not terminated. Terminate it with {terminatingQuoteCount} \"'\" characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

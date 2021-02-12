@@ -2189,4 +2189,99 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[40:41)   Asterisk |*|
 //@[42:55)   IntegerLiteralSyntax
 //@[42:55)    Integer |2199023255552|
-//@[55:55) EndOfFile ||
+//@[55:58) NewLine |\n\n\n|
+
+
+var multilineString = '''
+//@[0:36) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |multilineString|
+//@[20:21)  Assignment |=|
+//@[22:36)  StringSyntax
+//@[22:36)   MultilineString |'''\nHELLO!\n'''|
+HELLO!
+'''
+//@[3:5) NewLine |\n\n|
+
+var multilineManyQuotes = ''''''''''
+//@[0:66) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |multilineManyQuotes|
+//@[24:25)  Assignment |=|
+//@[26:66)  StringSyntax
+//@[26:66)   MultilineString |''''''''''\n''''\n'''\n'''''''''\n''''''''''|
+''''
+'''
+'''''''''
+''''''''''
+//@[10:12) NewLine |\n\n|
+
+var multilineSingleLine = '''hello!'''
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |multilineSingleLine|
+//@[24:25)  Assignment |=|
+//@[26:38)  StringSyntax
+//@[26:38)   MultilineString |'''hello!'''|
+//@[38:40) NewLine |\n\n|
+
+var multilineFormatted = format('''
+//@[0:73) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |multilineFormatted|
+//@[23:24)  Assignment |=|
+//@[25:73)  FunctionCallSyntax
+//@[25:31)   IdentifierSyntax
+//@[25:31)    Identifier |format|
+//@[31:32)   LeftParen |(|
+//@[32:62)   FunctionArgumentSyntax
+//@[32:61)    StringSyntax
+//@[32:61)     MultilineString |'''\nHello,\nmy\nname is\n{0}\n'''|
+Hello,
+my
+name is
+{0}
+''', 'Anthony')
+//@[3:4)    Comma |,|
+//@[5:14)   FunctionArgumentSyntax
+//@[5:14)    StringSyntax
+//@[5:14)     StringComplete |'Anthony'|
+//@[14:15)   RightParen |)|
+//@[15:17) NewLine |\n\n|
+
+// verify that we can embed a typical bicep file within a multiline string - a good test for correct escaping
+//@[109:110) NewLine |\n|
+var embeddedBicepFile = ''''
+//@[0:684) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |embeddedBicepFile|
+//@[22:23)  Assignment |=|
+//@[24:684)  StringSyntax
+//@[24:684)   MultilineString |''''\nparam location string = 'westus'\nparam timestamp string = utcNow()\nparam dsName string = 'ds${uniqueString(resourceGroup().name)}'\n\nresource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {\n  kind: 'AzurePowerShell'\n  name: dsName\n  location: location\n  // identity property no longer required\n  properties: {\n    azPowerShellVersion: '3.0'\n    scriptContent: '''\n$DeploymentScriptOutputs["test"] = "test this output"\n'''\n    forceUpdateTag: timestamp // script will run every time\n    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours\n  }\n}\n\noutput scriptOutput string = script.properties.outputs.test\n''''|
+param location string = 'westus'
+param timestamp string = utcNow()
+param dsName string = 'ds${uniqueString(resourceGroup().name)}'
+
+resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzurePowerShell'
+  name: dsName
+  location: location
+  // identity property no longer required
+  properties: {
+    azPowerShellVersion: '3.0'
+    scriptContent: '''
+$DeploymentScriptOutputs["test"] = "test this output"
+'''
+    forceUpdateTag: timestamp // script will run every time
+    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
+  }
+}
+
+output scriptOutput string = script.properties.outputs.test
+''''
+//@[4:4) EndOfFile ||

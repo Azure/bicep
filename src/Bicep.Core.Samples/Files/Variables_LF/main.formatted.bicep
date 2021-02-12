@@ -238,3 +238,46 @@ var myBigInt = 2199023255552
 var myIntExpression = 5 * 5
 var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
+
+var multilineString = '''
+HELLO!
+'''
+
+var multilineManyQuotes = ''''''''''
+''''
+'''
+'''''''''
+''''''''''
+
+var multilineSingleLine = '''hello!'''
+
+var multilineFormatted = format('''
+Hello,
+my
+name is
+{0}
+''', 'Anthony')
+
+// verify that we can embed a typical bicep file within a multiline string - a good test for correct escaping
+var embeddedBicepFile = ''''
+param location string = 'westus'
+param timestamp string = utcNow()
+param dsName string = 'ds${uniqueString(resourceGroup().name)}'
+
+resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  kind: 'AzurePowerShell'
+  name: dsName
+  location: location
+  // identity property no longer required
+  properties: {
+    azPowerShellVersion: '3.0'
+    scriptContent: '''
+$DeploymentScriptOutputs["test"] = "test this output"
+'''
+    forceUpdateTag: timestamp // script will run every time
+    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
+  }
+}
+
+output scriptOutput string = script.properties.outputs.test
+''''

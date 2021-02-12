@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -104,6 +105,27 @@ namespace Bicep.Core.IntegrationTests.Emit
             var result = this.EmitTemplate(SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), filePath);
             result.Status.Should().Be(EmitStatus.Failed);
             result.Diagnostics.Should().NotBeEmpty();
+        }
+
+        [DataTestMethod]
+        [DataRow("\n")]
+        [DataRow("\r\n")]
+        public void Multiline_strings_should_parse_correctly(string newlineSequence)
+        {
+            var inputFile = @"
+var multiline = '''
+this
+  is
+    a
+      multiline
+        string
+'''
+";
+
+            var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
+
+            var expected = string.Join(newlineSequence, new [] { "this", "  is", "    a", "      multiline", "        string", "" });
+            template!.SelectToken("$.variables.multiline")!.Should().DeepEqual(expected);
         }
 
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath)

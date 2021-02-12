@@ -90,6 +90,49 @@ namespace Bicep.Core.Parsing
             return segments;
         }
 
+        public static string? TryGetMultilineStringValue(Token stringToken)
+        {
+            var tokenText = stringToken.Text;
+
+            var terminatingQuoteCount = 0;
+            for (var i = 0; i < tokenText.Length; i++)
+            {
+                if (tokenText[i] != '\'')
+                {
+                    break;
+                }
+
+                terminatingQuoteCount++;
+            }
+
+            if (tokenText.Length <= terminatingQuoteCount * 2)
+            {
+                return null;
+            }
+
+            for (var i = tokenText.Length - terminatingQuoteCount; i < tokenText.Length; i++)
+            {
+                if (tokenText[i] != '\'')
+                {
+                    return null;
+                }
+            }
+
+            var startOffset = terminatingQuoteCount;
+
+            // we strip a leading \r\n or \n
+            if (tokenText[startOffset] == '\r')
+            {
+                startOffset++;
+            }
+            if (tokenText[startOffset] == '\n')
+            {
+                startOffset++;
+            }
+
+            return tokenText.Substring(startOffset, tokenText.Length - startOffset - terminatingQuoteCount);
+        }
+
         /// <summary>
         /// Converts string literal text into its value. Returns null if the specified string token is malformed due to lexer error recovery.
         /// </summary>
@@ -407,6 +450,53 @@ namespace Bicep.Core.Parsing
 
                 textWindow.Advance();
             }
+        }
+
+        private TokenType ScanMultilineString()
+        {
+            // we've already scanned the first ', so start the quote count at 1
+            var terminatingQuoteCount = 1;
+
+            while (textWindow.Peek() == '\'')
+            {
+                textWindow.Advance();
+                terminatingQuoteCount++;
+            }
+
+            var successiveQuotes = 0;
+            while (!textWindow.IsAtEnd())
+            {
+                var nextChar = textWindow.Peek();
+                textWindow.Advance();
+
+                switch (nextChar)
+                {
+                    case '\'':
+                        successiveQuotes++;
+                        if (successiveQuotes == terminatingQuoteCount)
+                        {
+                            if (textWindow.Peek() != '\'')
+                            {
+                                return TokenType.MultilineString;
+                            }
+
+                            successiveQuotes = 0;
+                            while (textWindow.Peek() == '\'')
+                            {
+                                textWindow.Advance();
+                            }
+                        }
+                        break;
+                    default:
+                        successiveQuotes = 0;
+                        break;
+                }
+            }
+
+            // We've reached the end of the file without finding terminating quotes.
+            // We still want to return a string token so that highlighting shows up.
+            AddDiagnostic(b => b.UnterminatedMultilineString(terminatingQuoteCount));
+            return TokenType.MultilineString;
         }
 
         private TokenType ScanStringSegment(bool isAtStartOfString)
@@ -753,6 +843,12 @@ namespace Bicep.Core.Parsing
                     }
                     return TokenType.Unrecognized;
                 case '\'':
+                    // 3+ ' characters in a row means we're starting a multiline string
+                    if (textWindow.Peek(0) == '\'' && textWindow.Peek(1) == '\'')
+                    {
+                        return ScanMultilineString();
+                    }
+
                     var token = ScanStringSegment(true);
                     if (token == TokenType.StringLeftPiece)
                     {
