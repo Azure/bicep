@@ -156,7 +156,7 @@ namespace Bicep.Core.Parsing
             }
 
             Debug.Assert(initial == RecoveryFlags.None, "initial == RecoveryFlags.None");
-            
+
             // predicate must hold to preserve diagnostics
             return predicate ? RecoveryFlags.None : RecoveryFlags.SuppressDiagnostics;
         }
@@ -578,7 +578,7 @@ namespace Bicep.Core.Parsing
         /// <param name="allowComplexLiterals"></param>
         private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(bool allowComplexLiterals)
         {
-            SkippedTriviaSyntax CreateDummyArgument(Token current) => 
+            SkippedTriviaSyntax CreateDummyArgument(Token current) =>
                 new SkippedTriviaSyntax(current.ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(current.ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable());
 
             if (this.Check(TokenType.RightParen))
@@ -620,7 +620,7 @@ namespace Bicep.Core.Parsing
                             // we have a trailing comma without an argument
                             // we need to allow it so signature help doesn't get interrupted
                             // by the user typing a comma without specifying a function argument
-                            
+
                             // insert a dummy argument
                             arguments.Add((CreateDummyArgument(current), null));
                         }
@@ -1041,7 +1041,7 @@ namespace Bicep.Core.Parsing
             var conditionExpression = this.WithRecovery(() => this.ParenthesizedExpression(true), RecoveryFlags.None, TokenType.LeftBrace, TokenType.NewLine);
             var body = this.WithRecovery(
                 this.Object,
-                GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax {CloseParen: not SkippedTriviaSyntax}),
+                GetSuppressionFlag(conditionExpression, conditionExpression is ParenthesizedExpressionSyntax { CloseParen: not SkippedTriviaSyntax }),
                 TokenType.NewLine);
             return new IfConditionSyntax(keyword, conditionExpression, body);
         }
@@ -1213,6 +1213,9 @@ namespace Bicep.Core.Parsing
 
                 case TokenType.LogicalOr:
                     return 40;
+
+                case TokenType.DoubleQuestion:
+                    return 30;
 
                 default:
                     return -1;

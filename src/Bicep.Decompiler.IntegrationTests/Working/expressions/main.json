@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "coalesceObjectToTest": {
+      "type": "object",
+      "defaultValue": {
+        "null1": null,
+        "null2": null,
+        "string": "default",
+        "int": 1,
+        "object": { "first": "default" },
+        "array": [ 1 ]
+      }
+    }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "andExampleOutput": {
+      "type": "bool",
+      "value": "[and(bool('true'), bool('false'))]"
+    },
+    "orExampleOutput": {
+      "type": "bool",
+      "value": "[or(bool('true'), bool('false'))]"
+    },
+    "notExampleOutput": {
+      "type": "bool",
+      "value": "[not(bool('true'))]"
+    },
+    "coalesceStringOutput": {
+      "type": "string",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').string)]"
+    },
+    "coalesceIntOutput": {
+      "type": "int",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').int)]"
+    },
+    "coalesceObjectOutput": {
+      "type": "object",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').object)]"
+    },
+    "coalesceArrayOutput": {
+      "type": "array",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').array)]"
+    },
+    "coalesceEmptyOutput": {
+      "type": "bool",
+      "value": "[empty(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2))]"
+    }
+  }
+}

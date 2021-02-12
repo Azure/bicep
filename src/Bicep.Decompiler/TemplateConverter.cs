@@ -185,9 +185,10 @@ namespace Bicep.Decompiler
                 var binaryOperator = Operators.TokenTypeToBinaryOperator[binaryTokenType];
                 switch (binaryOperator)
                 {
-                    // ARM actually allows >= 2 args for and() and or()
+                    // ARM actually allows >= 2 args for and(), or() and coalesce()
                     case BinaryOperator.LogicalAnd:
                     case BinaryOperator.LogicalOr:
+                    case BinaryOperator.Coalesce:
                         if (expression.Parameters.Length < 2)
                         {
                             throw new ArgumentException($"Expected a minimum of 2 parameters for function {expression.Function}");

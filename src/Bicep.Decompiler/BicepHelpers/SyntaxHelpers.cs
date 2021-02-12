@@ -99,6 +99,7 @@ namespace Bicep.Decompiler.BicepHelpers
             ["equals"] = TokenType.Equals,
             ["and"] = TokenType.LogicalAnd,
             ["or"] = TokenType.LogicalOr,
+            ["coalesce"] = TokenType.DoubleQuestion,
         };
 
         public static string CorrectWellKnownFunctionCasing(string functionName)
