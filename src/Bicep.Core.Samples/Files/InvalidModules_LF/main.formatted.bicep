@@ -249,3 +249,128 @@ module childCompletionD 'ChildModules/e'
 module moduleWithNotAttachableDecorators './empty.bicep' = {
   name: 'moduleWithNotAttachableDecorators'
 }
+
+// loop parsing cases
+module expectedForKeyword 'modulea.bicep' = []
+
+module expectedForKeyword2 'modulea.bicep' = [f]
+
+module expectedLoopVar 'modulea.bicep' = [for]
+
+module expectedInKeyword 'modulea.bicep' = [for x]
+
+module expectedInKeyword2 'modulea.bicep' = [for x b]
+
+module expectedArrayExpression 'modulea.bicep' = [for x in]
+
+module expectedColon 'modulea.bicep' = [for x in y]
+
+module expectedLoopBody 'modulea.bicep' = [for x in y:]
+
+// wrong loop body type
+var emptyArray = []
+module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray: 4]
+
+// missing loop body properties
+module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
+
+// wrong array type
+var notAnArray = true
+module wrongArrayType 'modulea.bicep' = [for x in notAnArray: {}]
+
+// missing fewer properties
+module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {
+  name: 'hello-${x}'
+  params: {}
+}]
+
+// wrong parameter in the module loop
+module wrongModuleParameterInLoop 'modulea.bicep' = [for x in emptyArray: {
+  name: 'hello-${x}'
+  params: {
+    arrayParam: []
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    notAThing: 'test'
+  }
+}]
+
+// nonexistent arrays and loop variables
+var evenMoreDuplicates = 'there'
+module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
+  name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for evenMoreDuplicates in totallyFake: doesNotExist]
+  }
+}]
+
+/*
+  valid loop - this should be moved to Modules_* test case after E2E works
+*/
+var myModules = [
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray: {
+  name: 'hello-${x}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: y]
+  }
+}]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+var duplicateAcrossScopes = 'hello'
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+  name: 'hello-${duplicateAcrossScopes}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+  }
+}]
+
+var someDuplicate = true
+var otherDuplicate = false
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+  }
+}]
+
+// simple module loop
+module storageResources 'modulea.bicep' = [for module in myModules: {
+  name: module.name
+  params: {
+    arrayParam: []
+    objParam: module
+    stringParamB: module.location
+  }
+}]
+
+// nested module loop
+module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
+  name: module.name
+  params: {
+    arrayParam: [for i in range(0, 3): concat('test', i)]
+    objParam: module
+    stringParamB: module.location
+  }
+}]

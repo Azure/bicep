@@ -37,6 +37,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
                 vmSize: agentVMSize
                 osType: 'Linux'
                 storageProfile: 'ManagedDisks'
+//@[16:30) [BCP038 (Warning)] The property "storageProfile" is not allowed on objects of type "ManagedClusterAgentPoolProfile". Permissible properties include "availabilityZones", "count", "enableAutoScaling", "enableNodePublicIP", "maxCount", "maxPods", "minCount", "mode", "nodeLabels", "nodeTaints", "orchestratorVersion", "scaleSetEvictionPolicy", "scaleSetPriority", "spotMaxPrice", "tags", "type", "vnetSubnetID". |storageProfile|
             }
         ]
         linuxProfile: {

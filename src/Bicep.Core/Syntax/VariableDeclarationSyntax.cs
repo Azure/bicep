@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class VariableDeclarationSyntax : StatementSyntax, INamedDeclarationSyntax
+    public class VariableDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
         public VariableDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
             : base(ImmutableArray<SyntaxBase>.Empty)

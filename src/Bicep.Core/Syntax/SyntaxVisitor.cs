@@ -74,6 +74,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public virtual void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+        }
+
         public virtual void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
@@ -193,6 +198,18 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Keyword);
             this.Visit(syntax.ConditionExpression);
             this.Visit(syntax.Body);
+        }
+
+        public virtual void VisitForSyntax(ForSyntax syntax)
+        {
+            this.Visit(syntax.OpenSquare);
+            this.Visit(syntax.ForKeyword);
+            this.Visit(syntax.ItemVariable);
+            this.Visit(syntax.InKeyword);
+            this.Visit(syntax.Expression);
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.Body);
+            this.Visit(syntax.CloseSquare);
         }
 
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)

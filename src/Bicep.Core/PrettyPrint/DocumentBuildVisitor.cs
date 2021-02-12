@@ -154,6 +154,23 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax) =>
             this.BuildWithConcat(() => base.VisitParenthesizedExpressionSyntax(syntax));
 
+        public override void VisitForSyntax(ForSyntax syntax) =>
+            this.Build(() => base.VisitForSyntax(syntax), children =>
+            {
+                Debug.Assert(children.Length == 8);
+
+                ILinkedDocument openBracket = children[0];
+                ILinkedDocument forKeyword = children[1];
+                ILinkedDocument loopVariable = children[2];
+                ILinkedDocument inKeyword = children[3];
+                ILinkedDocument arrayExpression = children[4];
+                ILinkedDocument colon = children[5];
+                ILinkedDocument loopBody = children[6];
+                ILinkedDocument closeBracket = children[7];
+
+                return Concat(openBracket, Spread(forKeyword, loopVariable, inKeyword, arrayExpression), Spread(colon, loopBody), closeBracket);
+            });
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.Build(() => base.VisitFunctionCallSyntax(syntax), children =>
             {

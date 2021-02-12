@@ -42,11 +42,12 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            var symbolToSyntaxLookup = symbolTable
-                .Where(pair => pair.Value.Kind != SymbolKind.Error)
-                .ToLookup(pair => pair.Value, pair => pair.Key);
+            // filter out bind failures and locals with invalid identifiers
+            // (locals are special because their span is equal to their identifier span)
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
-            foreach (var (syntax, symbol) in symbolTable.Where(s => s.Value.Kind != SymbolKind.Error))
+            foreach (var (syntax, symbol) in filteredSymbolTable)
             {
                 var locations = await client.RequestReferences(new ReferenceParams
                 {
@@ -81,11 +82,12 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            var symbolToSyntaxLookup = symbolTable
-                .Where(pair => pair.Value.Kind != SymbolKind.Error)
-                .ToLookup(pair => pair.Value, pair => pair.Key);
+            // filter out bind failures and locals with invalid identifiers
+            // (locals are special because their span is equal to their identifier span)
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
 
-            foreach (var (syntax, symbol) in symbolTable.Where(s => s.Value.Kind != SymbolKind.Error))
+            foreach (var (syntax, symbol) in filteredSymbolTable)
             {
                 var locations = await client.RequestReferences(new ReferenceParams
                 {
@@ -115,7 +117,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task FindReferencesOnNonSymbolsShouldProduceEmptyResult(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 

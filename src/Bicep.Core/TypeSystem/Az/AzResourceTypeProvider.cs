@@ -11,6 +11,9 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
+        public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
+        public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
+
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly IReadOnlyDictionary<ResourceTypeReference, TypeLocation> availableResourceTypes;
@@ -117,7 +120,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
             }
             // Deployments RP
-            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, TemplateWriter.NestedDeploymentResourceType))
+            if (StringComparer.OrdinalIgnoreCase.Equals(objectType.Name, ResourceTypeDeployments))
             {
                 properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));

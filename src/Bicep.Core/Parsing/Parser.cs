@@ -43,7 +43,7 @@ namespace Bicep.Core.Parsing
 
                 // if skipped node is returned above, the newline is not consumed
                 // if newline token is returned, we must not expect another (could be a beginning of a declaration)
-                if (declarationOrToken is IDeclarationSyntax)
+                if (declarationOrToken is ITopLevelDeclarationSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
@@ -313,7 +313,8 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
+                        TokenType.LeftSquare => this.ForExpression(),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
                 GetSuppressionFlag(assignment),
@@ -341,7 +342,8 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(),
                         TokenType.LeftBrace => this.Object(),
-                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIf())
+                        TokenType.LeftSquare => this.ForExpression(),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
                     };
                 },
                 GetSuppressionFlag(assignment),
@@ -508,7 +510,9 @@ namespace Bicep.Core.Parsing
                     return this.Object();
 
                 case TokenType.LeftSquare when allowComplexLiterals:
-                    return this.Array();
+                    return CheckKeyword(this.reader.PeekAhead(), LanguageConstants.ForKeyword) 
+                        ? this.ForExpression() 
+                        : this.Array();
 
                 case TokenType.LeftBrace:
                 case TokenType.LeftSquare:
@@ -875,6 +879,20 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        private SyntaxBase ForExpression()
+        {
+            var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+            var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
+            var identifier = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), TokenType.Identifier, TokenType.RightSquare, TokenType.NewLine));
+            var inKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.InKeyword), GetSuppressionFlag(identifier.Name), TokenType.RightSquare, TokenType.NewLine);
+            var expression = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(inKeyword), TokenType.Colon, TokenType.RightSquare, TokenType.NewLine);
+            var colon = this.WithRecovery(() => this.Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(expression), TokenType.RightSquare, TokenType.NewLine);
+            var body = this.WithRecovery(() => this.Expression(allowComplexLiterals: true), GetSuppressionFlag(colon), TokenType.RightSquare, TokenType.NewLine);
+            var closeBracket = this.WithRecovery(() => this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]")), GetSuppressionFlag(body), TokenType.RightSquare, TokenType.NewLine);
+
+            return new ForSyntax(openBracket, forKeyword, identifier, inKeyword, expression, colon, body, closeBracket);
+        }
+
         private SyntaxBase Array()
         {
             var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
@@ -1125,9 +1143,13 @@ namespace Bicep.Core.Parsing
             throw new ExpectedTokenException(this.reader.Peek(), errorFunc);
         }
 
+        private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
+
+        private bool CheckKeyword(string keyword) => !this.IsAtEnd() && CheckKeyword(this.reader.Peek(), keyword);
+
         private Token ExpectKeyword(string expectedKeyword)
         {
-            if (this.Check(TokenType.Identifier) && reader.Peek().Text == expectedKeyword)
+            if (this.CheckKeyword(expectedKeyword))
             {
                 // only read the token if it matches the expectations
                 // otherwise, we could accidentally consume EOF

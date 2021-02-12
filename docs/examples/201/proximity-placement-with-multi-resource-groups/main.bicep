@@ -22,7 +22,7 @@ resource rgworkload 'Microsoft.Resources/resourceGroups@2019-05-01' = {
 
 module network './network.bicep' = {
   name: 'network'
-  scope: resourceGroup(rgnet.name)
+  scope: rgnet
   params: {
     myIp: myIp
   }
@@ -30,7 +30,7 @@ module network './network.bicep' = {
 
 module ppg './anchored-ppg.bicep' = {
   name: 'anchor'
-  scope: resourceGroup(rganchor.name)
+  scope: rganchor
   params: {
     adminSshKey: adminSshKey
     subnetId: '${network.outputs.vnetId}/subnets/Default'
@@ -41,7 +41,7 @@ module ppg './anchored-ppg.bicep' = {
 
 module vm01 './linux-vm-as.bicep' = {
   name: 'vm01'
-  scope: resourceGroup(rgworkload.name)
+  scope: rgworkload
   params: {
     adminSshKey: adminSshKey
     ppgId: ppg.outputs.ppgId
@@ -52,7 +52,7 @@ module vm01 './linux-vm-as.bicep' = {
 
 module vm02 './linux-vm-as.bicep' = {
   name: 'vm02'
-  scope: resourceGroup(rgworkload.name)
+  scope: rgworkload
   params: {
     adminSshKey: adminSshKey
     ppgId: ppg.outputs.ppgId

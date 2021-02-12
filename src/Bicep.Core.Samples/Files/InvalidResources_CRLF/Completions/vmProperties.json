@@ -1,0 +1,422 @@
+[
+  {
+    "label": "additionalCapabilities",
+    "kind": "property",
+    "detail": "additionalCapabilities",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `AdditionalCapabilities`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_additionalCapabilities",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "additionalCapabilities"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "availabilitySet",
+    "kind": "property",
+    "detail": "availabilitySet",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubResource`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_availabilitySet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "availabilitySet"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "billingProfile",
+    "kind": "property",
+    "detail": "billingProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `BillingProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_billingProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "billingProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "diagnosticsProfile",
+    "kind": "property",
+    "detail": "diagnosticsProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `DiagnosticsProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_diagnosticsProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "diagnosticsProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "evictionPolicy",
+    "kind": "property",
+    "detail": "evictionPolicy",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Deallocate' | 'Delete'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_evictionPolicy",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "evictionPolicy"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "extensionsTimeBudget",
+    "kind": "property",
+    "detail": "extensionsTimeBudget",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_extensionsTimeBudget",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionsTimeBudget"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "hardwareProfile",
+    "kind": "property",
+    "detail": "hardwareProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `HardwareProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_hardwareProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "hardwareProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "host",
+    "kind": "property",
+    "detail": "host",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubResource`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_host",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "host"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "hostGroup",
+    "kind": "property",
+    "detail": "hostGroup",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubResource`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_hostGroup",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "hostGroup"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "instanceView",
+    "kind": "property",
+    "detail": "instanceView",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `VirtualMachineInstanceView`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_instanceView",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "instanceView"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "licenseType",
+    "kind": "property",
+    "detail": "licenseType",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_licenseType",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "licenseType"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "networkProfile",
+    "kind": "property",
+    "detail": "networkProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `NetworkProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_networkProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "networkProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "osProfile",
+    "kind": "property",
+    "detail": "osProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `OSProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_osProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "osProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "priority",
+    "kind": "property",
+    "detail": "priority",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Low' | 'Regular' | 'Spot'`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_priority",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "priority"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "provisioningState",
+    "kind": "property",
+    "detail": "provisioningState",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_provisioningState",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "provisioningState"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "proximityPlacementGroup",
+    "kind": "property",
+    "detail": "proximityPlacementGroup",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubResource`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_proximityPlacementGroup",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "proximityPlacementGroup"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "securityProfile",
+    "kind": "property",
+    "detail": "securityProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SecurityProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_securityProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "securityProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "storageProfile",
+    "kind": "property",
+    "detail": "storageProfile",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageProfile`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_storageProfile",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "storageProfile"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "virtualMachineScaleSet",
+    "kind": "property",
+    "detail": "virtualMachineScaleSet",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `SubResource`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_virtualMachineScaleSet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "virtualMachineScaleSet"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "vmId",
+    "kind": "property",
+    "detail": "vmId",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nRead-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_vmId",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "vmId"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  }
+]

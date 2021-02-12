@@ -11,8 +11,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
@@ -42,11 +40,14 @@ namespace Bicep.LangServer.IntegrationTests
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SyntaxTreeGrouping.EntryPoint.LineStarts;
 
-            var symbolToSyntaxLookup = symbolTable
-                .Where(pair => pair.Value.Kind != SymbolKind.Error)
-                .ToLookup(pair => pair.Value, pair => pair.Key);
+            // filter out binding failures and locals with invalid identifiers
+            // (locals are special because their full span is the same as the identifier span,
+            // which makes it impossible to highlight locals with invalid identifiers)
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
 
-            foreach (var (syntax, symbol) in symbolTable.Where(s => s.Value.Kind != SymbolKind.Error))
+            var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
+
+            foreach (var (syntax, symbol) in filteredSymbolTable)
             {
                 var highlights = await client.RequestDocumentHighlight(new DocumentHighlightParams
                 {
@@ -67,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task RequestingHighlightsForWrongNodeShouldProduceNoHighlights(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
