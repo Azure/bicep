@@ -103,6 +103,7 @@ namespace Bicep.Core.Emit
 
             this.EmitOutputsIfPresent();
             
+            // We only skip emitting metadata when emitting modules no metadata for nested deployments (i.e. emitting modules)
             if (emitMetadata)
             {
                 this.EmitMetadata(templateHash, assemblyVersion);

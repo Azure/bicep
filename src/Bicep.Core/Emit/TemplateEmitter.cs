@@ -40,7 +40,7 @@ namespace Bicep.Core.Emit
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
         /// </summary>
         /// <param name="stream">The stream to write the template</param>
-        public EmitResult Emit(Stream stream, string assemblyVersion = "dev") => EmitOrFail((string templateHash) =>
+        public EmitResult Emit(Stream stream, string assemblyVersion) => EmitOrFail((string templateHash) =>
         {
             using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, true))
             {
@@ -54,7 +54,7 @@ namespace Bicep.Core.Emit
         /// Emits a template to the specified text writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="textWriter">The text writer to write the template</param>
-        public EmitResult Emit(TextWriter textWriter, string assemblyVersion = "dev") => EmitOrFail((string templateHash) =>
+        public EmitResult Emit(TextWriter textWriter, string assemblyVersion) => EmitOrFail((string templateHash) =>
         {
             using var writer = new JsonTextWriter(textWriter)
             {
@@ -68,7 +68,7 @@ namespace Bicep.Core.Emit
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
-        public EmitResult Emit(JsonTextWriter writer, string assemblyVersion = "dev") => this.EmitOrFail((string templateHash) =>
+        public EmitResult Emit(JsonTextWriter writer, string assemblyVersion) => this.EmitOrFail((string templateHash) =>
         {
             new TemplateWriter(writer, this.model).Write(true, assemblyVersion, templateHash);
         }, assemblyVersion);

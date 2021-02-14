@@ -32,7 +32,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
         {
-            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter);
+            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, "dev");
         }
 
         [TestMethod]
@@ -170,6 +170,8 @@ namespace Bicep.Cli.IntegrationTests
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
+
+            actual["metadata"] = JToken.Parse(dataSet.Compiled!)["metadata"];
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 

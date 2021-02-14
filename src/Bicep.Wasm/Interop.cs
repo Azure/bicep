@@ -122,7 +122,7 @@ namespace Bicep.Wasm
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();
-                var emitResult = emitter.Emit(stream);
+                var emitResult = emitter.Emit(stream, ThisAssembly.AssemblyFileVersion);
 
                 if (emitResult.Status != EmitStatus.Failed)
                 {

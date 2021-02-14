@@ -26,17 +26,20 @@ namespace Bicep.Cli
         private readonly TextWriter errorWriter;
         private readonly IResourceTypeProvider resourceTypeProvider;
 
-        public Program(IResourceTypeProvider resourceTypeProvider, TextWriter outputWriter, TextWriter errorWriter)
+        private readonly string assemblyFileVersion;
+
+        public Program(IResourceTypeProvider resourceTypeProvider, TextWriter outputWriter, TextWriter errorWriter, string assemblyFileVersion)
         {
             this.resourceTypeProvider = resourceTypeProvider;
             this.outputWriter = outputWriter;
             this.errorWriter = errorWriter;
+            this.assemblyFileVersion = assemblyFileVersion;
         }
 
         public static int Main(string[] args)
         {
             BicepDeploymentsInterop.Initialize();
-            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error);
+            var program = new Program(new AzResourceTypeProvider(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion);
             return program.Run(args);
         }
 
@@ -157,7 +160,7 @@ namespace Bicep.Cli
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
                 using var outputStream = CreateFileStream(outputPath);
-                emitter.Emit(outputStream, ThisAssembly.AssemblyFileVersion);
+                emitter.Emit(outputStream, this.assemblyFileVersion);
             }
         }
 
@@ -176,7 +179,7 @@ namespace Bicep.Cli
             {
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
-                emitter.Emit(writer);
+                emitter.Emit(writer, this.assemblyFileVersion);
             }
         }
 

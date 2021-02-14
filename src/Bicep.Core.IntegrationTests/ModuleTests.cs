@@ -265,7 +265,7 @@ module modulea 'modulea.bicep' = {
             var stringWriter = new StringWriter(stringBuilder);
 
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
-            emitter.Emit(stringWriter);
+            emitter.Emit(stringWriter, "dev");
 
             return stringBuilder.ToString();
         }

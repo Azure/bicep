@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.Utils
             if (!compilation.GetEntrypointSemanticModel().HasErrors())
             {
                 using var stream = new MemoryStream();
-                var emitResult = emitter.Emit(stream);
+                var emitResult = emitter.Emit(stream, "dev");
 
                 if (emitResult.Status != EmitStatus.Failed)
                 {

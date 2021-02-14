@@ -139,7 +139,7 @@ namespace Bicep.Core.Samples
                 exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
                 using var stream = new MemoryStream();
-                var result = emitter.Emit(stream);
+                var result = emitter.Emit(stream, "dev");
             
                 result.Status.Should().Be(EmitStatus.Succeeded);
 
