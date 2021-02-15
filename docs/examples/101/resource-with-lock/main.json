@@ -21,7 +21,7 @@
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName'))]",
+      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]",
       "name": "DontDelete",
       "properties": {
         "level": "CanNotDelete"

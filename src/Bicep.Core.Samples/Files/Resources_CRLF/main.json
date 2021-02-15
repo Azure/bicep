@@ -261,7 +261,7 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+      "scope": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
       "name": "extension",
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"

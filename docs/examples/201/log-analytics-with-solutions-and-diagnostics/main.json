@@ -47,7 +47,7 @@
     {
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('logAnalyticsWorkspaceName'))]",
+      "scope": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
       "name": "diagnosticSettings",
       "properties": {
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",

@@ -533,6 +533,11 @@ namespace Bicep.Core.Emit
                 "tenantResourceId",
                 new[] { new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
 
+        public static LanguageExpression GenerateResourceGroupResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+            => CreateFunction(
+                "resourceId",
+                new[] { new JTokenExpression(fullyQualifiedType), }.Concat(nameSegments));
+
         public LanguageExpression GenerateManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
         {
             const string managementGroupType = "Microsoft.Management/managementGroups";

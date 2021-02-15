@@ -55,7 +55,7 @@
     {
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2015-07-01",
-      "scope": "[format('Microsoft.Cache/Redis/{0}', parameters('redisCacheName'))]",
+      "scope": "[resourceId('Microsoft.Cache/Redis', parameters('redisCacheName'))]",
       "name": "service",
       "location": "[parameters('location')]",
       "properties": {
