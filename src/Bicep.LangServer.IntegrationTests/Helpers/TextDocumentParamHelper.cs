@@ -12,7 +12,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
             {
                 TextDocument = new TextDocumentItem
                 {
-                    LanguageId = "bicep",
+                    LanguageId = LanguageConstants.LanguageId,
                     Version = version,
                     Uri = documentUri,
                     Text = text,

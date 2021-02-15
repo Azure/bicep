@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Extensions
                 Severity = ToDiagnosticSeverity(diagnostic.Level),
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
-                Source = LanguageServerConstants.LanguageId,
+                Source = LanguageConstants.LanguageId,
                 Range = diagnostic.ToRange(lineStarts)
             });
 

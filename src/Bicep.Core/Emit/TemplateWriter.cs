@@ -471,7 +471,7 @@ namespace Bicep.Core.Emit
             writer.WritePropertyName("_generator");
             writer.WriteStartObject();
             
-            this.emitter.EmitProperty("name", ThisAssembly.AssemblyName);
+            this.emitter.EmitProperty("name", LanguageConstants.LanguageId);
             this.emitter.EmitProperty("version", assemblyVersion);
             if (templateHash is not null)
             {

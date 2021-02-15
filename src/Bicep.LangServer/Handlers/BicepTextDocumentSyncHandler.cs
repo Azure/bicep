@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
-            return new TextDocumentAttributes(uri, LanguageServerConstants.LanguageId);
+            return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
