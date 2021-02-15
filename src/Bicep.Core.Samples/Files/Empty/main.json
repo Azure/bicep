@@ -5,9 +5,9 @@
   "resources": [],
   "metadata": {
     "_generator": {
-      "name": "Bicep.Core",
+      "name": "bicep",
       "version": "dev",
-      "templateHash": "15042238935194140013"
+      "templateHash": "17010621301386190"
     }
   }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.Core;
 
 namespace Bicep.LanguageServer.Utils
 {

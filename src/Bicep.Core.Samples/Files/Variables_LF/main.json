@@ -174,9 +174,9 @@
   "resources": [],
   "metadata": {
     "_generator": {
-      "name": "Bicep.Core",
+      "name": "bicep",
       "version": "dev",
-      "templateHash": "7959757537876927162"
+      "templateHash": "2122340846930427742"
     }
   }
 }

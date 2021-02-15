@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using MediatR;
