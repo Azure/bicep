@@ -101,7 +101,7 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(ResourceSymbol resourceSymbol)
         {
-            var resourceIdExpression = converter.GetLocallyScopedResourceId(resourceSymbol);
+            var resourceIdExpression = converter.GetFullyQualifiedResourceId(resourceSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(ModuleSymbol moduleSymbol)
         {
-            var resourceIdExpression = converter.GetModuleResourceIdExpression(moduleSymbol);
+            var resourceIdExpression = converter.GetFullyQualifiedResourceId(moduleSymbol);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);

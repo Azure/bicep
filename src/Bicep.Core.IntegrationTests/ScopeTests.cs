@@ -122,7 +122,7 @@ param dependency string
         [TestMethod]
         public void Emitter_should_generate_correct_extension_scope_property_and_correct_dependsOn()
         {
-            var (template, diags, _) = CompilationHelper.Compile(@"
+            var (template, _, _) = CompilationHelper.Compile(@"
 resource resourceA 'My.Rp/myResource@2020-01-01' = {
   name: 'resourceA'
 }
@@ -141,18 +141,18 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
 
             using (new AssertionScope())
             {
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[resourceId('My.Rp/myResource', 'resourceA')]");
+                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[format('My.Rp/myResource/{0}', 'resourceA')]");
                 template.SelectToken("$.resources[?(@.name == 'resourceB')].dependsOn[0]")!.Should().DeepEqual("[resourceId('My.Rp/myResource', 'resourceA')]");
 
-                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.Should().DeepEqual("[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.SelectToken("$.resources[?(@.name == 'resourceC')].scope")!.Should().DeepEqual("[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
                 template.SelectToken("$.resources[?(@.name == 'resourceC')].dependsOn[0]")!.Should().DeepEqual("[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
             }
         }
 
-        [DataRow("tenant", "[tenantResourceId('My.Rp/myResource', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("tenant", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(format('My.Rp/myResource/{0}', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("subscription", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("resourceGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataTestMethod]
         public void Emitter_should_generate_correct_references_for_existing_resources(string targetScope, string expectedScopeExpression, string expectedReferenceExpression)
         {
@@ -326,7 +326,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
                 template!.Should().NotBeNull();
                 diags.Should().BeEmpty();
 
-                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[resourceId('My.Rp/myResource', 'resourceA')]");
+                template!.SelectToken("$.resources[?(@.name == 'resourceB')].scope")!.Should().DeepEqual("[format('My.Rp/myResource/{0}', 'resourceA')]");
             }
         }
     }

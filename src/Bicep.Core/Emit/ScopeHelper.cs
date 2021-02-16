@@ -129,21 +129,17 @@ namespace Bicep.Core.Emit
             return null;
         }
 
-        public static LanguageExpression FormatCrossScopeResourceId(ExpressionConverter expressionConverter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        public static LanguageExpression FormatFullyQualifiedResourceId(EmitterContext context, ExpressionConverter converter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
-            var arguments = new List<LanguageExpression>();
-
             switch (scopeData.RequestedScope)
             {
                 case ResourceScope.Tenant:
-                    arguments.Add(new JTokenExpression(fullyQualifiedType));
-                    arguments.AddRange(nameSegments);
-
-                    return new FunctionExpression("tenantResourceId", arguments.ToArray(), Array.Empty<LanguageExpression>());
+                    return ExpressionConverter.GenerateTenantResourceId(fullyQualifiedType, nameSegments);
                 case ResourceScope.Subscription:
+                    var arguments = new List<LanguageExpression>();
                     if (scopeData.SubscriptionIdProperty != null)
                     {
-                        arguments.Add(expressionConverter.ConvertExpression(scopeData.SubscriptionIdProperty));
+                        arguments.Add(converter.ConvertExpression(scopeData.SubscriptionIdProperty));
                     }
                     arguments.Add(new JTokenExpression(fullyQualifiedType));
                     arguments.AddRange(nameSegments);
@@ -161,7 +157,7 @@ namespace Bicep.Core.Emit
                         else
                         {
                             var subscriptionId = new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") });
-                            var resourceGroup = expressionConverter.ConvertExpression(scopeData.ResourceGroupProperty);
+                            var resourceGroup = converter.ConvertExpression(scopeData.ResourceGroupProperty);
                             scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
                         }
                     }
@@ -172,19 +168,19 @@ namespace Bicep.Core.Emit
                             throw new NotImplementedException($"Cannot format resourceId with non-null subscription and null resourceGroup");
                         }
 
-                        var subscriptionId = expressionConverter.ConvertExpression(scopeData.SubscriptionIdProperty);
-                        var resourceGroup = expressionConverter.ConvertExpression(scopeData.ResourceGroupProperty);
+                        var subscriptionId = converter.ConvertExpression(scopeData.SubscriptionIdProperty);
+                        var resourceGroup = converter.ConvertExpression(scopeData.ResourceGroupProperty);
                         scope = ExpressionConverter.GenerateResourceGroupScope(subscriptionId, resourceGroup);
                     }
 
                     // We've got to DIY it, unfortunately. The resourceId() function behaves differently when used at different scopes, so is unsuitable here.
-                    return ExpressionConverter.GenerateScopedResourceId(scope, fullyQualifiedType, nameSegments);
+                    return ExpressionConverter.GenerateExtensionResourceId(scope, fullyQualifiedType, nameSegments);
                 case ResourceScope.ManagementGroup:
                     if (scopeData.ManagementGroupNameProperty != null)
                     {
-                        var managementGroupScope = expressionConverter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
+                        var managementGroupScope = converter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
 
-                        return ExpressionConverter.GenerateScopedResourceId(managementGroupScope, fullyQualifiedType, nameSegments);
+                        return ExpressionConverter.GenerateExtensionResourceId(managementGroupScope, fullyQualifiedType, nameSegments);
                     }
 
                     // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
@@ -197,8 +193,16 @@ namespace Bicep.Core.Emit
                         throw new InvalidOperationException($"Cannot format resourceId with non-null resource scope symbol");
                     }
 
-                    return ExpressionConverter.GenerateScopedResourceId(
-                        expressionConverter.GetLocallyScopedResourceId(scopeData.ResourceScopeSymbol),
+                    var parentTypeReference = EmitHelpers.GetTypeReference(scopeData.ResourceScopeSymbol);
+                    var parentResourceId = FormatFullyQualifiedResourceId(
+                        context,
+                        converter,
+                        context.ResourceScopeData[scopeData.ResourceScopeSymbol],
+                        parentTypeReference.FullyQualifiedType,
+                        converter.GetResourceNameSegments(scopeData.ResourceScopeSymbol, parentTypeReference));
+
+                    return ExpressionConverter.GenerateExtensionResourceId(
+                        parentResourceId,
                         fullyQualifiedType,
                         nameSegments);
                 default:
@@ -206,30 +210,35 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static LanguageExpression FormatLocallyScopedResourceId(ResourceScope? targetScope, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
+        public static LanguageExpression FormatUnqualifiedResourceId(EmitterContext context, ExpressionConverter converter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
-            var initialArgs = new JTokenExpression(fullyQualifiedType).AsEnumerable();
-            switch (targetScope)
+            switch (scopeData.RequestedScope)
             {
                 case ResourceScope.Tenant:
-                    var tenantArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("tenantResourceId", tenantArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScope.Subscription:
-                    var subscriptionArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("subscriptionResourceId", subscriptionArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScope.ResourceGroup:
-                    var resourceGroupArgs = initialArgs.Concat(nameSegments);
-                    return new FunctionExpression("resourceId", resourceGroupArgs.ToArray(), Array.Empty<LanguageExpression>());
                 case ResourceScope.ManagementGroup:
-                    // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
-                    // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
-                    // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
                     return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
-                case null:
-                    return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
+                case ResourceScope.Resource:
+                    if (scopeData.ResourceScopeSymbol is null)
+                    {
+                        throw new InvalidOperationException($"Cannot format resourceId with non-null resource scope symbol");
+                    }
+
+                    var parentTypeReference = EmitHelpers.GetTypeReference(scopeData.ResourceScopeSymbol);
+                    var parentResourceId = FormatUnqualifiedResourceId(
+                        context,
+                        converter,
+                        context.ResourceScopeData[scopeData.ResourceScopeSymbol],
+                        parentTypeReference.FullyQualifiedType,
+                        converter.GetResourceNameSegments(scopeData.ResourceScopeSymbol, parentTypeReference));
+
+                    return ExpressionConverter.GenerateExtensionResourceId(
+                        parentResourceId,
+                        fullyQualifiedType,
+                        nameSegments);
                 default:
-                    // this should have already been caught during compilation
-                    throw new InvalidOperationException($"Invalid target scope {targetScope} for module");
+                    throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
         }
 
