@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Bicep.Core;
 using Bicep.Cli.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -25,7 +25,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((outputWriter, errorWriter) =>
             {
-                var program = new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, LanguageConstants.DevAssemblyFileVersion);
+                var program = new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, BicepTestConstants.DevAssemblyFileVersion);
 
                 return program.Run(args);
             });

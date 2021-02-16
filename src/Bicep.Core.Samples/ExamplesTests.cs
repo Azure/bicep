@@ -16,6 +16,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -139,7 +140,7 @@ namespace Bicep.Core.Samples
                 exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
                 using var stream = new MemoryStream();
-                var result = emitter.Emit(stream, LanguageConstants.DevAssemblyFileVersion);
+                var result = emitter.Emit(stream, BicepTestConstants.DevAssemblyFileVersion);
             
                 result.Status.Should().Be(EmitStatus.Succeeded);
 

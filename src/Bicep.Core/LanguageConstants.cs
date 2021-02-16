@@ -14,7 +14,6 @@ namespace Bicep.Core
     {
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
-        public const string DevAssemblyFileVersion = "dev";
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
