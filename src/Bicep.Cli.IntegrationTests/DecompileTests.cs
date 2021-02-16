@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Bicep.Core;
 using Bicep.Cli.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -24,7 +25,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (output, error, result) = TextWriterHelper.InvokeWriterAction((outputWriter, errorWriter) =>
             {
-                var program = new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, "dev");
+                var program = new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, LanguageConstants.DevAssemblyFileVersion);
 
                 return program.Run(args);
             });
@@ -44,7 +45,14 @@ namespace Bicep.Cli.IntegrationTests
     ""parameters"": {},
     ""variables"": {},
     ""resources"": [],
-    ""outputs"": {}
+    ""outputs"": {},
+    ""metadata"": {
+        ""_generator"": {
+            ""name"": ""bicep"",
+            ""version"": ""dev"",
+            ""templateHash"": ""<templateHash>""
+        }
+    }
 }";
 
             var directoryName = Path.Combine(TestContext.TestRunResultsDirectory, TestContext.TestName);

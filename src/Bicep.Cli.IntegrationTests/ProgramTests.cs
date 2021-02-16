@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Cli.UnitTests;
+using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
@@ -32,7 +33,7 @@ namespace Bicep.Cli.IntegrationTests
 
         private static Program CreateProgram(TextWriter outputWriter, TextWriter errorWriter)
         {
-            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, "dev");
+            return new Program(TestResourceTypeProvider.Create(), outputWriter, errorWriter, LanguageConstants.DevAssemblyFileVersion);
         }
 
         [TestMethod]
@@ -170,8 +171,6 @@ namespace Bicep.Cli.IntegrationTests
             File.Exists(compiledFilePath).Should().BeTrue();
 
             var actual = JToken.Parse(output);
-
-            actual["metadata"] = JToken.Parse(dataSet.Compiled!)["metadata"];
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext, 
