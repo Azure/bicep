@@ -157,10 +157,10 @@ namespace Bicep.Cli
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
             if (success)
             {
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), this.assemblyFileVersion);
 
                 using var outputStream = CreateFileStream(outputPath);
-                emitter.Emit(outputStream, this.assemblyFileVersion);
+                emitter.Emit(outputStream);
             }
         }
 
@@ -177,9 +177,9 @@ namespace Bicep.Cli
             var success = LogDiagnosticsAndCheckSuccess(logger, compilation);
             if (success)
             {
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), this.assemblyFileVersion);
 
-                emitter.Emit(writer, this.assemblyFileVersion);
+                emitter.Emit(writer);
             }
         }
 

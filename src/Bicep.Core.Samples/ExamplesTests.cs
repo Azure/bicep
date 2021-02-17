@@ -124,7 +124,7 @@ namespace Bicep.Core.Samples
             
             var syntaxTreeGrouping = SyntaxTreeGroupingBuilder.Build(new FileResolver(), new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var compilation = new Compilation(new AzResourceTypeProvider(), syntaxTreeGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
 
             // group assertion failures using AssertionScope, rather than reporting the first failure
             using (new AssertionScope())
@@ -140,7 +140,7 @@ namespace Bicep.Core.Samples
                 exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
 
                 using var stream = new MemoryStream();
-                var result = emitter.Emit(stream, BicepTestConstants.DevAssemblyFileVersion);
+                var result = emitter.Emit(stream);
             
                 result.Status.Should().Be(EmitStatus.Succeeded);
 

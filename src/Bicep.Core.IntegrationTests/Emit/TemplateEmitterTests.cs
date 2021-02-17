@@ -144,19 +144,19 @@ namespace Bicep.Core.IntegrationTests.Emit
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, string filePath, string assemblyFileVersion)
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), assemblyFileVersion);
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
-            return emitter.Emit(stream, assemblyFileVersion);
+            return emitter.Emit(stream);
         }
 
         private EmitResult EmitTemplate(SyntaxTreeGrouping syntaxTreeGrouping, MemoryStream memoryStream, string assemblyFileVersion)
         {
             var compilation = new Compilation(TestResourceTypeProvider.Create(), syntaxTreeGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), assemblyFileVersion);
 
             TextWriter tw = new StreamWriter(memoryStream);
-            return emitter.Emit(tw, assemblyFileVersion);
+            return emitter.Emit(tw);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

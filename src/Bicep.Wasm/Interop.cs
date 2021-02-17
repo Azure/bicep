@@ -118,11 +118,11 @@ namespace Bicep.Wasm
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
                 var compilation = GetCompilation(content);
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), ThisAssembly.AssemblyFileVersion);
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();
-                var emitResult = emitter.Emit(stream, ThisAssembly.AssemblyFileVersion);
+                var emitResult = emitter.Emit(stream);
 
                 if (emitResult.Status != EmitStatus.Failed)
                 {

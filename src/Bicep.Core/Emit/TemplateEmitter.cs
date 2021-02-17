@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
@@ -20,62 +19,55 @@ namespace Bicep.Core.Emit
         /// </summary>
         private Encoding UTF8EncodingWithoutBom => new UTF8Encoding(false);
 
-        public TemplateEmitter(SemanticModel model)
+        /// <summary>
+        /// Assembly File Version to emit into the metadata
+        /// </summary>
+        private readonly string assemblyFileVersion;
+
+        public TemplateEmitter(SemanticModel model, string assemblyFileVersion)
         {
             this.model = model;
-        }
-
-        private string CalculateTemplateHash(string assemblyVersion)
-        {
-            using (var stringWriter = new StringWriter())
-            using (var writer = new JsonTextWriter(stringWriter))
-            {
-                new TemplateWriter(writer, this.model).Write(emitMetadata: true, assemblyVersion, templateHash: null);
-                return TemplateHashExtensions.ComputeTemplateHash(stringWriter.ToString());
-            }
+            this.assemblyFileVersion = assemblyFileVersion;
         }
 
         /// <summary>
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
         /// </summary>
         /// <param name="stream">The stream to write the template</param>
-        /// <param name="assemblyVersion">Assembly Version to emit into the metadata</param>
-        public EmitResult Emit(Stream stream, string assemblyVersion) => EmitOrFail((string templateHash) =>
+        public EmitResult Emit(Stream stream) => EmitOrFail(() =>
         {
             using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, true))
             {
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(writer, this.model).Write(emitMetadata: true, assemblyVersion, templateHash);
-        }, assemblyVersion);
+            new TemplateWriter(writer, this.model, this.assemblyFileVersion).Write();
+        });
 
         /// <summary>
         /// Emits a template to the specified text writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="textWriter">The text writer to write the template</param>
-        /// <param name="assemblyVersion">Assembly Version to emit into the metadata</param>
-        public EmitResult Emit(TextWriter textWriter, string assemblyVersion) => EmitOrFail((string templateHash) =>
+        public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
         {
             using var writer = new JsonTextWriter(textWriter)
             {
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(writer, this.model).Write(emitMetadata: true, assemblyVersion, templateHash);
-        }, assemblyVersion);
+            new TemplateWriter(writer, this.model, this.assemblyFileVersion).Write();
+        });
 
         /// <summary>
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
-        /// <param name="assemblyVersion">Assembly Version to emit into the metadata</param>
-        public EmitResult Emit(JsonTextWriter writer, string assemblyVersion) => this.EmitOrFail((string templateHash) =>
+        public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new TemplateWriter(writer, this.model).Write(emitMetadata: true, assemblyVersion, templateHash);
-        }, assemblyVersion);
+            new TemplateWriter(writer, this.model, this.assemblyFileVersion).Write();
+        });
 
-        private EmitResult EmitOrFail(Action<string> writeTemplateFunc, string assemblyVersion)
+        private EmitResult EmitOrFail(Action write)
         {
             // collect all the diagnostics
             var diagnostics = this.model.GetAllDiagnostics();
@@ -84,12 +76,10 @@ namespace Bicep.Core.Emit
             {
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
-            
-            var templateHash = this.CalculateTemplateHash(assemblyVersion);
-            writeTemplateFunc(templateHash);
+
+            write();
 
             return new EmitResult(EmitStatus.Succeeded, diagnostics);
         }
     }
 }
-
