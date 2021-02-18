@@ -268,7 +268,7 @@ namespace Bicep.Core.UnitTests.Parsing
             diagnostics.Should().HaveCount(1);
             var diagnostic = diagnostics.Single();
 
-            diagnostic.Code.Should().Be("BCP0139");
+            diagnostic.Code.Should().Be("BCP140");
             diagnostic.Message.Should().Be($"The multi-line string at this location is not terminated. Terminate it with {expectedQuoteCount} \"'\" characters.");
         }
 

@@ -649,5 +649,66 @@ param name string
                 template!.SelectToken("$.resources[?(@.name == 'vnet')].resourceGroup")!.Should().DeepEqual("rg");
             }
         }
+
+        [TestMethod]
+        public void Test_Issue1388()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+param rgName string
+param location string = deployment().location
+
+param groupOwnerId string
+param groupContributorId string
+param groupReaderId string
+
+resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  name: rgName
+  location: location
+}
+
+resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'owner')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')}'
+    principalId: groupOwnerId
+    principalType: 'Group'
+  }
+}
+
+resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'contributor')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')}'
+    principalId: groupContributorId
+    principalType: 'Group'
+  }
+}
+
+resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: '${guid(rg.name, 'reader')}'
+  scope: rg
+  properties: {
+    roleDefinitionId: '${subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')}'
+    principalId: groupReaderId
+    principalType: 'Group'
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.Should().HaveDiagnostics(new[] {
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                    ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                });
+            }
+        }
     }
 }
+

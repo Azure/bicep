@@ -1056,6 +1056,7 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
 //@[23:54) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope3'
   scope: subscription()
+//@[9:23) [BCP139 (Error)] The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module. |subscription()|
 }
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {

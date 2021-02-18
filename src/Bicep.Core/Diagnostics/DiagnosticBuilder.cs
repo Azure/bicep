@@ -794,9 +794,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP138",
                 "Loops are not currently supported.");
 
+            public Diagnostic InvalidCrossResourceScope() => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP139",
+                $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
+
             public ErrorDiagnostic UnterminatedMultilineString(int terminatingQuoteCount) => new(
                 TextSpan,
-                "BCP0139",
+                "BCP140",
                 $"The multi-line string at this location is not terminated. Terminate it with {terminatingQuoteCount} \"'\" characters.");
         }
 
