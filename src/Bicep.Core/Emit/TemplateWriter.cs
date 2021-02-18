@@ -87,35 +87,21 @@ namespace Bicep.Core.Emit
         }
 
         /// <summary>
-        /// Should be the only constructor used externally
+        /// This emits the template into memory, calculates the template hash of the template
+        /// It then adds the templateHash field to the template and finally writes it to our desired JsonTextWriter
         /// </summary>
         public void Write()
         {
-            this.Write(moduleEmit: false);
-        }
-
-        /// <summary>
-        /// Since emitting modules is a nested call to this, it behaves differently (we reuse the main memoryWriter)
-        /// </summary>
-        public void Write(bool moduleEmit)
-        {
             string templateString;
-            if (moduleEmit)
+            using (StringWriter stringWriter = new())
+            using (JsonTextWriter memoryWriter = new(stringWriter))
             {
-                this.Write(this.writer, new ExpressionEmitter(this.writer, this.context), false);
-                return;
-            }
-            else
-            {
-                using (StringWriter stringWriter = new())
-                using (JsonTextWriter memoryWriter = new(stringWriter))
-                {
-                    var emitter = new ExpressionEmitter(memoryWriter, this.context);
-                    // no templatehash, write to memory
-                    this.Write(memoryWriter, emitter, true);
-                    // TODO: avoid reading the whole template into a string
-                    templateString = stringWriter.ToString();
-                }
+                var emitter = new ExpressionEmitter(memoryWriter, this.context);
+                // no templatehash, write to memory
+                this.Write(memoryWriter, emitter, emitMetadata: true);
+                // TODO: avoid reading the whole template into a string. Address this when ComputeTemplateHash 
+                // has a streaming variant.
+                templateString = stringWriter.ToString();
             }
             var templateHash = TemplateHashExtensions.ComputeTemplateHash(templateString);
             JObject template = (JObject)JObject.Parse(templateString);
@@ -123,56 +109,64 @@ namespace Bicep.Core.Emit
             template.WriteTo(this.writer);
         }
 
-
-        private void Write(JsonTextWriter textWriter, ExpressionEmitter emitter, bool emitMetadata)
+        /// <summary>
+        /// Writing modules behaves differently than Write: we reuse the parent memoryWriter and do not generate metadata
+        /// </summary>
+        private void WriteModule()
         {
-            textWriter.WriteStartObject();
+            this.Write(this.writer, new ExpressionEmitter(this.writer, this.context), emitMetadata: false);
+        }
+
+
+        private void Write(JsonTextWriter memoryWriter, ExpressionEmitter emitter, bool emitMetadata)
+        {
+            memoryWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
 
-            this.EmitParametersIfPresent(textWriter, emitter);
+            this.EmitParametersIfPresent(memoryWriter, emitter);
 
-            textWriter.WritePropertyName("functions");
-            textWriter.WriteStartArray();
-            textWriter.WriteEndArray();
+            memoryWriter.WritePropertyName("functions");
+            memoryWriter.WriteStartArray();
+            memoryWriter.WriteEndArray();
 
-            this.EmitVariablesIfPresent(textWriter, emitter);
+            this.EmitVariablesIfPresent(memoryWriter, emitter);
 
-            this.EmitResources(textWriter, emitter);
+            this.EmitResources(memoryWriter, emitter);
 
-            this.EmitOutputsIfPresent(textWriter, emitter);
+            this.EmitOutputsIfPresent(memoryWriter, emitter);
 
             // We skip emitting metadata when emitting modules (no metadata for nested deployments i.e. emitting modules)
             if (emitMetadata)
             {
-                this.EmitMetadata(textWriter, emitter);
+                this.EmitMetadata(memoryWriter, emitter);
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitParametersIfPresent(JsonTextWriter textWriter, ExpressionEmitter emitter)
+        private void EmitParametersIfPresent(JsonTextWriter memoryWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.ParameterDeclarations.Length == 0)
             {
                 return;
             }
 
-            textWriter.WritePropertyName("parameters");
-            textWriter.WriteStartObject();
+            memoryWriter.WritePropertyName("parameters");
+            memoryWriter.WriteStartObject();
 
             foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
             {
-                textWriter.WritePropertyName(parameterSymbol.Name);
-                this.EmitParameter(textWriter, parameterSymbol, emitter);
+                memoryWriter.WritePropertyName(parameterSymbol.Name);
+                this.EmitParameter(memoryWriter, parameterSymbol, emitter);
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitParameter(JsonTextWriter textWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
+        private void EmitParameter(JsonTextWriter memoryWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
             // local function
             bool IsSecure(SyntaxBase? value) => value is BooleanLiteralSyntax boolLiteral && boolLiteral.Value;
@@ -183,7 +177,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException($"Unable to find primitive type for parameter {parameterSymbol.Name}");
             }
 
-            textWriter.WriteStartObject();
+            memoryWriter.WriteStartObject();
 
             if (parameterSymbol.DeclaringParameter.Decorators.Any())
             {
@@ -258,29 +252,29 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitVariablesIfPresent(JsonTextWriter textWriter, ExpressionEmitter emitter)
+        private void EmitVariablesIfPresent(JsonTextWriter memoryWriter, ExpressionEmitter emitter)
         {
             if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)))
             {
                 return;
             }
 
-            textWriter.WritePropertyName("variables");
-            textWriter.WriteStartObject();
+            memoryWriter.WritePropertyName("variables");
+            memoryWriter.WriteStartObject();
 
             foreach (var variableSymbol in this.context.SemanticModel.Root.VariableDeclarations)
             {
                 if (!this.context.VariablesToInline.Contains(variableSymbol))
                 {
-                    textWriter.WritePropertyName(variableSymbol.Name);
+                    memoryWriter.WritePropertyName(variableSymbol.Name);
                     this.EmitVariable(variableSymbol, emitter);
                 }
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
         private void EmitVariable(VariableSymbol variableSymbol, ExpressionEmitter emitter)
@@ -289,10 +283,10 @@ namespace Bicep.Core.Emit
             emitter.EmitExpression(variableSymbol.Value);
         }
 
-        private void EmitResources(JsonTextWriter textWriter, ExpressionEmitter emitter)
+        private void EmitResources(JsonTextWriter memoryWriter, ExpressionEmitter emitter)
         {
-            textWriter.WritePropertyName("resources");
-            textWriter.WriteStartArray();
+            memoryWriter.WritePropertyName("resources");
+            memoryWriter.WriteStartArray();
 
             foreach (var resourceSymbol in this.context.SemanticModel.Root.ResourceDeclarations)
             {
@@ -301,20 +295,20 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                this.EmitResource(textWriter, resourceSymbol, emitter);
+                this.EmitResource(memoryWriter, resourceSymbol, emitter);
             }
 
             foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
             {
-                this.EmitModule(textWriter, moduleSymbol, emitter);
+                this.EmitModule(memoryWriter, moduleSymbol, emitter);
             }
 
-            textWriter.WriteEndArray();
+            memoryWriter.WriteEndArray();
         }
 
-        private void EmitResource(JsonTextWriter textWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
+        private void EmitResource(JsonTextWriter memoryWriter, ResourceSymbol resourceSymbol, ExpressionEmitter emitter)
         {
-            textWriter.WriteStartObject();
+            memoryWriter.WriteStartObject();
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
             var body = resourceSymbol.DeclaringResource.Value;
@@ -334,12 +328,12 @@ namespace Bicep.Core.Emit
 
             // dependsOn is currently not allowed as a top-level resource property in bicep
             // we will need to revisit this and probably merge the two if we decide to allow it
-            this.EmitDependsOn(textWriter, resourceSymbol, emitter);
+            this.EmitDependsOn(memoryWriter, resourceSymbol, emitter);
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitModuleParameters(JsonTextWriter textWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
+        private void EmitModuleParameters(JsonTextWriter memoryWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
             var paramsValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleParamsPropertyName);
             if (paramsValue is not ObjectSyntax paramsObjectSyntax)
@@ -348,9 +342,9 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            textWriter.WritePropertyName("parameters");
+            memoryWriter.WritePropertyName("parameters");
 
-            textWriter.WriteStartObject();
+            memoryWriter.WriteStartObject();
 
             foreach (var propertySyntax in paramsObjectSyntax.Properties)
             {
@@ -360,20 +354,20 @@ namespace Bicep.Core.Emit
                     throw new ArgumentException("Disallowed interpolation in module parameter");
                 }
 
-                textWriter.WritePropertyName(keyName);
+                memoryWriter.WritePropertyName(keyName);
                 {
-                    textWriter.WriteStartObject();
+                    memoryWriter.WriteStartObject();
                     emitter.EmitProperty("value", propertySyntax.Value);
-                    textWriter.WriteEndObject();
+                    memoryWriter.WriteEndObject();
                 }
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitModule(JsonTextWriter textWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
+        private void EmitModule(JsonTextWriter memoryWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
-            textWriter.WriteStartObject();
+            memoryWriter.WriteStartObject();
 
             var body = moduleSymbol.DeclaringModule.Value;
             if (body is IfConditionSyntax ifCondition)
@@ -414,38 +408,37 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            textWriter.WritePropertyName("properties");
+            memoryWriter.WritePropertyName("properties");
             {
-                textWriter.WriteStartObject();
+                memoryWriter.WriteStartObject();
 
-                textWriter.WritePropertyName("expressionEvaluationOptions");
+                memoryWriter.WritePropertyName("expressionEvaluationOptions");
                 {
-                    textWriter.WriteStartObject();
+                    memoryWriter.WriteStartObject();
                     emitter.EmitProperty("scope", "inner");
-                    textWriter.WriteEndObject();
+                    memoryWriter.WriteEndObject();
                 }
 
                 emitter.EmitProperty("mode", "Incremental");
 
-                EmitModuleParameters(textWriter, moduleSymbol, emitter);
+                EmitModuleParameters(memoryWriter, moduleSymbol, emitter);
 
-                textWriter.WritePropertyName("template");
+                memoryWriter.WritePropertyName("template");
                 {
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    var moduleWriter = new TemplateWriter(textWriter, moduleSemanticModel, this.assemblyFileVersion);
-                    // we don't need the hash of a module, we use a global hash for the template
-                    moduleWriter.Write(true);
+                    var moduleWriter = new TemplateWriter(memoryWriter, moduleSemanticModel, this.assemblyFileVersion);
+                    moduleWriter.WriteModule();
                 }
 
-                textWriter.WriteEndObject();
+                memoryWriter.WriteEndObject();
             }
 
-            this.EmitDependsOn(textWriter, moduleSymbol, emitter);
+            this.EmitDependsOn(memoryWriter, moduleSymbol, emitter);
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitDependsOn(JsonTextWriter textWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter)
+        private void EmitDependsOn(JsonTextWriter memoryWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter)
         {
             var dependencies = context.ResourceDependencies[declaredSymbol];
             if (!dependencies.Any())
@@ -453,8 +446,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            textWriter.WritePropertyName("dependsOn");
-            textWriter.WriteStartArray();
+            memoryWriter.WritePropertyName("dependsOn");
+            memoryWriter.WriteStartArray();
             // need to put dependencies in a deterministic order to generate a deterministic template
             foreach (var dependency in dependencies.OrderBy(x => x.Name))
             {
@@ -473,49 +466,49 @@ namespace Bicep.Core.Emit
                         throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");
                 }
             }
-            textWriter.WriteEndArray();
+            memoryWriter.WriteEndArray();
         }
 
-        private void EmitOutputsIfPresent(JsonTextWriter textWriter, ExpressionEmitter emitter)
+        private void EmitOutputsIfPresent(JsonTextWriter memoryWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.OutputDeclarations.Length == 0)
             {
                 return;
             }
 
-            textWriter.WritePropertyName("outputs");
-            textWriter.WriteStartObject();
+            memoryWriter.WritePropertyName("outputs");
+            memoryWriter.WriteStartObject();
 
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
             {
-                textWriter.WritePropertyName(outputSymbol.Name);
-                this.EmitOutput(textWriter, outputSymbol, emitter);
+                memoryWriter.WritePropertyName(outputSymbol.Name);
+                this.EmitOutput(memoryWriter, outputSymbol, emitter);
             }
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        private void EmitOutput(JsonTextWriter textWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private void EmitOutput(JsonTextWriter memoryWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
-            textWriter.WriteStartObject();
+            memoryWriter.WriteStartObject();
 
             emitter.EmitProperty("type", outputSymbol.Type.Name);
             emitter.EmitProperty("value", outputSymbol.Value);
 
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
-        public void EmitMetadata(JsonTextWriter textWriter, ExpressionEmitter emitter)
+        public void EmitMetadata(JsonTextWriter memoryWriter, ExpressionEmitter emitter)
         {
-            textWriter.WritePropertyName("metadata");
-            textWriter.WriteStartObject();
-            textWriter.WritePropertyName("_generator");
-            textWriter.WriteStartObject();
+            memoryWriter.WritePropertyName("metadata");
+            memoryWriter.WriteStartObject();
+            memoryWriter.WritePropertyName("_generator");
+            memoryWriter.WriteStartObject();
 
             emitter.EmitProperty("name", LanguageConstants.LanguageId);
             emitter.EmitProperty("version", this.assemblyFileVersion);
-            textWriter.WriteEndObject();
-            textWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
+            memoryWriter.WriteEndObject();
         }
 
         private string GetTemplateTypeName(TypeSymbol type, bool secure)
