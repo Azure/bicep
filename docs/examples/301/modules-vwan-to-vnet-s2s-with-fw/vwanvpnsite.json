@@ -73,5 +73,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/vpnSites', parameters('vpnsitename'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10000741995448321374"
+    }
   }
 }

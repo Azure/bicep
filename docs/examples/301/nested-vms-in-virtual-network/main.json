@@ -856,5 +856,12 @@
         "[resourceId('Microsoft.Resources/deployments', 'createNic2')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6333407413510019552"
+    }
+  }
 }

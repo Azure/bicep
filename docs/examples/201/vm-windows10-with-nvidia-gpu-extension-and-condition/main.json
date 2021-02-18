@@ -145,5 +145,12 @@
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14115673084354052029"
+    }
+  }
 }

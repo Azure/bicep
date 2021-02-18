@@ -96,5 +96,12 @@
       "type": "object",
       "value": "[reference(resourceId('My.Rp/myResourceType', 'resC'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13661580234949202298"
+    }
   }
 }

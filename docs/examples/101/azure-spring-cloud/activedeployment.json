@@ -41,5 +41,12 @@
         "activeDeploymentName": "default"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14716049199041538326"
+    }
+  }
 }

@@ -29,5 +29,12 @@
       "type": "string",
       "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9519677312772082675"
+    }
   }
 }

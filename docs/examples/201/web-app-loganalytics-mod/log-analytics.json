@@ -37,5 +37,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsName'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5100881808669261751"
+    }
   }
 }

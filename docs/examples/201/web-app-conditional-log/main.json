@@ -219,5 +219,12 @@
         "[resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17065159702106747868"
+    }
+  }
 }

@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using MediatR;
@@ -25,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
-            return new TextDocumentAttributes(uri, LanguageServerConstants.LanguageId);
+            return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
