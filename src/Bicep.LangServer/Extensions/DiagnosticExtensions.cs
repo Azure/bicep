@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Diagnostic = Bicep.Core.Diagnostics.Diagnostic;
 
@@ -18,7 +19,7 @@ namespace Bicep.LanguageServer.Extensions
                 Severity = ToDiagnosticSeverity(diagnostic.Level),
                 Code = diagnostic.Code,
                 Message = diagnostic.Message,
-                Source = LanguageServerConstants.LanguageId,
+                Source = LanguageConstants.LanguageId,
                 Range = diagnostic.ToRange(lineStarts)
             });
 

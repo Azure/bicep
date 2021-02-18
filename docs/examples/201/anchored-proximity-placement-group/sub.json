@@ -9,5 +9,12 @@
       "name": "rg-bicep",
       "location": "uksouth"
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10348740316805403775"
+    }
+  }
 }

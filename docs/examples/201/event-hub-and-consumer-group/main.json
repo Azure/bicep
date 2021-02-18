@@ -65,5 +65,12 @@
         "[resourceId('Microsoft.EventHub/namespaces/eventhubs', split(format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName')), '/')[0], split(format('{0}/{1}', parameters('namespaceName'), parameters('eventHubName')), '/')[1])]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9642867181584374043"
+    }
+  }
 }

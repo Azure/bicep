@@ -95,5 +95,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNet2Name'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3644972126050235326"
+    }
+  }
 }

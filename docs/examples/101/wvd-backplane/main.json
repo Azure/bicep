@@ -90,5 +90,12 @@
         "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', parameters('appgroupName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7745412919019849875"
+    }
+  }
 }

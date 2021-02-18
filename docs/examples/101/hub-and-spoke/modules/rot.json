@@ -36,5 +36,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/routeTables', format('{0}-rot', parameters('prefix')))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12110720187620775770"
+    }
   }
 }

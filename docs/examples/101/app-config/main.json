@@ -70,5 +70,12 @@
       "type": "object",
       "value": "[reference(resourceId('Microsoft.AppConfiguration/configurationStores/keyValues', split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[0], split(format('{0}/{1}', parameters('configStoreName'), parameters('keyValueNames')[0]), '/')[1]), '2020-07-01-preview', 'full')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13239335818693703810"
+    }
   }
 }

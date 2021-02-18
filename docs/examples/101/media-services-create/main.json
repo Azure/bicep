@@ -43,5 +43,12 @@
         "name": "Standard_LRS"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9241577412677356822"
+    }
+  }
 }

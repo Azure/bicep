@@ -82,5 +82,12 @@
         "[subscriptionResourceId('Microsoft.Authorization/policyDefinitions', 'custom-allowed-location')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15571271359053021358"
+    }
+  }
 }

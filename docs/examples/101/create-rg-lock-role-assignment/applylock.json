@@ -32,5 +32,12 @@
         "principalId": "[parameters('principalId')]"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5867672624469865160"
+    }
+  }
 }

@@ -46,5 +46,12 @@
         "[resourceId('Microsoft.Sql/servers', parameters('serverName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3114116033638228997"
+    }
+  }
 }

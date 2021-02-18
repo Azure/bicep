@@ -238,5 +238,12 @@
         "[resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15572273201605460192"
+    }
+  }
 }

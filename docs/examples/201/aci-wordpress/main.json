@@ -243,5 +243,12 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', 'wordpress-containerinstance')).ipAddress.fqdn]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12918146695046444020"
+    }
   }
 }

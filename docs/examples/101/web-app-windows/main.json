@@ -62,5 +62,12 @@
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6972901730975186637"
+    }
+  }
 }

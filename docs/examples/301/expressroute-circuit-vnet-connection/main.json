@@ -128,5 +128,12 @@
         "[resourceId('Microsoft.Network/virtualNetworkGateways', parameters('gatewayName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5569164099137878911"
+    }
+  }
 }
