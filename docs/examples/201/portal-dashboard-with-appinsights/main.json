@@ -188,5 +188,12 @@
         "[resourceId('Microsoft.Insights/components', parameters('appInsightsName'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10706359955131105512"
+    }
+  }
 }

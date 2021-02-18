@@ -114,5 +114,12 @@
         "[resourceId('Microsoft.Network/networkInterfaces', 'cycleserver-nic')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "742161679375210434"
+    }
+  }
 }

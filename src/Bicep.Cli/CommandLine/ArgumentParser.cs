@@ -17,21 +17,16 @@ namespace Bicep.Cli.CommandLine
             }
 
             // parse verb
-            switch (args[0].ToLowerInvariant())
+            return (args[0].ToLowerInvariant()) switch
             {
-                case CliConstants.CommandBuild:
-                    return ParseBuild(args[1..]);
-                case CliConstants.CommandDecompile:
-                    return ParseDecompile(args[1..]);
-                case CliConstants.ArgumentHelp:
-                case CliConstants.ArgumentHelpShort:
-                    return new HelpArguments();
-                case CliConstants.ArgumentVersion:
-                case CliConstants.ArgumentVersionShort:
-                    return new VersionArguments();
-            }
-            
-            return null;
+                CliConstants.CommandBuild => new BuildArguments(args[1..]),
+                CliConstants.CommandDecompile => new DecompileArguments(args[1..]),
+                CliConstants.ArgumentHelp => new HelpArguments(),
+                CliConstants.ArgumentHelpShort => new HelpArguments(),
+                CliConstants.ArgumentVersion => new VersionArguments(),
+                CliConstants.ArgumentVersionShort => new VersionArguments(),
+                _ => null,
+            };
         }
 
         public static string GetExeName()
@@ -60,20 +55,28 @@ namespace Bicep.Cli.CommandLine
 $@"Bicep CLI version {GetVersionString()}
 
 Usage:
-  {exeName} build [options] [<files>...]
-    Builds one or more .bicep files
+  {exeName} build [options] <file>
+    Builds a .bicep file
 
     Arguments:
-      <files>     The list of one or more .bicep files to build
+      <file>        The input file.
 
     Options:
-      --stdout    Prints all output to stdout instead of corresponding files
+      --outdir <dir>    Saves the output at the specified directory.
+      --outfile <file>  Saves the output as the specified file path.
+      --stdout          Prints the output to stdout.
 
-  {exeName} decompile [options] [<files>...]
-    Attempts to decompile one or more template .json files to .bicep
+    Examples:
+      bicep build file.bicep
+      bicep build file.bicep --stdout
+      bicep build file.bicep --outdir dir1
+      bicep build file.bicep --outfile file.json
+
+  {exeName} decompile [options] <file>
+    Attempts to decompile a template .json file to .bicep
 
     Arguments:
-      <files>     The list of one or more .json files to decompile
+      <file>        The input file.
 
   {exeName} [options]
     Options:
@@ -83,16 +86,6 @@ Usage:
 
             writer.Write(output);
             writer.Flush();
-        }
-
-        private static BuildArguments ParseBuild(string[] files)
-        {
-            return new BuildArguments(files);
-        }
-
-        private static DecompileArguments ParseDecompile(string[] files)
-        {
-            return new DecompileArguments(files);
         }
     }
 }

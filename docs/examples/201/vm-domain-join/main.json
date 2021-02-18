@@ -186,5 +186,12 @@
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix'))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1089021762594465296"
+    }
+  }
 }

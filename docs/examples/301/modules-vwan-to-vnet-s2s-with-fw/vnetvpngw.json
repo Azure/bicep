@@ -94,5 +94,12 @@
       "type": "int",
       "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.asn]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14366512567346002599"
+    }
   }
 }

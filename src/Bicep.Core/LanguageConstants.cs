@@ -12,6 +12,9 @@ namespace Bicep.Core
 {
     public static class LanguageConstants
     {
+        public const string LanguageId = "bicep";
+        public const string LanguageFileExtension = ".bicep";
+
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
 

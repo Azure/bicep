@@ -67,5 +67,12 @@
         "hostingMode": "[parameters('hostingMode')]"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5694668277630810018"
+    }
+  }
 }

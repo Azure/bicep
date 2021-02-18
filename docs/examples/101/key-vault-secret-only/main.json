@@ -23,5 +23,12 @@
         "value": "[parameters('secretValue')]"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1384621854898938637"
+    }
+  }
 }

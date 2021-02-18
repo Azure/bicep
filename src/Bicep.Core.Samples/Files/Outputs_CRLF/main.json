@@ -81,5 +81,12 @@
       "type": "string",
       "value": "[listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "903791595036045003"
+    }
   }
 }

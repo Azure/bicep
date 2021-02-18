@@ -49,5 +49,12 @@
         "type": "SystemAssigned"
       }
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5786303015518904633"
+    }
+  }
 }

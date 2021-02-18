@@ -576,5 +576,12 @@
         "[extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'network')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12291890463781340610"
+    }
+  }
 }

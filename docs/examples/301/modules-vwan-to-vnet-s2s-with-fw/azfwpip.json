@@ -68,5 +68,12 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipname'))]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11163344508924143275"
+    }
   }
 }

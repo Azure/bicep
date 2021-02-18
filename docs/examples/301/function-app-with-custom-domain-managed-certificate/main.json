@@ -226,5 +226,12 @@
         "[resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5558299671654830009"
+    }
+  }
 }

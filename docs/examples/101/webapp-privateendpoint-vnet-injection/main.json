@@ -283,5 +283,12 @@
         "[resourceId('Microsoft.Network/privateEndpoints', 'PrivateEndpoint1')]"
       ]
     }
-  ]
+  ],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12188840441724391836"
+    }
+  }
 }

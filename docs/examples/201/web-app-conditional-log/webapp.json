@@ -94,5 +94,12 @@
       "type": "string",
       "value": "[variables('webSiteName')]"
     }
+  },
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5070554129826901949"
+    }
   }
 }

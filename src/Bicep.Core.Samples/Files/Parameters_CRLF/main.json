@@ -273,5 +273,12 @@
     }
   },
   "functions": [],
-  "resources": []
+  "resources": [],
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14069244255798581504"
+    }
+  }
 }
