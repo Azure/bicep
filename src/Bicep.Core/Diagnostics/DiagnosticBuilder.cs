@@ -793,6 +793,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP138",
                 "Loops are not currently supported.");
+
+            public Diagnostic InvalidCrossResourceScope() => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP139",
+                $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

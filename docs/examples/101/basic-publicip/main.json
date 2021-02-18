@@ -73,14 +73,14 @@
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(extensionResourceId(resourceGroup().id, 'Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2019-10-01').outputs.ipFqdn.value]"
     }
   },
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12251927520601303717"
+      "templateHash": "2482909878713352257"
     }
   }
 }

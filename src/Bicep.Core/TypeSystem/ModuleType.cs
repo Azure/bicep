@@ -14,6 +14,10 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.Module;
 
+        /// <summary>
+        /// Represents the possible scopes that this module type can be deployed at.
+        /// Does not account for cross-scope deployment limitations.
+        /// </summary>
         public ResourceScope ValidParentScopes { get; }
 
         public ITypeReference Body { get; }
