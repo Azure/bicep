@@ -182,3 +182,10 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[1:9) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. |minValue|
 output notAttachableDecorators int = 32
 
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5) -> decorators
+@sys.
+//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
+

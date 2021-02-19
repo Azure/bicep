@@ -112,7 +112,11 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HoveringOverNonHoverableElementsShouldProduceEmptyHovers(DataSet dataSet)
         {
             // local function
-            bool IsNonHoverable(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
+            static bool IsNonHoverable(SyntaxBase node) =>
+                !(node is PropertyAccessSyntax propertyAccessSyntax && propertyAccessSyntax.BaseExpression is ISymbolReference) &&
+                node is not ISymbolReference &&
+                node is not ITopLevelNamedDeclarationSyntax &&
+                node is not Token;
 
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var client = await IntegrationTestHelper.StartServerWithTextAsync(dataSet.Bicep, uri);

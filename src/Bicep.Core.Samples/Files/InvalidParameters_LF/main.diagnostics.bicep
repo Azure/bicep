@@ -502,9 +502,9 @@ param commaTwo string {
 @&& xxx
 //@[1:3) [BCP123 (Error)] Expected a namespace or decorator name at this location. |&&|
 @sys
-//@[1:4) [BCP140 (Error)] The expression is not callable. |sys|
+//@[1:4) [BCP140 (Error)] The expression cannot be used as a decorator as it is not callable. |sys|
 @paramAccessingVar
-//@[1:18) [BCP140 (Error)] The expression is not callable. |paramAccessingVar|
+//@[1:18) [BCP140 (Error)] The expression cannot be used as a decorator as it is not callable. |paramAccessingVar|
 param incompleteDecorators string
 
 @concat(1, 2)

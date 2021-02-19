@@ -91,3 +91,8 @@ output deeper bool = true ? -true : (14 && 's') + 10
 @sys.maxValue(20)
 @minValue(10)
 output notAttachableDecorators int = 32
+
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+// #completionTest(5) -> decorators
+@sys.
