@@ -24,6 +24,8 @@ namespace Bicep.Core.TypeSystem
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax) => this.functionResolver.TryGetSymbol(identifierSyntax);
 
+        public Decorator? TryGetDecorator(FunctionOverload overload) => this.decoratorsByOverloads.TryGetValue(overload, out Decorator? decorator) ? decorator : null;
+
         public ImmutableDictionary<string, FunctionSymbol> GetKnownDecoratorFunctions() => this.functionResolver.GetKnownFunctions();
 
         public IEnumerable<Decorator> GetMatches(FunctionSymbol symbol, IList<TypeSymbol> argumentTypes)
@@ -35,7 +37,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var overload in FunctionResolver.GetMatches(symbol, argumentTypes, out var _, out var _))
             {
-                this.decoratorsByOverloads.TryGetValue(overload, out Decorator? decorator);
+                var decorator = this.TryGetDecorator(overload);
 
                 if (decorator != null)
                 {

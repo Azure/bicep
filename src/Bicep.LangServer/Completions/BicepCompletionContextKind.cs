@@ -80,6 +80,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs an array index.
         /// </summary>
-        ArrayIndex = 1 << 13
+        ArrayIndex = 1 << 13,
+
+        /// <summary>
+        /// The current location needs a decorator name.
+        /// </summary>
+        DecoratorName = 1 << 14,
     }
 }

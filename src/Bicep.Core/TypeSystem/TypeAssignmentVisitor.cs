@@ -268,7 +268,32 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                var assignedType = syntax.GetAssignedType(this.typeManager);
+                /*
+                 * Calling FirstOrDefault here because when there are duplicate decorators,
+                 * the top most one takes precedence.
+                 */
+                var allowedDecoratorSyntax = syntax.Decorators.FirstOrDefault(decoratorSyntax =>
+                {
+                    if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
+                    {
+                        var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
+                        Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces["sys"].Type.DecoratorResolver
+                            .GetMatches(functionSymbol, argumentTypes)
+                            .SingleOrDefault();
+
+                        if (decorator?.Overload.Name == "allowed")
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+
+
+                var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedArrraySyntax
+                    ? syntax.GetAssignedType(this.typeManager, allowedArrraySyntax)
+                    : syntax.GetAssignedType(this.typeManager, null);
 
                 switch (syntax.Modifier)
                 {
@@ -303,27 +328,24 @@ namespace Bicep.Core.TypeSystem
                     TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics);
                 }
 
-                if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol symbol)
-                {
-                    var argumentTypes = decoratorSyntax.Arguments
-                        .Select(argument =>
-                        {
-                            var argumentType = typeManager.GetTypeInfo(argument);
+                var symbol = this.binder.GetSymbolInfo(decoratorSyntax.Expression);
 
-                            return argumentType is ErrorType ? LanguageConstants.Any : argumentType;
-                        })
-                        .ToArray();
-                    
+                if (symbol is DeclaredSymbol or NamespaceSymbol)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(decoratorSyntax.Expression).ExpressionNotCallable());
+                    continue;
+                }
+
+                if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol)
+                {
+                    var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
+
                     // There should exist exact one matching decorator if there's no argument mismatches,
                     // since each argument must be a compile-time constant which cannot be of Any type.
-                    Decorator? decorator = this.binder.FileSymbol.ImportedNamespaces.Values
-                        .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(symbol, argumentTypes))
-                        .SingleOrDefault();
-
-                    if (decorator is not null)
-                    {
-                        decorator.Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
-                    }
+                    this.binder.FileSymbol.ImportedNamespaces.Values
+                        .SelectMany(ns => ns.Type.DecoratorResolver.GetMatches(functionSymbol, argumentTypes))
+                        .SingleOrDefault()?
+                        .Validate(decoratorSyntax, targetType, this.typeManager, diagnostics);
                 }
             }
         }
@@ -748,9 +770,8 @@ namespace Bicep.Core.TypeSystem
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignType(syntax, () => {
                 var errors = new List<ErrorDiagnostic>();
-                var argumentTypes = syntax.Arguments.Select(arg => typeManager.GetTypeInfo(arg)).ToList();
 
-                foreach (TypeSymbol argumentType in argumentTypes)
+                foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())
                 {
                     CollectErrors(errors, argumentType);
                 }
@@ -762,7 +783,7 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol function:
-                        return GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
+                        return this.GetFunctionSymbolType(function, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors);
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -789,9 +810,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
                 }
 
-                var argumentTypes = syntax.Arguments.Select(arg => typeManager.GetTypeInfo(arg)).ToList();
-
-                foreach (TypeSymbol argumentType in argumentTypes)
+                foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())
                 {
                     CollectErrors(errors, argumentType);
                 }
@@ -811,7 +830,7 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Concat(errorSymbol.GetDiagnostics()));
 
                     case FunctionSymbol functionSymbol:
-                        return GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, argumentTypes, errors);
+                        return this.GetFunctionSymbolType(functionSymbol, syntax.OpenParen, syntax.CloseParen, syntax.Arguments, errors);
 
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
@@ -894,22 +913,18 @@ namespace Bicep.Core.TypeSystem
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 
-        private static TypeSymbol GetFunctionSymbolType(
+        private TypeSymbol GetFunctionSymbolType(
             FunctionSymbol function,
             Token openParen,
             Token closeParen,
             ImmutableArray<FunctionArgumentSyntax> argumentSyntaxes,
-            IList<TypeSymbol> argumentTypes,
             IList<ErrorDiagnostic> errors)
         {
             // Recover argument type errors so we can continue type checking for the parent function call.
-            var recoveredArgumentTypes = argumentTypes
-                .Select(t => t.TypeKind == TypeKind.Error ? LanguageConstants.Any : t)
-                .ToList();
-
+            var argumentTypes = this.GetRecoveredArgumentTypes(argumentSyntaxes).ToArray();
             var matches = FunctionResolver.GetMatches(
                 function,
-                recoveredArgumentTypes,
+                argumentTypes,
                 out IList<ArgumentCountMismatch> countMismatches,
                 out IList<ArgumentTypeMismatch> typeMismatches).ToList();
             
@@ -1053,6 +1068,12 @@ namespace Bicep.Core.TypeSystem
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
         }
 
+        private IEnumerable<TypeSymbol> GetArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
+            argumentSyntaxes.Select(syntax => this.typeManager.GetTypeInfo(syntax));
+
+        private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
+            this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
+
         private IEnumerable<Diagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
         {
             var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -1134,7 +1155,7 @@ namespace Bicep.Core.TypeSystem
 
             return Enumerable.Empty<Diagnostic>();
         }
-        
+
         public static TypeSymbol UnwrapType(TypeSymbol baseType) =>
             baseType switch
             {

@@ -115,7 +115,7 @@ param storageSku string {
 'Standard_GRS'
 ])
 param storageSkuWithDecorator string
-//@[6:29) Parameter storageSkuWithDecorator. Type: string. Declaration start char: 0, length: 82
+//@[6:29) Parameter storageSkuWithDecorator. Type: 'Standard_GRS' | 'Standard_LRS'. Declaration start char: 0, length: 82
 
 // length constraint on a string
 param storageName string {
@@ -227,7 +227,7 @@ param someParameter string {
   description: 'Name of the storage account'
 })
 param someParameterWithDecorator string = 'one'
-//@[6:32) Parameter someParameterWithDecorator. Type: string. Declaration start char: 0, length: 186
+//@[6:32) Parameter someParameterWithDecorator. Type: 'one' | 'three' | 'two'. Declaration start char: 0, length: 186
 
 param defaultValueExpression int {
 //@[6:28) Parameter defaultValueExpression. Type: int. Declaration start char: 0, length: 66
@@ -245,7 +245,7 @@ param defaultExpression bool = 18 != (true || false)
   'Banana'
 ])
 param decoratedString string
-//@[6:21) Parameter decoratedString. Type: string. Declaration start char: 0, length: 104
+//@[6:21) Parameter decoratedString. Type: 'Apple' | 'Banana'. Declaration start char: 0, length: 104
 
 @minValue(200)
 param decoratedInt int = 123

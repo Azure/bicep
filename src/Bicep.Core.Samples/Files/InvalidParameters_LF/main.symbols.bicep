@@ -243,7 +243,7 @@ param emptyAllowedString string {
 
 @allowed([])
 param emptyAllowedStringWithDecorator string
-//@[6:37) Parameter emptyAllowedStringWithDecorator. Type: string. Declaration start char: 0, length: 57
+//@[6:37) Parameter emptyAllowedStringWithDecorator. Type: error. Declaration start char: 0, length: 57
 
 param emptyAllowedInt int {
 //@[6:21) Parameter emptyAllowedInt. Type: error. Declaration start char: 0, length: 43
@@ -252,7 +252,7 @@ param emptyAllowedInt int {
 
 @allowed([])
 param emptyAllowedIntWithDecorator int
-//@[6:34) Parameter emptyAllowedIntWithDecorator. Type: int. Declaration start char: 0, length: 51
+//@[6:34) Parameter emptyAllowedIntWithDecorator. Type: error. Declaration start char: 0, length: 51
 
 // 1-cycle in params
 param paramDefaultOneCycle string = paramDefaultOneCycle
@@ -422,7 +422,7 @@ param commaOne string {
   'def'
 ])
 param commaOneWithDecorator string
-//@[6:27) Parameter commaOneWithDecorator. Type: string. Declaration start char: 0, length: 121
+//@[6:27) Parameter commaOneWithDecorator. Type: 'abc' | 'def'. Declaration start char: 0, length: 121
 
 // invalid comma separator (object)
 param commaTwo string {

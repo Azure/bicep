@@ -799,6 +799,11 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Error,
                 "BCP139",
                 $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
+
+            public ErrorDiagnostic ExpressionNotCallable() => new(
+                TextSpan,
+                "BCP140",
+                "The expression is not callable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

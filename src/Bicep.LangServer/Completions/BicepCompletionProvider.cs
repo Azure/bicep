@@ -123,8 +123,15 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName | BicepCompletionContextKind.MemberAccess))
+            {
+                // This is already handled by GetMemberAccessCompletions.
                 return Enumerable.Empty<CompletionItem>();
             }
 
@@ -263,6 +270,10 @@ namespace Bicep.LanguageServer.Completions
             // maps insert text to the completion item
             var completions = new Dictionary<string, CompletionItem>();
 
+            var declaredNames = new HashSet<string>();
+
+            var accessibleDecoratorFunctionSymbolsCache = new Dictionary<NamespaceType, IEnumerable<FunctionSymbol>>();
+
             var enclosingDeclarationSymbol = context.EnclosingDeclaration == null
                 ? null
                 : model.GetSymbolInfo(context.EnclosingDeclaration);
@@ -283,15 +294,69 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            // add namespaces first
-            AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
+            // local function
+            IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctionSymbols(NamespaceType namespaceType)
+            {
+                if (accessibleDecoratorFunctionSymbolsCache.TryGetValue(namespaceType, out var accessibleDecoratorFunctionSymbols))
+                {
+                    return accessibleDecoratorFunctionSymbols;
+                }
 
-            // add the non-output declarations with valid identifiers 
-            AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+                var decoratorFunctionSymbols = namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Values;
+
+                accessibleDecoratorFunctionSymbols = enclosingDeclarationSymbol switch
+                {
+                    ParameterSymbol parameterSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ParameterDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(parameterSymbol.Type) == true)),
+                    VariableSymbol variableSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.VariableDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(variableSymbol.Type) == true)),
+                    ResourceSymbol resourceSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ResoureDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(resourceSymbol.Type) == true)),
+                    ModuleSymbol moduleSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ModuleDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(moduleSymbol.Type) == true)),
+                    OutputSymbol outputSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.OutputDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(outputSymbol.Type) == true)),
+                    /*
+                     * The decorator is dangling if enclosingDeclarationSymbol is null. Return all decorator factory functions since
+                     * we don't know which kind of declaration it will attach to.
+                     */
+                    null => decoratorFunctionSymbols,
+                    _ => Enumerable.Empty<FunctionSymbol>()
+                };
+
+                accessibleDecoratorFunctionSymbolsCache.Add(namespaceType, accessibleDecoratorFunctionSymbols);
+
+                return accessibleDecoratorFunctionSymbols;
+            }
+
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
+            {
+                // add namespaces first
+                AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
+
+                // add the non-output declarations with valid identifiers 
+                AddSymbolCompletions(completions, model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol));
+            }
+            else
+            {
+                // Only add the namespaces that contain accessible decorator function symbols.
+                AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values.Where(
+                    @namespace => GetAccessibleDecoratorFunctionSymbols(@namespace.Type).Any()));
+
+                // Record the names of the non-output declarations which will be used to check name clashes later.
+                declaredNames.UnionWith(model.Root.AllDeclarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol).Select(decl => decl.Name));
+            }
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces
             var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
-                .SelectMany(pair => pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
+                .SelectMany(pair => context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
+                    ? GetAccessibleDecoratorFunctionSymbols(pair.Value.Type)
+                    : pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
                 .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
                 .Where(tuple => tuple.count > 1)
                 .Select(tuple => tuple.name)
@@ -299,7 +364,11 @@ namespace Bicep.LanguageServer.Completions
 
             foreach (var @namespace in model.Root.ImportedNamespaces.Values)
             {
-                foreach (var function in @namespace.Type.MethodResolver.GetKnownFunctions().Values)
+                var functionSymbols = context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
+                    ? GetAccessibleDecoratorFunctionSymbols(@namespace.Type)
+                    : @namespace.Type.MethodResolver.GetKnownFunctions().Values;
+
+                foreach (var function in functionSymbols)
                 {
                     if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDeclarationSymbol is ParameterSymbol))
                     {
@@ -308,7 +377,7 @@ namespace Bicep.LanguageServer.Completions
                         continue;
                     }
 
-                    if (completions.ContainsKey(function.Name) || alwaysFullyQualifiedNames.Contains(function.Name))
+                    if (completions.ContainsKey(function.Name) || alwaysFullyQualifiedNames.Contains(function.Name) || declaredNames.Contains(function.Name))
                     {
                         // either there is a declaration with the same name as the function or the function is ambiguous between the imported namespaces
                         // either way the function must be fully qualified in the completion
@@ -334,6 +403,39 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.PropertyAccess.BaseExpression);
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
+            {
+                var model = compilation.GetEntrypointSemanticModel();
+                var enclosingDeclarationSymbol = context.EnclosingDeclaration is null ? null : model.GetSymbolInfo(context.EnclosingDeclaration);
+                var decoratorFunctionSymbols = namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Values;
+                var accessibleDecoratorFunctionSymbols = enclosingDeclarationSymbol switch
+                {
+                    ParameterSymbol parameterSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ParameterDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(parameterSymbol.Type) == true)),
+                    VariableSymbol variableSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.VariableDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(variableSymbol.Type) == true)),
+                    ResourceSymbol resourceSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ResoureDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(resourceSymbol.Type) == true)),
+                    ModuleSymbol moduleSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.ModuleDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(moduleSymbol.Type) == true)),
+                    OutputSymbol outputSymbol => decoratorFunctionSymbols.Where(symbol => symbol.Overloads.Any(overload =>
+                        overload.Flags.HasFlag(FunctionFlags.OutputDecorator) &&
+                        namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(outputSymbol.Type) == true)),
+                    /*
+                     * The decorator is dangling if enclosingDeclarationSymbol is null. Return all decorator factory functions since
+                     * we don't know which kind of declaration it will attach to.
+                     */
+                    null => decoratorFunctionSymbols,
+                    _ => Enumerable.Empty<FunctionSymbol>()
+                };
+
+                return accessibleDecoratorFunctionSymbols.Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
+            }
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))

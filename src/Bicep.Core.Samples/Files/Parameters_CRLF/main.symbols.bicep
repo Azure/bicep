@@ -105,7 +105,7 @@ param storageSku string {
   'Standard_GRS'
 ])
 param storageSkuWithDecorator string
-//@[6:29) Parameter storageSkuWithDecorator. Type: string. Declaration start char: 0, length: 88
+//@[6:29) Parameter storageSkuWithDecorator. Type: 'Standard_GRS' | 'Standard_LRS'. Declaration start char: 0, length: 88
 
 // length constraint on a string
 param storageName string {
@@ -217,7 +217,7 @@ param someParameter string {
   description: 'Name of the storage account'
 })
 param someParameterWithDecorator string
-//@[6:32) Parameter someParameterWithDecorator. Type: string. Declaration start char: 0, length: 189
+//@[6:32) Parameter someParameterWithDecorator. Type: 'one' | 'three' | 'two'. Declaration start char: 0, length: 189
 
 param defaultValueExpression int {
 //@[6:28) Parameter defaultValueExpression. Type: int. Declaration start char: 0, length: 68
@@ -250,7 +250,7 @@ param stringLiteralWithAllowedValuesSuperset string {
   'def'
 ])
 param stringLiteralWithDecorator string
-//@[6:32) Parameter stringLiteralWithDecorator. Type: string. Declaration start char: 0, length: 73
+//@[6:32) Parameter stringLiteralWithDecorator. Type: 'abc' | 'def'. Declaration start char: 0, length: 73
 
 @allowed([
   'abc'
@@ -258,7 +258,7 @@ param stringLiteralWithDecorator string
   'ghi'
 ])
 param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteralWithDecorator
-//@[6:57) Parameter stringLiteralWithDecoratorWithAllowedValuesSuperset. Type: string. Declaration start char: 0, length: 136
+//@[6:57) Parameter stringLiteralWithDecoratorWithAllowedValuesSuperset. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 0, length: 136
 
 @secure()
 @minLength(2)
@@ -268,7 +268,7 @@ param stringLiteralWithDecoratorWithAllowedValuesSuperset string = stringLiteral
   'Banana'
 ])
 param decoratedString string
-//@[6:21) Parameter decoratedString. Type: string. Declaration start char: 0, length: 111
+//@[6:21) Parameter decoratedString. Type: 'Apple' | 'Banana'. Declaration start char: 0, length: 111
 
 @minValue(200)
 param decoratedInt int = 123
