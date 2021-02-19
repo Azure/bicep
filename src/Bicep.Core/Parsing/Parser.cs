@@ -506,6 +506,9 @@ namespace Bicep.Core.Parsing
                 case TokenType.StringLeftPiece:
                     return this.InterpolableString();
 
+                case TokenType.MultilineString:
+                    return this.MultilineString();
+
                 case TokenType.LeftBrace when allowComplexLiterals:
                     return this.Object();
 
@@ -734,6 +737,19 @@ namespace Bicep.Core.Parsing
             // TODO: Should probably be moved to type checking
             // integer is invalid (too long to fit in an int32)
             throw new ExpectedTokenException(literal, b => b.InvalidInteger());
+        }
+
+        private SyntaxBase MultilineString()
+        {
+            var token = reader.Read();
+            var stringValue = Lexer.TryGetMultilineStringValue(token);
+            
+            if (stringValue is null)
+            {
+                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable(), Enumerable.Empty<Diagnostic>());
+            }
+
+            return new StringSyntax(token.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), stringValue.AsEnumerable());
         }
 
         private SyntaxBase InterpolableString()

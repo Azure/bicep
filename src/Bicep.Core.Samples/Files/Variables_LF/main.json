@@ -169,14 +169,22 @@
     "myBigInt": 2199023255552,
     "myIntExpression": "[mul(5, 5)]",
     "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
-    "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]"
+    "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]",
+    "multilineString": "HELLO!\n",
+    "multilineEmpty": "",
+    "multilineEmptyNewline": "",
+    "multilineExtraQuotes": "'abc'",
+    "multilineExtraQuotesNewlines": "'\nabc\n'",
+    "multilineSingleLine": "hello!",
+    "multilineFormatted": "[format('Hello,\nmy\nname is\n{0}\n', 'Anthony')]",
+    "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n"
   },
   "resources": [],
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2122340846930427742"
+      "templateHash": "7741877235224531779"
     }
   }
 }
