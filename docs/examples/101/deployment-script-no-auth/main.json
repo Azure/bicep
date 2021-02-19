@@ -25,7 +25,7 @@
       "location": "[parameters('location')]",
       "properties": {
         "azPowerShellVersion": "3.0",
-        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"",
+        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"\n",
         "forceUpdateTag": "[parameters('timestamp')]",
         "retentionInterval": "PT4H"
       }
@@ -41,7 +41,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13005776583137759674"
+      "templateHash": "9459865245622089966"
     }
   }
 }

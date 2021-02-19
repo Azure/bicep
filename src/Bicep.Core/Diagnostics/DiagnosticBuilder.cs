@@ -800,9 +800,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP139",
                 $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
 
-            public ErrorDiagnostic ExpressionNotCallable() => new(
+            public ErrorDiagnostic UnterminatedMultilineString() => new(
                 TextSpan,
                 "BCP140",
+                $"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
+
+            public ErrorDiagnostic ExpressionNotCallable() => new(
+                TextSpan,
+                "BCP141",
                 "The expression cannot be used as a decorator as it is not callable.");
         }
 

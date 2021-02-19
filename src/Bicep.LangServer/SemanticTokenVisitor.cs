@@ -211,6 +211,7 @@ namespace Bicep.LanguageServer
                 case TokenType.StringLeftPiece:
                 case TokenType.StringMiddlePiece:
                 case TokenType.StringRightPiece:
+                case TokenType.MultilineString:
                     AddStringToken(token);
                     break;
                 default:

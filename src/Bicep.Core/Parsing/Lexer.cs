@@ -30,6 +30,8 @@ namespace Bicep.Core.Parsing
             .Append("\\u{...}")
             .ToImmutableArray();
 
+        private const int MultilineStringTerminatingQuoteCount = 3;
+
         // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
@@ -88,6 +90,46 @@ namespace Bicep.Core.Parsing
             }
 
             return segments;
+        }
+
+        public static string? TryGetMultilineStringValue(Token stringToken)
+        {
+            var tokenText = stringToken.Text;
+
+            if (tokenText.Length < MultilineStringTerminatingQuoteCount * 2)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < MultilineStringTerminatingQuoteCount; i++)
+            {
+                if (tokenText[i] != '\'')
+                {
+                    return null;
+                }
+            }
+
+            for (var i = tokenText.Length - MultilineStringTerminatingQuoteCount; i < tokenText.Length; i++)
+            {
+                if (tokenText[i] != '\'')
+                {
+                    return null;
+                }
+            }
+
+            var startOffset = MultilineStringTerminatingQuoteCount;
+
+            // we strip a leading \r\n or \n
+            if (tokenText[startOffset] == '\r')
+            {
+                startOffset++;
+            }
+            if (tokenText[startOffset] == '\n')
+            {
+                startOffset++;
+            }
+
+            return tokenText.Substring(startOffset, tokenText.Length - startOffset - MultilineStringTerminatingQuoteCount);
         }
 
         /// <summary>
@@ -407,6 +449,44 @@ namespace Bicep.Core.Parsing
 
                 textWindow.Advance();
             }
+        }
+
+        private TokenType ScanMultilineString()
+        {
+            var successiveQuotes = 0;
+
+            // we've already scanned the "'''", so get straight to scanning the string contents.
+            while (!textWindow.IsAtEnd())
+            {
+                var nextChar = textWindow.Peek();
+                textWindow.Advance();
+
+                switch (nextChar)
+                {
+                    case '\'':
+                        successiveQuotes++;
+                        if (successiveQuotes == MultilineStringTerminatingQuoteCount)
+                        {
+                            // we've scanned the terminating "'''". Keep scanning as long as we find more "'" characters;
+                            // it is possible for the verbatim string's last character to be "'", and we should accept this.
+                            while (textWindow.Peek() == '\'')
+                            {
+                                textWindow.Advance();
+                            }
+
+                            return TokenType.MultilineString;
+                        }
+                        break;
+                    default:
+                        successiveQuotes = 0;
+                        break;
+                }
+            }
+
+            // We've reached the end of the file without finding terminating quotes.
+            // We still want to return a string token so that highlighting shows up.
+            AddDiagnostic(b => b.UnterminatedMultilineString());
+            return TokenType.MultilineString;
         }
 
         private TokenType ScanStringSegment(bool isAtStartOfString)
@@ -753,6 +833,13 @@ namespace Bicep.Core.Parsing
                     }
                     return TokenType.Unrecognized;
                 case '\'':
+                    // "'''" means we're starting a multiline string.
+                    if (textWindow.Peek(0) == '\'' && textWindow.Peek(1) == '\'')
+                    {
+                        textWindow.Advance(2);
+                        return ScanMultilineString();
+                    }
+
                     var token = ScanStringSegment(true);
                     if (token == TokenType.StringLeftPiece)
                     {

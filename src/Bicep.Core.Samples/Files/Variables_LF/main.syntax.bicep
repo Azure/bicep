@@ -2189,4 +2189,124 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[40:41)   Asterisk |*|
 //@[42:55)   IntegerLiteralSyntax
 //@[42:55)    Integer |2199023255552|
-//@[55:55) EndOfFile ||
+//@[55:57) NewLine |\n\n|
+
+var multilineString = '''
+//@[0:36) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |multilineString|
+//@[20:21)  Assignment |=|
+//@[22:36)  StringSyntax
+//@[22:36)   MultilineString |'''\nHELLO!\n'''|
+HELLO!
+'''
+//@[3:5) NewLine |\n\n|
+
+var multilineEmpty = ''''''
+//@[0:27) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |multilineEmpty|
+//@[19:20)  Assignment |=|
+//@[21:27)  StringSyntax
+//@[21:27)   MultilineString |''''''|
+//@[27:28) NewLine |\n|
+var multilineEmptyNewline = '''
+//@[0:35) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:25)  IdentifierSyntax
+//@[4:25)   Identifier |multilineEmptyNewline|
+//@[26:27)  Assignment |=|
+//@[28:35)  StringSyntax
+//@[28:35)   MultilineString |'''\n'''|
+'''
+//@[3:5) NewLine |\n\n|
+
+// evaluates to '\'abc\''
+//@[25:26) NewLine |\n|
+var multilineExtraQuotes = ''''abc''''
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:24)  IdentifierSyntax
+//@[4:24)   Identifier |multilineExtraQuotes|
+//@[25:26)  Assignment |=|
+//@[27:38)  StringSyntax
+//@[27:38)   MultilineString |''''abc''''|
+//@[38:40) NewLine |\n\n|
+
+// evaluates to '\'\nabc\n\''
+//@[29:30) NewLine |\n|
+var multilineExtraQuotesNewlines = ''''
+//@[0:48) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:32)  IdentifierSyntax
+//@[4:32)   Identifier |multilineExtraQuotesNewlines|
+//@[33:34)  Assignment |=|
+//@[35:48)  StringSyntax
+//@[35:48)   MultilineString |''''\nabc\n''''|
+abc
+''''
+//@[4:6) NewLine |\n\n|
+
+var multilineSingleLine = '''hello!'''
+//@[0:38) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |multilineSingleLine|
+//@[24:25)  Assignment |=|
+//@[26:38)  StringSyntax
+//@[26:38)   MultilineString |'''hello!'''|
+//@[38:40) NewLine |\n\n|
+
+var multilineFormatted = format('''
+//@[0:73) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:22)  IdentifierSyntax
+//@[4:22)   Identifier |multilineFormatted|
+//@[23:24)  Assignment |=|
+//@[25:73)  FunctionCallSyntax
+//@[25:31)   IdentifierSyntax
+//@[25:31)    Identifier |format|
+//@[31:32)   LeftParen |(|
+//@[32:62)   FunctionArgumentSyntax
+//@[32:61)    StringSyntax
+//@[32:61)     MultilineString |'''\nHello,\nmy\nname is\n{0}\n'''|
+Hello,
+my
+name is
+{0}
+''', 'Anthony')
+//@[3:4)    Comma |,|
+//@[5:14)   FunctionArgumentSyntax
+//@[5:14)    StringSyntax
+//@[5:14)     StringComplete |'Anthony'|
+//@[14:15)   RightParen |)|
+//@[15:17) NewLine |\n\n|
+
+var multilineJavaScript = '''
+//@[0:586) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |multilineJavaScript|
+//@[24:25)  Assignment |=|
+//@[26:586)  StringSyntax
+//@[26:586)   MultilineString |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
+// NOT RECOMMENDED PATTERN
+const fs = require('fs');
+
+module.exports = function (context) {
+    fs.readFile('./hello.txt', (err, data) => {
+        if (err) {
+            context.log.error('ERROR', err);
+            // BUG #1: This will result in an uncaught exception that crashes the entire process
+            throw err;
+        }
+        context.log(`Data from file: ${data}`);
+        // context.done() should be called here
+    });
+    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends
+    context.done();
+}
+'''
+//@[3:3) EndOfFile ||

@@ -238,3 +238,47 @@ var myBigInt = 2199023255552
 var myIntExpression = 5 * 5
 var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
+
+var multilineString = '''
+HELLO!
+'''
+
+var multilineEmpty = ''''''
+var multilineEmptyNewline = '''
+'''
+
+// evaluates to '\'abc\''
+var multilineExtraQuotes = ''''abc''''
+
+// evaluates to '\'\nabc\n\''
+var multilineExtraQuotesNewlines = ''''
+abc
+''''
+
+var multilineSingleLine = '''hello!'''
+
+var multilineFormatted = format('''
+Hello,
+my
+name is
+{0}
+''', 'Anthony')
+
+var multilineJavaScript = '''
+// NOT RECOMMENDED PATTERN
+const fs = require('fs');
+
+module.exports = function (context) {
+    fs.readFile('./hello.txt', (err, data) => {
+        if (err) {
+            context.log.error('ERROR', err);
+            // BUG #1: This will result in an uncaught exception that crashes the entire process
+            throw err;
+        }
+        context.log(`Data from file: ${data}`);
+        // context.done() should be called here
+    });
+    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends
+    context.done();
+}
+'''
