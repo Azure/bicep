@@ -65,18 +65,12 @@ var myVar3 = 'hello ${name}!'
 ### Multi-line strings
 > Requires Bicep CLI v0.3 or later
 
-Multi-line strings are defined between 3 or more single quote (`'`) characters followed optionally by a newline (the opening sequence), and 3 or more single quote (`'`) characters (the closing sequence), where the number of opening and closing quote characters must be equal. Characters that are entered between the opening and closing sequence are read verbatim, and no escaping is necessary or possible.
-
-Bicep uses the following set of rules to interpret a multi-line string:
-1. If a sequence of 3 or more single quotes are seen, start processing the string.
-1. If the opening set of quotes is immediately followed by a newline, skip over this newline.
-1. Start reading the string characters.
-1. Once another sequence of single quotes is seen, if the number matches the number of opening quotes exactly, stop reading the string.
+Multi-line strings are defined between 3 single quote characters (`'''`) followed optionally by a newline (the opening sequence), and 3 single quote characters (`'''` - the closing sequence). Characters that are entered between the opening and closing sequence are read verbatim, and no escaping is necessary or possible.
 
 Note that:
 * Because the Bicep parser reads all characters as-is, depending on the line endings of your Bicep file, newlines will either be interpreted as `\r\n` or `\n`.
 * Interpolation is not currently supported in multi-line strings.
-* If you wish to include `'''` in your multi-line string, you may choose to use a different number of opening quotes to avoid `'''` being interpreted as the end of your string.
+* Multi-line strings containing `'''` are not supported.
 
 #### Examples
 ```bicep
@@ -104,14 +98,6 @@ var myVar5 = '''
 comments // are included
 /* because everything is read as-is */
 '''
-
-// evaluates to "var nestedBicep = '''\nhello!\n'''\n"
-// we are using a different number of opening/closing quotes to allow ''' to be interpreted as part of the string
-var myVar6 = ''''
-var nestedBicep = '''
-hello!
-'''
-''''
 
 // evaluates to "interpolation\nis ${blocked}"
 // note ${blocked} is part of the string, and is not evaluated as an expression

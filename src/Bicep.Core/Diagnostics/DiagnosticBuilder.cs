@@ -800,10 +800,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP139",
                 $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
 
-            public ErrorDiagnostic UnterminatedMultilineString(int terminatingQuoteCount) => new(
+            public ErrorDiagnostic UnterminatedMultilineString() => new(
                 TextSpan,
                 "BCP140",
-                $"The multi-line string at this location is not terminated. Terminate it with {terminatingQuoteCount} \"'\" characters.");
+                $"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

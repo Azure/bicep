@@ -171,17 +171,20 @@
     "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
     "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]",
     "multilineString": "HELLO!\n",
-    "multilineManyQuotes": "''''\n'''\n'''''''''\n",
+    "multilineEmpty": "",
+    "multilineEmptyNewline": "",
+    "multilineExtraQuotes": "'abc'",
+    "multilineExtraQuotesNewlines": "'\nabc\n'",
     "multilineSingleLine": "hello!",
     "multilineFormatted": "[format('Hello,\nmy\nname is\n{0}\n', 'Anthony')]",
-    "embeddedBicepFile": "param location string = 'westus'\nparam timestamp string = utcNow()\nparam dsName string = 'ds${uniqueString(resourceGroup().name)}'\n\nresource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {\n  kind: 'AzurePowerShell'\n  name: dsName\n  location: location\n  // identity property no longer required\n  properties: {\n    azPowerShellVersion: '3.0'\n    scriptContent: '''\n$DeploymentScriptOutputs[\"test\"] = \"test this output\"\n'''\n    forceUpdateTag: timestamp // script will run every time\n    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours\n  }\n}\n\noutput scriptOutput string = script.properties.outputs.test\n"
+    "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n"
   },
   "resources": [],
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17679063380777824507"
+      "templateHash": "7741877235224531779"
     }
   }
 }

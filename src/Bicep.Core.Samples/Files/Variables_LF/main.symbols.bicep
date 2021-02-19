@@ -330,18 +330,26 @@ var myBigIntExpression = 2199023255552 * 2
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[4:23) Variable myBigIntExpression2. Type: int. Declaration start char: 0, length: 55
 
-
 var multilineString = '''
 //@[4:19) Variable multilineString. Type: 'HELLO!\n'. Declaration start char: 0, length: 36
 HELLO!
 '''
 
-var multilineManyQuotes = ''''''''''
-//@[4:23) Variable multilineManyQuotes. Type: '\'\'\'\'\n\'\'\'\n\'\'\'\'\'\'\'\'\'\n'. Declaration start char: 0, length: 66
-''''
+var multilineEmpty = ''''''
+//@[4:18) Variable multilineEmpty. Type: ''. Declaration start char: 0, length: 27
+var multilineEmptyNewline = '''
+//@[4:25) Variable multilineEmptyNewline. Type: ''. Declaration start char: 0, length: 35
 '''
-'''''''''
-''''''''''
+
+// evaluates to '\'abc\''
+var multilineExtraQuotes = ''''abc''''
+//@[4:24) Variable multilineExtraQuotes. Type: '\'abc\''. Declaration start char: 0, length: 38
+
+// evaluates to '\'\nabc\n\''
+var multilineExtraQuotesNewlines = ''''
+//@[4:32) Variable multilineExtraQuotesNewlines. Type: '\'\nabc\n\''. Declaration start char: 0, length: 48
+abc
+''''
 
 var multilineSingleLine = '''hello!'''
 //@[4:23) Variable multilineSingleLine. Type: 'hello!'. Declaration start char: 0, length: 38
@@ -354,27 +362,22 @@ name is
 {0}
 ''', 'Anthony')
 
-// verify that we can embed a typical bicep file within a multiline string - a good test for correct escaping
-var embeddedBicepFile = ''''
-//@[4:21) Variable embeddedBicepFile. Type: 'param location string = \'westus\'\nparam timestamp string = utcNow()\nparam dsName string = \'ds\${uniqueString(resourceGroup().name)}\'\n\nresource script \'Microsoft.Resources/deploymentScripts@2020-10-01\' = {\n  kind: \'AzurePowerShell\'\n  name: dsName\n  location: location\n  // identity property no longer required\n  properties: {\n    azPowerShellVersion: \'3.0\'\n    scriptContent: \'\'\'\n$DeploymentScriptOutputs["test"] = "test this output"\n\'\'\'\n    forceUpdateTag: timestamp // script will run every time\n    retentionInterval: \'PT4H\' // deploymentScript resource will delete itself in 4 hours\n  }\n}\n\noutput scriptOutput string = script.properties.outputs.test\n'. Declaration start char: 0, length: 684
-param location string = 'westus'
-param timestamp string = utcNow()
-param dsName string = 'ds${uniqueString(resourceGroup().name)}'
+var multilineJavaScript = '''
+//@[4:23) Variable multilineJavaScript. Type: '// NOT RECOMMENDED PATTERN\nconst fs = require(\'fs\');\n\nmodule.exports = function (context) {\n    fs.readFile(\'./hello.txt\', (err, data) => {\n        if (err) {\n            context.log.error(\'ERROR\', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: \${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function\'s invocation ends\n    context.done();\n}\n'. Declaration start char: 0, length: 586
+// NOT RECOMMENDED PATTERN
+const fs = require('fs');
 
-resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  kind: 'AzurePowerShell'
-  name: dsName
-  location: location
-  // identity property no longer required
-  properties: {
-    azPowerShellVersion: '3.0'
-    scriptContent: '''
-$DeploymentScriptOutputs["test"] = "test this output"
-'''
-    forceUpdateTag: timestamp // script will run every time
-    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
-  }
+module.exports = function (context) {
+    fs.readFile('./hello.txt', (err, data) => {
+        if (err) {
+            context.log.error('ERROR', err);
+            // BUG #1: This will result in an uncaught exception that crashes the entire process
+            throw err;
+        }
+        context.log(`Data from file: ${data}`);
+        // context.done() should be called here
+    });
+    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends
+    context.done();
 }
-
-output scriptOutput string = script.properties.outputs.test
-''''
+'''

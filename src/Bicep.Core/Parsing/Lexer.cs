@@ -92,22 +92,20 @@ namespace Bicep.Core.Parsing
 
         public static string? TryGetMultilineStringValue(Token stringToken)
         {
+            const int terminatingQuoteCount = 3;
             var tokenText = stringToken.Text;
 
-            var terminatingQuoteCount = 0;
-            for (var i = 0; i < tokenText.Length; i++)
+            if (tokenText.Length < terminatingQuoteCount * 2)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < terminatingQuoteCount; i++)
             {
                 if (tokenText[i] != '\'')
                 {
-                    break;
+                    return null;
                 }
-
-                terminatingQuoteCount++;
-            }
-
-            if (tokenText.Length <= terminatingQuoteCount * 2)
-            {
-                return null;
             }
 
             for (var i = tokenText.Length - terminatingQuoteCount; i < tokenText.Length; i++)
@@ -454,16 +452,10 @@ namespace Bicep.Core.Parsing
 
         private TokenType ScanMultilineString()
         {
-            // we've already scanned the first ', so start the quote count at 1
-            var terminatingQuoteCount = 1;
-
-            while (textWindow.Peek() == '\'')
-            {
-                textWindow.Advance();
-                terminatingQuoteCount++;
-            }
-
+            const int terminatingQuoteCount = 3;
             var successiveQuotes = 0;
+
+            // we've already scanned the "'''", so get straight to scanning the string contents.
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
@@ -475,16 +467,14 @@ namespace Bicep.Core.Parsing
                         successiveQuotes++;
                         if (successiveQuotes == terminatingQuoteCount)
                         {
-                            if (textWindow.Peek() != '\'')
-                            {
-                                return TokenType.MultilineString;
-                            }
-
-                            successiveQuotes = 0;
+                            // we've scanned the terminating "'''". Keep scanning as long as we find more "'" characters;
+                            // it is possible for the verbatim string's last character to be "'", and we should accept this.
                             while (textWindow.Peek() == '\'')
                             {
                                 textWindow.Advance();
                             }
+
+                            return TokenType.MultilineString;
                         }
                         break;
                     default:
@@ -495,7 +485,7 @@ namespace Bicep.Core.Parsing
 
             // We've reached the end of the file without finding terminating quotes.
             // We still want to return a string token so that highlighting shows up.
-            AddDiagnostic(b => b.UnterminatedMultilineString(terminatingQuoteCount));
+            AddDiagnostic(b => b.UnterminatedMultilineString());
             return TokenType.MultilineString;
         }
 
@@ -843,9 +833,10 @@ namespace Bicep.Core.Parsing
                     }
                     return TokenType.Unrecognized;
                 case '\'':
-                    // 3+ ' characters in a row means we're starting a multiline string
+                    // "'''" means we're starting a multiline string.
                     if (textWindow.Peek(0) == '\'' && textWindow.Peek(1) == '\'')
                     {
+                        textWindow.Advance(2);
                         return ScanMultilineString();
                     }
 

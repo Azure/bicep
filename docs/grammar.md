@@ -101,7 +101,7 @@ stringMiddlePiece -> "}" STRINGCHAR* "${"
 stringRightPiece -> "}" STRINGCHAR* "'"
 stringComplete -> "'" STRINGCHAR* "'"
 
-multilineString -> ("'"){3,} + MULTILINESTRINGCHAR+ + ("'"){3,}
+multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
 
 literalValue -> NUMBER | "true" | "false" | "null"
 

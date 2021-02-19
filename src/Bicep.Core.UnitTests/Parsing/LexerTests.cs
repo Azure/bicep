@@ -224,6 +224,11 @@ namespace Bicep.Core.UnitTests.Parsing
             spanText.Should().Be(expectedSpanText);
         }
 
+        // empty
+        [DataRow("''''''", "")]
+        [DataRow("'''\r\n'''", "")]
+        [DataRow("'''\n'''", "")]
+        // basic
         [DataRow("'''abc'''", "abc")]
         // first preceding newline should be stripped
         [DataRow("'''\r\nabc'''", "abc")]
@@ -234,9 +239,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("'''\n\rabc'''", "\rabc")]
         // no escaping necessary
         [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
-        // different combinations of '''
-        [DataRow("''' 'a''b''''c'''''d''''''e '''", " 'a''b''''c'''''d''''''e ")]
-        [DataRow("''''' 'a''b'''c''''d''''''e '''''", " 'a''b'''c''''d''''''e ")]
+        // leading and terminating ' characters
+        [DataRow("''''a''''", "'a'")]
         [DataTestMethod]
         public void Multiline_strings_should_lex_correctly(string text, string expectedValue)
         {
@@ -251,12 +255,10 @@ namespace Bicep.Core.UnitTests.Parsing
             Lexer.TryGetMultilineStringValue(multilineToken).Should().Be(expectedValue);
         }
 
-        [DataRow("'''abc", 3)]
-        [DataRow("'''abc''''", 3)]
-        [DataRow("'''''abc''", 5)]
-        [DataRow("'''''abc\nasdf\ndf''''''\nasdfdsf", 5)]
+        [DataRow("'''abc")]
+        [DataRow("'''abc''")]
         [DataTestMethod]
-        public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text, int expectedQuoteCount)
+        public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create(); 
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
@@ -269,7 +271,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var diagnostic = diagnostics.Single();
 
             diagnostic.Code.Should().Be("BCP140");
-            diagnostic.Message.Should().Be($"The multi-line string at this location is not terminated. Terminate it with {expectedQuoteCount} \"'\" characters.");
+            diagnostic.Message.Should().Be($"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
         }
 
         private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)

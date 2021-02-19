@@ -243,11 +243,17 @@ var multilineString = '''
 HELLO!
 '''
 
-var multilineManyQuotes = ''''''''''
-''''
+var multilineEmpty = ''''''
+var multilineEmptyNewline = '''
 '''
-'''''''''
-''''''''''
+
+// evaluates to '\'abc\''
+var multilineExtraQuotes = ''''abc''''
+
+// evaluates to '\'\nabc\n\''
+var multilineExtraQuotesNewlines = ''''
+abc
+''''
 
 var multilineSingleLine = '''hello!'''
 
@@ -258,26 +264,21 @@ name is
 {0}
 ''', 'Anthony')
 
-// verify that we can embed a typical bicep file within a multiline string - a good test for correct escaping
-var embeddedBicepFile = ''''
-param location string = 'westus'
-param timestamp string = utcNow()
-param dsName string = 'ds${uniqueString(resourceGroup().name)}'
+var multilineJavaScript = '''
+// NOT RECOMMENDED PATTERN
+const fs = require('fs');
 
-resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  kind: 'AzurePowerShell'
-  name: dsName
-  location: location
-  // identity property no longer required
-  properties: {
-    azPowerShellVersion: '3.0'
-    scriptContent: '''
-$DeploymentScriptOutputs["test"] = "test this output"
-'''
-    forceUpdateTag: timestamp // script will run every time
-    retentionInterval: 'PT4H' // deploymentScript resource will delete itself in 4 hours
-  }
+module.exports = function (context) {
+    fs.readFile('./hello.txt', (err, data) => {
+        if (err) {
+            context.log.error('ERROR', err);
+            // BUG #1: This will result in an uncaught exception that crashes the entire process
+            throw err;
+        }
+        context.log(`Data from file: ${data}`);
+        // context.done() should be called here
+    });
+    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends
+    context.done();
 }
-
-output scriptOutput string = script.properties.outputs.test
-''''
+'''

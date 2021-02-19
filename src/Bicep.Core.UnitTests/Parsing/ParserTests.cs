@@ -79,6 +79,11 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        // empty
+        [DataRow("''''''", "")]
+        [DataRow("'''\r\n'''", "")]
+        [DataRow("'''\n'''", "")]
+        // basic
         [DataRow("'''abc'''", "abc")]
         // first preceding newline should be stripped
         [DataRow("'''\r\nabc'''", "abc")]
@@ -89,9 +94,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("'''\n\rabc'''", "\rabc")]
         // no escaping necessary
         [DataRow("''' \n \r \t \\ ' ${ } '''", " \n \r \t \\ ' ${ } ")]
-        // different combinations of '''
-        [DataRow("''' 'a''b''''c'''''d''''''e '''", " 'a''b''''c'''''d''''''e ")]
-        [DataRow("''''' 'a''b'''c''''d''''''e '''''", " 'a''b'''c''''d''''''e ")]
+        // leading and terminating ' characters
+        [DataRow("''''a''''", "'a'")]
         public void Multiline_strings_should_parse_correctly(string text, string expectedValue)
         {
             var stringSyntax = ParseAndVerifyType<StringSyntax>(text);

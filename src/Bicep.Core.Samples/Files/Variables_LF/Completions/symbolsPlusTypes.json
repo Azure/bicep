@@ -487,20 +487,6 @@
     }
   },
   {
-    "label": "embeddedBicepFile",
-    "kind": "variable",
-    "detail": "embeddedBicepFile",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_embeddedBicepFile",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "embeddedBicepFile"
-    }
-  },
-  {
     "label": "empty",
     "kind": "function",
     "detail": "empty()",
@@ -1154,6 +1140,62 @@
     }
   },
   {
+    "label": "multilineEmpty",
+    "kind": "variable",
+    "detail": "multilineEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmpty"
+    }
+  },
+  {
+    "label": "multilineEmptyNewline",
+    "kind": "variable",
+    "detail": "multilineEmptyNewline",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmptyNewline",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmptyNewline"
+    }
+  },
+  {
+    "label": "multilineExtraQuotes",
+    "kind": "variable",
+    "detail": "multilineExtraQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotes"
+    }
+  },
+  {
+    "label": "multilineExtraQuotesNewlines",
+    "kind": "variable",
+    "detail": "multilineExtraQuotesNewlines",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotesNewlines",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotesNewlines"
+    }
+  },
+  {
     "label": "multilineFormatted",
     "kind": "variable",
     "detail": "multilineFormatted",
@@ -1168,17 +1210,17 @@
     }
   },
   {
-    "label": "multilineManyQuotes",
+    "label": "multilineJavaScript",
     "kind": "variable",
-    "detail": "multilineManyQuotes",
+    "detail": "multilineJavaScript",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_multilineManyQuotes",
+    "sortText": "2_multilineJavaScript",
     "insertTextFormat": "plainText",
     "insertTextMode": "asIs",
     "textEdit": {
       "range": {},
-      "newText": "multilineManyQuotes"
+      "newText": "multilineJavaScript"
     }
   },
   {
