@@ -441,8 +441,10 @@ param commaTwo string {
 @secure
 @
 @&& xxx
+@sys
+@paramAccessingVar
 param incompleteDecorators string
-//@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 51
+//@[6:26) Parameter incompleteDecorators. Type: string. Declaration start char: 0, length: 75
 
 @concat(1, 2)
 @sys.concat('a', 'b')
@@ -450,7 +452,7 @@ param incompleteDecorators string
 // wrong target type
 @minValue(20)
 param someString string {
-//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 109
+//@[6:16) Parameter someString. Type: string. Declaration start char: 0, length: 176
 	// using decorators and modifier at the same time
     secure: true
 }
@@ -461,16 +463,28 @@ param someString string {
     'foo'
 ])
 @secure()
+// #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
+@  
+// #completionTest(5, 6) -> intParameterDecorators
+@sys.   
 param someInteger int = 20
-//@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 76
+//@[6:17) Parameter someInteger. Type: int. Declaration start char: 0, length: 207
 
 @allowed([], [], 2)
+// #completionTest(4) -> empty
+@az.
 param tooManyArguments1 int = 20
-//@[6:23) Parameter tooManyArguments1. Type: int. Declaration start char: 0, length: 52
+//@[6:23) Parameter tooManyArguments1. Type: int. Declaration start char: 0, length: 88
 
 @metadata({}, {}, true)
+// #completionTest(2) -> stringParameterDecoratorsPlusNamespace
+@m
+// #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
+@   
+// #completionTest(5) -> stringParameterDecorators
+@sys.
 param tooManyArguments2 string
-//@[6:23) Parameter tooManyArguments2. Type: string. Declaration start char: 0, length: 54
+//@[6:23) Parameter tooManyArguments2. Type: string. Declaration start char: 0, length: 253
 
 
 // unterminated multi-line comment

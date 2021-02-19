@@ -613,6 +613,25 @@ var something = 1
 //@[16:17) Integer |1|
 //@[17:19) NewLine |\n\n|
 
+// #completionTest(1) -> empty
+//@[30:31) NewLine |\n|
+@
+//@[0:1) At |@|
+//@[1:2) NewLine |\n|
+// #completionTest(5) -> empty
+//@[30:31) NewLine |\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:6) NewLine |\n|
+var anotherThing = true
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |anotherThing|
+//@[17:18) Assignment |=|
+//@[19:23) TrueKeyword |true|
+//@[23:25) NewLine |\n\n|
+
 // invalid identifier character classes
 //@[39:40) NewLine |\n|
 var ☕ = true
