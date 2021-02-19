@@ -30,6 +30,8 @@ namespace Bicep.Core.Parsing
             .Append("\\u{...}")
             .ToImmutableArray();
 
+        private const int MultilineStringTerminatingQuoteCount = 3;
+
         // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
@@ -92,15 +94,14 @@ namespace Bicep.Core.Parsing
 
         public static string? TryGetMultilineStringValue(Token stringToken)
         {
-            const int terminatingQuoteCount = 3;
             var tokenText = stringToken.Text;
 
-            if (tokenText.Length < terminatingQuoteCount * 2)
+            if (tokenText.Length < MultilineStringTerminatingQuoteCount * 2)
             {
                 return null;
             }
 
-            for (var i = 0; i < terminatingQuoteCount; i++)
+            for (var i = 0; i < MultilineStringTerminatingQuoteCount; i++)
             {
                 if (tokenText[i] != '\'')
                 {
@@ -108,7 +109,7 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-            for (var i = tokenText.Length - terminatingQuoteCount; i < tokenText.Length; i++)
+            for (var i = tokenText.Length - MultilineStringTerminatingQuoteCount; i < tokenText.Length; i++)
             {
                 if (tokenText[i] != '\'')
                 {
@@ -116,7 +117,7 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-            var startOffset = terminatingQuoteCount;
+            var startOffset = MultilineStringTerminatingQuoteCount;
 
             // we strip a leading \r\n or \n
             if (tokenText[startOffset] == '\r')
@@ -128,7 +129,7 @@ namespace Bicep.Core.Parsing
                 startOffset++;
             }
 
-            return tokenText.Substring(startOffset, tokenText.Length - startOffset - terminatingQuoteCount);
+            return tokenText.Substring(startOffset, tokenText.Length - startOffset - MultilineStringTerminatingQuoteCount);
         }
 
         /// <summary>
@@ -452,7 +453,6 @@ namespace Bicep.Core.Parsing
 
         private TokenType ScanMultilineString()
         {
-            const int terminatingQuoteCount = 3;
             var successiveQuotes = 0;
 
             // we've already scanned the "'''", so get straight to scanning the string contents.
@@ -465,7 +465,7 @@ namespace Bicep.Core.Parsing
                 {
                     case '\'':
                         successiveQuotes++;
-                        if (successiveQuotes == terminatingQuoteCount)
+                        if (successiveQuotes == MultilineStringTerminatingQuoteCount)
                         {
                             // we've scanned the terminating "'''". Keep scanning as long as we find more "'" characters;
                             // it is possible for the verbatim string's last character to be "'", and we should accept this.

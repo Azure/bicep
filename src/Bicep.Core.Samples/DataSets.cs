@@ -62,6 +62,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidModulesSubscription_LF => CreateDataSet();
 
+        public static DataSet InvalidMultilineString_CRLF => CreateDataSet();
+
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)
                 .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)
