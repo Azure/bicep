@@ -145,3 +145,8 @@ output deeper bool = true ? -true : (14 && 's') + 10
 output notAttachableDecorators int = 32
 //@[7:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
 
+// #completionTest(1) -> decoratorsPlusNamespace
+@
+// #completionTest(5) -> decorators
+@sys.
+

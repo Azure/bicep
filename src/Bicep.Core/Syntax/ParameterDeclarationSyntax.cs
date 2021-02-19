@@ -62,12 +62,13 @@ namespace Bicep.Core.Syntax
             return declaredType;
         }
 
-        public TypeSymbol GetAssignedType(ITypeManager typeManager)
+        public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
             var assignedType = this.GetDeclaredType();
 
-            var allowedSyntax = SyntaxHelper.TryGetAllowedSyntax(this);
-            if (allowedSyntax != null && !allowedSyntax.Items.Any())
+            // TODO: remove SyntaxHelper.TryGetAllowedSyntax when we drop parameter modifiers support.
+            allowedSyntax ??= SyntaxHelper.TryGetAllowedSyntax(this);
+            if (allowedSyntax is not null && !allowedSyntax.Items.Any())
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(allowedSyntax).AllowedMustContainItems());
             }

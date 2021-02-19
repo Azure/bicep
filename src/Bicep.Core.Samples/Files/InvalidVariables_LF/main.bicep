@@ -151,6 +151,12 @@ var myFloat = 3.14
 @sys.secure()
 var something = 1
 
+// #completionTest(1) -> empty
+@
+// #completionTest(5) -> empty
+@sys.
+var anotherThing = true
+
 // invalid identifier character classes
 var ☕ = true
 var a☕ = true

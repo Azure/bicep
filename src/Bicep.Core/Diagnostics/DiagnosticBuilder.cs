@@ -694,7 +694,7 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic RuntimePropertyNotAllowed(string property, IEnumerable<string> usableProperties, string accessedSymbol, IEnumerable<string>? variableDependencyChain) {
                 var variableDependencyChainClause = variableDependencyChain != null ? 
                  $"You are referencing a variable which cannot be calculated in time (\"{string.Join("\" -> \"", variableDependencyChain)}\"). " : "";
-                
+
                 return new ErrorDiagnostic(
                 TextSpan,
                 "BCP120",
@@ -703,12 +703,12 @@ namespace Bicep.Core.Diagnostics
             }
 
             public ErrorDiagnostic ResourceMultipleDeclarations(IEnumerable<string> resourceNames) => new(
-                TextSpan,                
+                TextSpan,
                 "BCP121",
                 $"Resources: {ToQuotedString(resourceNames)} are defined with this same name in a file. Rename them or split into different modules.");
 
             public ErrorDiagnostic ModuleMultipleDeclarations(IEnumerable<string> moduleNames) => new(
-                TextSpan,                
+                TextSpan,
                 "BCP122",
                 $"Modules: {ToQuotedString(moduleNames)} are defined with this same name and this same scope in a file. Rename them or split into different modules.");
 
@@ -804,6 +804,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP140",
                 $"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
+
+            public ErrorDiagnostic ExpressionNotCallable() => new(
+                TextSpan,
+                "BCP141",
+                "The expression cannot be used as a decorator as it is not callable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

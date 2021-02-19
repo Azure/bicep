@@ -408,7 +408,7 @@ namespace Bicep.Core.TypeSystem
                     // the object is a modifier of a parameter type
                     // the declared type should be the appropriate modifier type
                     // however we need the parameter's assigned type to determine the modifier type
-                    var parameterAssignedType = parameterDeclaration.GetAssignedType(this.typeManager);
+                    var parameterAssignedType = parameterDeclaration.GetAssignedType(this.typeManager, null);
                     return TryCreateAssignment(LanguageConstants.CreateParameterModifierType(parentType, parameterAssignedType), syntax);
 
                 case ObjectPropertySyntax:

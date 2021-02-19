@@ -415,6 +415,19 @@ output notAttachableDecorators int = 32
 //@[31:34) Identifier |int|
 //@[35:36) Assignment |=|
 //@[37:39) Integer |32|
-//@[39:41) NewLine |\r\n|
+//@[39:43) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:1) At |@|
+//@[1:3) NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37) NewLine |\r\n|
+@sys.
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:7) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

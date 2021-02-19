@@ -196,6 +196,13 @@ var myFloat = 3.14
 var something = 1
 //@[4:13) Variable something. Type: int. Declaration start char: 0, length: 31
 
+// #completionTest(1) -> empty
+@
+// #completionTest(5) -> empty
+@sys.
+var anotherThing = true
+//@[4:16) Variable anotherThing. Type: bool. Declaration start char: 0, length: 62
+
 // invalid identifier character classes
 var ☕ = true
 //@[4:5) Variable <error>. Type: bool. Declaration start char: 0, length: 12

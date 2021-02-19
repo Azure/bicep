@@ -501,10 +501,16 @@ param commaTwo string {
 //@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
 @&& xxx
 //@[1:3) [BCP123 (Error)] Expected a namespace or decorator name at this location. |&&|
+@sys
+//@[1:4) [BCP141 (Error)] The expression cannot be used as a decorator as it is not callable. |sys|
+@paramAccessingVar
+//@[1:18) [BCP141 (Error)] The expression cannot be used as a decorator as it is not callable. |paramAccessingVar|
 param incompleteDecorators string
 
 @concat(1, 2)
+//@[1:7) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @sys.concat('a', 'b')
+//@[5:11) [BCP125 (Error)] Function "concat" cannot be used as a parameter decorator. |concat|
 @secure()
 // wrong target type
 @minValue(20)
@@ -524,14 +530,32 @@ param someString string {
 ])
 @secure()
 //@[0:9) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". |@secure()|
+// #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
+@  
+//@[3:3) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5, 6) -> intParameterDecorators
+@sys.   
+//@[8:8) [BCP020 (Error)] Expected a function or property name at this location. ||
 param someInteger int = 20
 
 @allowed([], [], 2)
 //@[8:19) [BCP071 (Error)] Expected 1 argument, but got 3. |([], [], 2)|
+// #completionTest(4) -> empty
+@az.
+//@[4:4) [BCP020 (Error)] Expected a function or property name at this location. ||
 param tooManyArguments1 int = 20
 
 @metadata({}, {}, true)
 //@[9:23) [BCP071 (Error)] Expected 1 argument, but got 3. |({}, {}, true)|
+// #completionTest(2) -> stringParameterDecoratorsPlusNamespace
+@m
+//@[1:2) [BCP057 (Error)] The name "m" does not exist in the current context. |m|
+// #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
+@   
+//@[4:4) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5) -> stringParameterDecorators
+@sys.
+//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
 param tooManyArguments2 string
 
 

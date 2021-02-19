@@ -86,13 +86,14 @@ namespace Bicep.Core.Parsing
 
                         // A decorators must followed by a newline.
                         leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
-                    }
 
-                    if (leadingNodes.Count > 0 && this.Check(TokenType.NewLine))
-                    {
-                        // In case there are skipped trivial syntaxes after a decorator, we need to consume
-                        // all the newlines after them.
-                        leadingNodes.Add(this.NewLine());
+
+                        while (this.Check(TokenType.NewLine))
+                        {
+                            // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                            // all the newlines after them.
+                            leadingNodes.Add(this.NewLine());
+                        }
                     }
 
                     Token current = reader.Peek();

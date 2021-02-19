@@ -32,6 +32,20 @@
     }
   },
   {
+    "label": "anotherThing",
+    "kind": "variable",
+    "detail": "anotherThing",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anotherThing",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "anotherThing"
+    }
+  },
+  {
     "label": "any",
     "kind": "function",
     "detail": "any()",

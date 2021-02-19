@@ -638,6 +638,28 @@ output notAttachableDecorators int = 32
 //@[35:36)  Assignment |=|
 //@[37:39)  IntegerLiteralSyntax
 //@[37:39)   Integer |32|
-//@[39:41) NewLine |\r\n|
+//@[39:43) NewLine |\r\n\r\n|
+
+// #completionTest(1) -> decoratorsPlusNamespace
+//@[48:50) NewLine |\r\n|
+@
+//@[0:47) MissingDeclarationSyntax
+//@[0:1)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:1)   SkippedTriviaSyntax
+//@[1:3)  NewLine |\r\n|
+// #completionTest(5) -> decorators
+//@[35:37)  NewLine |\r\n|
+@sys.
+//@[0:5)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:5)   PropertyAccessSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:5)    IdentifierSyntax
+//@[5:5)     SkippedTriviaSyntax
+//@[5:7)  NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

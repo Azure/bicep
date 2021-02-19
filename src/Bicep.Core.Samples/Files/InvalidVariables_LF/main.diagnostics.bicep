@@ -223,6 +223,14 @@ var myFloat = 3.14
 //@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. |secure|
 var something = 1
 
+// #completionTest(1) -> empty
+@
+//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||
+// #completionTest(5) -> empty
+@sys.
+//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. ||
+var anotherThing = true
+
 // invalid identifier character classes
 var ☕ = true
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. |☕|
