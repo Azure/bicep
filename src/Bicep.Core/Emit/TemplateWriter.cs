@@ -186,7 +186,7 @@ namespace Bicep.Core.Emit
 
                 if (parameterSymbol.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
                 {
-                    parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
+                    parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
                 }
 
                 foreach (var decoratorSyntax in parameterSymbol.DeclaringParameter.Decorators.Reverse())

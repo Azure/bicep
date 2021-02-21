@@ -200,6 +200,7 @@
     },
     "someParameterWithDecorator": {
       "type": "secureString",
+      "defaultValue": "one",
       "metadata": {
         "description": "Name of the storage account"
       },
@@ -230,6 +231,7 @@
     },
     "decoratedInt": {
       "type": "int",
+      "defaultValue": 123,
       "minValue": 200
     },
     "decoratedBool": {
@@ -245,7 +247,10 @@
       }
     },
     "decoratedObject": {
-      "type": "secureObject"
+      "type": "secureObject",
+      "defaultValue": {
+        "location": "westus"
+      }
     },
     "decoratedArray": {
       "type": "array",
@@ -261,7 +266,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2136404948384516639"
+      "templateHash": "12978647735862993085"
     }
   }
 }
