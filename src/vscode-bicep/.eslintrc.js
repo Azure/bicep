@@ -25,8 +25,8 @@ module.exports = {
       files: ["*.ts"],
       extends: [
         "plugin:@typescript-eslint/recommended",
-        "prettier/@typescript-eslint",
         "plugin:jest/all",
+        "plugin:prettier/recommended",
       ],
       rules: {
         "jest/no-hooks": "off",
