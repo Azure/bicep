@@ -82,7 +82,10 @@ namespace Bicep.Core.TypeSystem
                     return GetArrayAccessType(arrayAccess);
 
                 case VariableDeclarationSyntax variable:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), variable);
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable), variable);
+
+                case LocalVariableSyntax localVariable:
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
 
                 case FunctionCallSyntax _:
                 case InstanceFunctionCallSyntax _:

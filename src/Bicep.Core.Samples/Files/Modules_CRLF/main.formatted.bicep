@@ -103,3 +103,73 @@ output stringOutputB string = modATest.outputs.stringOutputB
 output objOutput object = modATest.outputs.objOutput
 output arrayOutput array = modATest.outputs.arrayOutput
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
+
+/*
+  valid loop cases
+*/
+var myModules = [
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+
+var emptyArray = []
+
+// simple module loop
+module storageResources 'modulea.bicep' = [for module in myModules: {
+  name: module.name
+  params: {
+    arrayParam: []
+    objParam: module
+    stringParamB: module.location
+  }
+}]
+
+// nested module loop
+module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
+  name: module.name
+  params: {
+    arrayParam: [for i in range(0, 3): concat('test-', i, '-', module.name)]
+    objParam: module
+    stringParamB: module.location
+  }
+}]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray: {
+  name: 'hello-${x}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+  }
+}]
+
+// duplicate identifiers across scopes are allowed (inner hides the outer)
+var duplicateAcrossScopes = 'hello'
+module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
+  name: 'hello-${duplicateAcrossScopes}'
+  params: {
+    objParam: {}
+    stringParamA: 'test'
+    stringParamB: 'test'
+    arrayParam: [for x in emptyArray: x]
+  }
+}]
+
+var someDuplicate = true
+var otherDuplicate = false
+module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
+  name: 'hello-${someDuplicate}'
+  params: {
+    objParam: {}
+    stringParamB: 'test'
+    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
+  }
+}]

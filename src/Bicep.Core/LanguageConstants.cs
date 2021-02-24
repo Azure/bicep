@@ -79,7 +79,15 @@ namespace Bicep.Core
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
-        public static readonly TypeSymbol ResourceRefArray = new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
+
+        public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = UnionType.Create(
+            ResourceRef,
+            new TypedArrayType(CreateResourceScopeReference(ResourceScope.Module), TypeSymbolValidationFlags.Default),
+            new TypedArrayType(CreateResourceScopeReference(ResourceScope.Resource), TypeSymbolValidationFlags.Default));
+
+        public static readonly TypeSymbol ResourceOrResourceCollectionRefArray = //new TypedArrayType(ResourceRef, TypeSymbolValidationFlags.Default);
+          new TypedArrayType(ResourceOrResourceCollectionRefItem, TypeSymbolValidationFlags.Default);
+        
         public static readonly TypeSymbol String = new PrimitiveType("string", TypeSymbolValidationFlags.Default);
         // LooseString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol LooseString = new PrimitiveType("string", TypeSymbolValidationFlags.AllowLooseStringAssignment);
@@ -224,7 +232,7 @@ namespace Bicep.Core
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new TypeProperty(ResourceDependsOnPropertyName, ResourceRefArray, TypePropertyFlags.WriteOnly),
+                    new TypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly),
                 },
                 null);
 

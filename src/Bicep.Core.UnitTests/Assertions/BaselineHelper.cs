@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         private const string SetBaseLineSettingName = "SetBaseLine";
 
-        public static bool ShouldSetBaseline(TestContext testContext) =>
+        public static bool ShouldSetBaseline(TestContext testContext) => 
             testContext.Properties.Contains(SetBaseLineSettingName) && string.Equals(testContext.Properties[SetBaseLineSettingName] as string, bool.TrueString, StringComparison.OrdinalIgnoreCase);
 
         public static void SetBaseline(string actualLocation, string expectedLocation)

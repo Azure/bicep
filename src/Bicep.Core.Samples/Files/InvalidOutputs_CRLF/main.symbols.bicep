@@ -145,6 +145,21 @@ output deeper bool = true ? -true : (14 && 's') + 10
 output notAttachableDecorators int = 32
 //@[7:30) Output notAttachableDecorators. Type: int. Declaration start char: 0, length: 73
 
+// loops in outputs not allowed
+output noLoops array = [for thing in things: 4]
+//@[28:33) Local thing. Type: any. Declaration start char: 28, length: 5
+//@[7:14) Output noLoops. Type: array. Declaration start char: 0, length: 47
+
+// no nested loops either
+output noNestedLoops array = [for thing in things: {
+//@[34:39) Local thing. Type: any. Declaration start char: 34, length: 5
+//@[7:20) Output noNestedLoops. Type: array. Declaration start char: 0, length: 110
+  something: [
+    [for thing in things: true]
+//@[9:14) Local thing. Type: any. Declaration start char: 9, length: 5
+  ]
+}]
+
 // #completionTest(1) -> decoratorsPlusNamespace
 @
 // #completionTest(5) -> decorators

@@ -638,6 +638,20 @@
     }
   },
   {
+    "label": "loopExpression",
+    "kind": "variable",
+    "detail": "loopExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "loopExpression"
+    }
+  },
+  {
     "label": "managementGroup",
     "kind": "function",
     "detail": "managementGroup()",
@@ -770,6 +784,34 @@
     "textEdit": {
       "range": {},
       "newText": "mySum"
+    }
+  },
+  {
+    "label": "noNestedVariableLoopsEither",
+    "kind": "variable",
+    "detail": "noNestedVariableLoopsEither",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noNestedVariableLoopsEither",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "noNestedVariableLoopsEither"
+    }
+  },
+  {
+    "label": "noVariableLoopsYet",
+    "kind": "variable",
+    "detail": "noVariableLoopsYet",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noVariableLoopsYet",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "noVariableLoopsYet"
     }
   },
   {

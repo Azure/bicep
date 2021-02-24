@@ -3996,280 +3996,21 @@ resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for
 //@[1:2) RightSquare |]|
 //@[2:6) NewLine |\r\n\r\n|
 
-/*
-  valid loop cases - this should be moved to Resources_* test case after codegen works
-*/ 
-//@[3:5) NewLine |\r\n|
-var storageAccounts = [
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |storageAccounts|
-//@[20:21) Assignment |=|
-//@[22:23) LeftSquare |[|
-//@[23:25) NewLine |\r\n|
-  {
-//@[2:3) LeftBrace |{|
-//@[3:5) NewLine |\r\n|
-    name: 'one'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:15) StringComplete |'one'|
-//@[15:17) NewLine |\r\n|
-    location: 'eastus2'
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:23) StringComplete |'eastus2'|
-//@[23:25) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-  {
-//@[2:3) LeftBrace |{|
-//@[3:5) NewLine |\r\n|
-    name: 'two'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:15) StringComplete |'two'|
-//@[15:17) NewLine |\r\n|
-    location: 'westus'
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:22) StringComplete |'westus'|
-//@[22:24) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
-// duplicate identifiers within the loop are allowed
-//@[52:54) NewLine |\r\n|
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:39) Identifier |duplicateIdentifiersWithinLoop|
-//@[40:86) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftSquare |[|
-//@[90:93) Identifier |for|
-//@[94:95) Identifier |i|
-//@[96:98) Identifier |in|
-//@[99:104) Identifier |range|
-//@[104:105) LeftParen |(|
-//@[105:106) Integer |0|
-//@[106:107) Comma |,|
-//@[108:109) Integer |3|
-//@[109:110) RightParen |)|
-//@[110:111) Colon |:|
-//@[112:113) LeftBrace |{|
-//@[113:115) NewLine |\r\n|
-  name: 'vnet-${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:17) Identifier |i|
-//@[17:19) StringRightPiece |}'|
-//@[19:21) NewLine |\r\n|
-  properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
-    subnets: [for i in range(0, 4): {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |i|
-//@[20:22) Identifier |in|
-//@[23:28) Identifier |range|
-//@[28:29) LeftParen |(|
-//@[29:30) Integer |0|
-//@[30:31) Comma |,|
-//@[32:33) Integer |4|
-//@[33:34) RightParen |)|
-//@[34:35) Colon |:|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
-      name: 'subnet-${i}-${i}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:23) Identifier |i|
-//@[23:27) StringMiddlePiece |}-${|
-//@[27:28) Identifier |i|
-//@[28:30) StringRightPiece |}'|
-//@[30:32) NewLine |\r\n|
-    }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
-// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
-//@[100:102) NewLine |\r\n|
-var canHaveDuplicatesAcrossScopes = 'hello'
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |canHaveDuplicatesAcrossScopes|
-//@[34:35) Assignment |=|
-//@[36:43) StringComplete |'hello'|
-//@[43:45) NewLine |\r\n|
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:36) Identifier |duplicateInGlobalAndOneLoop|
-//@[37:83) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[84:85) Assignment |=|
-//@[86:87) LeftSquare |[|
-//@[87:90) Identifier |for|
-//@[91:120) Identifier |canHaveDuplicatesAcrossScopes|
-//@[121:123) Identifier |in|
-//@[124:129) Identifier |range|
-//@[129:130) LeftParen |(|
-//@[130:131) Integer |0|
-//@[131:132) Comma |,|
-//@[133:134) Integer |3|
-//@[134:135) RightParen |)|
-//@[135:136) Colon |:|
-//@[137:138) LeftBrace |{|
-//@[138:140) NewLine |\r\n|
-  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:45) Identifier |canHaveDuplicatesAcrossScopes|
-//@[45:47) StringRightPiece |}'|
-//@[47:49) NewLine |\r\n|
-  properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
-    subnets: [for i in range(0, 4): {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |i|
-//@[20:22) Identifier |in|
-//@[23:28) Identifier |range|
-//@[28:29) LeftParen |(|
-//@[29:30) Integer |0|
-//@[30:31) Comma |,|
-//@[32:33) Integer |4|
-//@[33:34) RightParen |)|
-//@[34:35) Colon |:|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
-      name: 'subnet-${i}-${i}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:23) Identifier |i|
-//@[23:27) StringMiddlePiece |}-${|
-//@[27:28) Identifier |i|
-//@[28:30) StringRightPiece |}'|
-//@[30:32) NewLine |\r\n|
-    }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
-// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
-//@[83:85) NewLine |\r\n|
-var duplicatesEverywhere = 'hello'
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |duplicatesEverywhere|
-//@[25:26) Assignment |=|
-//@[27:34) StringComplete |'hello'|
+// property loops cannot be nested
 //@[34:36) NewLine |\r\n|
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[0:8) Identifier |resource|
-//@[9:37) Identifier |duplicateInGlobalAndTwoLoops|
-//@[38:84) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[85:86) Assignment |=|
-//@[87:88) LeftSquare |[|
-//@[88:91) Identifier |for|
-//@[92:112) Identifier |duplicatesEverywhere|
-//@[113:115) Identifier |in|
-//@[116:121) Identifier |range|
-//@[121:122) LeftParen |(|
-//@[122:123) Integer |0|
-//@[123:124) Comma |,|
-//@[125:126) Integer |3|
-//@[126:127) RightParen |)|
-//@[127:128) Colon |:|
-//@[129:130) LeftBrace |{|
-//@[130:132) NewLine |\r\n|
-  name: 'vnet-${duplicatesEverywhere}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:36) Identifier |duplicatesEverywhere|
-//@[36:38) StringRightPiece |}'|
-//@[38:40) NewLine |\r\n|
-  properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
-    subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:38) Identifier |duplicatesEverywhere|
-//@[39:41) Identifier |in|
-//@[42:47) Identifier |range|
-//@[47:48) LeftParen |(|
-//@[48:49) Integer |0|
-//@[49:50) Comma |,|
-//@[51:52) Integer |4|
-//@[52:53) RightParen |)|
-//@[53:54) Colon |:|
-//@[55:56) LeftBrace |{|
-//@[56:58) NewLine |\r\n|
-      name: 'subnet-${duplicatesEverywhere}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:42) Identifier |duplicatesEverywhere|
-//@[42:44) StringRightPiece |}'|
-//@[44:46) NewLine |\r\n|
-    }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
-  }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
-}]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
-// just a storage account loop
-//@[30:32) NewLine |\r\n|
-resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |storageResources|
-//@[26:72) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[73:74) Assignment |=|
-//@[75:76) LeftSquare |[|
-//@[76:79) Identifier |for|
-//@[80:87) Identifier |account|
-//@[88:90) Identifier |in|
-//@[91:106) Identifier |storageAccounts|
-//@[106:107) Colon |:|
-//@[108:109) LeftBrace |{|
-//@[109:111) NewLine |\r\n|
+//@[9:32) Identifier |propertyLoopsCannotNest|
+//@[33:79) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[80:81) Assignment |=|
+//@[82:83) LeftSquare |[|
+//@[83:86) Identifier |for|
+//@[87:94) Identifier |account|
+//@[95:97) Identifier |in|
+//@[98:113) Identifier |storageAccounts|
+//@[113:114) Colon |:|
+//@[115:116) LeftBrace |{|
+//@[116:118) NewLine |\r\n|
   name: account.name
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -4302,10 +4043,302 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[6:7) Colon |:|
 //@[8:19) StringComplete |'StorageV2'|
 //@[19:21) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:19) NewLine |\r\n\r\n|
+
+    networkAcls: {
+//@[4:15) Identifier |networkAcls|
+//@[15:16) Colon |:|
+//@[17:18) LeftBrace |{|
+//@[18:20) NewLine |\r\n|
+      virtualNetworkRules: [for rule in []: {
+//@[6:25) Identifier |virtualNetworkRules|
+//@[25:26) Colon |:|
+//@[27:28) LeftSquare |[|
+//@[28:31) Identifier |for|
+//@[32:36) Identifier |rule|
+//@[37:39) Identifier |in|
+//@[40:41) LeftSquare |[|
+//@[41:42) RightSquare |]|
+//@[42:43) Colon |:|
+//@[44:45) LeftBrace |{|
+//@[45:47) NewLine |\r\n|
+        id: '${account.name}-${account.location}'
+//@[8:10) Identifier |id|
+//@[10:11) Colon |:|
+//@[12:15) StringLeftPiece |'${|
+//@[15:22) Identifier |account|
+//@[22:23) Dot |.|
+//@[23:27) Identifier |name|
+//@[27:31) StringMiddlePiece |}-${|
+//@[31:38) Identifier |account|
+//@[38:39) Dot |.|
+//@[39:47) Identifier |location|
+//@[47:49) StringRightPiece |}'|
+//@[49:51) NewLine |\r\n|
+        state: [for lol in []: 4]
+//@[8:13) Identifier |state|
+//@[13:14) Colon |:|
+//@[15:16) LeftSquare |[|
+//@[16:19) Identifier |for|
+//@[20:23) Identifier |lol|
+//@[24:26) Identifier |in|
+//@[27:28) LeftSquare |[|
+//@[28:29) RightSquare |]|
+//@[29:30) Colon |:|
+//@[31:32) Integer |4|
+//@[32:33) RightSquare |]|
+//@[33:35) NewLine |\r\n|
+      }]
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[2:6) NewLine |\r\n\r\n|
+
+// property loops cannot be nested (even more nesting)
+//@[54:56) NewLine |\r\n|
+resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[0:8) Identifier |resource|
+//@[9:33) Identifier |propertyLoopsCannotNest2|
+//@[34:80) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[81:82) Assignment |=|
+//@[83:84) LeftSquare |[|
+//@[84:87) Identifier |for|
+//@[88:95) Identifier |account|
+//@[96:98) Identifier |in|
+//@[99:114) Identifier |storageAccounts|
+//@[114:115) Colon |:|
+//@[116:117) LeftBrace |{|
+//@[117:119) NewLine |\r\n|
+  name: account.name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) Identifier |account|
+//@[15:16) Dot |.|
+//@[16:20) Identifier |name|
+//@[20:22) NewLine |\r\n|
+  location: account.location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:19) Identifier |account|
+//@[19:20) Dot |.|
+//@[20:28) Identifier |location|
+//@[28:30) NewLine |\r\n|
+  sku: {
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:24) StringComplete |'Standard_LRS'|
+//@[24:26) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'StorageV2'|
+//@[19:21) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    // #completionTest(17) -> symbolsPlusAccount
+//@[48:50) NewLine |\r\n|
+    networkAcls: {
+//@[4:15) Identifier |networkAcls|
+//@[15:16) Colon |:|
+//@[17:18) LeftBrace |{|
+//@[18:20) NewLine |\r\n|
+      virtualNetworkRules: [for rule in []: {
+//@[6:25) Identifier |virtualNetworkRules|
+//@[25:26) Colon |:|
+//@[27:28) LeftSquare |[|
+//@[28:31) Identifier |for|
+//@[32:36) Identifier |rule|
+//@[37:39) Identifier |in|
+//@[40:41) LeftSquare |[|
+//@[41:42) RightSquare |]|
+//@[42:43) Colon |:|
+//@[44:45) LeftBrace |{|
+//@[45:47) NewLine |\r\n|
+        // #completionTest(12,15,31) -> symbolsPlusRule
+//@[55:57) NewLine |\r\n|
+        id: '${account.name}-${account.location}'
+//@[8:10) Identifier |id|
+//@[10:11) Colon |:|
+//@[12:15) StringLeftPiece |'${|
+//@[15:22) Identifier |account|
+//@[22:23) Dot |.|
+//@[23:27) Identifier |name|
+//@[27:31) StringMiddlePiece |}-${|
+//@[31:38) Identifier |account|
+//@[38:39) Dot |.|
+//@[39:47) Identifier |location|
+//@[47:49) StringRightPiece |}'|
+//@[49:51) NewLine |\r\n|
+        state: [for state in []: {
+//@[8:13) Identifier |state|
+//@[13:14) Colon |:|
+//@[15:16) LeftSquare |[|
+//@[16:19) Identifier |for|
+//@[20:25) Identifier |state|
+//@[26:28) Identifier |in|
+//@[29:30) LeftSquare |[|
+//@[30:31) RightSquare |]|
+//@[31:32) Colon |:|
+//@[33:34) LeftBrace |{|
+//@[34:36) NewLine |\r\n|
+          // #completionTest(38) -> symbolsPlusAccountRuleStateSomething #completionTest(16,34) -> symbolsPlusAccountRuleState
+//@[126:128) NewLine |\r\n|
+          fake: [for something in []: true]
+//@[10:14) Identifier |fake|
+//@[14:15) Colon |:|
+//@[16:17) LeftSquare |[|
+//@[17:20) Identifier |for|
+//@[21:30) Identifier |something|
+//@[31:33) Identifier |in|
+//@[34:35) LeftSquare |[|
+//@[35:36) RightSquare |]|
+//@[36:37) Colon |:|
+//@[38:42) TrueKeyword |true|
+//@[42:43) RightSquare |]|
+//@[43:45) NewLine |\r\n|
+        }]
+//@[8:9) RightBrace |}|
+//@[9:10) RightSquare |]|
+//@[10:12) NewLine |\r\n|
+      }]
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:10) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
+// loops cannot be used inside of expressions
+//@[45:47) NewLine |\r\n|
+resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+//@[0:8) Identifier |resource|
+//@[9:15) Identifier |stuffs|
+//@[16:62) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[63:64) Assignment |=|
+//@[65:66) LeftSquare |[|
+//@[66:69) Identifier |for|
+//@[70:77) Identifier |account|
+//@[78:80) Identifier |in|
+//@[81:96) Identifier |storageAccounts|
+//@[96:97) Colon |:|
+//@[98:99) LeftBrace |{|
+//@[99:101) NewLine |\r\n|
+  name: account.name
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:15) Identifier |account|
+//@[15:16) Dot |.|
+//@[16:20) Identifier |name|
+//@[20:22) NewLine |\r\n|
+  location: account.location
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:19) Identifier |account|
+//@[19:20) Dot |.|
+//@[20:28) Identifier |location|
+//@[28:30) NewLine |\r\n|
+  sku: {
+//@[2:5) Identifier |sku|
+//@[5:6) Colon |:|
+//@[7:8) LeftBrace |{|
+//@[8:10) NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[4:8) Identifier |name|
+//@[8:9) Colon |:|
+//@[10:24) StringComplete |'Standard_LRS'|
+//@[24:26) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+  kind: 'StorageV2'
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'StorageV2'|
+//@[19:21) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    networkAcls: {
+//@[4:15) Identifier |networkAcls|
+//@[15:16) Colon |:|
+//@[17:18) LeftBrace |{|
+//@[18:20) NewLine |\r\n|
+      virtualNetworkRules: concat([for lol in []: {
+//@[6:25) Identifier |virtualNetworkRules|
+//@[25:26) Colon |:|
+//@[27:33) Identifier |concat|
+//@[33:34) LeftParen |(|
+//@[34:35) LeftSquare |[|
+//@[35:38) Identifier |for|
+//@[39:42) Identifier |lol|
+//@[43:45) Identifier |in|
+//@[46:47) LeftSquare |[|
+//@[47:48) RightSquare |]|
+//@[48:49) Colon |:|
+//@[50:51) LeftBrace |{|
+//@[51:53) NewLine |\r\n|
+        id: '${account.name}-${account.location}'
+//@[8:10) Identifier |id|
+//@[10:11) Colon |:|
+//@[12:15) StringLeftPiece |'${|
+//@[15:22) Identifier |account|
+//@[22:23) Dot |.|
+//@[23:27) Identifier |name|
+//@[27:31) StringMiddlePiece |}-${|
+//@[31:38) Identifier |account|
+//@[38:39) Dot |.|
+//@[39:47) Identifier |location|
+//@[47:49) StringRightPiece |}'|
+//@[49:51) NewLine |\r\n|
+      }])
+//@[6:7) RightBrace |}|
+//@[7:8) RightSquare |]|
+//@[8:9) RightParen |)|
+//@[9:11) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 // using the same loop variable in a new language scope should be allowed
 //@[73:75) NewLine |\r\n|
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
@@ -4321,6 +4354,8 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[105:106) Colon |:|
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
+  // #completionTest(7,8) -> symbolsPlusAccount2
+//@[48:50) NewLine |\r\n|
   name: account.name
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -4357,27 +4392,122 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 }]
 //@[0:1) RightBrace |}|
 //@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
-// basic nested loop
-//@[20:22) NewLine |\r\n|
-resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[2:6) NewLine |\r\n\r\n|
+
+var directRefViaVar = premiumStorages
+//@[0:3) Identifier |var|
+//@[4:19) Identifier |directRefViaVar|
+//@[20:21) Assignment |=|
+//@[22:37) Identifier |premiumStorages|
+//@[37:39) NewLine |\r\n|
+output directRefViaOutput array = union(premiumStorages, stuffs)
+//@[0:6) Identifier |output|
+//@[7:25) Identifier |directRefViaOutput|
+//@[26:31) Identifier |array|
+//@[32:33) Assignment |=|
+//@[34:39) Identifier |union|
+//@[39:40) LeftParen |(|
+//@[40:55) Identifier |premiumStorages|
+//@[55:56) Comma |,|
+//@[57:63) Identifier |stuffs|
+//@[63:64) RightParen |)|
+//@[64:68) NewLine |\r\n\r\n|
+
+resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
 //@[0:8) Identifier |resource|
-//@[9:13) Identifier |vnet|
-//@[14:60) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftSquare |[|
-//@[64:67) Identifier |for|
-//@[68:69) Identifier |i|
-//@[70:72) Identifier |in|
-//@[73:78) Identifier |range|
-//@[78:79) LeftParen |(|
-//@[79:80) Integer |0|
-//@[80:81) Comma |,|
-//@[82:83) Integer |3|
-//@[83:84) RightParen |)|
-//@[84:85) Colon |:|
-//@[86:87) LeftBrace |{|
-//@[87:89) NewLine |\r\n|
+//@[9:39) Identifier |directRefViaSingleResourceBody|
+//@[40:79) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
+//@[80:81) Assignment |=|
+//@[82:83) LeftBrace |{|
+//@[83:85) NewLine |\r\n|
+  name: 'myZone2'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'myZone2'|
+//@[17:19) NewLine |\r\n|
+  location: 'global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'global'|
+//@[20:22) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    registrationVirtualNetworks: premiumStorages
+//@[4:31) Identifier |registrationVirtualNetworks|
+//@[31:32) Colon |:|
+//@[33:48) Identifier |premiumStorages|
+//@[48:50) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
+//@[0:8) Identifier |resource|
+//@[9:50) Identifier |directRefViaSingleConditionalResourceBody|
+//@[51:90) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
+//@[91:92) Assignment |=|
+//@[93:95) Identifier |if|
+//@[95:96) LeftParen |(|
+//@[96:100) TrueKeyword |true|
+//@[100:101) RightParen |)|
+//@[102:103) LeftBrace |{|
+//@[103:105) NewLine |\r\n|
+  name: 'myZone3'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:17) StringComplete |'myZone3'|
+//@[17:19) NewLine |\r\n|
+  location: 'global'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:20) StringComplete |'global'|
+//@[20:22) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    registrationVirtualNetworks: concat(premiumStorages, stuffs)
+//@[4:31) Identifier |registrationVirtualNetworks|
+//@[31:32) Colon |:|
+//@[33:39) Identifier |concat|
+//@[39:40) LeftParen |(|
+//@[40:55) Identifier |premiumStorages|
+//@[55:56) Comma |,|
+//@[57:63) Identifier |stuffs|
+//@[63:64) RightParen |)|
+//@[64:66) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+//@[0:8) Identifier |resource|
+//@[9:43) Identifier |directRefViaSingleLoopResourceBody|
+//@[44:90) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[91:92) Assignment |=|
+//@[93:94) LeftSquare |[|
+//@[94:97) Identifier |for|
+//@[98:99) Identifier |i|
+//@[100:102) Identifier |in|
+//@[103:108) Identifier |range|
+//@[108:109) LeftParen |(|
+//@[109:110) Integer |0|
+//@[110:111) Comma |,|
+//@[112:113) Integer |3|
+//@[113:114) RightParen |)|
+//@[114:115) Colon |:|
+//@[116:117) LeftBrace |{|
+//@[117:119) NewLine |\r\n|
   name: 'vnet-${i}'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -4390,37 +4520,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[12:13) Colon |:|
 //@[14:15) LeftBrace |{|
 //@[15:17) NewLine |\r\n|
-    subnets: [for j in range(0, 4): {
+    subnets: premiumStorages
 //@[4:11) Identifier |subnets|
 //@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |j|
-//@[20:22) Identifier |in|
-//@[23:28) Identifier |range|
-//@[28:29) LeftParen |(|
-//@[29:30) Integer |0|
-//@[30:31) Comma |,|
-//@[32:33) Integer |4|
-//@[33:34) RightParen |)|
-//@[34:35) Colon |:|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
-      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
-//@[64:66) NewLine |\r\n|
-      name: 'subnet-${i}-${j}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:23) Identifier |i|
-//@[23:27) StringMiddlePiece |}-${|
-//@[27:28) Identifier |j|
-//@[28:30) StringRightPiece |}'|
-//@[30:32) NewLine |\r\n|
-    }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[13:28) Identifier |premiumStorages|
+//@[28:30) NewLine |\r\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:5) NewLine |\r\n|

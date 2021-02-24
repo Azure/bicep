@@ -129,7 +129,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
 /*
 TODO: Replace the first secret workaround above with this once we have loops
 
-resource[] secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [
+resource secrets 'Microsoft.KeyVault/vaults/secrets@2018-02-14' = [
   for secret in secretsObject.secrets: {
     dependsOn: [
       vault

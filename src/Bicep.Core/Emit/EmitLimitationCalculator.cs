@@ -21,6 +21,8 @@ namespace Bicep.Core.Emit
             var resourceScopeData = ScopeHelper.GetResoureScopeInfo(model, diagnosticWriter);
             DeployTimeConstantVisitor.ValidateDeployTimeConstants(model, diagnosticWriter);
 
+            ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
+
             diagnosticWriter.WriteMultiple(DetectDuplicateNames(model, resourceScopeData, moduleScopeData));
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);

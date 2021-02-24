@@ -182,6 +182,22 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[1:9) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. |minValue|
 output notAttachableDecorators int = 32
 
+// loops in outputs not allowed
+output noLoops array = [for thing in things: 4]
+//@[24:27) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[37:43) [BCP057 (Error)] The name "things" does not exist in the current context. |things|
+
+// no nested loops either
+output noNestedLoops array = [for thing in things: {
+//@[30:33) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[43:49) [BCP057 (Error)] The name "things" does not exist in the current context. |things|
+  something: [
+    [for thing in things: true]
+//@[5:8) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource and module declarations or as values of resource and module properties. |for|
+//@[18:24) [BCP057 (Error)] The name "things" does not exist in the current context. |things|
+  ]
+}]
+
 // #completionTest(1) -> decoratorsPlusNamespace
 @
 //@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. ||

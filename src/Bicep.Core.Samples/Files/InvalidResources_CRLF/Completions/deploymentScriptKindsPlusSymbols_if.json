@@ -270,20 +270,6 @@
     }
   },
   {
-    "label": "canHaveDuplicatesAcrossScopes",
-    "kind": "variable",
-    "detail": "canHaveDuplicatesAcrossScopes",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_canHaveDuplicatesAcrossScopes",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "canHaveDuplicatesAcrossScopes"
-    }
-  },
-  {
     "label": "coalesce",
     "kind": "function",
     "detail": "coalesce()",
@@ -439,6 +425,62 @@
     "textEdit": {
       "range": {},
       "newText": "deployment()$0"
+    }
+  },
+  {
+    "label": "directRefViaSingleConditionalResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleConditionalResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleConditionalResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleConditionalResourceBody"
+    }
+  },
+  {
+    "label": "directRefViaSingleLoopResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleLoopResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleLoopResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleLoopResourceBody"
+    }
+  },
+  {
+    "label": "directRefViaSingleResourceBody",
+    "kind": "interface",
+    "detail": "directRefViaSingleResourceBody",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaSingleResourceBody",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaSingleResourceBody"
+    }
+  },
+  {
+    "label": "directRefViaVar",
+    "kind": "variable",
+    "detail": "directRefViaVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_directRefViaVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "directRefViaVar"
     }
   },
   {
@@ -1013,62 +1055,6 @@
     "textEdit": {
       "range": {},
       "newText": "discriminatorKeyValueMissing_for"
-    }
-  },
-  {
-    "label": "duplicateIdentifiersWithinLoop",
-    "kind": "interface",
-    "detail": "duplicateIdentifiersWithinLoop",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateIdentifiersWithinLoop",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateIdentifiersWithinLoop"
-    }
-  },
-  {
-    "label": "duplicateInGlobalAndOneLoop",
-    "kind": "interface",
-    "detail": "duplicateInGlobalAndOneLoop",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateInGlobalAndOneLoop",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateInGlobalAndOneLoop"
-    }
-  },
-  {
-    "label": "duplicateInGlobalAndTwoLoops",
-    "kind": "interface",
-    "detail": "duplicateInGlobalAndTwoLoops",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicateInGlobalAndTwoLoops",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicateInGlobalAndTwoLoops"
-    }
-  },
-  {
-    "label": "duplicatesEverywhere",
-    "kind": "variable",
-    "detail": "duplicatesEverywhere",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_duplicatesEverywhere",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "duplicatesEverywhere"
     }
   },
   {
@@ -2361,6 +2347,34 @@
     }
   },
   {
+    "label": "propertyLoopsCannotNest",
+    "kind": "interface",
+    "detail": "propertyLoopsCannotNest",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyLoopsCannotNest",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyLoopsCannotNest"
+    }
+  },
+  {
+    "label": "propertyLoopsCannotNest2",
+    "kind": "interface",
+    "detail": "propertyLoopsCannotNest2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyLoopsCannotNest2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyLoopsCannotNest2"
+    }
+  },
+  {
     "label": "providers",
     "kind": "function",
     "detail": "providers()",
@@ -3074,34 +3088,6 @@
     }
   },
   {
-    "label": "storageAccounts",
-    "kind": "variable",
-    "detail": "storageAccounts",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_storageAccounts",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "storageAccounts"
-    }
-  },
-  {
-    "label": "storageResources",
-    "kind": "interface",
-    "detail": "storageResources",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_storageResources",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "storageResources"
-    }
-  },
-  {
     "label": "string",
     "kind": "function",
     "detail": "string()",
@@ -3116,6 +3102,20 @@
     },
     "command": {
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "stuffs",
+    "kind": "interface",
+    "detail": "stuffs",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_stuffs",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "asIs",
+    "textEdit": {
+      "range": {},
+      "newText": "stuffs"
     }
   },
   {
@@ -3421,20 +3421,6 @@
     "textEdit": {
       "range": {},
       "newText": "validResourceForInvalidExtensionResourceDuplicateName"
-    }
-  },
-  {
-    "label": "vnet",
-    "kind": "interface",
-    "detail": "vnet",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_vnet",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "asIs",
-    "textEdit": {
-      "range": {},
-      "newText": "vnet"
     }
   },
   {

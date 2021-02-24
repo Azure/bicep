@@ -14,6 +14,8 @@ namespace Bicep.Core.Semantics
         {
         }
 
+        public LocalVariableSyntax DeclaringLocalVariable => (LocalVariableSyntax) this.DeclaringSyntax;
+
         public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalVariableSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Local;
