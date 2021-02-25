@@ -417,6 +417,61 @@ output notAttachableDecorators int = 32
 //@[37:39) Integer |32|
 //@[39:43) NewLine |\r\n\r\n|
 
+// loops in outputs not allowed
+//@[31:33) NewLine |\r\n|
+output noLoops array = [for thing in things: 4]
+//@[0:6) Identifier |output|
+//@[7:14) Identifier |noLoops|
+//@[15:20) Identifier |array|
+//@[21:22) Assignment |=|
+//@[23:24) LeftSquare |[|
+//@[24:27) Identifier |for|
+//@[28:33) Identifier |thing|
+//@[34:36) Identifier |in|
+//@[37:43) Identifier |things|
+//@[43:44) Colon |:|
+//@[45:46) Integer |4|
+//@[46:47) RightSquare |]|
+//@[47:51) NewLine |\r\n\r\n|
+
+// no nested loops either
+//@[25:27) NewLine |\r\n|
+output noNestedLoops array = [for thing in things: {
+//@[0:6) Identifier |output|
+//@[7:20) Identifier |noNestedLoops|
+//@[21:26) Identifier |array|
+//@[27:28) Assignment |=|
+//@[29:30) LeftSquare |[|
+//@[30:33) Identifier |for|
+//@[34:39) Identifier |thing|
+//@[40:42) Identifier |in|
+//@[43:49) Identifier |things|
+//@[49:50) Colon |:|
+//@[51:52) LeftBrace |{|
+//@[52:54) NewLine |\r\n|
+  something: [
+//@[2:11) Identifier |something|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:16) NewLine |\r\n|
+    [for thing in things: true]
+//@[4:5) LeftSquare |[|
+//@[5:8) Identifier |for|
+//@[9:14) Identifier |thing|
+//@[15:17) Identifier |in|
+//@[18:24) Identifier |things|
+//@[24:25) Colon |:|
+//@[26:30) TrueKeyword |true|
+//@[30:31) RightSquare |]|
+//@[31:33) NewLine |\r\n|
+  ]
+//@[2:3) RightSquare |]|
+//@[3:5) NewLine |\r\n|
+}]
+//@[0:1) RightBrace |}|
+//@[1:2) RightSquare |]|
+//@[2:6) NewLine |\r\n\r\n|
+
 // #completionTest(1) -> decoratorsPlusNamespace
 //@[48:50) NewLine |\r\n|
 @

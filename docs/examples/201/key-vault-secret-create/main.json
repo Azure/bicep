@@ -89,10 +89,6 @@
     }
   },
   "functions": [],
-  "variables": {
-    "firstSecretName": "[first(parameters('secretsObject').secrets).secretName]",
-    "firstSecretValue": "[first(parameters('secretsObject').secrets).secretValue]"
-  },
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
@@ -128,11 +124,15 @@
       }
     },
     {
+      "copy": {
+        "name": "secrets",
+        "count": "[length(parameters('secretsObject').secrets)]"
+      },
       "type": "Microsoft.KeyVault/vaults/secrets",
-      "apiVersion": "2019-09-01",
-      "name": "[format('{0}/{1}', parameters('keyVaultName'), variables('firstSecretName'))]",
+      "apiVersion": "2018-02-14",
+      "name": "[format('{0}/{1}', parameters('keyVaultName'), parameters('secretsObject').secrets[copyIndex()].secretName)]",
       "properties": {
-        "value": "[variables('firstSecretValue')]"
+        "value": "[parameters('secretsObject').secrets[copyIndex()].secretValue]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
@@ -143,7 +143,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11344596542059036316"
+      "templateHash": "3958365733885473830"
     }
   }
 }

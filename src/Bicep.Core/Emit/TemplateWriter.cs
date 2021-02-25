@@ -33,12 +33,12 @@ namespace Bicep.Core.Emit
             "metadata"
         }.ToImmutableArray();
 
-        private static ImmutableHashSet<string> ResourcePropertiesToOmit = new[] {
+        private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new [] {
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
-        private static ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
+        private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new [] {
             LanguageConstants.ModuleParamsPropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
@@ -279,7 +279,6 @@ namespace Bicep.Core.Emit
 
         private void EmitVariable(VariableSymbol variableSymbol, ExpressionEmitter emitter)
         {
-            // TODO: When we have expressions, only expressions without runtime functions can be emitted this way. Everything else will need to be inlined.
             emitter.EmitExpression(variableSymbol.Value);
         }
 
@@ -311,11 +310,18 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteStartObject();
 
             var typeReference = EmitHelpers.GetTypeReference(resourceSymbol);
-            var body = resourceSymbol.DeclaringResource.Value;
-            if (body is IfConditionSyntax ifCondition)
+            SyntaxBase body = resourceSymbol.DeclaringResource.Value;
+            switch (body)
             {
-                body = ifCondition.Body;
-                emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                case IfConditionSyntax ifCondition:
+                    body = ifCondition.Body;
+                    emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                    break;
+
+                case ForSyntax @for:
+                    body = @for.Body;
+                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(resourceSymbol.Name, @for, input: null));
+                    break;
             }
 
             emitter.EmitProperty("type", typeReference.FullyQualifiedType);
@@ -326,9 +332,7 @@ namespace Bicep.Core.Emit
             }
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
-            // dependsOn is currently not allowed as a top-level resource property in bicep
-            // we will need to revisit this and probably merge the two if we decide to allow it
-            this.EmitDependsOn(memoryWriter, resourceSymbol, emitter);
+            this.EmitDependsOn(memoryWriter, resourceSymbol, emitter, body);
 
             memoryWriter.WriteEndObject();
         }
@@ -354,12 +358,28 @@ namespace Bicep.Core.Emit
                     throw new ArgumentException("Disallowed interpolation in module parameter");
                 }
 
+                // we can't just call EmitObjectProperties here because the ObjectSyntax is flatter than the structure we're generating
+                // because nested deployment parameters are objects with a single value property
                 memoryWriter.WritePropertyName(keyName);
+                memoryWriter.WriteStartObject();
+                if (propertySyntax.Value is ForSyntax @for)
                 {
-                    memoryWriter.WriteStartObject();
-                    emitter.EmitProperty("value", propertySyntax.Value);
-                    memoryWriter.WriteEndObject();
+                    // the value is a for-expression
+                    // write a single property copy loop
+                    emitter.EmitProperty("copy", () =>
+                    {
+                        memoryWriter.WriteStartArray();
+                        emitter.EmitCopyObject("value", @for, @for.Body, "value");
+                        memoryWriter.WriteEndArray();
+                    });
                 }
+                else
+                {
+                    // the value is not a for-expression - can emit normally
+                    emitter.EmitProperty("value", propertySyntax.Value);
+                }
+
+                memoryWriter.WriteEndObject();
             }
 
             memoryWriter.WriteEndObject();
@@ -370,10 +390,17 @@ namespace Bicep.Core.Emit
             memoryWriter.WriteStartObject();
 
             var body = moduleSymbol.DeclaringModule.Value;
-            if (body is IfConditionSyntax ifCondition)
+            switch (body)
             {
-                body = ifCondition.Body;
-                emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                case IfConditionSyntax ifCondition:
+                    body = ifCondition.Body;
+                    emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                    break;
+
+                case ForSyntax @for:
+                    body = @for.Body;
+                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null));
+                    break;
             }
 
             emitter.EmitProperty("type", NestedDeploymentResourceType);
@@ -433,12 +460,12 @@ namespace Bicep.Core.Emit
                 memoryWriter.WriteEndObject();
             }
 
-            this.EmitDependsOn(memoryWriter, moduleSymbol, emitter);
+            this.EmitDependsOn(memoryWriter, moduleSymbol, emitter, body);
 
             memoryWriter.WriteEndObject();
         }
 
-        private void EmitDependsOn(JsonTextWriter memoryWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter)
+        private void EmitDependsOn(JsonTextWriter memoryWriter, DeclaredSymbol declaredSymbol, ExpressionEmitter emitter, SyntaxBase newContext)
         {
             var dependencies = context.ResourceDependencies[declaredSymbol];
             if (!dependencies.Any())
@@ -449,21 +476,41 @@ namespace Bicep.Core.Emit
             memoryWriter.WritePropertyName("dependsOn");
             memoryWriter.WriteStartArray();
             // need to put dependencies in a deterministic order to generate a deterministic template
-            foreach (var dependency in dependencies.OrderBy(x => x.Name))
+            foreach (var dependency in dependencies.OrderBy(x => x.Resource.Name))
             {
-                switch (dependency)
+                switch (dependency.Resource)
                 {
                     case ResourceSymbol resourceDependency:
+                        if (resourceDependency.IsCollection && dependency.IndexExpression == null)
+                        {
+                            // dependency is on the entire resource collection
+                            // write the name of the resource collection as the dependency
+                            memoryWriter.WriteValue(resourceDependency.DeclaringResource.Name.IdentifierName);
+
+                            break;
+                        }
+
                         if (!resourceDependency.DeclaringResource.IsExistingResource())
                         {
-                            emitter.EmitResourceIdReference(resourceDependency);
+                            emitter.EmitResourceIdReference(resourceDependency, dependency.IndexExpression, newContext);
                         }
+
                         break;
                     case ModuleSymbol moduleDependency:
-                        emitter.EmitResourceIdReference(moduleDependency);
+                        if (moduleDependency.IsCollection && dependency.IndexExpression == null)
+                        {
+                            // dependency is on the entire module collection
+                            // write the name of the module collection as the dependency
+                            memoryWriter.WriteValue(moduleDependency.DeclaringModule.Name.IdentifierName);
+
+                            break;
+                        }
+                        
+                        emitter.EmitResourceIdReference(moduleDependency, dependency.IndexExpression, newContext);
+                        
                         break;
                     default:
-                        throw new InvalidOperationException($"Found dependency '{dependency.Name}' of unexpected type {dependency.GetType()}");
+                        throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
                 }
             }
             memoryWriter.WriteEndArray();

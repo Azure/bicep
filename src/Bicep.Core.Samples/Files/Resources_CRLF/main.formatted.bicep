@@ -265,3 +265,70 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
   name: 'extension3'
   scope: existing1
 }
+
+/*
+  valid loop cases
+*/
+var storageAccounts = [
+  {
+    name: 'one'
+    location: 'eastus2'
+  }
+  {
+    name: 'two'
+    location: 'westus'
+  }
+]
+
+// just a storage account loop
+resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
+  name: account.name
+  location: account.location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
+// basic nested loop
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for j in range(0, 4): {
+      // #completionTest(0,1,2,3,4,5,6) -> subnetIdAndProperties
+      name: 'subnet-${i}-${j}'
+    }]
+  }
+}]
+
+// duplicate identifiers within the loop are allowed
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
+  name: 'vnet-${i}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+
+// duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
+var canHaveDuplicatesAcrossScopes = 'hello'
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
+  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+  properties: {
+    subnets: [for i in range(0, 4): {
+      name: 'subnet-${i}-${i}'
+    }]
+  }
+}]
+
+// duplicate in global and multiple loop scopes are allowed (inner hides the outer)
+var duplicatesEverywhere = 'hello'
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
+  name: 'vnet-${duplicatesEverywhere}'
+  properties: {
+    subnets: [for duplicatesEverywhere in range(0, 4): {
+      name: 'subnet-${duplicatesEverywhere}'
+    }]
+  }
+}]
